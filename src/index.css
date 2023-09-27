@@ -1,0 +1,8 @@
+/* purgecss start ignore */
+@import 'tailwindcss/base';
+/* purgecss end ignore */
+@import 'tailwindcss/utilities';
+
+body {
+    @apply bg-white dark:bg-black text-black dark:text-white text-center;
+}
