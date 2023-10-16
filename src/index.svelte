@@ -2,60 +2,86 @@
 	import EmojiDisplay from './EmojiDisplay.svelte';
 	import DonateButton from './DonateButton.svelte';
 	import ContactForm from './ContactForm.svelte';
+	import ErrorModal from './ErrorModal.svelte';
+	import MailTemplate from './MailTemplate.svelte';
 	import { fade } from 'svelte/transition';
-  
+	import { modalMessage } from './stores.js'; 
+
+	function setModalMessage(message) {
+		modalMessage.set(message);  // Directly set the store value
+	}
+
 	let darkMode = localStorage.getItem('darkMode') === 'dark';
 	let showResult = false;
 	let emojiSummary = '';
 	let showForm = false;
-  
+
 	function toggleDarkMode() {
-        darkMode = !darkMode;
-        localStorage.setItem('darkMode', darkMode ? 'dark' : 'light');
-    }
-  
-	function showContactForm() {
-	  showForm = true;
+		darkMode = !darkMode;
+		localStorage.setItem('darkMode', darkMode ? 'dark' : 'light');
 	}
-  </script>
-  
-  <main class:dark={darkMode} class="container mx-auto flex flex-col justify-center items-center h-screen">
+
+	function showContactForm() {
+		showForm = true;
+	}
+</script>
+
+<svelte:head>
+<title>Keymoji - High securely Emoji Password Generator</title>
+<meta name="description" content="Generate passwords using emojis. Safe, fun, and innovative.">
+<!-- Other meta tags -->
+</svelte:head>
+
+{#if $modalMessage && $modalMessage.trim() !== ''}
+	<ErrorModal />
+{/if}
+
+<main class:dark={darkMode} class="container mx-auto flex flex-col justify-center items-center h-screen overflow-auto touch-none z-10">
 	<h1 class="text-5xl font-semibold text-center mb-2 dark:text-white">
-	  <a href="/">Keymoji</a><span class="text-xs absolute">v0.1</span>
+	<a href="/">Keymoji</a><span class="text-xs absolute">v0.1</span>
 	</h1>
 	<h2 class="md:w-1/3 w-80 text-sm text-center mb-8 dark:text-white">
-	  Emoji Passwort Generator
+	Emoji Passwort Generator
 	</h2>
-	<h2 class="md:w-1/3 w-80 z-50 text-sm text-center mb-4 dark:text-white">
-	  Click "Story" for your emoji tale 📖🌀, "Random" is self-explaining 🎯😜. After generating, it's saved to your clipboard! 📋✨
+	<h2 class="md:w-1/3 w-80 text-sm text-center mb-4 dark:text-white z-10">
+	Click "Story" for your AI emoji tale 📖🌀<br> "Random" is self-explanatory 🎯😜.<br>
+	After generating, it's saved to your clipboard! 📋✨
 	</h2>
-  
-	<div class="neumorphic pl-5 pr-5 pb-5 w-80 md:w-1/3 rounded-xl bg-creme dark:bg-aubergine backdrop-opacity-60 backdrop-blur">
-	  {#if showForm}
-		<ContactForm />
-	  {:else}
-		<EmojiDisplay />
-	  {/if}
-	</div>
-  
-	<p class="md:w-1/3 w-80 text-xs text-center mt-4 dark:text-white">
-	  🚫IMPORTANT: Your data will not be forwarded! 🚫👢.<br>Got a question or a cool suggestion?<br><span class="font-bold cursor-pointer" on:click={showContactForm}>Send us a message! 💌🙏🏽</span>
-	</p>
-  
-	<button
-	  class="bg-blue transition transform hover:scale-105 fixed top-4 right-4 py-2 px-3 rounded-full" on:click={toggleDarkMode}>
-	  {darkMode ? '🌙' : '☀️'}
-	</button>
-  
-	{#if showResult}
-	  <div class="neumorphic fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-gray-600 dark:text-white" in:fade out:fade>
-		Passwort: <br />
-		{emojiSummary}
-	  </div>
+
+	<div class="neumorphic pl-5 pr-5 pb-5 w-80 md:w-1/3 rounded-xl bg-creme dark:bg-aubergine backdrop-opacity-60 backdrop-blur md:max-w-lg">
+	{#if showForm}
+		<ContactForm setModalMessage={setModalMessage} />
+	{:else}
+		<EmojiDisplay setModalMessage={setModalMessage} />
 	{/if}
-  
+	</div>
+
+	<p class="md:w-1/3 w-80 text-xs text-center mt-4 dark:text-white">
+		Got a question or a cool suggestion?<br><a href="#contact" class="font-bold cursor-pointer" on:click={showContactForm}>Send me a message! 💌🙏🏽</a>
+	</p>
+
+	<!-- Login Bereich -->
+	<div class="fixed top-4 left-4 flex items-center space-x-2">
+		<div class="p-2 rounded-full bg-white shadow-md transition transform hover:scale-105 py-2 px-4 rounded-full">
+			<span class="text-gray-800 font-semibold">L</span> <!-- Dies repräsentiert den Initial-Avatar. "L" kann durch den Initialen des Nutzers ersetzt werden. -->
+		</div>
+		<a href="/login" class="dark:text-white text-black hover:text-blue-700 hover:underline">Login</a>
+	</div>
+
+	<button class="bg-blue transition transform hover:scale-105 fixed top-4 right-4 py-2 px-3 rounded-full" on:click={toggleDarkMode}>
+		{darkMode ? '🌙' : '☀️'}
+	</button>
+
+	{#if showResult}
+	<div class="neumorphic fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-gray-600 dark:text-white" in:fade out:fade>
+		{emojiSummary}
+	</div>
+	{/if}
+
 	<DonateButton />
-  </main>
+</main>
+
+<MailTemplate />
 
 <style>
 	main.dark {

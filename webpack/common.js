@@ -1,5 +1,6 @@
 const path = require('path');
 const { paths, plugins } = require('./utils');
+const webpack = require('webpack'); // Importiere webpack
 
 module.exports = {
     entry: {
@@ -34,5 +35,4 @@ module.exports = {
         extensions: ['.mjs', '.js', '.svelte'],
         mainFields: ['svelte', 'browser', 'module', 'main']
     },
-    plugins: plugins.common
 };
