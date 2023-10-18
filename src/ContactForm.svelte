@@ -14,7 +14,7 @@
 
   // Webhook-URL für den N8N-Workflow
   const proxyURL = 'https://cors-anywhere.herokuapp.com/';
-  const webhookUrl = 'https://n8n.chooomedia.com/webhook-test/xn--moji-pb73c-mail';
+  const webhookUrl = 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-mail';
 
   function generateCaptcha() {
     const { answer: generatedAnswer, captcha } = VanillaCaptcha(

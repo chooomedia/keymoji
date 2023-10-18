@@ -3,7 +3,7 @@
 	import DonateButton from './DonateButton.svelte';
 	import ContactForm from './ContactForm.svelte';
 	import ErrorModal from './ErrorModal.svelte';
-	import MailTemplate from './MailTemplate.svelte';
+	import LoginMenu from './LoginMenu.svelte';
 	import { fade } from 'svelte/transition';
 	import { modalMessage } from './stores.js'; 
 
@@ -60,13 +60,7 @@
 		Got a question or a cool suggestion?<br><a href="#contact" class="font-bold cursor-pointer" on:click={showContactForm}>Send me a message! 💌🙏🏽</a>
 	</p>
 
-	<!-- Login Bereich -->
-	<div class="fixed top-4 left-4 flex items-center space-x-2">
-		<div class="p-2 rounded-full bg-white shadow-md transition transform hover:scale-105 py-2 px-4 rounded-full">
-			<span class="text-gray-800 font-semibold">L</span> <!-- Dies repräsentiert den Initial-Avatar. "L" kann durch den Initialen des Nutzers ersetzt werden. -->
-		</div>
-		<a href="/login" class="dark:text-white text-black hover:text-blue-700 hover:underline">Login</a>
-	</div>
+	<LoginMenu />
 
 	<button class="bg-blue transition transform hover:scale-105 fixed top-4 right-4 py-2 px-3 rounded-full" on:click={toggleDarkMode}>
 		{darkMode ? '🌙' : '☀️'}
@@ -80,8 +74,6 @@
 
 	<DonateButton />
 </main>
-
-<MailTemplate />
 
 <style>
 	main.dark {
