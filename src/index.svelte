@@ -5,6 +5,7 @@
 	import ErrorModal from './ErrorModal.svelte';
 	import LoginMenu from './LoginMenu.svelte';
 	import EraseLocalstorage from './EraseLocalstorage.svelte';
+	import Header from './Header.svelte';
 	import { fade } from 'svelte/transition';
 	import { modalMessage } from './stores.js';
 	import { Router, Route, Link } from 'svelte-routing';
@@ -42,11 +43,7 @@
 {/if}
 
 <main class:dark={darkMode} class="container mx-auto flex flex-col justify-center items-center h-screen py-5 overflow-auto touch-none z-10">
-	<h1 class="text-5xl font-semibold text-center mb-2 dark:text-white">
-		<Router>
-			<Link to="/">Keymoji</Link><span class="text-xs absolute">v0.1</span>
-		</Router>
-	</h1>
+	<Header />
 	<h2 class="md:w-1/3 w-80 text-sm text-center mb-8 dark:text-white">
 	Emoji Passwort Generator
 	</h2>
