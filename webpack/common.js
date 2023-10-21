@@ -1,6 +1,5 @@
 const path = require('path');
-const { paths, plugins } = require('./utils');
-const webpack = require('webpack'); // Importiere webpack
+const { paths } = require('./utils');
 
 module.exports = {
     entry: {
@@ -10,7 +9,6 @@ module.exports = {
         rules: [
             {
                 test: /\.svelte$/,
-                exclude: /node_modules/,
                 use: {
                     loader: 'svelte-loader',
                     options: {

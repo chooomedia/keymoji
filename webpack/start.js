@@ -1,6 +1,6 @@
 const { merge } = require('webpack-merge');
 const common = require('./common');
-const { server, paths, plugins } = require('./utils');
+const { paths, plugins } = require('./utils');
 
 module.exports = merge(common, {
   mode: 'development',

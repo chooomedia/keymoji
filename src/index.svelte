@@ -4,8 +4,10 @@
 	import ContactForm from './ContactForm.svelte';
 	import ErrorModal from './ErrorModal.svelte';
 	import LoginMenu from './LoginMenu.svelte';
+	import EraseLocalstorage from './EraseLocalstorage.svelte';
 	import { fade } from 'svelte/transition';
-	import { modalMessage } from './stores.js'; 
+	import { modalMessage } from './stores.js';
+	import { Router, Route, Link } from 'svelte-routing';
 
 	function setModalMessage(message) {
 		modalMessage.set(message);  // Directly set the store value
@@ -41,7 +43,9 @@
 
 <main class:dark={darkMode} class="container mx-auto flex flex-col justify-center items-center h-screen py-5 overflow-auto touch-none z-10">
 	<h1 class="text-5xl font-semibold text-center mb-2 dark:text-white">
-	<a href="/">Keymoji</a><span class="text-xs absolute">v0.1</span>
+		<Router>
+			<Link to="/">Keymoji</Link><span class="text-xs absolute">v0.1</span>
+		</Router>
 	</h1>
 	<h2 class="md:w-1/3 w-80 text-sm text-center mb-8 dark:text-white">
 	Emoji Passwort Generator
@@ -61,13 +65,15 @@
 	</div>
 
 	<p class="md:w-1/3 w-80 text-xs text-center mt-4 dark:text-white">
+		<Router>
 		{#if showForm}
-		Click on below 👇 to get back<br>
-		<a href="/" class="font-bold cursor-pointer" title="back to main view">Back to main view 🔙</a>
+			Click on below 👇 to get back<br>
+			<Link to="/" class="font-bold cursor-pointer">Back to main view 🔙</Link>
 		{:else}
-		Got a question or a cool suggestion?<br>
-		<a href="#contact" class="font-bold cursor-pointer" on:click={showContactForm}>Send me a message! 💌🙏🏽</a>
+			Got a question or a cool suggestion?<br>
+			<Link to="/contactform" class="font-bold cursor-pointer" on:click={showContactForm}>Send me a message! 💌🙏🏽</Link>
 		{/if}
+		</Router>
 	</p>
 
 	<LoginMenu />
@@ -81,6 +87,8 @@
 		{emojiSummary}
 	</div>
 	{/if}
+
+	<EraseLocalstorage />
 
 	<DonateButton />
 </main>

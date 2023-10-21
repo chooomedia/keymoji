@@ -150,7 +150,7 @@
 <div class="w-full max-w-lg pt-4">
   <div class="flex flex-wrap mb-3">
     <div class="w-full md:w-1/3 px-0 py-2">
-      <img src="{emoijSmirkingFace}" class="w-1/3 mx-auto" alt="keymoji emoji smirkingface 1f60f" />
+      <img src="{emoijSmirkingFace}" class="md:w-96 w-1/3 mx-auto" alt="keymoji emoji smirkingface 1f60f" />
     </div>
     <div class="w-full md:w-2/3 md:pl-3 md:pt-5">
       <h2 class="text-3xl font-semibold md:text-left mb-2 dark:text-white">Hi, i'am Chris</h2>
