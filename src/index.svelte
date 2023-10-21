@@ -23,6 +23,9 @@
 
 	function showContactForm() {
 		showForm = true;
+		if (showForm) {
+
+		} 
 	}
 </script>
 
@@ -36,7 +39,7 @@
 	<ErrorModal />
 {/if}
 
-<main class:dark={darkMode} class="container mx-auto flex flex-col justify-center items-center h-screen overflow-auto touch-none z-10">
+<main class:dark={darkMode} class="container mx-auto flex flex-col justify-center items-center h-screen py-5 overflow-auto touch-none z-10">
 	<h1 class="text-5xl font-semibold text-center mb-2 dark:text-white">
 	<a href="/">Keymoji</a><span class="text-xs absolute">v0.1</span>
 	</h1>
@@ -44,7 +47,8 @@
 	Emoji Passwort Generator
 	</h2>
 	<h2 class="md:w-1/3 w-80 text-sm text-center mb-4 dark:text-white z-10">
-	Click "Story" for your AI emoji tale 📖🌀<br> "Random" is self-explanatory 🎯😜.<br>
+	Click "Story" for your AI emoji tale 📖🌀<br> 
+	"Random" is self-explanatory 🎯😜.<br>
 	After generating, it's saved to your clipboard! 📋✨
 	</h2>
 
@@ -57,7 +61,13 @@
 	</div>
 
 	<p class="md:w-1/3 w-80 text-xs text-center mt-4 dark:text-white">
-		Got a question or a cool suggestion?<br><a href="#contact" class="font-bold cursor-pointer" on:click={showContactForm}>Send me a message! 💌🙏🏽</a>
+		{#if showForm}
+		Click on below 👇 to get back<br>
+		<a href="/" class="font-bold cursor-pointer" title="back to main view">Back to main view 🔙</a>
+		{:else}
+		Got a question or a cool suggestion?<br>
+		<a href="#contact" class="font-bold cursor-pointer" on:click={showContactForm}>Send me a message! 💌🙏🏽</a>
+		{/if}
 	</p>
 
 	<LoginMenu />

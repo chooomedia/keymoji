@@ -47,16 +47,30 @@
     }
   }
 
-  onMount(generateRandomEmojis);
+  onMount(() => {
+    checkAndResetDailyLimit();
+    generateRandomEmojis();
+  });
 
   function generateRandomEmojis() {
+    if (isDailyLimitReached()) {
+      modalMessage.set('Sorry, you have reached your daily limit of requests 😔');
+      return;
+    }
+
     randomEmojis = getRandomEmojis(emojiCount);
     copyToClipboard(randomEmojis.join(' '));
     modalMessage.set('Success, copied into your Clipboard 💾');
     showTextArea = false;
+
+    incrementDailyRequestCount();
   }
 
   async function generateEmojis() {
+    if (isDailyLimitReached()) {
+      modalMessage.set('Sorry, you have reached your daily limit of requests 😔');
+      return;
+    }
     if (!storyInput.trim()) {
       showTextArea = true;
       return;
@@ -79,6 +93,8 @@
       console.log (error);
       modalMessage.set('Oops, something went wrong 🤖');
     }
+
+    incrementDailyRequestCount();
   }
 
   function getRandomEmojis(count) {
@@ -116,11 +132,43 @@
       generateEmojis();
     }
   }
+
+  function setDailyRequestCount(count) {
+    localStorage.setItem('dailyRequestCount', count);
+  }
+
+  function getDailyRequestCount() {
+    return localStorage.getItem('dailyRequestCount') || 0;
+  }
+
+  function resetDailyRequestCount() {
+    setDailyRequestCount(0);
+  }
+
+  function incrementDailyRequestCount() {
+    const currentCount = getDailyRequestCount();
+    setDailyRequestCount(currentCount + 1);
+  }
+
+  function checkAndResetDailyLimit() {
+    const storedDate = localStorage.getItem('storedDate');
+    const currentDate = new Date().toDateString();
+
+    if (storedDate !== currentDate) {
+      resetDailyRequestCount();
+      localStorage.setItem('storedDate', currentDate);
+    }
+  }
+
+  function isDailyLimitReached() {
+    const currentCount = parseInt(getDailyRequestCount(), 10); // Vergewissern Sie sich, dass Sie einen Integer-Wert erhalten.
+    return currentCount >= 4;
+  }
 </script>
 
 <div id="emoji-keyword-generator" class="neumorphic flex flex-col space-y-4 rounded-xl">
   {#if randomEmojis}
-  <div id="emoji-display" class="flex flex-row justify-center items-center transform scale-125 rounded-full shadow-md transition text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-2 pt-2 md:pb-1 pb-1 border-4 border-gray z-40">
+  <div id="emoji-display" class="flex flex-row justify-center items-center transform scale-125 rounded-full shadow-md transition text-white bg-black gap-2 md:px-0 px-3 mb-4 pt-1 md:pb-1 pb-1 border-4 border-gray z-40">
     <div class="mt-1 md:mt-0">
       {#each randomEmojis.filter(isVisible) as emoji (emoji)}
         <span class="text-m md:text-2xl" in:slide={{ duration: 300 }}>
@@ -138,7 +186,7 @@
   </div>
 
   {#if showTextArea}
-    <textarea bind:value={storyInput} placeholder="🤔 Share a beautiful memory in a sentence..." class="neumorphic p-4 w-full rounded-2xl text-gray-dark border-2 border-gray-light dark:border-aubergine-dark" on:keydown={handleTextareaKeydown} minlength="40"></textarea>
+    <textarea bind:value={storyInput} placeholder="🤔 Share a beautiful memory in a sentence..." class="p-4 w-full rounded-2xl text-gray-dark" on:keydown={handleTextareaKeydown} minlength="40"></textarea>
     <button on:click={clearInput} class="neumorphic bg-gray-light dark:bg-aubergine-dark text-gray-dark dark:text-white transition transform hover:scale-105 py-3 pt-4 rounded-full shadow-md">
       ✖️ Clear
     </button>

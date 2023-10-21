@@ -8,8 +8,8 @@
   modalMessage.subscribe(value => {
     if (value) {
       showMessage = true;
-      let duration = value.split(' ').length * 250;
-      duration = duration > 2800 ? 2800 : duration;
+      let duration = value.split(' ').length * 240;
+      duration = duration > 2400 ? 2400 : duration;
 
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
@@ -26,9 +26,9 @@
 </script>
 
 {#if showMessage}
-<div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-95 pb-10" transition:fade={{ duration: 300 }}>
+<div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-95 pb-8" transition:fade={{ duration: 300 }}>
     <div class="relative bg-transparent text-center z-50">
-      <h1 class="text-white text-2xl font-bold">
+      <h1 class="text-white md:text-2xl text-xl font-bold">
         {$modalMessage}
       </h1>
     </div>

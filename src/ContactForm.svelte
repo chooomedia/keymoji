@@ -11,6 +11,7 @@
   let answer;
   let userInput = '';
   let optinWebhook;
+  let emoijSmirkingFace = './images/keymoji-smirking-face_1f60f.gif';
 
   // Webhook-URL für den N8N-Workflow
   const proxyURL = 'https://cors-anywhere.herokuapp.com/';
@@ -18,7 +19,7 @@
 
   function generateCaptcha() {
     const { answer: generatedAnswer, captcha } = VanillaCaptcha(
-      4, 110, 40, "#FFF", "Bold 20px Ubuntu", "#777", "#777", 12, false, false
+      4, 90, 30, "#FFF", "Bold 18px Ubuntu", "#777", "#777", 12, false, false
     );
     captchaImageSrc = captcha;
     answer = generatedAnswer;
@@ -146,25 +147,35 @@
   });
 </script>
 
-<div class="w-full max-w-lg pt-9">
-  <div class="flex flex-wrap -mx-3 mb-4">
+<div class="w-full max-w-lg pt-4">
+  <div class="flex flex-wrap mb-3">
+    <div class="w-full md:w-1/3 px-0 py-2">
+      <img src="{emoijSmirkingFace}" class="w-1/3 mx-auto" alt="keymoji emoji smirkingface 1f60f" />
+    </div>
+    <div class="w-full md:w-2/3 md:pl-3 md:pt-5">
+      <h2 class="text-3xl font-semibold md:text-left mb-2 dark:text-white">Hi, i'am Chris</h2>
+      <p class="text-sm text-left dark:text-white">Frontend Developer and i love to design and code userfriendly Websites with Svelte, Vue and WordPress. Don't hesitate and send me a message if you like.</p>
+    </div>
+  </div>
+  <hr class="md:w-11/12 mx-auto h-px mt-2 mb-7 bg-gray border-0 bg-gray-light dark:bg-gray">
+  <div class="flex flex-wrap -mx-3 mb-4 mt-2">
     <div class="w-full md:w-1/2 px-3 mb-4 md:mb-0">
-      <input class="appearance-none block w-full text-gray-dark border-2 border-gray-light dark:border-aubergine-dark rounded-2xl py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="name" type="text" bind:value={name} placeholder="🧑🏻 Your Name"/>
+      <input class="appearance-none block w-full text-gray-dark rounded-2xl py-3 px-4 md:mb-3 leading-tight focus:outline-none focus:bg-white" id="name" type="text" bind:value={name} placeholder="🧑🏻 Your Name"/>
     </div>
     <div class="w-full md:w-1/2 px-3">
-      <input class="appearance-none block w-full text-gray-dark border-2 border-gray-light dark:border-aubergine-dark rounded-2xl py-3 px-4 leading-tight focus:outline-none focus:bg-white" id="email" type="email" bind:value={email} placeholder="📧 Your Email" />
+      <input class="appearance-none block w-full text-gray-dark rounded-2xl py-3 px-4 leading-tight focus:outline-none focus:bg-white" id="email" type="email" bind:value={email} placeholder="📧 Your Email" />
     </div>
   </div>
   <div class="flex flex-wrap -mx-3 mb-4">
     <div class="w-full px-3">
-      <textarea class="appearance-none block w-full text-gray-dark border-2 border-gray-light dark:border-aubergine-dark rounded-2xl py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="message" bind:value={message} placeholder="✍🏻 Your Message"></textarea>
+      <textarea class="appearance-none block w-full text-gray-dark rounded-2xl py-3 px-4 md:mb-3 leading-tight focus:outline-none focus:bg-white" id="message" bind:value={message} placeholder="✍🏻 Your Message"></textarea>
     </div>
   </div>
 
-  <div class="flex flex-wrap -mx-3 mb-4">
+  <div class="flex flex-wrap -mx-3 md:mb-4">
     <div class="w-full md:w-2/3 px-3 mb-4 md:mb-0 flex">
-      <input id="captcha-response" class="appearance-none block w-full text-gray-dark rounded-l-2xl py-3 px-4 leading-tight focus:outline-none focus:bg-white" type="text" bind:value={userInput} placeholder="🗝️ Captcha" />
-        <img id="captcha-container" src={captchaImageSrc} alt="Code" />
+      <input id="captcha-response" class="appearance-none block md:w-full w-1/2 text-gray-dark rounded-l-2xl py-3 px-4 leading-tight focus:outline-none focus:bg-white" type="text" bind:value={userInput} placeholder="🗝️ Captcha" />
+        <img id="captcha-container" class="w-1/2" src={captchaImageSrc} alt="Code" />
       <button on:click={generateCaptcha} class="bg-blue text-white p-2 rounded-r-full">
         🔄
       </button>
