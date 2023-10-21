@@ -134,11 +134,11 @@
   }
 
   function setDailyRequestCount(count) {
-    localStorage.setItem('dailyRequestCount', count);
+    localStorage.setItem('dailyRequestCount', count.toString()); // Konvertieren Sie count in einen String, bevor Sie ihn speichern
   }
 
   function getDailyRequestCount() {
-    return localStorage.getItem('dailyRequestCount') || 0;
+    return parseInt(localStorage.getItem('dailyRequestCount') || '0', 10); // Holen Sie sich den Wert aus dem localStorage und konvertieren Sie ihn in eine Zahl
   }
 
   function resetDailyRequestCount() {
@@ -155,13 +155,13 @@
     const currentDate = new Date().toDateString();
 
     if (storedDate !== currentDate) {
-      resetDailyRequestCount();
-      localStorage.setItem('storedDate', currentDate);
+        resetDailyRequestCount();
+        localStorage.setItem('storedDate', currentDate);
     }
   }
 
   function isDailyLimitReached() {
-    const currentCount = parseInt(getDailyRequestCount(), 10); // Vergewissern Sie sich, dass Sie einen Integer-Wert erhalten.
+    const currentCount = getDailyRequestCount(); // Da getDailyRequestCount jetzt eine Zahl zurückgibt, ist keine zusätzliche Konvertierung erforderlich
     return currentCount >= 4;
   }
 </script>
