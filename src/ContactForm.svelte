@@ -11,8 +11,14 @@
   let answer;
   let userInput = '';
   let optinWebhook;
-  let emoijSmirkingFace = './images/keymoji-smirking-face_1f60f.gif';
+  let emoijSmirkingFace = './keymoji-smirking-face_1f60f.gif';
+  let whileLoading = "😏";
+  let isImageLoaded = false;
 
+  function handleImageLoad() {
+    isImageLoaded = true;
+  }
+  
   // Webhook-URL für den N8N-Workflow
   const proxyURL = 'https://cors-anywhere.herokuapp.com/';
   const webhookUrl = 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-mail';
@@ -148,11 +154,14 @@
 </script>
 
 <div class="w-full max-w-lg pt-4">
-  <div class="flex flex-wrap mb-3">
+  <div class="flex flex-wrap mb-3 items-center">
     <div class="w-full md:w-1/3 px-0 py-2">
-      <img src="{emoijSmirkingFace}" class="md:w-96 w-1/3 mx-auto" alt="keymoji emoji smirkingface 1f60f" />
+      {#if !isImageLoaded}
+      <div class="text-9xl">{whileLoading}</div>
+      {/if}
+      <img src="{emoijSmirkingFace}" alt="keymoji emoji smirkingface 1f60f" class="md:w-90 w-96 mx-auto" while-loading="{whileLoading}" on:load={handleImageLoad} />
     </div>
-    <div class="w-full md:w-2/3 md:pl-3 md:pt-5">
+    <div class="w-full md:w-2/3 md:pl-3 md:pt-3">
       <h2 class="text-3xl font-semibold md:text-left mb-2 dark:text-white">Hi, i'am Chris</h2>
       <p class="text-sm text-left dark:text-white">Frontend Developer and i love to design and code userfriendly Websites with Svelte, Vue and WordPress. Don't hesitate and send me a message if you like.</p>
     </div>

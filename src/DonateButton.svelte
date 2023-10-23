@@ -17,7 +17,7 @@
     </button>
 
     {#if showMenu}
-    <div transition:fly={{ duration: 200 }} style="bottom: 64px;" class="fixed md:right-12 right-4 rounded-t-xl rounded-b-xl shadow-lg bg-creme dark:bg-aubergine ring-1 ring-black ring-opacity-5 z-10 overflow-hidden">
+    <div transition:fly={{ duration: 200 }} style="bottom: 64px;" class="fixed md:right-12 right-4 rounded-t-xl shadow-lg bg-creme dark:bg-aubergine ring-1 ring-black ring-opacity-5 z-10 overflow-hidden">
         <div role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
             <a href="https://www.paypal.me/choooomedia/1" target="_blank" class="text-black dark:text-white block px-4 py-2 text-sm w-full text-left hover:bg-gray rounded-t-xl" role="menuitem">
                 PayPal.me

@@ -48,12 +48,12 @@
 	Emoji Passwort Generator
 	</h2>
 	<h2 class="md:w-1/3 w-80 text-sm text-center mb-4 dark:text-white z-10">
-	Click "Story" for your AI emoji tale 📖🌀<br> 
-	"Random" is self-explanatory 🎯😜.<br>
-	After generating, it's saved to your clipboard! 📋✨
+	Click "Story" for your AI emoji tale 📖<br> 
+	"Random" is self-explanatory 😜.<br>
+	After generating, it's saved to your clipboard! 📋
 	</h2>
 
-	<div class="neumorphic pl-5 pr-5 pb-5 w-80 md:w-1/3 rounded-xl bg-creme dark:bg-aubergine backdrop-opacity-60 backdrop-blur md:max-w-lg">
+	<div class="neumorphic pl-5 pr-5 pb-5 w-80 md:w-1/5 rounded-xl bg-creme dark:bg-aubergine backdrop-opacity-60 backdrop-blur md:max-w-lg">
 	{#if showForm}
 		<ContactForm setModalMessage={setModalMessage} />
 	{:else}
@@ -65,10 +65,10 @@
 		<Router>
 		{#if showForm}
 			Click on below 👇 to get back<br>
-			<Link to="/" class="font-bold cursor-pointer">Back to main view 🔙</Link>
+			<Link to="/emojidisplay" class="font-bold cursor-pointer">Back to main view 🔙</Link>
 		{:else}
 			Got a question or a cool suggestion?<br>
-			<Link to="/contactform" class="font-bold cursor-pointer" on:click={showContactForm}>Send me a message! 💌🙏🏽</Link>
+			<Link to="/contactform" class="font-bold cursor-pointer" on:click={showContactForm}>Send me a message! 💌</Link>
 		{/if}
 		</Router>
 	</p>

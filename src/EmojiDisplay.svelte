@@ -6,7 +6,7 @@
 
   let storyInput = '';
   let randomEmojis = [];
-  let emojiCount = 7;
+  let emojiCount = 4;
   let showTextArea = false;
 
   const proxyURL = 'https://cors-anywhere.herokuapp.com/';
@@ -181,12 +181,13 @@
 
   <div class="flex flex-auto md:w-100 space-x-4 my-1 pt-1 dark:text-white">
     <label for="emojiCount" class="text-xl">Level</label>
-    <input type="range" id="emojiCount" min="7" max="12" bind:value={emojiCount} class="md:w-100 w-screen mt-3 appearance-none rounded-full bg-gray h-2 transition-all" />
+    <input type="range" id="emojiCount" min="4" max="10" bind:value={emojiCount} class="md:w-100 w-screen mt-3 appearance-none rounded-full bg-gray h-2 transition-all" />
     <span class="text-xl">{emojiCount}</span>
   </div>
 
   {#if showTextArea}
     <textarea bind:value={storyInput} placeholder="🤔 Share a beautiful memory in a sentence..." class="p-4 w-full rounded-2xl text-gray-dark" on:keydown={handleTextareaKeydown} minlength="40"></textarea>
+    <p class="text-sm text-gray text-left" aria-label="information">🚀 Emoji magic via n8n webhooks and AI! ✨ Data's like beach sand - it doesn't stay. Questions? Look above and click on "send me a message" 📩</p>
     <button on:click={clearInput} class="neumorphic bg-gray-light dark:bg-aubergine-dark text-gray-dark dark:text-white transition transform hover:scale-105 py-3 pt-4 rounded-full shadow-md">
       ✖️ Clear
     </button>
