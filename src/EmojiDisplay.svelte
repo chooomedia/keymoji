@@ -3,6 +3,9 @@
   import { onMount } from 'svelte';
   import emojis from '../public/emojisArray.json';
   import { modalMessage, successfulStoryRequests } from './stores.js';
+  import EmojiToUnicode from './EmojiToUnicode.svelte';
+
+  export let showEmojiCodes;
 
   let storyInput = '';
   let randomEmojis = [];
@@ -164,40 +167,44 @@
     const currentCount = getDailyRequestCount(); // Da getDailyRequestCount jetzt eine Zahl zurückgibt, ist keine zusätzliche Konvertierung erforderlich
     return currentCount >= 4;
   }
+
+  function getEmojiDisplay(emoji) {
+    return showEmojiCodes ? emoji.codePointAt(0).toString(16) : emoji;
+  }
 </script>
 
-<div id="emoji-keyword-generator" class="neumorphic flex flex-col space-y-4 rounded-xl">
+<div id="emoji-keyword-generator" class="neumorphic flex flex-col space-t-6 rounded-xl relative">
   {#if randomEmojis}
-  <div id="emoji-display" class="flex flex-row justify-center items-center transform scale-125 rounded-full shadow-md transition text-white bg-black gap-2 md:px-0 px-3 mb-4 pt-1 md:pb-1 pb-1 border-4 border-gray z-40">
+  <div id="emoji-display" class="flex flex-row justify-center items-center transform scale-125 rounded-full shadow-md transition text-white bg-black gap-2 md:px-0 px-3 mb-4 pt-1 md:pb-1 pb-1 border-4 border-gray z-30">
     <div class="mt-1 md:mt-0">
-      {#each randomEmojis.filter(isVisible) as emoji (emoji)}
+      {#each randomEmojis.filter(isVisible) as emoji (emoji) }
         <span class="text-m md:text-2xl" in:slide={{ duration: 300 }}>
-          {emoji}
+          {getEmojiDisplay(emoji)} <!-- Verwende die getEmojiDisplay-Funktion, um das richtige Display zu bestimmen -->
         </span>
       {/each}
     </div>
   </div>
   {/if}
 
-  <div class="flex flex-auto md:w-100 space-x-4 my-1 pt-1 dark:text-white">
-    <label for="emojiCount" class="text-xl">Level</label>
+  <div class="flex flex-auto items-baseline md:w-100 space-x-4 my-1 pt-1 dark:text-white">
+    <label for="emojiCount">Level</label>
     <input type="range" id="emojiCount" min="4" max="10" bind:value={emojiCount} class="md:w-100 w-screen mt-3 appearance-none rounded-full bg-gray h-2 transition-all" />
-    <span class="text-xl">{emojiCount}</span>
+    <span>{emojiCount}</span>
   </div>
 
   {#if showTextArea}
     <textarea bind:value={storyInput} placeholder="🤔 Share a beautiful memory in a sentence..." class="p-4 w-full rounded-2xl text-gray-dark" on:keydown={handleTextareaKeydown} minlength="40"></textarea>
-    <p class="text-sm text-gray text-left" aria-label="information">🚀 Emoji magic via n8n webhooks and AI! ✨ Data's like beach sand - it doesn't stay. Questions? Look above and click on "send me a message" 📩</p>
-    <button on:click={clearInput} class="neumorphic bg-gray-light dark:bg-aubergine-dark text-gray-dark dark:text-white transition transform hover:scale-105 py-3 pt-4 rounded-full shadow-md">
+    <p class="text-sm text-gray text-left py-3" aria-label="information">🚀 Emoji magic via n8n webhooks and AI! ✨ Data's like beach sand - it doesn't stay. Questions? Look above and click on "send me a message" 📩</p>
+    <button on:click={clearInput} class="bg-gray-light dark:bg-aubergine-dark text-gray-dark dark:text-white transition duration-300 ease-in-out transform hover:scale-105 py-3 pt-4 rounded-full">
       ✖️ Clear
     </button>
   {/if}
 
-  <div class="flex space-x-4 my-4 pb-3">
-    <button on:click={() => generateEmojis(true)} class="neumorphic bg-blue hover:scale-105 transition transform hover:scale-105 w-1/2 text-white py-3 pt-4 rounded-full shadow-md">
+  <div class="flex space-x-4 mt-3 mb-2">
+    <button on:click={() => generateEmojis(true)} class="bg-blue transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-white py-3 pt-4 rounded-full shadow-md">
       📕 Story
     </button>
-    <button on:click={generateRandomEmojis} class="neumorphic bg-yellow hover:scale-105 transition transform hover:scale-105 w-1/2 text-black py-3 pt-4 rounded-full shadow-md">
+    <button on:click={generateRandomEmojis} class="bg-yellow transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-black py-3 pt-4 rounded-full shadow-md">
       *️⃣ Random
     </button>
   </div>

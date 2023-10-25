@@ -11,7 +11,7 @@
   let answer;
   let userInput = '';
   let optinWebhook;
-  let emoijSmirkingFace = './keymoji-smirking-face_1f60f.gif';
+  let emoijSmirkingFace = './images/keymoji-smirking-face_1f60f.gif';
   let whileLoading = "😏";
   let isImageLoaded = false;
 
@@ -153,7 +153,7 @@
   });
 </script>
 
-<div class="w-full max-w-lg pt-4">
+<div class="w-full pt-4">
   <div class="flex flex-wrap mb-3 items-center">
     <div class="w-full md:w-1/3 px-0 py-2">
       {#if !isImageLoaded}

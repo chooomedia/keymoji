@@ -9,10 +9,10 @@
 </script>
 
 <div class="relative inline-block text-left">
-    <button class="md:block hidden fixed bottom-4 right-4 bg-blue text-white py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none z-20" on:click={toggleMenu}>
+    <button class="md:block hidden fixed bottom-4 right-4 bg-blue text-white py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-20" on:click={toggleMenu}>
         ☕ Buy me a coffee
     </button>
-    <button class="md:hidden block fixed bottom-4 right-4 bg-blue text-white py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none z-20" on:click={toggleMenu}>
+    <button class="md:hidden block fixed bottom-4 right-4 bg-blue text-white py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-20" on:click={toggleMenu}>
         ☕ Donate
     </button>
 
