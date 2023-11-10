@@ -21,8 +21,16 @@ module.exports = merge(common, {
                     'css-loader',
                     'postcss-loader'
                 ]
+            },
+            {
+                test: /\.svelte$/,
+                exclude: /(node_modules)/,
+                use: 'svelte-loader'
             }
         ]
+    },
+    resolve: {
+        conditionNames: ['svelte', 'module', 'main'],
     },
     plugins: plugins.build
 });
