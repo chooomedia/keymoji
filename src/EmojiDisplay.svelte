@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import emojis from '../public/emojisArray.json';
   import { modalMessage, successfulStoryRequests } from './stores.js';
+  import content from './content.js';
   import EmojiToUnicode from './EmojiToUnicode.svelte';
 
   export let showEmojiCodes;
@@ -30,8 +31,8 @@
       });
 
       if (!response.ok) {
-        modalMessage.set('Error, no answer from server 🌀');
-        throw new Error('Failed to generate emoji story.');
+        modalMessage.set(content.en.emojiDisplay.errorMessage);
+        throw new Error(content.en.emojiDisplay.errorMessage);
       }
 
       const data = await response.json();
@@ -45,7 +46,7 @@
       
       return emojis; // Gib die Emojis zurück
     } catch (error) {
-      modalMessage.set('Error, no answer from server 🌀');
+      modalMessage.set(content.en.emojiDisplay.errorStoryMessage);
       throw error;
     }
   }
@@ -57,13 +58,13 @@
 
   function generateRandomEmojis() {
     if (isDailyLimitReached()) {
-      modalMessage.set('Sorry, you have reached your daily limit of requests 😔');
+      modalMessage.set(content.en.emojiDisplay.dailyLimitReachedMessage);
       return;
     }
 
     randomEmojis = getRandomEmojis(emojiCount);
     copyToClipboard(randomEmojis.join(' '));
-    modalMessage.set('Success, copied into your Clipboard 💾');
+    modalMessage.set(content.en.emojiDisplay.successMessage);
     showTextArea = false;
 
     incrementDailyRequestCount();
@@ -71,7 +72,7 @@
 
   async function generateEmojis() {
     if (isDailyLimitReached()) {
-      modalMessage.set('Sorry, you have reached your daily limit of requests 😔');
+      modalMessage.set(content.en.emojiDisplay.dailyLimitReachedMessage);
       return;
     }
     if (!storyInput.trim()) {
@@ -85,16 +86,16 @@
         // Verwende die Server-Antwort, wenn Emojis verfügbar sind
         randomEmojis = response;
         copyToClipboard(randomEmojis.join(' '));
-        modalMessage.set('Success, Emoji story generated 🤖');
+        modalMessage.set(content.en.emojiDisplay.successStoryMessage);
       } else {
         // Andernfalls verwende zufällige Emojis
         randomEmojis = getRandomEmojis(emojiCount);
         copyToClipboard(randomEmojis.join(' '));
-        modalMessage.set('Success, copied into your Clipboard 💾');
+        modalMessage.set(content.en.emojiDisplay.dailyLimitReachedMessage);
       }
     } catch (error) {
       console.log (error);
-      modalMessage.set('Oops, something went wrong 🤖');
+      modalMessage.set(content.en.emojiDisplay.errorMessage);
     }
 
     incrementDailyRequestCount();
@@ -110,7 +111,7 @@
       try {
         await navigator.clipboard.writeText(cleanResult);
       } catch (error) {
-        console.error("Failed to copy to clipboard", error);
+        console.error(content.en.emojiDisplay.errorMessage, error);
       }
     } else {
       const textarea = document.createElement('textarea');
@@ -193,19 +194,19 @@
   </div>
 
   {#if showTextArea}
-    <textarea bind:value={storyInput} placeholder="🤔 Share a beautiful memory in a sentence..." class="p-4 w-full rounded-2xl text-gray-dark" on:keydown={handleTextareaKeydown} minlength="40"></textarea>
-    <p class="text-sm text-gray text-left py-3" aria-label="information">🚀 Emoji magic via n8n webhooks and AI! ✨ Data's like beach sand - it doesn't stay. Questions? Look above and click on "send me a message" 📩</p>
+    <textarea bind:value={storyInput} placeholder="🤔 Share a beautiful memory in a sentence..." class="appearance-none block w-full text-gray-dark rounded-2xl py-3 px-4 md:mb-3 leading-tight transition duration-300 ease-in-out transform dark:bg-aubergine-dark focus:outline-none focus:bg-white" on:keydown={handleTextareaKeydown} minlength="40"></textarea>
+    <p class="text-sm text-gray text-left py-3" aria-label="information">{content.en.emojiDisplay.dataPrivacyProcessingInfo}</p>
     <button on:click={clearInput} class="bg-gray-light dark:bg-aubergine-dark text-gray-dark dark:text-white transition duration-300 ease-in-out transform hover:scale-105 py-3 pt-4 rounded-full">
-      ✖️ Clear
+      {content.en.emojiDisplay.clearButton}
     </button>
   {/if}
 
   <div class="flex space-x-4 mt-3 mb-2">
     <button on:click={() => generateEmojis(true)} class="bg-blue transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-white py-3 pt-4 rounded-full shadow-md">
-      📕 Story
+      {content.en.emojiDisplay.storyButton}
     </button>
     <button on:click={generateRandomEmojis} class="bg-yellow transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-black py-3 pt-4 rounded-full shadow-md">
-      *️⃣ Random
+      {content.en.emojiDisplay.randomButton}
     </button>
   </div>
 </div>

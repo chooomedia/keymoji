@@ -1,40 +1,44 @@
+<script context="module">
+	import TrackingSettings from './widgets/TrackingSettings.svelte';
+	export const Widgets = {
+		"TrackingSettings": TrackingSettings
+	}
+</script>
 <script>
 	import EmojiDisplay from './EmojiDisplay.svelte';
 	import DonateButton from './DonateButton.svelte';
 	import ContactForm from './ContactForm.svelte';
 	import ErrorModal from './ErrorModal.svelte';
 	import LoginMenu from './LoginMenu.svelte';
-	import EraseLocalstorage from './EraseLocalstorage.svelte';
 	import Header from './Header.svelte';
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 	import { modalMessage } from './stores.js';
-	import { Router, Route, Link } from 'svelte-routing';
+	import FixedMenu from './FixedMenu.svelte'; 
+	import { darkMode } from './stores.js';
+	import content from './content.js';
 
 	function setModalMessage(message) {
 		modalMessage.set(message);  // Directly set the store value
 	}
-
-	let darkMode = localStorage.getItem('darkMode') === 'dark';
+	
 	let showResult = false;
 	let emojiSummary = '';
 	let showForm = false;
 	let hieroglyphicEmojisSrc = './images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.png';
-
-	function toggleDarkMode() {
-		darkMode = !darkMode;
-		localStorage.setItem('darkMode', darkMode ? 'dark' : 'light');
-	}
 
 	function showContactForm() {
 		showForm = !showForm;
 	}
 
 	$: bgImage = `background-image: url("${hieroglyphicEmojisSrc}");background-size:16%;`;
+	function toggleDarkMode() {
+		darkMode.update(currentMode => !currentMode);
+	}
 </script>
 
 <svelte:head>
-<title>Keymoji - High securely Emoji Password Generator</title>
-<meta name="description" content="Generate passwords using emojis. Safe, fun, and innovative.">
+<title>{content.en.index.pageTitle}</title>
+<meta name="description" content="{content.en.index.pageDescription}">
 <!-- Other meta tags -->
 </svelte:head>
 
@@ -43,18 +47,15 @@
 {/if}
 
 <main class="hieroglyphemojis" style="{bgImage}">
-	<section class:dark={darkMode} class=" container container mx-auto flex flex-col justify-center items-center h-screen py-5 overflow-auto touch-none z-10">
+	<section class:dark={$darkMode} class="container mx-auto flex flex-col justify-center items-center h-screen py-5 overflow-auto touch-none z-10">
 		<Header />
-		<h2 class="md:w-1/3 w-80 text-sm text-center mb-8 dark:text-white">
-		Emoji Passwort Generator
-		</h2>
 		<h2 class="md:w-1/3 w-80 text-sm text-center mb-4 dark:text-white z-10">
-		Click "Story" for your AI emoji tale 📖<br> 
-		"Random" is self-explanatory 😜.<br>
-		After generating, it's saved to your clipboard! 📋
+		{#each content.en.index.pageInstruction as instruction}
+			<p>{instruction}</p>
+		{/each}
 		</h2>
 
-		<div class="neumorphic pl-5 pr-5 pb-5 w-80 md:w-23r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 backdrop-blur">
+		<div class="neumorphic pl-5 pr-5 pb-5 w-80 md:w-25r rounded-xl backdrop-blur-sm transition duration-300 ease-in-out transform bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 backdrop-blur">
 		{#if showForm}
 			<ContactForm setModalMessage={setModalMessage} />
 		{:else}
@@ -64,19 +65,15 @@
 
 		<p class="md:w-1/3 w-80 text-xs text-center mt-4 dark:text-white">
 			{#if showForm}
-				Click on below 👇 to get back<br>
-				<button class="font-bold cursor-pointer" on:click={showContactForm}>Back to main view 🔙</button>
+				{content.en.index.backToMainText}<br>
+				<button class="font-bold cursor-pointer" on:click={showContactForm}>{content.en.index.backToMainButtonText}</button>
 			{:else}
-				Got a question or a cool suggestion?<br>
-				<button class="font-bold cursor-pointer" on:click={showContactForm}>Send me a message! 💌</button>
+				{content.en.index.contactText}<br>
+				<button class="font-bold cursor-pointer" on:click={showContactForm}>{content.en.index.contactButtonText}</button>
 			{/if}
 		</p>
 
 		<LoginMenu />
-
-		<button class="bg-blue transition transform hover:scale-105 fixed top-4 right-4 py-2 px-3 rounded-full" on:click={toggleDarkMode}>
-			{darkMode ? '🌙' : '☀️'}
-		</button>
 
 		{#if showResult}
 		<div class="neumorphic fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-gray-600 dark:text-white" in:fade out:fade>
@@ -84,9 +81,21 @@
 		</div>
 		{/if}
 
-		<EraseLocalstorage />
-
 		<DonateButton />
+
+		<FixedMenu align={'bottom'}>
+			<div slot="modal" let:selectedLink={selectedLink}>
+				<svelte:component this={Widgets[selectedLink.dialogContent]}/>
+			</div>
+		
+			<div class="fixed-menu-icon" slot="item" let:link={link} in:fly={{y: 57, duration: 300, delay: link?.id	 * 100}}>
+				<span class="index-label" aria-label="menu-index-{link?.id}">
+					{link?.id}
+				</span>
+				<img style="width: 28px; height: 28px;" src={link?.imgSrc} alt={link?.alt} />
+				{link?.title}
+			</div>
+		</FixedMenu>
 	</section>
 </main>
 
