@@ -33,7 +33,7 @@ module.exports = merge(common, {
                         },
                     },
                 ],
-            },
+            }
         ]
     },
     resolve: {
