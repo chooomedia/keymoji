@@ -39,8 +39,6 @@ package-lock.json
 # Bower dependency directory (https://bower.io/)
 bower_components
 
-.package-lock.json
-
 # node-waf configuration
 .lock-wscript
 
