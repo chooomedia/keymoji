@@ -2,9 +2,9 @@
   import { fly } from 'svelte/transition';
   import { onMount } from 'svelte';
   import emojis from '../public/emojisArray.json';
-  import { modalMessage, successfulStoryRequests, isModalVisible } from './stores.js';
+  import { modalMessage, successfulStoryRequests, isModalVisible, isDisabled } from './stores.js';
   import content from './content.js';
-  import EmojiToUnicode from './EmojiToUnicode.svelte';
+  //import EmojiToUnicode from './EmojiToUnicode.svelte';
 
   export let showEmojiCodes;
 
@@ -13,7 +13,9 @@
   let emojiCount = 5;
   let showTextArea = false;
   let shouldAnimateEmojis;
-  let isStoryMode = false; // Neue Variable für den Story-Modus
+  let isStoryMode = false;
+
+  const disableDurationMs = 3000;
 
   let isDevelopment = process.env.NODE_ENV === 'development';
   const baseTargetURL = 'https://n8n.chooomedia.com/webhook/generate-story';
@@ -61,17 +63,28 @@
   });
 
   function generateRandomEmojis() {
-    if (isDailyLimitReached()) {
+    if ($isDisabled || isDailyLimitReached()) {
+      if ('vibrate' in navigator) {
+          navigator.vibrate(200);
+      }
+      isDisabled.set(true);
       showErrorMessage(content.en.emojiDisplay.dailyLimitReachedMessage);
       return;
     }
 
     randomEmojis = getRandomEmojis(emojiCount);
+    temporarilyDisableButton();
+
     copyToClipboard(randomEmojis.join(' '));
     showSuccessMessage(content.en.emojiDisplay.successMessage);
     showTextArea = false;
 
     incrementDailyRequestCount();
+  }
+
+  function temporarilyDisableButton() {
+    isDisabled.set(true);
+    setTimeout(() => isDisabled.set(false), disableDurationMs);
   }
 
   async function generateEmojis() {
@@ -248,8 +261,14 @@
       </button>
     {/if}
     
-    <button on:click={generateRandomEmojis} class="bg-yellow text-black shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full">
+    <button
+      on:click={generateRandomEmojis}   
+      class="bg-yellow text-black shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full"
+      class:opacity-50={$isDisabled}
+      class:cursor-not-allowed={$isDisabled}
+      disabled={$isDisabled}>
       {content.en.emojiDisplay.randomButton}
     </button>
+
   </div>
 </div>

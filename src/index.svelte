@@ -2,7 +2,6 @@
 	import EmojiDisplay from './EmojiDisplay.svelte';
 	import ContactForm from './ContactForm.svelte';
 	import ErrorModal from './ErrorModal.svelte';
-	import LoginMenu from './LoginMenu.svelte';
 	import Header from './Header.svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { modalMessage } from './stores.js';
@@ -49,10 +48,9 @@
 	<ErrorModal />
 {/if}
 
-<main class="hieroglyphemojis" style="{bgImage}">
+<main class:dark={$darkMode} class="hieroglyphemojis" style="{bgImage}">
+	<Header />
 	<section class:dark={$darkMode} class="container mx-auto flex flex-col justify-center items-center min-h-screen py-5 overflow-auto touch-none z-10">
-		<Header />
-
 		<div class="neumorphic pl-5 pr-5 pb-5 w-80 md:w-25r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 backdrop-blur transition duration-300 ease-in-out transform ">
 		{#if showForm}
 			<ContactForm setModalMessage={setModalMessage} />
@@ -70,8 +68,6 @@
 				{/if}
 			</p>
 		</div>
-
-		<LoginMenu />
 
 		{#if showResult}
 		<div class="neumorphic fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-gray-600 dark:text-white" in:fade out:fade>

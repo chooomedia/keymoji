@@ -72,7 +72,7 @@
   {/if}
 
   <nav id="fixed-menu" class="bg-creme dark:bg-aubergine rounded-full transition duration-300 ease-in-out transform {align}-0 flex  {showMenu ? 'opened' : 'closed'}" aria-label="Main">
-    <div class="flex space-x-4 border-4 border-creme dark:border-aubergine rounded-full">
+    <div class="flex space-x-3 border-4 border-creme dark:border-aubergine rounded-full">
       <EraseLocalstorage />
       <button on:click={toggleDarkMode} class="relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
         {#if $darkMode}🌙{:else}🌞{/if}

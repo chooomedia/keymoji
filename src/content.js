@@ -24,7 +24,7 @@ export const content = {
     successStoryMessage: "Success, Emoji story generated 🤖",
     errorStoryMessage: "Error, no answer from server 🌀",
     emojiDisplayTitle: "Emoji Password Generator",
-    dataPrivacyProcessingInfo: "🚀 Emoji magic via n8n webhooks and AI! ✨ Data's like beach sand - it doesn't stay. Questions? Look above and click on 'send me a message' 📩",
+    dataPrivacyProcessingInfo: "🚀 Emoji magic via n8n webhooks and AI! ✨ Data's like beach sand - it doesn't stay.",
     clearButton: "✖️ Clear",
     storyButton: "📝 Story",
     storyButtonClicked: "📩 Send story",
