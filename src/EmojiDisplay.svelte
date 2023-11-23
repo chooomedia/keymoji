@@ -1,8 +1,8 @@
 <script>
-  import { slide } from 'svelte/transition';
+  import { fly } from 'svelte/transition';
   import { onMount } from 'svelte';
   import emojis from '../public/emojisArray.json';
-  import { modalMessage, successfulStoryRequests } from './stores.js';
+  import { modalMessage, successfulStoryRequests, isModalVisible } from './stores.js';
   import content from './content.js';
   import EmojiToUnicode from './EmojiToUnicode.svelte';
 
@@ -10,11 +10,15 @@
 
   let storyInput = '';
   let randomEmojis = [];
-  let emojiCount = 4;
+  let emojiCount = 5;
   let showTextArea = false;
+  let shouldAnimateEmojis;
+  let isStoryMode = false; // Neue Variable für den Story-Modus
 
+  let isDevelopment = process.env.NODE_ENV === 'development';
+  const baseTargetURL = 'https://n8n.chooomedia.com/webhook/generate-story';
+  const targetURL = isDevelopment ? proxyURL + baseTargetURL : baseTargetURL;
   const proxyURL = 'https://cors-anywhere.herokuapp.com/';
-  const targetURL = 'https://n8n.chooomedia.com/webhook/generate-story';
 
   async function fetchEmojiStoryFromN8N(storyInput) {
     try {
@@ -31,10 +35,10 @@
       });
 
       if (!response.ok) {
-        modalMessage.set(content.en.emojiDisplay.errorMessage);
+        showErrorMessage(content.en.emojiDisplay.errorMessage);
         throw new Error(content.en.emojiDisplay.errorMessage);
       }
-
+      
       const data = await response.json();
       const emojis = data.text.split(' '); // Trenne die Emojis von der Server-Antwort
 
@@ -43,10 +47,10 @@
         ...requests,
         { text: data.text, emojis: emojis.join(' ') }, // Verwende das geteilte Emoji-Array
       ]);
-      
       return emojis; // Gib die Emojis zurück
     } catch (error) {
-      modalMessage.set(content.en.emojiDisplay.errorStoryMessage);
+      console.log(error);
+      showErrorMessage(content.en.emojiDisplay.errorStoryMessage);
       throw error;
     }
   }
@@ -58,13 +62,13 @@
 
   function generateRandomEmojis() {
     if (isDailyLimitReached()) {
-      modalMessage.set(content.en.emojiDisplay.dailyLimitReachedMessage);
+      showErrorMessage(content.en.emojiDisplay.dailyLimitReachedMessage);
       return;
     }
 
     randomEmojis = getRandomEmojis(emojiCount);
     copyToClipboard(randomEmojis.join(' '));
-    modalMessage.set(content.en.emojiDisplay.successMessage);
+    showSuccessMessage(content.en.emojiDisplay.successMessage);
     showTextArea = false;
 
     incrementDailyRequestCount();
@@ -72,7 +76,7 @@
 
   async function generateEmojis() {
     if (isDailyLimitReached()) {
-      modalMessage.set(content.en.emojiDisplay.dailyLimitReachedMessage);
+      showErrorMessage(content.en.emojiDisplay.dailyLimitReachedMessage);
       return;
     }
     if (!storyInput.trim()) {
@@ -86,19 +90,29 @@
         // Verwende die Server-Antwort, wenn Emojis verfügbar sind
         randomEmojis = response;
         copyToClipboard(randomEmojis.join(' '));
-        modalMessage.set(content.en.emojiDisplay.successStoryMessage);
+        showSuccessMessage(content.en.emojiDisplay.successStoryMessage);
+        isModalVisible.set(true);
+        shouldAnimateEmojis = true;
       } else {
         // Andernfalls verwende zufällige Emojis
         randomEmojis = getRandomEmojis(emojiCount);
         copyToClipboard(randomEmojis.join(' '));
-        modalMessage.set(content.en.emojiDisplay.dailyLimitReachedMessage);
+        showErrorMessage(content.en.emojiDisplay.dailyLimitReachedMessage);
       }
     } catch (error) {
-      console.log (error);
-      modalMessage.set(content.en.emojiDisplay.errorMessage);
+      console.log(error);
+      showErrorMessage(content.en.emojiDisplay.errorMessage);
     }
 
     incrementDailyRequestCount();
+  }
+
+  function showErrorMessage(message) {
+    modalMessage.set(message);
+  }
+
+  function showSuccessMessage(message) {
+    modalMessage.set(message);
   }
 
   function getRandomEmojis(count) {
@@ -172,40 +186,69 @@
   function getEmojiDisplay(emoji) {
     return showEmojiCodes ? emoji.codePointAt(0).toString(16) : emoji;
   }
+
+  function toggleStoryMode() {
+    isStoryMode = !isStoryMode;
+    if (isStoryMode) {
+      showTextArea = true; // Zeige das Formular, wenn der Story-Modus aktiviert wird
+    }
+  }
+
+  $: if ($isModalVisible) {
+    // Trigger die Animationen, nachdem das Modal angezeigt wurde
+    setTimeout(() => {
+      shouldAnimateEmojis = true;
+    }, 1000); // Verzögern Sie die Animation um eine Sekunde (oder gewünschte Zeit)
+  }
 </script>
 
 <div id="emoji-keyword-generator" class="neumorphic flex flex-col space-t-6 rounded-xl relative">
-  {#if randomEmojis}
-  <div id="emoji-display" class="flex flex-row justify-center items-center transform scale-125 rounded-full shadow-md transition text-white bg-black gap-2 md:px-0 px-3 mb-4 pt-1 md:pb-1 pb-1 border-4 border-gray z-30">
+  <div id="emoji-display" class="flex flex-row h-14 justify-center items-center transform scale-125 rounded-full shadow-md transition text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray z-30">
     <div class="mt-1 md:mt-0">
-      {#each randomEmojis.filter(isVisible) as emoji (emoji) }
-        <span class="text-m md:text-2xl" in:slide={{ duration: 300 }}>
-          {getEmojiDisplay(emoji)} <!-- Verwende die getEmojiDisplay-Funktion, um das richtige Display zu bestimmen -->
+      {#if randomEmojis && shouldAnimateEmojis}
+      {#each randomEmojis.filter(isVisible) as emoji, index (emoji)}
+        <span class="text-m md:text-2xl" in:fly={{y: 100, duration: 300, delay: index * 300}}>
+          {getEmojiDisplay(emoji, index)}
         </span>
       {/each}
+      {/if}
     </div>
   </div>
-  {/if}
+
+  <div class="flex flex-wrap justify-center items-center">
+    <h2 class="mt-1 text-xs text-center dark:text-white z-10">
+      {#each content.en.index.pageInstruction as instruction}
+        <p>{instruction}</p>
+      {/each}
+    </h2>  
+  </div>
 
   <div class="flex flex-auto items-baseline md:w-100 space-x-4 my-1 pt-1 dark:text-white">
     <label for="emojiCount">Level</label>
-    <input type="range" id="emojiCount" min="4" max="10" bind:value={emojiCount} class="md:w-100 w-screen mt-3 appearance-none rounded-full bg-gray h-2 transition-all" />
+    <input type="range" id="emojiCount" min="4" max="9" bind:value={emojiCount} class="md:w-100 w-screen mt-3 appearance-none rounded-full bg-gray h-2 transition-all" />
     <span>{emojiCount}</span>
   </div>
 
   {#if showTextArea}
     <textarea bind:value={storyInput} placeholder="🤔 Share a beautiful memory in a sentence..." class="appearance-none block w-full text-gray-dark rounded-2xl py-3 px-4 md:mb-3 leading-tight transition duration-300 ease-in-out transform dark:bg-aubergine-dark focus:outline-none focus:bg-white" on:keydown={handleTextareaKeydown} minlength="40"></textarea>
     <p class="text-sm text-gray text-left py-3" aria-label="information">{content.en.emojiDisplay.dataPrivacyProcessingInfo}</p>
-    <button on:click={clearInput} class="bg-gray-light dark:bg-aubergine-dark text-gray-dark dark:text-white transition duration-300 ease-in-out transform hover:scale-105 py-3 pt-4 rounded-full">
+    <button on:click={clearInput} class="bg-white dark:bg-aubergine-dark text-gray-dark dark:text-white transition duration-300 ease-in-out transform hover:scale-105 px-3 py-3 rounded-full">
       {content.en.emojiDisplay.clearButton}
     </button>
   {/if}
 
   <div class="flex space-x-4 mt-3 mb-2">
-    <button on:click={() => generateEmojis(true)} class="bg-blue transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-white py-3 pt-4 rounded-full shadow-md">
-      {content.en.emojiDisplay.storyButton}
-    </button>
-    <button on:click={generateRandomEmojis} class="bg-yellow transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-black py-3 pt-4 rounded-full shadow-md">
+    {#if isStoryMode}
+      <button on:click={() => generateEmojis(true)} class="bg-blue transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-white py-3 rounded-full">
+        {content.en.emojiDisplay.storyButtonClicked}
+      </button>
+    {:else}
+      <button on:click={toggleStoryMode} class="bg-blue transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-white py-3 rounded-full">
+        {content.en.emojiDisplay.storyButton}
+      </button>
+    {/if}
+    
+    <button on:click={generateRandomEmojis} class="bg-yellow transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-black py-3 rounded-full shadow-md">
       {content.en.emojiDisplay.randomButton}
     </button>
   </div>

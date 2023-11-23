@@ -1,21 +1,20 @@
 <script>
   import { fade } from 'svelte/transition';
-  import { modalMessage } from './stores.js';
+  import { modalMessage, isModalVisible } from './stores.js';
 
+  $: message = $modalMessage;
   let showMessage = false;
-  let timeoutId;
-
-  $: message = $modalMessage; // Hier den Store-Wert in einer Variable speichern
 
   modalMessage.subscribe(value => {
     if (value) {
       showMessage = true;
-      let duration = value.split(' ').length * 240;
-      duration = duration > 2400 ? 2400 : duration;
+      isModalVisible.set(true);
+      let duration = value.split(' ').length * 180;
+      duration = duration > 1800 ? 1800 : duration;
 
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        closeMessage();
+      setTimeout(() => {
+        showMessage = false;
+        isModalVisible.set(false);
       }, duration);
     }
   });
@@ -23,14 +22,15 @@
   function closeMessage() {
     showMessage = false;
     modalMessage.set('');
-    clearTimeout(timeoutId);
+    isModalVisible.set(false);
   }
+
 </script>
 
 {#if showMessage}
 <div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-95 pb-4" transition:fade={{ duration: 300 }}>
     <div class="relative bg-transparent text-center z-50">
-      <h1 class="text-white md:text-2xl text-xl font-bold">
+      <h1 class="text-white md:text-2xl text-xl font-bold p-2">
         {message} <!-- Hier die Variable verwenden -->
       </h1>
     </div>
