@@ -239,16 +239,16 @@
 
   <div class="flex space-x-4 mt-3 mb-2">
     {#if isStoryMode}
-      <button on:click={() => generateEmojis(true)} class="bg-blue transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-white py-3 rounded-full">
+      <button on:click={() => generateEmojis(true)} class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full">
         {content.en.emojiDisplay.storyButtonClicked}
       </button>
     {:else}
-      <button on:click={toggleStoryMode} class="bg-blue transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-white py-3 rounded-full">
+      <button on:click={toggleStoryMode} class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full">
         {content.en.emojiDisplay.storyButton}
       </button>
     {/if}
     
-    <button on:click={generateRandomEmojis} class="bg-yellow transition duration-300 ease-in-out transform hover:scale-105 w-1/2 text-black py-3 rounded-full shadow-md">
+    <button on:click={generateRandomEmojis} class="bg-yellow text-black shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full">
       {content.en.emojiDisplay.randomButton}
     </button>
   </div>

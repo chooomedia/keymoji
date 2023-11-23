@@ -54,7 +54,6 @@
 		<Header />
 
 		<div class="neumorphic pl-5 pr-5 pb-5 w-80 md:w-25r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 backdrop-blur transition duration-300 ease-in-out transform ">
-
 		{#if showForm}
 			<ContactForm setModalMessage={setModalMessage} />
 		{:else}

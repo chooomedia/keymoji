@@ -32,7 +32,7 @@
         "style-loader": "2.0.0",
         "svelte-loader": "^3.1.9",
         "svelte-preprocess": "^4.7.3",
-        "svelte-routing": "^2.5.0",
+        "svelte-routing": "^2.7.0",
         "tailwindcss": "^2.2.19",
         "webpack": "^5.88.2",
         "webpack-cli": "^5.1.4",

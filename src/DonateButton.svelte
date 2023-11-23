@@ -10,10 +10,10 @@
 </script>
 
 <div class="relative inline-block text-left">
-    <button class="md:block hidden fixed bottom-4 right-4 bg-blue text-white py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-20 border-4 border-creme dark:border-aubergine" on:click={toggleMenu}>
+    <button class="md:block hidden fixed bottom-4 right-4 bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-20 border-4 border-creme dark:border-aubergine" on:click={toggleMenu}>
         {content.en.donateButton.text}
     </button>
-    <button class="md:hidden block fixed bottom-4 right-4 bg-blue text-white py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-20 border-4 border-creme dark:border-aubergine" on:click={toggleMenu}>
+    <button class="md:hidden block fixed bottom-4 right-4 bg-powder text-black py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-20 border-4 border-creme dark:border-aubergine" on:click={toggleMenu}>
         {content.en.donateButton.textMobile}
     </button>
 
