@@ -18,7 +18,8 @@ module.exports = merge(common, {
     hot: true, // Aktiviert Hot Module Replacement (HMR)
     liveReload: true, // Aktiviert Live-Reload
     open: true, // Öffnet die Anwendung automatisch im Standardbrowser
-    port: 8080, // Port, auf dem der Dev Server läuft
+    port: 8080,
+    host: '192.168.178.21', // Port, auf dem der Dev Server läuft
   },
   output: {
     filename: '[name].js',

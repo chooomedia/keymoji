@@ -1,19 +1,12 @@
-<script context="module">
-	import TrackingSettings from './widgets/TrackingSettings.svelte';
-	export const Widgets = {
-		"TrackingSettings": TrackingSettings
-	}
-</script>
 <script>
 	import EmojiDisplay from './EmojiDisplay.svelte';
-	import DonateButton from './DonateButton.svelte';
 	import ContactForm from './ContactForm.svelte';
 	import ErrorModal from './ErrorModal.svelte';
 	import LoginMenu from './LoginMenu.svelte';
 	import Header from './Header.svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { modalMessage } from './stores.js';
-	import FixedMenu from './FixedMenu.svelte'; 
+	import FixedMenu from './widgets/FixedMenu.svelte'; 
 	import { darkMode } from './stores.js';
 	import content from './content.js';
 
@@ -37,9 +30,19 @@
 </script>
 
 <svelte:head>
-<title>{content.en.index.pageTitle}</title>
-<meta name="description" content="{content.en.index.pageDescription}">
-<!-- Other meta tags -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{content.en.index.pageTitle}</title>
+  <meta name="description" content="{content.en.index.pageDescription}">
+  <meta name="keywords" content="{content.en.index.pageKeywords}">
+  <meta name="author" content="Keymoji Team">
+  <!-- Open Graph / Social Media Tags -->
+  <meta property="og:title" content="{content.en.index.pageTitle}">
+  <meta property="og:description" content="{content.en.index.pageDescription}">
+  <meta property="og:image" content="URL_zum_Keymoji_Logo">
+  <meta property="og:url" content="https://🔑moji.ws/images/keymoji-c-matt-frontend-developer-javascript-php-svelte-wordpress-creator-smirking-face_1f60f.gif">
+  <meta property="og:type" content="website">
+  <!-- Weitere relevante Tags -->
 </svelte:head>
 
 {#if $modalMessage && $modalMessage.trim() !== ''}
@@ -47,31 +50,27 @@
 {/if}
 
 <main class="hieroglyphemojis" style="{bgImage}">
-	<section class:dark={$darkMode} class="container mx-auto flex flex-col justify-center items-center h-screen py-5 overflow-auto touch-none z-10">
+	<section class:dark={$darkMode} class="container mx-auto flex flex-col justify-center items-center min-h-screen py-5 overflow-auto touch-none z-10">
 		<Header />
-		<h2 class="md:w-1/3 w-80 text-sm text-center mb-4 dark:text-white z-10">
-		{#each content.en.index.pageInstruction as instruction}
-			<p>{instruction}</p>
-		{/each}
-		</h2>
 
-		<div class="neumorphic pl-5 pr-5 pb-5 w-80 md:w-25r rounded-xl backdrop-blur-sm transition duration-300 ease-in-out transform bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 backdrop-blur">
+		<div class="neumorphic pl-5 pr-5 pb-5 w-80 md:w-25r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 backdrop-blur transition duration-300 ease-in-out transform ">
+
 		{#if showForm}
 			<ContactForm setModalMessage={setModalMessage} />
 		{:else}
 			<EmojiDisplay setModalMessage={setModalMessage} />
 		{/if}
-		</div>
 
-		<p class="md:w-1/3 w-80 text-xs text-center mt-4 dark:text-white">
-			{#if showForm}
-				{content.en.index.backToMainText}<br>
-				<button class="font-bold cursor-pointer" on:click={showContactForm}>{content.en.index.backToMainButtonText}</button>
-			{:else}
-				{content.en.index.contactText}<br>
-				<button class="font-bold cursor-pointer" on:click={showContactForm}>{content.en.index.contactButtonText}</button>
-			{/if}
-		</p>
+			<p class="text-xs text-center mt-2 pt-2 pb-1 px-2 rounded-xl dark:text-white bg-creme-80 dark:bg-aubergine-80">
+				{#if showForm}
+					{content.en.index.backToMainText}<br>
+					<button class="font-bold cursor-pointer" on:click={showContactForm}>{content.en.index.backToMainButtonText}</button>
+				{:else}
+					{content.en.index.contactText}<br>
+					<button class="font-bold cursor-pointer" on:click={showContactForm}>{content.en.index.contactButtonText}</button>
+				{/if}
+			</p>
+		</div>
 
 		<LoginMenu />
 
@@ -81,21 +80,7 @@
 		</div>
 		{/if}
 
-		<DonateButton />
-
-		<FixedMenu align={'bottom'}>
-			<div slot="modal" let:selectedLink={selectedLink}>
-				<svelte:component this={Widgets[selectedLink.dialogContent]}/>
-			</div>
-		
-			<div class="fixed-menu-icon" slot="item" let:link={link} in:fly={{y: 57, duration: 300, delay: link?.id	 * 100}}>
-				<span class="index-label" aria-label="menu-index-{link?.id}">
-					{link?.id}
-				</span>
-				<img style="width: 28px; height: 28px;" src={link?.imgSrc} alt={link?.alt} />
-				{link?.title}
-			</div>
-		</FixedMenu>
+		<FixedMenu align={'bottom'} />
 	</section>
 </main>
 
