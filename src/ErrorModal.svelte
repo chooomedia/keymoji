@@ -34,6 +34,6 @@
         {message} <!-- Hier die Variable verwenden -->
       </h1>
     </div>
-    <button class="bg-blue transition transform hover:scale-105 fixed top-4 right-4 py-3 px-5 rounded-full text-white border-4 border-aubergine" on:click={closeMessage}>✖</button>
+    <button class="bg-powder text-white transition transform hover:scale-105 fixed top-4 right-4 py-3 px-5 rounded-full border-4 border-aubergine" on:click={closeMessage}>✖</button>
 </div>
 {/if}

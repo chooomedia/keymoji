@@ -194,12 +194,12 @@
     <div class="w-full md:w-2/3 px-3 mb-4 md:mb-0 flex">
       <input id="captcha-response" class="appearance-none block md:w-full w-1/2 text-gray-dark rounded-l-2xl pt-4 pb-3 px-4 leading-tight transition duration-300 ease-in-out transform dark:bg-aubergine-dark focus:outline-none focus:bg-white" type="text" bind:value={userInput} placeholder="{content.en.contactForm.captchaLabel}" />
         <img id="captcha-container" class="w-1/2" src={captchaImageSrc} alt="Code" />
-      <button on:click={generateCaptcha} class="bg-blue text-white p-2 rounded-r-full">
+      <button on:click={generateCaptcha} class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder p-2 rounded-r-full">
         {content.en.contactForm.regenerateCaptchaButton}
       </button>
     </div>
     <div class="w-full md:w-1/3 px-3 mb-4 md:mb-0">
-      <button on:click={handleSubmit} class="w-full bg-blue text-white pt-4 pb-3 rounded-full transition transform hover:scale-105">
+      <button on:click={handleSubmit} class="w-full bg-powder text-black dark:bg-aubergine-dark dark:text-powder pt-4 pb-3 rounded-full transition transform hover:scale-105">
         {content.en.contactForm.sendButton}
       </button>
     </div>
