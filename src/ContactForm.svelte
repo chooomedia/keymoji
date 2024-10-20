@@ -1,26 +1,24 @@
 <script>
   import { onMount } from 'svelte';
-  import VanillaCaptcha, { validate } from 'vanilla-captcha';
+  //import VanillaCaptcha from 'vanilla-captcha';
   import { modalMessage } from './stores.js';
   import content from './content.js';
 
-  // State für Formularfelder und Fehler
-  let name = '';
-  let email = '';
-  let message = '';
-  let captchaImageSrc = '';
-  let answer;
-  let userInput = '';
-  let emoijSmirkingFace = './images/keymoji-c-matt-frontend-developer-javascript-php-svelte-wordpress-creator-smirking-face_1f60f.gif';
-  let whileLoading = "😏";
-  let isImageLoaded = false;
-  let isMessageSent = false;
+  let name = '',
+      email = '',
+      message = '',
+      captchaImageSrc = '',
+      answer,
+      userInput = '',
+      emoijSmirkingFace = './images/keymoji-c-matt-frontend-developer-javascript-php-svelte-wordpress-creator-smirking-face_1f60f.gif',
+      whileLoading = "😏",
+      isImageLoaded = false,
+      isMessageSent = false;
 
   function handleImageLoad() {
     isImageLoaded = true;
   }
-  
-  // Webhook-URL für den N8N-Workflow
+
   const proxyURL = 'https://cors-anywhere.herokuapp.com/';
   const webhookUrl = 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-mail';
   const webhookOptin = 'https://n8n.chooomedia.com/webhook/optin-keymoji';
@@ -41,7 +39,6 @@
     return isValid;
   }
 
-  // Svelte-Komponente
   async function handleSubmit() {
     if (!validateCaptcha()) return;
 
@@ -65,11 +62,10 @@
       if (result.message === 'Workflow was started') {
         modalMessage.set(content.en.contactForm.successMessage);
         isMessageSent = true;
-        // modalMessage.set(content.en.contactForm.successMessage);
         generateCaptcha();
 
         setTimeout(() => {
-          window.location.href = '/'; // Ändern Sie diese URL entsprechend Ihrer Anwendung
+          window.location.href = '/'; 
         }, 3000);
       } else {
         modalMessage.set(content.en.contactForm.requestErrorMessage);
@@ -78,10 +74,6 @@
       modalMessage.set(content.en.contactForm.errorMessage);
       throw error;
     }
-  }
-
-  function navBack() {
-      if (browser) window.history.back();
   }
 
   function compileEmailTemplate(name, webhookOptin) {
@@ -159,16 +151,13 @@
     email = '';
     message = '';
     userInput = '';
-    isMessageSent = false; // Zurücksetzen des Status
+    isMessageSent = false;
   }
 </script>
 
 <div class="w-full md:pt-4 pt-2">
   <div class="flex flex-wrap md:mt-0 md:mb-4 my-3 md:pt-1 items-center bg-creme-80 dark:bg-aubergine-80 transition rounded-xl pb-2 px-4 ">
     <div class="w-1/4 m-auto md:w-1/3 px-0 py-2">
-      {#if !isImageLoaded}
-      <div class="text-9xl">{whileLoading}</div>
-      {/if}
       <img src="{emoijSmirkingFace}" alt="{content.en.contactForm.smirkingFaceImageAlt}" class="md:w-90 w-96 mx-auto" while-loading="{whileLoading}" on:load={handleImageLoad} />
     </div>
     <div class="w-full md:w-2/3 md:pl-3 md:pt-3">

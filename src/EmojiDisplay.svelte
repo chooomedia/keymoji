@@ -16,15 +16,15 @@
   let isStoryMode = false;
 
   const disableDurationMs = 3000;
-
-  let isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env.NODE_ENV === 'development';
   const baseTargetURL = 'https://n8n.chooomedia.com/webhook/generate-story';
-  const targetURL = isDevelopment ? proxyURL + baseTargetURL : baseTargetURL;
+  //const targetURL = isDevelopment ? proxyURL + baseTargetURL : baseTargetURL;
+  const targetURL = 'https://n8n.chooomedia.com/webhook/generate-story';
   const proxyURL = 'https://cors-anywhere.herokuapp.com/';
 
   async function fetchEmojiStoryFromN8N(storyInput) {
     try {
-      const response = await fetch(proxyURL + targetURL, {
+      const response = await fetch(targetURL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,16 +40,15 @@
         showErrorMessage(content.en.emojiDisplay.errorMessage);
         throw new Error(content.en.emojiDisplay.errorMessage);
       }
-      
-      const data = await response.json();
-      const emojis = data.text.split(' '); // Trenne die Emojis von der Server-Antwort
 
-      // Speichere die erfolgreiche Story-Anfrage in './stores.js'
+      const data = await response.json();
+      const emojis = data.text.split(' ');
+
       successfulStoryRequests.update((requests) => [
         ...requests,
-        { text: data.text, emojis: emojis.join(' ') }, // Verwende das geteilte Emoji-Array
+        { text: data.text, emojis: emojis.join(' ') },
       ]);
-      return emojis; // Gib die Emojis zurück
+      return emojis;
     } catch (error) {
       console.log(error);
       showErrorMessage(content.en.emojiDisplay.errorStoryMessage);
@@ -243,7 +242,7 @@
   </div>
 
   {#if showTextArea}
-    <textarea bind:value={storyInput} placeholder="🤔 Share a beautiful memory in a sentence..." class="appearance-none block w-full text-gray-dark rounded-2xl py-3 px-4 md:mb-3 leading-tight transition duration-300 ease-in-out transform dark:bg-aubergine-dark focus:outline-none focus:bg-white" on:keydown={handleTextareaKeydown} minlength="40"></textarea>
+    <textarea bind:value={storyInput} placeholder="🤔 Share a beautiful memory in a sentence..." class="appearance-none block w-full text-gray-dark rounded-2xl py-3 px-4 md:mb-3 leading-tight transition duration-300 ease-in-out transform dark:bg-aubergine-dark dark:text-white focus:outline-none focus:bg-white" on:keydown={handleTextareaKeydown} minlength="40"></textarea>
     <p class="text-sm text-gray text-left py-3" aria-label="information">{content.en.emojiDisplay.dataPrivacyProcessingInfo}</p>
     <button on:click={clearInput} class="bg-white dark:bg-aubergine-dark text-gray-dark dark:text-white transition duration-300 ease-in-out transform hover:scale-105 px-3 py-3 rounded-full">
       {content.en.emojiDisplay.clearButton}
