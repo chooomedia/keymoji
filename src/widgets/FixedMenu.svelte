@@ -18,26 +18,32 @@
 
   function toggleMenu(menuType) {
     if (menuType === 'donate') {
-      showDonateMenu.update(value => !value);  // Toggle Donate Menu
-      showMenu = false;  // Make sure Share Menu is closed
+      showDonateMenu.update(value => !value);
+      showMenu = false;
     } else if (menuType === 'share') {
-      showMenu = !showMenu;  // Toggle Share Menu
-      showDonateMenu.set(false);  // Make sure Donate Menu is closed
+      showMenu = !showMenu;
+      showDonateMenu.set(false);
     }
 
     dispatch('toggleMenu', { menuType });
   }
 
   function selectLink(links, id) {
-    const link = links.find(o => o.id === id);
-    selectedLink = selectedLink === link ? undefined : link;
+    if (links && Array.isArray(links)) {
+      const link = links.find(o => o.id === id);
+      selectedLink = selectedLink === link ? undefined : link;
+    }
   }
 
   function closeAll() {
     selectedLink = undefined;
     showMenu = false;
-    showDonateMenu.set(false); // Sicherstellen, dass der Wert des Stores korrekt zurückgesetzt wird
+    showDonateMenu.set(false);
   }
+
+  // Reaktive Bindungen für Links
+  $: shareLinks = $languageText?.shareButtons?.links || [];
+  $: donateLinks = $languageText?.donateButton?.links || [];
 </script>
 
 {#if showMenu}
@@ -45,9 +51,9 @@
 {/if}
 
 <div id="fixed-menu" class="fixed bottom-4 z-20 justify-between items-center">
-  {#if showMenu}
+  {#if showMenu && shareLinks.length > 0}
     <div class="w-32 md:mx-7 md:ml-8 mx-auto rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-10 pt-2" role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
-      {#each $languageText.shareButtons.links as link (link.id)}
+      {#each shareLinks as link (link.id)}
         <a 
           in:slide={{ y: -5, duration: 400, easing: cubicInOut }} 
           out:slide={{ y: 5, duration: 400, easing: cubicInOut }} 
@@ -58,20 +64,22 @@
           class:active={selectedLink === link} 
           rel={link.rel} 
           title={link.title} 
-          on:click={() => selectLink($languageText.shareButtons.links, link.id)}
+          on:click={() => selectLink(shareLinks, link.id)}
         >
-          <svg class="w-5 h-5 mr-1 transition" viewBox="0 0 24 24" fill="currentColor" alt={link?.alt}>
-            {@html link?.svgContent}
-          </svg>
-          <p class="text-sm text-gray dark:text-white group-hover:text-white">{link?.title}</p>
+          {#if link.svgContent}
+            <svg class="w-5 h-5 mr-1 transition" viewBox="0 0 24 24" fill="currentColor" alt={link.alt || ''}>
+              {@html link.svgContent}
+            </svg>
+          {/if}
+          <p class="text-sm text-gray dark:text-white group-hover:text-white">{link.title || ''}</p>
         </a>
       {/each}
     </div>
   {/if}
 
-  {#if $showDonateMenu}
+  {#if $showDonateMenu && donateLinks.length > 0}
     <div class="w-32 md:mx-7 md:ml-9 mx-auto md:fixed md:right-3 md:bottom-71 rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-10 pt-2" role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
-      {#each $languageText.donateButton.links as dlink (dlink.id)}
+      {#each donateLinks as dlink (dlink.id)}
         <a 
           in:slide={{ y: -5, duration: 400, easing: cubicInOut }} 
           out:slide={{ y: 5, duration: 400, easing: cubicInOut }} 
@@ -82,12 +90,14 @@
           class:active={selectedLink === dlink} 
           rel={dlink.rel} 
           title={dlink.title} 
-          on:click={() => selectLink($languageText.donateButton.links, dlink.id)}
+          on:click={() => selectLink(donateLinks, dlink.id)}
         >
-          <svg class="w-5 h-5 mr-1 transition" viewBox="0 0 32 32" fill="currentColor" alt={dlink?.alt}>
-            {@html dlink?.svgContent}
-          </svg>
-          <p class="text-sm text-gray dark:text-white group-hover:text-white">{dlink?.title}</p>
+          {#if dlink.svgContent}
+            <svg class="w-5 h-5 mr-1 transition" viewBox="0 0 32 32" fill="currentColor" alt={dlink.alt || ''}>
+              {@html dlink.svgContent}
+            </svg>
+          {/if}
+          <p class="text-sm text-gray dark:text-white group-hover:text-white">{dlink.title || ''}</p>
         </a>
       {/each}
     </div>
@@ -103,7 +113,7 @@
         {#if showMenu}💔{:else}❤️{/if}
       </button>
       <button on:click={() => toggleMenu('donate')} class="md:hidden block relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
-        {#if $showDonateMenu}❌{:else}{$languageText.donateButton.textMobile}{/if}
+        {#if $showDonateMenu}❌{:else}{$languageText?.donateButton?.textMobile || '☕'}{/if}
       </button>
     </div>
   </nav>
@@ -111,5 +121,5 @@
 
 <button on:click={() => toggleMenu('donate')} 
   class="md:block hidden fixed bottom-4 right-4 bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-20 border-4 border-creme dark:border-aubergine">
-{#if $showDonateMenu}❌ Close this menu{:else}{$languageText.donateButton.text}{/if}
+  {#if $showDonateMenu}{$languageText?.donateButton?.openText || 'Close'}{:else}{$languageText?.donateButton?.text || 'Donate'}{/if}
 </button>
