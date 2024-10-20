@@ -110,7 +110,7 @@ export const content = {
       },
       {
         id: 3,
-        href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+        href: "https://www.linkedin.com/sharing/share-offsite/?url=https://🔑moji.ws",
         svgContent: "<g fill='currentColor'><path d='m6.5 8c.82843 0 1.5-.67157 1.5-1.5s-.67157-1.5-1.5-1.5-1.5.67157-1.5 1.5.67157 1.5 1.5 1.5z'/><path d='m5 10c0-.55228.44772-1 1-1h1c.55228 0 1 .44771 1 1v8c0 .5523-.44772 1-1 1h-1c-.55228 0-1-.4477-1-1z'/><path d='m11 19h1c.5523 0 1-.4477 1-1v-4.5c0-1.5 3-2.5 3-.5v5.0004c0 .5523.4477.9996 1 .9996h1c.5523 0 1-.4477 1-1v-6c0-2-1.5-3-3.5-3s-2.5 1.5-2.5 1.5v-.5c0-.55229-.4477-1-1-1h-1c-.5523 0-1 .44772-1 1v8c0 .5523.4477 1 1 1z'/><path clip-rule='evenodd' d='m20 1c1.6569 0 3 1.34315 3 3v16c0 1.6569-1.3431 3-3 3h-16c-1.65685 0-3-1.3431-3-3v-16c0-1.65685 1.34315-3 3-3zm0 2c.5523 0 1 .44772 1 1v16c0 .5523-.4477 1-1 1h-16c-.55228 0-1-.4477-1-1v-16c0-.55228.44772-1 1-1z' fill-rule='evenodd'/></g>",
         alt: "share on linkedin",
         title: "Linkedin",

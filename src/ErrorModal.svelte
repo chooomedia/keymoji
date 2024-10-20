@@ -33,6 +33,6 @@
         {message}
       </h1>
     </div>
-    <button class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder transition transform hover:scale-105 fixed top-4 right-4 py-3 px-5 rounded-full border-4 border-aubergine" on:click={closeMessage}>✖</button>
+    <button class="bg-powder dark:bg-aubergine-dark dark:text-powder text-black transition transform hover:scale-105 fixed top-4 right-4 py-3 px-5 rounded-full border-4 border-aubergine" on:click={closeMessage}>✖</button>
 </div>
 {/if}
