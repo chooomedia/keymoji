@@ -34,7 +34,7 @@
           name, 
           email, 
           message,
-          targetEmail: "hey@🔑moji.ws",
+          targetEmail: "hi@🔑moji.ws",
           emailData: compileEmailTemplate(name, webhookOptin),
         }),
       });
