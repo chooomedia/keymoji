@@ -6,8 +6,6 @@
   let name = '',
       email = '',
       message = '',
-      captchaImageSrc = '',
-      answer,
       userInput = '',
       emoijSmirkingFace = './images/keymoji-c-matt-frontend-developer-javascript-php-svelte-wordpress-creator-smirking-face_1f60f.gif',
       whileLoading = "😏",
@@ -22,8 +20,39 @@
   const webhookUrl = 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-mail';
   const webhookOptin = 'https://n8n.chooomedia.com/webhook/optin-keymoji';
 
+  function checkEmailTimeout(email) {
+    const timestamps = JSON.parse(localStorage.getItem('emailTimestamps')) || {};
+    const now = Date.now();
+    const lastSend = timestamps[email];
+    
+    if (lastSend) {
+      const hoursDiff = (now - lastSend) / (1000 * 60 * 60);
+      if (hoursDiff < 96) {
+        const remainingHours = Math.ceil(96 - hoursDiff);
+        return {
+          allowed: false,
+          remainingHours
+        };
+      }
+    }
+    return { allowed: true };
+  }
+
+  function saveEmailTimestamp(email) {
+    const timestamps = JSON.parse(localStorage.getItem('emailTimestamps')) || {};
+    timestamps[email] = Date.now();
+    localStorage.setItem('emailTimestamps', JSON.stringify(timestamps));
+  }
+
   async function handleSubmit() {
     try {
+      const timeoutCheck = checkEmailTimeout(email);
+      if (!timeoutCheck.allowed) {
+        modalMessage.set(content[$currentLanguage].contactForm.timeoutMessage?.replace('{hours}', timeoutCheck.remainingHours) || 
+          `Please wait ${timeoutCheck.remainingHours} hours before sending another message.`);
+        return;
+      }
+
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
@@ -41,6 +70,7 @@
 
       const result = await response.json();
       if (result.message === 'Workflow was started') {
+        saveEmailTimestamp(email);
         modalMessage.set(content[$currentLanguage].contactForm.successMessage);
         isMessageSent = true;
 
