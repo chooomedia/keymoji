@@ -9,7 +9,7 @@
     if (value) {
       showMessage = true;
       isModalVisible.set(true);
-      let duration = value.split(' ').length * 180;
+      let duration = value.split(' ').length * 1800;
       duration = duration > 1800 ? 1800 : duration;
 
       setTimeout(() => {
@@ -24,16 +24,15 @@
     modalMessage.set('');
     isModalVisible.set(false);
   }
-
 </script>
 
 {#if showMessage}
-<div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-95 pb-4" transition:fade={{ duration: 300 }}>
+<div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-95 pb-4" transition:fade={{ duration: 320 }}>
     <div class="relative bg-transparent text-center z-50">
       <h1 class="text-white md:text-2xl text-xl font-bold p-2">
-        {message} <!-- Hier die Variable verwenden -->
+        {message}
       </h1>
     </div>
-    <button class="bg-powder text-white transition transform hover:scale-105 fixed top-4 right-4 py-3 px-5 rounded-full border-4 border-aubergine" on:click={closeMessage}>✖</button>
+    <button class="bg-powder dark:bg-aubergine-dark dark:text-powder text-black transition transform hover:scale-105 fixed top-4 right-4 py-3 px-5 rounded-full border-4 border-aubergine" on:click={closeMessage}>✖</button>
 </div>
 {/if}

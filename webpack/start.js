@@ -6,20 +6,20 @@ module.exports = merge(common, {
   mode: 'development',
   stats: 'minimal',
   devServer: {
-    allowedHosts: 'all', // Erlaubt den Zugriff von allen Hosts
+    allowedHosts: 'all',
     client: {
-      overlay: false, // Setzt overlay auf false, um Fehler nicht als Overlay anzuzeigen
+      overlay: false,
     },
     compress: true,
     headers: {
-      'Access-Control-Allow-Origin': '*', // Erlaubt Cross-Origin-Anfragen
+      'Access-Control-Allow-Origin': '*',
     },
     historyApiFallback: true,
-    hot: true, // Aktiviert Hot Module Replacement (HMR)
-    liveReload: true, // Aktiviert Live-Reload
-    open: true, // Öffnet die Anwendung automatisch im Standardbrowser
+    hot: true,
+    liveReload: true,
+    open: true,
     port: 8080,
-    host: '192.168.178.21', // Port, auf dem der Dev Server läuft
+    host: '192.168.178.20',
   },
   output: {
     filename: '[name].js',
@@ -34,7 +34,21 @@ module.exports = merge(common, {
         exclude: /(node_modules)/,
         use: ['style-loader', 'css-loader', 'postcss-loader'],
       },
+      {
+        test: /\.node$/,
+        loader: 'file-loader'
+      },
     ],
   },
   plugins: plugins.start,
+  resolve: {
+    fallback: {
+      "child_process": false,
+      "fs": false,
+      "os": require.resolve("os-browserify/browser"),
+      "path": require.resolve("path-browserify"),
+      "stream": require.resolve("stream-browserify"),
+      "util": require.resolve("util/")
+    }
+  }
 });

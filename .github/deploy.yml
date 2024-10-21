@@ -1,0 +1,37 @@
+name: Build and Deploy keymoji svelte-tailwind via FTP
+
+on:
+  push:
+    branches:
+      - main  # or the name of your main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+      env:
+        NODE_ENV: production
+
+    - name: FTP Deploy
+      uses: SamKirkland/FTP-Deploy-Action@4.3.3
+      with:
+        server: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        local-dir: ${{ secrets.LOCAL_BUILD_PATH }}/  # Use a secret for the build path
+        server-dir: ${{ secrets.REMOTEPATH }}

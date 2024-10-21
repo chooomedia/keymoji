@@ -28,12 +28,13 @@
         "postcss-preset-env": "^9.2.0",
         "prettier": "2.3.0",
         "purgecss-webpack-plugin": "4.0.3",
-        "size-plugin": "2.0.2",
+        "size-plugin": "^1.2.0",
         "style-loader": "2.0.0",
         "svelte-loader": "^3.1.9",
         "svelte-preprocess": "^4.7.3",
         "svelte-routing": "^2.7.0",
         "tailwindcss": "^2.2.19",
+        "util": "^0.12.5",
         "webpack": "^5.88.2",
         "webpack-cli": "^5.1.4",
         "webpack-dev-server": "^4.15.1",
@@ -47,7 +48,10 @@
         "path-browserify": "^1.0.1",
         "stream-browserify": "^3.0.0",
         "svelte": "^3.59.2",
-        "vanilla-captcha": "^1.0.9"
+        "vanilla-captcha": "^2.0.14"
+    },
+    "browser": {
+        "util": "util"
     },
     "babel": {
         "presets": [
