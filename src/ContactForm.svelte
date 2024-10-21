@@ -24,7 +24,7 @@
 
   async function handleSubmit() {
     try {
-      const response = await fetch(proxyURL + webhookUrl, {
+      const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
