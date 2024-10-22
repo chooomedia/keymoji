@@ -55,7 +55,7 @@
     <section class:dark={$darkMode} class="container mx-auto flex flex-col justify-center items-center min-h-screen py-5 overflow-auto touch-none z-10">
         <Header />
 
-        <div class="neumorphic pl-5 pr-5 pb-5 w-80 md:w-25r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 backdrop-blur transition duration-300 ease-in-out transform ">
+        <div class="neumorphic pl-5 pr-5 pb-5 w-96 md:w-26r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 backdrop-blur transition duration-300 ease-in-out transform ">
             {#if showForm}
                 <ContactForm setModalMessage={setModalMessage} />
             {:else}

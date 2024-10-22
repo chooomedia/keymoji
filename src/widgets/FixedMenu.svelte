@@ -3,7 +3,7 @@
   import { cubicInOut } from 'svelte/easing';
   import EraseLocalstorage from '../EraseLocalstorage.svelte';
   import { darkMode, showDonateMenu, languageText } from '../stores.js';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte'; // onMount hinzugefügt
 
   const dispatch = createEventDispatcher();
 
@@ -11,6 +11,28 @@
 
   let showMenu = false;
   let selectedLink = undefined;
+
+  // Click-Outside Handler hinzufügen
+  onMount(() => {
+    const handleClickOutside = (event) => {
+      const fixedMenu = document.getElementById('fixed-menu');
+      const donateButton = document.querySelector('[data-menu-type="donate"]');
+      
+      // Prüfen ob der Click außerhalb der Menüs war
+      if (!event.target.closest('#fixed-menu') && 
+          !event.target.closest('[data-menu-type="donate"]')) {
+        showMenu = false;
+        showDonateMenu.set(false);
+        selectedLink = undefined;
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  });
 
   function toggleDarkMode() {
     darkMode.update(value => !value);
@@ -103,8 +125,8 @@
     </div>
   {/if}
 
-  <nav id="fixed-menu" class="bg-creme dark:bg-aubergine rounded-full transition duration-300 ease-in-out transform {align}-0 flex {showMenu ? 'opened' : 'closed'}" aria-label="Main">
-    <div class="flex space-x-3 border-4 border-creme dark:border-aubergine rounded-full">
+  <nav id="fixed-menu-nav" class="bg-creme dark:bg-aubergine rounded-full transition duration-300 ease-in-out transform {align}-0 flex {showMenu ? 'opened' : 'closed'}" aria-label="Main">
+    <div class="max-w-48 justify-center flex space-x-3 border-4 border-creme dark:border-aubergine rounded-full">
       <EraseLocalstorage />
       <button on:click={toggleDarkMode} class="relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
         {#if $darkMode}🌙{:else}🌞{/if}
@@ -119,7 +141,14 @@
   </nav>
 </div>
 
-<button on:click={() => toggleMenu('donate')} 
-  class="md:block hidden fixed bottom-4 right-4 bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-20 border-4 border-creme dark:border-aubergine">
-  {#if $showDonateMenu}{$languageText?.donateButton?.openText || 'Close'}{:else}{$languageText?.donateButton?.text || 'Donate'}{/if}
+<button 
+  data-menu-type="donate"
+  on:click={() => toggleMenu('donate')} 
+  class="md:block hidden fixed bottom-4 right-4 bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-20 border-4 border-creme dark:border-aubergine"
+>
+  {#if $showDonateMenu}
+    {$languageText?.donateButton?.openText || 'Close'}
+  {:else}
+    {$languageText?.donateButton?.text || 'Donate'}
+  {/if}
 </button>

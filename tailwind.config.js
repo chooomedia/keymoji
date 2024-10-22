@@ -35,7 +35,7 @@ module.exports = {
       },
       extend: {
         spacing: {
-          '25r': '25rem',
+          '26r': '26rem',
           '8xl': '96rem',
           '9xl': '128rem',
           '42': '42px',

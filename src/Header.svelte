@@ -28,16 +28,12 @@
     ];
 
     const toggleLanguageMenu = () => {
-        if (!$isDisabled) {
-            showLanguageMenu.update(current => !current);
-        }
+        showLanguageMenu.update(current => !current);
     };
 
     const handleLanguageChange = (langCode) => {
-        if (!$isDisabled) {
-            setLanguage(langCode);
-            dispatch('languageChange', langCode);
-        }
+        setLanguage(langCode);
+        dispatch('languageChange', langCode);
     };
 
     const getCurrentLanguageInfo = (code) => {
@@ -81,7 +77,6 @@
                     on:click={toggleLanguageMenu}
                     aria-haspopup="true"
                     aria-expanded={$showLanguageMenu}
-                    disabled={$isDisabled}
                 >
                     {getCurrentLanguageInfo($currentLanguage).flag} {getCurrentLanguageInfo($currentLanguage).code}
                 </button>
