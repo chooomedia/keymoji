@@ -37,7 +37,7 @@
     <meta name="author" content="Keymoji Team">
     <meta property="og:title" content="{content[$currentLanguage].index.pageTitle}">
     <meta property="og:description" content="{content[$currentLanguage].index.pageDescription}">
-    <meta property="og:image" content="./images/keymoji-logo-11-2023-simple.png">
+    <meta property="og:image" content="/images/keymoji-logo-11-2023-simple.png">
     <meta property="og:url" content="https://🔑moji.ws/images/keymoji-c-matt-frontend-developer-javascript-php-svelte-wordpress-creator-smirking-face_1f60f.gif">
     <meta property="og:type" content="website">
     
