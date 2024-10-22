@@ -3,7 +3,7 @@
   import { modalMessage, currentLanguage } from './stores.js';
   import content from './content.js';
 
-  name = '',
+  let name = '',
       email = '',
       message = '',
       userInput = '',
@@ -222,7 +222,13 @@
 
 <div class="w-full md:pt-4 pt-2">
   <div class="flex flex-wrap md:mt-0 md:mb-4 my-3 md:pt-1 items-center bg-creme-80 dark:bg-aubergine-80 transition rounded-xl pb-2 px-4 ">
-    <!-- Header section bleibt unverändert -->
+    <div class="w-1/4 m-auto md:w-1/3 px-0 py-2">
+      <img src="{emoijSmirkingFace}" alt="{content[$currentLanguage].contactForm.smirkingFaceImageAlt}" class="md:w-90 w-96 mx-auto" while-loading="{whileLoading}" on:load={handleImageLoad} />
+    </div>
+    <div class="w-full md:w-2/3 md:pl-3 md:pt-3">
+      <h2 class="text-2xl font-semibold md:text-left mb-2 dark:text-white">{content[$currentLanguage].contactForm.introductionTitle}</h2>
+      <p class="text-sm text-left dark:text-white">{content[$currentLanguage].contactForm.introductionText}</p>
+    </div>
   </div>
   <div class="flex flex-wrap -mx-3 my-2">
     <div class="w-full md:w-1/2 px-3 mb-2 md:mb-0">
