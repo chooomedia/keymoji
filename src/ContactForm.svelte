@@ -273,8 +273,7 @@
     <button 
       on:click={handleSubmit} 
       disabled={!isFormValid}
-      class="w-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 py-3 rounded-full {isFormValid ? 'bg-yellow text-black' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}"
-    >
+      class="w-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 py-3 rounded-full bg-yellow text-black {!isFormValid ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}">
       {content[$currentLanguage].contactForm.sendButton}
     </button>
   </div>
