@@ -87,7 +87,7 @@
                 </button>
 
                 {#if $showLanguageMenu}
-                    <div id="language-dropdown-menu" class="w-auto mx-auto fixed top-20 rounded-b-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-10 transform transition-all duration-300 ease-in-out -translate-x-12" role="menu" aria-orientation="vertical" aria-labelledby="language-menu">
+                    <div id="language-dropdown-menu" class="w-auto mx-auto fixed top-20 rounded-b-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-10 transform transition-all duration-300 ease-in-out -translate-x-28" role="menu" aria-orientation="vertical" aria-labelledby="language-menu">
                         <ul class="py-2 font-medium" role="none">
                             {#each languages as lang}
                                 <li
@@ -109,7 +109,7 @@
 
                 <LoginMenu />
 
-                <button data-collapse-toggle="navbar-language" type="button" class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder p-3.5 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none" aria-controls="navbar-language" aria-expanded="false" disabled={$isDisabled}>
+                <button data-collapse-toggle="navbar-language" type="button" class="sr-only bg-powder text-black dark:bg-aubergine-dark dark:text-powder p-3.5 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none" aria-controls="navbar-language" aria-expanded="false" disabled={$isDisabled}>
                     <span class="sr-only">{getText('header.openMainMenu')}</span>
                     <svg class="w-5 h-5" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" viewBox="0 0 98 98">
                         <path d="{hamburger}"></path>

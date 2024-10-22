@@ -226,7 +226,7 @@
       <img src="{emoijSmirkingFace}" alt="{content[$currentLanguage].contactForm.smirkingFaceImageAlt}" class="md:w-90 w-96 mx-auto" while-loading="{whileLoading}" on:load={handleImageLoad} />
     </div>
     <div class="w-full md:w-2/3 md:pl-3 md:pt-3">
-      <h2 class="text-2xl font-semibold md:text-left mb-2 dark:text-white">{content[$currentLanguage].contactForm.introductionTitle}</h2>
+      <h2 class="text-xl md:text-2xl font-semibold md:text-left mb-2 dark:text-white">{content[$currentLanguage].contactForm.introductionTitle}</h2>
       <p class="text-sm text-left dark:text-white">{content[$currentLanguage].contactForm.introductionText}</p>
     </div>
   </div>
