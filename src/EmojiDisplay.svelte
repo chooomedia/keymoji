@@ -206,8 +206,12 @@
 
   <div class="flex flex-wrap justify-center items-center">
     <h2 class="mt-1 text-xs text-center dark:text-white z-10">
-      {#each content[$currentLanguage].index.pageInstruction as instruction}
-        <p>{instruction}</p>
+      {#each content[$currentLanguage].index.pageInstruction as instruction, i}
+          {#if i === 0}
+              <p><u>Story Mode coming soon</u></p>
+          {:else}
+              <p>{instruction}</p>
+          {/if}
       {/each}
     </h2>  
   </div>
@@ -232,8 +236,8 @@
         {content[$currentLanguage].emojiDisplay.storyButtonClicked}
       </button>
     {:else}
-      <button on:click={toggleStoryMode} class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full">
-        {content[$currentLanguage].emojiDisplay.storyButton}
+      <button on:click={toggleStoryMode} class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full opacity-50 cursor-not-allowed" disabled>
+        🔜 {content[$currentLanguage].emojiDisplay.storyButton}
       </button>
     {/if}
 

@@ -34,7 +34,7 @@
     <title>{content[$currentLanguage].index.pageTitle}</title>
     <meta name="description" content="{content[$currentLanguage].index.pageDescription}">
     <meta name="keywords" content="{content[$currentLanguage].index.pageKeywords}">
-    <meta name="author" content="Keymoji Team">
+    <meta name="author" content="Chris Matt">
     <meta property="og:title" content="{content[$currentLanguage].index.pageTitle}">
     <meta property="og:description" content="{content[$currentLanguage].index.pageDescription}">
     <meta property="og:image" content="/images/keymoji-logo-11-2023-simple.png">
@@ -42,9 +42,9 @@
     <meta property="og:type" content="website">
     
     <!-- Favicons -->
-    <link rel="icon" type="image/gif" href="/images/keymoji-c-matt-frontend-developer-javascript-php-svelte-wordpress-creator-smirking-face_1f60f.gif">
-    <link rel="apple-touch-icon" href="/images/keymoji-c-matt-frontend-developer-javascript-php-svelte-wordpress-creator-smirking-face_1f60f.gif">
-    <link rel="shortcut icon" type="image/gif" href="/images/keymoji-c-matt-frontend-developer-javascript-php-svelte-wordpress-creator-smirking-face_1f60f.gif">
+    <link rel="icon" type="image/png" href="/images/keymoji-logo-11-2023-simple.png">
+    <link rel="apple-touch-icon" href="/images/keymoji-logo-11-2023-simple.png">
+    <link rel="shortcut icon" type="image/png" href="/images/keymoji-logo-11-2023-simple.png">
 </svelte:head>
 
 {#if $modalMessage && $modalMessage.trim() !== ''}
