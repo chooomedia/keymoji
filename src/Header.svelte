@@ -92,7 +92,6 @@
                                         on:click={() => handleLanguageChange(lang.code)}
                                         class="flex flex-wrap text-black dark:text-white md:px-4 px-2 py-2 text-sm w-full text-left hover:bg-gray group hover:text-white" 
                                         role="menuitem" 
-                                        disabled={$isDisabled}
                                     >
                                         {lang.flag} {lang.name}
                                     </button>
