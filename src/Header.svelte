@@ -56,7 +56,7 @@
 </script>
 
 <div class="w-full fixed flex flex-wrap justify-center top-5 mx-auto z-30">
-    <nav class="md:w-4/12 w-full mx-3 bg-creme dark:bg-aubergine border-gray dark:bg-gray justify-center rounded-full border-4 border-creme dark:border-aubergine">
+    <nav class="md:w-3/12 w-full mx-3 bg-creme dark:bg-aubergine border-gray dark:bg-gray justify-center rounded-full border-4 border-creme dark:border-aubergine">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between">
             <a href="/" class="flex flex-col items-center rtl:space-x-reverse">
                 <h1 class="flex flex-wrap md:text-2xl font-semibold items-center whitespace-nowrap dark:text-white">
@@ -82,7 +82,8 @@
                 </button>
 
                 {#if $showLanguageMenu}
-                    <div id="language-dropdown-menu" class="w-auto mx-auto fixed top-20 rounded-b-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-10 transform transition-all duration-300 ease-in-out -translate-x-28" role="menu" aria-orientation="vertical" aria-labelledby="language-menu">
+                    <div id="language-dropdown-menu" class="w-auto mx-auto fixed top-20 rounded-b-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-10 transform transition-all duration-300 ease-in-out -translate-x-28 space-x-0
+                    " role="menu" aria-orientation="vertical" aria-labelledby="language-menu">
                         <ul class="py-2 font-medium" role="none">
                             {#each languages as lang}
                                 <li

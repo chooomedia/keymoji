@@ -35,12 +35,27 @@
     <meta name="description" content="{content[$currentLanguage].index.pageDescription}">
     <meta name="keywords" content="{content[$currentLanguage].index.pageKeywords}">
     <meta name="author" content="Chris Matt">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://keymoji.wtf">
     <meta property="og:title" content="{content[$currentLanguage].index.pageTitle}">
     <meta property="og:description" content="{content[$currentLanguage].index.pageDescription}">
-    <meta property="og:image" content="/images/keymoji-logo-11-2023-simple.png">
-    <meta property="og:url" content="/images/keymoji-c-matt-frontend-developer-javascript-php-svelte-wordpress-creator-smirking-face_1f60f.gif">
-    <meta property="og:type" content="website">
-    
+    <meta property="og:image" content="https://keymoji.wtf/images/keymoji-logo-11-2023-simple.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://keymoji.wtf">
+    <meta name="twitter:title" content="{content[$currentLanguage].index.pageTitle}">
+    <meta name="twitter:description" content="{content[$currentLanguage].index.pageDescription}">
+    <meta name="twitter:image" content="https://keymoji.wtf/images/keymoji-logo-11-2023-simple.png">
+
+    <!-- WhatsApp -->
+    <meta property="og:site_name" content="Keymoji">
+    <meta property="og:locale" content="{$currentLanguage}">
+
     <!-- Favicons -->
     <link rel="icon" type="image/png" href="/images/keymoji-logo-11-2023-simple.png">
     <link rel="apple-touch-icon" href="/images/keymoji-logo-11-2023-simple.png">
@@ -52,10 +67,10 @@
 {/if}
 
 <main class="hieroglyphemojis" style="{bgImage}">
-    <section class:dark={$darkMode} class="container mx-auto flex flex-col justify-center items-center min-h-screen py-5 overflow-auto touch-none z-10">
+    <section class:dark={$darkMode} class="container mx-auto flex flex-col justify-center items-center min-h-screen py-5 overflow-auto touch-none z-10 gap-4">
         <Header />
 
-        <div class="neumorphic pl-5 pr-5 pb-5 w-96 md:w-26r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 backdrop-blur transition duration-300 ease-in-out transform ">
+        <div class="neumorphic pl-4 pr-4 pb-4 w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 backdrop-blur transition duration-300 ease-in-out transform ">
             {#if showForm}
                 <ContactForm setModalMessage={setModalMessage} />
             {:else}
