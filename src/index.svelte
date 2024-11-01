@@ -1,5 +1,4 @@
 <script>
-    import { updatedTime } from './updatedTime.js';
     import { modalMessage, currentLanguage, darkMode } from './stores.js';
     import EmojiDisplay from './EmojiDisplay.svelte';
     import ContactForm from './ContactForm.svelte';
@@ -8,6 +7,7 @@
     import { fade } from 'svelte/transition';
     import FixedMenu from './widgets/FixedMenu.svelte';
     import content from './content.js';
+    import { updatedTime } from './static/updatedTime.js';
 
     function setModalMessage(message) {
         modalMessage.set(message);
