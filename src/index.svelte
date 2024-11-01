@@ -34,7 +34,7 @@
     <title>{content[$currentLanguage].index.pageTitle}</title>
     <meta name="description" content="{content[$currentLanguage].index.pageDescription}">
     <meta name="keywords" content="{content[$currentLanguage].index.pageKeywords}">
-    <meta name="author" content="Chris Matt">
+    <meta name="author" content="Christopher Matt">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
