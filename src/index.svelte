@@ -41,16 +41,16 @@
     <meta property="og:url" content="https://keymoji.wtf">
     <meta property="og:title" content="{content[$currentLanguage].index.pageTitle}">
     <meta property="og:description" content="{content[$currentLanguage].index.pageDescription}">
-    <meta property="og:image" content="https://keymoji.wtf/images/keymoji-logo-11-2023-simple.png">
+    <meta property="og:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:card" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
     <meta name="twitter:url" content="https://keymoji.wtf">
     <meta name="twitter:title" content="{content[$currentLanguage].index.pageTitle}">
     <meta name="twitter:description" content="{content[$currentLanguage].index.pageDescription}">
-    <meta name="twitter:image" content="https://keymoji.wtf/images/keymoji-logo-11-2023-simple.png">
+    <meta name="twitter:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
 
     <!-- WhatsApp -->
     <meta property="og:site_name" content="Keymoji">
