@@ -26,6 +26,9 @@ jobs:
       env:
         NODE_ENV: production
 
+    - name: Generate updated time
+      run: echo "export const updatedTime = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';" > ./src/updatedTime.js
+
     - name: List build directory contents
       run: ls -R build
 

@@ -8,7 +8,7 @@ export const content = {
   en: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.",
     },
     index: {
@@ -145,7 +145,7 @@ export const content = {
   de: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Emoji Passwort Generator",
     },
     index: {
@@ -283,7 +283,7 @@ export const content = {
   dech: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Emoji Passwort Generator",
     },
     index: {
@@ -420,7 +420,7 @@ export const content = {
   es: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Generador de Contraseñas Emoji",
     },
     index: {
@@ -557,7 +557,7 @@ export const content = {
   nl: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Emoji Wachtwoordgenerator",
     },
     index: {
@@ -694,7 +694,7 @@ export const content = {
   it: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Generatore di Password Emoji",
     },
     index: {
@@ -831,7 +831,7 @@ export const content = {
   fr: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Générateur de Mot de Passe Emoji",
     },
     index: {
@@ -968,7 +968,7 @@ export const content = {
   pl: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Generator Hasła Emoji",
     },
     index: {
@@ -1105,7 +1105,7 @@ export const content = {
   da: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Emoji-adgangskodegenerator",
     },
     index: {
@@ -1242,7 +1242,7 @@ export const content = {
   ru: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Генератор паролей с использованием эмодзи",
     },
     index: {
@@ -1379,7 +1379,7 @@ export const content = {
   tr: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Emoji Parola Oluşturucu",
     },
     index: {
@@ -1516,7 +1516,7 @@ export const content = {
   af: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Emoji Wagwoord Skepper",
     },
     index: {
@@ -1653,7 +1653,7 @@ export const content = {
   ja: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "絵文字パスワードジェネレーター",
     },
     index: {
@@ -1790,7 +1790,7 @@ export const content = {
   ko: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "이모지 패스워드 생성기",
     },
     index: {
@@ -1927,7 +1927,7 @@ export const content = {
   tlh: {
     header: {
       pageTitle: "Keymoji",
-      pageVersion: "v0.1",
+      pageVersion: "v0.2",
       pageDescription: "Emoji vItlhutlh yIngu'",
     },
     index: {

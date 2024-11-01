@@ -1,4 +1,5 @@
 <script>
+    import { updatedTime } from './updatedTime.js';
     import { modalMessage, currentLanguage, darkMode } from './stores.js';
     import EmojiDisplay from './EmojiDisplay.svelte';
     import ContactForm from './ContactForm.svelte';
@@ -37,13 +38,6 @@
     <meta name="author" content="Christopher Matt">
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://keymoji.wtf">
-    <meta property="og:title" content="{content[$currentLanguage].index.pageTitle || 'Emoji Passwort Generator'}">
-    <meta property="og:description" content="{content[$currentLanguage].index.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
-    <meta property="og:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
-    <meta property="og:image:width" content="1640">
-    <meta property="og:image:height" content="924">
     <meta property="og:locale" content="{ 
         $currentLanguage === 'de' ? 'de_DE' :
         $currentLanguage === 'dech' ? 'de_CH' :
@@ -59,13 +53,25 @@
         $currentLanguage === 'ja' ? 'ja_JP' :
         $currentLanguage === 'tlh' ? 'tlh_Qo' : 'en_US'
     }">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{content[$currentLanguage].index.pageTitle || 'Emoji Passwort Generator'}">
+    <meta property="og:description" content="{content[$currentLanguage].index.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
+    <meta property="og:url" content="https://keymoji.wtf">
+    <meta property="og:site_name" content="keymoji.wtf">
+    <meta property="og:updated_time" content={updatedTime}>
+    <meta property="og:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
+    <meta property="og:image:secure_url" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
+    <meta property="og:image:width" content="1640">
+    <meta property="og:image:height" content="924">
+    <meta property="og:image:alt" content="{content[$currentLanguage].index.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
+    <meta property="og:image:type" content="image/png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{content[$currentLanguage].index.pageTitle || 'Emoji Passwort Generator'}">
+    <meta name="twitter:description" content="{content[$currentLanguage].index.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
     <meta name="twitter:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
     <meta name="twitter:url" content="https://keymoji.wtf">
-    <meta name="twitter:title" content="{content[$currentLanguage].index.pageTitle}">
-    <meta name="twitter:description" content="{content[$currentLanguage].index.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
 
     <!-- WhatsApp -->
     <meta property="og:site_name" content="Keymoji">
