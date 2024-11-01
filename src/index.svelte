@@ -7,7 +7,7 @@
     import { fade } from 'svelte/transition';
     import FixedMenu from './widgets/FixedMenu.svelte';
     import content from './content.js';
-    import { updatedTime } from './static/updatedTime.js';
+    import { updatedTime } from './updatedTime.js';
 
     function setModalMessage(message) {
         modalMessage.set(message);

@@ -43,8 +43,7 @@ module.exports = merge(common, {
         ...plugins.build,
         new CopyPlugin({
             patterns: [
-                { from: 'public/images', to: 'images' },
-                { from: './src/updatedTime.js', to: 'static' }
+                { from: 'public/images', to: 'images' }
             ]
         })
     ]
