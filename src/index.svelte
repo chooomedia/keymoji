@@ -55,7 +55,7 @@
     <meta property="og:title" content="{content[$currentLanguage].index.pageTitle || 'Emoji Passwort Generator'}">
     <meta property="og:description" content="{content[$currentLanguage].index.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
     <meta property="og:url" content="https://keymoji.wtf">
-    <meta property="og:site_name" content="keymoji.wtf">
+    <meta property="og:site_name" content="{content[$currentLanguage].index.pageTitle || 'Emoji Passwort Generator'}">
     <meta property="og:updated_time" content={updatedTime}>
     <meta property="og:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
     <meta property="og:image:secure_url" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
