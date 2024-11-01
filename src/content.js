@@ -54,7 +54,7 @@ export const content = {
       },
       {
         id: 12,
-        href: "https://ko-fi.com/keymoji",
+        href: "https://ko-fi.com/keymoji_official",
         svgContent: kofiIcon,
         alt: "icon ko-fi",
         title: "Ko-fi",
@@ -191,7 +191,7 @@ export const content = {
         },
         {
           id: 12,
-          href: "https://ko-fi.com/keymoji",
+          href: "https://ko-fi.com/keymoji_official",
           svgContent: kofiIcon,
           alt: "icon ko-fi",
           title: "Ko-fi",
@@ -329,7 +329,7 @@ export const content = {
         },
         {
           id: 12,
-          href: "https://ko-fi.com/keymoji",
+          href: "https://ko-fi.com/keymoji_official",
           svgContent: kofiIcon,
           alt: "icon ko-fi",
           title: "Ko-fi",
@@ -466,7 +466,7 @@ export const content = {
         },
         {
           id: 12,
-          href: "https://ko-fi.com/keymoji",
+          href: "https://ko-fi.com/keymoji_official",
           svgContent: kofiIcon,
           alt: "icon ko-fi",
           title: "Ko-fi",
@@ -603,7 +603,7 @@ export const content = {
         },
         {
           id: 12,
-          href: "https://ko-fi.com/keymoji",
+          href: "https://ko-fi.com/keymoji_official",
           svgContent: kofiIcon,
           alt: "icon ko-fi",
           title: "Ko-fi",
@@ -740,7 +740,7 @@ export const content = {
         },
         {
           id: 12,
-          href: "https://ko-fi.com/keymoji",
+          href: "https://ko-fi.com/keymoji_official",
           svgContent: kofiIcon,
           alt: "icon ko-fi",
           title: "Ko-fi",
@@ -877,7 +877,7 @@ export const content = {
         },
         {
           id: 12,
-          href: "https://ko-fi.com/keymoji",
+          href: "https://ko-fi.com/keymoji_official",
           svgContent: kofiIcon,
           alt: "icon ko-fi",
           title: "Ko-fi",
@@ -1014,7 +1014,7 @@ export const content = {
         },
         {
           id: 12,
-          href: "https://ko-fi.com/keymoji",
+          href: "https://ko-fi.com/keymoji_official",
           svgContent: kofiIcon,
           alt: "icon ko-fi",
           title: "Ko-fi",
@@ -1151,7 +1151,7 @@ export const content = {
         },
         {
           id: 12,
-          href: "https://ko-fi.com/keymoji",
+          href: "https://ko-fi.com/keymoji_official",
           svgContent: kofiIcon,
           alt: "icon ko-fi",
           title: "Ko-fi",
@@ -1288,7 +1288,7 @@ export const content = {
       },
       {
         id: 2,
-        href: "https://ko-fi.com/keymoji",
+        href: "https://ko-fi.com/keymoji_official",
         svgContent: kofiIcon,
         alt: "икона ko-fi",
         title: "Ko-fi",
@@ -1425,7 +1425,7 @@ export const content = {
       },
       {
         id: 2,
-        href: "https://ko-fi.com/keymoji",
+        href: "https://ko-fi.com/keymoji_official",
         svgContent: kofiIcon,
         alt: "ikon ko-fi",
         title: "Ko-fi",
@@ -1562,7 +1562,7 @@ export const content = {
       },
       {
         id: 2,
-        href: "https://ko-fi.com/keymoji",
+        href: "https://ko-fi.com/keymoji_official",
         svgContent: kofiIcon,
         alt: "ikoon Ko-fi",
         title: "Ko-fi",
@@ -1699,7 +1699,7 @@ export const content = {
       },
       {
         id: 2,
-        href: "https://ko-fi.com/keymoji",
+        href: "https://ko-fi.com/keymoji_official",
         svgContent: kofiIcon,
         alt: "アイコン Ko-fi",
         title: "Ko-fi",
@@ -1836,7 +1836,7 @@ export const content = {
       },
       {
         id: 2,
-        href: "https://ko-fi.com/keymoji",
+        href: "https://ko-fi.com/keymoji_official",
         svgContent: kofiIcon,
         alt: "아이콘 Ko-fi",
         title: "Ko-fi",
@@ -1973,7 +1973,7 @@ export const content = {
         },
         {
           id: 2,
-          href: "https://ko-fi.com/keymoji",
+          href: "https://ko-fi.com/keymoji_official",
           svgContent: kofiIcon,
           alt: "Ko-fi icon",
           title: "Ko-fi",
