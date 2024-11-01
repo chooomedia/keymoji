@@ -30,7 +30,6 @@
 </script>
 
 <svelte:head>
-    <title>{content[$currentLanguage]?.index?.pageTitle || 'Keymoji - Emoji Password Generator'}</title>
     <meta name="description" content="{content[$currentLanguage]?.index?.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
     <meta name="keywords" content="{content[$currentLanguage].index.pageKeywords}">
     <meta name="author" content="Christopher Matt">
