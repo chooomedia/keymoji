@@ -31,8 +31,8 @@
 <svelte:head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{content[$currentLanguage].index.pageTitle}</title>
-    <meta name="description" content="{content[$currentLanguage].index.pageDescription}">
+    <title>{content[$currentLanguage]?.index?.pageTitle || 'Keymoji - Emoji Password Generator'}</title>
+    <meta name="description" content="{content[$currentLanguage]?.index?.pageDescription || 'Emoji Passwort Generator'}">
     <meta name="keywords" content="{content[$currentLanguage].index.pageKeywords}">
     <meta name="author" content="Christopher Matt">
 
@@ -42,15 +42,30 @@
     <meta property="og:title" content="{content[$currentLanguage].index.pageTitle}">
     <meta property="og:description" content="{content[$currentLanguage].index.pageDescription}">
     <meta property="og:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    <meta property="og:image:width" content="1640">
+    <meta property="og:image:height" content="924">
+    <meta property="og:locale" content="{ 
+        $currentLanguage === 'de' ? 'de_DE' :
+        $currentLanguage === 'dech' ? 'de_CH' :
+        $currentLanguage === 'es' ? 'es_ES' :
+        $currentLanguage === 'nl' ? 'nl_NL' :
+        $currentLanguage === 'it' ? 'it_IT' :
+        $currentLanguage === 'fr' ? 'fr_FR' :
+        $currentLanguage === 'pl' ? 'pl_PL' :
+        $currentLanguage === 'da' ? 'da_DK' :
+        $currentLanguage === 'ru' ? 'ru_RU' :
+        $currentLanguage === 'tr' ? 'tr_TR' :
+        $currentLanguage === 'af' ? 'af_ZA' :
+        $currentLanguage === 'ja' ? 'ja_JP' :
+        $currentLanguage === 'tlh' ? 'tlh_Qo' : 'en_US'
+    }">
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
     <meta name="twitter:url" content="https://keymoji.wtf">
     <meta name="twitter:title" content="{content[$currentLanguage].index.pageTitle}">
     <meta name="twitter:description" content="{content[$currentLanguage].index.pageDescription}">
-    <meta name="twitter:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
 
     <!-- WhatsApp -->
     <meta property="og:site_name" content="Keymoji">

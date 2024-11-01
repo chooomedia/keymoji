@@ -11,20 +11,20 @@
     const dispatch = createEventDispatcher();
 
     const languages = [
-        { code: 'en', name: 'English', flag: '🇺🇸' },
-        { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-        { code: 'dech', name: 'Schwiizerdütsch', flag: '🇨🇭' },
-        { code: 'es', name: 'Español', flag: '🇪🇸' },
-        { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
-        { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-        { code: 'fr', name: 'Français', flag: '🇫🇷' },
-        { code: 'pl', name: 'Polski', flag: '🇵🇱' },
-        { code: 'da', name: 'Dansk', flag: '🇩🇰' },
-        { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-        { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
-        { code: 'af', name: 'Afrikaans', flag: '🇿🇦' },
-        { code: 'ja', name: '日本語', flag: '🇯🇵' },
-        { code: 'tlh', name: 'Klingon', flag: '🖖' },
+        { code: 'en', name: 'English', flag: '🇺🇸', ogLocale: 'en_US' },
+        { code: 'de', name: 'Deutsch', flag: '🇩🇪', ogLocale: 'de_DE' },
+        { code: 'dech', name: 'Schwiizerdütsch', flag: '🇨🇭', ogLocale: 'de_CH' },
+        { code: 'es', name: 'Español', flag: '🇪🇸', ogLocale: 'es_ES' },
+        { code: 'nl', name: 'Nederlands', flag: '🇳🇱', ogLocale: 'nl_NL' },
+        { code: 'it', name: 'Italiano', flag: '🇮🇹', ogLocale: 'it_IT' },
+        { code: 'fr', name: 'Français', flag: '🇫🇷', ogLocale: 'fr_FR' },
+        { code: 'pl', name: 'Polski', flag: '🇵🇱', ogLocale: 'pl_PL' },
+        { code: 'da', name: 'Dansk', flag: '🇩🇰', ogLocale: 'da_DK' },
+        { code: 'ru', name: 'Русский', flag: '🇷🇺', ogLocale: 'ru_RU' },
+        { code: 'tr', name: 'Türkçe', flag: '🇹🇷', ogLocale: 'tr_TR' },
+        { code: 'af', name: 'Afrikaans', flag: '🇿🇦', ogLocale: 'af_ZA' },
+        { code: 'ja', name: '日本語', flag: '🇯🇵', ogLocale: 'ja_JP' },
+        { code: 'tlh', name: 'Klingon', flag: '🖖', ogLocale: 'tlh_Qo' }
     ];
 
     const toggleLanguageMenu = () => {
