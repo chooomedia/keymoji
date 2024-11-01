@@ -50,9 +50,9 @@
         $currentLanguage === 'ja' ? 'ja_JP' :
         $currentLanguage === 'tlh' ? 'tlh_Qo' : 'en_US'
     }">
+
     <meta property="og:type" content="website">
     <meta property="og:title" content="{content[$currentLanguage].index.pageTitle || 'Emoji Passwort Generator'}">
-    <meta property="og:description" content="{content[$currentLanguage].index.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
     <meta property="og:url" content="https://keymoji.wtf">
     <meta property="og:site_name" content="{content[$currentLanguage].index.pageTitle || 'Emoji Passwort Generator'}">
     <meta property="og:updated_time" content={updatedTime}>
@@ -62,9 +62,6 @@
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{content[$currentLanguage].index.pageTitle || 'Emoji Passwort Generator'}">
-    <meta name="twitter:description" content="{content[$currentLanguage].index.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
-    <meta name="twitter:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
-    <meta name="twitter:url" content="https://keymoji.wtf">
 
     <!-- WhatsApp -->
     <meta property="og:site_name" content="Keymoji">
