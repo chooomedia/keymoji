@@ -32,15 +32,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{content[$currentLanguage]?.index?.pageTitle || 'Keymoji - Emoji Password Generator'}</title>
-    <meta name="description" content="{content[$currentLanguage]?.index?.pageDescription || 'Emoji Passwort Generator'}">
+    <meta name="description" content="{content[$currentLanguage]?.index?.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
     <meta name="keywords" content="{content[$currentLanguage].index.pageKeywords}">
     <meta name="author" content="Christopher Matt">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://keymoji.wtf">
-    <meta property="og:title" content="{content[$currentLanguage].index.pageTitle}">
-    <meta property="og:description" content="{content[$currentLanguage].index.pageDescription}">
+    <meta property="og:title" content="{content[$currentLanguage].index.pageTitle || 'Emoji Passwort Generator'}">
+    <meta property="og:description" content="{content[$currentLanguage].index.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
     <meta property="og:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
     <meta property="og:image:width" content="1640">
     <meta property="og:image:height" content="924">
@@ -65,7 +65,7 @@
     <meta name="twitter:image" content="https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png">
     <meta name="twitter:url" content="https://keymoji.wtf">
     <meta name="twitter:title" content="{content[$currentLanguage].index.pageTitle}">
-    <meta name="twitter:description" content="{content[$currentLanguage].index.pageDescription}">
+    <meta name="twitter:description" content="{content[$currentLanguage].index.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
 
     <!-- WhatsApp -->
     <meta property="og:site_name" content="Keymoji">

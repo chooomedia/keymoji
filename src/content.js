@@ -9,11 +9,11 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.1",
-      pageDescription: "Emoji Passwort Generator",
+      pageDescription: "🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.",
     },
     index: {
         pageTitle: "Keymoji - Emoji Password Generator",
-        pageDescription: "Keymoji, the innovative emoji password generator, makes your password security easy and fun. Try it now completely free of charge!",
+        pageDescription: "🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.",
         pageKeywords: "Keymoji, emoji password, password generator, security, online security",
         pageInstruction: [
             'Click "📝 Story" for your AI emoji tale 📖',
@@ -150,7 +150,7 @@ export const content = {
     },
     index: {
       pageTitle: "Keymoji - Emoji Passwort Generator",
-      pageDescription: "Keymoji, der innovative Emoji Passwort Generator, macht deine Passwort-Sicherheit einfach und lustig. Probiere es jetzt komplett kostenlos aus!",
+      pageDescription: "🔑 Passwörter neu gedacht. 🎯 Unknackbare Emoji-Passwörter. 🌈 Kostenlos. Sicher. Innovativ. 🤖 KI-resistente Technologie. 🌍 In 15+ Sprachen verfügbar.",
       pageKeywords: "Keymoji, Emoji Passwort, Passwort Generator, Sicherheit, Online Sicherheit",
       pageInstruction: [
         'Klicke auf "📝 Geschichte" für deine KI Emoji Erzählung 📖',
@@ -288,7 +288,7 @@ export const content = {
     },
     index: {
       pageTitle: "Keymoji - Emoji Passwort Generator",
-      pageDescription: "Keymoji, dr innovativ Emoji Passwort Generator, macht dini Passwort Sicherheit eifach und lustig. Versuech's jetz komplett gratis!",
+      pageDescription: "🔑 Keymoji, dr innovativ Emoji Passwort Generator, überdacht dini Passwortsicherheit. 🎯 Unknackbar Emoji-Passwörter. 🌈 Komplett gratis. 🤖 KI-resistent. 🌍 Über 15 Sprach verfügbar.",
       pageKeywords: "Keymoji, emoji Passwort, Passwort Generator, Sicherheit, Online Sicherheit",
       pageInstruction: [
         'Klick "📝 Gschicht" für dini AI Emoji Erzählung 📖',
@@ -425,7 +425,7 @@ export const content = {
     },
     index: {
       pageTitle: "Keymoji - Generador de Contraseñas Emoji",
-      pageDescription: "Keymoji, el innovador generador de contraseñas emoji, hace que la seguridad de tu contraseña sea fácil y divertida. ¡Pruébalo ahora completamente gratis!",
+      pageDescription: "🔑 Contraseñas reinventadas. 🎯 Contraseñas emoji irrompibles. 🌈 Gratis. Seguro. Innovador. 🤖 Tecnología resistente a IA. 🌍 En más de 15 idiomas.",
       pageKeywords: "Keymoji, contraseña emoji, generador de contraseñas, seguridad, seguridad en línea",
       pageInstruction: [
         'Haz clic en "📝 Historia" para tu cuento emoji de IA 📖',
@@ -562,7 +562,7 @@ export const content = {
     },
     index: {
       pageTitle: "Keymoji - Emoji Wachtwoordgenerator",
-      pageDescription: "Keymoji, de innovatieve emoji wachtwoordgenerator, maakt je wachtwoordbeveiliging makkelijk en leuk. Probeer het nu helemaal gratis!",
+      pageDescription: "🔑 Wachtwoorden opnieuw bedacht. 🎯 Onkraakbare emoji-wachtwoorden. 🌈 Gratis. Veilig. Innovatief. 🤖 AI-resistente technologie. 🌍 In 15+ talen.",
       pageKeywords: "Keymoji, emoji wachtwoord, wachtwoordgenerator, beveiliging, online beveiliging",
       pageInstruction: [
         'Klik op "📝 Verhaal" voor je AI emoji verhaal 📖',
@@ -699,7 +699,7 @@ export const content = {
     },
     index: {
       pageTitle: "Keymoji - Generatore di Password Emoji",
-      pageDescription: "Keymoji, l'innovativo generatore di password emoji, rende la sicurezza delle tue password facile e divertente. Provalo ora completamente gratis!",
+      pageDescription: "🔑 Password reinventati. 🎯 Password emoji infrangibili. 🌈 Gratuiti. Sicuri. Innovativi. 🤖 Tecnologia resistente all'IA. 🌍 Disponibile in 15+ lingue.",
       pageKeywords: "Keymoji, password emoji, generatore di password, sicurezza, sicurezza online",
       pageInstruction: [
         'Clicca su "📝 Storia" per la tua storia emoji IA 📖',
@@ -836,7 +836,7 @@ export const content = {
     },
     index: {
       pageTitle: "Keymoji - Générateur de Mot de Passe Emoji",
-      pageDescription: "Keymoji, le générateur de mot de passe emoji innovant, rend la sécurité de votre mot de passe facile et amusante. Essayez-le maintenant gratuitement !",
+      pageDescription: "🔑 Mots de passe réinventés. 🎯 Mots de passe emoji incassables. 🌈 Gratuit. Sûr. Innovant. 🤖 Technologie résistante à l'IA. 🌍 En plus de 15 langues.",
       pageKeywords: "Keymoji, mot de passe emoji, générateur de mot de passe, sécurité, sécurité en ligne",
       pageInstruction: [
         'Cliquez sur "📝 Histoire" pour votre conte emoji IA 📖',
@@ -973,7 +973,7 @@ export const content = {
     },
     index: {
       pageTitle: "Keymoji - Generator Hasła Emoji",
-      pageDescription: "Keymoji, innowacyjny generator haseł emoji, ułatwia i uprzyjemnia zabezpieczanie haseł. Wypróbuj teraz zupełnie za darmo!",
+      pageDescription: "🔑 Hasła na nowo pomyślane. 🎯 Niezłomne hasła emoji. 🌈 Darmowe. Bezpieczne. Innowacyjne. 🤖 Technologia odporna na AI. 🌍 W ponad 15 językach.",
       pageKeywords: "Keymoji, hasło emoji, generator haseł, bezpieczeństwo, bezpieczeństwo online",
       pageInstruction: [
         'Kliknij "📝 Opowieść" by uzyskać swoją emoji historię od AI 📖',
@@ -1110,7 +1110,7 @@ export const content = {
     },
     index: {
       pageTitle: "Keymoji - Emoji-adgangskodegenerator",
-      pageDescription: "Keymoji, den innovative emoji-adgangskodegenerator, gør det nemt og sjovt at sikre dine adgangskoder. Prøv det nu helt gratis!",
+      pageDescription: "🔑 Adgangskoder genovervejet. 🎯 Uknuselige emoji-adgangskoder. 🌈 Gratis. Sikkert. Innovativt. 🤖 AI-modstandsdygtig teknologi. 🌍 På 15+ sprog.",
       pageKeywords: "Keymoji, emoji adgangskode, adgangskodegenerator, sikkerhed, online sikkerhed",
       pageInstruction: [
         'Klik på "📝 Historie" for din AI emoji-fortælling 📖',
@@ -1247,7 +1247,7 @@ export const content = {
     },
     index: {
         pageTitle: "Keymoji - Генератор паролей с использованием эмодзи",
-        pageDescription: "Keymoji, инновационный генератор паролей с использованием эмодзи, делает вашу защиту паролей легкой и веселой. Попробуйте его сейчас абсолютно бесплатно!",
+        pageDescription: "🔑 Пароли переосмыслены. 🎯 Непроходимые эмодзи-пароли. 🌈 Бесплатно. Безопасно. Инновационно. 🤖 Технология, устойчивая к ИИ. 🌍 На 15+ языках.",
         pageKeywords: "Keymoji, эмодзи-пароль, генератор паролей, безопасность, онлайн-безопасность",
         pageInstruction: [
             'Нажмите "📝 История" для вашей истории с эмодзи 📖',
@@ -1384,7 +1384,7 @@ export const content = {
     },
     index: {
         pageTitle: "Keymoji - Emoji Parola Oluşturucu",
-        pageDescription: "Keymoji, yenilikçi emoji parola oluşturucusu, parola güvenliğinizi kolay ve eğlenceli hale getirir. Şimdi tamamen ücretsiz deneyin!",
+        pageDescription: "🔑 Şifreler yeniden düşünülüyor. 🎯 Kırılamayan emoji şifreleri. 🌈 Ücretsiz. Güvenli. Yenilikçi. 🤖 AI'ya dirençli teknoloji. 🌍 15+ dilde mevcut.",
         pageKeywords: "Keymoji, emoji parola, parola oluşturucu, güvenlik, çevrimiçi güvenlik",
         pageInstruction: [
             'AI emoji hikayeniz için "📝 Hikaye" yi tıklayın 📖',
@@ -1521,7 +1521,7 @@ export const content = {
     },
     index: {
         pageTitle: "Keymoji - Emoji Wagwoord Skepper",
-        pageDescription: "Keymoji, die innoverende emoji-wagwoord skepper, maak jou wagwoord-sekuriteit maklik en pret. Probeer dit nou heeltemal gratis!",
+        pageDescription: "🔑 Wagwoorde nuut bedink. 🎯 Onkrakbare emoji-wagwoorde. 🌈 Gratis. Veilig. Innovatief. 🤖 KI-bestande tegnologie. 🌍 Verkieslik in 15+ tale.",
         pageKeywords: "Keymoji, emoji-wagwoord, wagwoord skepper, sekuriteit, aanlyn sekuriteit",
         pageInstruction: [
             'Klik op "📝 Storie" vir jou KI emoji-verhaal 📖',
@@ -1658,7 +1658,7 @@ export const content = {
     },
     index: {
         pageTitle: "Keymoji - 絵文字パスワードジェネレーター",
-        pageDescription: "Keymojiは、革新的な絵文字パスワードジェネレーターで、パスワードのセキュリティを簡単で楽しくします。今すぐ完全無料でお試しください！",
+        pageDescription: "🔑 パスワードの新しい考え方。🎯 破られない絵文字パスワード。🌈 無料。安全。革新。🤖 AI抵抗技術。🌍 15か国語以上で利用可能。",
         pageKeywords: "Keymoji、絵文字パスワード、パスワードジェネレーター、セキュリティ、オンラインセキュリティ",
         pageInstruction: [
             'AI絵文字物語をご覧いただくには「📝 ストーリー」をクリックしてください 📖',
@@ -1795,7 +1795,7 @@ export const content = {
     },
     index: {
         pageTitle: "Keymoji - 이모지 패스워드 생성기",
-        pageDescription: "혁신적인 이모지 패스워드 생성기인 Keymoji를 사용하면 패스워드 보안을 쉽고 재미있게 유지할 수 있습니다. 지금 완전 무료로 시도해보세요!",
+        pageDescription: "🔑 비밀번호를 새롭게 생각하다. 🎯 깨지지 않는 이모지 비밀번호. 🌈 무료. 안전. 혁신적. 🤖 AI 저항 기술. 🌍 15개 이상의 언어로 제공됩니다.",
         pageKeywords: "Keymoji, 이모지 패스워드, 패스워드 생성기, 보안, 온라인 보안",
         pageInstruction: [
             'AI 이모지 이야기를 보려면 "📝 스토리"를 클릭하세요 📖',
@@ -1932,7 +1932,7 @@ export const content = {
     },
     index: {
       pageTitle: "Keymoji - Emoji vItlhutlh yIngu'",
-      pageDescription: "Keymoji, Emoji vItlhutlh yIngu' ghojmoHwI', pa' yIngu' DaH jImej. tlhInganpu' DaH ghaH Dach law'laHchugh, nuqneH vItlhutlh yIngu'!",
+      pageDescription: "🔑 'ughIjwI' vIparHa'. 🎯 'ughIjwI' vIparHa'. 🌈 Suq. vIDoH. vIq. 🤖 yISeH yIpoH. 🌍 15+ pong vIjegh.",
       pageKeywords: "Keymoji, emoji vItlhutlh, yIngu' yIngu'wI', bIQew, yIngu' bIQew",
       pageInstruction: [
         'ghItlh "📝 Daq" ghaj AI emoji qIjtaH 📖',
