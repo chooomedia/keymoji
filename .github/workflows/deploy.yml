@@ -23,45 +23,55 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
 
-    # Clean npm cache und node_modules
-    - name: Clean npm cache and modules
+    # Erstelle package-lock.json neu
+    - name: Create fresh package-lock.json
       run: |
-        npm cache clean --force
-        rm -rf node_modules
         rm -f package-lock.json
+        rm -rf node_modules
 
-    # Installiere global benötigte Pakete
-    - name: Install global packages
+    # Installiere die Abhängigkeiten
+    - name: Install Dependencies
       run: |
-        npm install -g webpack
-        npm install -g webpack-cli
-
-    # Installiere Projekt-Abhängigkeiten
-    - name: Install project dependencies
+        npm install --save-dev \
+          webpack@5.88.2 \
+          webpack-cli@5.1.4 \
+          webpack-merge@5.7.3 \
+          webpack-dev-server@4.15.1 \
+          @babel/core@7.14.3 \
+          @babel/preset-env@7.14.2 \
+          babel-loader@8.2.2 \
+          css-loader@5.2.6 \
+          style-loader@2.0.0 \
+          postcss-loader@5.3.0 \
+          mini-css-extract-plugin@1.6.0 \
+          autoprefixer@10.2.5 \
+          tailwindcss@2.2.19 \
+          clean-webpack-plugin@3.0.0 \
+          html-webpack-plugin@5.3.1 \
+          svelte-loader@3.1.9 \
+          svelte@3.59.2
+      
+    - name: Verify installations
       run: |
-        npm install webpack webpack-cli webpack-merge webpack-dev-server --save-dev
-        npm install
-        npm ls webpack webpack-cli webpack-merge webpack-dev-server
+        echo "Node version: $(node -v)"
+        echo "NPM version: $(npm -v)"
+        echo "Webpack version: $(npx webpack -v)"
+        npm list webpack webpack-cli webpack-merge webpack-dev-server
 
     - name: Generate updated time
       run: |
         echo "export const updatedTime = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';" > ./src/updatedTime.js
 
-    # Build mit detaillierter Fehlerausgabe
+    # Build mit npx
     - name: Build
       run: |
         echo "Starting build process..."
-        echo "NODE_ENV: $NODE_ENV"
-        echo "Webpack version: $(npm list webpack)"
-        echo "Webpack-cli version: $(npm list webpack-cli)"
-        echo "Webpack-merge version: $(npm list webpack-merge)"
-        NODE_ENV=production npx webpack --config webpack/build.js --display-error-details
+        npx webpack --config webpack/build.js --mode production
       env:
         NODE_ENV: production
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         API_URL: ${{ secrets.API_URL }}
 
-    # Validiere den Build
     - name: Validate build
       run: |
         if [ ! -d "build" ]; then
@@ -71,7 +81,6 @@ jobs:
         echo "Build directory contents:"
         ls -la build/
 
-    # Deploy nur wenn Build erfolgreich
     - name: Deploy via FTP
       if: success()
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -90,7 +99,6 @@ jobs:
         log-level: verbose
         dangerous-clean-slate: false
 
-    # Cleanup
     - name: Cleanup
       if: always()
       run: |
