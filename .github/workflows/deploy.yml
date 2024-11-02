@@ -23,28 +23,57 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
 
-    - name: Install dependencies
+    # Explizite Installation der kritischen Dependencies
+    - name: Install critical dependencies
       run: |
-        echo "Installing dependencies..."
-        npm install --no-package-lock
-        npm install webpack-merge@5.7.3 --save-exact --no-package-lock
+        echo "Installing critical dependencies..."
+        npm install -g webpack webpack-cli
+        npm install --save-dev \
+          webpack@5.88.2 \
+          webpack-cli@5.1.4 \
+          webpack-merge@5.7.3 \
+          webpack-dev-server@4.15.1
+
+    # Installation der restlichen Dependencies
+    - name: Install remaining dependencies
+      run: |
+        echo "Installing remaining dependencies..."
+        npm install --save-dev \
+          @babel/cli@7.12.1 \
+          @babel/core@7.14.3 \
+          @babel/preset-env@7.14.2 \
+          autoprefixer@10.4.20 \
+          babel-loader@8.2.2 \
+          clean-webpack-plugin@3.0.0 \
+          copy-webpack-plugin@11.0.0 \
+          css-loader@5.2.7 \
+          css-minimizer-webpack-plugin@7.0.0 \
+          cssnano@7.0.6 \
+          file-loader@6.2.0 \
+          html-webpack-plugin@5.3.1 \
+          mini-css-extract-plugin@1.6.2 \
+          postcss@8.4.47 \
+          postcss-loader@5.3.0 \
+          style-loader@2.0.0 \
+          svelte-loader@3.2.4 \
+          svelte-preprocess@4.7.3 \
+          tailwindcss@2.2.19 \
+          terser-webpack-plugin@5.3.10
         
-    - name: Verify installation
+        npm install --save \
+          dotenv@16.3.1 \
+          svelte@3.59.2
+
+    - name: Verify webpack installation
       run: |
         echo "Node version: $(node -v)"
         echo "NPM version: $(npm -v)"
-        echo "Checking webpack installations..."
-        npm ls webpack || true
-        npm ls webpack-cli || true
-        npm ls webpack-merge || true
-        
-        echo "Checking webpack availability..."
-        if [ -f "node_modules/.bin/webpack" ]; then
-          echo "Webpack is installed correctly"
-        else
-          echo "Webpack binary not found"
-          exit 1
-        fi
+        echo "Webpack version: $(npx webpack --version)"
+        echo "Webpack CLI version: $(npx webpack-cli --version)"
+        echo "Checking node_modules structure..."
+        ls -la node_modules/.bin/
+        echo "Checking package.json..."
+        cat package.json
 
     - name: Generate updated time
       run: |
@@ -54,13 +83,7 @@ jobs:
       run: |
         echo "Starting build process..."
         export NODE_OPTIONS="--max-old-space-size=4096"
-        NODE_ENV=production npx webpack --config webpack/build.js || {
-          echo "Build failed. Debug information:"
-          ls -la node_modules/.bin/
-          echo "Webpack config content:"
-          cat webpack/build.js
-          exit 1
-        }
+        npx webpack --config webpack/build.js --mode production
       env:
         NODE_ENV: production
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
