@@ -141,7 +141,7 @@ export const content = {
       },
       {
         id: 6,
-        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Discover Keymoji, the innovative Emoji Password Generator!")}`,
+        href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Discover Keymoji, the innovative Emoji Password Generator!")}`,
         svgContent: instagramIcon,
         alt: "share on Instagram",
         title: "Instagram",
@@ -289,7 +289,7 @@ export const content = {
         },
         {
           id: 6,
-          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Entdecke Keymoji, den innovativen Emoji-Passwort-Generator!")}`,
+          href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Entdecke Keymoji, den innovativen Emoji-Passwort-Generator!")}`,
           svgContent: instagramIcon,
           alt: "Teilen via Instagram",
           title: "Instagram",
@@ -436,7 +436,7 @@ export const content = {
         },
         {
           id: 6,
-          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Luagsch a moi Keymoji, dr innovative Emoji-Passwort-Generator!")}`,
+          href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Luagsch a moi Keymoji, dr innovative Emoji-Passwort-Generator!")}`,
           svgContent: instagramIcon,
           alt: "Teile uf Instagram",
           title: "Instagram",
@@ -583,7 +583,7 @@ export const content = {
         },
         {
           id: 6,
-          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Descubre Keymoji, el innovador generador de contraseñas Emoji!")}`,
+          href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Descubre Keymoji, el innovador generador de contraseñas Emoji!")}`,
           svgContent: instagramIcon,
           alt: "compartir en Instagram",
           title: "Instagram",
@@ -730,7 +730,7 @@ export const content = {
         },
         {
           id: 6,
-          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Ontdek Keymoji, de innovatieve Emoji-wachtwoordgenerator!")}`,
+          href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Ontdek Keymoji, de innovatieve Emoji-wachtwoordgenerator!")}`,
           svgContent: instagramIcon,
           alt: "Delen via Instagram",
           title: "Instagram",
@@ -877,7 +877,7 @@ export const content = {
         },
         {
           id: 6,
-          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Scopri Keymoji, il generatore di password Emoji innovativo!")}`,
+          href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Scopri Keymoji, il generatore di password Emoji innovativo!")}`,
           svgContent: instagramIcon,
           alt: "Condividi tramite Instagram",
           title: "Instagram",
@@ -1024,7 +1024,7 @@ export const content = {
         },
         {
           id: 6,
-          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Découvrez Keymoji, le générateur de mots de passe Emoji innovant !")}`,
+          href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Découvrez Keymoji, le générateur de mots de passe Emoji innovant !")}`,
           svgContent: instagramIcon,
           alt: "Partager par Instagram",
           title: "Instagram",
@@ -1171,7 +1171,7 @@ export const content = {
         },
         {
           id: 6,
-          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Odkryj Keymoji, innowacyjny generator haseł Emoji!")}`,
+          href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Odkryj Keymoji, innowacyjny generator haseł Emoji!")}`,
           svgContent: instagramIcon,
           alt: "Udostępnij na Instagram",
           title: "Instagram",
@@ -1318,7 +1318,7 @@ export const content = {
         },
         {
           id: 6,
-          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Opdag Keymoji, den innovative Emoji-adgangskodegenerator!")}`,
+          href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Opdag Keymoji, den innovative Emoji-adgangskodegenerator!")}`,
           svgContent: instagramIcon,
           alt: "Del på Instagram",
           title: "Instagram",
@@ -1465,7 +1465,7 @@ export const content = {
         },
         {
           id: 6,
-          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Откройте для себя Keymoji, инновационный генератор паролей Emoji!")}`,
+          href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Откройте для себя Keymoji, инновационный генератор паролей Emoji!")}`,
           svgContent: instagramIcon,
           alt: "поделиться в Instagram",
           title: "Instagram",
@@ -1612,7 +1612,7 @@ export const content = {
       },
       {
         id: 6,
-        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Keymoji'yi keşfedin, yenilikçi Emoji Şifre Üreticisi!")}`,
+        href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Keymoji'yi keşfedin, yenilikçi Emoji Şifre Üreticisi!")}`,
         svgContent: instagramIcon,
         alt: "Instagram'da paylaş",
         title: "Instagram",
@@ -1759,7 +1759,7 @@ export const content = {
       },
       {
         id: 6,
-        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Ontdek Keymoji, die innoverende Emoji-wagwoordgenerator!")}`,
+        href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Ontdek Keymoji, die innoverende Emoji-wagwoordgenerator!")}`,
         svgContent: instagramIcon,
         alt: "deel op Instagram",
         title: "Instagram",
@@ -1906,7 +1906,7 @@ export const content = {
       },
       {
         id: 6,
-        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Keymojiを発見しよう、革新的な絵文字パスワードジェネレーター！")}`,
+        href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Keymojiを発見しよう、革新的な絵文字パスワードジェネレーター！")}`,
         svgContent: instagramIcon,
         alt: "Instagramで共有",
         title: "Instagram",
@@ -2053,7 +2053,7 @@ export const content = {
       },
       {
         id: 6,
-        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Keymoji를 발견하세요, 혁신적인 이모지 비밀번호 생성기!")}`,
+        href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Keymoji를 발견하세요, 혁신적인 이모지 비밀번호 생성기!")}`,
         svgContent: instagramIcon,
         alt: "인스타그램에 공유",
         title: "인스타그램",
@@ -2198,7 +2198,7 @@ export const content = {
         },
         {
           id: 6,
-          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("yIHbej Keymoji, nuqneH emoji 'ejwI' qaw' vIghro'!")}`,
+          href: `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("yIHbej Keymoji, nuqneH emoji 'ejwI' qaw' vIghro'!")}`,
           svgContent: instagramIcon,
           alt: "Instagram-da 'oH",
           title: "Instagram",
