@@ -68,9 +68,9 @@
     <meta property="og:locale" content="{$currentLanguage}">
 
     <!-- Favicons -->
-    <link rel="icon" type="image/png" href="/images/keymoji-logo-11-2023-simple.png">
-    <link rel="apple-touch-icon" href="/images/keymoji-logo-11-2023-simple.png">
-    <link rel="shortcut icon" type="image/png" href="/images/keymoji-logo-11-2023-simple.png">
+    <link rel="icon" type="image/png" href="./images/keymoji-logo-11-2023-simple.png">
+    <link rel="apple-touch-icon" href="./images/keymoji-logo-11-2023-simple.png">
+    <link rel="shortcut icon" type="image/png" href="./images/keymoji-logo-11-2023-simple.png">
 </svelte:head>
 
 {#if $modalMessage && $modalMessage.trim() !== ''}

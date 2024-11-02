@@ -18,6 +18,9 @@ pids
 *.seed
 *.pid.lock
 
+# npm packe-lock
+package-lock.json
+
 # vs code workspace data
 *.code-workspace
 
