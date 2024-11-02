@@ -22,51 +22,38 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
 
-    # Erstelle package-lock.json neu
-    - name: Create fresh package-lock.json
+    # Explizites Löschen und Neuinstallieren
+    - name: Clean install
       run: |
-        rm -f package-lock.json
         rm -rf node_modules
+        rm -f package-lock.json
+        npm cache clean --force
+        npm install
+        npm install webpack-merge@5.7.3 --save-exact
 
-    # Installiere die Abhängigkeiten
-    - name: Install Dependencies
-      run: |
-        npm install --save-dev \
-          webpack@5.88.2 \
-          webpack-cli@5.1.4 \
-          webpack-merge@5.7.3 \
-          webpack-dev-server@4.15.1 \
-          @babel/core@7.14.3 \
-          @babel/preset-env@7.14.2 \
-          babel-loader@8.2.2 \
-          css-loader@5.2.6 \
-          style-loader@2.0.0 \
-          postcss-loader@5.3.0 \
-          mini-css-extract-plugin@1.6.0 \
-          autoprefixer@10.2.5 \
-          tailwindcss@2.2.19 \
-          clean-webpack-plugin@3.0.0 \
-          html-webpack-plugin@5.3.1 \
-          svelte-loader@3.1.9 \
-          svelte@3.59.2
-      
-    - name: Verify installations
+    # Verify installations
+    - name: Verify critical dependencies
       run: |
         echo "Node version: $(node -v)"
         echo "NPM version: $(npm -v)"
-        echo "Webpack version: $(npx webpack -v)"
-        npm list webpack webpack-cli webpack-merge webpack-dev-server
+        npm list webpack webpack-cli webpack-merge
 
     - name: Generate updated time
       run: |
         echo "export const updatedTime = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';" > ./src/updatedTime.js
 
-    # Build mit npx
+    # Build mit zusätzlicher Fehlerbehandlung
     - name: Build
       run: |
         echo "Starting build process..."
-        npx webpack --config webpack/build.js --mode production
+        export NODE_OPTIONS="--max-old-space-size=4096"
+        npm run build || {
+          echo "Build failed. Showing webpack config:"
+          cat webpack/build.js
+          exit 1
+        }
       env:
         NODE_ENV: production
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -104,3 +91,15 @@ jobs:
       run: |
         rm -rf build
         rm -f .env
+
+    # Füge Artefakt-Upload für Debug-Zwecke hinzu
+    - name: Upload build logs
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-logs
+        path: |
+          npm-debug.log*
+          yarn-debug.log*
+          yarn-error.log*
+          webpack/build.js
