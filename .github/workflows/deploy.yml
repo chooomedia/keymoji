@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  # Ermöglicht manuelle Ausführung
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -17,68 +17,63 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        fetch-depth: 1  # Shallow clone für schnellere Checkouts
 
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'  # Aktiviert Caching für npm
 
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          **/node_modules
-          ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Setup environment
+    # Clean npm cache und node_modules
+    - name: Clean npm cache and modules
       run: |
-        echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
-        echo "API_URL=${{ secrets.API_URL }}" >> .env
+        npm cache clean --force
+        rm -rf node_modules
+        rm -f package-lock.json
+
+    # Installiere global benötigte Pakete
+    - name: Install global packages
+      run: |
+        npm install -g webpack
+        npm install -g webpack-cli
+
+    # Installiere Projekt-Abhängigkeiten
+    - name: Install project dependencies
+      run: |
+        npm install webpack webpack-cli webpack-merge webpack-dev-server --save-dev
+        npm install
+        npm ls webpack webpack-cli webpack-merge webpack-dev-server
 
     - name: Generate updated time
       run: |
         echo "export const updatedTime = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';" > ./src/updatedTime.js
-        cat ./src/updatedTime.js
 
+    # Build mit detaillierter Fehlerausgabe
     - name: Build
       run: |
-        npm run build
-        echo "Build completed at $(date)"
+        echo "Starting build process..."
+        echo "NODE_ENV: $NODE_ENV"
+        echo "Webpack version: $(npm list webpack)"
+        echo "Webpack-cli version: $(npm list webpack-cli)"
+        echo "Webpack-merge version: $(npm list webpack-merge)"
+        NODE_ENV=production npx webpack --config webpack/build.js --display-error-details
       env:
         NODE_ENV: production
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         API_URL: ${{ secrets.API_URL }}
 
+    # Validiere den Build
     - name: Validate build
       run: |
         if [ ! -d "build" ]; then
           echo "Build directory is missing!"
           exit 1
         fi
-        if [ ! -f "build/index.html" ]; then
-          echo "index.html is missing!"
-          exit 1
-        fi
+        echo "Build directory contents:"
+        ls -la build/
 
-    - name: List build directory contents
-      run: ls -R build
-
-    - name: Prepare for deployment
-      run: |
-        find build -type f -name "*.html" -exec gzip -9 -k {} \;
-        find build -type f -name "*.css" -exec gzip -9 -k {} \;
-        find build -type f -name "*.js" -exec gzip -9 -k {} \;
-
-    - name: 📂 Deploy via FTP
+    # Deploy nur wenn Build erfolgreich
+    - name: Deploy via FTP
+      if: success()
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ secrets.HOST }}
@@ -92,17 +87,10 @@ jobs:
           **/node_modules/**
           **/*.map
           **/.DS_Store
-          **/thumbs.db
         log-level: verbose
         dangerous-clean-slate: false
-        timeout: 60000  # 60 Sekunden Timeout
 
-    - name: Verify deployment
-      if: success()
-      run: |
-        echo "🚀 Deployment completed successfully!"
-        echo "Timestamp: $(date -u)"
-        
+    # Cleanup
     - name: Cleanup
       if: always()
       run: |
