@@ -1,5 +1,5 @@
 import { readable } from "svelte/store";
-import { emailIcon, fbmessengerIcon, kofiIcon, linkedinIcon, logo, paypalIcon, redditIcon, whatsappIcon } from "./shapes";
+import { emailIcon, fbmessengerIcon, kofiIcon, linkedinIcon, logo, paypalIcon, redditIcon, whatsappIcon, instagramIcon } from "./shapes";
 
 export const content = {
   logo: {
@@ -141,7 +141,7 @@ export const content = {
       },
       {
         id: 6,
-        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Discover Keymoji, the innovative Emoji Password Generator!")}`
+        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Discover Keymoji, the innovative Emoji Password Generator!")}`,
         svgContent: instagramIcon,
         alt: "share on Instagram",
         title: "Instagram",
