@@ -22,9 +22,7 @@ jobs:
       run: npm ci
 
     - name: Generate updated time
-      run:
-        echo "export const updatedTime = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';" > ./src/updatedTime.js
-        cat ./src/updatedTime.js
+      run: cat ./src/updatedTime.js
 
     - name: Build
       run: npm run build

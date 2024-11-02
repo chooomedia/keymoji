@@ -7,7 +7,7 @@
     "author": "@davi-mbatista",
     "scripts": {
         "start": "NODE_ENV=development webpack serve --config webpack/start.js",
-        "build": "NODE_ENV=production webpack --config webpack/build.js && node scripts/optimize-build.js"
+        "build": "node scripts/update-timestamp.js && NODE_ENV=production webpack --config webpack/build.js && node scripts/optimize-build.js"
     },
     "devDependencies": {
         "@babel/cli": "^7.12.1",
