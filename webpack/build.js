@@ -6,6 +6,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 const { paths } = require('./utils');
 
@@ -122,6 +123,15 @@ module.exports = merge(common, {
                     }
                 }
             ]
+        }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, '../public/index.html'),
+            filename: 'index.html',
+            inject: true,
+            minify: {
+                collapseWhitespace: true,
+                removeComments: true,
+            },
         }),
         new webpack.DefinePlugin({
             'process.env.TIMESTAMP': JSON.stringify(new Date().toISOString())

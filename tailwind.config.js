@@ -4,7 +4,6 @@ module.exports = {
     './src/**/*.{html,js,svelte}',
     './public/index.html'
   ],
-  safelist: [], // Add any classes you want to keep
   darkMode: 'class',
   theme: {
     screens: {
