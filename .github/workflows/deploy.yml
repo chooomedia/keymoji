@@ -22,35 +22,42 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
 
-    # Explizites Löschen und Neuinstallieren
-    - name: Clean install
+    - name: Install dependencies
       run: |
-        rm -rf node_modules
-        rm -f package-lock.json
-        npm cache clean --force
-        npm install
-        npm install webpack-merge@5.7.3 --save-exact
-
-    # Verify installations
-    - name: Verify critical dependencies
+        echo "Installing dependencies..."
+        npm install --no-package-lock
+        npm install webpack-merge@5.7.3 --save-exact --no-package-lock
+        
+    - name: Verify installation
       run: |
         echo "Node version: $(node -v)"
         echo "NPM version: $(npm -v)"
-        npm list webpack webpack-cli webpack-merge
+        echo "Checking webpack installations..."
+        npm ls webpack || true
+        npm ls webpack-cli || true
+        npm ls webpack-merge || true
+        
+        echo "Checking webpack availability..."
+        if [ -f "node_modules/.bin/webpack" ]; then
+          echo "Webpack is installed correctly"
+        else
+          echo "Webpack binary not found"
+          exit 1
+        fi
 
     - name: Generate updated time
       run: |
         echo "export const updatedTime = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';" > ./src/updatedTime.js
 
-    # Build mit zusätzlicher Fehlerbehandlung
     - name: Build
       run: |
         echo "Starting build process..."
         export NODE_OPTIONS="--max-old-space-size=4096"
-        npm run build || {
-          echo "Build failed. Showing webpack config:"
+        NODE_ENV=production npx webpack --config webpack/build.js || {
+          echo "Build failed. Debug information:"
+          ls -la node_modules/.bin/
+          echo "Webpack config content:"
           cat webpack/build.js
           exit 1
         }
@@ -92,14 +99,14 @@ jobs:
         rm -rf build
         rm -f .env
 
-    # Füge Artefakt-Upload für Debug-Zwecke hinzu
-    - name: Upload build logs
+    - name: Upload debug artifacts
       if: failure()
       uses: actions/upload-artifact@v3
       with:
-        name: build-logs
+        name: debug-artifacts
         path: |
+          package.json
+          package-lock.json
           npm-debug.log*
-          yarn-debug.log*
-          yarn-error.log*
           webpack/build.js
+          node_modules/.bin/
