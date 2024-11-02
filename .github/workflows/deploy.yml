@@ -12,94 +12,30 @@ jobs:
 
     env:
       NODE_ENV: production
-      NODE_VERSION: '20'
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Setup Node.js
+    - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ env.NODE_VERSION }}
+        node-version: '20'
 
-    # Explizite Installation der kritischen Dependencies
-    - name: Install critical dependencies
-      run: |
-        echo "Installing critical dependencies..."
-        npm install -g webpack webpack-cli
-        npm install --save-dev \
-          webpack@5.88.2 \
-          webpack-cli@5.1.4 \
-          webpack-merge@5.7.3 \
-          webpack-dev-server@4.15.1
+    - name: Install dependencies
+      run: npm install
 
-    # Installation der restlichen Dependencies
-    - name: Install remaining dependencies
-      run: |
-        echo "Installing remaining dependencies..."
-        npm install --save-dev \
-          @babel/cli@7.12.1 \
-          @babel/core@7.14.3 \
-          @babel/preset-env@7.14.2 \
-          autoprefixer@10.4.20 \
-          babel-loader@8.2.2 \
-          clean-webpack-plugin@3.0.0 \
-          copy-webpack-plugin@11.0.0 \
-          css-loader@5.2.7 \
-          css-minimizer-webpack-plugin@7.0.0 \
-          cssnano@7.0.6 \
-          file-loader@6.2.0 \
-          html-webpack-plugin@5.3.1 \
-          mini-css-extract-plugin@1.6.2 \
-          postcss@8.4.47 \
-          postcss-loader@5.3.0 \
-          style-loader@2.0.0 \
-          svelte-loader@3.2.4 \
-          svelte-preprocess@4.7.3 \
-          tailwindcss@2.2.19 \
-          terser-webpack-plugin@5.3.10
-        
-        npm install --save \
-          dotenv@16.3.1 \
-          svelte@3.59.2
-
-    - name: Verify webpack installation
-      run: |
-        echo "Node version: $(node -v)"
-        echo "NPM version: $(npm -v)"
-        echo "Webpack version: $(npx webpack --version)"
-        echo "Webpack CLI version: $(npx webpack-cli --version)"
-        echo "Checking node_modules structure..."
-        ls -la node_modules/.bin/
-        echo "Checking package.json..."
-        cat package.json
+    - name: Build
+      run: npm run build
+      env:
+        NODE_ENV: production
 
     - name: Generate updated time
       run: |
         echo "export const updatedTime = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';" > ./src/updatedTime.js
+        cat ./src/updatedTime.js
 
-    - name: Build
-      run: |
-        echo "Starting build process..."
-        export NODE_OPTIONS="--max-old-space-size=4096"
-        npx webpack --config webpack/build.js --mode production
-      env:
-        NODE_ENV: production
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        API_URL: ${{ secrets.API_URL }}
-
-    - name: Validate build
-      run: |
-        if [ ! -d "build" ]; then
-          echo "Build directory is missing!"
-          exit 1
-        fi
-        echo "Build directory contents:"
-        ls -la build/
-
-    - name: Deploy via FTP
-      if: success()
+    - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ secrets.HOST }}
@@ -111,25 +47,5 @@ jobs:
           **/.git*
           **/.git*/**
           **/node_modules/**
-          **/*.map
-          **/.DS_Store
         log-level: verbose
         dangerous-clean-slate: false
-
-    - name: Cleanup
-      if: always()
-      run: |
-        rm -rf build
-        rm -f .env
-
-    - name: Upload debug artifacts
-      if: failure()
-      uses: actions/upload-artifact@v3
-      with:
-        name: debug-artifacts
-        path: |
-          package.json
-          package-lock.json
-          npm-debug.log*
-          webpack/build.js
-          node_modules/.bin/
