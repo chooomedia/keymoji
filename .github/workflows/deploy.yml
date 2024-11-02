@@ -4,36 +4,27 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    env:
-      NODE_ENV: production
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
-
     - name: Install dependencies
-      run: npm install
+      run: npm ci
+
+    - name: Generate updated time
+      run:
+        echo "export const updatedTime = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';" > ./src/updatedTime.js
+        cat ./src/updatedTime.js
 
     - name: Build
       run: npm run build
       env:
         NODE_ENV: production
 
-    - name: Generate updated time
-      run: |
-        echo "export const updatedTime = '$(date -u +"%Y-%m-%dT%H:%M:%SZ")';" > ./src/updatedTime.js
-        cat ./src/updatedTime.js
+    - name: List build directory contents
+      run: ls -R build
 
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -48,4 +39,3 @@ jobs:
           **/.git*/**
           **/node_modules/**
         log-level: verbose
-        dangerous-clean-slate: false
