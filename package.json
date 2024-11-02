@@ -51,13 +51,6 @@
         "last 3 safari version",
         "last 3 ios_saf version"
     ],
-    "postcss": {
-        "plugins": {
-            "postcss-preset-env": {},
-            "postcss-import": {},
-            "tailwindcss": {}
-        }
-    },
     "prettier": {
         "printWidth": 80,
         "tabWidth": 4,
