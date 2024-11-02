@@ -85,13 +85,13 @@ export const content = {
         button: "✅ Confirm request",
         privacy: "Rest assured, your data is in good hands with us 🤲.<br>Your details will not be passed on to third parties 🔒."
     },
-    footerText: "© 2024 🔑moji.ws by Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    footerText: "© 2024 keymoji.wtf by Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
   },
   shareButtons: {
     links: [
       {
         id: 1,
-        href: "https://api.whatsapp.com/send?text=Discover%20Keymoji%2C%20the%20innovative%20Emoji%20Password%20Generator!%20https%3A%2F%2F🔑moji.ws",
+        href: "https://api.whatsapp.com/send?text=Discover%20Keymoji%2C%20the%20innovative%20Emoji%20Password%20Generator!%20https%3A%2F%2Fkeymoji.wtf",
         svgContent: whatsappIcon,
         alt: "share on whatsapp",
         title: "Whatsapp",
@@ -101,7 +101,7 @@ export const content = {
       },
       {
         id: 2,
-        href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Discover%20Keymoji%2C%20the%20Emoji%20Password%20Generator",
+        href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Discover%20Keymoji%2C%20the%20Emoji%20Password%20Generator",
         svgContent: redditIcon,
         alt: "share on reddit",
         title: "Reddit",
@@ -111,7 +111,7 @@ export const content = {
       },
       {
         id: 3,
-        href: "https://www.linkedin.com/sharing/share-offsite/?url=https://🔑moji.ws",
+        href: "https://www.linkedin.com/sharing/share-offsite/?url=https://keymoji.wtf",
         svgContent: linkedinIcon,
         alt: "share on linkedin",
         title: "Linkedin",
@@ -121,7 +121,7 @@ export const content = {
       },
       {
         id: 4,
-        href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+        href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
         svgContent: fbmessengerIcon,
         alt: "share via facebook messenger",
         title: "Messenger",
@@ -130,11 +130,21 @@ export const content = {
         dialogContent: ""
       },
       {
-        id: 4,
-        href: "mailto:?subject=Discover%20Keymoji&body=Try%20out%20Keymoji%2C%20the%20innovative%20Emoji%20Password%20Generator!%20https%3A%2F%2F🔑moji.ws",
+        id: 5,
+        href: "mailto:?subject=Discover%20Keymoji&body=Try%20out%20Keymoji%2C%20the%20innovative%20Emoji%20Password%20Generator!%20https%3A%2F%2Fkeymoji.wtf",
         svgContent: emailIcon,
         alt: "share via e-mail",
         title: "E-Mail",
+        target: "_blank",
+        rel: "noreferrer",
+        dialogContent: ""
+      },
+      {
+        id: 6,
+        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Discover Keymoji, the innovative Emoji Password Generator!")}`
+        svgContent: instagramIcon,
+        alt: "share on Instagram",
+        title: "Instagram",
         target: "_blank",
         rel: "noreferrer",
         dialogContent: ""
@@ -223,13 +233,13 @@ export const content = {
           button: "✅ Anfrage bestätigen",
           privacy: "Keine Sorge, deine Daten sind bei uns in guten Händen 🤲.<br>Deine Details werden nicht an Dritte weitergegeben 🔒."
       },
-      footerText: "© 2024 🔑moji.ws von Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      footerText: "© 2024 keymoji.wtf von Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
     },
     shareButtons: {
       links: [
         {
           id: 1,
-          href: "https://api.whatsapp.com/send?text=Entdecke%20Keymoji%2C%20den%20innovativen%20Emoji%20Passwort%20Generator!%20https%3A%2F%2F🔑moji.ws",
+          href: "https://api.whatsapp.com/send?text=Entdecke%20Keymoji%2C%20den%20innovativen%20Emoji%20Passwort%20Generator!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: whatsappIcon,
           alt: "Teilen auf WhatsApp",
           title: "WhatsApp",
@@ -239,7 +249,7 @@ export const content = {
         },
         {
           id: 2,
-          href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Entdecke%20Keymoji%2C%20den%20Emoji%20Passwort%20Generator",
+          href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Entdecke%20Keymoji%2C%20den%20Emoji%20Passwort%20Generator",
           svgContent: redditIcon,
           alt: "Teilen auf Reddit",
           title: "Reddit",
@@ -249,7 +259,7 @@ export const content = {
         },
         {
           id: 3,
-          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
           svgContent: linkedinIcon,
           alt: "Teilen auf LinkedIn",
           title: "LinkedIn",
@@ -259,7 +269,7 @@ export const content = {
         },
         {
           id: 4,
-          href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+          href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
           svgContent: fbmessengerIcon,
           alt: "Teilen via Facebook Messenger",
           title: "Messenger",
@@ -269,10 +279,20 @@ export const content = {
         },
         {
           id: 5,
-          href: "mailto:?subject=Entdecke%20Keymoji&body=Probiere%20Keymoji%20aus%2C%20den%20innovativen%20Emoji%20Passwort%20Generator!%20https%3A%2F%2F🔑moji.ws",
+          href: "mailto:?subject=Entdecke%20Keymoji&body=Probiere%20Keymoji%20aus%2C%20den%20innovativen%20Emoji%20Passwort%20Generator!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: emailIcon,
           alt: "Teilen via E-Mail",
           title: "E-Mail",
+          target: "_blank",
+          rel: "noreferrer",
+          dialogContent: ""
+        },
+        {
+          id: 6,
+          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Entdecke Keymoji, den innovativen Emoji-Passwort-Generator!")}`,
+          svgContent: instagramIcon,
+          alt: "Teilen via Instagram",
+          title: "Instagram",
           target: "_blank",
           rel: "noreferrer",
           dialogContent: ""
@@ -360,13 +380,13 @@ export const content = {
           button: "✅ Aafrog bestätige",
           privacy: "Kei Sorge, mit dine Date wird guet umgange bi üs 🤲.<br>Dini Detail werde nid an Drüttparteie wiitergäh 🔒."
       },
-      footerText: "© 2024 🔑moji.ws vo Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      footerText: "© 2024 keymoji.wtf vo Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
     },
     shareButtons: {
       links: [
         {
           id: 1,
-          href: "https://api.whatsapp.com/send?text=Entdecke%20Keymoji%2C%20de%20innovativ%20Emoji%20Passwort%20Generator!%20https%3A%2F%2F🔑moji.ws",
+          href: "https://api.whatsapp.com/send?text=Entdecke%20Keymoji%2C%20de%20innovativ%20Emoji%20Passwort%20Generator!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: whatsappIcon,
           alt: "Teile uf WhatsApp",
           title: "WhatsApp",
@@ -376,7 +396,7 @@ export const content = {
         },
         {
           id: 2,
-          href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Entdecke%20Keymoji%2C%20de%20Emoji%20Passwort%20Generator",
+          href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Entdecke%20Keymoji%2C%20de%20Emoji%20Passwort%20Generator",
           svgContent: redditIcon,
           alt: "Teile uf Reddit",
           title: "Reddit",
@@ -386,7 +406,7 @@ export const content = {
         },
         {
           id: 3,
-          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
           svgContent: linkedinIcon,
           alt: "Teile uf LinkedIn",
           title: "LinkedIn",
@@ -396,7 +416,7 @@ export const content = {
         },
         {
           id: 4,
-          href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+          href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
           svgContent: fbmessengerIcon,
           alt: "Teile via Facebook Messenger",
           title: "Messenger",
@@ -406,10 +426,20 @@ export const content = {
         },
         {
           id: 5,
-          href: "mailto:?subject=Entdecke%20Keymoji&body=Probiere%20Keymoji%20us%2C%20de%20innovativ%20Emoji%20Passwort%20Generator!%20https%3A%2F%2F🔑moji.ws",
+          href: "mailto:?subject=Entdecke%20Keymoji&body=Probiere%20Keymoji%20us%2C%20de%20innovativ%20Emoji%20Passwort%20Generator!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: emailIcon,
           alt: "Teile via E-Mail",
           title: "E-Mail",
+          target: "_blank",
+          rel: "noreferrer",
+          dialogContent: ""
+        },
+        {
+          id: 6,
+          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Luagsch a moi Keymoji, dr innovative Emoji-Passwort-Generator!")}`,
+          svgContent: instagramIcon,
+          alt: "Teile uf Instagram",
+          title: "Instagram",
           target: "_blank",
           rel: "noreferrer",
           dialogContent: ""
@@ -497,13 +527,13 @@ export const content = {
           button: "✅ Confirmar solicitud",
           privacy: "Descuida, tus datos están en buenas manos con nosotros 🤲.<br>Tus detalles no serán compartidos con terceros 🔒."
       },
-      footerText: "© 2024 🔑moji.ws por Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      footerText: "© 2024 keymoji.wtf por Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
     },
     shareButtons: {
       links: [
         {
           id: 1,
-          href: "https://api.whatsapp.com/send?text=Descubre%20Keymoji%2C%20el%20innovador%20Generador%20de%20Contraseñas%20Emoji!%20https%3A%2F%2F🔑moji.ws",
+          href: "https://api.whatsapp.com/send?text=Descubre%20Keymoji%2C%20el%20innovador%20Generador%20de%20Contraseñas%20Emoji!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: whatsappIcon,
           alt: "Compartir en WhatsApp",
           title: "WhatsApp",
@@ -513,7 +543,7 @@ export const content = {
         },
         {
           id: 2,
-          href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Descubre%20Keymoji%2C%20el%20Generador%20de%20Contraseñas%20Emoji",
+          href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Descubre%20Keymoji%2C%20el%20Generador%20de%20Contraseñas%20Emoji",
           svgContent: redditIcon,
           alt: "Compartir en Reddit",
           title: "Reddit",
@@ -523,7 +553,7 @@ export const content = {
         },
         {
           id: 3,
-          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
           svgContent: linkedinIcon,
           alt: "Compartir en LinkedIn",
           title: "LinkedIn",
@@ -533,7 +563,7 @@ export const content = {
         },
         {
           id: 4,
-          href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+          href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
           svgContent: fbmessengerIcon,
           alt: "Compartir vía Facebook Messenger",
           title: "Messenger",
@@ -543,10 +573,20 @@ export const content = {
         },
         {
           id: 5,
-          href: "mailto:?subject=Descubre%20Keymoji&body=Prueba%20Keymoji%2C%20el%20innovador%20Generador%20de%20Contraseñas%20Emoji!%20https%3A%2F%2F🔑moji.ws",
+          href: "mailto:?subject=Descubre%20Keymoji&body=Prueba%20Keymoji%2C%20el%20innovador%20Generador%20de%20Contraseñas%20Emoji!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: emailIcon,
           alt: "Compartir vía correo electrónico",
           title: "Correo electrónico",
+          target: "_blank",
+          rel: "noreferrer",
+          dialogContent: ""
+        },
+        {
+          id: 6,
+          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Descubre Keymoji, el innovador generador de contraseñas Emoji!")}`,
+          svgContent: instagramIcon,
+          alt: "compartir en Instagram",
+          title: "Instagram",
           target: "_blank",
           rel: "noreferrer",
           dialogContent: ""
@@ -634,13 +674,13 @@ export const content = {
           button: "✅ Verzoek bevestigen",
           privacy: "Wees gerust, jouw gegevens zijn in goede handen bij ons 🤲.<br>Jouw details worden niet aan derden doorgegeven 🔒."
       },
-      footerText: "© 2024 🔑moji.ws",
+      footerText: "© 2024 keymoji.wtf",
     },
     shareButtons: {
       links: [
         {
           id: 1,
-          href: "https://api.whatsapp.com/send?text=Ontdek%20Keymoji%2C%20de%20innovatieve%20Emoji%20Wachtwoordgenerator!%20https%3A%2F%2F🔑moji.ws",
+          href: "https://api.whatsapp.com/send?text=Ontdek%20Keymoji%2C%20de%20innovatieve%20Emoji%20Wachtwoordgenerator!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: whatsappIcon,
           alt: "Delen op WhatsApp",
           title: "WhatsApp",
@@ -650,7 +690,7 @@ export const content = {
         },
         {
           id: 2,
-          href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Ontdek%20Keymoji%2C%20de%20Emoji%20Wachtwoordgenerator",
+          href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Ontdek%20Keymoji%2C%20de%20Emoji%20Wachtwoordgenerator",
           svgContent: redditIcon,
           alt: "Delen op Reddit",
           title: "Reddit",
@@ -660,7 +700,7 @@ export const content = {
         },
         {
           id: 3,
-          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
           svgContent: linkedinIcon,
           alt: "Delen op LinkeIn",
           title: "LinkedIn",
@@ -670,7 +710,7 @@ export const content = {
         },
         {
           id: 4,
-          href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+          href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
           svgContent: fbmessengerIcon,
           alt: "Delen via Facebook Messenger",
           title: "Messenger",
@@ -680,10 +720,20 @@ export const content = {
         },
         {
           id: 5,
-          href: "mailto:?subject=Ontdek%20Keymoji&body=Probeer%20Keymoji%2C%20de%20innovatieve%20Emoji%20Wachtwoordgenerator!%20https%3A%2F%2F🔑moji.ws",
+          href: "mailto:?subject=Ontdek%20Keymoji&body=Probeer%20Keymoji%2C%20de%20innovatieve%20Emoji%20Wachtwoordgenerator!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: emailIcon,
           alt: "Delen via e-mail",
           title: "E-mail",
+          target: "_blank",
+          rel: "noreferrer",
+          dialogContent: ""
+        },
+        {
+          id: 6,
+          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Ontdek Keymoji, de innovatieve Emoji-wachtwoordgenerator!")}`,
+          svgContent: instagramIcon,
+          alt: "Delen via Instagram",
+          title: "Instagram",
           target: "_blank",
           rel: "noreferrer",
           dialogContent: ""
@@ -771,13 +821,13 @@ export const content = {
           button: "✅ Conferma richiesta",
           privacy: "Stai tranquillo, i tuoi dati sono in buone mani con noi 🤲.<br>I tuoi dettagli non saranno condivisi con terzi 🔒."
       },
-      footerText: "© 2024 🔑moji.ws di Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      footerText: "© 2024 keymoji.wtf di Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
     },
     shareButtons: {
       links: [
         {
           id: 1,
-          href: "https://api.whatsapp.com/send?text=Scopri%20Keymoji%2C%20l'innovativo%20Generatore%20di%20Password%20Emoji!%20https%3A%2F%2F🔑moji.ws",
+          href: "https://api.whatsapp.com/send?text=Scopri%20Keymoji%2C%20l'innovativo%20Generatore%20di%20Password%20Emoji!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: whatsappIcon,
           alt: "Condividi su WhatsApp",
           title: "WhatsApp",
@@ -787,7 +837,7 @@ export const content = {
         },
         {
           id: 2,
-          href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Scopri%20Keymoji%2C%20il%20Generatore%20di%20Password%20Emoji",
+          href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Scopri%20Keymoji%2C%20il%20Generatore%20di%20Password%20Emoji",
           svgContent: redditIcon,
           alt: "Condividi su Reddit",
           title: "Reddit",
@@ -797,7 +847,7 @@ export const content = {
         },
         {
           id: 3,
-          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
           svgContent: linkedinIcon,
           alt: "Condividi su LinkedIn",
           title: "LinkedIn",
@@ -807,7 +857,7 @@ export const content = {
         },
         {
           id: 4,
-          href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+          href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
           svgContent: fbmessengerIcon,
           alt: "Condividi tramite Facebook Messenger",
           title: "Messenger",
@@ -817,10 +867,20 @@ export const content = {
         },
         {
           id: 5,
-          href: "mailto:?subject=Scopri%20Keymoji&body=Prova%20Keymoji%2C%20l'innovativo%20Generatore%20di%20Password%20Emoji!%20https%3A%2F%2F🔑moji.ws",
+          href: "mailto:?subject=Scopri%20Keymoji&body=Prova%20Keymoji%2C%20l'innovativo%20Generatore%20di%20Password%20Emoji!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: emailIcon,
           alt: "Condividi tramite e-mail",
           title: "E-mail",
+          target: "_blank",
+          rel: "noreferrer",
+          dialogContent: ""
+        },
+        {
+          id: 6,
+          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Scopri Keymoji, il generatore di password Emoji innovativo!")}`,
+          svgContent: instagramIcon,
+          alt: "Condividi tramite Instagram",
+          title: "Instagram",
           target: "_blank",
           rel: "noreferrer",
           dialogContent: ""
@@ -908,13 +968,13 @@ export const content = {
           button: "✅ Confirmer la demande",
           privacy: "Soyez rassuré, vos données sont entre de bonnes mains avec nous 🤲.<br>Vos détails ne seront pas partagés avec des tiers 🔒."
       },
-      footerText: "© 2024 🔑moji.ws di Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      footerText: "© 2024 keymoji.wtf di Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
     },
     shareButtons: {
       links: [
         {
           id: 1,
-          href: "https://api.whatsapp.com/send?text=Découvrez%20Keymoji%2C%20le%20générateur%20de%20mot%20de%20passe%20emoji%20innovant%20!%20https%3A%2F%2F🔑moji.ws",
+          href: "https://api.whatsapp.com/send?text=Découvrez%20Keymoji%2C%20le%20générateur%20de%20mot%20de%20passe%20emoji%20innovant%20!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: whatsappIcon,
           alt: "Partager sur WhatsApp",
           title: "WhatsApp",
@@ -924,7 +984,7 @@ export const content = {
         },
         {
           id: 2,
-          href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Découvrez%20Keymoji%2C%20le%20générateur%20de%20mot%20de%20passe%20emoji",
+          href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Découvrez%20Keymoji%2C%20le%20générateur%20de%20mot%20de%20passe%20emoji",
           svgContent: redditIcon,
           alt: "Partager sur Reddit",
           title: "Reddit",
@@ -934,7 +994,7 @@ export const content = {
         },
         {
           id: 3,
-          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
           svgContent: linkedinIcon,
           alt: "Partager sur LinkedIn",
           title: "LinkedIn",
@@ -944,7 +1004,7 @@ export const content = {
         },
         {
           id: 4,
-          href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+          href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
           svgContent: fbmessengerIcon,
           alt: "Partager via Facebook Messenger",
           title: "Messenger",
@@ -954,10 +1014,20 @@ export const content = {
         },
         {
           id: 5,
-          href: "mailto:?subject=Découvrez%20Keymoji&body=Essayez%20Keymoji%2C%20le%20générateur%20de%20mot%20de%20passe%20emoji%20innovant%20!%20https%3A%2F%2F🔑moji.ws",
+          href: "mailto:?subject=Découvrez%20Keymoji&body=Essayez%20Keymoji%2C%20le%20générateur%20de%20mot%20de%20passe%20emoji%20innovant%20!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: emailIcon,
           alt: "Partager par e-mail",
           title: "E-mail",
+          target: "_blank",
+          rel: "noreferrer",
+          dialogContent: ""
+        },
+        {
+          id: 6,
+          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Découvrez Keymoji, le générateur de mots de passe Emoji innovant !")}`,
+          svgContent: instagramIcon,
+          alt: "Partager par Instagram",
+          title: "Instagram",
           target: "_blank",
           rel: "noreferrer",
           dialogContent: ""
@@ -1045,13 +1115,13 @@ export const content = {
           button: "✅ Potwierdź prośbę",
           privacy: "Bądź spokojny, twoje dane są w dobrych rękach 🤲.<br>Twoje szczegóły nie zostaną przekazane osobom trzecim 🔒."
       },
-      footerText: "© 2024 🔑moji.ws od Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      footerText: "© 2024 keymoji.wtf od Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
     },
     shareButtons: {
       links: [
         {
           id: 1,
-          href: "https://api.whatsapp.com/send?text=Odkryj%20Keymoji%2C%20innowacyjny%20Generator%20Hasła%20Emoji!%20https%3A%2F%2F🔑moji.ws",
+          href: "https://api.whatsapp.com/send?text=Odkryj%20Keymoji%2C%20innowacyjny%20Generator%20Hasła%20Emoji!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: whatsappIcon,
           alt: "Udostępnij na WhatsApp",
           title: "WhatsApp",
@@ -1061,7 +1131,7 @@ export const content = {
         },
         {
           id: 2,
-          href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Odkryj%20Keymoji%2C%20Generator%20Hasła%20Emoji",
+          href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Odkryj%20Keymoji%2C%20Generator%20Hasła%20Emoji",
           svgContent: redditIcon,
           alt: "Udostępnij na Reddit",
           title: "Reddit",
@@ -1071,7 +1141,7 @@ export const content = {
         },
         {
           id: 3,
-          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
           svgContent: linkedinIcon,
           alt: "Udostępnij na LinkedIn",
           title: "LinkedIn",
@@ -1081,7 +1151,7 @@ export const content = {
         },
         {
           id: 4,
-          href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+          href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
           svgContent: fbmessengerIcon,
           alt: "Udostępnij przez Messenger Facebooka",
           title: "Messenger",
@@ -1091,10 +1161,20 @@ export const content = {
         },
         {
           id: 5,
-          href: "mailto:?subject=Odkryj%20Keymoji&body=Wypróbuj%20Keymoji%2C%20innowacyjny%20Generator%20Hasła%20Emoji!%20https%3A%2F%2F🔑moji.ws",
+          href: "mailto:?subject=Odkryj%20Keymoji&body=Wypróbuj%20Keymoji%2C%20innowacyjny%20Generator%20Hasła%20Emoji!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: emailIcon,
           alt: "Udostępnij przez e-mail",
           title: "E-mail",
+          target: "_blank",
+          rel: "noreferrer",
+          dialogContent: ""
+        },
+        {
+          id: 6,
+          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Odkryj Keymoji, innowacyjny generator haseł Emoji!")}`,
+          svgContent: instagramIcon,
+          alt: "Udostępnij na Instagram",
+          title: "Instagram",
           target: "_blank",
           rel: "noreferrer",
           dialogContent: ""
@@ -1182,13 +1262,13 @@ export const content = {
           button: "✅ Bekræft anmodning",
           privacy: "Vær rolig, dine data er i gode hænder hos os 🤲.<br>Dine oplysninger vil ikke blive delt med tredjeparter 🔒."
       },
-      footerText: "© 2024 🔑moji.ws af Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      footerText: "© 2024 keymoji.wtf af Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
     },
     shareButtons: {
       links: [
         {
           id: 1,
-          href: "https://api.whatsapp.com/send?text=Opdag%20Keymoji%2C%20den%20innovative%20Emoji-adgangskodegenerator!%20https%3A%2F%2F🔑moji.ws",
+          href: "https://api.whatsapp.com/send?text=Opdag%20Keymoji%2C%20den%20innovative%20Emoji-adgangskodegenerator!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: whatsappIcon,
           alt: "Del på WhatsApp",
           title: "WhatsApp",
@@ -1198,7 +1278,7 @@ export const content = {
         },
         {
           id: 2,
-          href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Opdag%20Keymoji%2C%20Emoji-adgangskodegeneratoren",
+          href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Opdag%20Keymoji%2C%20Emoji-adgangskodegeneratoren",
           svgContent: redditIcon,
           alt: "Del på Reddit",
           title: "Reddit",
@@ -1208,7 +1288,7 @@ export const content = {
         },
         {
           id: 3,
-          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
           svgContent: linkedinIcon,
           alt: "Del på LinkedIn",
           title: "LinkedIn",
@@ -1218,9 +1298,9 @@ export const content = {
         },
         {
           id: 4,
-          href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+          href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
           svgContent: fbmessengerIcon,
-          alt: "Del via Facebook Messenger",
+          alt: "Del på Facebook Messenger",
           title: "Messenger",
           target: "_blank",
           rel: "noreferrer",
@@ -1228,10 +1308,20 @@ export const content = {
         },
         {
           id: 5,
-          href: "mailto:?subject=Opdag%20Keymoji&body=Prøv%20Keymoji%2C%20den%20innovative%20Emoji-adgangskodegenerator!%20https%3A%2F%2F🔑moji.ws",
+          href: "mailto:?subject=Opdag%20Keymoji&body=Prøv%20Keymoji%2C%20den%20innovative%20Emoji-adgangskodegenerator!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: emailIcon,
           alt: "Del via e-mail",
           title: "E-mail",
+          target: "_blank",
+          rel: "noreferrer",
+          dialogContent: ""
+        },
+        {
+          id: 6,
+          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Opdag Keymoji, den innovative Emoji-adgangskodegenerator!")}`,
+          svgContent: instagramIcon,
+          alt: "Del på Instagram",
+          title: "Instagram",
           target: "_blank",
           rel: "noreferrer",
           dialogContent: ""
@@ -1319,13 +1409,13 @@ export const content = {
         button: "✅ Подтвердить запрос",
         privacy: "Не волнуйтесь, ваши данные у нас в надежных руках 🤲.<br>Ваши данные не будут переданы третьим лицам 🔒."
     },
-    footerText: "© 2024 🔑moji.ws от Криса Мэтта · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    footerText: "© 2024 keymoji.wtf от Криса Мэтта · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
   },
   shareButtons: {
     links: [
         {
           id: 1,
-          href: "https://api.whatsapp.com/send?text=Откройте Keymoji, инновационный Генератор паролей с использованием эмодзи! %20https%3A%2F%2F🔑moji.ws",
+          href: "https://api.whatsapp.com/send?text=Откройте Keymoji, инновационный Генератор паролей с использованием эмодзи! %20https%3A%2F%2Fkeymoji.wtf",
           svgContent: whatsappIcon,
           alt: "поделиться в WhatsApp",
           title: "WhatsApp",
@@ -1335,7 +1425,7 @@ export const content = {
         },
         {
           id: 2,
-          href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Откройте Keymoji, Генератор паролей с использованием эмодзи",
+          href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Откройте Keymoji, Генератор паролей с использованием эмодзи",
           svgContent: redditIcon,
           alt: "поделиться на Reddit",
           title: "Reddit",
@@ -1345,7 +1435,7 @@ export const content = {
         },
         {
           id: 3,
-          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
           svgContent: linkedinIcon,
           alt: "поделиться на LinkedIn",
           title: "LinkedIn",
@@ -1355,7 +1445,7 @@ export const content = {
         },
         {
           id: 4,
-          href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Ваш_ID_Facebook]",
+          href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[Ваш_ID_Facebook]",
           svgContent: fbmessengerIcon,
           alt: "поделиться через Facebook Messenger",
           title: "Messenger",
@@ -1364,11 +1454,21 @@ export const content = {
           dialogContent: ""
         },
         {
-          id: 4,
-          href: "mailto:?subject=Откройте Keymoji&body=Попробуйте Keymoji, инновационный Генератор паролей с использованием эмодзи! %20https%3A%2F%2F🔑moji.ws",
+          id: 5,
+          href: "mailto:?subject=Откройте Keymoji&body=Попробуйте Keymoji, инновационный Генератор паролей с использованием эмодзи! %20https%3A%2F%2Fkeymoji.wtf",
           svgContent: emailIcon,
           alt: "поделиться по электронной почте",
           title: "Электронная почта",
+          target: "_blank",
+          rel: "noreferrer",
+          dialogContent: ""
+        },
+        {
+          id: 6,
+          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Откройте для себя Keymoji, инновационный генератор паролей Emoji!")}`,
+          svgContent: instagramIcon,
+          alt: "поделиться в Instagram",
+          title: "Instagram",
           target: "_blank",
           rel: "noreferrer",
           dialogContent: ""
@@ -1456,13 +1556,13 @@ export const content = {
         button: "✅ İsteği Onayla",
         privacy: "Verileriniz bizimle güvende 🤲.<br>Detaylarınız üçüncü taraflara iletilmeyecektir 🔒."
     },
-    footerText: "© 2024 🔑moji.ws Chris Matt tarafından · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    footerText: "© 2024 keymoji.wtf Chris Matt tarafından · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
   },
   shareButtons: {
     links: [
       {
         id: 1,
-        href: "https://api.whatsapp.com/send?text=Keymoji'yi keşfedin, yenilikçi Emoji Parola Oluşturucu! %20https%3A%2F%2F🔑moji.ws",
+        href: "https://api.whatsapp.com/send?text=Keymoji'yi keşfedin, yenilikçi Emoji Parola Oluşturucu! %20https%3A%2F%2Fkeymoji.wtf",
         svgContent: whatsappIcon,
         alt: "WhatsApp üzerinde paylaş",
         title: "WhatsApp",
@@ -1472,7 +1572,7 @@ export const content = {
       },
       {
         id: 2,
-        href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Keymoji'yi keşfedin, Emoji Parola Oluşturucu",
+        href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Keymoji'yi keşfedin, Emoji Parola Oluşturucu",
         svgContent: redditIcon,
         alt: "Reddit üzerinde paylaş",
         title: "Reddit",
@@ -1482,7 +1582,7 @@ export const content = {
       },
       {
         id: 3,
-        href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+        href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
         svgContent: linkedinIcon,
         alt: "LinkedIn üzerinde paylaş",
         title: "LinkedIn",
@@ -1492,7 +1592,7 @@ export const content = {
       },
       {
         id: 4,
-        href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Facebook_Uygulama_Kimliğiniz]",
+        href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[Facebook_Uygulama_Kimliğiniz]",
         svgContent: fbmessengerIcon,
         alt: "Facebook Messenger üzerinden paylaş",
         title: "Messenger",
@@ -1501,11 +1601,21 @@ export const content = {
         dialogContent: ""
       },
       {
-        id: 4,
-        href: "mailto:?subject=Keymoji'yi Keşfedin&body=Keymoji'yi deneyin, yenilikçi Emoji Parola Oluşturucu! %20https%3A%2F%2F🔑moji.ws",
+        id: 5,
+        href: "mailto:?subject=Keymoji'yi Keşfedin&body=Keymoji'yi deneyin, yenilikçi Emoji Parola Oluşturucu! %20https%3A%2F%2Fkeymoji.wtf",
         svgContent: emailIcon,
         alt: "E-posta ile paylaş",
         title: "E-Posta",
+        target: "_blank",
+        rel: "noreferrer",
+        dialogContent: ""
+      },
+      {
+        id: 6,
+        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Keymoji'yi keşfedin, yenilikçi Emoji Şifre Üreticisi!")}`,
+        svgContent: instagramIcon,
+        alt: "Instagram'da paylaş",
+        title: "Instagram",
         target: "_blank",
         rel: "noreferrer",
         dialogContent: ""
@@ -1593,13 +1703,13 @@ export const content = {
         button: "✅ Bevestig versoek",
         privacy: "Wees verseker, jou data is in goeie hande by ons 🤲.<br>Jou besonderhede sal nie aan derde partye oorgedra word nie 🔒."
     },
-    footerText: "© 2024 🔑moji.ws deur Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    footerText: "© 2024 keymoji.wtf deur Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
   },
   shareButtons: {
     links: [
       {
         id: 1,
-        href: "https://api.whatsapp.com/send?text=Ontdek%20Keymoji%2C%20die innoverende%20Emoji%20Wagwoord%20Skepper!%20https%3A%2F%2F🔑moji.ws",
+        href: "https://api.whatsapp.com/send?text=Ontdek%20Keymoji%2C%20die innoverende%20Emoji%20Wagwoord%20Skepper!%20https%3A%2F%2Fkeymoji.wtf",
         svgContent: whatsappIcon,
         alt: "deel op WhatsApp",
         title: "WhatsApp",
@@ -1609,7 +1719,7 @@ export const content = {
       },
       {
         id: 2,
-        href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Ontdek%20Keymoji%2C%20die%20Emoji%20Wagwoord%20Skepper",
+        href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Ontdek%20Keymoji%2C%20die%20Emoji%20Wagwoord%20Skepper",
         svgContent: redditIcon,
         alt: "deel op Reddit",
         title: "Reddit",
@@ -1619,7 +1729,7 @@ export const content = {
       },
       {
         id: 3,
-        href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+        href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
         svgContent: linkedinIcon,
         alt: "deel op LinkedIn",
         title: "LinkedIn",
@@ -1629,7 +1739,7 @@ export const content = {
       },
       {
         id: 4,
-        href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Jou_Facebook_App_ID]",
+        href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[Jou_Facebook_App_ID]",
         svgContent: fbmessengerIcon,
         alt: "deel via Facebook Messenger",
         title: "Messenger",
@@ -1638,11 +1748,21 @@ export const content = {
         dialogContent: ""
       },
       {
-        id: 4,
-        href: "mailto:?subject=Ontdek%20Keymoji&body=Probeer%20Keymoji%2C%20die innoverende%20Emoji%20Wagwoord%20Skepper!%20https%3A%2F%2F🔑moji.ws",
+        id: 5,
+        href: "mailto:?subject=Ontdek%20Keymoji&body=Probeer%20Keymoji%2C%20die innoverende%20Emoji%20Wagwoord%20Skepper!%20https%3A%2F%2Fkeymoji.wtf",
         svgContent: emailIcon,
         alt: "deel via e-pos",
         title: "E-pos",
+        target: "_blank",
+        rel: "noreferrer",
+        dialogContent: ""
+      },
+      {
+        id: 6,
+        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Ontdek Keymoji, die innoverende Emoji-wagwoordgenerator!")}`,
+        svgContent: instagramIcon,
+        alt: "deel op Instagram",
+        title: "Instagram",
         target: "_blank",
         rel: "noreferrer",
         dialogContent: ""
@@ -1730,13 +1850,13 @@ export const content = {
         button: "✅ リクエストを確認",
         privacy: "安心してください、お客様のデータは安全に保管されています 🤲。<br>お客様の詳細情報は第三者に提供されることはありません 🔒。"
     },
-    footerText: "© 2024 🔑moji.ws クリス・マット · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    footerText: "© 2024 keymoji.wtf クリス・マット · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
   },
   shareButtons: {
     links: [
       {
         id: 1,
-        href: "https://api.whatsapp.com/send?text=Keymoji、革新的な絵文字パスワードジェネレーターを発見！%20https%3A%2F%2F🔑moji.ws",
+        href: "https://api.whatsapp.com/send?text=Keymoji、革新的な絵文字パスワードジェネレーターを発見！%20https%3A%2F%2Fkeymoji.wtf",
         svgContent: whatsappIcon,
         alt: "WhatsAppで共有",
         title: "WhatsApp",
@@ -1746,7 +1866,7 @@ export const content = {
       },
       {
         id: 2,
-        href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Keymoji、絵文字パスワードジェネレーターを発見",
+        href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Keymoji、絵文字パスワードジェネレーターを発見",
         svgContent: redditIcon,
         alt: "Redditで共有",
         title: "Reddit",
@@ -1756,7 +1876,7 @@ export const content = {
       },
       {
         id: 3,
-        href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+        href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
         svgContent: linkedinIcon,
         alt: "LinkedInで共有",
         title: "LinkedIn",
@@ -1766,7 +1886,7 @@ export const content = {
       },
       {
         id: 4,
-        href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+        href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
         svgContent: fbmessengerIcon,
         alt: "Facebook Messengerで共有",
         title: "Messenger",
@@ -1775,11 +1895,21 @@ export const content = {
         dialogContent: ""
       },
       {
-        id: 4,
-        href: "mailto:?subject=Keymojiを発見&body=Keymoji、革新的な絵文字パスワードジェネレーターを試してみてください！%20https%3A%2F%2F🔑moji.ws",
+        id: 5,
+        href: "mailto:?subject=Keymojiを発見&body=Keymoji、革新的な絵文字パスワードジェネレーターを試してみてください！%20https%3A%2F%2Fkeymoji.wtf",
         svgContent: emailIcon,
         alt: "Eメールで共有",
         title: "Eメール",
+        target: "_blank",
+        rel: "noreferrer",
+        dialogContent: ""
+      },
+      {
+        id: 6,
+        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Keymojiを発見しよう、革新的な絵文字パスワードジェネレーター！")}`,
+        svgContent: instagramIcon,
+        alt: "Instagramで共有",
+        title: "Instagram",
         target: "_blank",
         rel: "noreferrer",
         dialogContent: ""
@@ -1867,13 +1997,13 @@ export const content = {
         button: "✅ 요청 확인",
         privacy: "걱정 마세요. 귀하의 데이터는 안전하게 보호됩니다 🤲.<br>귀하의 세부 정보는 제3자에게 전달되지 않습니다 🔒."
     },
-    footerText: "© 2024 🔑moji.ws 크리스 매트 · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    footerText: "© 2024 keymoji.wtf 크리스 매트 · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
   },
   shareButtons: {
     links: [
       {
         id: 1,
-        href: "https://api.whatsapp.com/send?text=Keymoji, 혁신적인 이모지 패스워드 생성기를 발견하십시오!%20https%3A%2F%2F🔑moji.ws",
+        href: "https://api.whatsapp.com/send?text=Keymoji, 혁신적인 이모지 패스워드 생성기를 발견하십시오!%20https%3A%2F%2Fkeymoji.wtf",
         svgContent: whatsappIcon,
         alt: "WhatsApp으로 공유",
         title: "WhatsApp",
@@ -1883,7 +2013,7 @@ export const content = {
       },
       {
         id: 2,
-        href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Keymoji、이모지 패스워드 생성기를 발견",
+        href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Keymoji、이모지 패스워드 생성기를 발견",
         svgContent: redditIcon,
         alt: "Reddit으로 공유",
         title: "Reddit",
@@ -1893,7 +2023,7 @@ export const content = {
       },
       {
         id: 3,
-        href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+        href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
         svgContent: linkedinIcon,
         alt: "LinkedIn으로 공유",
         title: "LinkedIn",
@@ -1903,7 +2033,7 @@ export const content = {
       },
       {
         id: 4,
-        href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+        href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
         svgContent: fbmessengerIcon,
         alt: "Facebook Messenger로 공유",
         title: "Messenger",
@@ -1912,11 +2042,21 @@ export const content = {
         dialogContent: ""
       },
       {
-        id: 4,
-        href: "mailto:?subject=Keymoji를 발견&body=Keymoji, 혁신적인 이모지 패스워드 생성기를 시도해보세요!%20https%3A%2F%2F🔑moji.ws",
+        id: 5,
+        href: "mailto:?subject=Keymoji를 발견&body=Keymoji, 혁신적인 이모지 패스워드 생성기를 시도해보세요!%20https%3A%2F%2Fkeymoji.wtf",
         svgContent: emailIcon,       
         alt: "이메일로 공유",
         title: "이메일",
+        target: "_blank",
+        rel: "noreferrer",
+        dialogContent: ""
+      },
+      {
+        id: 6,
+        href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Keymoji를 발견하세요, 혁신적인 이모지 비밀번호 생성기!")}`,
+        svgContent: instagramIcon,
+        alt: "인스타그램에 공유",
+        title: "인스타그램",
         target: "_blank",
         rel: "noreferrer",
         dialogContent: ""
@@ -2002,13 +2142,13 @@ export const content = {
         button: "✅ Qapla'",
         privacy: "cholna'be' ghaH ngan chenmoH qeq 'oH 🤲.<br>ngan 'oHbogh ghItlh. lujon chenmoH cha'logh tu'lu'. 🔒."
       },
-      footerText: "© 2024 🔑moji.ws by chris matlh · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      footerText: "© 2024 keymoji.wtf by chris matlh · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
     },
     shareButtons: {
       links: [
         {
           id: 1,
-          href: "https://api.whatsapp.com/send?text=Keymoji, Emoji vItlhutlh yIngu' ghojmoHwI'!%20https%3A%2F%2F🔑moji.ws",
+          href: "https://api.whatsapp.com/send?text=Keymoji, Emoji vItlhutlh yIngu' ghojmoHwI'!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: whatsappIcon,
           alt: "WhatsApp ghaj moj",
           title: "WhatsApp",
@@ -2018,7 +2158,7 @@ export const content = {
         },
         {
           id: 2,
-          href: "https://www.reddit.com/submit?url=https%3A%2F%2F🔑moji.ws&title=Keymoji, Emoji vItlhutlh yIngu' ghojmoHwI'",
+          href: "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Keymoji, Emoji vItlhutlh yIngu' ghojmoHwI'",
           svgContent: redditIcon,
           alt: "Reddit ghaj moj",
           title: "Reddit",
@@ -2028,7 +2168,7 @@ export const content = {
         },
         {
           id: 3,
-          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F🔑moji.ws",
+          href: "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fkeymoji.wtf",
           svgContent: linkedinIcon,
           alt: "LinkedIn ghaj moj",
           title: "LinkedIn",
@@ -2038,7 +2178,7 @@ export const content = {
         },
         {
           id: 4,
-          href: "fb-messenger://share?link=https%3A%2F%2F🔑moji.ws&app_id=[Your_Facebook_App_ID]",
+          href: "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
           svgContent: fbmessengerIcon,
           alt: "Messenger ghaj moj",
           title: "Messenger",
@@ -2047,11 +2187,21 @@ export const content = {
           dialogContent: ""
         },
         {
-          id: 4,
-          href: "mailto:?subject=Keymoji, Emoji vItlhutlh yIngu' ghojmoHwI'&body=Keymoji, Emoji vItlhutlh yIngu' ghojmoHwI' ghojmoH!%20https%3A%2F%2F🔑moji.ws",
+          id: 5,
+          href: "mailto:?subject=Keymoji, Emoji vItlhutlh yIngu' ghojmoHwI'&body=Keymoji, Emoji vItlhutlh yIngu' ghojmoHwI' ghojmoH!%20https%3A%2F%2Fkeymoji.wtf",
           svgContent: emailIcon,
           alt: "Email ghaj moj",
           title: "Email",
+          target: "_blank",
+          rel: "noreferrer",
+          dialogContent: ""
+        },
+        {
+          id: 6,
+          href: `https://www.instagram.com/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("yIHbej Keymoji, nuqneH emoji 'ejwI' qaw' vIghro'!")}`,
+          svgContent: instagramIcon,
+          alt: "Instagram-da 'oH",
+          title: "Instagram",
           target: "_blank",
           rel: "noreferrer",
           dialogContent: ""

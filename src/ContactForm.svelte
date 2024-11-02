@@ -157,7 +157,7 @@
           <tbody>
             <tr>
               <td style="margin: 20px auto 10px auto;text-align: center; font-size: 48px; font-weight: bolder; color: #000000; padding: 0 0;" align="center" valign="top">
-                <a href="https://🔑moji.ws" style="text-decoration: none; color: #000000;">
+                <a href="https:/keymoji.wtf" style="text-decoration: none; color: #000000;">
                   Keymoji
                 </a>
               </td>
