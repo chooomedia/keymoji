@@ -121,6 +121,9 @@ module.exports = merge(common, {
                     }
                 }
             ]
+        }),
+        new webpack.DefinePlugin({
+            'process.env.TIMESTAMP': JSON.stringify(new Date().toISOString())
         })
     ],
     performance: {

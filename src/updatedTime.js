@@ -1,1 +1,1 @@
-export const updatedTime = '__TIMESTAMP__';  // This will be replaced during build
+export const updatedTime = process.env.TIMESTAMP;
