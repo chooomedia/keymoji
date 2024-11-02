@@ -1,5 +1,4 @@
 <script>
-  import { onMount } from 'svelte';
   import { modalMessage, currentLanguage } from './stores.js';
   import content from './content.js';
 

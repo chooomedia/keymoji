@@ -1,11 +1,12 @@
 const { merge } = require('webpack-merge');
 const common = require('./common');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { paths, plugins } = require('./utils');
-const CopyPlugin = require('copy-webpack-plugin');
-const path = require('path');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+const path = require('path');
+const { paths } = require('./utils');
 
 module.exports = merge(common, {
     mode: 'production',
@@ -15,7 +16,7 @@ module.exports = merge(common, {
         chunkFilename: 'static/js/[name].chunk-[id].[chunkhash:8].js',
         path: paths.APP_BUILD_SRC,
         publicPath: './',
-        clean: true // Cleans the output directory before build
+        clean: true
     },
     module: {
         rules: [
@@ -44,20 +45,12 @@ module.exports = merge(common, {
             },
             {
                 test: /\.(png|jpe?g|gif|svg)$/i,
-                use: [
-                    {
-                        loader: 'file-loader',
-                        options: {
-                            name: 'images/[name].[contenthash:8].[ext]',
-                            // Using contenthash for better caching
-                        },
-                    },
-                ],
+                type: 'asset/resource',
+                generator: {
+                    filename: 'static/images/[name].[hash:8][ext]'
+                }
             }
         ]
-    },
-    resolve: {
-        conditionNames: ['svelte', 'module', 'main'],
     },
     optimization: {
         minimize: true,
@@ -69,6 +62,8 @@ module.exports = merge(common, {
                     },
                     compress: {
                         drop_console: true,
+                        drop_debugger: true,
+                        pure_funcs: ['console.log']
                     },
                 },
                 extractComments: false,
@@ -79,29 +74,51 @@ module.exports = merge(common, {
                         'default',
                         {
                             discardComments: { removeAll: true },
-                            normalizeWhitespace: false
-                        },
-                    ],
+                            normalizeWhitespace: false,
+                            colormin: true,
+                            minifyFontValues: true
+                        }
+                    ]
                 },
             }),
         ],
         splitChunks: {
             chunks: 'all',
-            name: false,
+            minSize: 20000,
+            maxSize: 244000,
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                    enforce: true
+                },
+                styles: {
+                    name: 'styles',
+                    test: /\.css$/,
+                    chunks: 'all',
+                    enforce: true
+                }
+            }
         },
+        runtimeChunk: {
+            name: 'runtime'
+        }
     },
     plugins: [
-        ...plugins.build,
+        new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
             filename: 'static/css/[name].[contenthash:8].css',
-            chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
+            chunkFilename: 'static/css/[id].[contenthash:8].css'
         }),
         new CopyPlugin({
             patterns: [
                 { 
-                    from: 'public/images', 
-                    to: 'images',
-                    noErrorOnMissing: true
+                    from: 'public',
+                    to: '', 
+                    globOptions: {
+                        ignore: ['**/index.html']
+                    }
                 }
             ]
         })
@@ -110,5 +127,5 @@ module.exports = merge(common, {
         hints: 'warning',
         maxAssetSize: 512000,
         maxEntrypointSize: 512000,
-    },
+    }
 });

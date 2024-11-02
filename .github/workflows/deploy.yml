@@ -4,22 +4,45 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:  # Ermöglicht manuelle Ausführung
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      NODE_ENV: production
+      NODE_VERSION: '20'
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 1  # Shallow clone für schnellere Checkouts
 
-    - name: Set up Node.js
+    - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '20'
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'  # Aktiviert Caching für npm
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          **/node_modules
+          ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
 
     - name: Install dependencies
       run: npm ci
+      
+    - name: Setup environment
+      run: |
+        echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+        echo "API_URL=${{ secrets.API_URL }}" >> .env
 
     - name: Generate updated time
       run: |
@@ -27,14 +50,35 @@ jobs:
         cat ./src/updatedTime.js
 
     - name: Build
-      run: npm run build
+      run: |
+        npm run build
+        echo "Build completed at $(date)"
       env:
         NODE_ENV: production
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        API_URL: ${{ secrets.API_URL }}
+
+    - name: Validate build
+      run: |
+        if [ ! -d "build" ]; then
+          echo "Build directory is missing!"
+          exit 1
+        fi
+        if [ ! -f "build/index.html" ]; then
+          echo "index.html is missing!"
+          exit 1
+        fi
 
     - name: List build directory contents
       run: ls -R build
 
-    - name: 📂 Sync files
+    - name: Prepare for deployment
+      run: |
+        find build -type f -name "*.html" -exec gzip -9 -k {} \;
+        find build -type f -name "*.css" -exec gzip -9 -k {} \;
+        find build -type f -name "*.js" -exec gzip -9 -k {} \;
+
+    - name: 📂 Deploy via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ secrets.HOST }}
@@ -46,5 +90,21 @@ jobs:
           **/.git*
           **/.git*/**
           **/node_modules/**
+          **/*.map
+          **/.DS_Store
+          **/thumbs.db
         log-level: verbose
         dangerous-clean-slate: false
+        timeout: 60000  # 60 Sekunden Timeout
+
+    - name: Verify deployment
+      if: success()
+      run: |
+        echo "🚀 Deployment completed successfully!"
+        echo "Timestamp: $(date -u)"
+        
+    - name: Cleanup
+      if: always()
+      run: |
+        rm -rf build
+        rm -f .env

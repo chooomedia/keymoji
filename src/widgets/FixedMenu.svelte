@@ -69,12 +69,23 @@
 </script>
 
 {#if showMenu}
-  <button class="overlay" on:click={closeAll}></button>
+  <button 
+    class="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-10"
+    on:click|preventDefault|stopPropagation={closeAll}
+    in:slide={{ duration: 200 }}
+    out:slide={{ duration: 150 }}
+  ></button>
 {/if}
 
 <div id="fixed-menu" class="fixed bottom-4 z-20 justify-between items-center">
   {#if showMenu && shareLinks.length > 0}
-    <div class="w-32 md:mx-7 md:ml-8 mx-auto rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-10 pt-2" role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
+    <div 
+    class="w-32 md:mx-7 md:ml-8 mx-auto rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-30 pt-2" 
+    role="menu" 
+    aria-orientation="vertical" 
+    aria-labelledby="menu-button"
+    in:slide={{ y: 20, duration: 300, easing: cubicInOut }}
+    out:slide={{ y: 20, duration: 200, easing: cubicInOut }}>
       {#each shareLinks as link (link.id)}
         <a 
           in:slide={{ y: -5, duration: 400, easing: cubicInOut }} 
@@ -100,7 +111,13 @@
   {/if}
 
   {#if $showDonateMenu && donateLinks.length > 0}
-    <div class="w-32 md:mx-7 md:ml-9 mx-auto md:fixed md:right-3 md:bottom-71 rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-10 pt-2" role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
+  <div 
+    class="w-32 md:mx-7 md:ml-9 mx-auto md:fixed md:right-3 md:bottom-71 rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-30 pt-2" 
+    role="menu" 
+    aria-orientation="vertical" 
+    aria-labelledby="menu-button"
+    in:slide={{ y: 20, duration: 300, easing: cubicInOut }}
+    out:slide={{ y: 20, duration: 200, easing: cubicInOut }}>
       {#each donateLinks as dlink (dlink.id)}
         <a 
           in:slide={{ y: -5, duration: 400, easing: cubicInOut }} 
@@ -144,11 +161,31 @@
 <button 
   data-menu-type="donate"
   on:click={() => toggleMenu('donate')} 
-  class="md:block hidden fixed bottom-4 right-4 bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-20 border-4 border-creme dark:border-aubergine"
->
+  class="md:block hidden fixed bottom-4 right-4 bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-30 border-4 border-creme dark:border-aubergine">
   {#if $showDonateMenu}
     {$languageText?.donateButton?.openText || 'Close'}
   {:else}
     {$languageText?.donateButton?.text || 'Donate'}
   {/if}
 </button>
+
+<style>
+  /* Optional: Verhindert Scrolling wenn Overlay aktiv ist */
+  :global(body.menu-open) {
+    overflow: hidden;
+  }
+
+  /* Optimierte Transitions */
+  :global(.menu-transition) {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+</style>
+
+<svelte:head>
+  {#if showMenu}
+    <style>
+      body { overflow: hidden; }
+    </style>
+  {/if}
+</svelte:head>

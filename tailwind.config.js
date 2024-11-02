@@ -1,9 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{html,js,svelte}", // adjusted for Svelte
-    "./src/**/*.svelte",
-    "./public/index.html"
+    './src/**/*.{html,js,svelte}',
+    './public/index.html'
   ],
   safelist: [], // Add any classes you want to keep
   darkMode: 'class',
@@ -59,7 +58,10 @@ module.exports = {
       },
     }
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss'),
+    require('autoprefixer')
+  ],
   future: {
     purgeLayersByDefault: true,
     removeDeprecatedGapUtilities: true,

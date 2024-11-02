@@ -1,0 +1,20 @@
+{
+    "name": "Keymoji - Emoji Password Generator",
+    "short_name": "Keymoji",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#253852",
+    "theme_color": "#253852",
+    "icons": [
+      {
+        "src": "/images/keymoji-logo-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/images/keymoji-logo-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
