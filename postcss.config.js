@@ -1,16 +1,14 @@
-// postcss.config.js
+const production = process.env.NODE_ENV === 'production';
+
 module.exports = {
   plugins: [
-      require('tailwindcss'),
-      require('autoprefixer'),
-      process.env.NODE_ENV === 'production' 
-          ? require('cssnano')({ 
-              preset: ['default', {
-                  discardComments: {
-                      removeAll: true,
-                  },
-              }]
-          }) 
-          : false
+    require('tailwindcss'),
+    require('autoprefixer'),
+    production && require('cssnano')({
+      preset: ['default', {
+        discardComments: { removeAll: true },
+        normalizeWhitespace: false
+      }]
+    })
   ].filter(Boolean)
-}
+};

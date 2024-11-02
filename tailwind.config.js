@@ -1,10 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{html,js,jsx,ts,tsx,svelte}",
-    "./public/**/*.html",
-    "./src/**/*.{js,jsx,ts,tsx,svelte}"
+    "./src/**/*.{html,js,svelte}", // adjusted for Svelte
+    "./src/**/*.svelte",
+    "./public/index.html"
   ],
+  safelist: [], // Add any classes you want to keep
   darkMode: 'class',
   theme: {
     screens: {
@@ -53,9 +54,14 @@ module.exports = {
         '4xl': '2rem',
       },
       inset: {
-        'm41': '-41px', // Ändere die Position nach Bedarf
-        'm3': '-3px', // Ändere die Position nach Bedarf
+        'm41': '-41px',
+        'm3': '-3px',
       },
     }
+  },
+  plugins: [],
+  future: {
+    purgeLayersByDefault: true,
+    removeDeprecatedGapUtilities: true,
   },
 }
