@@ -72,9 +72,30 @@
         
         <div class="container mx-auto min-h-screen">
           <Route path="/">
-            <div in:fly={{y: 50, duration: 400, delay: 400}} out:fade>
+            <div in:fly={{y: 50, duration: 400, delay: 2400}} out:fade> 
               <section class="flex flex-col justify-center items-center min-h-screen py-5 overflow-auto touch-none z-10 gap-4">
-                <h1 class="flex flex-wrap md:text-3xl font-semibold dark:text-white mb-4">{content[$currentLanguage]?.index?.pageTitle}</h1>
+                <div class="w-11/12 md:w-26r flex flex-wrap justify-center" role="banner">
+                  <h1 
+                    class="md:text-3xl text-2xl font-semibold dark:text-white mb-2 text-center w-full"
+                    id="main-title">
+                    {content[$currentLanguage]?.index?.pageTitle}
+                  </h1>
+                  
+                  <p 
+                    class="dark:text-gray mb-5 text-center w-full leading-relaxed"
+                    aria-labelledby="main-title"
+                    itemprop="description">
+                    {content[$currentLanguage]?.index?.pageDescription}
+                  </p>
+                
+                  <!-- SEO-optimierte Meta-Information -->
+                  <div class="hidden" aria-hidden="true">
+                    <span itemprop="name">{content[$currentLanguage]?.index?.pageTitle}</span>
+                    <meta itemprop="url" content="https://keymoji.wtf" />
+                    <meta itemprop="applicationCategory" content="Security Tool" />
+                    <meta itemprop="operatingSystem" content="Web Browser" />
+                  </div>
+                </div>
                 <div class="content-wrapper pl-4 pr-4 pb-4 w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 transition duration-300 ease-in-out transform">
                   <EmojiDisplay />
                 </div>
