@@ -25,6 +25,7 @@
         { code: 'tr', name: 'Türkçe', flag: '🇹🇷', ogLocale: 'tr_TR' },
         { code: 'af', name: 'Afrikaans', flag: '🇿🇦', ogLocale: 'af_ZA' },
         { code: 'ja', name: '日本語', flag: '🇯🇵', ogLocale: 'ja_JP' },
+        { code: 'ko', name: '한국어', flag: '🇰🇷', ogLocale: 'ko_KO' },
         { code: 'tlh', name: 'Klingon', flag: '🖖', ogLocale: 'tlh_Qo' }
     ];
 
@@ -64,7 +65,7 @@
     <nav class="md:w-3/12 w-full mx-3 bg-creme dark:bg-aubergine border-gray dark:bg-gray justify-center rounded-full border-4 border-creme dark:border-aubergine">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between">
             <a href="/" class="flex flex-col items-center rtl:space-x-reverse">
-                <h1 class="flex flex-wrap md:text-2xl font-semibold items-center whitespace-nowrap dark:text-white">
+                <h2 class="flex flex-wrap md:text-2xl font-semibold items-center whitespace-nowrap dark:text-white">
                     <svg role="img" class="w-52 h-52 transition" viewBox="0 0 600 600" fill="currentColor" aria-label={getText('header.pageTitle')}>
                         {@html content.logo.svg}
                     </svg>
@@ -72,7 +73,7 @@
                     <span class="text-xs -top-1 relative">
                         {getText('header.pageVersion')}
                     </span>
-                </h1>
+                </h2>
             </a>
             <div class="flex items-center md:order-2 rtl:space-x-reverse space-x-2">
                 <button aria-label="Navigate to the blog article overview" 

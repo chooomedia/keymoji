@@ -25,7 +25,7 @@
   </script>
   
   <svelte:head>
-    <meta name="description" content="{content[$currentLanguage]?.index?.pageDescription || '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.'}">
+    <meta name="description" content="{content[$currentLanguage]?.index?.pageDescription}">
     <meta name="keywords" content="{content[$currentLanguage]?.index?.pageKeywords}">
     <meta name="author" content="Christopher Matt">
   
@@ -43,6 +43,7 @@
       $currentLanguage === 'tr' ? 'tr_TR' :
       $currentLanguage === 'af' ? 'af_ZA' :
       $currentLanguage === 'ja' ? 'ja_JP' :
+      $currentLanguage === 'ko' ? 'ko_KO' :
       $currentLanguage === 'tlh' ? 'tlh_Qo' : 'en_US'
     }">
   
@@ -62,17 +63,18 @@
 
   
   <Router {url}>
-    <div class="wrapper" style="{bgImage}" class:dark={$darkMode}>
+    <div class="wrapper hieroglyphemojis" style="{bgImage}" class:dark={$darkMode}>
       {#if $modalMessage && $modalMessage.trim() !== ''}
         <ErrorModal />
       {/if}
-      <main class="scroll-container hieroglyphemojis">
+      <main class="scroll-container">
         <Header />
         
         <div class="container mx-auto min-h-screen">
           <Route path="/">
             <div in:fly={{y: 50, duration: 400, delay: 400}} out:fade>
               <section class="flex flex-col justify-center items-center min-h-screen py-5 overflow-auto touch-none z-10 gap-4">
+                <h1 class="flex flex-wrap md:text-3xl font-semibold dark:text-white mb-4">{content[$currentLanguage]?.index?.pageTitle}</h1>
                 <div class="content-wrapper pl-4 pr-4 pb-4 w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 transition duration-300 ease-in-out transform">
                   <EmojiDisplay />
                 </div>

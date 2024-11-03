@@ -9,10 +9,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.",
     },
     index: {
-        pageTitle: "Keymoji - Emoji Password Generator",
+        pageTitle: "Emoji Password Generator",
         pageDescription: "🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.",
         pageKeywords: "Keymoji, emoji password, password generator, security, online security",
         pageInstruction: [
@@ -156,10 +155,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Emoji Passwort Generator",
     },
     index: {
-      pageTitle: "Keymoji - Emoji Passwort Generator",
+      pageTitle: "Emoji Passwort Generator",
       pageDescription: "🔑 Passwörter neu gedacht. 🎯 Unknackbare Emoji-Passwörter. 🌈 Kostenlos. Sicher. Innovativ. 🤖 KI-resistente Technologie. 🌍 In 15+ Sprachen verfügbar.",
       pageKeywords: "Keymoji, Emoji Passwort, Passwort Generator, Sicherheit, Online Sicherheit",
       pageInstruction: [
@@ -217,7 +215,6 @@ export const content = {
       regenerateCaptchaButton: "🔄",
       sendButton: "🚀 Senden",
       successMessage: "Erfolg, Nachricht gesendet - Antwort: < 24 Stunden 🚀",
-
       errorMessage: "Ein unerwarteter Fehler ist aufgetreten 😟",
       requestErrorMessage: "Fehler beim Senden der Nachricht, bitte versuche es erneut 🙁",
       smirkingFaceImageAlt: "keymoji emoji smirkingface 1f60f",
@@ -304,10 +301,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Emoji Passwort Generator",
     },
     index: {
-      pageTitle: "Keymoji - Emoji Passwort Generator",
+      pageTitle: "Emoji Passwort Generator",
       pageDescription: "🔑 Keymoji, dr innovativ Emoji Passwort Generator, überdacht dini Passwortsicherheit. 🎯 Unknackbar Emoji-Passwörter. 🌈 Komplett gratis. 🤖 KI-resistent. 🌍 Über 15 Sprach verfügbar.",
       pageKeywords: "Keymoji, emoji Passwort, Passwort Generator, Sicherheit, Online Sicherheit",
       pageInstruction: [
@@ -451,10 +447,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Generador de Contraseñas Emoji",
     },
     index: {
-      pageTitle: "Keymoji - Generador de Contraseñas Emoji",
+      pageTitle: "Generador de Contraseñas Emoji",
       pageDescription: "🔑 Contraseñas reinventadas. 🎯 Contraseñas emoji irrompibles. 🌈 Gratis. Seguro. Innovador. 🤖 Tecnología resistente a IA. 🌍 En más de 15 idiomas.",
       pageKeywords: "Keymoji, contraseña emoji, generador de contraseñas, seguridad, seguridad en línea",
       pageInstruction: [
@@ -598,10 +593,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Emoji Wachtwoordgenerator",
     },
     index: {
-      pageTitle: "Keymoji - Emoji Wachtwoordgenerator",
+      pageTitle: "Emoji Wachtwoordgenerator",
       pageDescription: "🔑 Wachtwoorden opnieuw bedacht. 🎯 Onkraakbare emoji-wachtwoorden. 🌈 Gratis. Veilig. Innovatief. 🤖 AI-resistente technologie. 🌍 In 15+ talen.",
       pageKeywords: "Keymoji, emoji wachtwoord, wachtwoordgenerator, beveiliging, online beveiliging",
       pageInstruction: [
@@ -745,10 +739,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Generatore di Password Emoji",
     },
     index: {
-      pageTitle: "Keymoji - Generatore di Password Emoji",
+      pageTitle: "Generatore di Password Emoji",
       pageDescription: "🔑 Password reinventati. 🎯 Password emoji infrangibili. 🌈 Gratuiti. Sicuri. Innovativi. 🤖 Tecnologia resistente all'IA. 🌍 Disponibile in 15+ lingue.",
       pageKeywords: "Keymoji, password emoji, generatore di password, sicurezza, sicurezza online",
       pageInstruction: [
@@ -892,10 +885,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Générateur de Mot de Passe Emoji",
     },
     index: {
-      pageTitle: "Keymoji - Générateur de Mot de Passe Emoji",
+      pageTitle: "Générateur de Mot de Passe Emoji",
       pageDescription: "🔑 Mots de passe réinventés. 🎯 Mots de passe emoji incassables. 🌈 Gratuit. Sûr. Innovant. 🤖 Technologie résistante à l'IA. 🌍 En plus de 15 langues.",
       pageKeywords: "Keymoji, mot de passe emoji, générateur de mot de passe, sécurité, sécurité en ligne",
       pageInstruction: [
@@ -1039,10 +1031,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Generator Hasła Emoji",
     },
     index: {
-      pageTitle: "Keymoji - Generator Hasła Emoji",
+      pageTitle: "Generator Hasła Emoji",
       pageDescription: "🔑 Hasła na nowo pomyślane. 🎯 Niezłomne hasła emoji. 🌈 Darmowe. Bezpieczne. Innowacyjne. 🤖 Technologia odporna na AI. 🌍 W ponad 15 językach.",
       pageKeywords: "Keymoji, hasło emoji, generator haseł, bezpieczeństwo, bezpieczeństwo online",
       pageInstruction: [
@@ -1186,10 +1177,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Emoji-adgangskodegenerator",
     },
     index: {
-      pageTitle: "Keymoji - Emoji-adgangskodegenerator",
+      pageTitle: "Emoji-adgangskodegenerator",
       pageDescription: "🔑 Adgangskoder genovervejet. 🎯 Uknuselige emoji-adgangskoder. 🌈 Gratis. Sikkert. Innovativt. 🤖 AI-modstandsdygtig teknologi. 🌍 På 15+ sprog.",
       pageKeywords: "Keymoji, emoji adgangskode, adgangskodegenerator, sikkerhed, online sikkerhed",
       pageInstruction: [
@@ -1333,10 +1323,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Генератор паролей с использованием эмодзи",
     },
     index: {
-        pageTitle: "Keymoji - Генератор паролей с использованием эмодзи",
+        pageTitle: "Генератор паролей с использованием эмодзи",
         pageDescription: "🔑 Пароли переосмыслены. 🎯 Непроходимые эмодзи-пароли. 🌈 Бесплатно. Безопасно. Инновационно. 🤖 Технология, устойчивая к ИИ. 🌍 На 15+ языках.",
         pageKeywords: "Keymoji, эмодзи-пароль, генератор паролей, безопасность, онлайн-безопасность",
         pageInstruction: [
@@ -1480,10 +1469,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Emoji Parola Oluşturucu",
     },
     index: {
-        pageTitle: "Keymoji - Emoji Parola Oluşturucu",
+        pageTitle: "Emoji Parola Oluşturucu",
         pageDescription: "🔑 Şifreler yeniden düşünülüyor. 🎯 Kırılamayan emoji şifreleri. 🌈 Ücretsiz. Güvenli. Yenilikçi. 🤖 AI'ya dirençli teknoloji. 🌍 15+ dilde mevcut.",
         pageKeywords: "Keymoji, emoji parola, parola oluşturucu, güvenlik, çevrimiçi güvenlik",
         pageInstruction: [
@@ -1627,10 +1615,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Emoji Wagwoord Skepper",
     },
     index: {
-        pageTitle: "Keymoji - Emoji Wagwoord Skepper",
+        pageTitle: "Emoji Wagwoord Skepper",
         pageDescription: "🔑 Wagwoorde nuut bedink. 🎯 Onkrakbare emoji-wagwoorde. 🌈 Gratis. Veilig. Innovatief. 🤖 KI-bestande tegnologie. 🌍 Verkieslik in 15+ tale.",
         pageKeywords: "Keymoji, emoji-wagwoord, wagwoord skepper, sekuriteit, aanlyn sekuriteit",
         pageInstruction: [
@@ -1774,10 +1761,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "絵文字パスワードジェネレーター",
     },
     index: {
-        pageTitle: "Keymoji - 絵文字パスワードジェネレーター",
+        pageTitle: "絵文字パスワードジェネレーター",
         pageDescription: "🔑 パスワードの新しい考え方。🎯 破られない絵文字パスワード。🌈 無料。安全。革新。🤖 AI抵抗技術。🌍 15か国語以上で利用可能。",
         pageKeywords: "Keymoji、絵文字パスワード、パスワードジェネレーター、セキュリティ、オンラインセキュリティ",
         pageInstruction: [
@@ -1921,10 +1907,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "이모지 패스워드 생성기",
     },
     index: {
-        pageTitle: "Keymoji - 이모지 패스워드 생성기",
+        pageTitle: "이모지 패스워드 생성기",
         pageDescription: "🔑 비밀번호를 새롭게 생각하다. 🎯 깨지지 않는 이모지 비밀번호. 🌈 무료. 안전. 혁신적. 🤖 AI 저항 기술. 🌍 15개 이상의 언어로 제공됩니다.",
         pageKeywords: "Keymoji, 이모지 패스워드, 패스워드 생성기, 보안, 온라인 보안",
         pageInstruction: [
@@ -2068,10 +2053,9 @@ export const content = {
     header: {
       pageTitle: "Keymoji",
       pageVersion: "v0.2",
-      pageDescription: "Emoji vItlhutlh yIngu'",
     },
     index: {
-      pageTitle: "Keymoji - Emoji vItlhutlh yIngu'",
+      pageTitle: "Emoji vItlhutlh yIngu'",
       pageDescription: "🔑 'ughIjwI' vIparHa'. 🎯 'ughIjwI' vIparHa'. 🌈 Suq. vIDoH. vIq. 🤖 yISeH yIpoH. 🌍 15+ pong vIjegh.",
       pageKeywords: "Keymoji, emoji vItlhutlh, yIngu' yIngu'wI', bIQew, yIngu' bIQew",
       pageInstruction: [
