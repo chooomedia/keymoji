@@ -63,7 +63,7 @@
   // Helper Functions
   function checkLimits() {
     if ($isDisabled || isDailyLimitReached()) {
-      navigator.vibrate?.(200);
+      //navigator.vibrate?.(200);
       isDisabled.set(true);
       showErrorMessage(content[$currentLanguage].emojiDisplay.dailyLimitReachedMessage);
       return true;
@@ -236,13 +236,13 @@
   }
 </script>
 
-<div id="emoji-keyword-generator" class="flex flex-col space-t-6 rounded-xl relative">
+<div id="emoji-password-generator" class="flex flex-col space-t-6 rounded-xl relative">
   <!-- Emoji Display Section -->
   <div 
     id="emoji-display" 
     role="button" 
     tabindex="0" 
-    class="max-w-72 flex flex-row h-14 justify-center items-center transform scale-117 rounded-full shadow-md transition text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray z-30" 
+    class="max-w-72 flex flex-row h-14 justify-center items-center transform scale-117 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-125 focus:outline-none text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray z-30" 
     on:click={handleEmojiDisplayClick} 
     on:keydown={e => e.key === 'Enter' && handleEmojiDisplayClick()} 
     title={content[$currentLanguage].emojiDisplay.clickToCopy}
@@ -297,7 +297,7 @@
     <p class="text-sm text-gray text-left py-3" aria-label="information">
       {content[$currentLanguage].emojiDisplay.dataPrivacyProcessingInfo}
     </p>
-    <button 
+    <button aria-label="Clear the form inputs" 
       on:click={clearInput} 
       class="bg-white dark:bg-aubergine-dark text-gray-dark dark:text-white transition duration-300 ease-in-out transform hover:scale-105 px-3 py-3 rounded-full"
     >
@@ -312,14 +312,14 @@
     class="flex space-x-4 mt-3 mb-2"
   >
     {#if isStoryMode}
-      <button 
+      <button aria-label="Generate your writte Story into fitting emojis" 
         on:click={generateEmojis} 
         class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full"
       >
         {content[$currentLanguage].emojiDisplay.storyButtonClicked}
       </button>
     {:else}
-      <button 
+      <button aria-label="Toggle Story Form" 
         on:click={toggleStoryMode} 
         class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full opacity-50 cursor-not-allowed" 
         disabled

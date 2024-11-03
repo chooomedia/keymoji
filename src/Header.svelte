@@ -7,6 +7,7 @@
     import LoginMenu from './widgets/LoginMenu.svelte';
     import content from './content.js';
     import { createEventDispatcher } from 'svelte';
+    import { navigate } from 'svelte-routing';
 
     const dispatch = createEventDispatcher();
 
@@ -40,6 +41,10 @@
         return languages.find(lang => lang.code === code) || languages[0];
     };
 
+    function navigateToBlog() {
+        navigate('/blog');
+    }
+
     onMount(() => {
         const handleClickOutside = (event) => {
             if ($showLanguageMenu && !event.target.closest('#language-dropdown-menu') && !event.target.closest('#language-toggle-button')) {
@@ -70,11 +75,18 @@
                 </h1>
             </a>
             <div class="flex items-center md:order-2 rtl:space-x-reverse space-x-2">
+                <button aria-label="Navigate to the blog article overview" 
+                on:click={navigateToBlog}
+                class="hidden relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3.5 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none"
+              disabled>
+                📝
+              </button>
                 <button
                     id="language-toggle-button"
                     type="button"
                     class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder uppercase py-3.5 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none"
                     on:click={toggleLanguageMenu}
+                    aria-label="Change the language" 
                     aria-haspopup="true"
                     aria-expanded={$showLanguageMenu}
                 >
@@ -89,7 +101,7 @@
                                 <li
                                 in:slide={{ y: -5, duration: 400, easing: cubicInOut }} 
                                 out:slide={{ y: 5, duration: 400, easing: cubicInOut }} >
-                                    <button 
+                                    <button aria-label="Change the language to {lang.name}" 
                                         on:click={() => handleLanguageChange(lang.code)}
                                         class="flex flex-wrap text-black dark:text-white md:px-4 px-2 py-2 text-sm w-full text-left hover:bg-gray group hover:text-white" 
                                         role="menuitem" 
@@ -104,7 +116,7 @@
 
                 <LoginMenu />
 
-                <button data-collapse-toggle="navbar-language" type="button" class="sr-only bg-powder text-black dark:bg-aubergine-dark dark:text-powder p-3.5 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none" aria-controls="navbar-language" aria-expanded="false" disabled={$isDisabled}>
+                <button aria-label="open the hamburger menu" data-collapse-toggle="navbar-language" type="button" class="sr-only bg-powder text-black dark:bg-aubergine-dark dark:text-powder p-3.5 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none" aria-controls="navbar-language" aria-expanded="false" disabled={$isDisabled}>
                     <span class="sr-only">{getText('header.openMainMenu')}</span>
                     <svg class="w-5 h-5" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" viewBox="0 0 98 98">
                         <path d="{hamburger}"></path>

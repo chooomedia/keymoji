@@ -625,7 +625,7 @@ export const content = {
       clearButton: "✖️ Wissen",
       storyButton: "📝 Verhaal",
       storyButtonClicked: "📩 Verhaal verzenden",
-      randomButton: "*️⃣ Willekeurig",
+      randomButton: "*️⃣ Willekeurige",
     },
     donateButton: {
       text: "☕ Koop mij een koffie",

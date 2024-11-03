@@ -9,6 +9,7 @@ module.exports = merge(common, {
   // DevServer-Konfiguration optimiert
   devServer: {
     allowedHosts: 'all',
+    historyApiFallback: true,
     client: {
       overlay: {
         errors: true,

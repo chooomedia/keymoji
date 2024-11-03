@@ -9,8 +9,8 @@
     if (value) {
       showMessage = true;
       isModalVisible.set(true);
-      let duration = value.split(' ').length * 1800;
-      duration = duration > 1800 ? 1800 : duration;
+      let duration = value.split(' ').length * 2000;
+      duration = duration > 2000 ? 2000 : duration;
 
       setTimeout(() => {
         showMessage = false;
@@ -33,6 +33,6 @@
         {message}
       </h1>
     </div>
-    <button class="bg-powder dark:bg-aubergine-dark dark:text-powder text-black transition transform hover:scale-105 fixed top-4 right-4 py-3 px-5 rounded-full border-4 border-aubergine" on:click={closeMessage}>✖</button>
+    <button aria-label="Close the message popup" class="dark:text-powder text-black dark:bg-aubergine-dark transition transform hover:scale-105 fixed top-5 right-5 py-3 px-5 rounded-full border-4 border-aubergine" on:click={closeMessage}>✖</button>
 </div>
 {/if}
