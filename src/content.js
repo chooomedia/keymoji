@@ -85,7 +85,7 @@ export const content = {
         button: "✅ Confirm request",
         privacy: "Rest assured, your data is in good hands with us 🤲.<br>Your details will not be passed on to third parties 🔒."
     },
-    footerText: "© 2024 keymoji.wtf by Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    backToMainButton: "🔙 Back",
   },
   shareButtons: {
     links: [
@@ -232,7 +232,7 @@ export const content = {
           button: "✅ Anfrage bestätigen",
           privacy: "Keine Sorge, deine Daten sind bei uns in guten Händen 🤲.<br>Deine Details werden nicht an Dritte weitergegeben 🔒."
       },
-      footerText: "© 2024 keymoji.wtf von Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      backToMainButton: "🔙 Zurück",
     },
     shareButtons: {
       links: [
@@ -379,7 +379,7 @@ export const content = {
           button: "✅ Aafrog bestätige",
           privacy: "Kei Sorge, mit dine Date wird guet umgange bi üs 🤲.<br>Dini Detail werde nid an Drüttparteie wiitergäh 🔒."
       },
-      footerText: "© 2024 keymoji.wtf vo Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      backToMainButton: "🔙 Zrugg",
     },
     shareButtons: {
       links: [
@@ -526,7 +526,7 @@ export const content = {
           button: "✅ Confirmar solicitud",
           privacy: "Descuida, tus datos están en buenas manos con nosotros 🤲.<br>Tus detalles no serán compartidos con terceros 🔒."
       },
-      footerText: "© 2024 keymoji.wtf por Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      backToMainButton: "🔙 Volver",
     },
     shareButtons: {
       links: [
@@ -673,7 +673,7 @@ export const content = {
           button: "✅ Verzoek bevestigen",
           privacy: "Wees gerust, jouw gegevens zijn in goede handen bij ons 🤲.<br>Jouw details worden niet aan derden doorgegeven 🔒."
       },
-      footerText: "© 2024 keymoji.wtf",
+      backToMainButton: "🔙 Terug",
     },
     shareButtons: {
       links: [
@@ -820,7 +820,7 @@ export const content = {
           button: "✅ Conferma richiesta",
           privacy: "Stai tranquillo, i tuoi dati sono in buone mani con noi 🤲.<br>I tuoi dettagli non saranno condivisi con terzi 🔒."
       },
-      footerText: "© 2024 keymoji.wtf di Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      backToMainButton: "🔙 Torna",
     },
     shareButtons: {
       links: [
@@ -967,7 +967,7 @@ export const content = {
           button: "✅ Confirmer la demande",
           privacy: "Soyez rassuré, vos données sont entre de bonnes mains avec nous 🤲.<br>Vos détails ne seront pas partagés avec des tiers 🔒."
       },
-      footerText: "© 2024 keymoji.wtf di Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      backToMainButton: "🔙 Retour",
     },
     shareButtons: {
       links: [
@@ -1114,7 +1114,7 @@ export const content = {
           button: "✅ Potwierdź prośbę",
           privacy: "Bądź spokojny, twoje dane są w dobrych rękach 🤲.<br>Twoje szczegóły nie zostaną przekazane osobom trzecim 🔒."
       },
-      footerText: "© 2024 keymoji.wtf od Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      backToMainButton: "🔙 Powrót",
     },
     shareButtons: {
       links: [
@@ -1261,7 +1261,7 @@ export const content = {
           button: "✅ Bekræft anmodning",
           privacy: "Vær rolig, dine data er i gode hænder hos os 🤲.<br>Dine oplysninger vil ikke blive delt med tredjeparter 🔒."
       },
-      footerText: "© 2024 keymoji.wtf af Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      backToMainButton: "🔙 Tilbage",
     },
     shareButtons: {
       links: [
@@ -1408,7 +1408,7 @@ export const content = {
         button: "✅ Подтвердить запрос",
         privacy: "Не волнуйтесь, ваши данные у нас в надежных руках 🤲.<br>Ваши данные не будут переданы третьим лицам 🔒."
     },
-    footerText: "© 2024 keymoji.wtf от Криса Мэтта · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    backToMainButton: "🔙 Вернуться",
   },
   shareButtons: {
     links: [
@@ -1555,7 +1555,7 @@ export const content = {
         button: "✅ İsteği Onayla",
         privacy: "Verileriniz bizimle güvende 🤲.<br>Detaylarınız üçüncü taraflara iletilmeyecektir 🔒."
     },
-    footerText: "© 2024 keymoji.wtf Chris Matt tarafından · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    backToMainButton: "🔙 geri dön",
   },
   shareButtons: {
     links: [
@@ -1702,7 +1702,7 @@ export const content = {
         button: "✅ Bevestig versoek",
         privacy: "Wees verseker, jou data is in goeie hande by ons 🤲.<br>Jou besonderhede sal nie aan derde partye oorgedra word nie 🔒."
     },
-    footerText: "© 2024 keymoji.wtf deur Chris Matt · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    backToMainButton: "🔙 Terug",
   },
   shareButtons: {
     links: [
@@ -1849,7 +1849,7 @@ export const content = {
         button: "✅ リクエストを確認",
         privacy: "安心してください、お客様のデータは安全に保管されています 🤲。<br>お客様の詳細情報は第三者に提供されることはありません 🔒。"
     },
-    footerText: "© 2024 keymoji.wtf クリス・マット · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    backToMainButton: "🔙 メインビューに戻る",
   },
   shareButtons: {
     links: [
@@ -1996,7 +1996,7 @@ export const content = {
         button: "✅ 요청 확인",
         privacy: "걱정 마세요. 귀하의 데이터는 안전하게 보호됩니다 🤲.<br>귀하의 세부 정보는 제3자에게 전달되지 않습니다 🔒."
     },
-    footerText: "© 2024 keymoji.wtf 크리스 매트 · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+    backToMainButton: "🔙 메인 뷰로 돌아가기",
   },
   shareButtons: {
     links: [
@@ -2141,7 +2141,7 @@ export const content = {
         button: "✅ Qapla'",
         privacy: "cholna'be' ghaH ngan chenmoH qeq 'oH 🤲.<br>ngan 'oHbogh ghItlh. lujon chenmoH cha'logh tu'lu'. 🔒."
       },
-      footerText: "© 2024 keymoji.wtf by chris matlh · <a style='text-decoration: none;' href='https://chooomedia.de/'>CHOOOMEDIA</a>",
+      backToMainButton: "🔙 Daq HeghDI'",
     },
     shareButtons: {
       links: [

@@ -1,6 +1,7 @@
 <script>
   import { modalMessage, currentLanguage } from './stores.js';
   import content from './content.js';
+  import { navigate } from "svelte-routing";
 
   let name = '',
       email = '',
@@ -21,6 +22,10 @@
 
   function validateEmail(email) {
     return emailRegex.test(email);
+  }
+
+  function navigateToHome() {
+    navigate("/", { replace: true });
   }
 
   function validateForm() {
@@ -268,11 +273,21 @@
       {/if}
     </div>
   </div>
-  <div class="mb-4 md:mb-0">
-    <button aria-label="Submit your Request" 
-      on:click={handleSubmit} 
+  <div class="flex space-x-4 mb-4 md:mb-0">
+    <button
+      aria-label="Navigate back to main page"
+      on:click={navigateToHome}
+      class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full"
+    >
+      {content[$currentLanguage].contactForm.backToMainButton}
+    </button>
+  
+    <button
+      aria-label="Submit your Request"
+      on:click={handleSubmit}
       disabled={!isFormValid}
-      class="w-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 py-3 rounded-full bg-yellow text-black {!isFormValid ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}">
+      class="bg-yellow text-black shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full {!isFormValid ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}"
+    >
       {content[$currentLanguage].contactForm.sendButton}
     </button>
   </div>
