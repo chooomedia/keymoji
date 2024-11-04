@@ -1,6 +1,7 @@
 <script>
     import { Router, Link, Route } from "svelte-routing";
     import { modalMessage, currentLanguage, darkMode } from './stores.js';
+    import { linkedinIcon } from './shapes.js';
     import { fade, fly } from 'svelte/transition';
     import EmojiDisplay from './EmojiDisplay.svelte';
     import ContactForm from './ContactForm.svelte';
@@ -82,7 +83,7 @@
                   </h1>
                   
                   <p 
-                    class="dark:text-gray mb-5 text-center w-full leading-relaxed" 
+                    class="dark:text-gray mb-3 text-center w-full leading-relaxed" 
                     aria-labelledby="main-title"
                     itemprop="description">
                     {content[$currentLanguage]?.index?.pageDescription}
@@ -99,6 +100,33 @@
                 <div class="content-wrapper pl-4 pr-4 pb-4 w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60 transition duration-300 ease-in-out transform">
                   <EmojiDisplay />
                 </div>
+                <footer class="text-xs text-gray dark:text-gray flex items-center justify-center gap-2">
+                  <span>Created by</span>
+                  <a
+                    href="https://www.linkedin.com/in/chooomedia/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center gap-1 hover:text-yellow transition-colors"
+                    aria-label="Visit Christopher Matt's LinkedIn profile" 
+                    itemscope 
+                    itemtype="https://schema.org/Person">
+                    <span itemprop="name">Christopher Matt</span>
+                    <meta itemprop="jobTitle" content="Frontend Developer" />
+                    <meta itemprop="worksFor" content="Keymoji" />
+                    <meta itemprop="url" content="https://www.linkedin.com/in/chooomedia/" />
+                    <link itemprop="sameAs" href="https://github.com/chooomedia" />
+                    <meta itemprop="description" content="Creator of {content[$currentLanguage]?.header?.pageTitle} - {content[$currentLanguage]?.index?.pageTitle}" />
+                    <svg 
+                      class="w-4 h-4" 
+                      viewBox="0 0 24 24" 
+                      fill="currentColor"
+                      aria-hidden="true"
+                      role="img"
+                    >
+                      {@html linkedinIcon}
+                    </svg>
+                  </a>
+                </footer>
               </section>
             </div>
           </Route>
