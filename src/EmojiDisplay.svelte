@@ -238,14 +238,15 @@
 
 <div id="emoji-password-generator" class="flex flex-col space-t-6 rounded-xl relative">
   <!-- Emoji Display Section -->
-  <div 
+  <button 
     id="emoji-display" 
-    role="button" 
     tabindex="0" 
     class="max-w-72 flex flex-row h-14 justify-center items-center transform scale-117 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-125 focus:outline-none text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray z-30" 
     on:click={handleEmojiDisplayClick} 
     on:keydown={e => e.key === 'Enter' && handleEmojiDisplayClick()} 
-    title={content[$currentLanguage].emojiDisplay.clickToCopy}
+    aria-label={content[$currentLanguage].emojiDisplay.clickToCopy} 
+    aria-live="polite"
+    aria-pressed="false"
   >
     <div class="mt-1 md:mt-0">
       {#if randomEmojis && shouldAnimateEmojis}
@@ -256,7 +257,7 @@
         {/each}
       {/if}
     </div>
-  </div>
+  </button>
 
   <!-- Instructions Section -->
   <div class="flex flex-wrap justify-center items-center">

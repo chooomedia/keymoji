@@ -82,7 +82,7 @@
                   </h1>
                   
                   <p 
-                    class="dark:text-gray mb-5 text-center w-full leading-relaxed"
+                    class="dark:text-gray mb-5 text-center w-full leading-relaxed" 
                     aria-labelledby="main-title"
                     itemprop="description">
                     {content[$currentLanguage]?.index?.pageDescription}

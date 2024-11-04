@@ -25,6 +25,7 @@ export const content = {
         contactButtonText: "Send me a message! 💌",
   },
   emojiDisplay: {
+    clickToCopy: "Click or press Enter to copy the generated emoji password to clipboard",
     successMessage: "Success, copied into your Clipboard 💾",
     errorMessage: "Oops, something went wrong 🤖",
     dailyLimitReachedMessage: "Sorry, you have reached your daily limit of requests 😔",
@@ -171,6 +172,7 @@ export const content = {
       contactButtonText: "Schick mir eine Nachricht! 💌",
     },
     emojiDisplay: {
+      clickToCopy: "Klicken oder Enter drücken um das generierte Emoji-Passwort in die Zwischenablage zu kopieren",
       successMessage: "Erfolg, in die Zwischenablage kopiert 💾",
       errorMessage: "Ups, etwas ist schiefgelaufen 🤖",
       dailyLimitReachedMessage: "Sorry, du hast dein tägliches Limit an Anfragen erreicht 😔",
@@ -317,6 +319,7 @@ export const content = {
       contactButtonText: "Schick mer e Nachricht! 💌",
     },
     emojiDisplay: {
+      clickToCopy: "Klick oder drück Enter zum Kopiere vom generierte Emoji-Passwort in d'Zwüscheablag",
       successMessage: "Erfolg, kopiert is Clipboard 💾",
       errorMessage: "Huch, öppis isch schiefgloffe 🤖",
       dailyLimitReachedMessage: "Sorry, du häsch dis täglichs Limit a Aafroge erreiched 😔",
@@ -463,6 +466,7 @@ export const content = {
       contactButtonText: "¡Envíame un mensaje! 💌",
     },
     emojiDisplay: {
+      clickToCopy: "Haga clic o presione Enter para copiar la contraseña emoji generada al portapapeles",
       successMessage: "Éxito, copiado en tu portapapeles 💾",
       errorMessage: "Ups, algo salió mal 🤖",
       dailyLimitReachedMessage: "Lo siento, has alcanzado tu límite diario de solicitudes 😔",
@@ -609,6 +613,7 @@ export const content = {
       contactButtonText: "Stuur mij een bericht! 💌",
     },
     emojiDisplay: {
+      clickToCopy: "Klik of druk op Enter om het gegenereerde emoji-wachtwoord naar het klembord te kopiëren",
       successMessage: "Succes, gekopieerd naar je klembord 💾",
       errorMessage: "Oeps, er ging iets fout 🤖",
       dailyLimitReachedMessage: "Sorry, je hebt je dagelijkse limiet aan verzoeken bereikt 😔",
@@ -755,6 +760,7 @@ export const content = {
       contactButtonText: "Inviami un messaggio! 💌",
     },
     emojiDisplay: {
+      clickToCopy: "Clicca o premi Invio per copiare la password emoji generata negli appunti",
       successMessage: "Successo, copiato nella tua clipboard 💾",
       errorMessage: "Ops, qualcosa è andato storto 🤖",
       dailyLimitReachedMessage: "Spiacente, hai raggiunto il tuo limite giornaliero di richieste 😔",
@@ -901,6 +907,7 @@ export const content = {
       contactButtonText: "Envoyez-moi un message ! 💌",
     },
     emojiDisplay: {
+      clickToCopy: "Cliquez ou appuyez sur Entrée pour copier le mot de passe emoji généré dans le presse-papiers",
       successMessage: "Succès, copié dans votre presse-papiers 💾",
       errorMessage: "Oups, quelque chose a mal tourné 🤖",
       dailyLimitReachedMessage: "Désolé, vous avez atteint votre limite quotidienne de demandes 😔",
@@ -1047,6 +1054,7 @@ export const content = {
       contactButtonText: "Wyślij do mnie wiadomość! 💌",
     },
     emojiDisplay: {
+      clickToCopy: "Kliknij lub naciśnij Enter, aby skopiować wygenerowane hasło emoji do schowka",
       successMessage: "Sukces, skopiowano do schowka 💾",
       errorMessage: "Ups, coś poszło nie tak 🤖",
       dailyLimitReachedMessage: "Przykro nam, osiągnięto dzienny limit zapytań 😔",
@@ -1193,6 +1201,7 @@ export const content = {
       contactButtonText: "Send mig en besked! 💌",
     },
     emojiDisplay: {
+      clickToCopy: "Klik eller tryk på Enter for at kopiere det genererede emoji-kodeord til udklipsholderen",
       successMessage: "Succes, kopieret til din udklipsholder 💾",
       errorMessage: "Ups, noget gik galt 🤖",
       dailyLimitReachedMessage: "Beklager, du har nået din daglige grænse for anmodninger 😔",
@@ -1339,6 +1348,7 @@ export const content = {
         contactButtonText: "Отправьте мне сообщение! 💌",
   },
   emojiDisplay: {
+    clickToCopy: "Нажмите или нажмите Enter, чтобы скопировать сгенерированный пароль эмодзи в буфер обмена",
     successMessage: "Успешно, скопировано в буфер обмена 💾",
     errorMessage: "Упс, что-то пошло не так 🤖",
     dailyLimitReachedMessage: "Извините, вы достигли своего ежедневного лимита запросов 😔",
@@ -1485,6 +1495,7 @@ export const content = {
         contactButtonText: "Bana bir mesaj gönder! 💌",
   },
   emojiDisplay: {
+    clickToCopy: "Oluşturulan emoji şifresini panoya kopyalamak için tıklayın veya Enter tuşuna basın",
     successMessage: "Başarılı, panonuza kopyalandı 💾",
     errorMessage: "Üzgünüz, bir şeyler ters gitti 🤖",
     dailyLimitReachedMessage: "Üzgünüz, günlük istek sınırınıza ulaştınız 😔",
@@ -1631,6 +1642,7 @@ export const content = {
         contactButtonText: "Stuur my 'n boodskap! 💌",
   },
   emojiDisplay: {
+    clickToCopy: "Klik of druk Enter om die gegenereerde emoji-wagwoord na die knipbord te kopieer",
     successMessage: "Sukses, gekopieer na jou Knipbord 💾",
     errorMessage: "Oeps, iets het verkeerd gegaan 🤖",
     dailyLimitReachedMessage: "Jammer, jy het jou daaglikse limiet van versoek bereik 😔",
@@ -1777,6 +1789,7 @@ export const content = {
         contactButtonText: "メッセージを送信！ 💌",
   },
   emojiDisplay: {
+    clickToCopy: "クリックまたはEnterキーを押して、生成された絵文字パスワードをクリップボードにコピーします",
     successMessage: "成功し、クリップボードにコピーされました 💾",
     errorMessage: "おっと、何かがうまくいかなかったようです 🤖",
     dailyLimitReachedMessage: "申し訳ありませんが、リクエストの日次制限に達しました 😔",
@@ -1923,6 +1936,7 @@ export const content = {
         contactButtonText: "메시지 보내기! 💌",
   },
   emojiDisplay: {
+    clickToCopy: "생성된 이모지 비밀번호를 클립보드에 복사하려면 클릭하거나 Enter 키를 누르세요",
     successMessage: "성공, 클립보드에 복사되었습니다 💾",
     errorMessage: "오류가 발생했습니다. 🤖",
     dailyLimitReachedMessage: "죄송합니다. 요청 일일 한도에 도달하셨습니다. 😔",
@@ -2069,6 +2083,7 @@ export const content = {
       contactButtonText: "SoHvaD ra'! 💌",
     },
     emojiDisplay: {
+      clickToCopy: "HIDjolev emoji mu'mey ngoq Day'a' beQ click pagh enter",
       successMessage: "Qap, tImej nIvbogh wa'DIch 💾",
       errorMessage: "Qatlh, chenmoH! 🤖",
       dailyLimitReachedMessage: "Qapla', tIn vItlhutlh DujmeH rur tu'lu' 😔",
