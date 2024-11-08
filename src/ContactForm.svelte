@@ -226,55 +226,6 @@
   }
 </script>
 
-<svelte:head>
-  <!-- Open Graph -->
-  <meta property="og:title" content="Contact Keymoji Creator - Chris Matt">
-  <meta property="og:description" content="Connect with the creator of Keymoji, Chris Matt - Frontend Developer passionate about user-friendly web applications.">
-  <meta property="og:image" content={realAuthorImage}>
-  <meta property="og:type" content="profile">
-  
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Contact Keymoji Creator - Chris Matt">
-  <meta name="twitter:description" content="Connect with the creator of Keymoji, Chris Matt - Frontend Developer passionate about user-friendly web applications.">
-  <meta name="twitter:image" content={realAuthorImage}>
-  
-  <!-- Schema.org markup for author -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "@id": "https://keymoji.wtf/#creator",
-      "name": "Christopher Matt",
-      "givenName": "Christopher",
-      "familyName": "Matt",
-      "alternateName": "Chris Matt",
-      "image": "${realAuthorImage}",
-      "jobTitle": "Frontend Developer",
-      "worksFor": {
-        "@type": "Organization",
-        "name": "Keymoji",
-        "url": "https://keymoji.wtf"
-      },
-      "url": "https://www.linkedin.com/in/chooomedia/",
-      "sameAs": [
-        "https://github.com/chooomedia",
-        "https://www.linkedin.com/in/chooomedia/"
-      ],
-      "knowsAbout": [
-        "Frontend Development",
-        "JavaScript",
-        "PHP",
-        "Svelte",
-        "Web Development",
-        "User Experience",
-        "Web Security"
-      ],
-      "description": "Creator of Keymoji - Frontend Developer specializing in user-friendly web applications"
-    }
-  </script>
-</svelte:head>
-
 <div class="w-full md:pt-4 pt-2">
   <div class="flex flex-wrap md:mt-0 md:mb-4 my-3 md:pt-1 items-center bg-creme-80 dark:bg-aubergine-80 transition rounded-xl pb-2 px-4">
     <div class="w-1/4 m-auto md:w-3/12 px-0 py-2 relative overflow-hidden">
