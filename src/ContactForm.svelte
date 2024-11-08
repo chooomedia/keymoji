@@ -227,34 +227,37 @@
 </script>
 
 <div class="w-full md:pt-4 pt-2">
-  <div class="flex flex-wrap md:mt-0 md:mb-4 my-3 md:pt-1 items-center bg-creme-80 dark:bg-aubergine-80 transition rounded-xl pb-2 px-4">
-    <div class="w-1/4 m-auto md:w-3/12 px-0 py-2 relative overflow-hidden">
+  <div class="flex md:flex-row flex-col md:mt-0 md:mb-4 my-3 md:pt-1 items-center bg-creme-80 dark:bg-aubergine-80 transition rounded-xl pb-2 px-4">
+    <div class="w-28 flex justify-center px-0 py-2">
       <!-- Image container with hover effect -->
       <div 
-        class="relative cursor-pointer" 
+        class="relative aspect-square w-28 cursor-pointer rounded-full overflow-hidden"
         on:mouseenter={() => showRealImage = true}
         on:mouseleave={() => showRealImage = false}
       >
-        {#if showRealImage}
-          <img 
-            src={realAuthorImage} 
-            alt="Chris Matt - Creator of Keymoji"
-            class="md:w-90 w-96 mx-auto rounded-full transform transition-all duration-500 hover:scale-105"
-            in:scale={{duration: 300, start: 0.8}}
-            out:fade
-          />
-        {:else}
+        <div class="absolute inset-0 w-full h-full">
+          {#if showRealImage}
+            <img 
+              src={realAuthorImage} 
+              alt="Chris Matt - Creator of Keymoji the {content[$currentLanguage].index.pageTitle}"
+              class="w-full h-full object-cover rounded-full"
+              in:scale={{duration: 300, start: 0.95}}
+              out:fade={{duration: 200}}
+            />
+          {/if}
+          
           <img 
             src={emoijSmirkingFace} 
             alt={content[$currentLanguage].contactForm.smirkingFaceImageAlt}
-            class="md:w-90 w-96 mx-auto transition-all duration-500 hover:scale-105"
+            class="w-full h-full object-cover absolute inset-0 transition-opacity duration-300"
+            class:opacity-0={showRealImage}
             while-loading={whileLoading}
             on:load={handleImageLoad}
           />
-        {/if}
+        </div>
       </div>
     </div>
-    <div class="w-full md:w-9/12 md:pl-3 md:pt-3">
+    <div class="w-full md:w-9/12 md:pl-3 md:pt-3 md:pb-2">
       <h2 class="text-xl md:text-2xl font-semibold md:text-left mb-2 dark:text-white">{content[$currentLanguage].contactForm.introductionTitle}</h2>
       <p class="text-sm text-left dark:text-white">{content[$currentLanguage].contactForm.introductionText}</p>
     </div>
@@ -318,22 +321,27 @@
   </div>
 </div>
 
+
 <style>
-  /* Smooth transition animations */
+  /* Ensure smooth transitions */
+  .transition-opacity {
+    will-change: opacity;
+  }
+
+  /* Prevent flickering during transition */
   img {
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    will-change: transform, opacity;
-  }
-  
-  .image-container {
-    perspective: 1000px;
   }
 
-  /* Ensure sharp rendering during animations */
-  @media screen and (-webkit-min-device-pixel-ratio: 0) {
-    img {
-      image-rendering: -webkit-optimize-contrast;
-    }
+  /* Force aspect ratio and prevent layout shift */
+  .aspect-square {
+    aspect-ratio: 1;
+  }
+
+  /* Optimize image rendering */
+  .object-cover {
+    object-fit: cover;
+    font-family: 'object-fit: cover'; /* IE polyfill */
   }
 </style>

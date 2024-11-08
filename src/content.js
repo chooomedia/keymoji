@@ -73,7 +73,7 @@ export const content = {
     errorMessage: "An unexpected error occurred 😟",
     requestErrorMessage: "Error sending the message, please try again 🙁",
     smirkingFaceImageAlt: "keymoji emoji smirkingface 1f60f",
-    introductionTitle: "Hi, i'm Chris",
+    introductionTitle: "Hi, i'm Christopher",
     introductionText:
     "Frontend Developer and i love to design and code userfriendly Websites with JavaScript, PHP and HTML. Don't hesitate and send me a message if you like.",
     privacyNotice:
@@ -81,7 +81,7 @@ export const content = {
     emailText: {
         greeting: "Welcome",
         intro: "Thank you for sending a message 📩!",
-        doubleCheck: "Please confirm your request so that Chris knows that you are not a smart bot. You sent a message with the following Data:",
+        doubleCheck: "Please confirm your request so that Christopher knows that you are not a smart bot. You sent a message with the following Data:",
         button: "✅ Confirm request",
         privacy: "Rest assured, your data is in good hands with us 🤲.<br>Your details will not be passed on to third parties 🔒."
     },
@@ -220,7 +220,7 @@ export const content = {
       errorMessage: "Ein unerwarteter Fehler ist aufgetreten 😟",
       requestErrorMessage: "Fehler beim Senden der Nachricht, bitte versuche es erneut 🙁",
       smirkingFaceImageAlt: "keymoji emoji smirkingface 1f60f",
-      introductionTitle: "Hallo, ich bin Chris",
+      introductionTitle: "Hallo, ich bin Christopher",
       introductionText: 
       "Frontend Entwickler und ich liebe es, benutzerfreundliche Webseiten mit JavaScript, PHP und HTML zu gestalten und zu programmieren. Zögere nicht und schick mir eine Nachricht, wenn es dir gefällt.",
       privacyNotice: 
@@ -228,7 +228,7 @@ export const content = {
       emailText: {
           greeting: "Willkommen",
           intro: "Danke für das Senden einer Nachricht 📩!",
-          doubleCheck: "Bitte bestätige deine Anfrage, damit Chris weiß, dass du kein cleverer Bot bist. Du hast folgende Daten gesendet:",
+          doubleCheck: "Bitte bestätige deine Anfrage, damit Christopher weiß, dass du kein cleverer Bot bist. Du hast folgende Daten gesendet:",
           button: "✅ Anfrage bestätigen",
           privacy: "Keine Sorge, deine Daten sind bei uns in guten Händen 🤲.<br>Deine Details werden nicht an Dritte weitergegeben 🔒."
       },
@@ -367,7 +367,7 @@ export const content = {
       errorMessage: "Es isch en unerwartete Fehler passiert 😟",
       requestErrorMessage: "Fehler bim Schicke vo der Nachricht, bitte probier's nomal 🙁",
       smirkingFaceImageAlt: "keymoji emoji smirkingface 1f60f",
-      introductionTitle: "Hallo, ich bi de Chris",
+      introductionTitle: "Hallo, ich bi de Christopher",
       introductionText: 
       "Frontend Entwickler und ich liebe es, benutzerfreundlichi Webseiten mit JavaScript, PHP und HTML z'gestalte und z'programmiere. Zöger nid und schick mer e Nachricht, wenn's Dir gfallt.",
       privacyNotice: 
@@ -375,7 +375,7 @@ export const content = {
       emailText: {
           greeting: "Willkomme",
           intro: "Danke fürs Schicke vo ere Nachricht 📩!",
-          doubleCheck: "Bitte bestätig disi Aafrog, damit Chris weiss, dass Du kei gschickte Bot bisch. Du hesch folgendi Date gschickt:",
+          doubleCheck: "Bitte bestätig disi Aafrog, damit Christopher weiss, dass Du kei gschickte Bot bisch. Du hesch folgendi Date gschickt:",
           button: "✅ Aafrog bestätige",
           privacy: "Kei Sorge, mit dine Date wird guet umgange bi üs 🤲.<br>Dini Detail werde nid an Drüttparteie wiitergäh 🔒."
       },
@@ -514,7 +514,7 @@ export const content = {
       errorMessage: "Ocurrió un error inesperado 😟",
       requestErrorMessage: "Error al enviar el mensaje, por favor intenta de nuevo 🙁",
       smirkingFaceImageAlt: "emoji keymoji smirkingface 1f60f",
-      introductionTitle: "Hola, soy Chris",
+      introductionTitle: "Hola, soy Christopher",
       introductionText: 
       "Desarrollador Frontend y me encanta diseñar y programar sitios web amigables con JavaScript, PHP y HTML. No dudes en enviarme un mensaje si te gusta.",
       privacyNotice: 
@@ -522,7 +522,7 @@ export const content = {
       emailText: {
           greeting: "Bienvenido",
           intro: "Gracias por enviar un mensaje 📩!",
-          doubleCheck: "Por favor confirma tu solicitud para que Chris sepa que no eres un bot inteligente. Enviaste un mensaje con los siguientes datos:",
+          doubleCheck: "Por favor confirma tu solicitud para que Christopher sepa que no eres un bot inteligente. Enviaste un mensaje con los siguientes datos:",
           button: "✅ Confirmar solicitud",
           privacy: "Descuida, tus datos están en buenas manos con nosotros 🤲.<br>Tus detalles no serán compartidos con terceros 🔒."
       },
@@ -661,7 +661,7 @@ export const content = {
       errorMessage: "Er is een onverwachte fout opgetreden 😟",
       requestErrorMessage: "Fout bij het verzenden van het bericht, probeer het opnieuw 🙁",
       smirkingFaceImageAlt: "keymoji emoji smirkingface 1f60f",
-      introductionTitle: "Hallo, ik ben Chris",
+      introductionTitle: "Hallo, ik ben Christopher",
       introductionText: 
       "Frontend ontwikkelaar en ik houd ervan om gebruiksvriendelijke websites te ontwerpen en te coderen met JavaScript, PHP en HTML. Aarzel niet om mij een bericht te sturen als je het leuk vindt.",
       privacyNotice: 
@@ -669,7 +669,7 @@ export const content = {
       emailText: {
           greeting: "Welkom",
           intro: "Bedankt voor het versturen van een bericht 📩!",
-          doubleCheck: "Bevestig alsjeblieft jouw verzoek zodat Chris weet dat je geen slimme bot bent. Je hebt een bericht gestuurd met de volgende gegevens:",
+          doubleCheck: "Bevestig alsjeblieft jouw verzoek zodat Christopher weet dat je geen slimme bot bent. Je hebt een bericht gestuurd met de volgende gegevens:",
           button: "✅ Verzoek bevestigen",
           privacy: "Wees gerust, jouw gegevens zijn in goede handen bij ons 🤲.<br>Jouw details worden niet aan derden doorgegeven 🔒."
       },
@@ -808,7 +808,7 @@ export const content = {
       errorMessage: "Si è verificato un errore imprevisto 😟",
       requestErrorMessage: "Errore nell'invio del messaggio, riprova 🙁",
       smirkingFaceImageAlt: "emoji keymoji smirkingface 1f60f",
-      introductionTitle: "Ciao, sono Chris",
+      introductionTitle: "Ciao, sono Christopher",
       introductionText: 
       "Sviluppatore frontend e amo progettare e codificare siti web user-friendly con JavaScript, PHP e HTML. Non esitare a inviarmi un messaggio se ti piace.",
       privacyNotice: 
@@ -816,7 +816,7 @@ export const content = {
       emailText: {
           greeting: "Benvenuto",
           intro: "Grazie per aver inviato un messaggio 📩!",
-          doubleCheck: "Conferma la tua richiesta per far sapere a Chris che non sei un bot intelligente. Hai inviato un messaggio con i seguenti dati:",
+          doubleCheck: "Conferma la tua richiesta per far sapere a Christopher che non sei un bot intelligente. Hai inviato un messaggio con i seguenti dati:",
           button: "✅ Conferma richiesta",
           privacy: "Stai tranquillo, i tuoi dati sono in buone mani con noi 🤲.<br>I tuoi dettagli non saranno condivisi con terzi 🔒."
       },
@@ -955,7 +955,7 @@ export const content = {
       errorMessage: "Une erreur inattendue s'est produite 😟",
       requestErrorMessage: "Erreur lors de l'envoi du message, veuillez réessayer 🙁",
       smirkingFaceImageAlt: "emoji keymoji visage narquois 1f60f",
-      introductionTitle: "Salut, je suis Chris",
+      introductionTitle: "Salut, je suis Christopher",
       introductionText: 
       "Développeur Frontend et j'adore concevoir et coder des sites web conviviaux avec JavaScript, PHP et HTML. N'hésitez pas à m'envoyer un message si cela vous plaît.",
       privacyNotice: 
@@ -963,7 +963,7 @@ export const content = {
       emailText: {
           greeting: "Bienvenue",
           intro: "Merci d'avoir envoyé un message 📩!",
-          doubleCheck: "Veuillez confirmer votre demande pour que Chris sache que vous n'êtes pas un robot intelligent. Vous avez envoyé un message avec les données suivantes :",
+          doubleCheck: "Veuillez confirmer votre demande pour que Christopher sache que vous n'êtes pas un robot intelligent. Vous avez envoyé un message avec les données suivantes :",
           button: "✅ Confirmer la demande",
           privacy: "Soyez rassuré, vos données sont entre de bonnes mains avec nous 🤲.<br>Vos détails ne seront pas partagés avec des tiers 🔒."
       },
@@ -1102,7 +1102,7 @@ export const content = {
       errorMessage: "Wystąpił nieoczekiwany błąd 😟",
       requestErrorMessage: "Błąd wysyłania wiadomości, spróbuj ponownie 🙁",
       smirkingFaceImageAlt: "emoji keymoji z uśmieszkiem 1f60f",
-      introductionTitle: "Cześć, jestem Chris",
+      introductionTitle: "Cześć, jestem Christopher",
       introductionText: 
       "Frontend Developer i uwielbiam projektować i kodować przyjazne użytkownikowi strony internetowe z użyciem JavaScript, PHP i HTML. Nie wahaj się wysłać do mnie wiadomości, jeśli ci się podoba.",
       privacyNotice: 
@@ -1110,7 +1110,7 @@ export const content = {
       emailText: {
           greeting: "Witamy",
           intro: "Dziękujemy za wysłanie wiadomości 📩!",
-          doubleCheck: "Proszę potwierdzić swoją prośbę, aby Chris wiedział, że nie jesteś inteligentnym botem. Wysłałeś wiadomość z następującymi danymi:",
+          doubleCheck: "Proszę potwierdzić swoją prośbę, aby Christopher wiedział, że nie jesteś inteligentnym botem. Wysłałeś wiadomość z następującymi danymi:",
           button: "✅ Potwierdź prośbę",
           privacy: "Bądź spokojny, twoje dane są w dobrych rękach 🤲.<br>Twoje szczegóły nie zostaną przekazane osobom trzecim 🔒."
       },
@@ -1249,7 +1249,7 @@ export const content = {
       errorMessage: "Der opstod en uventet fejl 😟",
       requestErrorMessage: "Fejl ved afsendelse af besked, prøv igen 🙁",
       smirkingFaceImageAlt: "keymoji emoji smirkeansigt 1f60f",
-      introductionTitle: "Hej, jeg er Chris",
+      introductionTitle: "Hej, jeg er Christopher",
       introductionText: 
       "Frontend-udvikler, og jeg elsker at designe og kode brugervenlige websteder med JavaScript, PHP og HTML. Tøv ikke med at sende mig en besked, hvis du kan lide det.",
       privacyNotice: 
@@ -1257,7 +1257,7 @@ export const content = {
       emailText: {
           greeting: "Velkommen",
           intro: "Tak fordi du sendte en besked 📩!",
-          doubleCheck: "Bekræft venligst din anmodning, så Chris ved, at du ikke er en intelligent bot. Du har sendt en besked med følgende oplysninger:",
+          doubleCheck: "Bekræft venligst din anmodning, så Christopher ved, at du ikke er en intelligent bot. Du har sendt en besked med følgende oplysninger:",
           button: "✅ Bekræft anmodning",
           privacy: "Vær rolig, dine data er i gode hænder hos os 🤲.<br>Dine oplysninger vil ikke blive delt med tredjeparter 🔒."
       },
@@ -1543,7 +1543,7 @@ export const content = {
     errorMessage: "Beklenmeyen bir hata oluştu 😟",
     requestErrorMessage: "Mesaj gönderme hatası, lütfen tekrar deneyin 🙁",
     smirkingFaceImageAlt: "keymoji emoji sırıtma yüzü 1f60f",
-    introductionTitle: "Merhaba, ben Chris",
+    introductionTitle: "Merhaba, ben Christopher",
     introductionText:
     "Frontend Geliştiriciyim ve JavaScript, PHP ve HTML kullanarak kullanıcı dostu web siteleri tasarlamayı ve kodlamayı seviyorum. Beğenirseniz bana bir mesaj göndermekten çekinmeyin.",
     privacyNotice:
@@ -1551,7 +1551,7 @@ export const content = {
     emailText: {
         greeting: "Hoş geldiniz",
         intro: "Mesaj gönderdiğiniz için teşekkür ederiz 📩!",
-        doubleCheck: "Lütfen isteğinizi Chris'in akıllı bir bot olmadığınızı bilmesi için onaylayın. Aşağıdaki verilerle bir mesaj gönderdiniz:",
+        doubleCheck: "Lütfen isteğinizi Christopher'in akıllı bir bot olmadığınızı bilmesi için onaylayın. Aşağıdaki verilerle bir mesaj gönderdiniz:",
         button: "✅ İsteği Onayla",
         privacy: "Verileriniz bizimle güvende 🤲.<br>Detaylarınız üçüncü taraflara iletilmeyecektir 🔒."
     },
@@ -1690,7 +1690,7 @@ export const content = {
     errorMessage: "Onverwagse fout opgetree 😟",
     requestErrorMessage: "Fout met die stuur van die boodskap, probeer asseblief weer 🙁",
     smirkingFaceImageAlt: "keymoji emoji gryns gesig 1f60f",
-    introductionTitle: "Hi, ek is Chris",
+    introductionTitle: "Hi, ek is Christopher",
     introductionText:
     "Frontend-ontwikkelaar en ek hou daarvan om gebruiksvriendelike webwerwe te ontwerp en kodeer met JavaScript, PHP en HTML. Moet nie huiwer om my 'n boodskap te stuur as jy wil nie.",
     privacyNotice:
@@ -1698,7 +1698,7 @@ export const content = {
     emailText: {
         greeting: "Welkom",
         intro: "Dankie dat jy 'n boodskap gestuur het 📩!",
-        doubleCheck: "Bevestig asseblief jou versoek sodat Chris weet jy is nie 'n slim robot nie. Jy het 'n boodskap gestuur met die volgende data:",
+        doubleCheck: "Bevestig asseblief jou versoek sodat Christopher weet jy is nie 'n slim robot nie. Jy het 'n boodskap gestuur met die volgende data:",
         button: "✅ Bevestig versoek",
         privacy: "Wees verseker, jou data is in goeie hande by ons 🤲.<br>Jou besonderhede sal nie aan derde partye oorgedra word nie 🔒."
     },
@@ -1837,7 +1837,7 @@ export const content = {
     errorMessage: "予期しないエラーが発生しました 😟",
     requestErrorMessage: "メッセージの送信中にエラーが発生しました。もう一度お試しください 🙁",
     smirkingFaceImageAlt: "keymoji emoji smirkingface 1f60f",
-    introductionTitle: "こんにちは、私はクリスです",
+    introductionTitle: "こんにちは、クリストファーです",
     introductionText:
     "フロントエンドデベロッパーで、JavaScript、PHP、HTMLで使いやすいウェブサイトをデザインしコード化するのが好きです。何か質問があるか、気軽にメッセージを送ってください。",
     privacyNotice:
@@ -1984,7 +1984,7 @@ export const content = {
     errorMessage: "예기치 않은 오류가 발생했습니다. 😟",
     requestErrorMessage: "메시지 전송 중 오류가 발생했습니다. 다시 시도해주세요. 🙁",
     smirkingFaceImageAlt: "keymoji 이모지 껄끄러운 얼굴 1f60f",
-    introductionTitle: "안녕하세요, 저는 크리스입니다",
+    introductionTitle: "안녕하세요, 저는 크리스토퍼입니다",
     introductionText:
     "프론트엔드 개발자이며 JavaScript, PHP 및 HTML을 사용하여 사용자 친화적인 웹 사이트를 디자인하고 코드로 작성하는 것을 좋아합니다. 궁금한 점이나 메시지를 보내고 싶은 내용이 있다면 언제든지 메시지를 보내 주세요.",
     privacyNotice:
@@ -2131,7 +2131,7 @@ export const content = {
       errorMessage: "ngan 'oH naDev. 😟",
       requestErrorMessage: "bIqaw'a' logh vImej - chenmoH QaQ! 🙁",
       smirkingFaceImageAlt: "keymoji emoji tlhutlh Dach 1f60f",
-      introductionTitle: "nuqneH, jImej jatlh qa'?",
+      introductionTitle: "nuqneH, jIqaH Christopher 'oH",
       introductionText: "loD qaDevwI' je 'ach javascript, php 'ej HTML Daq cha'logh 'oH 'ej pa'logh. DaH HeghmoH 'ej bIqaw'a' 'ach vaj.",
       privacyNotice: "cholna'be' ghaH ngan chenmoH qeq 'oH 🤲. ngan 'oHbogh ghItlh. lujon chenmoH cha'logh tu'lu'. 🔒.",
       emailText: {
