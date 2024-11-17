@@ -151,16 +151,16 @@
   <nav id="fixed-menu-nav" class="bg-creme dark:bg-aubergine rounded-full transition duration-300 ease-in-out transform {align}-0 flex {showMenu ? 'opened' : 'closed'}" aria-label="Main">
     <div class="w-46 justify-center flex space-x-3 border-4 border-creme dark:border-aubergine rounded-full">
       <EraseLocalstorage />
-      <button aria-label="toggle color schema (dark/light)" on:click={toggleDarkMode} class="relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
+      <button aria-label="toggle color schema (dark/light)" on:click={toggleDarkMode} class="text-2xl relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
         {#if $darkMode}🌙{:else}🌞{/if}
       </button>
-      <button aria-label="open share menu" on:click={() => toggleMenu('share')} class="{showMenu ? 'opened' : 'closed'} relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
+      <button aria-label="open share menu" on:click={() => toggleMenu('share')} class="{showMenu ? 'opened' : 'closed'} text-2xl relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
         {#if showMenu}💔{:else}❤️{/if}
       </button>
-      <button aria-label="navigate to contact form" on:click={navigateToContact} class="relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
+      <button aria-label="navigate to contact form" on:click={navigateToContact} class="text-2xl relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
         💌
       </button>
-      <button aria-label="open donation menu" on:click={() => toggleMenu('donate')} class="md:hidden block relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
+      <button aria-label="open donation menu" on:click={() => toggleMenu('donate')} class="text-2xl md:hidden block relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
         {#if $showDonateMenu}❌{:else}{$languageText?.donateButton?.textMobile || '☕'}{/if}
       </button>
     </div>

@@ -256,6 +256,12 @@
           </span>
         {/each}
       {/if}
+
+      {#if randomEmojis.filter(isVisible).length === 0}
+        <div class="text-xs">
+          {content[$currentLanguage].emojiDisplay.dailyLimitReachedMessage}
+        </div>
+      {/if}
     </div>
   </button>
 
