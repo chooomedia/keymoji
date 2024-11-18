@@ -31,7 +31,15 @@ module.exports = merge(common, {
     static: {
       directory: paths.APP_PUBLIC,
       publicPath: '/'
-    }
+    },
+    devMiddleware: {
+      writeToDisk: true // Wichtig für Service Worker
+    },
+    static: {
+        directory: paths.APP_PUBLIC,
+        publicPath: '/',
+        watch: true,
+    },
   },
 
   // Output-Konfiguration vereinfacht
