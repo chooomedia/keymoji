@@ -121,6 +121,16 @@ module.exports = merge(common, {
                     globOptions: {
                         ignore: ['**/index.html']
                     }
+                },
+                {
+                    from: 'service-worker.js',
+                    to: 'service-worker.js',
+                    transform(content) {
+                        return content
+                            .toString()
+                            .replace(/CACHE_NAME = ['"].*['"]/, 
+                                   `CACHE_NAME = 'keymoji-cache-v${Date.now()}'`);
+                    },
                 }
             ]
         }),
