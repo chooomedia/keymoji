@@ -62,7 +62,7 @@
 </script>
 
 <div class="w-full fixed flex flex-wrap justify-center top-5 mx-auto z-30">
-    <nav class="md:w-3/12 w-full mx-3 bg-creme dark:bg-aubergine border-gray dark:bg-gray justify-center rounded-full border-4 border-creme dark:border-aubergine">
+    <nav class="md:w-3/12 w-full mx-3 bg-creme dark:bg-aubergine justify-center rounded-full border-4 border-creme dark:border-aubergine">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between">
             <a href="/" class="flex flex-col items-center rtl:space-x-reverse">
                 <h2 class="flex flex-wrap md:text-2xl font-semibold items-center whitespace-nowrap dark:text-white">
@@ -78,24 +78,24 @@
             <div class="flex items-center md:order-2 rtl:space-x-reverse space-x-2">
                 <button aria-label="Navigate to the blog article overview" 
                 on:click={navigateToBlog}
-                class="hidden relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3.5 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none"
+                class="hidden relative btn btn-default btn-md"
               disabled>
                 📝
               </button>
                 <button
                     id="language-toggle-button"
                     type="button"
-                    class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder uppercase py-3.5 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none"
+                    class="btn btn-default btn-md"
                     on:click={toggleLanguageMenu}
                     aria-label="Change the language" 
                     aria-haspopup="true"
                     aria-expanded={$showLanguageMenu}
                 >
-                    {getCurrentLanguageInfo($currentLanguage).flag} {getCurrentLanguageInfo($currentLanguage).code}
+                   {getCurrentLanguageInfo($currentLanguage).flag} <span class="text-base uppercase">{getCurrentLanguageInfo($currentLanguage).code}</span>
                 </button>
 
                 {#if $showLanguageMenu}
-                    <div id="language-dropdown-menu" class="w-auto mx-auto fixed top-20 rounded-b-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-10 transform transition-all duration-300 ease-in-out -translate-x-28 space-x-0
+                    <div id="language-dropdown-menu" class="w-auto mx-auto fixed top-20 rounded-b-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-10 transform transition-all duration-300 ease-in-out -translate-x-28 translate-y-1 space-x-0
                     " role="menu" aria-orientation="vertical" aria-labelledby="language-menu">
                         <ul class="py-2 font-medium" role="none">
                             {#each languages as lang}
@@ -117,7 +117,7 @@
 
                 <LoginMenu />
 
-                <button aria-label="open the hamburger menu" data-collapse-toggle="navbar-language" type="button" class="sr-only bg-powder text-black dark:bg-aubergine-dark dark:text-powder p-3.5 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none" aria-controls="navbar-language" aria-expanded="false" disabled={$isDisabled}>
+                <button aria-label="open the hamburger menu" data-collapse-toggle="navbar-language" type="button" class="sr-only bg-powder text-black dark:bg-aubergine-dark dark:text-powder p-3 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none" aria-controls="navbar-language" aria-expanded="false" disabled={$isDisabled}>
                     <span class="sr-only">{getText('header.openMainMenu')}</span>
                     <svg class="w-5 h-5" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" viewBox="0 0 98 98">
                         <path d="{hamburger}"></path>

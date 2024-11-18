@@ -82,10 +82,10 @@
   ></button>
 {/if}
 
-<div id="fixed-menu" class="fixed bottom-4 z-20 flex flex-col justify-center items-center w-full">
+<div id="fixed-menu" class="fixed bottom-4 flex flex-col justify-center items-center w-full z-10">
   {#if showMenu && shareLinks.length > 0}
     <ul 
-    class="w-32 mx-auto rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-30 pt-2" 
+    class="w-32 mx-auto rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-auto pt-2" 
     role="menu" 
     aria-orientation="vertical" 
     aria-labelledby="menu-button">
@@ -117,7 +117,7 @@
 
   {#if $showDonateMenu && donateLinks.length > 0}
   <ul 
-    class="w-32 md:mx-7 md:ml-9 mx-auto md:fixed md:right-3 md:bottom-71 rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-30 pt-2" 
+    class="w-32 md:mx-7 md:ml-9 mx-auto md:fixed md:right-3 md:bottom-71 rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-auto py-2" 
     role="menu" 
     aria-orientation="vertical" 
     aria-labelledby="menu-button">
@@ -151,34 +151,33 @@
   <nav id="fixed-menu-nav" class="bg-creme dark:bg-aubergine rounded-full transition duration-300 ease-in-out transform {align}-0 flex {showMenu ? 'opened' : 'closed'}" aria-label="Main">
     <div class="w-46 justify-center flex space-x-3 border-4 border-creme dark:border-aubergine rounded-full">
       <EraseLocalstorage />
-      <button aria-label="toggle color schema (dark/light)" on:click={toggleDarkMode} class="text-2xl relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
+      <button aria-label="toggle color schema (dark/light)" on:click={toggleDarkMode} class="btn btn-default btn-md">
         {#if $darkMode}🌙{:else}🌞{/if}
       </button>
-      <button aria-label="open share menu" on:click={() => toggleMenu('share')} class="{showMenu ? 'opened' : 'closed'} text-2xl relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
+      <button aria-label="open share menu" on:click={() => toggleMenu('share')} class="{showMenu ? 'opened' : 'closed'} btn btn-default btn-md">
         {#if showMenu}💔{:else}❤️{/if}
       </button>
-      <button aria-label="navigate to contact form" on:click={navigateToContact} class="text-2xl relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
+      <button aria-label="navigate to contact form" on:click={navigateToContact} class="btn btn-default btn-md">
         💌
       </button>
-      <button aria-label="open donation menu" on:click={() => toggleMenu('donate')} class="text-2xl md:hidden block relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition transform hover:scale-105 focus:outline-none">
+      <button aria-label="open donation menu" on:click={() => toggleMenu('donate')} class="md:hidden block btn btn-default btn-md">
         {#if $showDonateMenu}❌{:else}{$languageText?.donateButton?.textMobile || '☕'}{/if}
       </button>
     </div>
   </nav>
-</div>
 
-<!-- Desktop Donate Button -->
-<button 
-  data-menu-type="donate"
-  aria-label="open donation menu" 
-  on:click={() => toggleMenu('donate')} 
-  class="md:block hidden fixed bottom-4 right-4 bg-powder text-black dark:bg-aubergine-dark dark:text-powder py-3 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none z-30 border-4 border-creme dark:border-aubergine">
-  {#if $showDonateMenu}
-    {$languageText?.donateButton?.openText || 'Close'}
-  {:else}
-    {$languageText?.donateButton?.text || 'Donate'}
-  {/if}
-</button>
+  <!-- Desktop Donate Button -->
+  <button 
+    data-menu-type="donate"
+    aria-label="open donation menu" 
+    on:click={() => toggleMenu('donate')} 
+    class="hidden md:flex fixed bottom-4 right-4 items-center space-x-2 btn btn-fixed btn-md">
+    <span>{#if $showDonateMenu}❌{:else}☕{/if}</span>
+    <span class="text-base">
+      {$showDonateMenu ? $languageText?.donateButton?.openText : $languageText?.donateButton?.text}
+    </span>
+  </button>
+</div>
 
 <style>
   /* Optional: Verhindert Scrolling wenn Overlay aktiv ist */

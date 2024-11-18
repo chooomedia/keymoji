@@ -33,6 +33,6 @@
         {message}
       </h1>
     </div>
-    <button aria-label="Close the message popup" class="dark:text-powder text-black dark:bg-aubergine-dark transition transform hover:scale-105 fixed top-5 right-5 py-3 px-5 rounded-full border-4 border-aubergine" on:click={closeMessage}>✖</button>
+    <button aria-label="Close the message popup" class="w-16 btn btn-fixed btn-md top-5 right-4" on:click={closeMessage}>✖</button>
 </div>
 {/if}

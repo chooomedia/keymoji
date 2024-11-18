@@ -38,6 +38,7 @@ module.exports = {
     },
     extend: {
       scale: {
+        '114': '1.14',
         '117': '1.17',
       },
       spacing: {

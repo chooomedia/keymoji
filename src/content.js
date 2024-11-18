@@ -39,8 +39,8 @@ export const content = {
     randomButton: "*️⃣ Random",
   },
   donateButton: {
-    text: "☕ Buy me a coffee",
-    openText: "❌ Close this menu",
+    text: "Buy me a coffee",
+    openText: "Close this menu",
     textMobile: "☕",
     links: [
       {
@@ -186,8 +186,8 @@ export const content = {
       randomButton: "*️⃣ Zufällig",
     },
     donateButton: {
-      text: "☕ Kauf mir einen Kaffee",
-      openText: "❌ Menü schließen",
+      text: "Kauf mir einen Kaffee",
+      openText: "Menü schließen",
       textMobile: "☕",
       links: [
         {
@@ -333,8 +333,8 @@ export const content = {
       randomButton: "*️⃣ Zuefällig",
     },
     donateButton: {
-      text: "☕ Kauf mer en Kafi",
-      openText: "❌ Menü schliesse",
+      text: "Kauf mer en Kafi",
+      openText: "Menü schliesse",
       textMobile: "☕",
       links: [
         {
@@ -480,8 +480,8 @@ export const content = {
       randomButton: "*️⃣ Aleatorio",
     },
     donateButton: {
-      text: "☕ Cómprame un café",
-      openText: "❌ Cerrar este menú",
+      text: "Cómprame un café",
+      openText: "Cerrar este menú",
       textMobile: "☕",
       links: [
         {
@@ -627,8 +627,8 @@ export const content = {
       randomButton: "*️⃣ Willekeurige",
     },
     donateButton: {
-      text: "☕ Koop mij een koffie",
-      openText: "❌ Dit menu sluiten",
+      text: "Koop mij een koffie",
+      openText: "Dit menu sluiten",
       textMobile: "☕",
       links: [
         {
@@ -774,8 +774,8 @@ export const content = {
       randomButton: "*️⃣ Casuale",
     },
     donateButton: {
-      text: "☕ Offrimi un caffè",
-      openText: "❌ Chiudi questo menu",
+      text: "Offrimi un caffè",
+      openText: "Chiudi questo menu",
       textMobile: "☕",
       links: [
         {
@@ -921,8 +921,8 @@ export const content = {
       randomButton: "*️⃣ Aléatoire",
     },
     donateButton: {
-      text: "☕ Offrez-moi un café",
-      openText: "❌ Fermer ce menu",
+      text: "Offrez-moi un café",
+      openText: "Fermer ce menu",
       textMobile: "☕",
       links: [
         {
@@ -1068,8 +1068,8 @@ export const content = {
       randomButton: "*️⃣ Losowy",
     },
     donateButton: {
-      text: "☕ Postaw mi kawę",
-      openText: "❌ Zamknij to menu",
+      text: "Postaw mi kawę",
+      openText: "Zamknij to menu",
       textMobile: "☕",
       links: [
         {
@@ -1215,8 +1215,8 @@ export const content = {
       randomButton: "*️⃣ Tilfældig",
     },
     donateButton: {
-      text: "☕ Køb mig en kaffe",
-      openText: "❌ Luk denne menu",
+      text: "Køb mig en kaffe",
+      openText: "Luk denne menu",
       textMobile: "☕",
       links: [
         {
@@ -1362,8 +1362,8 @@ export const content = {
     randomButton: "*️⃣ Случайно",
   },
   donateButton: {
-    text: "☕ Купите мне кофе",
-    openText: "❌ Закрыть это меню",
+    text: "Купите мне кофе",
+    openText: "Закрыть это меню",
     textMobile: "☕",
     links: [
       {
@@ -1509,8 +1509,8 @@ export const content = {
     randomButton: "*️⃣ Rastgele",
   },
   donateButton: {
-    text: "☕ Bana kahve ısmarla",
-    openText: "❌ Bu menüyü kapat",
+    text: "Bana kahve ısmarla",
+    openText: "Bu menüyü kapat",
     textMobile: "☕",
     links: [
       {
@@ -1656,8 +1656,8 @@ export const content = {
     randomButton: "*️⃣ Willekeurig",
   },
   donateButton: {
-    text: "☕ Koop vir my 'n koffie",
-    openText: "❌ Sluit hierdie kieslys",
+    text: "Koop vir my 'n koffie",
+    openText: "Sluit hierdie kieslys",
     textMobile: "☕",
     links: [
       {
@@ -1803,8 +1803,8 @@ export const content = {
     randomButton: "*️⃣ ランダム",
   },
   donateButton: {
-    text: "☕ コーヒーをおごってください",
-    openText: "❌ このメニューを閉じる",
+    text: "コーヒーをおごってください",
+    openText: "このメニューを閉じる",
     textMobile: "☕",
     links: [
       {
@@ -1950,8 +1950,8 @@ export const content = {
     randomButton: "*️⃣ 랜덤",
   },
   donateButton: {
-    text: "☕ 커피 한 잔 사주기",
-    openText: "❌ 이 메뉴 닫기",
+    text: "커피 한 잔 사주기",
+    openText: "이 메뉴 닫기",
     textMobile: "☕",
     links: [
       {
@@ -2097,8 +2097,8 @@ export const content = {
       randomButton: "*️⃣ QIn",
     },
     donateButton: {
-      text: "☕ wo' QeH",
-      openText: "❌ tlha' vItlhutlh",
+      text: "wo' QeH",
+      openText: "tlha' vItlhutlh",
       textMobile: "☕",
       links: [
         {

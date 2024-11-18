@@ -38,3 +38,33 @@
     position: relative;
     width: 100%;
   }
+
+  @layer components {
+    .btn {
+      @apply transition transform hover:scale-105 focus:outline-none rounded-full;
+    }
+    
+    .btn-default {
+      @apply relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder;
+    }
+
+    .btn-fixed {
+      @apply fixed bg-powder text-black dark:bg-aubergine-dark dark:text-powder border-4 border-creme dark:border-aubergine;
+    }
+  
+    .btn-yellow {
+      @apply bg-yellow text-black;
+    }
+    
+    .btn-sm { 
+      @apply px-3 py-2 text-sm;
+    }
+    
+    .btn-md {
+      @apply px-4 py-3 text-2xl; 
+    }
+    
+    .btn-lg {
+      @apply px-6 py-4 text-3xl;
+    }
+  }

@@ -241,7 +241,7 @@
   <button 
     id="emoji-display" 
     tabindex="0" 
-    class="max-w-72 flex flex-row h-14 justify-center items-center transform scale-117 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-125 focus:outline-none text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray z-30" 
+    class="max-w-72 flex flex-row h-14 justify-center items-center transform scale-114 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-117 focus:outline-none text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray z-30" 
     on:click={handleEmojiDisplayClick} 
     on:keydown={e => e.key === 'Enter' && handleEmojiDisplayClick()} 
     aria-label={content[$currentLanguage].emojiDisplay.clickToCopy} 
