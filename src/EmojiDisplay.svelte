@@ -248,7 +248,7 @@
     aria-live="polite"
     aria-pressed="false"
   >
-    <div class="mt-1 md:mt-0 flex gap-3">
+    <div class="mt-1 md:mt-0 flex gap-2">
       {#if randomEmojis && shouldAnimateEmojis}
         {#each randomEmojis.filter(isVisible) as emoji, index (emoji)}
           <span class="text-2xl md:text-3xl" in:fly={{y: 100, duration: 300, delay: index * 300}}>
