@@ -4,6 +4,10 @@ module.exports = {
     './src/**/*.{html,js,svelte}',
     './public/index.html'
   ],
+  purge: [
+    './src/**/*.svelte', 
+    './public/**/*.html'
+  ],
   darkMode: 'class',
   theme: {
     screens: {
