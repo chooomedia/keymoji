@@ -126,7 +126,7 @@
       >
         <h1 
           id="modal-title"
-          class="text-white md:text-2xl text-xl font-bold p-2"
+          class="text-white md:text-2xl text-base font-bold p-2"
           aria-live="assertive"
           role="status"
           data-message-type={getMessageType(message)}
