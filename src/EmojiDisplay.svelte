@@ -35,6 +35,8 @@
       if (checkLimits()) return;
 
       randomEmojis = getRandomEmojis(emojiCount);
+      // Fokussiere das Dokument vor dem Kopieren
+      window.focus();
       await handleSuccessfulGeneration();
     } catch (error) {
       handleError('Random Generation Error', error);
@@ -122,18 +124,35 @@
   async function copyToClipboard(text) {
     const cleanText = text.replace(/ /g, '');
     try {
-      if (navigator.clipboard?.writeText) {
+      // Prüfe zuerst ob wir das Clipboard-API nutzen können
+      if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(cleanText);
       } else {
-        const textarea = document.createElement('textarea');
-        textarea.value = cleanText;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
+        // Fallback für nicht-sichere Kontexte oder ältere Browser
+        const textArea = document.createElement('textarea');
+        textArea.value = cleanText;
+        
+        // Macht das Element unsichtbar
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          document.execCommand('copy');
+          textArea.remove();
+        } catch (err) {
+          console.error('Fallback: Copying text command failed', err);
+          textArea.remove();
+          throw new Error('Copy failed');
+        }
       }
     } catch (error) {
-      handleError('Clipboard Error', error);
+      console.error('Clipboard Error:', error);
+      // Wir werfen den Fehler nicht, sondern zeigen eine benutzerfreundliche Nachricht
+      modalMessage.set(content[$currentLanguage].emojiDisplay.clipboardError || 'Unable to copy to clipboard. Please try again.');
     }
   }
 
@@ -241,7 +260,7 @@
   <button 
     id="emoji-display" 
     tabindex="0" 
-    class="max-w-72 flex flex-row h-14 justify-center items-center transform scale-114 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-117 focus:outline-none text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray z-30" 
+    class="max-w-72 flex flex-row h-14 justify-center items-center transform scale-114 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-117 focus:outline-none text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray z-10" 
     on:click={handleEmojiDisplayClick} 
     on:keydown={e => e.key === 'Enter' && handleEmojiDisplayClick()} 
     aria-label={content[$currentLanguage].emojiDisplay.clickToCopy} 

@@ -139,9 +139,24 @@ module.exports = merge(common, {
             filename: 'index.html',
             inject: true,
             minify: {
-                collapseWhitespace: true,
-                removeComments: true,
+              removeComments: true,
+              collapseWhitespace: true,
+              removeRedundantAttributes: true,
+              useShortDoctype: true,
+              removeEmptyAttributes: true,
+              removeStyleLinkTypeAttributes: true,
+              keepClosingSlash: true,
+              minifyJS: true,
+              minifyCSS: true,
+              minifyURLs: true
             },
+            // Cache busting
+            hash: true,
+            // Wichtige Meta-Tags die immer vorhanden sein müssen
+            meta: {
+              'viewport': 'width=device-width, initial-scale=1.0, user-scalable=yes',
+              'charset': 'UTF-8'
+            }
         }),
         new webpack.DefinePlugin({
             'process.env.TIMESTAMP': JSON.stringify(new Date().toISOString())
