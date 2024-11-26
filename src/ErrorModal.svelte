@@ -110,7 +110,7 @@
       aria-describedby="modal-description"
     >
       <img
-        src="/images/keymoji-animated-optimize-resize-160x160px.webp"
+        src="./images/keymoji-animated-optimize-resize-160x160px.webp"
         alt=""
         aria-hidden="true"
         class="w-32 h-32 mb-4 {imageLoaded ? 'opacity-100' : 'opacity-0'} rounded-full pointer-events-none"
