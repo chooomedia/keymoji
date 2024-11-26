@@ -41,7 +41,7 @@
           "name": "Christopher Matt",
           "url": "https://www.linkedin.com/in/chooomedia/",
           "jobTitle": "Frontend Developer",
-          "worksFor": "Keymoji"
+          "worksFor": "CHOOOMEDIA"
         },
         "url": "https://keymoji.wtf",
         "inLanguage": $currentLanguage,
