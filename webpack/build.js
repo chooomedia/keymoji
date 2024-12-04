@@ -9,6 +9,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 const { paths } = require('./utils');
+// optmize it
 
 module.exports = merge(common, {
     mode: 'production',
