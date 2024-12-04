@@ -19,10 +19,9 @@ module.exports = merge(common, {
         path: paths.APP_BUILD_SRC,
         publicPath: '/',
         clean: true,
-        compareBeforeEmit: true // Verhindert doppelte Asset-Emission
+        compareBeforeEmit: true
     },
     
-    // Optimierte Modul-Regeln
     module: {
         rules: [
             {
@@ -54,7 +53,7 @@ module.exports = merge(common, {
                 type: 'asset',
                 parser: {
                     dataUrlCondition: {
-                        maxSize: 8 * 1024 // 8kb
+                        maxSize: 8 * 1024
                     }
                 },
                 generator: {
@@ -64,7 +63,6 @@ module.exports = merge(common, {
         ]
     },
 
-    // Optimierte Chunk-Konfiguration
     optimization: {
         moduleIds: 'deterministic',
         runtimeChunk: 'single',
@@ -93,13 +91,13 @@ module.exports = merge(common, {
             minSize: 20000,
             maxSize: 244000,
             cacheGroups: {
-                vendor: {
+                defaultVendors: {
                     test: /[\\/]node_modules[\\/]/,
                     name(module) {
                         const packageName = module.context.match(
                             /[\\/]node_modules[\\/](.*?)([\\/]|$)/
                         )[1];
-                        return `vendor.${packageName.replace('@', '')}`;
+                        return `npm.${packageName.replace('@', '')}`;
                     },
                     priority: 10,
                     reuseExistingChunk: true
@@ -120,10 +118,11 @@ module.exports = merge(common, {
         }
     },
 
-    // Optimierte Plugins
     plugins: [
         new CleanWebpackPlugin(),
-        new webpack.ids.HashedModuleIdsPlugin(),
+        new webpack.ids.DeterministicModuleIdsPlugin({
+            maxLength: 5
+        }),
         new MiniCssExtractPlugin({
             filename: 'static/css/[name].[contenthash:8].css',
             chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
@@ -162,17 +161,19 @@ module.exports = merge(common, {
         new webpack.DefinePlugin({
             'process.env.BUILD_TIME': JSON.stringify(new Date().toISOString())
         }),
-        new webpack.optimize.AggressiveMergingPlugin(),
-        // Verhindert doppelte Module
-        new webpack.optimize.DedupePlugin()
+        // Webpack 5 native optimizations
+        new webpack.optimize.MinChunkSizePlugin({
+            minChunkSize: 10000
+        })
     ],
 
-    // Cache-Konfiguration
     cache: {
         type: 'filesystem',
         buildDependencies: {
             config: [__filename]
         },
-        compression: 'gzip'
+        compression: 'gzip',
+        name: `production-${process.env.NODE_ENV}`,
+        version: `${process.env.NODE_ENV}-${Date.now()}`
     }
 });
