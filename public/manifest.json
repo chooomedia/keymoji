@@ -11,19 +11,19 @@
   "theme_color": "#253852",
   "icons": [
       {
-          "src": "/images/keymoji-logo-11-2023-simple.png",
+          "src": "/static/images/keymoji-logo-11-2023-simple.png",
           "sizes": "192x192",
           "type": "image/png",
           "purpose": "any"
       },
       {
-          "src": "/images/keymoji-logo-11-2023-simple.png",
+          "src": "/static/images/keymoji-logo-11-2023-simple.png",
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "any"
       },
       {
-          "src": "/images/keymoji-logo-11-2023-simple.png",
+          "src": "/static/images/keymoji-logo-11-2023-simple.png",
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "maskable"
@@ -31,7 +31,7 @@
   ],
   "screenshots": [
       {
-          "src": "/images/keymoji-social-media-banner-10-2024-min.png",
+          "src": "/static/images/keymoji-social-media-banner-10-2024-min.png",
           "sizes": "1640x924",
           "type": "image/png",
           "platform": "narrow",

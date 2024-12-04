@@ -5,7 +5,7 @@ const URLS_TO_CACHE = [
   '/index.html',
   '/static/css/main.css',
   '/static/js/main.js',
-  '/images/keymoji-logo-11-2023-simple.png'
+  '/static/images/keymoji-logo-11-2023-simple.png'
 ];
 
 self.addEventListener('install', event => {
