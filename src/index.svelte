@@ -8,11 +8,18 @@
   import ContactForm from './ContactForm.svelte';
   import ErrorModal from './ErrorModal.svelte';
   import Header from './Header.svelte';
+  import VersionHistory from './VersionHistory.svelte';
   import FixedMenu from './widgets/FixedMenu.svelte';
   import BlogGrid from './BlogGrid.svelte';
   import content from './content.js';
+  import { getText } from './stores.js';
+  import { navigate } from 'svelte-routing';
 
   let url = "";
+
+  function navigateToVersion() {
+    navigate("/versions", { replace: false });
+  }
 </script>
 
 <Layout {url}>
@@ -43,21 +50,30 @@
                   <EmojiDisplay />
                 </div>
 
-                <footer class="text-xs text-gray dark:text-gray flex items-center justify-center gap-2">
-                  <span>Created by</span>
-                  <a
-                    href="https://www.linkedin.com/in/chooomedia/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="flex items-center gap-1 hover:text-yellow transition-colors">
-                    <span>Christopher Matt</span>
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                      {@html linkedinIcon}
-                    </svg>
-                  </a>
+                <footer>
+                  <div class="flex items-center justify-center space-x-2 text-sm text-gray dark:text-gray">
+                    <button class="hover:text-yellow transition-colors duration-200" on:click={navigateToVersion} type="button">{getText('header.pageVersion')}</button>
+                    <span class="w-1 h-1 rounded-full bg-gray dark:bg-gray"></span>
+                    <span>Created by</span>
+                    <a
+                      href="https://www.linkedin.com/in/chooomedia/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-2 hover:text-yellow transition-colors duration-200"
+                    >
+                      Christopher Matt
+                      <svg class="w-4 h-4 transform translate-y-[0.5px]" viewBox="0 0 24 24" fill="currentColor">
+                        {@html linkedinIcon}
+                      </svg>
+                    </a>
+                  </div>
                 </footer>
               </section>
             </div>
+          </Route>
+
+          <Route path="/versions">
+            <VersionHistory currentVersion={content[$currentLanguage]?.header?.pageVersion} />
           </Route>
 
           <Route path="/blog">

@@ -43,7 +43,7 @@
     };
 
     function navigateToBlog() {
-        navigate('/blog');
+        navigate("/blog", { replace: false });
     }
 
     onMount(() => {
@@ -62,24 +62,30 @@
 </script>
 
 <div class="w-full fixed flex flex-wrap justify-center top-5 mx-auto z-30">
-    <nav class="md:w-3/12 w-full mx-3 bg-creme dark:bg-aubergine justify-center rounded-full border-4 border-creme dark:border-aubergine">
+    <nav class="md:w-1/3 w-full mx-3 bg-creme dark:bg-aubergine justify-center rounded-full border-4 border-creme dark:border-aubergine">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between">
-            <a href="/" class="flex flex-col items-center rtl:space-x-reverse">
+            <div class="flex flex-col items-center rtl:space-x-reverse">
                 <h2 class="flex flex-wrap md:text-2xl font-semibold items-center whitespace-nowrap dark:text-white">
-                    <svg role="img" class="w-52 h-52 transition" viewBox="0 0 600 600" fill="currentColor" aria-label={getText('header.pageTitle')}>
-                        {@html content.logo.svg}
-                    </svg>
-                    {getText('header.pageTitle')}
-                    <span class="text-xs -top-1 relative">
-                        {getText('header.pageVersion')}
-                    </span>
+                    <a 
+                        href="/" 
+                        class="flex items-center hover:text-yellow transition-colors"
+                        aria-label={getText('header.pageTitle')}
+                    >
+                        <svg role="img" class="w-52 h-52 transition" viewBox="0 0 600 600" fill="currentColor">
+                            {@html content.logo.svg}
+                        </svg>
+                        <span>{getText('header.pageTitle')}</span>
+                    </a>
+
                 </h2>
-            </a>
+            </div>
             <div class="flex items-center md:order-2 rtl:space-x-reverse space-x-2">
-                <button aria-label="Navigate to the blog article overview" 
-                on:click={navigateToBlog}
-                class="hidden relative btn btn-default btn-md"
-              disabled>
+                <button
+                    on:click={navigateToBlog}
+                    class="relative btn btn-default btn-md"
+                    aria-label="Navigate to the blog article overview" 
+                    disabled
+                >
                 📝
               </button>
                 <button

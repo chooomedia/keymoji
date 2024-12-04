@@ -5,7 +5,6 @@
     
     let posts = [];
     let loading = true;
-
     // LocalStorage Funktionen
     function getStoredPosts() {
         try {
@@ -16,7 +15,6 @@
             return [];
         }
     }
-
     function storePosts(postsData) {
         try {
             localStorage.setItem('keymoji_blog_posts', JSON.stringify(postsData));
@@ -24,7 +22,6 @@
             console.error('Error writing to localStorage:', error);
         }
     }
-
     // Berechnet Lesezeit
     function calculateReadTime(content) {
         const wordsPerMinute = 200;
@@ -46,7 +43,6 @@
         }
         return formatted;
     }
-
     async function handleLike(rowNumber) {
         // Update local state first
         posts = posts.map(post => {
@@ -56,10 +52,8 @@
             }
             return post;
         });
-
         // Update localStorage
         storePosts(posts);
-
         // Try to update server if online
         try {
             const response = await fetch(`https://n8n.chooomedia.com/webhook/blog-like/${rowNumber}`, {
@@ -72,7 +66,6 @@
             console.warn('Network error, but local state is preserved:', error);
         }
     }
-
     onMount(async () => {
         // Load from localStorage first
         const storedPosts = getStoredPosts();
@@ -80,7 +73,6 @@
             posts = storedPosts;
             loading = false;
         }
-
         // Then try to fetch fresh data
         try {
             const response = await fetch('https://n8n.chooomedia.com/webhook/blog-posts');
@@ -103,7 +95,6 @@
             loading = false;
         }
     });
-
     function formatDate(isodate) {
         try {
             return new Date(isodate).toLocaleDateString($currentLanguage, {
@@ -115,13 +106,11 @@
             return '';
         }
     }
-
     $: featuredPost = posts.reduce((max, post) => 
         (post.likes || 0) > (max.likes || 0) ? post : max, 
         posts[0] || null
     );
 </script>
-
 {#if loading}
     <div class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow"></div>
@@ -178,7 +167,6 @@
                     </p>
                 </div>
             </a>
-
             <div class="px-6 pb-4 flex justify-between items-center border-t border-gray-100 dark:border-gray-800 mt-2 pt-4">
                 <button aria-label="Like the blog post" 
                     class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
@@ -230,7 +218,6 @@
     {/each}
 </main>
 {/if}
-
 <style>
     .columns {
       columns: 3 300px;
