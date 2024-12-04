@@ -14,104 +14,120 @@ module.exports = merge(common, {
     mode: 'production',
     stats: 'errors-only',
     output: {
-        filename: 'static/js/[name].[chunkhash:8].js',
-        chunkFilename: 'static/js/[name].chunk-[id].[chunkhash:8].js',
+        filename: 'static/js/[name].[contenthash:8].js',
+        chunkFilename: 'static/js/[name].[contenthash:8].chunk.js',
         path: paths.APP_BUILD_SRC,
-        publicPath: './',
-        clean: true
+        publicPath: '/',
+        clean: true,
+        compareBeforeEmit: true // Verhindert doppelte Asset-Emission
     },
+    
+    // Optimierte Modul-Regeln
     module: {
         rules: [
             {
                 test: /\.css$/,
                 exclude: /(node_modules)/,
                 use: [
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            esModule: true,
+                        }
+                    },
                     {
                         loader: 'css-loader',
                         options: {
                             importLoaders: 1,
-                            sourceMap: false
+                            sourceMap: false,
+                            modules: {
+                                auto: true,
+                                localIdentName: '[hash:base64:5]'
+                            }
                         }
                     },
-                    {
-                        loader: 'postcss-loader',
-                        options: {
-                            postcssOptions: {
-                                config: path.resolve(__dirname, '../postcss.config.js'),
-                            },
-                            sourceMap: false
-                        }
-                    }
+                    'postcss-loader'
                 ]
             },
             {
-                test: /\.(png|jpe?g|gif|svg)$/i,
-                type: 'asset/resource',
+                test: /\.(png|jpe?g|gif|svg|webp)$/i,
+                type: 'asset',
+                parser: {
+                    dataUrlCondition: {
+                        maxSize: 8 * 1024 // 8kb
+                    }
+                },
                 generator: {
-                    filename: 'static/images/[name].[hash:8][ext]'
+                    filename: 'static/images/[name].[contenthash:8][ext]'
                 }
             }
         ]
     },
+
+    // Optimierte Chunk-Konfiguration
     optimization: {
+        moduleIds: 'deterministic',
+        runtimeChunk: 'single',
         minimize: true,
         minimizer: [
             new TerserPlugin({
                 terserOptions: {
-                    format: {
-                        comments: false,
-                    },
                     compress: {
                         drop_console: true,
                         drop_debugger: true,
                         pure_funcs: ['console.log']
                     },
+                    format: {
+                        comments: false
+                    },
+                    mangle: true
                 },
                 extractComments: false,
+                parallel: true
             }),
-            new CssMinimizerPlugin({
-                minimizerOptions: {
-                    preset: [
-                        'default',
-                        {
-                            discardComments: { removeAll: true },
-                            normalizeWhitespace: false,
-                            colormin: true,
-                            minifyFontValues: true
-                        }
-                    ]
-                },
-            }),
+            new CssMinimizerPlugin()
         ],
         splitChunks: {
             chunks: 'all',
+            maxInitialRequests: 20,
             minSize: 20000,
             maxSize: 244000,
             cacheGroups: {
                 vendor: {
                     test: /[\\/]node_modules[\\/]/,
-                    name: 'vendors',
-                    chunks: 'all',
-                    enforce: true
+                    name(module) {
+                        const packageName = module.context.match(
+                            /[\\/]node_modules[\\/](.*?)([\\/]|$)/
+                        )[1];
+                        return `vendor.${packageName.replace('@', '')}`;
+                    },
+                    priority: 10,
+                    reuseExistingChunk: true
+                },
+                common: {
+                    minChunks: 2,
+                    priority: 5,
+                    reuseExistingChunk: true
                 },
                 styles: {
                     name: 'styles',
                     test: /\.css$/,
                     chunks: 'all',
-                    enforce: true
+                    enforce: true,
+                    priority: 20
                 }
             }
-        },
-        runtimeChunk: {
-            name: 'runtime'
         }
     },
+
+    // Optimierte Plugins
     plugins: [
         new CleanWebpackPlugin(),
+        new webpack.ids.HashedModuleIdsPlugin(),
         new MiniCssExtractPlugin({
             filename: 'static/css/[name].[contenthash:8].css',
-            chunkFilename: 'static/css/[id].[contenthash:8].css'
+            chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
+            ignoreOrder: true
         }),
         new CopyPlugin({
             patterns: [
@@ -120,17 +136,8 @@ module.exports = merge(common, {
                     to: '', 
                     globOptions: {
                         ignore: ['**/index.html']
-                    }
-                },
-                {
-                    from: 'service-worker.js',
-                    to: 'service-worker.js',
-                    transform(content) {
-                        return content
-                            .toString()
-                            .replace(/CACHE_NAME = ['"].*['"]/, 
-                                   `CACHE_NAME = 'keymoji-cache-v${Date.now()}'`);
                     },
+                    noErrorOnMissing: true
                 }
             ]
         }),
@@ -139,32 +146,33 @@ module.exports = merge(common, {
             filename: 'index.html',
             inject: true,
             minify: {
-              removeComments: true,
-              collapseWhitespace: true,
-              removeRedundantAttributes: true,
-              useShortDoctype: true,
-              removeEmptyAttributes: true,
-              removeStyleLinkTypeAttributes: true,
-              keepClosingSlash: true,
-              minifyJS: true,
-              minifyCSS: true,
-              minifyURLs: true
+                removeComments: true,
+                collapseWhitespace: true,
+                removeRedundantAttributes: true,
+                useShortDoctype: true,
+                removeEmptyAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                keepClosingSlash: true,
+                minifyJS: true,
+                minifyCSS: true,
+                minifyURLs: true
             },
-            // Cache busting
-            hash: true,
-            // Wichtige Meta-Tags die immer vorhanden sein müssen
-            meta: {
-              'viewport': 'width=device-width, initial-scale=1.0, user-scalable=yes',
-              'charset': 'UTF-8'
-            }
+            cache: true
         }),
         new webpack.DefinePlugin({
-            'process.env.TIMESTAMP': JSON.stringify(new Date().toISOString())
-        })
+            'process.env.BUILD_TIME': JSON.stringify(new Date().toISOString())
+        }),
+        new webpack.optimize.AggressiveMergingPlugin(),
+        // Verhindert doppelte Module
+        new webpack.optimize.DedupePlugin()
     ],
-    performance: {
-        hints: 'warning',
-        maxAssetSize: 512000,
-        maxEntrypointSize: 512000,
+
+    // Cache-Konfiguration
+    cache: {
+        type: 'filesystem',
+        buildDependencies: {
+            config: [__filename]
+        },
+        compression: 'gzip'
     }
 });
