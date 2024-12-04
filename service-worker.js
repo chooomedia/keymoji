@@ -9,9 +9,9 @@ self.addEventListener('install', (event) => {
                 '/',
                 '/index.html',
                 '/manifest.json',
-                '/images/keymoji-logo-11-2023-simple.png',
-                '/images/keymoji-animated-optimize-resize-160x160px.webp',
-                '/images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg',
+                '/static/images/keymoji-logo-11-2023-simple.png',
+                '/static/images/keymoji-animated-optimize-resize-160x160px.webp',
+                '/static/images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg',
             ]);
         })
     );
