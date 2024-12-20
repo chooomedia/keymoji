@@ -82,7 +82,7 @@
             <div class="flex items-center md:order-2 rtl:space-x-reverse space-x-2">
                 <button
                     on:click={navigateToBlog}
-                    class="relative btn btn-default btn-md"
+                    class="relative btn btn-default btn-md hidden"
                     aria-label="Navigate to the blog article overview" 
                     disabled
                 >
