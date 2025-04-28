@@ -1,4 +1,4 @@
-import { readable } from 'svelte/store';
+import { appVersion } from './utils/version';
 import {
     emailIcon,
     fbmessengerIcon,
@@ -18,7 +18,7 @@ export const content = {
     en: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Emoji Password Generator',
@@ -183,7 +183,7 @@ export const content = {
     de: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Emoji Passwort Generator',
@@ -351,7 +351,7 @@ export const content = {
     dech: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Emoji Passwort Generator',
@@ -517,7 +517,7 @@ export const content = {
     es: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Generador de Contraseñas Emoji',
@@ -682,7 +682,7 @@ export const content = {
     nl: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Emoji Wachtwoordgenerator',
@@ -846,7 +846,7 @@ export const content = {
     it: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Generatore di Password Emoji',
@@ -1011,7 +1011,7 @@ export const content = {
     fr: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Générateur de Mot de Passe Emoji',
@@ -1176,7 +1176,7 @@ export const content = {
     pl: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Generator Hasła Emoji',
@@ -1341,7 +1341,7 @@ export const content = {
     da: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Emoji-adgangskodegenerator',
@@ -1505,7 +1505,7 @@ export const content = {
     ru: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Генератор паролей с использованием эмодзи',
@@ -1670,7 +1670,7 @@ export const content = {
     tr: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Emoji Parola Oluşturucu',
@@ -1834,7 +1834,7 @@ export const content = {
     af: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Emoji Wagwoord Skepper',
@@ -1999,7 +1999,7 @@ export const content = {
     ja: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: '絵文字パスワードジェネレーター',
@@ -2165,7 +2165,7 @@ export const content = {
     ko: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: '이모지 패스워드 생성기',
@@ -2331,7 +2331,7 @@ export const content = {
     tlh: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: "Emoji vItlhutlh yIngu'",
@@ -2494,7 +2494,7 @@ export const content = {
     qya: {
         header: {
             pageTitle: 'Keymoji',
-            pageVersion: 'v0.2.2'
+            pageVersion: appVersion
         },
         index: {
             pageTitle: 'Emojëa Cennas',

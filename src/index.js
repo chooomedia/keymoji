@@ -1,5 +1,6 @@
 import Root from './routes/LanguageRouter.svelte';
 import './index.css';
+import { appVersion } from './utils/languages.js';
 
 // Explizit die aktuelle URL nehmen
 const currentUrl = window.location.pathname;
@@ -10,7 +11,7 @@ const app = new Root({
     target: document.body,
     props: {
         url: currentUrl,
-        currentVersion: '0.2.2'
+        currentVersion: appVersion
     }
 });
 

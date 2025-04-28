@@ -1,5 +1,13 @@
 import { writable, derived, get } from 'svelte/store';
 import content from './content.js';
+import {
+    supportedLanguages,
+    isLanguageSupported,
+    getSupportedLanguageCodes,
+    getBrowserLanguage,
+    appVersion,
+    getText as getTextUtil
+} from './utils/languages.js';
 
 const localStore = (key, initial) => {
     if (typeof window === 'undefined') return writable(initial);
@@ -74,28 +82,18 @@ export const darkMode = localStore('darkMode', prefersDarkMode);
 function getInitialLanguage() {
     if (typeof window === 'undefined') return 'en';
 
-    // Zuerst localStorage prüfen
+    // First check localStorage
     const storedLang = localStorage.getItem('language');
     if (storedLang && isLanguageSupported(storedLang)) return storedLang;
 
-    // Dann URL-Pfad auf Sprache prüfen
+    // Next check URL path for language
     if (typeof window !== 'undefined') {
         const pathLang = window.location.pathname.split('/')[1];
         if (pathLang && isLanguageSupported(pathLang)) return pathLang;
     }
 
-    // Dann Browser-Sprachen prüfen
-    const userLanguages = navigator.languages || [
-        navigator.language || navigator.userLanguage
-    ];
-
-    for (let lang of userLanguages) {
-        lang = lang.split('-')[0].toLowerCase();
-        if (isLanguageSupported(lang)) return lang;
-    }
-
-    // Default zu Englisch
-    return 'en';
+    // Finally check browser languages
+    return getBrowserLanguage();
 }
 
 export const currentLanguage = localStore('language', getInitialLanguage());
@@ -105,39 +103,17 @@ export const languageText = derived(
     $currentLanguage => content[$currentLanguage] || content['en']
 );
 
+// Wrapper für die getText Funktion aus languageUtils, um den currentLanguage store zu nutzen
 export function getText(key, lang = null) {
-    const currentLang = lang || get(currentLanguage);
-
-    const keys = key.split('.');
-    let text = content[currentLang];
-
-    // Fallback zu Englisch wenn Sprache nicht gefunden
-    if (!text) {
-        console.warn(
-            `Sprache '${currentLang}' nicht gefunden, Fallback zu Englisch`
-        );
-        text = content['en'];
-    }
-
-    for (const k of keys) {
-        if (text === undefined) return key;
-        text = text[k];
-    }
-    return text || key;
+    return getTextUtil(key, lang, currentLanguage);
 }
 
-// Filter nicht-Sprachschlüssel aus dem content-Objekt
-export function isLanguageSupported(lang) {
-    // Bekannte nicht-Sprachschlüssel ausschließen
-    if (lang === 'logo') return false;
-    return !!content[lang];
-}
-
+// Export supportedLanguages for backward compatibility
 export function getSupportedLanguages() {
-    // Nicht-Sprachschlüssel wie 'logo' ausfiltern
-    return Object.keys(content).filter(key => key !== 'logo');
+    return supportedLanguages;
 }
 
+// Language change listeners
 const languageChangeListeners = new Set();
 
 export function onLanguageChange(listener) {
@@ -145,19 +121,29 @@ export function onLanguageChange(listener) {
     return () => languageChangeListeners.delete(listener);
 }
 
-function notifyLanguageChange(newLang) {
-    languageChangeListeners.forEach(listener => listener(newLang));
+function notifyLanguageChange(lang) {
+    languageChangeListeners.forEach(listener => listener(lang));
 }
 
 export function setLanguage(lang) {
     if (isLanguageSupported(lang)) {
         currentLanguage.set(lang);
         document.documentElement.lang = lang;
+
+        // Explicitly update language-specific styles
+        if (lang === 'qya') {
+            document.body.classList.add('font-elvish');
+        } else {
+            document.body.classList.remove('font-elvish');
+        }
+
+        // Notify any listeners
         notifyLanguageChange(lang);
     } else {
-        console.error(`Sprache '${lang}' wird nicht unterstützt.`);
+        console.error(`Language '${lang}' is not supported.`);
     }
 }
 
-// Sprache initialisieren
-setLanguage(get(currentLanguage));
+// Initialize language on import
+const initialLang = get(currentLanguage);
+setLanguage(initialLang);
