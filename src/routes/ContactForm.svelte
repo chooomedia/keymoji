@@ -1,16 +1,16 @@
 <script>
-  import { modalMessage, currentLanguage } from './stores.js';
-  import content from './content.js';
+  import { modalMessage, currentLanguage } from '../stores.js';
+  import content from '../content.js';
   import { navigate } from "svelte-routing";
   import { fade, scale } from 'svelte/transition';
-  import SEO from './components/SEO.svelte';
+  import SEO from '../components/Seo.svelte';
 
   let name = '',
       email = '',
       message = '',
       userInput = '',
-      emoijSmirkingFace = './images/keymoji-animated-optimize-resize-160x160px.webp',
-      realAuthorImage = './images/chris-matt-keymoji-creator-frontend-developer.png',
+      emoijSmirkingFace = '../images/keymoji-animated-optimize-resize-160x160px.webp',
+      realAuthorImage = '../images/chris-matt-keymoji-creator-frontend-developer.png',
       whileLoading = "😏",
       isImageLoaded = false,
       isMessageSent = false,

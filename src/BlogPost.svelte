@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { currentLanguage, darkMode, showShareMenu } from './stores.js';
-    import SEO from './components/SEO.svelte';
+    import SEO from './components/Seo.svelte';
   
     export let slug;
     

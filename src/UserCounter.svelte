@@ -99,22 +99,12 @@
 </script>
 
 <div id="usercounter"
-    class="flex items-center justify-center p-4 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 rounded-lg cursor-pointer shadow-lg hover:scale-105 transform transition duration-200 ease-in-out"
+    class="flex items-center justify-center"
     aria-live="polite"
 >
-    <span class="text-3xl font-bold text-white" aria-label="User interaction counter">
+    <span aria-label="User interaction counter">
         {#if $counter > 0}
             {numberFormatter.format($counter)}
         {/if}
     </span>
 </div>
-
-<style>
-    /* Unterstützung für reduzierte Bewegung hinzufügen */
-    @media (prefers-reduced-motion: reduce) {
-        div {
-            transition: none !important;
-            transform: none !important;
-        }
-    }
-</style>

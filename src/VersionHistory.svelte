@@ -3,7 +3,7 @@
   import { onMount } from 'svelte';
   import { navigate } from "svelte-routing";
   import { versions } from './versions.js';
-  import SEO from './components/SEO.svelte';
+  import SEO from './components/Seo.svelte';
 
   export let currentVersion;
   let timelineHeight = 0;

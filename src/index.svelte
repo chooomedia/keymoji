@@ -11,7 +11,7 @@
     import FixedMenu from './widgets/FixedMenu.svelte';
     import content from './content.js';
     import { getText } from './stores.js';
-    import SEO from './components/SEO.svelte';
+    import SEO from './components/Seo.svelte';
   
     // Debug-Flag - für die Produktion entfernen
     let showDebug = process.env.NODE_ENV === 'development' && (window.location.search.includes('debug=true'));
@@ -46,8 +46,8 @@
     description={content[$currentLanguage]?.index?.pageDescription || "Generate secure emoji passwords for better online security."}
   />
   
-  <!-- App Container -->
-  <div class="app-container" data-lang={$currentLanguage}>
+<!-- App Container -->
+<main class="app-container" data-lang={$currentLanguage}>
     <!-- Header -->
     <Header />
     
@@ -57,13 +57,10 @@
     {/if}
     
     <!-- Main Content Container -->
-    <div class="container mx-auto min-h-screen">
+    <div class="min-h-screen" in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}>
       <!-- Main Content -->
-      <div in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}> 
         <section class="flex flex-col justify-center items-center min-h-screen py-5 overflow-auto touch-none z-10 gap-4">
-          <!-- User Counter -->
-          <UserCounter />
-          
+
           <!-- Main Heading -->
           <div class="w-11/12 md:w-26r flex flex-wrap justify-center" role="banner">
             <h1 class="md:text-3xl text-2xl font-semibold dark:text-white mb-2 text-center w-full">
@@ -81,7 +78,7 @@
   
           <!-- Footer -->
           <footer>
-            <div class="flex items-center justify-center space-x-2 text-sm text-gray dark:text-gray">
+            <div class="flex items-center justify-center space-x-1 text-sm text-gray dark:text-gray">
               <button class="hover:text-yellow transition-colors duration-200" 
                 on:click={navigateToVersion} 
                 type="button"
@@ -89,61 +86,62 @@
               >
                 {getText('header.pageVersion') || 'v0.2.2'}
               </button>
-              <span class="w-1 h-1 rounded-full bg-gray dark:bg-gray"></span>
+              <span class="px-2">·</span>
               <span>Created by</span>
               <a
                 href="https://www.linkedin.com/in/chooomedia/"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 hover:text-yellow transition-colors duration-200"
+                class="inline-flex items-center gap-1 hover:text-yellow transition-colors duration-200"
               >
                 Christopher Matt
                 <svg class="w-4 h-4 transform translate-y-[0.5px]" viewBox="0 0 24 24" fill="currentColor">
                   {@html linkedinIcon}
                 </svg>
               </a>
+              <span class="px-2">·</span>
+              <UserCounter /><span> Visits</span>
             </div>
           </footer>
         </section>
-      </div>
     </div>
   
     <!-- Fixed Menu -->
     <FixedMenu align={'bottom'} />
-  </div>
+</main>
   
-  <style>
-    .content-wrapper {
-      box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
+<style>
+.content-wrapper {
+    box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
+}
+
+:global(.dark) .content-wrapper {
+    box-shadow: 20px 20px 60px #0c0d22, -20px -20px 60px #1c1c1c;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Sicherstellen der Inhalts-Sichtbarkeit während Animationen */
+:global(body) {
+    overflow-x: hidden;
+}
+
+/* Barrierefreiheitsverbesserungen */
+:global(button:focus-visible),
+:global(a:focus-visible) {
+    outline: 2px solid #f4ab25;
+    outline-offset: 2px;
+}
+
+/* Animationen reduzieren falls gewünscht */
+@media (prefers-reduced-motion: reduce) {
+    :global(div[in], div[out]) {
+    transition: none !important;
+    animation: none !important;
     }
-    
-    :global(.dark) .content-wrapper {
-      box-shadow: 20px 20px 60px #0c0d22, -20px -20px 60px #1c1c1c;
-    }
-  
-    .app-container {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    
-    /* Sicherstellen der Inhalts-Sichtbarkeit während Animationen */
-    :global(body) {
-      overflow-x: hidden;
-    }
-    
-    /* Barrierefreiheitsverbesserungen */
-    :global(button:focus-visible),
-    :global(a:focus-visible) {
-      outline: 2px solid #f4ab25;
-      outline-offset: 2px;
-    }
-    
-    /* Animationen reduzieren falls gewünscht */
-    @media (prefers-reduced-motion: reduce) {
-      :global(div[in], div[out]) {
-        transition: none !important;
-        animation: none !important;
-      }
-    }
-  </style>
+}
+</style>

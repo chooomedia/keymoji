@@ -4,7 +4,7 @@
     import { fly } from 'svelte/transition';
     import { navigate } from "svelte-routing";
     import { currentLanguage, getText } from '../stores.js';
-    import SEO from '../components/SEO.svelte';
+    import SEO from '../components/Seo.svelte';
     
     // Set 404 status code for proper SEO
     onMount(() => {
@@ -14,7 +14,7 @@
       }
       
       // For client-side, use the meta tag approach
-      document.title = `404 - ${getText('notFound.title')}`;
+      document.title = `404 - ${getText('notFound.message')}`;
     });
     
     function goHome() {
@@ -23,8 +23,8 @@
   </script>
   
   <SEO 
-    title={`404 - ${getText('notFound.title')}`}
-    description={getText('notFound.description')}
+    title={`404 - ${getText('notFound.message')}`}
+    description={getText('notFound.description') || "Page not found"}
     noindex={true}
     pageType="notFound"
   />

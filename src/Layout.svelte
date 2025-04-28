@@ -9,7 +9,7 @@
     export let url = "";
     
     // Hintergrundbild-Eigenschaften
-    const hieroglyphicEmojisSrc = './images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
+    const hieroglyphicEmojisSrc = '../images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
     const darkGradient = 'linear-gradient(-45deg, #050413, #040320f5, #080715, #040310)';
     const lightGradient = 'linear-gradient(-45deg, #e0e0e0f7, #f8f8f8f0, #ecececf0, #e0e0e0f2)';
     

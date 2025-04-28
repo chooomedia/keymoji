@@ -172,6 +172,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'Oops! Page not found 🚫',
+            suggestion:
+                "Maybe the page moved or you mistyped the URL. Let's get you back on track! 🛤️",
+            returnButton: 'Back to Home 🏠'
         }
     },
     de: {
@@ -332,6 +338,14 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'Hoppla! Seite nicht gefunden 🚫',
+            suggestion:
+                'Vielleicht wurde die Seite verschoben oder du hast die URL falsch eingegeben. Lass uns dich zurückbringen! 🛤️',
+            description:
+                'Die Seite, die du suchst, existiert nicht oder wurde entfernt.',
+            returnButton: 'Zurück zum Start 🏠'
         }
     },
     dech: {
@@ -492,6 +506,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'Hoppla! Siite nid gfunde 🚫',
+            suggestion:
+                'Vilicht isch d Siite verschobe worde oder du hesch d URL falsch iitippt. Mir helfe der zrugg z cho! 🛤️',
+            returnButton: 'Zrugg zum Start 🏠'
         }
     },
     es: {
@@ -651,6 +671,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: '¡Ups! Página no encontrada 🚫',
+            suggestion:
+                'Tal vez la página se movió o escribiste mal la URL. ¡Vamos a llevarte de vuelta! 🛤️',
+            returnButton: 'Volver al inicio 🏠'
         }
     },
     nl: {
@@ -809,6 +835,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'Oeps! Pagina niet gevonden 🚫',
+            suggestion:
+                'Misschien is de pagina verplaatst of heb je de URL verkeerd ingetypt. Laten we je terugbrengen! 🛤️',
+            returnButton: 'Terug naar Home 🏠'
         }
     },
     it: {
@@ -968,6 +1000,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'Ops! Pagina non trovata 🚫',
+            suggestion:
+                "Forse la pagina è stata spostata o hai digitato l'URL in modo errato. Ti aiutiamo a tornare in carreggiata! 🛤️",
+            returnButton: 'Torna alla Home 🏠'
         }
     },
     fr: {
@@ -1127,6 +1165,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'Oups ! Page non trouvée 🚫',
+            suggestion:
+                "Peut-être que la page a été déplacée ou que vous avez mal tapé l'URL. Nous allons vous ramener sur le droit chemin ! 🛤️",
+            returnButton: "Retour à l'accueil 🏠"
         }
     },
     pl: {
@@ -1286,6 +1330,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'Ups! Strona nie znaleziona 🚫',
+            suggestion:
+                'Być może strona została przeniesiona lub wpisałeś nieprawidłowy adres URL. Wróćmy na właściwą ścieżkę! 🛤️',
+            returnButton: 'Powrót do strony głównej 🏠'
         }
     },
     da: {
@@ -1444,6 +1494,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'Ups! Side ikke fundet 🚫',
+            suggestion:
+                "Måske er siden flyttet, eller du har indtastet URL'en forkert. Lad os få dig tilbage på sporet! 🛤️",
+            returnButton: 'Tilbage til start 🏠'
         }
     },
     ru: {
@@ -1603,6 +1659,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'Упс! Страница не найдена 🚫',
+            suggestion:
+                'Возможно, страница была перемещена или вы неправильно ввели URL. Давайте вернем вас на правильный путь! 🛤️',
+            returnButton: 'Вернуться на главную 🏠'
         }
     },
     tr: {
@@ -1761,6 +1823,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'Hata! Sayfa bulunamadı 🚫',
+            suggestion:
+                "Belki sayfa taşınmış ya da URL'yi yanlış yazdınız. Sizi doğru yola geri getirelim! 🛤️",
+            returnButton: 'Ana sayfaya dön 🏠'
         }
     },
     af: {
@@ -1920,6 +1988,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'Oeps! Blad nie gevind nie 🚫',
+            suggestion:
+                'Miskien het die blad geskuif of jy het die URL verkeerd ingetik. Kom ons bring jou terug! 🛤️',
+            returnButton: 'Terug na Tuis 🏠'
         }
     },
     ja: {
@@ -2080,6 +2154,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: 'ページが見つかりません 🚫',
+            suggestion:
+                'ページが移動したか、URLを間違えた可能性があります。元のページに戻りましょう！ 🛤️',
+            returnButton: 'ホームに戻る 🏠'
         }
     },
     ko: {
@@ -2240,6 +2320,12 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: '페이지를 찾을 수 없습니다 🚫',
+            suggestion:
+                '페이지가 이동되었거나 URL을 잘못 입력하셨을 수 있습니다. 원래 페이지로 돌아가 볼까요? 🛤️',
+            returnButton: '홈으로 돌아가기 🏠'
         }
     },
     tlh: {
@@ -2398,6 +2484,11 @@ export const content = {
                     dialogContent: ''
                 }
             ]
+        },
+        notFound: {
+            message: "Qo'! pagh tu'lu' 🚫",
+            suggestion: "paghmey muvlu'pu' qaSpu' URL lIjlaH. yIchegh! 🛤️",
+            returnButton: 'juH qachDaq yIchegh 🏠'
         }
     },
     qya: {
@@ -2548,6 +2639,11 @@ export const content = {
                     rel: 'noreferrer'
                 }
             ]
+        },
+        notFound: {
+            message: 'Ú-! Tencë úvanë 🚫',
+            suggestion: 'Cé tencë menë, mal úcarë. Túla sí ar harya! 🛤️',
+            returnButton: 'Nórë ar auta 🏠'
         }
     }
 };

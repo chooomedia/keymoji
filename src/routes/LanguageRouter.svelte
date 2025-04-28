@@ -3,16 +3,16 @@
     import { onMount } from 'svelte';
     import { currentLanguage, setLanguage } from '../stores.js';
     import Index from '../index.svelte';
+    import BlogGrid from '../BlogGrid.svelte';
     import BlogPost from '../BlogPost.svelte';
     import VersionHistory from '../VersionHistory.svelte';
-    import ContactForm from '../ContactForm.svelte';
+    import ContactForm from "./ContactForm.svelte";
     import Layout from '../Layout.svelte';
     import NotFound from './NotFound.svelte';
     
     // Wichtig: Verwende die tatsächliche URL, nicht die übergebene
-    // let url = "";
-    const url = typeof window !== 'undefined' ? window.location.pathname : "";
-    export let currentVersion = "";
+    export const url = "/"
+    export const currentVersion = "";
     
     // Debug-Informationen
     console.log('LanguageRouter initialisiert mit URL:', url);
@@ -53,31 +53,31 @@
         navigate(targetUrl, { replace: true });
       }
     });
-  </script>
+</script>
   
-  <Router {url}>
+<Router {url}>
     <Layout>
-      <!-- Einfache Routen -->
-      <Route path="/" component={Index} />
-      <Route path="/blog/:slug" let:params>
-        <BlogPost slug={params.slug} />
-      </Route>
-      <Route path="/blog" component={Index} />
-      <Route path="/versions" component={VersionHistory} currentVersion={currentVersion} />
-      <Route path="/contact" component={ContactForm} />
-      
-      <!-- Sprachspezifische Routen -->
-      <Route path="/:lang" let:params>
+        <!-- Einfache Routen -->
         <Route path="/" component={Index} />
         <Route path="/blog/:slug" let:params>
-          <BlogPost slug={params.slug} />
+            <BlogPost slug={params.slug} />
         </Route>
-        <Route path="/blog" component={Index} />
+        <Route path="/blog" component={BlogGrid} />
         <Route path="/versions" component={VersionHistory} currentVersion={currentVersion} />
         <Route path="/contact" component={ContactForm} />
-      </Route>
-      
-      <!-- Fallback Route -->
-      <Route component={NotFound} />
+        
+        <!-- Sprachspezifische Routen -->
+        <Route path="/:lang" let:params>
+            <Route path="/" component={Index} />
+            <Route path="/blog/:slug" let:params>
+            <BlogPost slug={params.slug} />
+            </Route>
+            <Route path="/blog" component={BlogGrid} />
+            <Route path="/versions" component={VersionHistory} currentVersion={currentVersion} />
+            <Route path="/contact" component={ContactForm} />
+        </Route>
+        
+        <!-- Fallback Route -->
+        <Route component={NotFound} />
     </Layout>
-  </Router>
+</Router>
