@@ -4,11 +4,9 @@
     import content from './content.js';
     import { updatedTime } from './updatedTime.js';
     import SkipLink from './components/A11y/SkipLink.svelte';
-    import Header from './Header.svelte';
-    import FixedMenu from './widgets/FixedMenu.svelte';
   
     // Props
-    export let url = "";
+    export const url = "";
     
     let mounted = false;
     

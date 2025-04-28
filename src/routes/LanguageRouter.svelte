@@ -3,7 +3,7 @@
     import { Router, Route, navigate } from "svelte-routing";
     import { onMount } from 'svelte';
     import { currentLanguage, setLanguage, getSupportedLanguages } from '../stores.js';
-    import App from '../App.svelte';
+    import Index from '../index.svelte';
     import BlogPost from '../BlogPost.svelte';
     import VersionHistory from '../VersionHistory.svelte';
     import ContactForm from '../ContactForm.svelte';
@@ -77,17 +77,22 @@
       }
     }
     
+    // Statt navigate.subscribe, verwenden wir den window-Event-Listener für popstate
     onMount(() => {
       // Initialize language routing
       initializeLanguageRouting();
       
-      // Set up listener for future navigation
-      const unsubscribe = navigate.subscribe(() => {
+      // Listen for navigation events
+      const handleNavigation = () => {
         initializeLanguageRouting();
-      });
+      };
+      
+      // Füge einen Listener für URL-Änderungen hinzu
+      window.addEventListener('popstate', handleNavigation);
       
       return () => {
-        unsubscribe();
+        // Cleanup beim Unmount
+        window.removeEventListener('popstate', handleNavigation);
       };
     });
   </script>
@@ -95,11 +100,11 @@
   <Router {url}>
     <Layout>
       <Route path="/:lang" let:params>
-        <Route path="/" component={App} />
+        <Route path="/" component={Index} />
         <Route path="blog/:slug" let:params>
           <BlogPost slug={params.slug} />
         </Route>
-        <Route path="blog" component={App} />
+        <Route path="blog" component={Index} />
         <Route path="versions" component={VersionHistory} currentVersion={currentVersion} />
         <Route path="contact" component={ContactForm} />
         <Route path="*" component={NotFound} />

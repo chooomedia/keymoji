@@ -170,12 +170,6 @@
 {/if}
 
 <style>
-  dialog {
-    &::backdrop {
-      background: rgba(0, 0, 0, 0.95);
-    }
-  }
-
   /* Optimize performance with composited animations */
   img {
     will-change: opacity, transform;

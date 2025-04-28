@@ -1,7 +1,7 @@
 <!-- src/components/SEO.svelte -->
 <script>
     import { onMount } from 'svelte';
-    import { currentLanguage, getText } from '../stores.js';
+    import { currentLanguage } from '../stores.js';
     import content from '../content.js';
     import { updatedTime } from '../updatedTime.js';
   
