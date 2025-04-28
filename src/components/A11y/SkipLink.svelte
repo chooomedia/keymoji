@@ -1,4 +1,3 @@
-<!-- src/components/A11y/SkipLink.svelte -->
 <script>
     import { currentLanguage, getText } from '../../stores.js';
     
@@ -7,8 +6,9 @@
     export let label = null; // Custom label
     
     // Get label from translation if not provided
-    $: skipLabel = label || getText('accessibility.skipToContent');
+    $: skipLabel = label || getText('accessibility.skipToContent') || 'Skip to content';
     
+    // Define the missing handleClick function
     function handleClick(event) {
       event.preventDefault();
       
@@ -33,18 +33,18 @@
         }
       }
     }
-  </script>
+</script>
+
+<a
+  href={target}
+  class="skip-link"
+  on:click={handleClick}
+  aria-label={skipLabel}
+>
+  {skipLabel}
+</a>
   
-  <a
-    href={target}
-    class="skip-link"
-    on:click={handleClick}
-    aria-label={skipLabel}
-  >
-    {skipLabel}
-  </a>
-  
-  <style>
+<style>
     .skip-link {
       position: absolute;
       top: -40px;
@@ -65,4 +65,4 @@
       outline: none;
       box-shadow: 0 0 0 2px #000;
     }
-  </style>
+</style>

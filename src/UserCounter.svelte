@@ -9,7 +9,7 @@
     // Fetch initial counter value from the store and database
     async function fetchCounter() {
         try {
-        const response = await fetch('https://n8n.chooomedia.com/webhook/dee6669d-ef38-4792-a21d-ac64eac3d132');
+        const response = await fetch('https://n8n.chooomedia.com/webhook/userCounter');
         if (response.ok) {
             const data = await response.json();
             counter.set(data.counter);
@@ -23,7 +23,7 @@
   
     // Listen for updates from the server
     function setupRealtimeUpdates() {
-        const eventSource = new EventSource('https://n8n.chooomedia.com/webhook/dee6669d-ef38-4792-a21d-ac64eac3d132');
+        const eventSource = new EventSource('https://n8n.chooomedia.com/webhook/userCounter');
         eventSource.onmessage = (event) => {
         const updatedCounter = JSON.parse(event.data).counter;
         counter.set(updatedCounter);

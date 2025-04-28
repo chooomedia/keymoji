@@ -19,7 +19,13 @@
   function navigateToVersion() {
     navigate("/versions", { replace: false });
   }
+
+  console.log('Index component initializing with language:', $currentLanguage);
 </script>
+
+<div style="position: fixed; top: 0; left: 0; background: rgba(0,0,0,0.8); color: white; z-index: 9999; padding: 10px;">
+    Current Path: {window.location.pathname} | Language: {$currentLanguage}
+</div>
 
 <Layout {url}>
   <Router {url}>

@@ -35,20 +35,17 @@ export const localUserCounter = localStore('userCounter', 0);
 
 localUserCounter.subscribe(async value => {
     try {
-        await fetch(
-            'https://n8n.chooomedia.com/webhook/dee6669d-ef38-4792-a21d-ac64eac3d132',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    timestamp: new Date().toISOString(),
-                    client: 'GlobalStore',
-                    counter: value
-                })
-            }
-        );
+        await fetch('https://n8n.chooomedia.com/webhook/userCounter', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                timestamp: new Date().toISOString(),
+                client: 'GlobalStore',
+                counter: value
+            })
+        });
     } catch (error) {
         console.error('Webhook subscription error:', error);
     }
@@ -74,27 +71,21 @@ export const darkMode = localStore('darkMode', prefersDarkMode);
 function getInitialLanguage() {
     if (typeof window === 'undefined') return 'en';
 
+    // First check localStorage
     const storedLang = localStorage.getItem('language');
     if (storedLang && content[storedLang]) return storedLang;
 
+    // Then check browser languages
     const userLanguages = navigator.languages || [
         navigator.language || navigator.userLanguage
     ];
 
     for (let lang of userLanguages) {
-        lang = lang.toLowerCase();
-
+        lang = lang.split('-')[0].toLowerCase();
         if (content[lang]) return lang;
-
-        const mainLang = lang.split('-')[0];
-        const specificDialect = Object.keys(content).find(l =>
-            l.startsWith(mainLang + '-')
-        );
-        if (specificDialect) return specificDialect;
-
-        if (content[mainLang]) return mainLang;
     }
 
+    // Default to English
     return 'en';
 }
 
