@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { currentLanguage, darkMode, showShareMenu } from './stores.js';
-    import content from './content.js';
+    import SEO from './components/SEO.svelte';
   
     export let slug;
     
@@ -52,26 +52,13 @@
     }
   </script>
   
-  <svelte:head>
-    <title>{post?.title || 'Blog'} | Keymoji</title>
-    <meta name="description" content={post?.excerpt || ''}>
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="article">
-    <meta property="og:title" content={post?.title || ''}>
-    <meta property="og:description" content={post?.excerpt || ''}>
-    {#if post?.thumbnail}
-      <meta property="og:image" content={post.thumbnail}>
-    {/if}
-    
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content={post?.title || ''}>
-    <meta name="twitter:description" content={post?.excerpt || ''}>
-    {#if post?.thumbnail}
-      <meta name="twitter:image" content={post.thumbnail}>
-    {/if}
-  </svelte:head>
+  <SEO 
+  title={post?.title || 'Blog - Keymoji'}
+  description={post?.excerpt || ''}
+  image={post?.thumbnail || ''}
+  type="article"
+  url={window.location.pathname}
+/>
   
   {#if loading || !post}
     <div class="flex justify-center items-center min-h-screen">

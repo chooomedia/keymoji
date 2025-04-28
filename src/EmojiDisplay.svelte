@@ -4,6 +4,7 @@
   import { currentLanguage, modalMessage, successfulStoryRequests, isModalVisible, isDisabled } from './stores.js';
   import emojisData from '../public/emojisArray.json';
   import content from './content.js';
+  import SEO from './components/Seo.svelte';
 
   // Props
   export let showEmojiCodes = false;
@@ -254,6 +255,13 @@
     }, 1000);
   }
 </script>
+
+<SEO 
+  pageType="index" 
+  url={window.location.pathname}
+  title={content[$currentLanguage]?.index?.pageTitle}
+  description={content[$currentLanguage]?.index?.pageDescription}
+/>
 
 <div id="emoji-password-generator" class="flex flex-col space-t-6 rounded-xl relative">
   <!-- Emoji Display Section -->

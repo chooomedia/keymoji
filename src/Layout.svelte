@@ -1,35 +1,59 @@
-<!-- Layout.svelte -->
 <script>
     import { onMount } from 'svelte';
     import { currentLanguage, darkMode } from './stores.js';
     import content from './content.js';
     import { updatedTime } from './updatedTime.js';
-
+    import SkipLink from './components/A11y/SkipLink.svelte';
+    import Header from './Header.svelte';
+    import FixedMenu from './widgets/FixedMenu.svelte';
+  
+    // Props
+    export let url = "";
+    
     let mounted = false;
     
     onMount(() => {
       mounted = true;
       document.documentElement.lang = $currentLanguage;
-  
+      
+      // Set dark mode class
+      if ($darkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      
       // Inject structured data after mount
       const schema = generateSchema();
       const scriptElement = document.createElement('script');
       scriptElement.type = 'application/ld+json';
       scriptElement.textContent = JSON.stringify(schema);
       document.head.appendChild(scriptElement);
-  
+    
       return () => {
-        document.head.removeChild(scriptElement);
+        if (scriptElement.parentNode) {
+          document.head.removeChild(scriptElement);
+        }
       };
     });
-  
+    
+    // Watch for dark mode changes
+    $: if (mounted && $darkMode !== undefined) {
+      if ($darkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+    
+    // Generate structured data
     function generateSchema() {
       return {
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": content[$currentLanguage]?.index?.pageTitle,
         "description": content[$currentLanguage]?.index?.pageDescription,
-        "applicationCategory": "Security Tool",
+        "applicationCategory": "SecurityTool",
         "operatingSystem": "Web Browser",
         "offers": {
           "@type": "Offer",
@@ -48,27 +72,8 @@
         "dateModified": updatedTime
       };
     }
-  
-    function getLocale(lang) {
-      const localeMap = {
-        'de': 'de_DE',
-        'dech': 'de_CH',
-        'es': 'es_ES',
-        'nl': 'nl_NL',
-        'it': 'it_IT',
-        'fr': 'fr_FR',
-        'pl': 'pl_PL',
-        'da': 'da_DK',
-        'ru': 'ru_RU',
-        'tr': 'tr_TR',
-        'af': 'af_ZA',
-        'ja': 'ja_JP',
-        'ko': 'ko_KO',
-        'tlh': 'tlh_Qo'
-      };
-      return localeMap[lang] || 'en_US';
-    }
-  
+    
+    // Background image properties
     const hieroglyphicEmojisSrc = './images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
     const darkGradient = 'linear-gradient(-45deg, #050413, #040320f5, #080715, #040310)';
     const lightGradient = 'linear-gradient(-45deg, #e0e0e0f7, #f8f8f8f0, #ecececf0, #e0e0e0f2)';
@@ -77,46 +82,19 @@
     $: bgBlendMode = $darkMode ? 'multiply' : 'hue';
   </script>
   
-  <svelte:head>
-    <title>{content[$currentLanguage]?.index?.pageTitle}</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="{content[$currentLanguage]?.index?.pageDescription}">
-    <meta name="keywords" content="{content[$currentLanguage]?.index?.pageKeywords}">
-    <meta name="author" content="Christopher Matt">
-  
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://keymoji.wtf">
-    <meta property="og:title" content="{content[$currentLanguage]?.index?.pageTitle}">
-    <meta property="og:description" content="{content[$currentLanguage]?.index?.pageDescription}">
-    <meta property="og:locale" content={getLocale($currentLanguage)}>
-    <meta property="og:site_name" content="{content[$currentLanguage]?.index?.pageTitle}">
-    <meta property="og:updated_time" content={updatedTime}>
-    <meta property="og:image" content="./images/keymoji-logo-11-2023-simple.png">
-    <meta property="og:image:alt" content="{content[$currentLanguage]?.index?.pageDescription}">
-    <meta property="og:image:type" content="image/png">
-  
-    <!-- PWA -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content={$darkMode ? '#253852' : '#f4ab25'}>
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  
-    <!-- Icons -->
-    <link rel="icon" type="image/png" href="./images/keymoji-logo-11-2023-simple.png">
-    <link rel="apple-touch-icon" href="./images/keymoji-logo-11-2023-simple.png">
-    <link rel="shortcut icon" type="image/png" href="./images/keymoji-logo-11-2023-simple.png">
-  </svelte:head>
+  <SkipLink target="#main-content" />
   
   <div 
-    class="wrapper hieroglyphemojis" 
-    style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}" 
-    class:dark={$darkMode}
+    class="wrapper hieroglyphemojis {$darkMode ? 'dark' : ''}" 
+    style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}"
+    aria-hidden="false"
   >
-    <slot></slot>
+    <main id="main-content" tabindex="-1" class="main-content">
+      <slot></slot>
+    </main>
   </div>
   
+  <!-- Behalt den bestehenden Style-Block bei -->
   <style>
     .hieroglyphemojis {
       animation: gradient 270s ease infinite;
@@ -133,6 +111,7 @@
     :global(html) {
       height: 100%;
       box-sizing: border-box;
+      scroll-behavior: smooth;
     }
   
     :global(body) {
@@ -143,5 +122,25 @@
   
     :global(.dark) {
       color-scheme: dark;
+    }
+    
+    .main-content {
+      outline: none;
+      position: relative;
+      width: 100%;
+    }
+    
+    .main-content:focus {
+      outline: none;
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      .hieroglyphemojis {
+        animation: none;
+      }
+      
+      :global(html) {
+        scroll-behavior: auto;
+      }
     }
   </style>

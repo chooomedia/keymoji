@@ -11,6 +11,7 @@ lerna-debug.log*
 
 # structure and testing file
 keymoji-project-structure.txt
+*.xcf
 _content.js
 
 # Diagnostic reports (https://nodejs.org/api/report.html)

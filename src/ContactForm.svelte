@@ -2,7 +2,8 @@
   import { modalMessage, currentLanguage } from './stores.js';
   import content from './content.js';
   import { navigate } from "svelte-routing";
-  import { fade, scale } from 'svelte/transition'; 
+  import { fade, scale } from 'svelte/transition';
+  import SEO from './components/SEO.svelte';
 
   let name = '',
       email = '',
@@ -225,6 +226,13 @@
     isMessageSent = false;
   }
 </script>
+
+<SEO 
+  pageType="contact" 
+  url={window.location.pathname}
+  title={content[$currentLanguage]?.contactForm?.introductionTitle}
+  description={content[$currentLanguage]?.contactForm?.introductionText}
+/>
 
 <div class="w-full md:pt-4 pt-2">
   <div class="flex md:flex-row flex-col md:mt-0 md:mb-4 my-3 md:pt-1 items-center bg-creme-80 dark:bg-aubergine-80 transition rounded-xl pb-2 px-4">

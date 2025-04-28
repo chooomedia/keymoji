@@ -1,11 +1,11 @@
-import Root from './index.svelte';
+import Root from './routes/LanguageRouter.svelte';
 import './index.css';
 
 const app = new Root({
     target: document.body,
     props: {
-        url: window.location.pathname
-    }
+        url: window.location.pathname,
+        currentVersion: "0.2.2"
 });
 
 // Service Worker Registrierung
@@ -31,7 +31,7 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
                     newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                             // Neue Version verfügbar
-                            if (confirm('New version of the app is available. Load new version?')) {
+                            if (confirm('Neue Version der App verfügbar. Jetzt laden?')) {
                                 window.location.reload();
                             }
                         }
@@ -58,7 +58,7 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
 
 // Debug Log wenn nicht in Produktion
 if (process.env.NODE_ENV !== 'production') {
-    console.log('Running in development mode - Service Worker disabled');
+    console.log('Läuft im Entwicklungsmodus - Service Worker deaktiviert');
 }
 
 export default app;

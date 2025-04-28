@@ -8,40 +8,9 @@
     import content from './content.js';
     import { createEventDispatcher } from 'svelte';
     import { navigate } from 'svelte-routing';
+    import LanguageSwitcher from './components/LanguageSwitcher.svelte';
 
     const dispatch = createEventDispatcher();
-
-    const languages = [
-        { code: 'en', name: 'English', flag: '🇺🇸', ogLocale: 'en_US' },
-        { code: 'de', name: 'Deutsch', flag: '🇩🇪', ogLocale: 'de_DE' },
-        { code: 'dech', name: 'Schwiizerdütsch', flag: '🇨🇭', ogLocale: 'de_CH' },
-        { code: 'es', name: 'Español', flag: '🇪🇸', ogLocale: 'es_ES' },
-        { code: 'nl', name: 'Nederlands', flag: '🇳🇱', ogLocale: 'nl_NL' },
-        { code: 'it', name: 'Italiano', flag: '🇮🇹', ogLocale: 'it_IT' },
-        { code: 'fr', name: 'Français', flag: '🇫🇷', ogLocale: 'fr_FR' },
-        { code: 'pl', name: 'Polski', flag: '🇵🇱', ogLocale: 'pl_PL' },
-        { code: 'da', name: 'Dansk', flag: '🇩🇰', ogLocale: 'da_DK' },
-        { code: 'ru', name: 'Русский', flag: '🇷🇺', ogLocale: 'ru_RU' },
-        { code: 'tr', name: 'Türkçe', flag: '🇹🇷', ogLocale: 'tr_TR' },
-        { code: 'af', name: 'Afrikaans', flag: '🇿🇦', ogLocale: 'af_ZA' },
-        { code: 'ja', name: '日本語', flag: '🇯🇵', ogLocale: 'ja_JP' },
-        { code: 'ko', name: '한국어', flag: '🇰🇷', ogLocale: 'ko_KO' },
-        { code: 'tlh', name: 'Klingon', flag: '🖖', ogLocale: 'tlh_Qo' },
-        { code: 'qya', name: 'Elvish', flag: '🦄', ogLocale: 'qya' }
-    ];
-
-    const toggleLanguageMenu = () => {
-        showLanguageMenu.update(current => !current);
-    };
-
-    const handleLanguageChange = (langCode) => {
-        setLanguage(langCode);
-        dispatch('languageChange', langCode);
-    };
-
-    const getCurrentLanguageInfo = (code) => {
-        return languages.find(lang => lang.code === code) || languages[0];
-    };
 
     function navigateToBlog() {
         navigate("/blog", { replace: false });
@@ -87,39 +56,7 @@
                     disabled
                 >
                 📝
-              </button>
-                <button
-                    id="language-toggle-button"
-                    type="button"
-                    class="btn btn-default btn-md"
-                    on:click={toggleLanguageMenu}
-                    aria-label="Change the language" 
-                    aria-haspopup="true"
-                    aria-expanded={$showLanguageMenu}
-                >
-                   {getCurrentLanguageInfo($currentLanguage).flag} <span class="text-base uppercase">{getCurrentLanguageInfo($currentLanguage).code}</span>
-                </button>
-
-                {#if $showLanguageMenu}
-                    <div id="language-dropdown-menu" class="w-auto mx-auto fixed top-20 rounded-b-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-10 transform transition-all duration-300 ease-in-out -translate-x-28 translate-y-1 space-x-0
-                    " role="menu" aria-orientation="vertical" aria-labelledby="language-menu">
-                        <ul class="py-2 font-medium" role="none">
-                            {#each languages as lang}
-                                <li
-                                in:slide={{ y: -5, duration: 400, easing: cubicInOut }} 
-                                out:slide={{ y: 5, duration: 400, easing: cubicInOut }} >
-                                    <button aria-label="Change the language to {lang.name}" 
-                                        on:click={() => handleLanguageChange(lang.code)}
-                                        class="flex flex-wrap text-black dark:text-white md:px-4 px-2 py-2 text-sm w-full text-left hover:bg-gray group hover:text-white" 
-                                        role="menuitem" 
-                                    >
-                                        {lang.flag} {lang.name}
-                                    </button>
-                                </li>
-                            {/each}
-                        </ul>
-                    </div>
-                {/if}
+                <LanguageSwitcher position="top" display="full" showLabels={true} />
 
                 <LoginMenu />
 

@@ -1,6 +1,7 @@
 <script>
   import { fade, fly } from 'svelte/transition';
   import { modalMessage, isModalVisible } from './stores.js';
+  import FocusManager from './components/A11y/FocusManager.svelte';
 
   // State management
   $: message = $modalMessage;
@@ -102,21 +103,27 @@
   function handleImageLoad() {
     imageLoaded = true;
   }
+
+  function handleBackdropClick(event) {
+    if (event.target === event.currentTarget) {
+      closeMessage();
+    }
+  }
 </script>
 
 {#if showMessage}
-<section 
-  class="fixed inset-0 bg-black bg-opacity-95 z-50"
-  aria-labelledby="modal-title"
-  bind:this={modalRef}
-  tabindex="-1"
-  transition:fade={{ duration: ANIMATION_DURATION }}
-  data-testid="error-modal"
->
-  <dialog
-    open
-    class="fixed inset-0 flex flex-col items-center justify-center pb-4 outline-none bg-black bg-opacity-95 m-0 p-0 w-full h-full"
+<FocusManager active={showMessage} restoreFocus={true}>
+    <div 
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    bind:this={modalRef}
+    tabindex="-1"
+    class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-black bg-opacity-95 pb-4" 
     on:keydown={handleKeydown}
+    on:click={handleBackdropClick}
+    transition:fade={{ duration: ANIMATION_DURATION }}
+    data-testid="error-modal"
   >
     <div 
       class="relative flex flex-col items-center justify-center mb-4 px-4"
@@ -159,8 +166,7 @@
         ❌
       </button>
     </div>
-  </dialog>
-</section>
+</FocusManager>
 {/if}
 
 <style>

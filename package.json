@@ -1,6 +1,6 @@
 {
     "name": "keymoji",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "description": "Secure emoji password generator with AI resistance and multilingual support",
     "private": true,
     "license": "MIT",
@@ -18,7 +18,7 @@
     },
     "scripts": {
         "dev": "NODE_ENV=development webpack serve --config webpack/start.js",
-        "build": "node scripts/update-timestamp.js && NODE_ENV=production webpack --config webpack/build.js && node scripts/optimize-build.js"
+        "build": "node scripts/update-timestamp.js && node scripts/generate-sitemap.js && NODE_ENV=production webpack --config webpack/build.js && node scripts/optimize-build.js"
     },
     "devDependencies": {
         "@babel/cli": "^7.12.1",

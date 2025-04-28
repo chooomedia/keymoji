@@ -4,8 +4,8 @@ import content from './content.js';
 const localStore = (key, initial) => {
     if (typeof window === 'undefined') return writable(initial);
 
-    const toString = (value) => JSON.stringify(value);
-    const toObj = (value) => {
+    const toString = value => JSON.stringify(value);
+    const toObj = value => {
         try {
             return JSON.parse(value);
         } catch {
@@ -18,7 +18,7 @@ const localStore = (key, initial) => {
 
     return {
         subscribe,
-        set: (value) => {
+        set: value => {
             try {
                 localStorage.setItem(key, toString(value));
             } catch (error) {
@@ -33,19 +33,22 @@ const localStore = (key, initial) => {
 // Persistent counter store
 export const localUserCounter = localStore('userCounter', 0);
 
-localUserCounter.subscribe(async (value) => {
+localUserCounter.subscribe(async value => {
     try {
-        await fetch('https://n8n.chooomedia.com/webhook/dee6669d-ef38-4792-a21d-ac64eac3d132', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                timestamp: new Date().toISOString(),
-                client: 'GlobalStore',
-                counter: value,
-            }),
-        });
+        await fetch(
+            'https://n8n.chooomedia.com/webhook/dee6669d-ef38-4792-a21d-ac64eac3d132',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    client: 'GlobalStore',
+                    counter: value
+                })
+            }
+        );
     } catch (error) {
         console.error('Webhook subscription error:', error);
     }
@@ -62,7 +65,10 @@ export const successfulStoryRequests = writable([]);
 
 export const isDisabled = writable(false);
 
-const prefersDarkMode = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const prefersDarkMode =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches;
 export const darkMode = localStore('darkMode', prefersDarkMode);
 
 function getInitialLanguage() {
@@ -71,15 +77,19 @@ function getInitialLanguage() {
     const storedLang = localStorage.getItem('language');
     if (storedLang && content[storedLang]) return storedLang;
 
-    const userLanguages = navigator.languages || [navigator.language || navigator.userLanguage];
+    const userLanguages = navigator.languages || [
+        navigator.language || navigator.userLanguage
+    ];
 
     for (let lang of userLanguages) {
         lang = lang.toLowerCase();
-        
+
         if (content[lang]) return lang;
 
         const mainLang = lang.split('-')[0];
-        const specificDialect = Object.keys(content).find(l => l.startsWith(mainLang + '-'));
+        const specificDialect = Object.keys(content).find(l =>
+            l.startsWith(mainLang + '-')
+        );
         if (specificDialect) return specificDialect;
 
         if (content[mainLang]) return mainLang;
@@ -97,7 +107,7 @@ export const languageText = derived(
 
 export function getText(key, lang = null) {
     const currentLang = lang || get(currentLanguage);
-    
+
     const keys = key.split('.');
     let text = content[currentLang];
     for (const k of keys) {
@@ -132,7 +142,7 @@ export function setLanguage(lang) {
         document.documentElement.lang = lang;
         notifyLanguageChange(lang);
     } else {
-        console.error(`Language '${lang}' is not supported.`);
+        console.error(`Sprache '${lang}' wird nicht unterstützt.`);
     }
 }
 
