@@ -7,7 +7,7 @@
   
     export let title = '';
     export let description = '';
-    export let url = '';
+    export const url = '';
     export let image = './images/keymoji-logo-11-2023-simple.png';
     export let type = 'website';
     export let noindex = false;

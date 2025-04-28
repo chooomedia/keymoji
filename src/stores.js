@@ -34,20 +34,23 @@ const localStore = (key, initial) => {
 export const localUserCounter = localStore('userCounter', 0);
 
 localUserCounter.subscribe(async value => {
-    try {
-        await fetch('https://n8n.chooomedia.com/webhook/userCounter', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                timestamp: new Date().toISOString(),
-                client: 'GlobalStore',
-                counter: value
-            })
-        });
-    } catch (error) {
-        console.error('Webhook subscription error:', error);
+    // CORS-Problem in der Entwicklung vermeiden
+    if (process.env.NODE_ENV !== 'development') {
+        try {
+            await fetch('https://n8n.chooomedia.com/webhook/userCounter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    client: 'GlobalStore',
+                    counter: value
+                })
+            });
+        } catch (error) {
+            console.error('Webhook subscription error:', error);
+        }
     }
 });
 
@@ -71,21 +74,27 @@ export const darkMode = localStore('darkMode', prefersDarkMode);
 function getInitialLanguage() {
     if (typeof window === 'undefined') return 'en';
 
-    // First check localStorage
+    // Zuerst localStorage prüfen
     const storedLang = localStorage.getItem('language');
-    if (storedLang && content[storedLang]) return storedLang;
+    if (storedLang && isLanguageSupported(storedLang)) return storedLang;
 
-    // Then check browser languages
+    // Dann URL-Pfad auf Sprache prüfen
+    if (typeof window !== 'undefined') {
+        const pathLang = window.location.pathname.split('/')[1];
+        if (pathLang && isLanguageSupported(pathLang)) return pathLang;
+    }
+
+    // Dann Browser-Sprachen prüfen
     const userLanguages = navigator.languages || [
         navigator.language || navigator.userLanguage
     ];
 
     for (let lang of userLanguages) {
         lang = lang.split('-')[0].toLowerCase();
-        if (content[lang]) return lang;
+        if (isLanguageSupported(lang)) return lang;
     }
 
-    // Default to English
+    // Default zu Englisch
     return 'en';
 }
 
@@ -101,6 +110,15 @@ export function getText(key, lang = null) {
 
     const keys = key.split('.');
     let text = content[currentLang];
+
+    // Fallback zu Englisch wenn Sprache nicht gefunden
+    if (!text) {
+        console.warn(
+            `Sprache '${currentLang}' nicht gefunden, Fallback zu Englisch`
+        );
+        text = content['en'];
+    }
+
     for (const k of keys) {
         if (text === undefined) return key;
         text = text[k];
@@ -108,12 +126,16 @@ export function getText(key, lang = null) {
     return text || key;
 }
 
+// Filter nicht-Sprachschlüssel aus dem content-Objekt
 export function isLanguageSupported(lang) {
+    // Bekannte nicht-Sprachschlüssel ausschließen
+    if (lang === 'logo') return false;
     return !!content[lang];
 }
 
 export function getSupportedLanguages() {
-    return Object.keys(content);
+    // Nicht-Sprachschlüssel wie 'logo' ausfiltern
+    return Object.keys(content).filter(key => key !== 'logo');
 }
 
 const languageChangeListeners = new Set();
@@ -128,7 +150,7 @@ function notifyLanguageChange(newLang) {
 }
 
 export function setLanguage(lang) {
-    if (content[lang]) {
+    if (isLanguageSupported(lang)) {
         currentLanguage.set(lang);
         document.documentElement.lang = lang;
         notifyLanguageChange(lang);
@@ -137,4 +159,5 @@ export function setLanguage(lang) {
     }
 }
 
+// Sprache initialisieren
 setLanguage(get(currentLanguage));

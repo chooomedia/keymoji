@@ -12,16 +12,21 @@
     
     onMount(() => {
       mounted = true;
+      
+      // Sprache setzen
       document.documentElement.lang = $currentLanguage;
       
-      // Set dark mode class
+      // Dark Mode Klasse setzen
       if ($darkMode) {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
       }
       
-      // Inject structured data after mount
+      // Debug-Information
+      console.log('Layout mounted with URL:', url, 'and language:', $currentLanguage);
+      
+      // Schema-Daten nach dem Mount einfügen
       const schema = generateSchema();
       const scriptElement = document.createElement('script');
       scriptElement.type = 'application/ld+json';
@@ -35,7 +40,7 @@
       };
     });
     
-    // Watch for dark mode changes
+    // Auf Dark Mode Änderungen achten
     $: if (mounted && $darkMode !== undefined) {
       if ($darkMode) {
         document.documentElement.classList.add('dark');
@@ -44,13 +49,19 @@
       }
     }
     
-    // Generate structured data
+    // Auf Sprachänderungen achten
+    $: if (mounted && $currentLanguage) {
+      document.documentElement.lang = $currentLanguage;
+      console.log('Language changed to:', $currentLanguage);
+    }
+    
+    // Strukturierte Daten generieren
     function generateSchema() {
       return {
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        "name": content[$currentLanguage]?.index?.pageTitle,
-        "description": content[$currentLanguage]?.index?.pageDescription,
+        "name": content[$currentLanguage]?.index?.pageTitle || "Keymoji",
+        "description": content[$currentLanguage]?.index?.pageDescription || "Emoji Password Generator",
         "applicationCategory": "SecurityTool",
         "operatingSystem": "Web Browser",
         "offers": {
@@ -71,7 +82,7 @@
       };
     }
     
-    // Background image properties
+    // Hintergrundbild-Eigenschaften
     const hieroglyphicEmojisSrc = './images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
     const darkGradient = 'linear-gradient(-45deg, #050413, #040320f5, #080715, #040310)';
     const lightGradient = 'linear-gradient(-45deg, #e0e0e0f7, #f8f8f8f0, #ecececf0, #e0e0e0f2)';
@@ -86,13 +97,14 @@
     class="wrapper hieroglyphemojis {$darkMode ? 'dark' : ''}" 
     style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}"
     aria-hidden="false"
+    data-url={url}
+    data-lang={$currentLanguage}
   >
     <main id="main-content" tabindex="-1" class="main-content">
       <slot></slot>
     </main>
   </div>
   
-  <!-- Behalt den bestehenden Style-Block bei -->
   <style>
     .hieroglyphemojis {
       animation: gradient 270s ease infinite;

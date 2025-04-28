@@ -12,7 +12,6 @@
     export const url = "";
     export const currentVersion = "";
     
-    let initialized = false;
     const supportedLanguages = getSupportedLanguages();
     
     // Debug logs
@@ -20,42 +19,65 @@
     console.log('Current language:', $currentLanguage);
     console.log('Supported languages:', supportedLanguages);
     
-    // Simple direct routing approach
+    // Einfache direkte Weiterleitung
     onMount(() => {
-        // If we're at the root, redirect to the language-specific route
+        // Überprüfen, ob wir uns im Root befinden
         if (url === '/' || url === '') {
+            // Zum sprachspezifischen Pfad weiterleiten
             navigate(`/${$currentLanguage}`, { replace: true });
+            return;
         }
-        // If we're at a path without language, insert language
-        else if (!url.match(new RegExp(`^/(${supportedLanguages.join('|')})`))) {
+        
+        // Extrahieren des potenziellen Sprachcodes aus der URL
+        const pathSegments = url.split('/').filter(segment => segment !== '');
+        const potentialLang = pathSegments[0];
+        
+        // Überprüfen, ob die URL mit einem gültigen Sprachcode beginnt
+        if (!potentialLang || !supportedLanguages.includes(potentialLang)) {
+            // Zum gleichen Pfad mit Sprachpräfix weiterleiten
             navigate(`/${$currentLanguage}${url}`, { replace: true });
+            return;
+        }
+        
+        // Wenn die URL bereits einen Sprachpräfix hat, der nicht der aktuellen Sprache entspricht
+        if (potentialLang && supportedLanguages.includes(potentialLang) && potentialLang !== $currentLanguage) {
+            // Aktualisieren der aktuellen Sprache, um mit der URL übereinzustimmen
+            setLanguage(potentialLang);
         }
     });
 </script>
   
 <Router {url}>
-    <Layout>
-        <!-- Basic route structure without nesting -->
+    <Layout url={url}>
+        <!-- Einfache Routen ohne Verschachtelung -->
         <Route path="/" component={Index} />
         <Route path="/blog/:slug" let:params>
             <BlogPost slug={params.slug} />
         </Route>
         <Route path="/blog" component={Index} />
-        <Route path="/versions" component={VersionHistory} />
+        <Route path="/versions">
+            <VersionHistory {currentVersion} />
+        </Route>
         <Route path="/contact" component={ContactForm} />
         
-        <!-- Language-specific routes -->
-        <Route path="/:lang">
-            <Route path="/" component={Index} />
-            <Route path="/blog/:slug" let:params>
-                <BlogPost slug={params.slug} />
-            </Route>
-            <Route path="/blog" component={Index} />
-            <Route path="/versions" component={VersionHistory} />
-            <Route path="/contact" component={ContactForm} />
+        <!-- Sprachspezifische Routen -->
+        <Route path="/:lang" let:params>
+            {#if supportedLanguages.includes(params.lang)}
+                <Route path="/" component={Index} />
+                <Route path="/blog/:slug" let:params>
+                    <BlogPost slug={params.slug} />
+                </Route>
+                <Route path="/blog" component={Index} />
+                <Route path="/versions">
+                    <VersionHistory {currentVersion} />
+                </Route>
+                <Route path="/contact" component={ContactForm} />
+            {:else}
+                <NotFound />
+            {/if}
         </Route>
         
-        <!-- Catch-all route -->
+        <!-- Auffangroute -->
         <Route path="*" component={NotFound} />
     </Layout>
 </Router>
