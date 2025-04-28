@@ -1,10 +1,15 @@
 import Root from './routes/LanguageRouter.svelte';
 import './index.css';
 
+// Explizit die aktuelle URL nehmen
+const currentUrl = window.location.pathname;
+
+console.log('Starte App mit URL:', currentUrl);
+
 const app = new Root({
     target: document.body,
     props: {
-        url: window.location.pathname,
+        url: currentUrl,
         currentVersion: '0.2.2'
     }
 });
@@ -73,6 +78,7 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
 // Debug Log wenn nicht in Produktion
 if (process.env.NODE_ENV !== 'production') {
     console.log('Läuft im Entwicklungsmodus - Service Worker deaktiviert');
+    console.log('Startsprache:', document.documentElement.lang);
 }
 
 export default app;

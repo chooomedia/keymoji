@@ -4,15 +4,19 @@
     import content from './content.js';
     import { updatedTime } from './updatedTime.js';
     import SkipLink from './components/A11y/SkipLink.svelte';
-  
-    // Props
-    export const url = "";
     
-    let mounted = false;
+    // URL für Logging
+    export let url = "";
+    
+    // Hintergrundbild-Eigenschaften
+    const hieroglyphicEmojisSrc = './images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
+    const darkGradient = 'linear-gradient(-45deg, #050413, #040320f5, #080715, #040310)';
+    const lightGradient = 'linear-gradient(-45deg, #e0e0e0f7, #f8f8f8f0, #ecececf0, #e0e0e0f2)';
+    
+    $: bgImage = `background-image: url("${hieroglyphicEmojisSrc}"), ${$darkMode ? darkGradient : lightGradient}`;
+    $: bgBlendMode = $darkMode ? 'multiply' : 'hue';
     
     onMount(() => {
-      mounted = true;
-      
       // Sprache setzen
       document.documentElement.lang = $currentLanguage;
       
@@ -27,37 +31,7 @@
       console.log('Layout mounted with URL:', url, 'and language:', $currentLanguage);
       
       // Schema-Daten nach dem Mount einfügen
-      const schema = generateSchema();
-      const scriptElement = document.createElement('script');
-      scriptElement.type = 'application/ld+json';
-      scriptElement.textContent = JSON.stringify(schema);
-      document.head.appendChild(scriptElement);
-    
-      return () => {
-        if (scriptElement.parentNode) {
-          document.head.removeChild(scriptElement);
-        }
-      };
-    });
-    
-    // Auf Dark Mode Änderungen achten
-    $: if (mounted && $darkMode !== undefined) {
-      if ($darkMode) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-    
-    // Auf Sprachänderungen achten
-    $: if (mounted && $currentLanguage) {
-      document.documentElement.lang = $currentLanguage;
-      console.log('Language changed to:', $currentLanguage);
-    }
-    
-    // Strukturierte Daten generieren
-    function generateSchema() {
-      return {
+      const schema = {
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": content[$currentLanguage]?.index?.pageTitle || "Keymoji",
@@ -80,15 +54,32 @@
         "inLanguage": $currentLanguage,
         "dateModified": updatedTime
       };
+      
+      const scriptElement = document.createElement('script');
+      scriptElement.type = 'application/ld+json';
+      scriptElement.textContent = JSON.stringify(schema);
+      document.head.appendChild(scriptElement);
+  
+      // URL überprüfen
+      if (window.location.pathname === '/' && $currentLanguage) {
+        console.log('Auf Root-Route mit Sprache:', $currentLanguage);
+      }
+    });
+    
+    // Auf Dark Mode Änderungen achten
+    $: if ($darkMode !== undefined) {
+      if ($darkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     }
     
-    // Hintergrundbild-Eigenschaften
-    const hieroglyphicEmojisSrc = './images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
-    const darkGradient = 'linear-gradient(-45deg, #050413, #040320f5, #080715, #040310)';
-    const lightGradient = 'linear-gradient(-45deg, #e0e0e0f7, #f8f8f8f0, #ecececf0, #e0e0e0f2)';
-    
-    $: bgImage = `background-image: url("${hieroglyphicEmojisSrc}"), ${$darkMode ? darkGradient : lightGradient}`;
-    $: bgBlendMode = $darkMode ? 'multiply' : 'hue';
+    // Auf Sprachänderungen achten
+    $: if ($currentLanguage) {
+      document.documentElement.lang = $currentLanguage;
+      console.log('Language changed to:', $currentLanguage);
+    }
   </script>
   
   <SkipLink target="#main-content" />
@@ -100,7 +91,8 @@
     data-url={url}
     data-lang={$currentLanguage}
   >
-    <main id="main-content" tabindex="-1" class="main-content">
+    <main id="main-content" class="main-content">
+      <!-- Direktes Einfügen aller Komponenten von Router -->
       <slot></slot>
     </main>
   </div>
@@ -135,13 +127,9 @@
     }
     
     .main-content {
-      outline: none;
-      position: relative;
       width: 100%;
-    }
-    
-    .main-content:focus {
-      outline: none;
+      min-height: 100vh;
+      position: relative;
     }
     
     @media (prefers-reduced-motion: reduce) {
