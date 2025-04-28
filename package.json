@@ -1,12 +1,23 @@
 {
-    "name": "start",
-    "version": "0.0.1",
-    "description": "A way to start web applications",
+    "name": "keymoji",
+    "version": "0.2.1",
+    "description": "Secure emoji password generator with AI resistance and multilingual support",
     "private": true,
     "license": "MIT",
-    "author": "@davi-mbatista",
+    "author": {
+        "name": "Christopher Matt",
+        "url": "https://keymoji.wtf"
+    },
+    "homepage": "https://keymoji.wtf",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/chooomedia/keymoji"
+    },
+    "bugs": {
+        "url": "https://github.com/chooomedia/keymoji/issues"
+    },
     "scripts": {
-        "start": "NODE_ENV=development webpack serve --config webpack/start.js",
+        "dev": "NODE_ENV=development webpack serve --config webpack/start.js",
         "build": "node scripts/update-timestamp.js && NODE_ENV=production webpack --config webpack/build.js && node scripts/optimize-build.js"
     },
     "devDependencies": {

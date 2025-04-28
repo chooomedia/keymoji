@@ -30,6 +30,27 @@ const localStore = (key, initial) => {
     };
 };
 
+// Persistent counter store
+export const localUserCounter = localStore('userCounter', 0);
+
+localUserCounter.subscribe(async (value) => {
+    try {
+        await fetch('https://n8n.chooomedia.com/webhook/dee6669d-ef38-4792-a21d-ac64eac3d132', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                timestamp: new Date().toISOString(),
+                client: 'GlobalStore',
+                counter: value,
+            }),
+        });
+    } catch (error) {
+        console.error('Webhook subscription error:', error);
+    }
+});
+
 export const showDonateMenu = writable(false);
 export const showShareMenu = writable(false);
 export const showLanguageMenu = writable(false);

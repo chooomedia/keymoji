@@ -1,6 +1,6 @@
 /* purgecss start ignore */
 @import 'tailwindcss/base';
-/* purgecss end ignore */
+@import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
 ::-webkit-scrollbar {
@@ -68,3 +68,24 @@
       @apply px-6 py-4 text-3xl;
     }
   }
+
+@font-face {
+  font-family: 'Tengwar Annatar';
+  src: url('tengwar_annatar.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+html[lang="qya"] {
+  font-family: 'Tengwar Annatar', 'Graphik', Arial, sans-serif;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+
+  #emoji-display {
+    @apply pt-7;
+  }
+  
+  #fixed-menu-nav button {
+    @apply font-sans;
+  }
+}

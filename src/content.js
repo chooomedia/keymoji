@@ -28,7 +28,7 @@ export const content = {
     clickToCopy: "Click or press Enter to copy the generated emoji password to clipboard",
     successMessage: "Success, copied into your Clipboard 💾",
     errorMessage: "Oops, something went wrong 🤖",
-    dailyLimitReachedMessage: "Sorry, you have reached your daily limit of requests 😔",
+    dailyLimitReachedMessage: "Sorry, daily limit of requests reached 😔",
     successStoryMessage: "Success, Emoji story generated 🤖",
     errorStoryMessage: "Error, no answer from server 🌀",
     emojiDisplayTitle: "Emoji Password Generator",
@@ -175,7 +175,7 @@ export const content = {
       clickToCopy: "Klicken oder Enter drücken um das generierte Emoji-Passwort in die Zwischenablage zu kopieren",
       successMessage: "Erfolg, in die Zwischenablage kopiert 💾",
       errorMessage: "Ups, etwas ist schiefgelaufen 🤖",
-      dailyLimitReachedMessage: "Sorry, du hast dein tägliches Limit an Anfragen erreicht 😔",
+      dailyLimitReachedMessage: "Sorry, tägliches Limit an Anfragen erreicht 😔",
       successStoryMessage: "Erfolg, Emoji Geschichte generiert 🤖",
       errorStoryMessage: "Fehler, keine Antwort vom Server 🌀",
       emojiDisplayTitle: "Emoji Passwort Generator",
@@ -322,7 +322,7 @@ export const content = {
       clickToCopy: "Klick oder drück Enter zum Kopiere vom generierte Emoji-Passwort in d'Zwüscheablag",
       successMessage: "Erfolg, kopiert is Clipboard 💾",
       errorMessage: "Huch, öppis isch schiefgloffe 🤖",
-      dailyLimitReachedMessage: "Sorry, du häsch dis täglichs Limit a Aafroge erreiched 😔",
+      dailyLimitReachedMessage: "Sorry, täglichs Limit a Aafroge erreiched 😔",
       successStoryMessage: "Erfolg, Emoji Gschicht generiert 🤖",
       errorStoryMessage: "Fehler, kei Antwort vom Server 🌀",
       emojiDisplayTitle: "Emoji Passwort Generator",
@@ -469,7 +469,7 @@ export const content = {
       clickToCopy: "Haga clic o presione Enter para copiar la contraseña emoji generada al portapapeles",
       successMessage: "Éxito, copiado en tu portapapeles 💾",
       errorMessage: "Ups, algo salió mal 🤖",
-      dailyLimitReachedMessage: "Lo siento, has alcanzado tu límite diario de solicitudes 😔",
+      dailyLimitReachedMessage: "Lo siento, límite diario de solicitudes 😔",
       successStoryMessage: "Éxito, historia de emoji generada 🤖",
       errorStoryMessage: "Error, sin respuesta del servidor 🌀",
       emojiDisplayTitle: "Generador de Contraseñas Emoji",
@@ -616,7 +616,7 @@ export const content = {
       clickToCopy: "Klik of druk op Enter om het gegenereerde emoji-wachtwoord naar het klembord te kopiëren",
       successMessage: "Succes, gekopieerd naar je klembord 💾",
       errorMessage: "Oeps, er ging iets fout 🤖",
-      dailyLimitReachedMessage: "Sorry, je hebt je dagelijkse limiet aan verzoeken bereikt 😔",
+      dailyLimitReachedMessage: "Sorry, limiet aan verzoeken bereikt 😔",
       successStoryMessage: "Succes, emoji verhaal gegenereerd 🤖",
       errorStoryMessage: "Fout, geen antwoord van server 🌀",
       emojiDisplayTitle: "Emoji Wachtwoordgenerator",
@@ -763,7 +763,7 @@ export const content = {
       clickToCopy: "Clicca o premi Invio per copiare la password emoji generata negli appunti",
       successMessage: "Successo, copiato nella tua clipboard 💾",
       errorMessage: "Ops, qualcosa è andato storto 🤖",
-      dailyLimitReachedMessage: "Spiacente, hai raggiunto il tuo limite giornaliero di richieste 😔",
+      dailyLimitReachedMessage: "Spiacente, limite giornaliero di richieste 😔",
       successStoryMessage: "Successo, storia emoji generata 🤖",
       errorStoryMessage: "Errore, nessuna risposta dal server 🌀",
       emojiDisplayTitle: "Generatore di Password Emoji",
@@ -910,7 +910,7 @@ export const content = {
       clickToCopy: "Cliquez ou appuyez sur Entrée pour copier le mot de passe emoji généré dans le presse-papiers",
       successMessage: "Succès, copié dans votre presse-papiers 💾",
       errorMessage: "Oups, quelque chose a mal tourné 🤖",
-      dailyLimitReachedMessage: "Désolé, vous avez atteint votre limite quotidienne de demandes 😔",
+      dailyLimitReachedMessage: "Désolé, limite quotidienne de demandes 😔",
       successStoryMessage: "Succès, histoire emoji générée 🤖",
       errorStoryMessage: "Erreur, pas de réponse du serveur 🌀",
       emojiDisplayTitle: "Générateur de Mot de Passe Emoji",
@@ -1057,7 +1057,7 @@ export const content = {
       clickToCopy: "Kliknij lub naciśnij Enter, aby skopiować wygenerowane hasło emoji do schowka",
       successMessage: "Sukces, skopiowano do schowka 💾",
       errorMessage: "Ups, coś poszło nie tak 🤖",
-      dailyLimitReachedMessage: "Przykro nam, osiągnięto dzienny limit zapytań 😔",
+      dailyLimitReachedMessage: "Przykro nam, dzienny limit zapytań 😔",
       successStoryMessage: "Sukces, wygenerowano historię emoji 🤖",
       errorStoryMessage: "Błąd, brak odpowiedzi z serwera 🌀",
       emojiDisplayTitle: "Generator Hasła Emoji",
@@ -1204,7 +1204,7 @@ export const content = {
       clickToCopy: "Klik eller tryk på Enter for at kopiere det genererede emoji-kodeord til udklipsholderen",
       successMessage: "Succes, kopieret til din udklipsholder 💾",
       errorMessage: "Ups, noget gik galt 🤖",
-      dailyLimitReachedMessage: "Beklager, du har nået din daglige grænse for anmodninger 😔",
+      dailyLimitReachedMessage: "Beklager, daglige grænse for anmodninger 😔",
       successStoryMessage: "Succes, emoji-historie genereret 🤖",
       errorStoryMessage: "Fejl, intet svar fra serveren 🌀",
       emojiDisplayTitle: "Emoji-adgangskodegenerator",
@@ -1351,7 +1351,7 @@ export const content = {
     clickToCopy: "Нажмите или нажмите Enter, чтобы скопировать сгенерированный пароль эмодзи в буфер обмена",
     successMessage: "Успешно, скопировано в буфер обмена 💾",
     errorMessage: "Упс, что-то пошло не так 🤖",
-    dailyLimitReachedMessage: "Извините, вы достигли своего ежедневного лимита запросов 😔",
+    dailyLimitReachedMessage: "Извините, ежедневного лимита запросов 😔",
     successStoryMessage: "Успех, создана история с эмодзи 🤖",
     errorStoryMessage: "Ошибка, нет ответа от сервера 🌀",
     emojiDisplayTitle: "Генератор паролей с использованием эмодзи",
@@ -1498,7 +1498,7 @@ export const content = {
     clickToCopy: "Oluşturulan emoji şifresini panoya kopyalamak için tıklayın veya Enter tuşuna basın",
     successMessage: "Başarılı, panonuza kopyalandı 💾",
     errorMessage: "Üzgünüz, bir şeyler ters gitti 🤖",
-    dailyLimitReachedMessage: "Üzgünüz, günlük istek sınırınıza ulaştınız 😔",
+    dailyLimitReachedMessage: "Üzgünüz, sınırınıza ulaştınız 😔",
     successStoryMessage: "Başarılı, Emoji hikayesi oluşturuldu 🤖",
     errorStoryMessage: "Hata, sunucudan yanıt yok 🌀",
     emojiDisplayTitle: "Emoji Parola Oluşturucu",
@@ -2208,6 +2208,145 @@ export const content = {
       ],
     }
   },
+  qya: {
+    "header": {
+      "pageTitle": "Keymoji",
+      "pageVersion": "v0.2.1"
+    },
+    "index": {
+      "pageTitle": "Emojëa Cennas",
+      "pageDescription": "🔑 Cennas úvëa. 🎯 Nai nári emojëa cennas. 🌈 Alassëa. Hrestale. Yéni. 🤖 AI-naírë hlarë. 🌍 Lainë ar quildë.",
+      "pageKeywords": "Keymoji, emojëa cennas, cennas úvëa, hrestale, quildë hrestale",
+      "pageInstruction": [
+        "Lirna \"📝 Melme\" ar melme emojëa tale 📖",
+        "\"Random\" is nai auta 😜.",
+        "Ailin, hlarë quildë! 📋"
+      ],
+      "backToMainText": "Lirna yassë 👇 ar hlarë melme",
+      "backToMainButtonText": "Hlarë na nórë 🔙",
+      "contactText": "Nai melme or ailin hlarë?",
+      "contactButtonText": "Lirna melme! 💌"
+    },
+    "emojiDisplay": {
+      "clickToCopy": "Lirna ar hlarë Enter nai elenath!",
+      "successMessage": "Ailin, hlarë quildë! 💾",
+      "errorMessage": "Lá, melme auta 🤖",
+      "dailyLimitReachedMessage": "Alassëa, emmë quildë limba 🍂",
+      "successStoryMessage": "Ailin, melme emojëa tale 🤖",
+      "errorStoryMessage": "Lá, nai auta melme 🌀",
+      "emojiDisplayTitle": "Emojea Cennas",
+      "dataPrivacyProcessingInfo": "🚀 Emequëa cennas nái ar AI! ✨ Cendë elenath - nai ala elenwë.",
+      "clearButton": "✖️ Laive",
+      "storyButton": "📝 Melme",
+      "storyButtonClicked": "📩 Send melme",
+      "randomButton": "*️⃣ Random"
+    },
+    "donateButton": {
+      "text": "Nai elenë ailin",
+      "openText": "Laive i melme",
+      "textMobile": "☕",
+      "links": [
+        {
+          "id": 1,
+          "href": "https://paypal.me/christophermattch/1",
+          "svgContent": paypalIcon,
+          "alt": "icon paypal",
+          "title": "Paypal.me",
+          "target": "_blank",
+          "rel": "noreferrer"
+        },
+        {
+          "id": 12,
+          "href": "https://ko-fi.com/keymoji_official",
+          "svgContent": kofiIcon,
+          "alt": "icon ko-fi",
+          "title": "Ko-fi",
+          "target": "_blank",
+          "rel": "noreferrer"
+        }
+      ]
+    },
+    "contactForm": {
+      "nameLabel": "🧑🏻 Ilya nána",
+      "emailLabel": "📧 Ilya ëarë",
+      "messageLabel": "✍🏻 Melme ná",
+      "regenerateCaptchaButton": "🔄",
+      "sendButton": "🚀 Hlarë",
+      "successMessage": "Ailin, Melme hlarë - Ailin: < 24 elenwë 🚀",
+      "errorMessage": "Lá, nai auta melme 😟",
+      "requestErrorMessage": "Error melme hlarë, nai lirna arauta 🙁",
+      "smirkingFaceImageAlt": "keymoji emoji smirkingface 1f60f",
+      "introductionTitle": "Alassëa, im Christopher",
+      "introductionText": "Frontend Naírë ar melme ëa hlarë ar cennas userfriendly websitetë. Nai lirna melme arauta.",
+      "privacyNotice": "Nai melme, ar ëarë ná hrestale hlarë 🤲. Ilya ëarë nai quildë ëarë ai melme 🛡️.",
+      "emailText": {
+        "greeting": "Hantale",
+        "intro": "Hantale na melme 📩!",
+        "doubleCheck": "Nai malca elenath, ilya hlarë melme. Nai hlarë melme i réna sinome:",
+        "button": "✅ Hlarë melme",
+        "privacy": "Nai melme, ar ëarë ná hrestale hlarë 🤲. Ilya ëarë nai quildë ëarë ai melme 🛡️."
+      },
+      "backToMainButton": "🔙 Hlarë"
+    },
+    "shareButtons": {
+      "links": [
+        {
+          "id": 1,
+          "href": "https://api.whatsapp.com/send?text=Discover%20Keymoji%2C%20the%20innovative%20Emoji%20Password%20Generator!%20https%3A%2F%2Fkeymoji.wtf",
+          "svgContent": whatsappIcon,
+          "alt": "share on whatsapp",
+          "title": "Whatsapp",
+          "target": "_blank",
+          "rel": "noreferrer"
+        },
+        {
+          "id": 2,
+          "href": "https://www.reddit.com/submit?url=https%3A%2F%2Fkeymoji.wtf&title=Discover%20Keymoji%2C%20the%20Emoji%20Password%20Generator",
+          "svgContent": redditIcon,
+          "alt": "share on reddit",
+          "title": "Reddit",
+          "target": "_blank",
+          "rel": "noreferrer"
+        },
+        {
+          "id": 3,
+          "href": "https://www.linkedin.com/sharing/share-offsite/?url=https://keymoji.wtf",
+          "svgContent": linkedinIcon,
+          "alt": "share on linkedin",
+          "title": "Linkedin",
+          "target": "_blank",
+          "rel": "noreferrer"
+        },
+        {
+          "id": 4,
+          "href": "fb-messenger://share?link=https%3A%2F%2Fkeymoji.wtf&app_id=[578001951341565]",
+          "svgContent": fbmessengerIcon,
+          "alt": "share via facebook messenger",
+          "title": "Messenger",
+          "target": "_blank",
+          "rel": "noreferrer"
+        },
+        {
+          "id": 5,
+          "href": "mailto:?subject=Discover%20Keymoji&body=Try%20out%20Keymoji%2C%20the%20innovative%20Emoji%20Password%20Generator!%20https%3A%2F%2Fkeymoji.wtf",
+          "svgContent": emailIcon,
+          "alt": "share via e-mail",
+          "title": "E-Mail",
+          "target": "_blank",
+          "rel": "noreferrer"
+        },
+        {
+          "id": 6,
+          "href": `https://www.instagram.com/keymoji.wtf/?url=${encodeURIComponent("https://keymoji.wtf")}&text=${encodeURIComponent("Discover Keymoji, the innovative Emoji Password Generator!")}`,
+          "svgContent": instagramIcon,
+          "alt": "share on Instagram",
+          "title": "Instagram",
+          "target": "_blank",
+          "rel": "noreferrer"
+        }
+      ]
+    }
+  }  
 };
 
 export default content;

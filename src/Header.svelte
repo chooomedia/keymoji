@@ -26,7 +26,8 @@
         { code: 'af', name: 'Afrikaans', flag: '🇿🇦', ogLocale: 'af_ZA' },
         { code: 'ja', name: '日本語', flag: '🇯🇵', ogLocale: 'ja_JP' },
         { code: 'ko', name: '한국어', flag: '🇰🇷', ogLocale: 'ko_KO' },
-        { code: 'tlh', name: 'Klingon', flag: '🖖', ogLocale: 'tlh_Qo' }
+        { code: 'tlh', name: 'Klingon', flag: '🖖', ogLocale: 'tlh_Qo' },
+        { code: 'qya', name: 'Elvish', flag: '🦄', ogLocale: 'qya' }
     ];
 
     const toggleLanguageMenu = () => {
@@ -76,7 +77,6 @@
                         </svg>
                         <span>{getText('header.pageTitle')}</span>
                     </a>
-
                 </h2>
             </div>
             <div class="flex items-center md:order-2 rtl:space-x-reverse space-x-2">

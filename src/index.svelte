@@ -1,19 +1,18 @@
 <script>
-  import { Router, Link, Route } from "svelte-routing";
+  import { Router, Route, navigate } from 'svelte-routing';
   import { modalMessage, currentLanguage, darkMode } from './stores.js';
   import { linkedinIcon } from './shapes.js';
   import { fade, fly } from 'svelte/transition';
   import Layout from './Layout.svelte';
+  import Header from './Header.svelte';
+  import UserCounter from './UserCounter.svelte';
   import EmojiDisplay from './EmojiDisplay.svelte';
   import ContactForm from './ContactForm.svelte';
   import ErrorModal from './ErrorModal.svelte';
-  import Header from './Header.svelte';
   import VersionHistory from './VersionHistory.svelte';
   import FixedMenu from './widgets/FixedMenu.svelte';
-  import BlogGrid from './BlogGrid.svelte';
   import content from './content.js';
   import { getText } from './stores.js';
-  import { navigate } from 'svelte-routing';
 
   let url = "";
 
@@ -36,6 +35,7 @@
           <Route path="/">
             <div in:fly={{y: 50, duration: 400, delay: 2400}} out:fade> 
               <section class="flex flex-col justify-center items-center min-h-screen py-5 overflow-auto touch-none z-10 gap-4">
+                <UserCounter />
                 <!-- Main content -->
                 <div class="w-11/12 md:w-26r flex flex-wrap justify-center" role="banner">
                   <h1 class="md:text-3xl text-2xl font-semibold dark:text-white mb-2 text-center w-full">
@@ -74,16 +74,6 @@
 
           <Route path="/versions">
             <VersionHistory currentVersion={content[$currentLanguage]?.header?.pageVersion} />
-          </Route>
-
-          <Route path="/blog">
-            <div in:fly={{y: 50, duration: 400, delay: 400}} out:fade>
-              <section class="container mx-auto py-5 px-4 min-h-screen z-10">
-                <div class="max-w-6xl mx-auto mt-24">
-                  <BlogGrid />
-                </div>
-              </section>
-            </div>
           </Route>
 
           <Route path="/contact">
