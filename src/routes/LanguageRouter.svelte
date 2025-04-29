@@ -1,20 +1,19 @@
 <script>
-    import { Router, Route, navigate } from "svelte-routing";
+    import { Router, Route, navigate } from 'svelte-routing';
     import { onMount, onDestroy } from 'svelte';
     import { currentLanguage, setLanguage } from '../stores/appStores.js';
     import { getSupportedLanguageCodes, getBrowserLanguage } from '../utils/languages.js';
     import Index from '../index.svelte';
     import BlogGrid from '../BlogGrid.svelte';
     import BlogPost from '../BlogPost.svelte';
-    import VersionHistory from "./VersionHistory.svelte";
-    import ContactForm from "./ContactForm.svelte";
+    import VersionHistory from './VersionHistory.svelte';
+    import ContactForm from './ContactForm.svelte';
     import Layout from '../Layout.svelte';
     import NotFound from './NotFound.svelte';
-    import Seo from "../components/Seo.svelte";
+    import Seo from '../components/Seo.svelte';
     
-    // Wichtig: Verwende nur die URL für den initialen Render
-    export let url = "";
-    export let currentVersion = "";
+    export const url = "";
+    export const currentVersion = "";
     
     // Hole die unterstützten Sprachcodes
     const supportedLanguages = getSupportedLanguageCodes();
