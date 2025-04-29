@@ -5,7 +5,6 @@ import {
     isLanguageSupported,
     getSupportedLanguageCodes,
     getBrowserLanguage,
-    appVersion,
     getText as getTextUtil
 } from './utils/languages.js';
 
@@ -78,6 +77,18 @@ const prefersDarkMode =
     window.matchMedia &&
     window.matchMedia('(prefers-color-scheme: dark)').matches;
 export const darkMode = localStore('darkMode', prefersDarkMode);
+
+// Setup dark mode handler - this replaces the reactive statement that was causing issues
+// Note: We need to call this function whenever darkMode changes
+darkMode.subscribe(isDarkMode => {
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        if (isDarkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }
+});
 
 function getInitialLanguage() {
     if (typeof window === 'undefined') return 'en';

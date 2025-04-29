@@ -6,7 +6,7 @@
     import Index from '../index.svelte';
     import BlogGrid from '../BlogGrid.svelte';
     import BlogPost from '../BlogPost.svelte';
-    import VersionHistory from '../VersionHistory.svelte';
+    import VersionHistory from "./VersionHistory.svelte";
     import ContactForm from "./ContactForm.svelte";
     import Layout from '../Layout.svelte';
     import NotFound from './NotFound.svelte';

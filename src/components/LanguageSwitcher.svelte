@@ -91,24 +91,23 @@
     <button
       id="language-toggle-button"
       type="button"
-      class="btn btn-default btn-md flex items-center space-x-2"
+      class="btn btn-default btn-md flex items-center text-base"
       on:click={toggleLanguageMenu}
       aria-label="Change language"
       aria-haspopup="true"
       aria-expanded={$showLanguageMenu}
       aria-controls="language-dropdown-menu"
     >
-      <span class="flag-icon">{getCurrentLanguageInfo(selectedLang).flag}</span>
+      <span class="flag-icon mr-3">{getCurrentLanguageInfo(selectedLang).flag}</span>
       {#if showLabels || display === 'full'}
-      <span class="lang-code uppercase">{getCurrentLanguageInfo(selectedLang).code}</span>
-      {#if display === 'full'}
-        <span class="lang-name hidden md:inline-block">{getCurrentLanguageInfo(selectedLang).name}</span>
-        <span class="dropdown-arrow">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{$showLanguageMenu ? 'transform rotate-180' : ''}">
-            <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-        </span>
-      {/if}
+        <span class="lang-code uppercase">{getCurrentLanguageInfo(selectedLang).code}</span>
+        {#if display === 'full'}
+            <span class="dropdown-arrow ml-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{$showLanguageMenu ? 'transform rotate-180' : ''}">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+            </span>
+        {/if}
       {/if}
     </button>
   
@@ -120,15 +119,15 @@
       aria-orientation="vertical" 
       aria-labelledby="language-toggle-button"
     >
-      <div class="py-2 max-h-80 overflow-y-auto">
-        <ul class="divide-y divide-gray-100 dark:divide-gray-700">
+      <div class="py-2 overflow-y-auto">
+        <ul>
           {#each languages as lang}
             <li
               in:slide={{ y: -5, duration: 400, easing: cubicInOut }} 
               out:slide={{ y: 5, duration: 400, easing: cubicInOut }}
             >
               <button
-                class="flex items-center w-full px-4 py-3 hover:bg-gray-50 dark:hover:bg-aubergine-50 transition-colors {selectedLang === lang.code ? 'font-bold bg-gray-50 dark:bg-aubergine-50' : ''}"
+                class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 text-sm transition-colors {selectedLang === lang.code ? 'font-bold bg-gray-50 dark:bg-aubergine-50' : ''}"
                 role="menuitem"
                 on:click={() => handleLanguageChange(lang.code)}
                 aria-current={selectedLang === lang.code ? 'true' : 'false'}
@@ -159,7 +158,6 @@
 
 .language-dropdown {
     position: absolute;
-    width: max-content;
     min-width: 12rem;
     left: 0;
 }

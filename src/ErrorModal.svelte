@@ -11,10 +11,10 @@
   let lastActiveElement;
 
   // Constants for animation and accessibility
-  const ANIMATION_DURATION = 320;
-  const IMAGE_DISPLAY_DURATION = 1300;
+  const ANIMATION_DURATION = 300;
+  const IMAGE_DISPLAY_DURATION = 1200;
   const MESSAGE_MIN_DURATION = 2000;
-  const MESSAGE_WORD_MULTIPLIER = 200;
+  const MESSAGE_WORD_MULTIPLIER = 210;
 
   // Error types for analytics and aria-labels
   const ERROR_TYPES = {
@@ -122,15 +122,16 @@
     class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-black bg-opacity-95 pb-4" 
     on:keydown={handleKeydown}
     on:click={handleBackdropClick}
-    transition:fade={{ duration: ANIMATION_DURATION }}
+    in:fade={{ duration: ANIMATION_DURATION }}
+    out:fade={{ duration: ANIMATION_DURATION }}
     data-testid="error-modal"
   >
     <div 
-      class="relative flex flex-col items-center justify-center mb-4 px-4"
+      class="relative flex flex-col items-center justify-center mb-4 px-4 md:px-0"
       in:fly={{ y: 20, duration: ANIMATION_DURATION, delay: ANIMATION_DURATION }}
     >
       <img
-        src="../images/keymoji-animated-optimize-resize-160x160px.webp"
+        src="./images/keymoji-animated-optimize-resize-160x160px.webp"
         alt=""
         aria-hidden="true"
         class="w-32 h-32 mb-4 {imageLoaded ? 'opacity-100' : 'opacity-0'} rounded-full pointer-events-none"
@@ -146,7 +147,7 @@
       >
         <h2 
           id="modal-title"
-          class="text-white md:text-2xl text-base font-bold p-2"
+          class="text-white md:text-xl text-base font-bold p-2"
           aria-live="assertive"
           data-message-type={getMessageType(message)}
         >
@@ -156,20 +157,25 @@
           Press Escape to close this message
         </p>
       </div>
-
-      <button 
-        class="w-16 btn btn-fixed btn-md absolute top-5 right-4" 
-        on:click={closeMessage}
-        aria-label="Close notification"
-        in:fade={{ duration: ANIMATION_DURATION, delay: ANIMATION_DURATION }}
-      >
-        ❌
-      </button>
     </div>
+    <button 
+    class="btn btn-fixed absolute top-5 right-4 py-3 px-4" 
+    on:click={closeMessage}
+    aria-label="Close notification"
+    in:fade={{ duration: ANIMATION_DURATION, delay: ANIMATION_DURATION }}
+  >
+    ❌
+  </button>
 </FocusManager>
 {/if}
 
 <style>
+  div[role="dialog"] {
+    &::backdrop {
+      background: rgba(0, 0, 0, 0.95);
+    }
+  }
+
   /* Optimize performance with composited animations */
   img {
     will-change: opacity, transform;

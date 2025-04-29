@@ -59,11 +59,6 @@
       scriptElement.type = 'application/ld+json';
       scriptElement.textContent = JSON.stringify(schema);
       document.head.appendChild(scriptElement);
-  
-      // URL überprüfen
-      if (window.location.pathname === '/' && $currentLanguage) {
-        console.log('Auf Root-Route mit Sprache:', $currentLanguage);
-      }
     });
     
     // Auf Dark Mode Änderungen achten
@@ -80,65 +75,65 @@
       document.documentElement.lang = $currentLanguage;
       console.log('Language changed to:', $currentLanguage);
     }
-  </script>
+</script>
   
-  <SkipLink target="#main-content" />
+<SkipLink target="#main-content" />
   
-  <div 
-    class="wrapper hieroglyphemojis {$darkMode ? 'dark' : ''}" 
-    style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}"
-    aria-hidden="false"
-    data-url={url}
-    data-lang={$currentLanguage}
-  >
-    <main id="main-content" class="main-content">
-      <!-- Direktes Einfügen aller Komponenten von Router -->
-      <slot></slot>
-    </main>
-  </div>
+<div 
+class="wrapper hieroglyphemojis {$darkMode ? 'dark' : ''}" 
+style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}"
+aria-hidden="false"
+data-url={url}
+data-lang={$currentLanguage}
+>
+<main id="main-content" class="main-content">
+    <!-- Direktes Einfügen aller Komponenten von Router -->
+    <slot></slot>
+</main>
+</div>
   
-  <style>
+<style>
+.hieroglyphemojis {
+    animation: gradient 270s ease infinite;
+    background-size: 16%;
+    min-height: 100vh;
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+:global(html) {
+    height: 100%;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+:global(body) {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+:global(.dark) {
+    color-scheme: dark;
+}
+
+.main-content {
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+}
+
+@media (prefers-reduced-motion: reduce) {
     .hieroglyphemojis {
-      animation: gradient 270s ease infinite;
-      background-size: 16%;
-      min-height: 100vh;
+    animation: none;
     }
-  
-    @keyframes gradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-  
+    
     :global(html) {
-      height: 100%;
-      box-sizing: border-box;
-      scroll-behavior: smooth;
+    scroll-behavior: auto;
     }
-  
-    :global(body) {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-    }
-  
-    :global(.dark) {
-      color-scheme: dark;
-    }
-    
-    .main-content {
-      width: 100%;
-      min-height: 100vh;
-      position: relative;
-    }
-    
-    @media (prefers-reduced-motion: reduce) {
-      .hieroglyphemojis {
-        animation: none;
-      }
-      
-      :global(html) {
-        scroll-behavior: auto;
-      }
-    }
-  </style>
+}
+</style>

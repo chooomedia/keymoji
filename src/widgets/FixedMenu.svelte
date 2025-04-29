@@ -85,7 +85,7 @@
 <div id="fixed-menu" class="fixed bottom-4 flex flex-col justify-center items-center w-full z-10">
   {#if showMenu && shareLinks.length > 0}
     <ul 
-    class="w-32 mx-auto rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-auto pt-2" 
+    class="w-34 mx-auto rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-auto pt-2" 
     role="menu" 
     aria-orientation="vertical" 
     aria-labelledby="menu-button">
@@ -96,7 +96,7 @@
         <a 
           href={link.href} 
           target={link.target} 
-          class="flex flex-wrap text-black dark:text-white md:px-4 px-2 py-2 text-sm w-full text-left hover:bg-gray group hover:text-white" 
+          class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 text-sm" 
           role="menuitem" 
           class:active={selectedLink === link} 
           rel={link.rel} 
@@ -104,11 +104,11 @@
           on:click={() => selectLink(shareLinks, link.id)}
         >
           {#if link.svgContent}
-            <svg class="w-5 h-5 mr-1 transition" viewBox="0 0 24 24" fill="currentColor" alt={link.alt || ''}>
+            <svg class="w-5 h-5 mr-3 transition" viewBox="0 0 24 24" fill="currentColor" alt={link.alt || ''}>
               {@html link.svgContent}
             </svg>
           {/if}
-          <p class="text-sm text-gray dark:text-white group-hover:text-white">{link.title || ''}</p>
+          <p class="text-black dark:text-white">{link.title || ''}</p>
         </a>
         </li>
       {/each}
@@ -117,7 +117,7 @@
 
   {#if $showDonateMenu && donateLinks.length > 0}
   <ul 
-    class="w-32 md:mx-7 md:ml-9 mx-auto md:fixed md:right-3 md:bottom-71 rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-auto py-2" 
+    class="w-34 md:mx-7 md:ml-5 mx-auto md:fixed md:right-3 md:bottom-71 rounded-t-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-auto py-2" 
     role="menu" 
     aria-orientation="vertical" 
     aria-labelledby="menu-button">
@@ -129,7 +129,7 @@
         <a 
           href={dlink.href} 
           target={dlink.target} 
-          class="flex flex-wrap text-black dark:text-white md:px-4 px-2 py-2 text-sm w-full text-left hover:bg-gray group hover:text-white" 
+          class="flex flex-wrap text-black dark:text-white md:px-4 px-4 py-3 text-sm w-full text-left hover:bg-aubergine-50" 
           role="menuitem" 
           class:active={selectedLink === dlink} 
           rel={dlink.rel} 
@@ -137,11 +137,11 @@
           on:click={() => selectLink(donateLinks, dlink.id)}
         >
           {#if dlink.svgContent}
-            <svg class="w-5 h-5 mr-1 transition" viewBox="0 0 32 32" fill="currentColor" alt={dlink.alt || ''}>
+            <svg class="w-5 h-5 mr-3 transition" viewBox="0 0 32 32" fill="currentColor" alt={dlink.alt || ''}>
               {@html dlink.svgContent}
             </svg>
           {/if}
-          <p class="text-sm text-gray dark:text-white group-hover:text-white">{dlink.title || ''}</p>
+          <p class="text-black dark:text-white">{dlink.title || ''}</p>
         </a>
       </li>
       {/each}
@@ -151,16 +151,16 @@
   <nav id="fixed-menu-nav" class="bg-creme dark:bg-aubergine rounded-full transition duration-300 ease-in-out transform {align}-0 flex {showMenu ? 'opened' : 'closed'}" aria-label="Main">
     <div class="w-46 justify-center flex space-x-3 border-4 border-creme dark:border-aubergine rounded-full">
       <EraseLocalstorage />
-      <button aria-label="toggle color schema (dark/light)" on:click={toggleDarkMode} class="btn btn-default btn-md">
+      <button aria-label="toggle color schema (dark/light)" on:click={toggleDarkMode} class="btn btn-default btn-menu">
         {#if $darkMode}🌙{:else}🌞{/if}
       </button>
-      <button aria-label="open share menu" on:click={() => toggleMenu('share')} class="{showMenu ? 'opened' : 'closed'} btn btn-default btn-md">
+      <button aria-label="open share menu" on:click={() => toggleMenu('share')} class="{showMenu ? 'opened' : 'closed'} btn btn-default btn-menu">
         {#if showMenu}💔{:else}❤️{/if}
       </button>
-      <button aria-label="navigate to contact form" on:click={navigateToContact} class="btn btn-default btn-md">
+      <button aria-label="navigate to contact form" on:click={navigateToContact} class="btn btn-default btn-menu">
         💌
       </button>
-      <button aria-label="open donation menu" on:click={() => toggleMenu('donate')} class="md:hidden block btn btn-default btn-md">
+      <button aria-label="open donation menu" on:click={() => toggleMenu('donate')} class="md:hidden block btn btn-default btn-menu">
         {#if $showDonateMenu}❌{:else}{$languageText?.donateButton?.textMobile || '☕'}{/if}
       </button>
     </div>
@@ -171,10 +171,11 @@
     data-menu-type="donate"
     aria-label="open donation menu" 
     on:click={() => toggleMenu('donate')} 
-    class="hidden md:flex fixed bottom-4 right-4 items-center space-x-2 btn btn-fixed btn-md">
-    <span>{#if $showDonateMenu}❌{:else}☕{/if}</span>
+    class="hidden md:flex fixed bottom-4 right-4 items-center btn btn-fixed btn-md">
+    <span class="text-base mr-3">{#if $showDonateMenu}❌{:else}☕{/if}
+    </span>
     <span class="text-base">
-      {$showDonateMenu ? $languageText?.donateButton?.openText : $languageText?.donateButton?.text}
+        {$showDonateMenu ? $languageText?.donateButton?.openText : $languageText?.donateButton?.text}
     </span>
   </button>
 </div>
