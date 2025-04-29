@@ -3,20 +3,6 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* 
- * Font-declaration intentionally commented out to prevent build errors
- * The font is loaded dynamically in JS when needed
- */
-/* 
-@font-face {
-    font-family: 'Tengwar Annatar';
-    src: url('../public/fonts/tengwar_annatar.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-*/
-
 ::-webkit-scrollbar {
     display: none;
 }
@@ -274,4 +260,12 @@ body {
 
 .font-elvish #fixed-menu-nav button {
     @apply font-sans;
+}
+
+@font-face {
+    font-family: 'Tengwar Annatar';
+    src: url('../public/fonts/tengwar_annatar.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
 }

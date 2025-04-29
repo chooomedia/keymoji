@@ -6,7 +6,7 @@
     export let label = null; // Custom label
     
     // Get label from translation if not provided
-    $: skipLabel = label || getText('accessibility.skipToContent') || 'Skip to content';
+    $: skipLabel = 'Skip to content';
     
     // Define the missing handleClick function
     function handleClick(event) {

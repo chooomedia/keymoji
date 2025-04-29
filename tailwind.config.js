@@ -11,8 +11,7 @@ module.exports = {
         },
         fontFamily: {
             sans: ['Graphik', 'sans-serif'],
-            serif: ['Merriweather', 'serif'],
-            elvish: ['Tengwar Annatar', 'Graphik', 'sans-serif']
+            serif: ['Merriweather', 'serif']
         },
         extend: {
             colors: {

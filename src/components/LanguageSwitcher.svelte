@@ -39,19 +39,17 @@
       return `/${langCode}${pathSegments.length > 0 ? '/' + pathSegments.join('/') : ''}`;
     }
     
-    // Preload the Elvish font 
-    function preloadElvishFont() {
-      if (elvishFontLoaded) return;
-      
-      const fontLink = document.createElement('link');
-      fontLink.rel = 'preload';
-      fontLink.href = '/fonts/tengwar_annatar.ttf';
-      fontLink.as = 'font';
-      fontLink.type = 'font/ttf';
-      fontLink.crossOrigin = 'anonymous';
-      
-      document.head.appendChild(fontLink);
-      elvishFontLoaded = true;
+    if (document.documentElement.lang === 'qya') {
+        document.body.classList.add('font-elvish');
+        
+        // Preload the font
+        const fontLink = document.createElement('link');
+        fontLink.rel = 'preload';
+        fontLink.href = '/fonts/tengwar_annatar.ttf';
+        fontLink.as = 'font';
+        fontLink.type = 'font/ttf';
+        fontLink.crossOrigin = 'anonymous';
+        document.head.appendChild(fontLink);
     }
     
     function handleLanguageChange(langCode) {
@@ -59,11 +57,6 @@
       if (langCode === selectedLang) {
         $showLanguageMenu = false;
         return;
-      }
-      
-      // If elvish language is selected, ensure font is loaded
-      if (langCode === 'qya') {
-        preloadElvishFont();
       }
       
       // Set language in store
@@ -88,13 +81,6 @@
     
     function getCurrentLanguageInfo(code) {
       return languages.find(lang => lang.code === code) || languages[0];
-    }
-    
-    // Preload the elvish font when hovering over the elvish option
-    function handleMouseOver(lang) {
-      if (lang.code === 'qya' && !elvishFontLoaded) {
-        preloadElvishFont();
-      }
     }
     
     onMount(() => {
@@ -158,7 +144,6 @@
                 class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 text-sm transition-colors {selectedLang === lang.code ? 'font-bold bg-gray-50 dark:bg-aubergine-50' : ''} {lang.code === 'qya' ? 'elvish-language-option' : ''}"
                 role="menuitem"
                 on:click={() => handleLanguageChange(lang.code)}
-                on:focus={() => handleMouseOver(lang)}
                 aria-current={selectedLang === lang.code ? 'true' : 'false'}
               >
                 <span class="flag-icon text-xl mr-3">{lang.flag}</span>
