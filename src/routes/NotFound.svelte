@@ -43,11 +43,11 @@
 <Header />
 
 <!-- Main Content -->
-<div class="flex flex-col justify-center items-center min-h-screen py-5 text-center" 
+<div class="flex flex-col justify-center items-center min-h-screen py-5 text-center content-wrapper" 
      in:fly={{ y: 50, duration: 400, delay: 400 }} 
      out:fly={{ y: -50, duration: 300 }}>
   
-  <div class="w-11/12 md:w-26r bg-creme-80 dark:bg-aubergine-80 backdrop-blur-sm rounded-xl p-8 shadow-lg">
+  <div class="w-11/12 md:w-26r bg-creme-80 dark:bg-aubergine-80 backdrop-blur-sm rounded-xl p-8">
     <h1 class="text-4xl font-bold mb-4 dark:text-white">
       <span class="text-6xl block mb-4">😵</span>
       404

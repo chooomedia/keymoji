@@ -157,8 +157,8 @@ body {
         box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
     }
 
-    :global(.dark) .content-wrapper {
-        box-shadow: 20px 20px 60px #0c0d22, -20px -20px 60px #1c1c1c;
+    .dark .content-wrapper {
+        box-shadow: 20px 20px 60px #0c0d22, 10px 0 60px #7878784e;
     }
 
     .app-container {
