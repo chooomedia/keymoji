@@ -248,7 +248,7 @@ body {
 /* Elvish Font Definition */
 @font-face {
     font-family: 'Tengwar Annatar';
-    src: url('/fonts/tengwar_annatar.ttf') format('truetype');
+    src: url('./tengwar_annatar.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
