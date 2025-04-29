@@ -1,10 +1,14 @@
 <script>
-    import { onMount } from 'svelte';
-    import { currentLanguage, darkMode } from './stores.js';
+    import { onMount, afterUpdate } from 'svelte';
+    import { currentLanguage, darkMode } from './stores/appStores.js';
+    import content from './content.js';
+    import { updatedTime } from './updatedTime.js';
     import SkipLink from './components/A11y/SkipLink.svelte';
+    import ServiceWorkerHandler from './components/ServiceWorkerHandler.svelte';
+    import SEO from './components/Seo.svelte';
     
     // URL für Logging
-    export const url = "";
+    export let url = "";
     
     // Hintergrundbild-Eigenschaften
     const hieroglyphicEmojisSrc = '../images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
@@ -14,80 +18,150 @@
     $: bgImage = `background-image: url("${hieroglyphicEmojisSrc}"), ${$darkMode ? darkGradient : lightGradient}`;
     $: bgBlendMode = $darkMode ? 'multiply' : 'hue';
     
-    // Dynamic font loading for Elvish
-    function loadElvishFont() {
-      if ($currentLanguage === 'qya') {
-        // Add a style tag with font-face declaration
-        const styleId = 'elvish-font-style';
-        
-        // Skip if already added
-        if (!document.getElementById(styleId)) {
-          const style = document.createElement('style');
-          style.id = styleId;
-          style.textContent = `
-            @font-face {
-              font-family: 'Tengwar Annatar';
-              src: url('./fonts/tengwar_annatar.ttf') format('truetype');
-              font-weight: normal;
-              font-style: normal;
-              font-display: swap;
-            }
-            
-            .font-elvish {
-              font-family: 'Tengwar Annatar', 'Graphik', Arial, sans-serif;
-            }
-          `;
-          
-          document.head.appendChild(style);
-          console.log('Added elvish font style');
+    let mounted = false;
+    
+    // Sync the document attributes with store values
+    function syncDocumentWithStores() {
+        // Set language attribute
+        if (document.documentElement.lang !== $currentLanguage) {
+            document.documentElement.lang = $currentLanguage;
         }
         
-        // Add class to body
-        document.body.classList.add('font-elvish');
-      } else {
-        document.body.classList.remove('font-elvish');
-      }
+        // Set dark mode class
+        if ($darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        
+        // Set special language class for Elvish
+        if ($currentLanguage === 'qya') {
+            document.body.classList.add('font-elvish');
+        } else {
+            document.body.classList.remove('font-elvish');
+        }
     }
     
     onMount(() => {
-      // Sprache setzen
-      document.documentElement.lang = $currentLanguage;
-      
-      // Dark Mode Klasse setzen
-      if ($darkMode) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-      
-      // Check if we need to load Elvish font
-      loadElvishFont();
-      
-      // Debug-Information
-      console.log('Layout mounted with URL:', url, 'and language:', $currentLanguage);
-      
-      // REMOVED: No longer adding structured data here to avoid duplication with SEO component
+        // Sync immediately when component mounts
+        syncDocumentWithStores();
+        mounted = true;
+        
+        // Debug-Information
+        console.log('Layout mounted with URL:', url, 'and language:', $currentLanguage);
+        
+        // Schema-Daten nach dem Mount einfügen
+        const schema = {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": content[$currentLanguage]?.index?.pageTitle || "Keymoji",
+            "description": content[$currentLanguage]?.index?.pageDescription || "Emoji Password Generator",
+            "applicationCategory": "SecurityTool",
+            "operatingSystem": "Web Browser",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            },
+            "author": {
+                "@type": "Person",
+                "name": "Christopher Matt",
+                "url": "https://www.linkedin.com/in/chooomedia/",
+                "jobTitle": "Frontend Developer",
+                "worksFor": "CHOOOMEDIA"
+            },
+            "url": "https://keymoji.wtf",
+            "inLanguage": $currentLanguage,
+            "dateModified": updatedTime
+        };
+        
+        const scriptElement = document.createElement('script');
+        scriptElement.type = 'application/ld+json';
+        scriptElement.textContent = JSON.stringify(schema);
+        document.head.appendChild(scriptElement);
+        
+        // Check for service worker updates
+        if (sessionStorage.getItem('swUpdateAvailable') === 'true') {
+            // Clear the flag
+            sessionStorage.removeItem('swUpdateAvailable');
+            
+            // Add a small delay to ensure the app is fully mounted
+            setTimeout(() => {
+                const refreshMessage = content[$currentLanguage]?.serviceWorker?.refreshPrompt || 
+                    'Refresh to use the latest version';
+                
+                // Create a notification element
+                const notification = document.createElement('div');
+                notification.className = 
+                    'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-yellow text-black py-2 px-4 rounded-full shadow-lg';
+                notification.textContent = refreshMessage;
+                
+                // Add a refresh button
+                const refreshButton = document.createElement('button');
+                refreshButton.textContent = '🔄';
+                refreshButton.className = 'ml-2 font-bold';
+                refreshButton.addEventListener('click', () => {
+                    window.location.reload();
+                });
+                
+                notification.appendChild(refreshButton);
+                document.body.appendChild(notification);
+                
+                // Auto-remove after 10 seconds
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 10000);
+            }, 1000);
+        }
+        
+        return () => {
+            // Clean up schema script if component unmounts
+            if (scriptElement.parentNode) {
+                document.head.removeChild(scriptElement);
+            }
+        };
     });
     
-    // Auf Dark Mode Änderungen achten
-    $: if ($darkMode !== undefined) {
-      if ($darkMode) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+    // Watch for store changes and update document accordingly
+    afterUpdate(() => {
+        if (mounted) {
+            syncDocumentWithStores();
+        }
+    });
+    
+    // We also use reactive statements to ensure changes are reflected
+    $: if (mounted && $darkMode !== undefined) {
+        if ($darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     }
     
-    // Auf Sprachänderungen achten
-    $: if ($currentLanguage) {
-      document.documentElement.lang = $currentLanguage;
-      if (typeof document !== 'undefined') {
-        loadElvishFont();
-      }
-      console.log('Language changed to:', $currentLanguage);
+    $: if (mounted && $currentLanguage) {
+        document.documentElement.lang = $currentLanguage;
+        console.log('Language changed to:', $currentLanguage);
+        
+        // Update special language class
+        if ($currentLanguage === 'qya') {
+            document.body.classList.add('font-elvish');
+        } else {
+            document.body.classList.remove('font-elvish');
+        }
     }
 </script>
   
+<!-- Global SEO component that will be managed by the SEO store -->
+<SEO 
+  url={url}
+  pageType="global" 
+/>
+
+<!-- Service Worker update handler -->
+<ServiceWorkerHandler />
+
 <SkipLink target="#main-content" />
   
 <div 
@@ -96,7 +170,7 @@
     aria-hidden="false"
     data-url={url}
     data-lang={$currentLanguage}
-    >
+>
     <main id="main-content" class="main-content">
         <!-- Direktes Einfügen aller Komponenten von Router -->
         <slot></slot>
@@ -140,11 +214,11 @@
 
 @media (prefers-reduced-motion: reduce) {
     .hieroglyphemojis {
-    animation: none;
+        animation: none;
     }
     
     :global(html) {
-    scroll-behavior: auto;
+        scroll-behavior: auto;
     }
 }
 </style>

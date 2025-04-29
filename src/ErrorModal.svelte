@@ -1,6 +1,6 @@
 <script>
   import { fade, fly } from 'svelte/transition';
-  import { modalMessage, isModalVisible } from './stores.js';
+  import { modalMessage, isModalVisible } from './stores/appStores.js';
   import FocusManager from './components/A11y/FocusManager.svelte';
 
   // State management
@@ -131,7 +131,7 @@
       in:fly={{ y: 20, duration: ANIMATION_DURATION, delay: ANIMATION_DURATION }}
     >
       <img
-        src="./images/keymoji-animated-optimize-resize-160x160px.webp"
+        src="../images/keymoji-animated-optimize-resize-160x160px.webp"
         alt=""
         aria-hidden="true"
         class="w-32 h-32 mb-4 {imageLoaded ? 'opacity-100' : 'opacity-0'} rounded-full pointer-events-none"

@@ -79,13 +79,13 @@ function fixAllFiles() {
     }
 
     // Check if both Seo.svelte and SEO.svelte exist, and standardize to Seo.svelte
-    const seoPath = path.join(componentsDir, 'SEO.svelte');
+    const seoPath = path.join(componentsDir, 'Seo.svelte');
     const seoLowerPath = path.join(componentsDir, 'Seo.svelte');
 
     if (fs.existsSync(seoPath) && !fs.existsSync(seoLowerPath)) {
         // If only SEO.svelte exists, copy it to Seo.svelte for consistency
         fs.copyFileSync(seoPath, seoLowerPath);
-        console.log('Copied SEO.svelte to Seo.svelte for consistency');
+        console.log('Copied Seo.svelte to Seo.svelte for consistency');
     }
 
     // Fix imports in all specified files

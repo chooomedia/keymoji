@@ -2,7 +2,7 @@
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { onMount, createEventDispatcher } from 'svelte';
-    import { currentLanguage, setLanguage, showLanguageMenu } from '../stores.js';
+    import { currentLanguage, setLanguage, showLanguageMenu } from '../stores/appStores.js';
     import { supportedLanguages } from '../utils/languages.js';
     import { navigate } from "svelte-routing";
     
@@ -158,7 +158,7 @@
                 class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 text-sm transition-colors {selectedLang === lang.code ? 'font-bold bg-gray-50 dark:bg-aubergine-50' : ''} {lang.code === 'qya' ? 'elvish-language-option' : ''}"
                 role="menuitem"
                 on:click={() => handleLanguageChange(lang.code)}
-                on:mouseover={() => handleMouseOver(lang)}
+                on:focus={() => handleMouseOver(lang)}
                 aria-current={selectedLang === lang.code ? 'true' : 'false'}
               >
                 <span class="flag-icon text-xl mr-3">{lang.flag}</span>

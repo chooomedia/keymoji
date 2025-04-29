@@ -1,7 +1,8 @@
 <script>
     import { fade, fly } from 'svelte/transition';
     import { onMount } from 'svelte';
-    import { modalMessage, currentLanguage, darkMode } from './stores.js';
+    import { modalMessage, currentLanguage, darkMode, getText } from './stores/appStores.js';
+    import { updateSeo } from './stores/seoStore.js';
     import { linkedinIcon } from './shapes.js';
     import { navigate } from 'svelte-routing';
     import Header from './Header.svelte';
@@ -10,8 +11,7 @@
     import ErrorModal from './ErrorModal.svelte';
     import FixedMenu from './widgets/FixedMenu.svelte';
     import content from './content.js';
-    import { getText } from './stores.js';
-    
+  
     // Debug-Flag - für die Produktion entfernen
     let showDebug = process.env.NODE_ENV === 'development' && (window.location.search.includes('debug=true'));
   
@@ -23,6 +23,14 @@
     }
     
     onMount(() => {
+      // Update SEO settings for the index page
+      updateSeo({
+        title: content[$currentLanguage]?.index?.pageTitle || "Emoji Password Generator",
+        description: content[$currentLanguage]?.index?.pageDescription || "Generate secure emoji passwords for better online security.",
+        url: window.location.pathname,
+        pageType: "index"
+      });
+      
       // Als gerendert markieren
       isRendered = true;
       
@@ -30,15 +38,13 @@
       console.log('Index component mounted with language:', $currentLanguage);
       console.log('Current URL:', window.location.pathname);
     });
-  </script>
+</script>
   
-  {#if showDebug}
-  <div style="position: fixed; top: 0; left: 0; background: rgba(0,0,0,0.8); color: white; z-index: 9999; padding: 10px;">
-      Current Path: {window.location.pathname} | Language: {$currentLanguage} | Rendered: {isRendered}
-  </div>
-  {/if}
-  
-  <!-- SEO wird jetzt vom LanguageRouter gehandhabt -->
+{#if showDebug}
+<div style="position: fixed; top: 0; left: 0; background: rgba(0,0,0,0.8); color: white; z-index: 9999; padding: 10px;">
+    Current Path: {window.location.pathname} | Language: {$currentLanguage} | Rendered: {isRendered}
+</div>
+{/if}
   
 <!-- App Container -->
 <main class="app-container" data-lang={$currentLanguage}>

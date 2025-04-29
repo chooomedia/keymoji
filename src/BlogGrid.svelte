@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { currentLanguage } from './stores.js';
+    import { currentLanguage } from './stores/appStores.js';
     import { linkedinIcon, fbmessengerIcon, whatsappIcon, emailIcon, redditIcon, instagramIcon } from './shapes.js';
     
     let posts = [];

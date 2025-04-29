@@ -3,7 +3,7 @@
   import { cubicInOut } from 'svelte/easing';
   import { navigate } from "svelte-routing";
   import EraseLocalstorage from '../EraseLocalstorage.svelte';
-  import { darkMode, showDonateMenu, languageText } from '../stores.js';
+  import { darkMode, showDonateMenu, languageText } from '../stores/appStores.js';
   import { createEventDispatcher, onMount } from 'svelte';
 
   const dispatch = createEventDispatcher();

@@ -1,9 +1,8 @@
 <script>
-    import { Router, Route, navigate, link } from "svelte-routing";
+    import { Router, Route, navigate } from "svelte-routing";
     import { onMount, onDestroy } from 'svelte';
-    import { currentLanguage, setLanguage } from '../stores.js';
-    import { getSupportedLanguageCodes } from '../utils/languages.js';
-    import SEO from '../components/Seo.svelte';
+    import { currentLanguage, setLanguage } from '../stores/appStores.js';
+    import { getSupportedLanguageCodes, getBrowserLanguage } from '../utils/languages.js';
     import Index from '../index.svelte';
     import BlogGrid from '../BlogGrid.svelte';
     import BlogPost from '../BlogPost.svelte';
@@ -11,6 +10,7 @@
     import ContactForm from "./ContactForm.svelte";
     import Layout from '../Layout.svelte';
     import NotFound from './NotFound.svelte';
+    import SEO from '../components/Seo.svelte';
     
     // Wichtig: Verwende nur die URL für den initialen Render
     export let url = "";
@@ -23,59 +23,86 @@
     let currentPath = "";
     let currentPageType = "home";
     let pageURL = "";
+    let initialRouteProcessed = false;
     
     function handleRouteChange() {
       // Extrahiere den aktuellen Pfad
       currentPath = window.location.pathname;
-      pageURL = currentPath;
       
-      // Bestimme den Seitentyp basierend auf dem Pfad
-      if (currentPath.includes('/blog/')) {
-        currentPageType = "blog-post";
-      } else if (currentPath.includes('/blog')) {
-        currentPageType = "blog";
-      } else if (currentPath.includes('/versions')) {
-        currentPageType = "versions";
-      } else if (currentPath.includes('/contact')) {
-        currentPageType = "contact";
-      } else {
-        currentPageType = "home";
+      // Parse URL parameters for action=random functionality
+      const urlParams = new URLSearchParams(window.location.search);
+      const action = urlParams.get('action');
+      
+      // Check if we are on the root route with action=random
+      if ((currentPath === '/' || currentPath === '') && action === 'random') {
+        // We'll navigate to the correct language but keep the action parameter
+        navigate(`/${$currentLanguage}?action=random`, { replace: true });
+        return;
       }
       
-      // Überprüfe, ob wir auf der Root-Route sind
-      if (currentPath === '/' || currentPath === '') {
+      // Check if we're on the root route without any parameters
+      if ((currentPath === '/' || currentPath === '') && !action) {
         navigate(`/${$currentLanguage}`, { replace: true });
         return;
       }
       
-      // Überprüfe, ob die URL einen Sprachcode enthält
+      // Extract path segments for language detection
       const pathSegments = currentPath.split('/').filter(segment => segment !== '');
       const potentialLang = pathSegments[0];
       
+      // If first segment is a valid language code
       if (potentialLang && supportedLanguages.includes(potentialLang)) {
-        // Setze die Sprache basierend auf der URL
+        // Set the language based on URL if it's different
         if (potentialLang !== $currentLanguage) {
-          console.log('Setze Sprache von URL:', potentialLang);
+          console.log('Setting language from URL:', potentialLang);
           setLanguage(potentialLang);
         }
       } else if (pathSegments.length > 0) {
-        // Füge Sprachcode zur URL hinzu, wenn nicht vorhanden
-        navigate(`/${$currentLanguage}${currentPath}`, { replace: true });
+        // URL has a path but no language code - add current language
+        const newPath = `/${$currentLanguage}${currentPath}`;
+        console.log('Adding language to path:', newPath);
+        navigate(newPath, { replace: true });
       }
     }
     
+    function getBrowserPreferredLanguage() {
+      return getBrowserLanguage();
+    }
+    
     onMount(() => {
-      // Initial Route-Change verarbeiten
-      handleRouteChange();
+      // Set initial language from URL, localStorage, or browser preference
+      const pathSegments = window.location.pathname.split('/').filter(segment => segment !== '');
+      const potentialLang = pathSegments[0];
       
-      // Event-Listener für Navigation hinzufügen
+      if (potentialLang && supportedLanguages.includes(potentialLang)) {
+        // URL has a language - use it
+        if (potentialLang !== $currentLanguage) {
+          setLanguage(potentialLang);
+        }
+      } else {
+        // No language in URL - check localStorage or browser preference
+        const storedLang = localStorage.getItem('language');
+        const preferredLang = storedLang && supportedLanguages.includes(JSON.parse(storedLang)) 
+          ? JSON.parse(storedLang) 
+          : getBrowserPreferredLanguage();
+          
+        if (preferredLang && preferredLang !== $currentLanguage) {
+          setLanguage(preferredLang);
+        }
+      }
+      
+      // Process initial route after language is set
+      setTimeout(() => {
+        handleRouteChange();
+        initialRouteProcessed = true;
+      }, 50);
+      
+      // Add listeners for navigation
       window.addEventListener('popstate', handleRouteChange);
       
-      // Handler für Klicks auf Links mit Daten-Attributen hinzufügen
+      // Handle clicks on language-link elements
       document.addEventListener('click', (e) => {
-        // Wenn auf einen Link mit dem Attribut "data-language-link" geklickt wurde
         if (e.target.closest('[data-language-link]')) {
-          // Route-Change nach einem kurzen Timeout verarbeiten
           setTimeout(handleRouteChange, 50);
         }
       });
@@ -85,22 +112,32 @@
       window.removeEventListener('popstate', handleRouteChange);
     });
     
-    // Beobachte Änderungen an currentLanguage
-    $: {
-      if ($currentLanguage && currentPath && !currentPath.startsWith(`/${$currentLanguage}`)) {
-        // Aktualisiere den Pfad mit der neuen Sprache
-        const pathSegments = currentPath.split('/').filter(segment => segment !== '');
-        if (pathSegments.length > 0 && supportedLanguages.includes(pathSegments[0])) {
-          // Ersetze den vorhandenen Sprachcode
-          pathSegments[0] = $currentLanguage;
+    // Watch for changes to currentLanguage and update path if needed
+    $: if (initialRouteProcessed && $currentLanguage && currentPath) {
+      const pathSegments = currentPath.split('/').filter(segment => segment !== '');
+      
+      if (pathSegments.length > 0) {
+        if (supportedLanguages.includes(pathSegments[0])) {
+          // Path has a language code - replace it
+          if (pathSegments[0] !== $currentLanguage) {
+            pathSegments[0] = $currentLanguage;
+            const newPath = `/${pathSegments.join('/')}`;
+            
+            // Preserve query parameters
+            const query = window.location.search;
+            navigate(`${newPath}${query}`, { replace: true });
+          }
         } else {
-          // Füge einen Sprachcode hinzu
-          pathSegments.unshift($currentLanguage);
+          // Path has no language code - add it
+          const newPath = `/${$currentLanguage}/${pathSegments.join('/')}`;
+          
+          // Preserve query parameters
+          const query = window.location.search;
+          navigate(`${newPath}${query}`, { replace: true });
         }
-        const newPath = `/${pathSegments.join('/')}`;
-        if (newPath !== currentPath) {
-          navigate(newPath, { replace: true });
-        }
+      } else if (currentPath === '/') {
+        // Root path - add language
+        navigate(`/${$currentLanguage}${window.location.search}`, { replace: true });
       }
     }
 </script>
@@ -110,10 +147,10 @@
   pageType={currentPageType} 
   url={pageURL}
 />
-
+  
 <Router {url}>
     <Layout>
-      <!-- Flachere Struktur für Routen -->
+      <!-- Language-aware routes -->
       <Route path="/" component={Index} />
       <Route path="/:lang" component={Index} />
       
@@ -133,7 +170,7 @@
       <Route path="/contact" component={ContactForm} />
       <Route path="/:lang/contact" component={ContactForm} />
       
-      <!-- Fallback Route -->
-      <Route component={NotFound} />
+      <!-- Fallback Route for 404 -->
+      <Route path="*" component={NotFound} />
     </Layout>
 </Router>

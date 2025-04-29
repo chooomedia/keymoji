@@ -1,5 +1,5 @@
 <script>
-    import { modalMessage, currentLanguage } from '../stores.js';
+    import { modalMessage, currentLanguage } from '../stores/appStores.js';
     import content from '../content.js';
     import { navigate } from "svelte-routing";
     import { fade, fly, scale } from 'svelte/transition';

@@ -1,10 +1,11 @@
+<!-- src/EmojiDisplay.svelte (update) -->
 <script>
     import { fly } from 'svelte/transition';
     import { onMount } from 'svelte';
-    import { currentLanguage, modalMessage, successfulStoryRequests, isModalVisible, isDisabled } from './stores.js';
+    import { currentLanguage, modalMessage, successfulStoryRequests, isModalVisible, isDisabled } from './stores/appStores.js';
     import emojisData from '../public/emojisArray.json';
     import content from './content.js';
-  
+
     // Props
     export let showEmojiCodes = false;
   
@@ -15,6 +16,7 @@
     let showTextArea = false;
     let shouldAnimateEmojis = false;
     let isStoryMode = false;
+    let initialRenderComplete = false;
   
     const emojis = emojisData.emojis;
   
@@ -26,7 +28,33 @@
     // Lifecycle
     onMount(() => {
       checkAndResetDailyLimit();
-      generateRandomEmojis();
+      
+      // Check for direct URL with action=random
+      const urlParams = new URLSearchParams(window.location.search);
+      const action = urlParams.get('action');
+      
+      // Only generate random emoji on direct landing with action=random
+      // or when first loading the app (not when navigating back to home)
+      if (action === 'random' || !initialRenderComplete) {
+        generateRandomEmojis();
+        
+        // If this is an API request (action=random), prepare JSON response
+        if (action === 'random') {
+          // For API use - could expose the emoji data through a custom DOM element
+          // that external scripts can read
+          const apiResponseElement = document.createElement('script');
+          apiResponseElement.id = 'keymoji-api-response';
+          apiResponseElement.type = 'application/json';
+          apiResponseElement.textContent = JSON.stringify({
+            emojis: randomEmojis,
+            timestamp: new Date().toISOString(),
+            count: emojiCount
+          });
+          document.head.appendChild(apiResponseElement);
+        }
+      }
+      
+      initialRenderComplete = true;
     });
   
     // Main Functions
@@ -253,11 +281,9 @@
         shouldAnimateEmojis = true;
       }, 1000);
     }
-  </script>
+</script>
   
-  <!-- Removed SEO component -->
-  
-  <div id="emoji-password-generator" class="flex flex-col space-t-6 rounded-xl relative">
+<div id="emoji-password-generator" class="flex flex-col space-t-6 rounded-xl relative">
     <!-- Emoji Display Section -->
     <button 
       id="emoji-display" 
@@ -368,4 +394,4 @@
         {content[$currentLanguage].emojiDisplay.randomButton}
       </button>
     </div>
-  </div>
+</div>

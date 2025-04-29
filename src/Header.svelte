@@ -3,7 +3,7 @@
     import { hamburger } from "./shapes.js";
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
-    import { currentLanguage, showLanguageMenu, getText, isDisabled } from './stores.js';
+    import { currentLanguage, showLanguageMenu, getText, isDisabled } from './stores/appStores.js';
     import GitButton from './widgets/GitButton.svelte';
     import content from './content.js';
     import { createEventDispatcher } from 'svelte';

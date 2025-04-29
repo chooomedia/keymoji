@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { currentLanguage, darkMode, showShareMenu } from './stores.js';
+    import { currentLanguage, darkMode, showShareMenu } from './stores/appStores.js';
   
     export let slug;
     

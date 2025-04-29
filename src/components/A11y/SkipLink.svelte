@@ -1,5 +1,5 @@
 <script>
-    import { currentLanguage, getText } from '../../stores.js';
+    import { currentLanguage, getText } from '../../stores/appStores.js';
     
     // Props
     export let target = "#main-content"; // ID of the main content

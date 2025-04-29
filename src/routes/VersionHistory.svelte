@@ -1,8 +1,12 @@
+<!-- src/routes/VersionHistory.svelte -->
 <script>
     import { fly } from 'svelte/transition';
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { navigate } from "svelte-routing";
     import { versions } from '../versions.js';
+    import { updateSeo } from '../stores/seoStore.js';
+    import Header from '../Header.svelte';
+    import FixedMenu from '../widgets/FixedMenu.svelte';
   
     export let currentVersion;
     let timelineHeight = 0;
@@ -38,12 +42,64 @@
     }
   
     onMount(() => {
+      // Update SEO settings for this page
+      updateSeo({
+        title: "Version History - Keymoji",
+        description: "Check out the development history and changelog of Keymoji, the emoji password generator.",
+        url: window.location.pathname,
+        pageType: "versions"
+      });
+      
       updateTimelineHeight();
       // Listener für Größenänderungen
       window.addEventListener('resize', updateTimelineHeight);
       
-      // MutationObserver für dynamische Inhaltsänderungen
-      const observer = new MutationObserver(updateTimelineHeight);
+      // Schema injection
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Keymoji",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "softwareVersion": currentVersion,
+        "releaseNotes": Object.entries(versions).map(([version, details]) => ({
+          "@type": "SoftwareApplication",
+          "version": version,
+          "datePublished": details.date,
+          "description": Object.entries(details)
+            .filter(([category]) => category !== 'date')
+            .map(([_, content]) => 
+              Object.values(content)
+                .map(data => `${data.title}: ${data.improvements.join(', ')}`)
+                .join('. ')
+            ).join('. ')
+        }))
+      });
+      document.head.appendChild(script);
+      
+      return () => {
+        window.removeEventListener('resize', updateTimelineHeight);
+        if (script.parentNode) {
+          document.head.removeChild(script);
+        }
+      };
+    });
+  
+    function navigateBack() {
+      navigate("/", { replace: true });
+    }
+  
+    // MutationObserver für dynamische Inhaltsänderungen
+    let observer;
+    onMount(() => {
+      observer = new MutationObserver(updateTimelineHeight);
       versionItems.forEach(item => {
         if (item) {
           observer.observe(item, { 
@@ -54,29 +110,24 @@
         }
       });
   
-      return () => {
-        window.removeEventListener('resize', updateTimelineHeight);
-        observer.disconnect();
-      };
+      return () => observer.disconnect();
     });
-  
-    function navigateBack() {
-      navigate("/", { replace: true });
-    }
 </script>
-
-<div class="container mx-auto px-4 py-8 ">
-    <div class="my-8 text-center">
+  
+<Header />
+  
+<div class="container mx-auto px-4 py-8">
+    <div class="my-8 text-center pt-10">
       <h1 class="text-3xl font-bold text-black dark:text-white">
         Version History
       </h1>
       <button 
-      on:click={navigateBack}
-      class="mb-6 inline-flex items-center text-gray-600 dark:text-gray hover:text-yellow transition-all duration-300"
-    >
-      <span class="mr-2">←</span> Back to App
-    </button>
-  </div>
+        on:click={navigateBack}
+        class="mb-6 inline-flex items-center text-gray-600 dark:text-gray hover:text-yellow transition-all duration-300"
+      >
+        <span class="mr-2">←</span> Back to App
+      </button>
+    </div>
   
     <div class="max-w-3xl mx-auto relative">
       <!-- Dynamische Timeline-Linie -->
@@ -137,6 +188,9 @@
       {/each}
     </div>
 </div>
+  
+  <!-- Fixed Menu -->
+<FixedMenu align={'bottom'} />
   
 <style>
     .transition-height {
