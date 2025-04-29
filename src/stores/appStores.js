@@ -73,20 +73,23 @@ async function fetchCounter() {
         const origin = window.location.origin;
         if (!ALLOWED_ORIGINS.has(origin)) return;
 
-        const response = await fetch(
-            'https://n8n.chooomedia.com/webhook-test/xn--moji-pb73c-userCounter',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Origin: origin
-                },
-                body: JSON.stringify({
-                    client: navigator.userAgent.substring(0, 80),
-                    path: window.location.pathname.replace(/\/$/, '')
-                })
-            }
-        );
+        const webhookUrl =
+            process.env.NODE_ENV === 'development'
+                ? 'https://n8n.chooomedia.com/webhook-test/xn--moji-pb73c-userCounter'
+                : 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-userCounter';
+
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Origin: origin
+            },
+            body: JSON.stringify({
+                client: navigator.userAgent.substring(0, 80),
+                path: window.location.pathname.replace(/\/$/, ''),
+                env: process.env.NODE_ENV // Optional für Debugging
+            })
+        });
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
