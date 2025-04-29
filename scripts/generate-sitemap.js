@@ -1,35 +1,49 @@
 // scripts/generate-sitemap.js
 const fs = require('fs');
 const path = require('path');
-const { updatedTime } = require('../src/updatedTime.js');
 
-// Read content.js to extract language codes
-// Use dynamic require to allow running this script in different environments
-let languages = [];
+// Prüfe ob updatedTime.js importiert werden kann
+let updatedTime;
 try {
-    // Get content.js to extract language codes
-    const contentPath = path.join(__dirname, '../src/content.js');
+    const updatedTimePath = path.join(__dirname, '../src/updatedTime.js');
+    const updatedTimeContent = fs.readFileSync(updatedTimePath, 'utf8');
 
-    // Read content.js as string to extract language codes via regex
-    const contentFile = fs.readFileSync(contentPath, 'utf8');
-    const languageRegex = /['"]([a-z]{2,4})['"]:\s*{/g;
-    let match;
-
-    while ((match = languageRegex.exec(contentFile)) !== null) {
-        // Skip 'logo' which isn't a language code
-        if (match[1] !== 'logo') {
-            languages.push(match[1]);
-        }
-    }
-
-    if (languages.length === 0) {
-        console.warn('No languages found in content.js, using default [en]');
-        languages = ['en'];
+    // Extrahiere das Datum mit Regex (robuster als Import)
+    const dateMatch = updatedTimeContent.match(
+        /['"](\d{4}-\d{2}-\d{2}T[^'"]+)['"]/
+    );
+    if (dateMatch && dateMatch[1]) {
+        updatedTime = dateMatch[1];
+    } else {
+        updatedTime = new Date().toISOString();
+        console.warn(
+            'Could not extract date from updatedTime.js, using current date'
+        );
     }
 } catch (error) {
-    console.error('Error reading content.js:', error);
-    languages = ['en'];
+    console.warn('Error reading updatedTime.js:', error);
+    updatedTime = new Date().toISOString();
 }
+
+// Definiere die unterstützten Sprachen manuell, um Probleme beim Parsen von content.js zu vermeiden
+const languages = [
+    'en',
+    'de',
+    'dech',
+    'es',
+    'nl',
+    'it',
+    'fr',
+    'pl',
+    'da',
+    'ru',
+    'tr',
+    'af',
+    'ja',
+    'ko',
+    'tlh',
+    'qya'
+];
 
 // Define the base URL
 const baseUrl = 'https://keymoji.wtf';
@@ -50,7 +64,7 @@ routes.forEach(route => {
     // Default URL (no language prefix)
     sitemapContent += `    <loc>${baseUrl}${route}</loc>\n`;
 
-    // Add lastmod date from the updatedTime.js file
+    // Add lastmod date from the updatedTime
     sitemapContent += `    <lastmod>${updatedTime.split('T')[0]}</lastmod>\n`;
 
     // Set change frequency

@@ -10,7 +10,8 @@
     import ContactForm from './ContactForm.svelte';
     import Layout from '../Layout.svelte';
     import NotFound from './NotFound.svelte';
-    import SEO from '../components/Seo.svelte';
+    // Korrektur der Case-Sensitivity beim Import
+    import SEO from '../components/SEO.svelte';
     
     export const url = "";
     export const currentVersion = "";
@@ -132,9 +133,23 @@
         } else {
             // No language in URL - check localStorage or browser preference
             const storedLang = localStorage.getItem('language');
-            const preferredLang = storedLang && supportedLanguages.includes(JSON.parse(storedLang)) 
-            ? JSON.parse(storedLang) 
-            : getBrowserPreferredLanguage();
+            let preferredLang;
+            
+            try {
+                // Sicherer Parse von localStorage
+                preferredLang = storedLang ? JSON.parse(storedLang) : null;
+                if (preferredLang && !supportedLanguages.includes(preferredLang)) {
+                    preferredLang = null;
+                }
+            } catch (e) {
+                preferredLang = null;
+                console.warn('Error parsing stored language', e);
+            }
+            
+            // Fallback auf Browser-Präferenz
+            if (!preferredLang) {
+                preferredLang = getBrowserPreferredLanguage();
+            }
             
             if (preferredLang && preferredLang !== $currentLanguage) {
                 setLanguage(preferredLang);
