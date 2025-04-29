@@ -218,10 +218,3 @@
     {/each}
 </main>
 {/if}
-<style>
-    .columns {
-      columns: 3 300px;
-      column-gap: 1.5rem;
-      width: 100%;
-    }
-</style>

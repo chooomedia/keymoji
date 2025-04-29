@@ -109,39 +109,3 @@
     <!-- Fixed Menu -->
     <FixedMenu align={'bottom'} />
 </main>
-  
-<style>
-.content-wrapper {
-    box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
-}
-
-:global(.dark) .content-wrapper {
-    box-shadow: 20px 20px 60px #0c0d22, -20px -20px 60px #1c1c1c;
-}
-
-.app-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-/* Sicherstellen der Inhalts-Sichtbarkeit während Animationen */
-:global(body) {
-    overflow-x: hidden;
-}
-
-/* Barrierefreiheitsverbesserungen */
-:global(button:focus-visible),
-:global(a:focus-visible) {
-    outline: 2px solid #f4ab25;
-    outline-offset: 2px;
-}
-
-/* Animationen reduzieren falls gewünscht */
-@media (prefers-reduced-motion: reduce) {
-    :global(div[in], div[out]) {
-    transition: none !important;
-    animation: none !important;
-    }
-}
-</style>

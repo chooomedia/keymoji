@@ -178,31 +178,3 @@
     </div>
     {/if}
 </div>
-    
-<style>
-.language-switcher {
-    position: relative;
-    z-index: 50;
-}
-
-.language-dropdown {
-    position: absolute;
-    min-width: 12rem;
-    left: 0;
-}
-
-/* Focus styles for accessibility */
-button:focus-visible {
-    outline: 2px solid #f4ab25;
-    outline-offset: 2px;
-}
-
-/* Special style for elvish language option */
-.elvish-language-option {
-    position: relative;
-}
-
-.elvish-language-option:hover::after {
-    opacity: 1;
-}
-</style>

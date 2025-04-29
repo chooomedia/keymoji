@@ -163,17 +163,3 @@
   <div bind:this={trapElement} class="focus-trap">
     <slot></slot>
   </div>
-  
-  <style>
-    .focus-trap {
-      width: 100%;
-      height: 100%;
-      display: contents;
-    }
-    
-    /* Global styles for focus visibility - add to your global CSS */
-    :global(:focus-visible) {
-      outline: 2px solid #f4ab25;
-      outline-offset: 2px;
-    }
-  </style>

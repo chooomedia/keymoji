@@ -64,9 +64,8 @@
     
     // Compute alternate language URLs
     $: alternateUrls = Object.keys(content)
-        .filter(lang => lang !== 'logo')
         .map(lang => {
-            const langPath = $seo.url ? `/${lang}${$seo.url}` : `/${lang}`;
+            const langPath = $seo.url ? `/${lang}` : `/${lang}`;
             return {
                 lang,
                 url: `https://keymoji.wtf${langPath}`

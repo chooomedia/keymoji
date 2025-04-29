@@ -21,6 +21,58 @@
     display: none;
 }
 
+.hieroglyphemojis {
+    animation: gradient 270s ease infinite;
+    background-size: 16%;
+    min-height: 100vh;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+:global(html) {
+    height: 100%;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+:global(body) {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+:global(.dark) {
+    color-scheme: dark;
+}
+
+.main-content {
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hieroglyphemojis {
+        animation: none;
+    }
+
+    :global(html) {
+        scroll-behavior: auto;
+    }
+}
+
 /* Hide scrollbar for IE, Edge and Firefox */
 * {
     -ms-overflow-style: none;
@@ -93,6 +145,118 @@ body {
 
     .btn-lg {
         @apply px-6 py-4 text-3xl;
+    }
+
+    .columns {
+        columns: 3 300px;
+        column-gap: 1.5rem;
+        width: 100%;
+    }
+
+    .content-wrapper {
+        box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
+    }
+
+    :global(.dark) .content-wrapper {
+        box-shadow: 20px 20px 60px #0c0d22, -20px -20px 60px #1c1c1c;
+    }
+
+    .app-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    /* Sicherstellen der Inhalts-Sichtbarkeit während Animationen */
+    :global(body) {
+        overflow-x: hidden;
+    }
+
+    /* Barrierefreiheitsverbesserungen */
+    :global(button:focus-visible),
+    :global(a:focus-visible) {
+        outline: 2px solid #f4ab25;
+        outline-offset: 2px;
+    }
+
+    /* Animationen reduzieren falls gewünscht */
+    @media (prefers-reduced-motion: reduce) {
+        :global(div[in], div[out]) {
+            transition: none !important;
+            animation: none !important;
+        }
+    }
+
+    .focus-trap {
+        width: 100%;
+        height: 100%;
+        display: contents;
+    }
+
+    /* Global styles for focus visibility - add to your global CSS */
+    :global(:focus-visible) {
+        outline: 2px solid #f4ab25;
+        outline-offset: 2px;
+    }
+
+
+    .language-switcher {
+        position: relative;
+        z-index: 50;
+    }
+
+    .language-dropdown {
+        position: absolute;
+        min-width: 12rem;
+        left: 0;
+    }
+
+    /* Focus styles for accessibility */
+    button:focus-visible {
+        outline: 2px solid #f4ab25;
+        outline-offset: 2px;
+    }
+
+    /* Special style for elvish language option */
+    .elvish-language-option {
+        position: relative;
+    }
+
+    .elvish-language-option:hover::after {
+        opacity: 1;
+    }
+
+
+    .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        padding: 8px 16px;
+        background-color: #f4ab25;
+        color: #000;
+        font-weight: bold;
+        text-decoration: none;
+        z-index: 9999;
+        transition: top 0.2s ease;
+        border-radius: 0 0 4px 0;
+        display: inline-block;
+    }
+
+    .skip-link:focus {
+        top: 0;
+        outline: none;
+        box-shadow: 0 0 0 2px #000;
+    }
+
+    /* Optional: Verhindert Scrolling wenn Overlay aktiv ist */
+    :global(body.menu-open) {
+        overflow: hidden;
+    }
+
+    /* Optimierte Transitions */
+    :global(.menu-transition) {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+            opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
 

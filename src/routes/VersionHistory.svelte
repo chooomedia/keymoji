@@ -133,7 +133,7 @@
       <!-- Dynamische Timeline-Linie -->
       <div 
         style="left:23px; height: {timelineHeight}px;" 
-        class="absolute top-2 w-0.5 bg-creme dark:bg-aubergine transition-height duration-300"
+        class="absolute top-2 w-0.5 bg-creme dark:bg-aubergine duration-300"
       />
   
       {#each Object.entries(versions).sort((a, b) => b[0].localeCompare(a[0])) as [version, details], i (version)}
@@ -191,9 +191,3 @@
   
   <!-- Fixed Menu -->
 <FixedMenu align={'bottom'} />
-  
-<style>
-    .transition-height {
-      transition: height 0.3s ease-in-out;
-    }
-</style>

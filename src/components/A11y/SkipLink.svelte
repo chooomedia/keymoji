@@ -43,26 +43,3 @@
 >
   {skipLabel}
 </a>
-  
-<style>
-    .skip-link {
-      position: absolute;
-      top: -40px;
-      left: 0;
-      padding: 8px 16px;
-      background-color: #f4ab25;
-      color: #000;
-      font-weight: bold;
-      text-decoration: none;
-      z-index: 9999;
-      transition: top 0.2s ease;
-      border-radius: 0 0 4px 0;
-      display: inline-block;
-    }
-    
-    .skip-link:focus {
-      top: 0;
-      outline: none;
-      box-shadow: 0 0 0 2px #000;
-    }
-</style>

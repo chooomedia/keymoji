@@ -5,10 +5,9 @@
     import { updatedTime } from './updatedTime.js';
     import SkipLink from './components/A11y/SkipLink.svelte';
     import ServiceWorkerHandler from './components/ServiceWorkerHandler.svelte';
-    import SEO from './components/Seo.svelte';
     
     // URL für Logging
-    export let url = "";
+    export const url = "";
     
     // Hintergrundbild-Eigenschaften
     const hieroglyphicEmojisSrc = '../images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
@@ -152,12 +151,6 @@
         }
     }
 </script>
-  
-<!-- Global SEO component that will be managed by the SEO store -->
-<SEO 
-  url={url}
-  pageType="global" 
-/>
 
 <!-- Service Worker update handler -->
 <ServiceWorkerHandler />
@@ -176,49 +169,3 @@
         <slot></slot>
     </main>
 </div>
-  
-<style>
-.hieroglyphemojis {
-    animation: gradient 270s ease infinite;
-    background-size: 16%;
-    min-height: 100vh;
-}
-
-@keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-:global(html) {
-    height: 100%;
-    box-sizing: border-box;
-    scroll-behavior: smooth;
-}
-
-:global(body) {
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-}
-
-:global(.dark) {
-    color-scheme: dark;
-}
-
-.main-content {
-    width: 100%;
-    min-height: 100vh;
-    position: relative;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .hieroglyphemojis {
-        animation: none;
-    }
-    
-    :global(html) {
-        scroll-behavior: auto;
-    }
-}
-</style>

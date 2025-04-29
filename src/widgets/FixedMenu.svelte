@@ -180,19 +180,6 @@
   </button>
 </div>
 
-<style>
-  /* Optional: Verhindert Scrolling wenn Overlay aktiv ist */
-  :global(body.menu-open) {
-    overflow: hidden;
-  }
-
-  /* Optimierte Transitions */
-  :global(.menu-transition) {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-</style>
-
 <svelte:head>
   {#if showMenu}
     <style>
