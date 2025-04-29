@@ -69,17 +69,20 @@ localUserCounter.subscribe(async value => {
     // CORS-Problem in der Entwicklung vermeiden
     if (process.env.NODE_ENV !== 'development') {
         try {
-            await fetch('https://n8n.chooomedia.com/webhook/userCounter', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    timestamp: new Date().toISOString(),
-                    client: 'GlobalStore',
-                    counter: value
-                })
-            });
+            await fetch(
+                'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-userCounter',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        timestamp: new Date().toISOString(),
+                        client: 'GlobalStore',
+                        counter: value
+                    })
+                }
+            );
         } catch (error) {
             console.error('Webhook subscription error:', error);
         }

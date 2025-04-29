@@ -18,7 +18,7 @@
         }
         
         try {
-            const response = await fetch('https://n8n.chooomedia.com/webhook/userCounter', {
+            const response = await fetch('https://n8n.chooomedia.com/webhook/xn--moji-pb73c-userCounter', {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
@@ -53,7 +53,7 @@
         }
         
         try {
-            eventSource = new EventSource('https://n8n.chooomedia.com/webhook/userCounter');
+            eventSource = new EventSource('https://n8n.chooomedia.com/webhook/xn--moji-pb73c-userCounter');
             
             eventSource.onmessage = (event) => {
                 try {

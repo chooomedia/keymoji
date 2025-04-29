@@ -9,7 +9,7 @@
   
     onMount(async () => {
       try {
-        const response = await fetch(`https://n8n.chooomedia.com/webhook/blog-post/${slug}`);
+        const response = await fetch(`https://n8n.chooomedia.com/webhook/xn--moji-pb73c-blog-post/${slug}`);
         const data = await response.json();
         post = data;
         loading = false;
@@ -38,7 +38,7 @@
   
     async function handleLike() {
       try {
-        const response = await fetch(`https://n8n.chooomedia.com/webhook/blog-like/${post.id}`, {
+        const response = await fetch(`https://n8n.chooomedia.com/webhook/xn--moji-pb73c-blog-like/${post.id}`, {
           method: 'POST'
         });
         if (response.ok) {

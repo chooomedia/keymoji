@@ -23,7 +23,7 @@
     // Constants
     const DISABLE_DURATION_MS = 3000;
     const DAILY_LIMIT = 4;
-    const WEBHOOK_URL = 'https://n8n.chooomedia.com/webhook/generate-story';
+    const WEBHOOK_URL = 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-generate-story';
   
     // Lifecycle
     onMount(() => {

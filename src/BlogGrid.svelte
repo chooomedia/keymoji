@@ -56,7 +56,7 @@
         storePosts(posts);
         // Try to update server if online
         try {
-            const response = await fetch(`https://n8n.chooomedia.com/webhook/blog-like/${rowNumber}`, {
+            const response = await fetch(`https://n8n.chooomedia.com/webhook/xn--moji-pb73c-blog-like/${rowNumber}`, {
                 method: 'POST'
             });
             if (!response.ok) {
@@ -75,7 +75,7 @@
         }
         // Then try to fetch fresh data
         try {
-            const response = await fetch('https://n8n.chooomedia.com/webhook/blog-posts');
+            const response = await fetch('https://n8n.chooomedia.com/webhook/xn--moji-pb73c-blog-posts');
             const data = await response.json();
             
             // Merge with existing likes

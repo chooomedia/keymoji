@@ -78,7 +78,7 @@
   
     const proxyURL = 'https://cors-anywhere.herokuapp.com/';
     const webhookUrl = 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-mail';
-    const webhookOptin = 'https://n8n.chooomedia.com/webhook/optin-keymoji';
+    const webhookOptin = 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-optin-keymoji';
   
     function checkEmailTimeout(email) {
       const timestamps = JSON.parse(localStorage.getItem('emailTimestamps')) || {};
