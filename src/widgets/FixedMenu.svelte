@@ -96,7 +96,7 @@
         <a 
           href={link.href} 
           target={link.target} 
-          class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 text-sm" 
+          class="flex flex-wrap text-black dark:text-white md:px-4 px-4 py-3 text-sm w-full text-left hover:bg-aubergine-50" 
           role="menuitem" 
           class:active={selectedLink === link} 
           rel={link.rel} 

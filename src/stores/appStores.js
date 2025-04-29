@@ -62,32 +62,55 @@ const localStore = (key, initial) => {
     };
 };
 
-// Persistent counter store
-export const localUserCounter = localStore('userCounter', 0);
+export const localUserCounter = writable(0);
+let retryCount = 0;
+const MAX_RETRIES = 3;
 
-localUserCounter.subscribe(async value => {
-    // CORS-Problem in der Entwicklung vermeiden
-    if (process.env.NODE_ENV !== 'development') {
+async function fetchWithRetry(url, options) {
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error('HTTP error');
+        return response.json();
+    } catch (error) {
+        if (retryCount < MAX_RETRIES) {
+            retryCount++;
+            await new Promise(resolve =>
+                setTimeout(resolve, 1000 * retryCount)
+            );
+            return fetchWithRetry(url, options);
+        }
+        throw error;
+    }
+}
+
+if (typeof window !== 'undefined') {
+    const isValidRoute = () =>
+        ['/', '/en', '/de'].includes(window.location.pathname);
+
+    const updateCounter = async () => {
         try {
-            await fetch(
+            const { counter } = await fetchWithRetry(
                 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-userCounter',
                 {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        timestamp: new Date().toISOString(),
-                        client: 'GlobalStore',
-                        counter: value
+                        client: navigator.userAgent.slice(0, 50),
+                        path: window.location.pathname
                     })
                 }
             );
+
+            localUserCounter.set(Number(counter));
         } catch (error) {
-            console.error('Webhook subscription error:', error);
+            console.error('Counter update failed:', error);
         }
+    };
+
+    if (isValidRoute()) {
+        window.addEventListener('load', updateCounter);
     }
-});
+}
 
 // UI state stores
 export const showDonateMenu = writable(false);
