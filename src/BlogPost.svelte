@@ -1,7 +1,6 @@
 <script>
     import { onMount } from 'svelte';
     import { currentLanguage, darkMode, showShareMenu } from './stores.js';
-    import SEO from './components/Seo.svelte';
   
     export let slug;
     
@@ -50,21 +49,15 @@
         console.error('Error liking post:', error);
       }
     }
-  </script>
+</script>
   
-  <SEO 
-  title={post?.title || 'Blog - Keymoji'}
-  description={post?.excerpt || ''}
-  image={post?.thumbnail || ''}
-  type="article"
-  url={window.location.pathname}
-/>
+  <!-- SEO component is now managed by the LanguageRouter -->
   
-  {#if loading || !post}
+{#if loading || !post}
     <div class="flex justify-center items-center min-h-screen">
       <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow"></div>
     </div>
-  {:else}
+{:else}
     <header class="max-w-4xl mx-auto px-4 py-8">
       <nav class="text-sm mb-4" aria-label="Breadcrumb">
         <ol class="flex items-center space-x-2">
@@ -138,4 +131,4 @@
         </a>
       </section>
     </main>
-  {/if}
+{/if}°

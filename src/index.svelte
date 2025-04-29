@@ -11,8 +11,7 @@
     import FixedMenu from './widgets/FixedMenu.svelte';
     import content from './content.js';
     import { getText } from './stores.js';
-    import SEO from './components/Seo.svelte';
-  
+    
     // Debug-Flag - für die Produktion entfernen
     let showDebug = process.env.NODE_ENV === 'development' && (window.location.search.includes('debug=true'));
   
@@ -39,12 +38,7 @@
   </div>
   {/if}
   
-  <SEO 
-    pageType="index" 
-    url={window.location.pathname}
-    title={content[$currentLanguage]?.index?.pageTitle || "Emoji Password Generator"}
-    description={content[$currentLanguage]?.index?.pageDescription || "Generate secure emoji passwords for better online security."}
-  />
+  <!-- SEO wird jetzt vom LanguageRouter gehandhabt -->
   
 <!-- App Container -->
 <main class="app-container" data-lang={$currentLanguage}>

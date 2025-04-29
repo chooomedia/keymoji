@@ -4,7 +4,6 @@
     import { fly } from 'svelte/transition';
     import { navigate } from "svelte-routing";
     import { currentLanguage, getText } from '../stores.js';
-    import SEO from '../components/Seo.svelte';
     
     // Set 404 status code for proper SEO
     onMount(() => {
@@ -20,16 +19,10 @@
     function goHome() {
       navigate(`/${$currentLanguage}`, { replace: true });
     }
-  </script>
+</script>
   
-  <SEO 
-    title={`404 - ${getText('notFound.message')}`}
-    description={getText('notFound.description') || "Page not found"}
-    noindex={true}
-    pageType="notFound"
-  />
-  
-  <div class="flex flex-col justify-center items-center min-h-screen py-5 text-center" 
+<!-- SEO component is now managed by the LanguageRouter -->
+<div class="flex flex-col justify-center items-center min-h-screen py-5 text-center" 
        in:fly={{ y: 50, duration: 400, delay: 400 }} 
        out:fly={{ y: -50, duration: 300 }}>
     
@@ -55,4 +48,4 @@
         {getText('notFound.returnButton')}
       </button>
     </div>
-  </div>
+</div>

@@ -3,6 +3,7 @@
     import { onMount, onDestroy } from 'svelte';
     import { currentLanguage, setLanguage } from '../stores.js';
     import { getSupportedLanguageCodes } from '../utils/languages.js';
+    import SEO from '../components/Seo.svelte';
     import Index from '../index.svelte';
     import BlogGrid from '../BlogGrid.svelte';
     import BlogPost from '../BlogPost.svelte';
@@ -20,11 +21,26 @@
     
     // Verfolge die aktuelle Route
     let currentPath = "";
-    let needsRedirect = false;
+    let currentPageType = "home";
+    let pageURL = "";
     
     function handleRouteChange() {
       // Extrahiere den aktuellen Pfad
       currentPath = window.location.pathname;
+      pageURL = currentPath;
+      
+      // Bestimme den Seitentyp basierend auf dem Pfad
+      if (currentPath.includes('/blog/')) {
+        currentPageType = "blog-post";
+      } else if (currentPath.includes('/blog')) {
+        currentPageType = "blog";
+      } else if (currentPath.includes('/versions')) {
+        currentPageType = "versions";
+      } else if (currentPath.includes('/contact')) {
+        currentPageType = "contact";
+      } else {
+        currentPageType = "home";
+      }
       
       // Überprüfe, ob wir auf der Root-Route sind
       if (currentPath === '/' || currentPath === '') {
@@ -88,7 +104,13 @@
       }
     }
 </script>
-  
+
+<!-- Zentralisierte SEO-Komponente für die gesamte App -->
+<SEO 
+  pageType={currentPageType} 
+  url={pageURL}
+/>
+
 <Router {url}>
     <Layout>
       <!-- Flachere Struktur für Routen -->

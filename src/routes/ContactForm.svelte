@@ -3,7 +3,6 @@
     import content from '../content.js';
     import { navigate } from "svelte-routing";
     import { fade, fly, scale } from 'svelte/transition';
-    import SEO from '../components/Seo.svelte';
     import Header from '../Header.svelte';
     import FixedMenu from '../widgets/FixedMenu.svelte';
   
@@ -228,13 +227,6 @@
       isMessageSent = false;
     }
 </script>
-  
-<SEO 
-    pageType="contact" 
-    url={window.location.pathname}
-    title={content[$currentLanguage]?.contactForm?.introductionTitle}
-    description={content[$currentLanguage]?.contactForm?.introductionText}
-/>
   
 <!-- Header Component -->
 <Header />

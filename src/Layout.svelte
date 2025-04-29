@@ -1,12 +1,10 @@
 <script>
     import { onMount } from 'svelte';
     import { currentLanguage, darkMode } from './stores.js';
-    import content from './content.js';
-    import { updatedTime } from './updatedTime.js';
     import SkipLink from './components/A11y/SkipLink.svelte';
     
     // URL für Logging
-    export let url = "";
+    export const url = "";
     
     // Hintergrundbild-Eigenschaften
     const hieroglyphicEmojisSrc = '../images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
@@ -68,35 +66,7 @@
       // Debug-Information
       console.log('Layout mounted with URL:', url, 'and language:', $currentLanguage);
       
-      // Schema-Daten nach dem Mount einfügen
-      const schema = {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": content[$currentLanguage]?.index?.pageTitle || "Keymoji",
-        "description": content[$currentLanguage]?.index?.pageDescription || "Emoji Password Generator",
-        "applicationCategory": "SecurityTool",
-        "operatingSystem": "Web Browser",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "author": {
-          "@type": "Person",
-          "name": "Christopher Matt",
-          "url": "https://www.linkedin.com/in/chooomedia/",
-          "jobTitle": "Frontend Developer",
-          "worksFor": "CHOOOMEDIA"
-        },
-        "url": "https://keymoji.wtf",
-        "inLanguage": $currentLanguage,
-        "dateModified": updatedTime
-      };
-      
-      const scriptElement = document.createElement('script');
-      scriptElement.type = 'application/ld+json';
-      scriptElement.textContent = JSON.stringify(schema);
-      document.head.appendChild(scriptElement);
+      // REMOVED: No longer adding structured data here to avoid duplication with SEO component
     });
     
     // Auf Dark Mode Änderungen achten
@@ -121,16 +91,16 @@
 <SkipLink target="#main-content" />
   
 <div 
-class="wrapper hieroglyphemojis {$darkMode ? 'dark' : ''}" 
-style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}"
-aria-hidden="false"
-data-url={url}
-data-lang={$currentLanguage}
->
-<main id="main-content" class="main-content">
-    <!-- Direktes Einfügen aller Komponenten von Router -->
-    <slot></slot>
-</main>
+    class="wrapper hieroglyphemojis {$darkMode ? 'dark' : ''}" 
+    style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}"
+    aria-hidden="false"
+    data-url={url}
+    data-lang={$currentLanguage}
+    >
+    <main id="main-content" class="main-content">
+        <!-- Direktes Einfügen aller Komponenten von Router -->
+        <slot></slot>
+    </main>
 </div>
   
 <style>
