@@ -2,8 +2,8 @@
     import { currentLanguage, getText } from '../../stores/appStores.js';
     
     // Props
-    export let target = "#main-content"; // ID of the main content
-    export let label = null; // Custom label
+    export const target = "#main-content"; // ID of the main content
+    export const label = null; // Custom label
     
     // Get label from translation if not provided
     $: skipLabel = 'Skip to content';

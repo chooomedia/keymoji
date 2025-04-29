@@ -63,53 +63,53 @@ const localStore = (key, initial) => {
 };
 
 export const localUserCounter = writable(0);
-let retryCount = 0;
-const MAX_RETRIES = 3;
+const ALLOWED_ORIGINS = new Set([
+    'https://keymoji.wtf',
+    'http://localhost:8080'
+]);
 
-async function fetchWithRetry(url, options) {
+async function fetchCounter() {
     try {
-        const response = await fetch(url, options);
-        if (!response.ok) throw new Error('HTTP error');
-        return response.json();
+        const origin = window.location.origin;
+        if (!ALLOWED_ORIGINS.has(origin)) return;
+
+        const response = await fetch(
+            'https://n8n.chooomedia.com/webhook-test/xn--moji-pb73c-userCounter',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Origin: origin
+                },
+                body: JSON.stringify({
+                    client: navigator.userAgent.substring(0, 80),
+                    path: window.location.pathname.replace(/\/$/, '')
+                })
+            }
+        );
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const { counter } = await response.json();
+        localUserCounter.set(Number(counter));
     } catch (error) {
-        if (retryCount < MAX_RETRIES) {
-            retryCount++;
-            await new Promise(resolve =>
-                setTimeout(resolve, 1000 * retryCount)
-            );
-            return fetchWithRetry(url, options);
-        }
-        throw error;
+        console.error('Counter error:', error);
+        localUserCounter.update(
+            c => c || Math.floor(Math.random() * 4000 + 1000)
+        );
     }
 }
 
-if (typeof window !== 'undefined') {
-    const isValidRoute = () =>
-        ['/', '/en', '/de'].includes(window.location.pathname);
-
-    const updateCounter = async () => {
-        try {
-            const { counter } = await fetchWithRetry(
-                'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-userCounter',
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        client: navigator.userAgent.slice(0, 50),
-                        path: window.location.pathname
-                    })
-                }
-            );
-
-            localUserCounter.set(Number(counter));
-        } catch (error) {
-            console.error('Counter update failed:', error);
+if (
+    typeof window !== 'undefined' &&
+    ['/', '/en', '/de'].includes(window.location.pathname)
+) {
+    window.addEventListener('load', () => {
+        if (!window.sessionStorage.getItem('counterTracked')) {
+            fetchCounter();
+            window.sessionStorage.setItem('counterTracked', 'true');
         }
-    };
-
-    if (isValidRoute()) {
-        window.addEventListener('load', updateCounter);
-    }
+    });
 }
 
 // UI state stores

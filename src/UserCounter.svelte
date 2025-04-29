@@ -2,16 +2,15 @@
     import { localUserCounter } from './stores/appStores';
     import { onMount } from 'svelte';
   
-    let isLoading = true;
-    const formatter = new Intl.NumberFormat(
-      document.documentElement.lang || 'de-DE'
-    );
+    let error = null;
+    const formatter = new Intl.NumberFormat(document.documentElement.lang || 'de-DE');
   
     onMount(() => {
-      const unsubscribe = localUserCounter.subscribe(value => {
-        isLoading = value === 0;
-      });
-      return unsubscribe;
+      const timer = setTimeout(() => {
+        if ($localUserCounter === 0) error = 'Timeout';
+      }, 5000);
+  
+      return () => clearTimeout(timer);
     });
 </script>
 
@@ -20,8 +19,10 @@
     aria-live="polite"
 >
     <span aria-label="User interaction counter">
-        {#if $localUserCounter > 0}
-            {formatter.format($localUserCounter)}
+        {#if error}
+            <div class="error">⚠️ Offline</div>
+        {:else if $localUserCounter > 0}
+            <div class="counter">{formatter.format($localUserCounter)}</div>
         {:else}
             <div class="animate-pulse">...</div>
         {/if}
