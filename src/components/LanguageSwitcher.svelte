@@ -18,83 +18,113 @@
     // Direkter Zugriff auf die supportedLanguages aus languageUtils
     const languages = supportedLanguages;
     
+    // Funktion zum Vorladen der Elvish-Schriftart
+    function preloadElvishFont() {
+        // Prüfen ob die Schriftart bereits vorgeladen wurde
+        if (document.querySelector('link[href*="tengwar_annatar.ttf"]')) {
+            elvishFontLoaded = true;
+            return;
+        }
+        
+        try {
+            // Schriftart vorladen
+            const fontLink = document.createElement('link');
+            fontLink.rel = 'preload';
+            fontLink.href = '/fonts/tengwar_annatar.ttf';
+            fontLink.as = 'font';
+            fontLink.type = 'font/ttf';
+            fontLink.crossOrigin = 'anonymous';
+            document.head.appendChild(fontLink);
+            
+            elvishFontLoaded = true;
+            console.log('Elvish font preloaded');
+        } catch (error) {
+            console.warn('Failed to preload Elvish font:', error);
+        }
+    }
+    
     function toggleLanguageMenu() {
-      $showLanguageMenu = !$showLanguageMenu;
+        $showLanguageMenu = !$showLanguageMenu;
+        
+        // Font vorladen, wenn das Menü geöffnet wird (für schnelleres Umschalten)
+        if ($showLanguageMenu) {
+            preloadElvishFont();
+        }
     }
     
     function updateCurrentPath(langCode) {
-      // Get current path
-      const path = window.location.pathname;
-      
-      // Split path to extract non-language part
-      const pathSegments = path.split('/').filter(segment => segment !== '');
-      
-      // Check if first segment is a language code
-      if (pathSegments.length > 0 && languages.some(lang => lang.code === pathSegments[0])) {
-        // Remove language code
-        pathSegments.shift();
-      }
-      
-      // Construct new URL with new language code
-      return `/${langCode}${pathSegments.length > 0 ? '/' + pathSegments.join('/') : ''}`;
-    }
-    
-    if (document.documentElement.lang === 'qya') {
-        document.body.classList.add('font-elvish');
+        // Get current path
+        const path = window.location.pathname;
         
-        // Preload the font
-        const fontLink = document.createElement('link');
-        fontLink.rel = 'preload';
-        fontLink.href = '/fonts/tengwar_annatar.ttf';
-        fontLink.as = 'font';
-        fontLink.type = 'font/ttf';
-        fontLink.crossOrigin = 'anonymous';
-        document.head.appendChild(fontLink);
+        // Split path to extract non-language part
+        const pathSegments = path.split('/').filter(segment => segment !== '');
+        
+        // Check if first segment is a language code
+        if (pathSegments.length > 0 && languages.some(lang => lang.code === pathSegments[0])) {
+            // Remove language code
+            pathSegments.shift();
+        }
+        
+        // Construct new URL with new language code
+        return `/${langCode}${pathSegments.length > 0 ? '/' + pathSegments.join('/') : ''}`;
     }
     
     function handleLanguageChange(langCode) {
-      // Do nothing if it's the same language
-      if (langCode === selectedLang) {
+        // Do nothing if it's the same language
+        if (langCode === selectedLang) {
+            $showLanguageMenu = false;
+            return;
+        }
+        
+        // Vorladen der Elvish Schriftart, wenn auf Elvish gewechselt wird
+        if (langCode === 'qya') {
+            preloadElvishFont();
+        }
+        
+        // Set language in store
+        setLanguage(langCode);
+        selectedLang = langCode;
+        
+        // Get new path with updated language
+        const newPath = updateCurrentPath(langCode);
+        
+        // Debug output
+        console.log('Navigating to new path with language change:', newPath);
+        
+        // Update URL without reload
+        navigate(newPath, { replace: true });
+        
+        // Close menu
         $showLanguageMenu = false;
-        return;
-      }
-      
-      // Set language in store
-      setLanguage(langCode);
-      selectedLang = langCode;
-      
-      // Get new path with updated language
-      const newPath = updateCurrentPath(langCode);
-      
-      // Debug output
-      console.log('Navigating to new path with language change:', newPath);
-      
-      // Update URL without reload
-      navigate(newPath, { replace: true });
-      
-      // Close menu
-      $showLanguageMenu = false;
-      
-      // Trigger event for parent components
-      dispatch('languageChange', langCode);
+        
+        // Trigger event for parent components
+        dispatch('languageChange', langCode);
     }
     
     function getCurrentLanguageInfo(code) {
-      return languages.find(lang => lang.code === code) || languages[0];
+        return languages.find(lang => lang.code === code) || languages[0];
     }
     
     onMount(() => {
-      const handleClickOutside = (event) => {
-        if ($showLanguageMenu && !event.target.closest('#language-dropdown-menu') && !event.target.closest('#language-toggle-button')) {
-          $showLanguageMenu = false;
+        // Schriftart vorladen, wenn die aktuelle Sprache Elvish ist
+        if ($currentLanguage === 'qya') {
+            preloadElvishFont();
+            
+            // Ensure the correct class is applied
+            document.body.classList.add('font-elvish');
         }
-      };
-      
-      document.addEventListener('click', handleClickOutside);
-      
-      return () => {
-        document.removeEventListener('click', handleClickOutside);
-      };
+        
+        const handleClickOutside = (event) => {
+            if ($showLanguageMenu && !event.target.closest('#language-dropdown-menu') && !event.target.closest('#language-toggle-button')) {
+                $showLanguageMenu = false;
+            }
+        };
+        
+        document.addEventListener('click', handleClickOutside);
+        
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
     });
     
     // Update selectedLang when currentLanguage changes

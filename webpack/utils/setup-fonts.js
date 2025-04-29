@@ -76,9 +76,6 @@ Please add the required font files to this directory before building the project
                 );
             }
         }
-
-        // Skip copying from src to avoid permission issues
-        // No need to copy existing font files for initial development
     } catch (error) {
         // Log the error but don't throw to prevent build failure
         console.warn('Warning: Font setup encountered issues:', error.message);

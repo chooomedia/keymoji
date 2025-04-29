@@ -212,7 +212,6 @@ body {
         opacity: 1;
     }
 
-
     .skip-link {
         position: absolute;
         top: -40px;
@@ -246,6 +245,15 @@ body {
     }
 }
 
+/* Elvish Font Definition */
+@font-face {
+    font-family: 'Tengwar Annatar';
+    src: url('/fonts/tengwar_annatar.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* Use the font-elvish class instead of directly modifying html[lang="qya"] */
 .font-elvish {
     /* Fallback to standard fonts if Tengwar Annatar is not available */
@@ -254,18 +262,13 @@ body {
     letter-spacing: 0.05em;
 }
 
+/* Special adjustments for emoji display in Elvish mode */
 .font-elvish #emoji-display {
     @apply pt-7;
 }
 
-.font-elvish #fixed-menu-nav button {
+/* Keep menu buttons in standard font even in Elvish mode */
+.font-elvish #fixed-menu-nav button,
+.font-elvish #language-toggle-button {
     @apply font-sans;
-}
-
-@font-face {
-    font-family: 'Tengwar Annatar';
-    src: url('../public/fonts/tengwar_annatar.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
 }

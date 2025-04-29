@@ -1,4 +1,3 @@
-<!-- src/components/Seo.svelte -->
 <script>
     import { onMount } from 'svelte';
     import { currentLanguage } from '../stores/appStores.js';
@@ -33,29 +32,27 @@
   
     // Get language-specific meta content
     $: {
-      if (pageType && content[$currentLanguage]?.[pageType]) {
-        pageTitle = title || content[$currentLanguage][pageType].pageTitle;
-        pageDescription = description || content[$currentLanguage][pageType].pageDescription;
-        pageKeywords = keywords || content[$currentLanguage][pageType].pageKeywords;
-      } else {
-        pageTitle = title || content[$currentLanguage]?.index?.pageTitle || 'Keymoji';
-        pageDescription = description || content[$currentLanguage]?.index?.pageDescription || 'Generate secure emoji passwords';
-        pageKeywords = keywords || content[$currentLanguage]?.index?.pageKeywords || 'emoji, password, security';
-      }
+      // Defensive checking to avoid undefined errors
+      const langContent = content[$currentLanguage] || content['en'] || {};
+      const pageContent = langContent[pageType] || langContent['index'] || {};
+      
+      pageTitle = title || (pageContent.pageTitle ? pageContent.pageTitle : 'Keymoji');
+      pageDescription = description || (pageContent.pageDescription ? pageContent.pageDescription : 'Generate secure emoji passwords');
+      pageKeywords = keywords || (pageContent.pageKeywords ? pageContent.pageKeywords : 'emoji, password, security');
     }
   
     // Generate alternate URLs for each language
     $: {
-      alternateUrls = Object.keys(content).map(lang => {
-        if (lang === 'logo') return null; // Skip non-language keys
-        
-        // Create URL with language code
-        const langPath = url ? `/${lang}${url}` : `/${lang}`;
-        return {
-          lang,
-          url: `https://keymoji.wtf${langPath}`
-        };
-      }).filter(Boolean); // Remove null entries
+      alternateUrls = Object.keys(content)
+        .filter(lang => lang !== 'logo') // Skip non-language keys
+        .map(lang => {
+          // Create URL with language code
+          const langPath = url ? `/${lang}${url}` : `/${lang}`;
+          return {
+            lang,
+            url: `https://keymoji.wtf${langPath}`
+          };
+        });
     }
   
     // Generate structured data based on page type
@@ -103,20 +100,27 @@
   
     onMount(() => {
       // Inject JSON-LD structured data
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.textContent = JSON.stringify(structuredData);
-      document.head.appendChild(script);
-      
-      return () => {
-        // Clean up when component is destroyed
-        if (script.parentNode) {
-          document.head.removeChild(script);
-        }
-      };
+      try {
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.textContent = JSON.stringify(structuredData);
+        document.head.appendChild(script);
+        
+        return () => {
+          // Clean up when component is destroyed
+          if (script && script.parentNode) {
+            document.head.removeChild(script);
+          }
+        };
+      } catch (error) {
+        console.error('Error injecting structured data:', error);
+      }
     });
   
     function getLocale(lang) {
+      // Default to en_US
+      if (!lang) return 'en_US';
+      
       const localeMap = {
         'de': 'de_DE',
         'dech': 'de_CH',
@@ -136,9 +140,9 @@
       };
       return localeMap[lang] || 'en_US';
     }
-  </script>
+</script>
   
-  <svelte:head>
+<svelte:head>
     <!-- Basic Meta Tags -->
     <title>{pageTitle}</title>
     <meta name="description" content={pageDescription} />
@@ -180,4 +184,4 @@
     <meta name="apple-mobile-web-app-title" content="Keymoji" />
     <meta name="generator" content="Svelte" />
     <meta name="author" content="Christopher Matt" />
-  </svelte:head>
+</svelte:head>

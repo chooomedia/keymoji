@@ -24,6 +24,7 @@
         // Set language attribute
         if (document.documentElement.lang !== $currentLanguage) {
             document.documentElement.lang = $currentLanguage;
+            console.log('Language attribute updated to:', $currentLanguage);
         }
         
         // Set dark mode class
@@ -36,6 +37,22 @@
         // Set special language class for Elvish
         if ($currentLanguage === 'qya') {
             document.body.classList.add('font-elvish');
+            
+            // Preload font if not already done
+            if (!document.querySelector('link[href*="tengwar_annatar.ttf"]')) {
+                try {
+                    const fontLink = document.createElement('link');
+                    fontLink.rel = 'preload';
+                    fontLink.href = '/fonts/tengwar_annatar.ttf';
+                    fontLink.as = 'font';
+                    fontLink.type = 'font/ttf';
+                    fontLink.crossOrigin = 'anonymous';
+                    document.head.appendChild(fontLink);
+                    console.log('Elvish font preloaded from Layout');
+                } catch (error) {
+                    console.warn('Failed to preload Elvish font:', error);
+                }
+            }
         } else {
             document.body.classList.remove('font-elvish');
         }
@@ -46,6 +63,29 @@
         if (mounted) {
             syncDocumentWithStores();
         }
+    });
+    
+    onMount(() => {
+        mounted = true;
+        syncDocumentWithStores();
+        console.log('Layout mounted, document lang set to:', document.documentElement.lang);
+        
+        // Add MutationObserver to ensure lang attribute stays correct
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'lang' && 
+                    document.documentElement.lang !== $currentLanguage) {
+                    document.documentElement.lang = $currentLanguage;
+                    console.log('Language attribute corrected by observer to:', $currentLanguage);
+                }
+            });
+        });
+        
+        observer.observe(document.documentElement, { attributes: true });
+        
+        return () => {
+            observer.disconnect();
+        };
     });
     
     // We also use reactive statements to ensure changes are reflected
