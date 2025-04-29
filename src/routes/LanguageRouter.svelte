@@ -11,10 +11,11 @@
     import Layout from '../Layout.svelte';
     import NotFound from './NotFound.svelte';
     // Korrektur der Case-Sensitivity beim Import
-    import SEO from '../components/Seo.svelte';
+    import SEO from '../components/SEO.svelte';
     
     export const url = "";
     export const currentVersion = "";
+    
     
     // Hole die unterstützten Sprachcodes
     const supportedLanguages = getSupportedLanguageCodes();
