@@ -11,7 +11,7 @@
     import Layout from '../Layout.svelte';
     import NotFound from './NotFound.svelte';
     // Korrektur der Case-Sensitivity beim Import
-    import SEO from '../components/SEO.svelte';
+    import SEO from '../components/Seo.svelte';
     
     export const url = "";
     export const currentVersion = "";

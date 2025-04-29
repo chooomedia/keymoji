@@ -1,47 +1,93 @@
 name: Build and Deploy via FTP
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+    build-and-deploy:
+        runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '20'
 
-    - name: Install dependencies
-      run: npm ci
+            - name: Install dependencies
+              run: npm ci
 
-    - name: Generate updated time
-      run: cat ./src/updatedTime.js
+            - name: Generate updated time
+              run: cat ./src/updatedTime.js
 
-    - name: Build
-      run: npm run build
-      env:
-        NODE_ENV: production
+            - name: Build
+              run: npm run build
+              env:
+                  NODE_ENV: production
 
-    - name: List build directory contents
-      run: ls -R build
+            - name: Create .htaccess file
+              run: |
+                  cat > build/.htaccess << 'EOL'
+                  # Enable rewriting
+                  RewriteEngine On
 
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        server-dir: ${{ secrets.SERVERDIR }}
-        local-dir: ./build/
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/node_modules/**
-        log-level: verbose
+                  # If the request is not for a real file or directory
+                  RewriteCond %{REQUEST_FILENAME} !-f
+                  RewriteCond %{REQUEST_FILENAME} !-d
+
+                  # Rewrite everything to index.html
+                  RewriteRule ^ index.html [QSA,L]
+
+                  # Set correct content type for JavaScript modules
+                  <IfModule mod_mime.c>
+                    AddType application/javascript .js
+                    AddType text/css .css
+                  </IfModule>
+
+                  # Compression and caching
+                  <IfModule mod_deflate.c>
+                    AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/javascript text/css application/javascript application/x-javascript
+                  </IfModule>
+
+                  <IfModule mod_expires.c>
+                    ExpiresActive On
+                    
+                    # Cache CSS und JavaScript für 1 Jahr
+                    ExpiresByType text/css "access plus 1 year"
+                    ExpiresByType application/javascript "access plus 1 year"
+                    
+                    # Cache Bilder und Schriftarten für 1 Jahr
+                    ExpiresByType image/jpeg "access plus 1 year"
+                    ExpiresByType image/png "access plus 1 year"
+                    ExpiresByType image/svg+xml "access plus 1 year"
+                    ExpiresByType image/webp "access plus 1 year"
+                    ExpiresByType font/ttf "access plus 1 year"
+                    ExpiresByType font/woff "access plus 1 year"
+                    ExpiresByType font/woff2 "access plus 1 year"
+                    
+                    # HTML und XML für 1 Stunde cachen
+                    ExpiresByType text/html "access plus 1 hour"
+                    ExpiresByType application/xml "access plus 1 hour"
+                  </IfModule>
+                  EOL
+
+            - name: List build directory contents
+              run: ls -R build
+
+            - name: 📂 Sync files
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+              with:
+                  server: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  password: ${{ secrets.PASSWORD }}
+                  server-dir: ${{ secrets.SERVERDIR }}
+                  local-dir: ./build/
+                  exclude: |
+                      **/.git*
+                      **/.git*/**
+                      **/node_modules/**
+                  log-level: verbose
