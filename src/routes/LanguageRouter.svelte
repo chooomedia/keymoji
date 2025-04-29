@@ -10,7 +10,7 @@
     import ContactForm from './ContactForm.svelte';
     import Layout from '../Layout.svelte';
     import NotFound from './NotFound.svelte';
-    import Seo from '../components/Seo.svelte';
+    import SEO from '../components/Seo.svelte';
     
     export const url = "";
     export const currentVersion = "";
@@ -132,7 +132,7 @@
 </script>
 
 <!-- Zentralisierte SEO-Komponente für die gesamte App -->
-<Seo 
+<SEO 
   pageType={currentPageType} 
   url={pageURL}
 />
