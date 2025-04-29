@@ -3,6 +3,20 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* 
+ * Font-declaration intentionally commented out to prevent build errors
+ * The font is loaded dynamically in JS when needed
+ */
+/* 
+@font-face {
+    font-family: 'Tengwar Annatar';
+    src: url('../public/fonts/tengwar_annatar.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+*/
+
 ::-webkit-scrollbar {
     display: none;
 }
@@ -82,23 +96,18 @@ body {
     }
 }
 
-@font-face {
-    font-family: 'Tengwar Annatar';
-    src: url('tengwar_annatar.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-html[lang="qya"] {
-    font-family: 'Tengwar Annatar', 'Graphik', Arial, sans-serif;
+/* Use the font-elvish class instead of directly modifying html[lang="qya"] */
+.font-elvish {
+    /* Fallback to standard fonts if Tengwar Annatar is not available */
+    font-family: 'Graphik', Arial, sans-serif;
     line-height: 1.5;
     letter-spacing: 0.05em;
+}
 
-    #emoji-display {
-        @apply pt-7;
-    }
+.font-elvish #emoji-display {
+    @apply pt-7;
+}
 
-    #fixed-menu-nav button {
-        @apply font-sans;
-    }
+.font-elvish #fixed-menu-nav button {
+    @apply font-sans;
 }

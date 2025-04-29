@@ -18,7 +18,10 @@
     },
     "scripts": {
         "dev": "NODE_ENV=development webpack serve --config webpack/start.js",
-        "build": "node scripts/update-timestamp.js && node scripts/generate-sitemap.js && NODE_ENV=production webpack --config webpack/build.js && node scripts/optimize-build.js"
+        "prebuild": "node scripts/update-timestamp.js && node scripts/generate-sitemap.js && node scripts/fix-seo-imports.js",
+        "build": "NODE_ENV=production webpack --config webpack/build.js && node scripts/optimize-build.js",
+        "fix:seo": "node scripts/fix-seo-imports.js",
+        "setup:fonts": "node scripts/setup-fonts.js"
     },
     "devDependencies": {
         "@babel/cli": "^7.12.1",

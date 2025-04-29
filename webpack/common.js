@@ -1,5 +1,9 @@
 const path = require('path');
 const { paths } = require('./utils');
+const setupFonts = require('./utils/setup-fonts');
+
+// Setup the font directories before webpack runs
+setupFonts();
 
 module.exports = {
     entry: {
@@ -23,15 +27,26 @@ module.exports = {
                 exclude: /(node_modules)/,
                 loader: 'babel-loader'
             },
+            {
+                // Add font file handling
+                test: /\.(woff|woff2|eot|ttf|otf)$/i,
+                type: 'asset/resource',
+                generator: {
+                    filename: 'static/fonts/[name].[hash:8][ext]'
+                }
+            }
         ]
     },
-    
+
     resolve: {
         alias: {
-            svelte: path.resolve('node_modules', 'svelte')
+            svelte: path.resolve('node_modules', 'svelte'),
+            // Add aliases for common paths to simplify imports
+            '@components': path.resolve(__dirname, '../src/components'),
+            '@utils': path.resolve(__dirname, '../src/utils')
         },
         conditionNames: ['svelte', 'browser', 'module', 'main'],
         extensions: ['.mjs', '.js', '.svelte'],
         mainFields: ['svelte', 'browser', 'module', 'main']
-    },
+    }
 };

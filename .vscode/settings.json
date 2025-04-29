@@ -1,0 +1,4 @@
+{
+    "prettier.experimentalTernaries": true,
+    "prettier.htmlWhitespaceSensitivity": "strict"
+}

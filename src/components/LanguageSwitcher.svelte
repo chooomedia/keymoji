@@ -13,6 +13,7 @@
     export let showLabels = true;
     
     let selectedLang = $currentLanguage;
+    let elvishFontLoaded = false;
     
     // Direkter Zugriff auf die supportedLanguages aus languageUtils
     const languages = supportedLanguages;
@@ -38,11 +39,31 @@
       return `/${langCode}${pathSegments.length > 0 ? '/' + pathSegments.join('/') : ''}`;
     }
     
+    // Preload the Elvish font 
+    function preloadElvishFont() {
+      if (elvishFontLoaded) return;
+      
+      const fontLink = document.createElement('link');
+      fontLink.rel = 'preload';
+      fontLink.href = '/fonts/tengwar_annatar.ttf';
+      fontLink.as = 'font';
+      fontLink.type = 'font/ttf';
+      fontLink.crossOrigin = 'anonymous';
+      
+      document.head.appendChild(fontLink);
+      elvishFontLoaded = true;
+    }
+    
     function handleLanguageChange(langCode) {
       // Do nothing if it's the same language
       if (langCode === selectedLang) {
         $showLanguageMenu = false;
         return;
+      }
+      
+      // If elvish language is selected, ensure font is loaded
+      if (langCode === 'qya') {
+        preloadElvishFont();
       }
       
       // Set language in store
@@ -67,6 +88,13 @@
     
     function getCurrentLanguageInfo(code) {
       return languages.find(lang => lang.code === code) || languages[0];
+    }
+    
+    // Preload the elvish font when hovering over the elvish option
+    function handleMouseOver(lang) {
+      if (lang.code === 'qya' && !elvishFontLoaded) {
+        preloadElvishFont();
+      }
     }
     
     onMount(() => {
@@ -114,7 +142,7 @@
     {#if $showLanguageMenu}
     <div 
       id="language-dropdown-menu" 
-      class="language-dropdown {position === 'top' ? 'top-full mt-2' : 'bottom-full mb-2'} w-32 mx-auto rounded-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-50 transform transition-all duration-300 ease-in-out"
+      class="language-dropdown {position === 'top' ? 'top-full mt-2' : 'bottom-full mb-2'} w-36 mx-auto rounded-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-50 transform transition-all duration-300 ease-in-out"
       role="menu" 
       aria-orientation="vertical" 
       aria-labelledby="language-toggle-button"
@@ -127,9 +155,10 @@
               out:slide={{ y: 5, duration: 400, easing: cubicInOut }}
             >
               <button
-                class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 text-sm transition-colors {selectedLang === lang.code ? 'font-bold bg-gray-50 dark:bg-aubergine-50' : ''}"
+                class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 text-sm transition-colors {selectedLang === lang.code ? 'font-bold bg-gray-50 dark:bg-aubergine-50' : ''} {lang.code === 'qya' ? 'elvish-language-option' : ''}"
                 role="menuitem"
                 on:click={() => handleLanguageChange(lang.code)}
+                on:mouseover={() => handleMouseOver(lang)}
                 aria-current={selectedLang === lang.code ? 'true' : 'false'}
               >
                 <span class="flag-icon text-xl mr-3">{lang.flag}</span>
@@ -166,5 +195,14 @@
 button:focus-visible {
     outline: 2px solid #f4ab25;
     outline-offset: 2px;
+}
+
+/* Special style for elvish language option */
+.elvish-language-option {
+    position: relative;
+}
+
+.elvish-language-option:hover::after {
+    opacity: 1;
 }
 </style>

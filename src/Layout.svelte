@@ -16,6 +16,41 @@
     $: bgImage = `background-image: url("${hieroglyphicEmojisSrc}"), ${$darkMode ? darkGradient : lightGradient}`;
     $: bgBlendMode = $darkMode ? 'multiply' : 'hue';
     
+    // Dynamic font loading for Elvish
+    function loadElvishFont() {
+      if ($currentLanguage === 'qya') {
+        // Add a style tag with font-face declaration
+        const styleId = 'elvish-font-style';
+        
+        // Skip if already added
+        if (!document.getElementById(styleId)) {
+          const style = document.createElement('style');
+          style.id = styleId;
+          style.textContent = `
+            @font-face {
+              font-family: 'Tengwar Annatar';
+              src: url('./fonts/tengwar_annatar.ttf') format('truetype');
+              font-weight: normal;
+              font-style: normal;
+              font-display: swap;
+            }
+            
+            .font-elvish {
+              font-family: 'Tengwar Annatar', 'Graphik', Arial, sans-serif;
+            }
+          `;
+          
+          document.head.appendChild(style);
+          console.log('Added elvish font style');
+        }
+        
+        // Add class to body
+        document.body.classList.add('font-elvish');
+      } else {
+        document.body.classList.remove('font-elvish');
+      }
+    }
+    
     onMount(() => {
       // Sprache setzen
       document.documentElement.lang = $currentLanguage;
@@ -26,6 +61,9 @@
       } else {
         document.documentElement.classList.remove('dark');
       }
+      
+      // Check if we need to load Elvish font
+      loadElvishFont();
       
       // Debug-Information
       console.log('Layout mounted with URL:', url, 'and language:', $currentLanguage);
@@ -73,6 +111,9 @@
     // Auf Sprachänderungen achten
     $: if ($currentLanguage) {
       document.documentElement.lang = $currentLanguage;
+      if (typeof document !== 'undefined') {
+        loadElvishFont();
+      }
       console.log('Language changed to:', $currentLanguage);
     }
 </script>

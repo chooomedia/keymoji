@@ -9,7 +9,6 @@ const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 const { paths } = require('./utils');
-// optmize it 2
 
 module.exports = merge(common, {
     mode: 'production',
@@ -29,6 +28,7 @@ module.exports = merge(common, {
                 test: /\.css$/,
                 exclude: /(node_modules)/,
                 use: [
+                    MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader',
                         options: {
@@ -54,6 +54,13 @@ module.exports = merge(common, {
                 },
                 generator: {
                     filename: 'static/images/[name].[contenthash:8][ext]'
+                }
+            },
+            {
+                test: /\.(woff|woff2|eot|ttf|otf)$/i,
+                type: 'asset/resource',
+                generator: {
+                    filename: 'static/fonts/[name].[hash:8][ext]'
                 }
             }
         ]
