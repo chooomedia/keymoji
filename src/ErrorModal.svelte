@@ -119,7 +119,7 @@
     aria-labelledby="modal-title"
     bind:this={modalRef}
     tabindex="-1"
-    class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-black bg-opacity-95 pb-4" 
+    class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-black bg-opacity-95 backdrop-blur-md pb-4" 
     on:keydown={handleKeydown}
     on:click={handleBackdropClick}
     in:fade={{ duration: ANIMATION_DURATION }}

@@ -1,96 +1,157 @@
 <!-- src/components/Seo.svelte -->
 <script>
-    import { onDestroy } from 'svelte';
+    import { onMount } from 'svelte';
     import { currentLanguage } from '../stores/appStores.js';
-    import { seo, updateSeo, resetSeo } from '../stores/seoStore.js';
     import content from '../content.js';
     import { updatedTime } from '../updatedTime.js';
   
-    // Props - these will update the SEO store
     export let title = '';
     export let description = '';
     export let url = '';
-    export let image = '';
-    export let type = '';
+    export let image = '/images/keymoji-logo-11-2023-simple.png';
+    export let type = 'website';
     export let noindex = false;
     export let keywords = '';
     export let canonical = '';
-    export let pageType = '';
-    
-    // Update the SEO store when props change
-    $: {
-        const updates = {};
-        if (title) updates.title = title;
-        if (description) updates.description = description;
-        if (url) updates.url = url;
-        if (image) updates.image = image;
-        if (type) updates.type = type;
-        if (noindex !== undefined) updates.noindex = noindex;
-        if (keywords) updates.keywords = keywords;
-        if (canonical) updates.canonical = canonical;
-        if (pageType) updates.pageType = pageType;
-        
-        if (Object.keys(updates).length > 0) {
-            updateSeo(updates);
-        }
-    }
-    
-    // Clean up on component destruction
-    onDestroy(() => {
-        resetSeo();
-    });
-    
-    // Helper function to get locale for OpenGraph tags
-    function getLocale(lang) {
-        const localeMap = {
-            'de': 'de_DE',
-            'dech': 'de_CH',
-            'es': 'es_ES',
-            'nl': 'nl_NL',
-            'it': 'it_IT',
-            'fr': 'fr_FR',
-            'pl': 'pl_PL',
-            'da': 'da_DK',
-            'ru': 'ru_RU',
-            'tr': 'tr_TR',
-            'af': 'af_ZA',
-            'ja': 'ja_JP',
-            'ko': 'ko_KO',
-            'tlh': 'tlh_Qo',
-            'qya': 'qya_Qo',
-        };
-        return localeMap[lang] || 'en_US';
-    }
-    
-    // Compute alternate language URLs
-    $: alternateUrls = Object.keys(content)
-        .map(lang => {
-            const langPath = $seo.url ? `/${lang}` : `/${lang}`;
-            return {
-                lang,
-                url: `https://keymoji.wtf${langPath}`
-            };
-        });
-</script>
+    export let pageType = 'home'; // home, blog, contact, versions, etc.
   
-<svelte:head>
+    let pageTitle = '';
+    let pageDescription = '';
+    let pageKeywords = '';
+    let structuredData = {};
+    let alternateUrls = [];
+  
+    // Format canonical URL if not provided
+    $: if (!canonical && url) {
+      canonical = `https://keymoji.wtf${url}`;
+    }
+  
+    // Add trailing slash if needed
+    $: if (canonical && !canonical.endsWith('/') && !canonical.includes('.')) {
+      canonical = `${canonical}/`;
+    }
+  
+    // Get language-specific meta content
+    $: {
+      if (pageType && content[$currentLanguage]?.[pageType]) {
+        pageTitle = title || content[$currentLanguage][pageType].pageTitle;
+        pageDescription = description || content[$currentLanguage][pageType].pageDescription;
+        pageKeywords = keywords || content[$currentLanguage][pageType].pageKeywords;
+      } else {
+        pageTitle = title || content[$currentLanguage]?.index?.pageTitle || 'Keymoji';
+        pageDescription = description || content[$currentLanguage]?.index?.pageDescription || 'Generate secure emoji passwords';
+        pageKeywords = keywords || content[$currentLanguage]?.index?.pageKeywords || 'emoji, password, security';
+      }
+    }
+  
+    // Generate alternate URLs for each language
+    $: {
+      alternateUrls = Object.keys(content).map(lang => {
+        if (lang === 'logo') return null; // Skip non-language keys
+        
+        // Create URL with language code
+        const langPath = url ? `/${lang}${url}` : `/${lang}`;
+        return {
+          lang,
+          url: `https://keymoji.wtf${langPath}`
+        };
+      }).filter(Boolean); // Remove null entries
+    }
+  
+    // Generate structured data based on page type
+    $: {
+      if (pageType === 'home') {
+        structuredData = {
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": pageTitle,
+          "description": pageDescription,
+          "applicationCategory": "Security Tool",
+          "operatingSystem": "Web Browser",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "Christopher Matt",
+            "url": "https://www.linkedin.com/in/chooomedia/",
+            "jobTitle": "Frontend Developer"
+          },
+          "url": canonical,
+          "inLanguage": $currentLanguage,
+          "dateModified": updatedTime
+        };
+      } else if (pageType === 'blog') {
+        structuredData = {
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          "name": pageTitle,
+          "description": pageDescription,
+          "url": canonical,
+          "inLanguage": $currentLanguage,
+          "dateModified": updatedTime,
+          "author": {
+            "@type": "Person",
+            "name": "Christopher Matt"
+          }
+        };
+      }
+      // Add more page types as needed
+    }
+  
+    onMount(() => {
+      // Inject JSON-LD structured data
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.textContent = JSON.stringify(structuredData);
+      document.head.appendChild(script);
+      
+      return () => {
+        // Clean up when component is destroyed
+        if (script.parentNode) {
+          document.head.removeChild(script);
+        }
+      };
+    });
+  
+    function getLocale(lang) {
+      const localeMap = {
+        'de': 'de_DE',
+        'dech': 'de_CH',
+        'es': 'es_ES',
+        'nl': 'nl_NL',
+        'it': 'it_IT',
+        'fr': 'fr_FR',
+        'pl': 'pl_PL',
+        'da': 'da_DK',
+        'ru': 'ru_RU',
+        'tr': 'tr_TR',
+        'af': 'af_ZA',
+        'ja': 'ja_JP',
+        'ko': 'ko_KO',
+        'tlh': 'tlh_Qo',
+        'qya': 'qya_Qo',
+      };
+      return localeMap[lang] || 'en_US';
+    }
+  </script>
+  
+  <svelte:head>
     <!-- Basic Meta Tags -->
-    <title>{$seo.title}</title>
-    <meta name="description" content={$seo.description} />
-    {#if $seo.keywords}
-    <meta name="keywords" content={$seo.keywords} />
-    {/if}
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <meta name="keywords" content={pageKeywords} />
     
-    {#if $seo.noindex}
+    {#if noindex}
     <meta name="robots" content="noindex, nofollow" />
     {:else}
     <meta name="robots" content="index, follow" />
     {/if}
     
     <!-- Canonical URL -->
-    {#if $seo.canonical}
-    <link rel="canonical" href={$seo.canonical} />
-    {/if}
+    <link rel="canonical" href={canonical} />
     
     <!-- Language Alternates -->
     {#each alternateUrls as alt}
@@ -99,26 +160,24 @@
     <link rel="alternate" hreflang="x-default" href="https://keymoji.wtf/" />
     
     <!-- Open Graph Tags -->
-    <meta property="og:title" content={$seo.title} />
-    <meta property="og:description" content={$seo.description} />
-    {#if $seo.canonical}
-    <meta property="og:url" content={$seo.canonical} />
-    {/if}
-    <meta property="og:type" content={$seo.type || 'website'} />
-    <meta property="og:image" content={$seo.image?.startsWith('http') ? $seo.image : `https://keymoji.wtf${$seo.image || '/images/keymoji-logo-11-2023-simple.png'}`} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content={type} />
+    <meta property="og:image" content={image.startsWith('http') ? image : `https://keymoji.wtf${image}`} />
     <meta property="og:locale" content={getLocale($currentLanguage)} />
     <meta property="og:site_name" content="Keymoji" />
     <meta property="og:updated_time" content={updatedTime} />
     
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={$seo.title} />
-    <meta name="twitter:description" content={$seo.description} />
-    <meta name="twitter:image" content={$seo.image?.startsWith('http') ? $seo.image : `https://keymoji.wtf${$seo.image || '/images/keymoji-logo-11-2023-simple.png'}`} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={image.startsWith('http') ? image : `https://keymoji.wtf${image}`} />
     
     <!-- Additional Meta Tags -->
     <meta name="application-name" content="Keymoji" />
     <meta name="apple-mobile-web-app-title" content="Keymoji" />
     <meta name="generator" content="Svelte" />
     <meta name="author" content="Christopher Matt" />
-</svelte:head>
+  </svelte:head>

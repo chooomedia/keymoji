@@ -113,32 +113,22 @@
     });
     
     // Watch for changes to currentLanguage and update path if needed
-    $: if (initialRouteProcessed && $currentLanguage && currentPath) {
-      const pathSegments = currentPath.split('/').filter(segment => segment !== '');
-      
-      if (pathSegments.length > 0) {
-        if (supportedLanguages.includes(pathSegments[0])) {
-          // Path has a language code - replace it
-          if (pathSegments[0] !== $currentLanguage) {
+    $: {
+        if ($currentLanguage && currentPath && !currentPath.startsWith(`/${$currentLanguage}`)) {
+        // Aktualisiere den Pfad mit der neuen Sprache
+        const pathSegments = currentPath.split('/').filter(segment => segment !== '');
+        if (pathSegments.length > 0 && supportedLanguages.includes(pathSegments[0])) {
+            // Ersetze den vorhandenen Sprachcode
             pathSegments[0] = $currentLanguage;
-            const newPath = `/${pathSegments.join('/')}`;
-            
-            // Preserve query parameters
-            const query = window.location.search;
-            navigate(`${newPath}${query}`, { replace: true });
-          }
         } else {
-          // Path has no language code - add it
-          const newPath = `/${$currentLanguage}/${pathSegments.join('/')}`;
-          
-          // Preserve query parameters
-          const query = window.location.search;
-          navigate(`${newPath}${query}`, { replace: true });
+            // Füge einen Sprachcode hinzu
+            pathSegments.unshift($currentLanguage);
         }
-      } else if (currentPath === '/') {
-        // Root path - add language
-        navigate(`/${$currentLanguage}${window.location.search}`, { replace: true });
-      }
+        const newPath = `/${pathSegments.join('/')}`;
+        if (newPath !== currentPath) {
+            navigate(newPath, { replace: true });
+        }
+        }
     }
 </script>
 
@@ -150,27 +140,27 @@
   
 <Router {url}>
     <Layout>
-      <!-- Language-aware routes -->
-      <Route path="/" component={Index} />
-      <Route path="/:lang" component={Index} />
-      
-      <Route path="/blog" component={BlogGrid} />
-      <Route path="/:lang/blog" component={BlogGrid} />
-      
-      <Route path="/blog/:slug" let:params>
-        <BlogPost slug={params.slug} />
-      </Route>
-      <Route path="/:lang/blog/:slug" let:params>
-        <BlogPost slug={params.slug} />
-      </Route>
-      
-      <Route path="/versions" component={VersionHistory} />
-      <Route path="/:lang/versions" component={VersionHistory} currentVersion={currentVersion} />
-      
-      <Route path="/contact" component={ContactForm} />
-      <Route path="/:lang/contact" component={ContactForm} />
-      
-      <!-- Fallback Route for 404 -->
-      <Route path="*" component={NotFound} />
+        <!-- Flachere Struktur für Routen -->
+        <Route path="/" component={Index} />
+        <Route path="/:lang" component={Index} />
+        
+        <Route path="/blog" component={BlogGrid} />
+        <Route path="/:lang/blog" component={BlogGrid} />
+        
+        <Route path="/blog/:slug" let:params>
+            <BlogPost slug={params.slug} />
+        </Route>
+        <Route path="/:lang/blog/:slug" let:params>
+            <BlogPost slug={params.slug} />
+        </Route>
+        
+        <Route path="/versions" component={VersionHistory} />
+        <Route path="/:lang/versions" component={VersionHistory} currentVersion={currentVersion} />
+        
+        <Route path="/contact" component={ContactForm} />
+        <Route path="/:lang/contact" component={ContactForm} />
+        
+        <!-- Fallback Route -->
+        <Route component={NotFound} />
     </Layout>
 </Router>

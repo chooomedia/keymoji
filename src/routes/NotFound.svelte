@@ -4,40 +4,35 @@
     import { fly } from 'svelte/transition';
     import { navigate } from "svelte-routing";
     import { currentLanguage, getText } from '../stores/appStores.js';
-    import Seo from '../components/Seo.svelte';
     import Header from '../Header.svelte';
     import FixedMenu from '../widgets/FixedMenu.svelte';
     
     // Set 404 status code for proper SEO
     onMount(() => {
-      // Try to set the HTML title for better SEO even before SSR
-      document.title = `404 - ${getText('notFound.message')}`;
-      
-      // Add a meta robots tag to prevent indexing of 404 pages
-      const metaRobots = document.createElement('meta');
-      metaRobots.name = 'robots';
-      metaRobots.content = 'noindex';
-      document.head.appendChild(metaRobots);
-      
-      // Return cleanup function
-      return () => {
-        if (metaRobots.parentNode) {
-          document.head.removeChild(metaRobots);
+        if (typeof document === 'undefined') {
+            return { status: 404 };
         }
-      };
+
+        document.title = `404 - ${getText('notFound.message')}`;
+        
+        // Add a meta robots tag to prevent indexing of 404 pages
+        const metaRobots = document.createElement('meta');
+        metaRobots.name = 'robots';
+        metaRobots.content = 'noindex';
+        document.head.appendChild(metaRobots);
+        
+        // Return cleanup function
+        return () => {
+            if (metaRobots.parentNode) {
+            document.head.removeChild(metaRobots);
+            }
+        };
     });
     
     function goHome() {
       navigate(`/${$currentLanguage}`, { replace: true });
     }
 </script>
-  
-<Seo 
-  title={`404 - ${getText('notFound.message')}`}
-  description={getText('notFound.description') || "Page not found"}
-  noindex={true}
-  pageType="notFound"
-/>
 
 <!-- Header Component -->
 <Header />

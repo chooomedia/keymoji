@@ -263,7 +263,7 @@ body {
 /* Use the font-elvish class instead of directly modifying html[lang="qya"] */
 .font-elvish {
     /* Fallback to standard fonts if Tengwar Annatar is not available */
-    font-family: 'Graphik', Arial, sans-serif;
+    font-family: 'Tengwar Annatar', 'Graphik', Arial, sans-serif;
     line-height: 1.5;
     letter-spacing: 0.05em;
 }

@@ -3,19 +3,23 @@ const fs = require('fs');
 const path = require('path');
 const { updatedTime } = require('../src/updatedTime.js');
 
-// Get content.js to extract language codes
-const contentPath = path.join(__dirname, '../src/content.js');
+// Read content.js to extract language codes
+// Use dynamic require to allow running this script in different environments
 let languages = [];
-
 try {
-    // Read content.js to extract language codes
-    // This is a simple approach; in production, you might want to use AST parsing
+    // Get content.js to extract language codes
+    const contentPath = path.join(__dirname, '../src/content.js');
+
+    // Read content.js as string to extract language codes via regex
     const contentFile = fs.readFileSync(contentPath, 'utf8');
     const languageRegex = /['"]([a-z]{2,4})['"]:\s*{/g;
     let match;
 
     while ((match = languageRegex.exec(contentFile)) !== null) {
-        languages.push(match[1]);
+        // Skip 'logo' which isn't a language code
+        if (match[1] !== 'logo') {
+            languages.push(match[1]);
+        }
     }
 
     if (languages.length === 0) {
@@ -47,7 +51,7 @@ routes.forEach(route => {
     sitemapContent += `    <loc>${baseUrl}${route}</loc>\n`;
 
     // Add lastmod date from the updatedTime.js file
-    sitemapContent += `    <lastmod>${updatedTime}</lastmod>\n`;
+    sitemapContent += `    <lastmod>${updatedTime.split('T')[0]}</lastmod>\n`;
 
     // Set change frequency
     sitemapContent += '    <changefreq>weekly</changefreq>\n';
@@ -71,7 +75,9 @@ routes.forEach(route => {
     languages.forEach(lang => {
         sitemapContent += '  <url>\n';
         sitemapContent += `    <loc>${baseUrl}/${lang}${route}</loc>\n`;
-        sitemapContent += `    <lastmod>${updatedTime}</lastmod>\n`;
+        sitemapContent += `    <lastmod>${
+            updatedTime.split('T')[0]
+        }</lastmod>\n`;
         sitemapContent += '    <changefreq>weekly</changefreq>\n';
         sitemapContent += `    <priority>${priority}</priority>\n`;
 
