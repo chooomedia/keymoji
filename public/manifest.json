@@ -1,68 +1,76 @@
 {
-  "name": "Keymoji - Emoji Password Generator",
-  "short_name": "Keymoji",
-  "description": "Generate secure emoji passwords with AI-resistance",
-  "start_url": "/",
-  "id": "/",
-  "display": "standalone",
-  "display_override": ["window-controls-overlay"],
-  "orientation": "portrait",
-  "background_color": "#253852",
-  "theme_color": "#253852",
-  "icons": [
-      {
-          "src": "/static/images/keymoji-logo-11-2023-simple.png",
-          "sizes": "192x192",
-          "type": "image/png",
-          "purpose": "any"
-      },
-      {
-          "src": "/static/images/keymoji-logo-11-2023-simple.png",
-          "sizes": "512x512",
-          "type": "image/png",
-          "purpose": "any"
-      },
-      {
-          "src": "/static/images/keymoji-logo-11-2023-simple.png",
-          "sizes": "512x512",
-          "type": "image/png",
-          "purpose": "maskable"
-      }
-  ],
-  "screenshots": [
-      {
-          "src": "/static/images/keymoji-social-media-banner-10-2024-min.png",
-          "sizes": "1640x924",
-          "type": "image/png",
-          "platform": "narrow",
-          "label": "Banner of Keymoji"
-      }
-  ],
-  "categories": ["utilities", "security"],
-  "shortcuts": [
-      {
-          "name": "Generate Random Password",
-          "url": "/?action=random",
-          "description": "Generate a new random emoji password"
-      }
-  ],
-  "edge_side_panel": {
-      "preferred_width": 400
-  },
-  "lang": "en",
-  "dir": "ltr",
-  "prefer_related_applications": false,
-  "iarc_rating_id": "",
-  "scope": "/",
-  "related_applications": [],
-  "handle_links": "preferred",
-  "launch_handler": {
-      "client_mode": ["navigate-existing", "auto"]
-  },
-  "protocol_handlers": [
-      {
-          "protocol": "web+keymoji",
-          "url": "/?emoji=%s"
-      }
-  ]
+    "name": "Keymoji - Emoji Password Generator",
+    "short_name": "Keymoji",
+    "description": "Generate secure emoji passwords with AI-resistance",
+    "start_url": "/",
+    "id": "/",
+    "display": "standalone",
+    "display_override": [
+        "window-controls-overlay"
+    ],
+    "orientation": "portrait",
+    "background_color": "#253852",
+    "theme_color": "#253852",
+    "icons": [
+        {
+            "src": "/images/keymoji-logo-11-2023-simple.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/keymoji-logo-11-2023-simple.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/keymoji-logo-11-2023-simple.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/images/keymoji-social-media-banner-10-2024-min.png",
+            "sizes": "1640x924",
+            "type": "image/png",
+            "platform": "narrow",
+            "label": "Banner of Keymoji"
+        }
+    ],
+    "categories": [
+        "utilities",
+        "security"
+    ],
+    "shortcuts": [
+        {
+            "name": "Generate Random Password",
+            "url": "/?action=random",
+            "description": "Generate a new random emoji password"
+        }
+    ],
+    "edge_side_panel": {
+        "preferred_width": 400
+    },
+    "lang": "en",
+    "dir": "ltr",
+    "prefer_related_applications": false,
+    "iarc_rating_id": "",
+    "scope": "/",
+    "related_applications": [],
+    "handle_links": "preferred",
+    "launch_handler": {
+        "client_mode": [
+            "navigate-existing",
+            "auto"
+        ]
+    },
+    "protocol_handlers": [
+        {
+            "protocol": "web+keymoji",
+            "url": "/?emoji=%s"
+        }
+    ]
 }

@@ -22,7 +22,7 @@ module.exports = merge(common, {
         clean: true,
         compareBeforeEmit: true
     },
-    
+
     module: {
         rules: [
             {
@@ -30,14 +30,9 @@ module.exports = merge(common, {
                 exclude: /(node_modules)/,
                 use: [
                     {
-                        loader: MiniCssExtractPlugin.loader,
-                        options: {
-                            esModule: true,
-                        }
-                    },
-                    {
                         loader: 'css-loader',
                         options: {
+                            esModule: true,
                             importLoaders: 1,
                             sourceMap: false,
                             modules: {
@@ -131,9 +126,9 @@ module.exports = merge(common, {
         }),
         new CopyPlugin({
             patterns: [
-                { 
+                {
                     from: 'public',
-                    to: '', 
+                    to: '',
                     globOptions: {
                         ignore: ['**/index.html']
                     },

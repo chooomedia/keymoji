@@ -4,10 +4,6 @@ module.exports = {
     './src/**/*.{html,js,svelte}',
     './public/index.html'
   ],
-  purge: [
-    './src/**/*.svelte', 
-    './public/**/*.html'
-  ],
   darkMode: 'class',
   theme: {
     screens: {
@@ -40,7 +36,7 @@ module.exports = {
     },
     fontFamily: {
       sans: ['Graphik', 'sans-serif'],
-      serif: ['Merriweather', 'serif'],
+      serif: ['Merriweather', 'serif']
     },
     extend: {
       scale: {

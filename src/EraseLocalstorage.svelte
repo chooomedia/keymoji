@@ -8,7 +8,7 @@ function clearLocalStorage() {
 </script>
   
   {#if isDevelopment}
-    <button aria-label="DEV: Clear the LocalStorage" class="btn btn-default btn-md"
+    <button aria-label="DEV: Clear the LocalStorage" class="btn btn-default btn-menu"
       on:click={clearLocalStorage}>
       🛁
     </button>

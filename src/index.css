@@ -1,70 +1,104 @@
 /* purgecss start ignore */
 @import 'tailwindcss/base';
-/* purgecss end ignore */
+@import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
 ::-webkit-scrollbar {
     display: none;
-  }
-  
-  /* Hide scrollbar for IE, Edge and Firefox */
-  * {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
-  
-  /* Ensure content is always scrollable but scrollbar hidden */
-  html, body {
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+/* Ensure content is always scrollable but scrollbar hidden */
+html,
+body {
     overflow-y: auto;
     overflow-x: hidden;
-    margin-right: 0 !important; /* Prevent layout shift */
+    margin-right: 0 !important;
+    /* Prevent layout shift */
     width: 100vw;
     scrollbar-width: none;
     -ms-overflow-style: none;
-  }
-  
-  /* Container styles to ensure proper scrolling behavior */
-  .scroll-container {
+}
+
+/* Container styles to ensure proper scrolling behavior */
+.scroll-container {
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-  }
-  
-  /* Prevent horizontal scrollbar */
-  .wrapper {
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling on iOS */
+}
+
+/* Prevent horizontal scrollbar */
+.wrapper {
     overflow-x: clip;
     position: relative;
     width: 100%;
-  }
+}
 
-  @layer components {
+@layer components {
     .btn {
-      @apply transition transform hover:scale-105 focus:outline-none rounded-full;
+        @apply transition transform hover:scale-105 focus:outline-none rounded-full;
     }
-    
+
     .btn-default {
-      @apply relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder;
+        @apply relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder;
     }
 
     .btn-fixed {
-      @apply fixed bg-powder text-black dark:bg-aubergine-dark dark:text-powder border-4 border-creme dark:border-aubergine;
+        @apply fixed bg-powder text-black dark:bg-aubergine-dark dark:text-powder border-4 border-creme dark:border-aubergine;
     }
-  
+
     .btn-yellow {
-      @apply bg-yellow text-black;
+        @apply bg-yellow text-black;
     }
-    
-    .btn-sm { 
-      @apply px-3 py-2 text-sm;
+
+    .btn-sm {
+        @apply px-3 py-2 text-sm;
     }
-    
+
     .btn-md {
-      @apply px-4 py-3 text-2xl; 
+        @apply px-4 text-xl;
+        padding-top: 14px;
+        padding-bottom: 14px;
     }
-    
+
+    .btn-menu {
+        @apply px-4 text-xl;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
     .btn-lg {
-      @apply px-6 py-4 text-3xl;
+        @apply px-6 py-4 text-3xl;
     }
-  }
+}
+
+@font-face {
+    font-family: 'Tengwar Annatar';
+    src: url('tengwar_annatar.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html[lang="qya"] {
+    font-family: 'Tengwar Annatar', 'Graphik', Arial, sans-serif;
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+
+    #emoji-display {
+        @apply pt-7;
+    }
+
+    #fixed-menu-nav button {
+        @apply font-sans;
+    }
+}

@@ -1,18 +1,20 @@
 <script>
   import { fade, fly } from 'svelte/transition';
   import { modalMessage, isModalVisible } from './stores.js';
+  import FocusManager from './components/A11y/FocusManager.svelte';
 
   // State management
   $: message = $modalMessage;
   let showMessage = false;
   let imageLoaded = false;
   let modalRef;
+  let lastActiveElement;
 
   // Constants for animation and accessibility
-  const ANIMATION_DURATION = 320;
-  const IMAGE_DISPLAY_DURATION = 1400;
-  const MESSAGE_MIN_DURATION = 1800;
-  const MESSAGE_WORD_MULTIPLIER = 200;
+  const ANIMATION_DURATION = 300;
+  const IMAGE_DISPLAY_DURATION = 1200;
+  const MESSAGE_MIN_DURATION = 2000;
+  const MESSAGE_WORD_MULTIPLIER = 210;
 
   // Error types for analytics and aria-labels
   const ERROR_TYPES = {
@@ -22,7 +24,6 @@
     INFO: 'info'
   };
 
-  // Determine message type based on content
   function getMessageType(msg) {
     if (!msg) return ERROR_TYPES.INFO;
     const lowerMsg = msg.toLowerCase();
@@ -32,49 +33,70 @@
     return ERROR_TYPES.INFO;
   }
 
-  // Handle modal display logic
   modalMessage.subscribe(value => {
     if (value) {
       showMessage = true;
       isModalVisible.set(true);
       imageLoaded = false;
+      lastActiveElement = document.activeElement;
 
-      // Focus management for screen readers
-      setTimeout(() => {
-        modalRef?.focus();
-      }, ANIMATION_DURATION);
-
-      // Calculate display duration based on message complexity
       const wordCount = value.split(' ').length;
       const calculatedDuration = Math.max(
         MESSAGE_MIN_DURATION,
         wordCount * MESSAGE_WORD_MULTIPLIER
       );
 
-      // Auto-close after appropriate duration
+      // Fokus erst setzen, wenn Modal sichtbar ist
+      setTimeout(() => {
+        if (modalRef) {
+          modalRef.focus();
+        }
+      }, ANIMATION_DURATION);
+
       const timeoutId = setTimeout(() => {
         closeMessage();
       }, calculatedDuration + IMAGE_DISPLAY_DURATION);
 
-      // Cleanup timeout on early close
       return () => clearTimeout(timeoutId);
     }
   });
 
-  // Close modal and restore focus
   function closeMessage() {
     showMessage = false;
     modalMessage.set('');
     isModalVisible.set(false);
     
-    // Return focus to triggering element
-    document.getElementById('emoji-display')?.focus();
+    // Fokus auf letztes aktives Element zurücksetzen
+    if (lastActiveElement && typeof lastActiveElement.focus === 'function') {
+      lastActiveElement.focus();
+    }
   }
 
-  // Handle keyboard interactions
   function handleKeydown(event) {
     if (event.key === 'Escape') {
+      event.preventDefault();
       closeMessage();
+    }
+
+    // Fokus im Modal halten
+    if (event.key === 'Tab') {
+      const focusableElements = modalRef.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey) {
+        if (document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
     }
   }
 
@@ -82,7 +104,6 @@
     imageLoaded = true;
   }
 
-  // Handle click outside modal
   function handleBackdropClick(event) {
     if (event.target === event.currentTarget) {
       closeMessage();
@@ -91,23 +112,23 @@
 </script>
 
 {#if showMessage}
-<div 
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="modal-title"
-  bind:this={modalRef}
-  tabindex="-1"
-  class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-black bg-opacity-95 pb-4" 
-  on:keydown={handleKeydown}
-  on:click={handleBackdropClick}
-  transition:fade={{ duration: ANIMATION_DURATION }}
-  data-testid="error-modal"
->
+<FocusManager active={showMessage} restoreFocus={true}>
     <div 
-      class="relative flex flex-col items-center justify-center mb-4 px-4"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    bind:this={modalRef}
+    tabindex="-1"
+    class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-black bg-opacity-95 pb-4" 
+    on:keydown={handleKeydown}
+    on:click={handleBackdropClick}
+    in:fade={{ duration: ANIMATION_DURATION }}
+    out:fade={{ duration: ANIMATION_DURATION }}
+    data-testid="error-modal"
+  >
+    <div 
+      class="relative flex flex-col items-center justify-center mb-4 px-4 md:px-0"
       in:fly={{ y: 20, duration: ANIMATION_DURATION, delay: ANIMATION_DURATION }}
-      role="alertdialog"
-      aria-describedby="modal-description"
     >
       <img
         src="./images/keymoji-animated-optimize-resize-160x160px.webp"
@@ -124,33 +145,37 @@
         class="bg-transparent text-center z-50 max-w-md"
         in:fly={{ y: 20, duration: ANIMATION_DURATION, delay: ANIMATION_DURATION + 200 }}
       >
-        <h1 
+        <h2 
           id="modal-title"
-          class="text-white md:text-2xl text-base font-bold p-2"
+          class="text-white md:text-xl text-base font-bold p-2"
           aria-live="assertive"
-          role="status"
           data-message-type={getMessageType(message)}
         >
           {message}
-        </h1>
+        </h2>
         <p id="modal-description" class="sr-only">
           Press Escape to close this message
         </p>
       </div>
     </div>
-
     <button 
-      class="w-16 btn btn-fixed btn-md top-5 right-4" 
-      on:click={closeMessage}
-      aria-label="Close notification"
-      in:fade={{ duration: ANIMATION_DURATION, delay: ANIMATION_DURATION }}
-    >
-      ❌
-    </button>
-</div>
+    class="btn btn-fixed absolute top-5 right-4 py-3 px-4" 
+    on:click={closeMessage}
+    aria-label="Close notification"
+    in:fade={{ duration: ANIMATION_DURATION, delay: ANIMATION_DURATION }}
+  >
+    ❌
+  </button>
+</FocusManager>
 {/if}
 
 <style>
+  div[role="dialog"] {
+    &::backdrop {
+      background: rgba(0, 0, 0, 0.95);
+    }
+  }
+
   /* Optimize performance with composited animations */
   img {
     will-change: opacity, transform;
@@ -168,21 +193,17 @@
     -ms-user-select: none;
   }
 
-  /* Ensure modal is on top of other content */
-  div[role="dialog"] {
-    isolation: isolate;
-  }
-
-  /* Improve touch target sizes */
+  /* Größere Touch-Ziele */
   button {
     min-height: 44px;
     min-width: 44px;
   }
 
-  /* Enhance visual feedback */
+  /* Verbessertes visuelles Feedback */
   button:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgb(255, 255, 255);
   }
 
   @media (prefers-reduced-motion: reduce) {

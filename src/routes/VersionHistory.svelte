@@ -2,8 +2,8 @@
   import { fly } from 'svelte/transition';
   import { onMount } from 'svelte';
   import { navigate } from "svelte-routing";
-  import { versions } from './versions.js';
-  import { currentLanguage } from './stores.js';
+  import { versions } from '../versions.js';
+  import SEO from '../components/Seo.svelte';
 
   export let currentVersion;
   let timelineHeight = 0;
@@ -101,7 +101,14 @@
   });
 </script>
 
-<div class="container mx-auto px-4 py-8 mt-16">
+<SEO 
+  pageType="versions" 
+  url={window.location.pathname}
+  title="Version History - Keymoji"
+  description="Check out the development history and changelog of Keymoji, the emoji password generator."
+/>
+
+<div class="container mx-auto px-4 py-8 ">
   <div class="my-8 text-center">
     <h1 class="text-3xl font-bold text-black dark:text-white">
       Version History
