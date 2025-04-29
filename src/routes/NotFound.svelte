@@ -4,7 +4,7 @@
     import { fly } from 'svelte/transition';
     import { navigate } from "svelte-routing";
     import { currentLanguage, getText } from '../stores/appStores.js';
-    import SEO from '../components/Seo.svelte';
+    import Seo from '../components/Seo.svelte';
     import Header from '../Header.svelte';
     import FixedMenu from '../widgets/FixedMenu.svelte';
     
@@ -32,7 +32,7 @@
     }
 </script>
   
-<SEO 
+<Seo 
   title={`404 - ${getText('notFound.message')}`}
   description={getText('notFound.description') || "Page not found"}
   noindex={true}

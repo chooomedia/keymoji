@@ -105,7 +105,7 @@
     <meta property="og:url" content={$seo.canonical} />
     {/if}
     <meta property="og:type" content={$seo.type || 'website'} />
-    <meta property="og:image" content={$seo.image?.startsWith('http') ? $seo.image : `https://keymoji.wtf${$seo.image || './images/keymoji-logo-11-2023-simple.png'}`} />
+    <meta property="og:image" content={$seo.image?.startsWith('http') ? $seo.image : `https://keymoji.wtf${$seo.image || '/images/keymoji-logo-11-2023-simple.png'}`} />
     <meta property="og:locale" content={getLocale($currentLanguage)} />
     <meta property="og:site_name" content="Keymoji" />
     <meta property="og:updated_time" content={updatedTime} />
@@ -114,7 +114,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={$seo.title} />
     <meta name="twitter:description" content={$seo.description} />
-    <meta name="twitter:image" content={$seo.image?.startsWith('http') ? $seo.image : `https://keymoji.wtf${$seo.image || './images/keymoji-logo-11-2023-simple.png'}`} />
+    <meta name="twitter:image" content={$seo.image?.startsWith('http') ? $seo.image : `https://keymoji.wtf${$seo.image || '/images/keymoji-logo-11-2023-simple.png'}`} />
     
     <!-- Additional Meta Tags -->
     <meta name="application-name" content="Keymoji" />

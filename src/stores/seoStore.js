@@ -8,7 +8,7 @@ const defaultSeo = {
     title: '',
     description: '',
     url: '',
-    image: './images/keymoji-logo-11-2023-simple.png',
+    image: '/images/keymoji-logo-11-2023-simple.png',
     type: 'website',
     noindex: false,
     keywords: '',
