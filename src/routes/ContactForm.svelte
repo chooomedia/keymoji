@@ -78,8 +78,7 @@
             verification: content[$currentLanguage].contactForm.emailText.doubleCheck,
             buttonText: content[$currentLanguage].contactForm.emailText.button,
             privacy: content[$currentLanguage].contactForm.emailText.privacy,
-            footer: content[$currentLanguage].contactForm.footerText,
-            language: content[$currentLanguage]
+            footer: content[$currentLanguage].contactForm.footerText
         };
 
         try {
