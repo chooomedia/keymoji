@@ -3,7 +3,7 @@ const common = require('./common');
 const { paths, plugins } = require('./utils');
 
 module.exports = merge(common, {
-    mode: 'development',
+    mode: 'development', // Webpack setzt process.env.NODE_ENV = 'development'
     stats: 'minimal',
 
     // DevServer-Konfiguration optimiert

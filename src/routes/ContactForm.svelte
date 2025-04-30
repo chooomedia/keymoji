@@ -1,11 +1,12 @@
 <script>
-    import { modalMessage, currentLanguage } from '../stores/appStores.js';
+    import { modalMessage, currentLanguage, isModalVisible } from '../stores/appStores.js';
     import content from '../content.js';
     import { navigate } from "svelte-routing";
     import { fade, fly, scale } from 'svelte/transition';
     import Header from '../Header.svelte';
     import FixedMenu from '../widgets/FixedMenu.svelte';
     import { WEBHOOKS, API_CONFIG } from '../config/api.js';
+    import { appVersion } from '../utils/version.js';
 
     // Form state
     let name = '';
@@ -68,9 +69,17 @@
     };
 
     const handleSubmit = async () => {
-        if (isSubmitting || !validateForm()) return;
+        if (isSubmitting) return;
+        
+        if (!validateForm()) {
+            // Bei Validierungsfehlern zeigen wir standardmäßig die errorMessage an
+            modalMessage.set(content[$currentLanguage].contactForm.errorMessage || 'An unexpected error occurred 😟');
+            return;
+        }
         
         isSubmitting = true;
+        
+        // WICHTIG: Keine "sending..."-Nachricht im ErrorModal anzeigen
 
         // Sicherstellen, dass emailText existiert
         const emailText = content[$currentLanguage]?.contactForm?.emailText || {};
@@ -81,13 +90,13 @@
             intro: emailText.intro || 'Thank you for contacting us.',
             doubleCheck: emailText.doubleCheck || "We've received your message with the following details:",
             button: emailText.button || 'Confirm Your Email',
-            privacy: emailText.privacy || 'Your data is handled securely according to our privacy policy.',
+            subject: emailText.subject || `Your message to Keymoji has been received`,
+            privacy: emailText.privacy || 'Your data is handled securely.',
             footer: content[$currentLanguage]?.contactForm?.footerText || 'Developed with love'
         };
 
         try {
             console.log('Sending to:', WEBHOOKS.CONTACT.SEND_MAIL);
-            console.log('Email content:', emailContent);
             
             const response = await fetch(WEBHOOKS.CONTACT.SEND_MAIL, {
                 method: 'POST',
@@ -101,7 +110,9 @@
                     message: message.trim(),
                     newsletterOptIn,
                     honeypot,
-                    emailContent
+                    emailContent,
+                    langCode: $currentLanguage, // Send current language code
+                    appVersion: appVersion // Send app version
                 })
             });
 
@@ -110,24 +121,28 @@
                 throw new Error(errorData.error || 'Server error');
             }
 
-            modalMessage.set(content[$currentLanguage].contactForm.successMessage || 'Message sent successfully!');
+            // Success message - bestehende Message verwenden
+            modalMessage.set(content[$currentLanguage].contactForm.successMessage || 'Success, Message sent - Answer: < 24 hours 🚀');
             
             // Reset form
             name = email = message = honeypot = '';
             newsletterOptIn = false;
 
+            // Wait for user to see the success message before redirecting
             setTimeout(() => navigate(`/${$currentLanguage}`), 3000);
         } catch (error) {
             console.error('Submission error:', error);
-            modalMessage.set(content[$currentLanguage].contactForm.errorMessage || 'There was an error sending your message. Please try again.');
+            
+            // Bei Netzwerk- oder allgemeinen Fehlern die requestErrorMessage verwenden
+            modalMessage.set(content[$currentLanguage].contactForm.requestErrorMessage || 'Error sending the message, please try again 🙁');
         } finally {
             isSubmitting = false;
         }
     };
 
     $: isFormValid = name.trim().length >= 2 && 
-                    validateEmail(email) && 
-                    message.trim().length >= MIN_MESSAGE_LENGTH;
+                     validateEmail(email) && 
+                     message.trim().length >= MIN_MESSAGE_LENGTH;
 </script>
 
 <Header />
@@ -189,6 +204,7 @@
                                 placeholder={content[$currentLanguage].contactForm.nameLabel}
                                 class="contact-input"
                                 aria-invalid={!!formErrors.name}
+                                disabled={isSubmitting}
                             />
                             {#if formErrors.name}
                                 <p class="form-error">{formErrors.name}</p>
@@ -202,6 +218,7 @@
                                 placeholder={content[$currentLanguage].contactForm.emailLabel}
                                 class="contact-input"
                                 aria-invalid={!!formErrors.email}
+                                disabled={isSubmitting}
                             />
                             {#if formErrors.email}
                                 <p class="form-error">{formErrors.email}</p>
@@ -217,6 +234,7 @@
                             rows="4"
                             class="contact-input"
                             aria-invalid={!!formErrors.message}
+                            disabled={isSubmitting}
                         ></textarea>
                         {#if formErrors.message}
                             <p class="form-error">{formErrors.message}</p>
@@ -229,6 +247,7 @@
                           type="checkbox"
                           bind:checked={newsletterOptIn}
                           class="h-5 w-5 contact-checkbox"
+                          disabled={isSubmitting}
                         />
                         <span>{content[$currentLanguage].contactForm.newsletterLabel}</span>
                     </label>
@@ -239,6 +258,8 @@
                             type="button"
                             on:click={() => navigate(`/${$currentLanguage}`)}
                             class="btn-secondary"
+                            disabled={isSubmitting}
+                            aria-label={content[$currentLanguage].contactForm.backToMainButton}
                         >
                             {content[$currentLanguage].contactForm.backToMainButton}
                         </button>
@@ -247,10 +268,14 @@
                             type="submit"
                             disabled={!isFormValid || isSubmitting}
                             class="btn-primary {isSubmitting ? 'opacity-75 cursor-wait' : ''}"
+                            aria-label={isSubmitting 
+                                ? content[$currentLanguage].contactForm.sendingButton || 'Sending message'
+                                : content[$currentLanguage].contactForm.sendButton || 'Send message'}
+                            aria-busy={isSubmitting}
                         >
                             {isSubmitting 
                                 ? content[$currentLanguage].contactForm.sendingButton || 'Sending ...'
-                                : content[$currentLanguage].contactForm.sendButton}
+                                : content[$currentLanguage].contactForm.sendButton || 'Send Message'}
                         </button>
                     </div>
                 </form>
@@ -282,5 +307,18 @@
     .object-cover {
       object-fit: cover;
       font-family: 'object-fit: cover'; /* IE polyfill */
+    }
+  
+    /* Improve form field styles for disabled state */
+    .contact-input:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  
+    /* Improve button styles for disabled state */
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: scale(1) !important;
     }
 </style>

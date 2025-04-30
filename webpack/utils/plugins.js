@@ -14,11 +14,14 @@ function createEnvForDefinePlugin(env) {
     const processEnv = {};
 
     // Konvertiere alle Umgebungsvariablen in das korrekte Format
+    // Entferne NODE_ENV, da es bereits durch webpack.DefinePlugin.__definierte__ gesetzt wird
     for (const key in env) {
-        if (typeof env[key] === 'string') {
-            processEnv[key] = JSON.stringify(env[key]);
-        } else {
-            processEnv[key] = env[key];
+        if (key !== 'NODE_ENV') {
+            if (typeof env[key] === 'string') {
+                processEnv[key] = JSON.stringify(env[key]);
+            } else {
+                processEnv[key] = env[key];
+            }
         }
     }
 

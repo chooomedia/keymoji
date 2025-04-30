@@ -11,7 +11,7 @@ const path = require('path');
 const { paths } = require('./utils');
 
 module.exports = merge(common, {
-    mode: 'production',
+    mode: 'production', // Webpack setzt process.env.NODE_ENV = 'production'
     stats: 'errors-only',
     output: {
         filename: 'static/js/[name].[contenthash:8].js',
@@ -176,7 +176,7 @@ module.exports = merge(common, {
             config: [__filename]
         },
         compression: 'gzip',
-        name: `production-${process.env.NODE_ENV}`,
-        version: `${process.env.NODE_ENV}-${Date.now()}`
+        name: `production-cache`,
+        version: `${Date.now()}`
     }
 });

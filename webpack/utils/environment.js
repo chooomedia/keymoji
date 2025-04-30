@@ -72,11 +72,11 @@ function convertEnvValues(env) {
     return result;
 }
 
+// WICHTIG: Wir entfernen NODE_ENV aus dem result Objekt, da es durch Webpack selbst gesetzt wird
 module.exports = {
     development: {
         ...common,
-        NODE_ENV: stringify('development'),
-        // Füge alle env-Variablen hinzu
+        // NODE_ENV wird nicht hier definiert, sondern durch mode: 'development' in webpack/start.js
         ...convertEnvValues(developmentEnv),
         // Stelle sicher, dass kritische Variablen immer verfügbar sind
         WEBHOOK_BASE: stringify(
@@ -90,8 +90,7 @@ module.exports = {
     },
     production: {
         ...common,
-        NODE_ENV: stringify('production'),
-        // Füge alle env-Variablen hinzu
+        // NODE_ENV wird nicht hier definiert, sondern durch mode: 'production' in webpack/build.js
         ...convertEnvValues(productionEnv),
         // Stelle sicher, dass kritische Variablen immer verfügbar sind
         WEBHOOK_BASE: stringify(

@@ -104,7 +104,8 @@ export const content = {
                 privacy:
                     'Rest assured, your data is in good hands with us 🤲.<br>Your details will not be passed on to third parties 🔒.'
             },
-            backToMainButton: '🔙 Back'
+            backToMainButton: '🔙 Back',
+            footerText: 'Developed with ❤️ in Switzerland'
         },
         shareButtons: {
             links: [
@@ -271,7 +272,8 @@ export const content = {
                 privacy:
                     'Keine Sorge, deine Daten sind bei uns in guten Händen 🤲.<br>Deine Details werden nicht an Dritte weitergegeben 🔒.'
             },
-            backToMainButton: '🔙 Zurück'
+            backToMainButton: '🔙 Zurück',
+            footerText: 'Mit ❤️ in der Schweiz entwickelt'
         },
         shareButtons: {
             links: [
@@ -439,7 +441,8 @@ export const content = {
                 privacy:
                     'Kei Sorge, mit dine Date wird guet umgange bi üs 🤲.<br>Dini Detail werde nid an Drüttparteie wiitergäh 🔒.'
             },
-            backToMainButton: '🔙 Zrugg'
+            backToMainButton: '🔙 Zrugg',
+            footerText: 'Mit ❤️ i de Schwiiz entwickelt'
         },
         shareButtons: {
             links: [
@@ -604,7 +607,8 @@ export const content = {
                 privacy:
                     'Descuida, tus datos están en buenas manos con nosotros 🤲.<br>Tus detalles no serán compartidos con terceros 🔒.'
             },
-            backToMainButton: '🔙 Volver'
+            backToMainButton: '🔙 Volver',
+            footerText: 'Desarrollado con ❤️ en Suiza'
         },
         shareButtons: {
             links: [
@@ -768,7 +772,8 @@ export const content = {
                 privacy:
                     'Wees gerust, jouw gegevens zijn in goede handen bij ons 🤲.<br>Jouw details worden niet aan derden doorgegeven 🔒.'
             },
-            backToMainButton: '🔙 Terug'
+            backToMainButton: '🔙 Terug',
+            footerText: 'Ontwikkeld met ❤️ in Zwitserland'
         },
         shareButtons: {
             links: [
@@ -933,7 +938,8 @@ export const content = {
                 privacy:
                     'Stai tranquillo, i tuoi dati sono in buone mani con noi 🤲.<br>I tuoi dettagli non saranno condivisi con terzi 🔒.'
             },
-            backToMainButton: '🔙 Torna'
+            backToMainButton: '🔙 Torna',
+            footerText: 'Sviluppato con ❤️ in Svizzera'
         },
         shareButtons: {
             links: [
@@ -1098,7 +1104,8 @@ export const content = {
                 privacy:
                     'Soyez rassuré, vos données sont entre de bonnes mains avec nous 🤲.<br>Vos détails ne seront pas partagés avec des tiers 🔒.'
             },
-            backToMainButton: '🔙 Retour'
+            backToMainButton: '🔙 Retour',
+            footerText: 'Développé avec ❤️ en Suisse'
         },
         shareButtons: {
             links: [
@@ -1263,7 +1270,8 @@ export const content = {
                 privacy:
                     'Bądź spokojny, twoje dane są w dobrych rękach 🤲.<br>Twoje szczegóły nie zostaną przekazane osobom trzecim 🔒.'
             },
-            backToMainButton: '🔙 Powrót'
+            backToMainButton: '🔙 Powrót',
+            footerText: 'Desenvolvido com ❤️ na Suíça'
         },
         shareButtons: {
             links: [
@@ -1427,7 +1435,8 @@ export const content = {
                 privacy:
                     'Vær rolig, dine data er i gode hænder hos os 🤲.<br>Dine oplysninger vil ikke blive delt med tredjeparter 🔒.'
             },
-            backToMainButton: '🔙 Tilbage'
+            backToMainButton: '🔙 Tilbage',
+            footerText: 'Udviklet med ❤️ i Schweiz'
         },
         shareButtons: {
             links: [
@@ -1592,7 +1601,8 @@ export const content = {
                 privacy:
                     'Не волнуйтесь, ваши данные у нас в надежных руках 🤲.<br>Ваши данные не будут переданы третьим лицам 🔒.'
             },
-            backToMainButton: '🔙 Вернуться'
+            backToMainButton: '🔙 Вернуться',
+            footerText: 'Разработано с ❤️ в Швейцарии'
         },
         shareButtons: {
             links: [
@@ -1756,7 +1766,8 @@ export const content = {
                 privacy:
                     'Verileriniz bizimle güvende 🤲.<br>Detaylarınız üçüncü taraflara iletilmeyecektir 🔒.'
             },
-            backToMainButton: '🔙 geri dön'
+            backToMainButton: '🔙 geri dön',
+            footerText: "İsviçre'de ❤️ ile geliştirildi"
         },
         shareButtons: {
             links: [
@@ -1921,7 +1932,8 @@ export const content = {
                 privacy:
                     'Wees verseker, jou data is in goeie hande by ons 🤲.<br>Jou besonderhede sal nie aan derde partye oorgedra word nie 🔒.'
             },
-            backToMainButton: '🔙 Terug'
+            backToMainButton: '🔙 Terug',
+            footerText: 'Met ❤️ in Switserland ontwikkel'
         },
         shareButtons: {
             links: [
@@ -2087,7 +2099,8 @@ export const content = {
                 privacy:
                     '安心してください、お客様のデータは安全に保管されています 🤲。<br>お客様の詳細情報は第三者に提供されることはありません 🔒。'
             },
-            backToMainButton: '🔙 メインビューに戻る'
+            backToMainButton: '🔙 メインビューに戻る',
+            footerText: 'スイスで ❤️ を込めて開発'
         },
         shareButtons: {
             links: [
@@ -2253,7 +2266,8 @@ export const content = {
                 privacy:
                     '걱정 마세요. 귀하의 데이터는 안전하게 보호됩니다 🤲.<br>귀하의 세부 정보는 제3자에게 전달되지 않습니다 🔒.'
             },
-            backToMainButton: '🔙 메인 뷰로 돌아가기'
+            backToMainButton: '🔙 메인 뷰로 돌아가기',
+            footerText: '스위스에서 ❤️ 으로 개발됨'
         },
         shareButtons: {
             links: [
@@ -2417,7 +2431,8 @@ export const content = {
                 privacy:
                     "cholna'be' ghaH ngan chenmoH qeq 'oH 🤲.<br>ngan 'oHbogh ghItlh. lujon chenmoH cha'logh tu'lu'. 🔒."
             },
-            backToMainButton: "🔙 Daq HeghDI'"
+            backToMainButton: "🔙 Daq HeghDI'",
+            footerText: 'wIvtaH ❤️ e Switzerland-Daq'
         },
         shareButtons: {
             links: [
@@ -2578,7 +2593,8 @@ export const content = {
                 privacy:
                     'Nai melme, ar ëarë ná hrestale hlarë 🤲. Ilya ëarë nai quildë ëarë ai melme 🛡️.'
             },
-            backToMainButton: '🔙 Hlarë'
+            backToMainButton: '🔙 Hlarë',
+            footerText: 'Nórienna ❤️ mi Suíza'
         },
         shareButtons: {
             links: [
