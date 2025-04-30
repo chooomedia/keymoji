@@ -28,5 +28,19 @@
             "status": 404,
             "dest": "/404"
         }
-    ]
+    ],
+    "github": {
+        "enabled": true,
+        "autoJobCancelation": true,
+        "silent": false,
+        "autoDeploy": true,
+        "autoAlias": true,
+        "jobFilters": {
+            "actions": [
+                "opened",
+                "synchronize",
+                "reopened"
+            ]
+        }
+    }
 }
