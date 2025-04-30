@@ -47,16 +47,16 @@ export default async function handler(req, res) {
     }
 }
 
-async function sendBrevoEmail({ name, email, message }) {
+async function sendBrevoEmail({ name, email, message, emailContent }) {
     const toEmail = process.env.MAIL_TO;
     const brevoApiKey = process.env.BREVO_API_KEY;
 
     const emailHtml = `
     <!DOCTYPE html>
-    <html>
+    <html lang="${emailContent.language}">
     <head>
         <meta charset="utf-8">
-        <title>New Contact from ${name}</title>
+        <title>${intro} ${name}</title>
     </head>
     <body style="margin: 0; padding: 20px; background: #F3F4F6;">
         <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 24px;">
@@ -66,17 +66,23 @@ async function sendBrevoEmail({ name, email, message }) {
                      style="height: 60px;">
             </div>
             
-            <h2 style="color: #1F2937; font-size: 20px; margin-bottom: 16px;">
-                Neue Nachricht von ${name}
-            </h2>
+            <h1 style="color: #1F2937; font-size: 20px; margin-bottom: 16px;">${
+                emailContent.greeting
+            }, ${name} 👋</h1>
+
+            <p style="padding: 16px 0;">${emailContent.intro}</p>
             
             <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
-                <p style="margin: 0 0 8px 0; color: #4B5563;">
-                    <strong>Email:</strong> ${email}
-                </p>
-                <p style="margin: 0; color: #4B5563; white-space: pre-wrap;">
-                    ${message}
-                </p>
+                <pstyle="margin: 8px 0;"><strong>${
+                    emailContent.verification
+                }</strong></p>
+                <ul style="margin: 0 0 8px 0; color: #4B5563; white-space: pre-wrap;>
+                    <li><strong>Name:</strong> ${validator.escape(name)}</li>
+                    <li><strong>Email:</strong> ${validator.escape(email)}</li>
+                    <li><strong>Message:</strong> ${validator.escape(
+                        message
+                    )}</li>
+                </ul>
             </div>
             
             <div style="margin-top: 24px; text-align: center;">
@@ -85,9 +91,12 @@ async function sendBrevoEmail({ name, email, message }) {
                           background: #F59E0B; color: white; 
                           text-decoration: none; border-radius: 50px;
                           font-weight: 500;">
-                    Zur Website
+                        ${emailContent.buttonText}
                 </a>
             </div>
+            <p class="privacy">${emailContent.privacy}</p>
+            
+            <footer>${emailContent.footer}</footer>
         </div>
     </body>
     </html>`;

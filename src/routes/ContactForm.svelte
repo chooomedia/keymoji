@@ -72,6 +72,15 @@
         
         isSubmitting = true;
 
+        const emailContent = {
+            greeting: content[$currentLanguage].contactForm.emailText.greeting,
+            intro: content[$currentLanguage].contactForm.emailText.intro,
+            verification: content[$currentLanguage].contactForm.emailText.doubleCheck,
+            buttonText: content[$currentLanguage].contactForm.emailText.button,
+            privacy: content[$currentLanguage].contactForm.emailText.privacy,
+            footer: content[$currentLanguage].contactForm.footerText
+        };
+
         try {
             const response = await fetch(WEBHOOKS.CONTACT.SEND_MAIL, {
                 method: 'POST',
@@ -84,7 +93,9 @@
                     email: email.trim(),
                     message: message.trim(),
                     newsletterOptIn,
-                    honeypot
+                    honeypot,
+                    language: $currentLanguage,
+                    emailContent // Alle benötigten Texte werden mitgeschickt
                 })
             });
 
@@ -229,7 +240,7 @@
                             class="btn-primary {isSubmitting ? 'opacity-75 cursor-wait' : ''}"
                         >
                             {isSubmitting 
-                                ? content[$currentLanguage].contactForm.sendingButton 
+                                ? content[$currentLanguage].contactForm.sendingButton || 'Sending ...'
                                 : content[$currentLanguage].contactForm.sendButton}
                         </button>
                     </div>
