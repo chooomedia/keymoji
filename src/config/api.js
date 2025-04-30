@@ -1,11 +1,33 @@
 // src/config/api.js
 // Zentrale Konfiguration für alle API-Endpunkte und Webhooks
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-const WEBHOOK_BASE =
-    process.env.WEBHOOK_BASE || 'https://n8n.chooomedia.com/webhook';
-const WEBHOOK_TEST_BASE =
-    process.env.WEBHOOK_TEST_BASE || 'https://n8n.chooomedia.com/webhook-test';
+// Sichere Methode, um process.env zu prüfen und Standardwerte zu verwenden
+const getEnv = (key, defaultValue) => {
+    try {
+        // Prüfe ob process existiert (für Browsersicherheit)
+        return typeof process !== 'undefined' && process.env && process.env[key]
+            ? process.env[key]
+            : defaultValue;
+    } catch (e) {
+        console.warn(
+            `Umgebungsvariable ${key} nicht verfügbar, verwende Standard`
+        );
+        return defaultValue;
+    }
+};
+
+// Bestimme Umgebung sicher
+const isDevelopment = getEnv('NODE_ENV', 'production') === 'development';
+
+// Basis-URLs mit Fallbacks
+const WEBHOOK_BASE = getEnv(
+    'WEBHOOK_BASE',
+    'https://n8n.chooomedia.com/webhook'
+);
+const WEBHOOK_TEST_BASE = getEnv(
+    'WEBHOOK_TEST_BASE',
+    'https://n8n.chooomedia.com/webhook-test'
+);
 
 // Nutze je nach Umgebung die passende Basis-URL
 const getBaseUrl = () => (isDevelopment ? WEBHOOK_TEST_BASE : WEBHOOK_BASE);

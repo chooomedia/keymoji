@@ -4,24 +4,34 @@ import './index.css';
 import { appVersion } from './utils/version.js';
 import { modalMessage } from './stores/appStores.js';
 import content from './content.js';
-import { WEBHOOKS } from './config/api.js';
 
 // Get the current URL
 const currentUrl = window.location.pathname;
 
+// Umgebungsvariablen sicher abfragen
+const getEnvironment = () => {
+    try {
+        return typeof process !== 'undefined' &&
+            process.env &&
+            process.env.NODE_ENV
+            ? process.env.NODE_ENV
+            : 'production';
+    } catch (e) {
+        console.warn(
+            'Could not access environment variables, defaulting to production'
+        );
+        return 'production';
+    }
+};
+
+const environment = getEnvironment();
 console.log(
     'Starting app with URL:',
     currentUrl,
     'Version:',
     appVersion,
     'Environment:',
-    process.env.NODE_ENV
-);
-
-// Log environment variables (nicht sensible)
-console.log(
-    'Webhook Base:',
-    process.env.WEBHOOK_BASE ? 'Configured' : 'Using default'
+    environment
 );
 
 const app = new Root({
@@ -33,7 +43,7 @@ const app = new Root({
 });
 
 // Enhanced Service Worker Registration with update handling
-if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+if ('serviceWorker' in navigator && environment === 'production') {
     window.addEventListener('load', async () => {
         try {
             const registration = await navigator.serviceWorker.register(
@@ -104,9 +114,6 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
                     console.log(
                         `Service Worker updated to version ${event.data.version}`
                     );
-
-                    // Optional: Show a notification or trigger a refresh
-                    // if user was waiting for this specific update
                 }
             });
 
@@ -148,7 +155,7 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
         }
     });
 } else {
-    console.log('Running in development mode - Service Worker disabled');
+    console.log(`Running in ${environment} mode - Service Worker disabled`);
 }
 
 // Add version info to console

@@ -9,13 +9,26 @@ const plugins = {
     CopyWebpack: require('copy-webpack-plugin')
 };
 
+// Hilft dabei, Umgebungsvariablen korrekt in den Browser zu bringen
+function createEnvForDefinePlugin(env) {
+    const processEnv = {};
+
+    // Konvertiere alle Umgebungsvariablen in das korrekte Format
+    for (const key in env) {
+        if (typeof env[key] === 'string') {
+            processEnv[key] = JSON.stringify(env[key]);
+        } else {
+            processEnv[key] = env[key];
+        }
+    }
+
+    return { 'process.env': processEnv };
+}
+
 module.exports = {
     common: [],
     start: [
-        new plugins.Define({
-            // Für jede Umgebungsvariable in process.env eine entsprechende Variable erstellen
-            'process.env': JSON.stringify(environment.development)
-        }),
+        new plugins.Define(createEnvForDefinePlugin(environment.development)),
         new plugins.Html({
             inject: true,
             template: paths.APP_HTML,
@@ -42,10 +55,7 @@ module.exports = {
                 minifyJS: true
             }
         }),
-        new plugins.Define({
-            // Für jede Umgebungsvariable in process.env eine entsprechende Variable erstellen
-            'process.env': JSON.stringify(environment.production)
-        }),
+        new plugins.Define(createEnvForDefinePlugin(environment.production)),
         new plugins.CopyWebpack({
             patterns: [
                 {
