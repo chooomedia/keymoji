@@ -1,4 +1,47 @@
 export const versions = {
+    '0.4.2': {
+        date: 'May 2025',
+        core: {
+            email: {
+                title: 'Email Integration',
+                improvements: [
+                    'Enhanced contact form email system',
+                    'Added dark/light mode support for emails',
+                    'Improved newsletter subscription flow',
+                    'Multi-language email templates'
+                ]
+            },
+            backend: {
+                title: 'Backend Integration',
+                improvements: [
+                    'Optimized Vercel serverless functions',
+                    'Streamlined API communications',
+                    'Enhanced error handling and validation',
+                    'Improved form submission process'
+                ]
+            }
+        },
+        technical: {
+            security: {
+                title: 'Security Enhancements',
+                improvements: [
+                    'Better honeypot implementation',
+                    'Email sanitization improvements',
+                    'Robust input validation'
+                ]
+            }
+        },
+        features: {
+            feedback: {
+                title: 'User Feedback',
+                improvements: [
+                    'Clearer form response messaging',
+                    'Improved error modal integration',
+                    'Context-specific error handling'
+                ]
+            }
+        }
+    },
     '0.4.0': {
         date: 'April 2025',
         core: {

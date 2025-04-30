@@ -1,5 +1,4 @@
 import validator from 'validator';
-import { appVersion } from '../utils/version.js';
 
 export default async function handler(req, res) {
     // Set CORS headers
@@ -23,17 +22,19 @@ export default async function handler(req, res) {
         newsletterOptIn,
         honeypot,
         emailContent,
-        langCode
+        langCode,
+        appVersion
     } = req.body;
 
-    // Log the request for debugging
+    // Log the request for debugging (ohne sensible Inhalte)
     console.log('Received contact form submission:', {
-        name,
-        email,
+        hasName: !!name,
+        hasEmail: !!email,
         hasMessage: !!message,
         newsletterOptIn,
         hasEmailContent: !!emailContent,
-        langCode
+        langCode,
+        appVersion
     });
 
     // Honeypot Check
@@ -62,7 +63,8 @@ export default async function handler(req, res) {
             name: sanitizedName,
             email: sanitizedEmail,
             message: sanitizedMessage,
-            newsletterOptIn
+            newsletterOptIn,
+            appVersion: appVersion || 'unknown'
         });
 
         // Then, send styled email to the user
@@ -93,7 +95,8 @@ async function sendAdminNotification({
     name,
     email,
     message,
-    newsletterOptIn
+    newsletterOptIn,
+    appVersion
 }) {
     const toEmail = process.env.ADMIN_EMAIL || 'hi@keymoji.wtf';
     const brevoApiKey = process.env.BREVO_API_KEY;
@@ -107,6 +110,7 @@ Email: ${email}
 Message: ${message}
 Newsletter opt-in: ${newsletterOptIn ? 'Yes' : 'No'}
 
+App Version: ${appVersion}
 Timestamp: ${new Date().toISOString()}
     `;
 
@@ -202,7 +206,8 @@ async function sendUserEmail({
         )
         .join('');
 
-    // Version info
+    // Version info - dynamischer Ansatz ohne Hardcoding
+    const currentYear = new Date().getFullYear();
     const versionInfo = `v${process.env.APP_VERSION || '0.4.0'}`;
 
     const emailHtml = `
@@ -303,21 +308,15 @@ async function sendUserEmail({
                         <!-- GREETING -->
                         <tr>
                             <td align="left" class="text-dark light-text" style="padding: 24px 24px 12px 24px; color: #273444;">
-                                <h2 style="font-size: 20px; margin: 0;">${
-                                    emailTemplate.greeting
-                                }, ${name} 👋</h2>
+                                <h2 style="font-size: 20px; margin: 0;">${emailTemplate.greeting}, ${name} 👋</h2>
                             </td>
                         </tr>
                         
                         <!-- INTRO TEXT -->
                         <tr>
                             <td align="left" class="text-dark light-text" style="padding: 12px 24px; color: #273444; font-size: 16px; line-height: 1.5;">
-                                <p style="margin: 0 0 16px 0;">${
-                                    emailTemplate.intro
-                                }</p>
-                                <p style="margin: 0 0 16px 0;">${
-                                    emailTemplate.doubleCheck
-                                }</p>
+                                <p style="margin: 0 0 16px 0;">${emailTemplate.intro}</p>
+                                <p style="margin: 0 0 16px 0;">${emailTemplate.doubleCheck}</p>
                             </td>
                         </tr>
                         
@@ -407,7 +406,7 @@ async function sendUserEmail({
                                     </tr>
                                     <tr>
                                         <td align="center" class="footer-dark light-footer" style="color: #8492a6; font-size: 12px;">
-                                            <p style="margin: 0 0 8px 0;">© ${new Date().getFullYear()} Keymoji</p>
+                                            <p style="margin: 0 0 8px 0;">© ${currentYear} Keymoji</p>
                                             <p style="margin: 0 0 8px 0;">
                                                 Developed with love in 🇨🇭 Switzerland
                                             </p>

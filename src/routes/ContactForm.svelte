@@ -6,7 +6,9 @@
     import Header from '../Header.svelte';
     import FixedMenu from '../widgets/FixedMenu.svelte';
     import { WEBHOOKS, API_CONFIG } from '../config/api.js';
-    import { appVersion } from '../utils/version.js';
+    
+    // Version direkt definieren, ohne auf eine externe Datei zuzugreifen
+    const currentAppVersion = '0.4.2';
 
     // Form state
     let name = '';
@@ -112,7 +114,7 @@
                     honeypot,
                     emailContent,
                     langCode: $currentLanguage, // Send current language code
-                    appVersion: appVersion // Send app version
+                    appVersion: currentAppVersion // Direkt die interne Version senden
                 })
             });
 
