@@ -60,9 +60,7 @@ async function sendBrevoEmail({ name, email, message, emailContent }) {
 
     const emailHtml = `
     <!DOCTYPE html>
-    <html lang="${
-        emailContent.language || 'en'
-    }" style="margin: 0; padding: 0;">
+    <html lang="${language || 'en'}" style="margin: 0; padding: 0;">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
