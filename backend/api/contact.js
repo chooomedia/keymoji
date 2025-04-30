@@ -1,4 +1,3 @@
-// /api/contact.js
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
@@ -6,59 +5,52 @@ export default async function handler(req, res) {
 
     const { name, email, message, honeypot } = req.body;
 
-    // Simple spam protection (honeypot field should be empty)
     if (honeypot) {
-        return res.status(400).json({ error: 'Bot detected.' });
+        return res.status(400).json({ error: 'Spam detected' });
     }
 
-    // Validate input
-    if (
-        !name ||
-        name.length < 2 ||
-        !email ||
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
-        !message ||
-        message.length < 5
-    ) {
-        return res.status(400).json({ error: 'Invalid input.' });
+    if (!name || !email || !message) {
+        return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Build email payload for Brevo API
+    const toEmail = process.env.MAIL_TO;
+
+    if (!toEmail) {
+        return res
+            .status(500)
+            .json({ error: 'Server configuration error (missing MAIL_TO)' });
+    }
+
     const payload = {
-        sender: { name: name, email: email },
-        to: [{ email: process.env.CONTACT_RECEIVER_EMAIL }],
+        sender: { name, email },
+        to: [{ email: toEmail }],
         subject: `Neue Nachricht von ${name}`,
-        htmlContent: `
-        <h1>Neue Kontaktanfrage</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Nachricht:</strong></p>
-        <p>${message.replace(/\n/g, '<br>')}</p>
-      `
+        htmlContent: `<p><strong>Von:</strong> ${name} (${email})</p><p><strong>Nachricht:</strong></p><p>${message}</p>`
     };
 
     try {
-        const brevoResponse = await fetch(
-            'https://api.brevo.com/v3/smtp/email',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'api-key': process.env.BREVO_API_KEY
-                },
-                body: JSON.stringify(payload)
-            }
-        );
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+                accept: 'application/json',
+                'api-key': process.env.BREVO_API_KEY,
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
-        if (!brevoResponse.ok) {
-            const errorDetails = await brevoResponse.json();
-            console.error('Brevo Error:', errorDetails);
-            return res.status(500).json({ error: 'Failed to send email.' });
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error('Brevo Error:', data);
+            return res
+                .status(500)
+                .json({ error: 'Brevo API Error', brevo: data });
         }
 
-        return res.status(200).json({ message: 'Message sent successfully!' });
+        return res.status(200).json({ success: true });
     } catch (error) {
         console.error('Server Error:', error);
-        return res.status(500).json({ error: 'Server error.' });
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 }
