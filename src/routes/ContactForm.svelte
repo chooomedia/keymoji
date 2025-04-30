@@ -1,4 +1,6 @@
+<!-- src/routes/ContactForm.svelte -->
 <script>
+    import { onMount } from 'svelte';
     import { modalMessage, currentLanguage, isModalVisible } from '../stores/appStores.js';
     import content from '../content.js';
     import { navigate } from "svelte-routing";
@@ -28,13 +30,14 @@
         message: ''
     };
 
-    function handleImageLoad() {
-      isImageLoaded = true;
-    }
-
     // Constants
     const MIN_MESSAGE_LENGTH = 10;
     const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    const REDIRECT_DELAY = 3000; // Time in ms before redirecting after success
+
+    function handleImageLoad() {
+      isImageLoaded = true;
+    }
 
     // Validation functions
     const validateEmail = (email) => EMAIL_REGEX.test(email);
@@ -70,23 +73,27 @@
         return isValid;
     };
 
+    // Form submission handler with proper modal display
     const handleSubmit = async () => {
         if (isSubmitting) return;
         
         if (!validateForm()) {
-            // Bei Validierungsfehlern zeigen wir standardmäßig die errorMessage an
-            modalMessage.set(content[$currentLanguage].contactForm.errorMessage || 'An unexpected error occurred 😟');
+            // For validation errors, show error message
+            modalMessage.set(content[$currentLanguage].contactForm.validationErrorMessage || 'Please fix the form errors before submitting 🔍');
             return;
         }
         
         isSubmitting = true;
         
-        // WICHTIG: Keine "sending..."-Nachricht im ErrorModal anzeigen
-
-        // Sicherstellen, dass emailText existiert
+        // First show the "sending" message
+        modalMessage.set(content[$currentLanguage].contactForm.sendingMessage || 'Sending your message... 📨');
+        
+        // Ensure isModalVisible is set to true
+        isModalVisible.set(true);
+        
+        // Prepare email content
         const emailText = content[$currentLanguage]?.contactForm?.emailText || {};
         
-        // Email-Template-Inhalt mit Fallbacks
         const emailContent = {
             greeting: emailText.greeting || 'Hello',
             intro: emailText.intro || 'Thank you for contacting us.',
@@ -98,8 +105,6 @@
         };
 
         try {
-            console.log('Sending to:', WEBHOOKS.CONTACT.SEND_MAIL);
-            
             const response = await fetch(WEBHOOKS.CONTACT.SEND_MAIL, {
                 method: 'POST',
                 headers: {
@@ -113,8 +118,8 @@
                     newsletterOptIn,
                     honeypot,
                     emailContent,
-                    langCode: $currentLanguage, // Send current language code
-                    appVersion: currentAppVersion // Direkt die interne Version senden
+                    langCode: $currentLanguage,
+                    appVersion: currentAppVersion
                 })
             });
 
@@ -123,24 +128,48 @@
                 throw new Error(errorData.error || 'Server error');
             }
 
-            // Success message - bestehende Message verwenden
-            modalMessage.set(content[$currentLanguage].contactForm.successMessage || 'Success, Message sent - Answer: < 24 hours 🚀');
+            // Success message
+            modalMessage.set(content[$currentLanguage].contactForm.successMessage || 'Success! Message sent - We\'ll respond within 24 hours 🚀');
             
             // Reset form
             name = email = message = honeypot = '';
             newsletterOptIn = false;
 
-            // Wait for user to see the success message before redirecting
-            setTimeout(() => navigate(`/${$currentLanguage}`), 3000);
+            // Set a timer for redirect to home page after success
+            setTimeout(() => {
+                // Navigate back to homepage with current language
+                navigate(`/${$currentLanguage}`);
+                
+                // Clear modal message when redirecting
+                // We do this with a small delay to ensure the navigation happens first
+                setTimeout(() => {
+                    modalMessage.set('');
+                    isModalVisible.set(false);
+                }, 100);
+            }, REDIRECT_DELAY);
+            
         } catch (error) {
             console.error('Submission error:', error);
             
-            // Bei Netzwerk- oder allgemeinen Fehlern die requestErrorMessage verwenden
-            modalMessage.set(content[$currentLanguage].contactForm.requestErrorMessage || 'Error sending the message, please try again 🙁');
+            // Show error message for network or server errors
+            modalMessage.set(content[$currentLanguage].contactForm.requestErrorMessage || 'Error sending the message. Please try again 🙁');
         } finally {
             isSubmitting = false;
         }
     };
+
+    // Reset modal when component is mounted/unmounted
+    onMount(() => {
+        // Clear any existing modal when component mounts
+        modalMessage.set('');
+        isModalVisible.set(false);
+        
+        // Clear modal on component unmount
+        return () => {
+            modalMessage.set('');
+            isModalVisible.set(false);
+        };
+    });
 
     $: isFormValid = name.trim().length >= 2 && 
                      validateEmail(email) && 
@@ -175,7 +204,7 @@
                             
                             <img 
                                 src={emoijSmirkingFace} 
-                                alt={content[$currentLanguage].contactForm.smirkingFaceImageAlt}
+                                alt={content[$currentLanguage].contactForm.smirkingFaceImageAlt || "Keymoji creator smirking emoji"}
                                 class="w-full h-full object-cover absolute inset-0 transition-opacity duration-300"
                                 class:opacity-0={showRealImage}
                                 while-loading={whileLoading}
@@ -185,8 +214,8 @@
                         </div>
                     </div>
                     <div class="w-full md:w-9/12 md:pl-3 md:pt-3 md:pb-2">
-                        <h2 class="text-xl md:text-2xl font-semibold md:text-left mb-2 dark:text-white">{content[$currentLanguage].contactForm.introductionTitle}</h2>
-                        <p class="text-sm text-left dark:text-white">{content[$currentLanguage].contactForm.introductionText}</p>
+                        <h2 class="text-xl md:text-2xl font-semibold md:text-left mb-2 dark:text-white">{content[$currentLanguage].contactForm.introductionTitle || "Contact Me"}</h2>
+                        <p class="text-sm text-left dark:text-white">{content[$currentLanguage].contactForm.introductionText || "I'd love to hear from you! Fill out the form below to get in touch."}</p>
                     </div>
                 </div>
                 
@@ -194,65 +223,75 @@
                 <form on:submit|preventDefault={handleSubmit} class="space-y-3">
                     <!-- Honeypot Field -->
                     <div class="hidden" aria-hidden="true">
-                        <input type="text" name="website" bind:value={honeypot} autocomplete="off" />
+                        <input type="text" name="website" bind:value={honeypot} autocomplete="off" tabindex="-1" />
                     </div>
 
                     <!-- Name & Email Fields -->
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
+                            <label for="name" class="sr-only">{content[$currentLanguage].contactForm.nameLabel || "Name"}</label>
                             <input
+                                id="name"
                                 type="text"
                                 bind:value={name}
-                                placeholder={content[$currentLanguage].contactForm.nameLabel}
+                                placeholder={content[$currentLanguage].contactForm.nameLabel || "Name"}
                                 class="contact-input"
                                 aria-invalid={!!formErrors.name}
+                                aria-describedby={formErrors.name ? "name-error" : undefined}
                                 disabled={isSubmitting}
                             />
                             {#if formErrors.name}
-                                <p class="form-error">{formErrors.name}</p>
+                                <p id="name-error" class="form-error">{formErrors.name}</p>
                             {/if}
                         </div>
                         
                         <div>
+                            <label for="email" class="sr-only">{content[$currentLanguage].contactForm.emailLabel || "Email"}</label>
                             <input
+                                id="email"
                                 type="email"
                                 bind:value={email}
-                                placeholder={content[$currentLanguage].contactForm.emailLabel}
+                                placeholder={content[$currentLanguage].contactForm.emailLabel || "Email"}
                                 class="contact-input"
                                 aria-invalid={!!formErrors.email}
+                                aria-describedby={formErrors.email ? "email-error" : undefined}
                                 disabled={isSubmitting}
                             />
                             {#if formErrors.email}
-                                <p class="form-error">{formErrors.email}</p>
+                                <p id="email-error" class="form-error">{formErrors.email}</p>
                             {/if}
                         </div>
                     </div>
 
                     <!-- Message Field -->
                     <div>
+                        <label for="message" class="sr-only">{content[$currentLanguage].contactForm.messageLabel || "Message"}</label>
                         <textarea
+                            id="message"
                             bind:value={message}
-                            placeholder={content[$currentLanguage].contactForm.messageLabel}
+                            placeholder={content[$currentLanguage].contactForm.messageLabel || "Message"}
                             rows="4"
                             class="contact-input"
                             aria-invalid={!!formErrors.message}
+                            aria-describedby={formErrors.message ? "message-error" : undefined}
                             disabled={isSubmitting}
                         ></textarea>
                         {#if formErrors.message}
-                            <p class="form-error">{formErrors.message}</p>
+                            <p id="message-error" class="form-error">{formErrors.message}</p>
                         {/if}
                     </div>
 
                     <!-- Newsletter Opt-In -->
-                    <label class="flex items-center space-x-3 text-base font-medium dark:text-gray-light pb-2">
+                    <div class="flex items-center space-x-3 text-base font-medium dark:text-gray-light pb-2">
                         <input
+                          id="newsletter"
                           type="checkbox"
                           bind:checked={newsletterOptIn}
                           class="h-5 w-5 contact-checkbox"
                           disabled={isSubmitting}
                         />
-                        <span>{content[$currentLanguage].contactForm.newsletterLabel}</span>
-                    </label>
+                        <label for="newsletter">{content[$currentLanguage].contactForm.newsletterLabel || "Subscribe to newsletter"}</label>
+                    </div>
 
                     <!-- Form Actions -->
                     <div class="grid md:grid-cols-2 gap-4 mt-6">
@@ -261,9 +300,9 @@
                             on:click={() => navigate(`/${$currentLanguage}`)}
                             class="btn-secondary"
                             disabled={isSubmitting}
-                            aria-label={content[$currentLanguage].contactForm.backToMainButton}
+                            aria-label={content[$currentLanguage].contactForm.backToMainButton || "Back to main page"}
                         >
-                            {content[$currentLanguage].contactForm.backToMainButton}
+                            {content[$currentLanguage].contactForm.backToMainButton || "Back to Main"}
                         </button>
                         
                         <button
@@ -271,13 +310,21 @@
                             disabled={!isFormValid || isSubmitting}
                             class="btn-primary {isSubmitting ? 'opacity-75 cursor-wait' : ''}"
                             aria-label={isSubmitting 
-                                ? content[$currentLanguage].contactForm.sendingButton || 'Sending message'
-                                : content[$currentLanguage].contactForm.sendButton || 'Send message'}
+                                ? content[$currentLanguage].contactForm.sendingButton || "Sending message"
+                                : content[$currentLanguage].contactForm.sendButton || "Send message"}
                             aria-busy={isSubmitting}
                         >
-                            {isSubmitting 
-                                ? content[$currentLanguage].contactForm.sendingButton || 'Sending ...'
-                                : content[$currentLanguage].contactForm.sendButton || 'Send Message'}
+                            {#if isSubmitting}
+                                <span class="flex items-center justify-center">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-black dark:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    {content[$currentLanguage].contactForm.sendingButton || "Sending..."}
+                                </span>
+                            {:else}
+                                {content[$currentLanguage].contactForm.sendButton || "Send Message"}
+                            {/if}
                         </button>
                     </div>
                 </form>
@@ -322,5 +369,12 @@
       opacity: 0.7;
       cursor: not-allowed;
       transform: scale(1) !important;
+    }
+    
+    /* Focus styles for better accessibility */
+    .contact-input:focus,
+    .contact-checkbox:focus {
+      outline: 2px solid #f4ab25;
+      outline-offset: 2px;
     }
 </style>
