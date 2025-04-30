@@ -1,3 +1,4 @@
+<!-- src/Layout.svelte -->
 <script>
     import { onMount, afterUpdate } from 'svelte';
     import { currentLanguage, darkMode } from './stores/appStores.js';
@@ -5,6 +6,7 @@
     import { updatedTime } from './updatedTime.js';
     import SkipLink from './components/A11y/SkipLink.svelte';
     import ServiceWorkerHandler from './components/ServiceWorkerHandler.svelte';
+    import ErrorModal from './ErrorModal.svelte';
     
     // URL für Logging
     export const url = "";
@@ -24,7 +26,6 @@
         // Set language attribute
         if (document.documentElement.lang !== $currentLanguage) {
             document.documentElement.lang = $currentLanguage;
-            console.log('Language attribute updated to:', $currentLanguage);
         }
         
         // Set dark mode class
@@ -48,7 +49,6 @@
                     fontLink.type = 'font/ttf';
                     fontLink.crossOrigin = 'anonymous';
                     document.head.appendChild(fontLink);
-                    console.log('Elvish font preloaded from Layout');
                 } catch (error) {
                     console.warn('Failed to preload Elvish font:', error);
                 }
@@ -68,7 +68,6 @@
     onMount(() => {
         mounted = true;
         syncDocumentWithStores();
-        console.log('Layout mounted, document lang set to:', document.documentElement.lang);
         
         // Add MutationObserver to ensure lang attribute stays correct
         const observer = new MutationObserver((mutations) => {
@@ -76,7 +75,6 @@
                 if (mutation.attributeName === 'lang' && 
                     document.documentElement.lang !== $currentLanguage) {
                     document.documentElement.lang = $currentLanguage;
-                    console.log('Language attribute corrected by observer to:', $currentLanguage);
                 }
             });
         });
@@ -99,7 +97,6 @@
     
     $: if (mounted && $currentLanguage) {
         document.documentElement.lang = $currentLanguage;
-        console.log('Language changed to:', $currentLanguage);
         
         // Update special language class
         if ($currentLanguage === 'qya') {
@@ -112,6 +109,9 @@
 
 <!-- Service Worker update handler -->
 <ServiceWorkerHandler />
+
+<!-- Modal Component - Always include it regardless of message state -->
+<ErrorModal />
 
 <SkipLink target="#main-content" />
   

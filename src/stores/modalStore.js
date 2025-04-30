@@ -3,17 +3,11 @@ import { writable } from 'svelte/store';
 
 /**
  * Zentralisierter Store für das Modal-System
- *
- * Dieses Modul löst Probleme mit dem Modal-Handling, besonders
- * auf der Kontaktseite, indem es einen zuverlässigen Zustand
- * zwischen Komponenten gewährleistet.
  */
 
 // Hauptstores für die Modal-Anzeige
 export const modalMessage = writable('');
 export const isModalVisible = writable(false);
-
-// Neue Erweiterung: Modal-Typ und zusätzliche Daten
 export const modalType = writable('info'); // 'info', 'success', 'error', 'warning', 'sending'
 export const modalData = writable({});
 

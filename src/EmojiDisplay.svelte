@@ -2,7 +2,17 @@
 <script>
     import { fly } from 'svelte/transition';
     import { onMount } from 'svelte';
-    import { currentLanguage, modalMessage, isModalVisible, successfulStoryRequests, isDisabled } from './stores/appStores.js';
+    import { 
+        currentLanguage, 
+        successfulStoryRequests, 
+        isDisabled 
+    } from './stores/appStores.js';
+    import { 
+        showSuccess, 
+        showError, 
+        showWarning,
+        isModalVisible
+    } from './stores/modalStore.js';
     import emojisData from '../public/emojisArray.json';
     import content from './content.js';
     import { WEBHOOKS } from './config/api.js';
@@ -70,6 +80,7 @@
         handleError('Random Generation Error', error);
       }
     }
+  
   
     async function generateEmojis() {
       try {
@@ -179,8 +190,7 @@
       } catch (error) {
         console.error('Clipboard Error:', error);
         // Wir werfen den Fehler nicht, sondern zeigen eine benutzerfreundliche Nachricht
-        modalMessage.set(content[$currentLanguage].emojiDisplay.clipboardError || 'Unable to copy to clipboard. Please try again.');
-        isModalVisible.set(true);
+        showError(content[$currentLanguage].emojiDisplay.clipboardError || 'Unable to copy to clipboard. Please try again.');
       }
     }
   
@@ -196,13 +206,11 @@
     }
   
     function showErrorMessage(message) {
-      modalMessage.set(message);
-      isModalVisible.set(true);
+      showWarning(message);
     }
   
     function showSuccessMessage(message) {
-      modalMessage.set(message);
-      isModalVisible.set(true);
+      showSuccess(message);
     }
   
     // Local Storage Functions

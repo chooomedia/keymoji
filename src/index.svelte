@@ -51,11 +51,6 @@
     <!-- Header -->
     <Header />
     
-    <!-- Error Modal -->
-    {#if $modalMessage && $modalMessage.trim() !== ''}
-      <ErrorModal />
-    {/if}
-    
     <!-- Main Content Container -->
     <div class="min-h-screen" in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}>
       <!-- Main Content -->

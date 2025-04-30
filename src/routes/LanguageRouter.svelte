@@ -3,7 +3,7 @@
     import { Router, Route, navigate } from 'svelte-routing';
     import { onMount, onDestroy } from 'svelte';
     import { currentLanguage, setLanguage } from '../stores/appStores.js';
-    import { isLanguageSupported, getBrowserLanguage } from '../utils/languages.js';
+    import { getBrowserLanguage } from '../utils/languages.js';
     import Index from '../index.svelte';
     import BlogGrid from '../BlogGrid.svelte';
     import BlogPost from '../BlogPost.svelte';

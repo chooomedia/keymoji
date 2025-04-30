@@ -1,8 +1,8 @@
-// src/index.js - Enhanced with better service worker handling and central version management
+// src/index.js - Korrekte Modal-Integration
 import Root from './routes/LanguageRouter.svelte';
 import './index.css';
-import { appVersion, versionInfo } from './utils/version.js'; // Importiere aus zentraler Quelle
-import { modalMessage, isModalVisible } from './stores/appStores.js'; // Behalte die ursprünglichen Stores
+import { appVersion, versionInfo } from './utils/version.js';
+import { showSuccess, showWarning } from './stores/modalStore.js'; // Importiere direkt aus modalStore.js
 import content from './content.js';
 
 // Get the current URL
@@ -38,7 +38,7 @@ const app = new Root({
     target: document.body,
     props: {
         url: currentUrl,
-        currentVersion: appVersion // Verwende die zentrale Versionsdefinition
+        currentVersion: appVersion
     }
 });
 
@@ -72,41 +72,25 @@ if ('serviceWorker' in navigator && environment === 'production') {
                         // Store update availability in session storage
                         sessionStorage.setItem('swUpdateAvailable', 'true');
 
-                        // Zeige Update-Meldung mit dem vorhandenen Modal-System
+                        // Zeige Update-Meldung mit dem einheitlichen Modal-System
                         const defaultMessage =
                             'A new version is available. Refresh to update!';
 
-                        // Verwende die bestehenden modalMessage und isModalVisible Stores
-                        modalMessage.set(
+                        // Use the unified modal system
+                        showWarning(
                             content.en?.serviceWorker?.updateAvailable ||
-                                defaultMessage
-                        );
-                        isModalVisible.set(true);
-
-                        // Refresh button handler
-                        const refreshButton = document.createElement('button');
-                        refreshButton.textContent = 'Refresh Now';
-                        refreshButton.className =
-                            'mt-4 px-4 py-2 bg-yellow text-black rounded-full';
-                        refreshButton.addEventListener('click', () => {
-                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                            window.location.reload();
-                        });
-
-                        // Find modal and append button
-                        setTimeout(() => {
-                            const modal = document.querySelector(
-                                '[data-testid="error-modal"]'
-                            );
-                            if (modal) {
-                                const container = modal.querySelector(
-                                    'div[role="dialog"] > div'
-                                );
-                                if (container) {
-                                    container.appendChild(refreshButton);
+                                defaultMessage,
+                            0, // Don't auto-close
+                            {
+                                buttonText: 'Refresh Now',
+                                buttonAction: () => {
+                                    newWorker.postMessage({
+                                        type: 'SKIP_WAITING'
+                                    });
+                                    window.location.reload();
                                 }
                             }
-                        }, 100);
+                        );
                     }
                 });
             });
@@ -161,15 +145,10 @@ if ('serviceWorker' in navigator && environment === 'production') {
     console.log(`Running in ${environment} mode - Service Worker disabled`);
 }
 
-// Add version info to console with updated style and more details
+// Add version info to console
 console.info(
     `%c Keymoji ${appVersion} (${versionInfo.codename}) `,
     'background: #f4ab25; color: #000; padding: 4px; border-radius: 4px;'
-);
-console.log(
-    `Last updated: ${versionInfo.updated}
-Environment: ${environment}
-Language: ${document.documentElement.lang}`
 );
 
 export default app;

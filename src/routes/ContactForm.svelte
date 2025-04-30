@@ -3,9 +3,9 @@
     import { onMount, onDestroy } from 'svelte';
     import { currentLanguage } from '../stores/appStores.js';
     import { 
-        showModal, 
         showSuccess, 
-        showError, 
+        showError,
+        showModal,
         showWarning, 
         showSending, 
         closeModal 
@@ -82,7 +82,6 @@
         return isValid;
     };
 
-    // Form submission handler with proper modal display
     const handleSubmit = async () => {
         if (isSubmitting) return;
         
@@ -101,7 +100,7 @@
         }
         
         // Zeige "Sending"-Nachricht mit dem neuen Modal-System
-        const closeModalFunction = showSending(
+        showSending(
             content[$currentLanguage]?.contactForm?.sendingMessage || 'Sending your message... 📨'
         );
         

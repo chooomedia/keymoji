@@ -1,21 +1,29 @@
 <!-- src/ErrorModal.svelte -->
 <script>
     import { fade, fly } from 'svelte/transition';
-    import { modalMessage, isModalVisible, modalType, modalData, closeModal } from './stores/modalStore.js';
-    import FocusManager from './components/A11y/FocusManager.svelte';
     import { onMount, onDestroy } from 'svelte';
+    import FocusManager from './components/A11y/FocusManager.svelte';
+    
+    // Import from the modal store
+    import { 
+      modalMessage, 
+      isModalVisible, 
+      modalType, 
+      modalData, 
+      closeModal 
+    } from './stores/modalStore.js';
   
     // State management
     $: message = $modalMessage;
     $: messageType = $modalType || getMessageType(message);
-    let showMessage = false;
+    $: showMessage = $isModalVisible && $modalMessage && $modalMessage.trim() !== '';
+    
     let imageLoaded = false;
     let modalRef;
     let lastActiveElement;
   
     // Constants for animation and accessibility
     const ANIMATION_DURATION = 300;
-    const IMAGE_DISPLAY_DURATION = 1200;
   
     // Icons for different message types
     const ICONS = {
@@ -58,30 +66,6 @@
     // Choose appropriate icon
     function getIcon(type) {
       return ICONS[type] || ICONS.info;
-    }
-  
-    // Handle visibility state changes
-    function handleVisibilityChange(isVisible) {
-      if (isVisible && $modalMessage) {
-        showMessage = true;
-        
-        // Ensure modal element is focused
-        setTimeout(() => {
-          if (modalRef) {
-            modalRef.focus();
-          }
-        }, ANIMATION_DURATION);
-      } else {
-        showMessage = false;
-      }
-    }
-  
-    // Überwache isModalVisible und modalMessage
-    $: handleVisibilityChange($isModalVisible);
-    $: {
-      if ($modalMessage && !$isModalVisible) {
-        isModalVisible.set(true);
-      }
     }
   
     // Handle manually closing the modal
@@ -135,27 +119,18 @@
     onMount(() => {
       // Save current focused element
       lastActiveElement = document.activeElement;
-      
-      // Initial check if message exists
-      if ($modalMessage && $modalMessage.trim() !== '') {
-        showMessage = true;
-      }
-      
-      // Debugging info
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[ErrorModal] Component mounted, modal state:', {
-          message: $modalMessage,
-          visible: $isModalVisible,
-          showMessage,
-          type: $modalType
-        });
-      }
     });
     
     // Cleanup on component destroy
     onDestroy(() => {
-      // Stelle sicher, dass das Modal geschlossen wird
-      closeModal();
+      // Make sure we don't leave any modal state active when unmounting
+      if (lastActiveElement && typeof lastActiveElement.focus === 'function') {
+        try {
+          lastActiveElement.focus();
+        } catch (e) {
+          console.warn('Could not restore focus:', e);
+        }
+      }
     });
 </script>
   
@@ -260,7 +235,8 @@
             ❌
           </button>
         {/if}
-    </FocusManager>
+      </div>
+  </FocusManager>
 {/if}
   
 <style>
