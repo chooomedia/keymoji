@@ -78,7 +78,8 @@
             verification: content[$currentLanguage].contactForm.emailText.doubleCheck,
             buttonText: content[$currentLanguage].contactForm.emailText.button,
             privacy: content[$currentLanguage].contactForm.emailText.privacy,
-            footer: content[$currentLanguage].contactForm.footerText
+            footer: content[$currentLanguage].contactForm.footerText,
+            language: content[$currentLanguage]
         };
 
         try {
@@ -94,7 +95,6 @@
                     message: message.trim(),
                     newsletterOptIn,
                     honeypot,
-                    language: $currentLanguage,
                     emailContent 
                 })
             });
