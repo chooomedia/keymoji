@@ -1,6 +1,7 @@
 import validator from 'validator';
 
 export default async function handler(req, res) {
+    // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', 'https://keymoji.wtf');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader(
@@ -8,11 +9,23 @@ export default async function handler(req, res) {
         'Content-Type, X-Requested-With'
     );
 
+    // Handle preflight request
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
-    const { name, email, message, newsletterOptIn, honeypot } = req.body;
+    // Extract data including emailContent
+    const { name, email, message, newsletterOptIn, honeypot, emailContent } =
+        req.body;
+
+    // Log the request for debugging
+    console.log('Received contact form submission:', {
+        name,
+        email,
+        hasMessage: !!message,
+        newsletterOptIn,
+        hasEmailContent: !!emailContent
+    });
 
     // Honeypot Check
     if (honeypot) {
@@ -35,11 +48,12 @@ export default async function handler(req, res) {
     const sanitizedMessage = validator.escape(message);
 
     try {
-        // Send Contact Email
+        // Send Contact Email - pass emailContent to the function
         const emailResult = await sendBrevoEmail({
             name: sanitizedName,
             email: sanitizedEmail,
-            message: sanitizedMessage
+            message: sanitizedMessage,
+            emailContent: emailContent || {} // Provide empty object as fallback
         });
 
         // Handle Newsletter Opt-In
@@ -49,14 +63,41 @@ export default async function handler(req, res) {
 
         return res.status(200).json({ success: true });
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error sending email:', error);
         return res.status(500).json({ error: error.message });
     }
 }
 
-async function sendBrevoEmail({ name, email, message, emailContent }) {
+async function sendBrevoEmail({ name, email, message, emailContent = {} }) {
     const toEmail = process.env.MAIL_TO;
     const brevoApiKey = process.env.BREVO_API_KEY;
+
+    // Default values for email template content
+    const defaultEmailContent = {
+        greeting: 'Hello',
+        intro: 'Thank you for contacting us.',
+        doubleCheck: "We've received your message with the following details:",
+        button: 'Confirm Your Email',
+        privacy:
+            'Your data is handled securely according to our privacy policy.',
+        footer: 'Developed with love'
+    };
+
+    // Use provided emailContent with fallbacks to default values
+    const emailTemplate = {
+        greeting: emailContent.greeting || defaultEmailContent.greeting,
+        intro: emailContent.intro || defaultEmailContent.intro,
+        doubleCheck:
+            emailContent.doubleCheck || defaultEmailContent.doubleCheck,
+        button: emailContent.button || defaultEmailContent.button,
+        privacy: emailContent.privacy || defaultEmailContent.privacy,
+        footer: emailContent.footer || defaultEmailContent.footer
+    };
+
+    // Define webhookOptin URL with fallback
+    const webhookOptin =
+        process.env.WEBHOOK_OPTIN ||
+        'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-optin-keymoji';
 
     const emailHtml = `
     <!DOCTYPE html>
@@ -154,7 +195,7 @@ async function sendBrevoEmail({ name, email, message, emailContent }) {
                         <tr>
                             <td align="left" class="text-dark light-text" style="padding: 24px 24px 12px 24px; color: #273444;">
                                 <h2 style="font-size: 20px; margin: 0;">${
-                                    emailContent.greeting || 'Hello'
+                                    emailTemplate.greeting
                                 }, ${name} 👋</h2>
                             </td>
                         </tr>
@@ -163,12 +204,10 @@ async function sendBrevoEmail({ name, email, message, emailContent }) {
                         <tr>
                             <td align="left" class="text-dark light-text" style="padding: 12px 24px; color: #273444; font-size: 16px; line-height: 1.5;">
                                 <p style="margin: 0 0 16px 0;">${
-                                    emailContent.intro ||
-                                    'Thank you for contacting us.'
+                                    emailTemplate.intro
                                 }</p>
                                 <p style="margin: 0 0 16px 0;">${
-                                    emailContent.doubleCheck ||
-                                    "We've received your message with the following details:"
+                                    emailTemplate.doubleCheck
                                 }</p>
                             </td>
                         </tr>
@@ -207,10 +246,7 @@ async function sendBrevoEmail({ name, email, message, emailContent }) {
                                     <tbody><tr>
                                         <td align="center" style="border-radius: 50px; background-color: #f4ab25;">
                                             <a href="${webhookOptin}?email=${email}&amp;name=${name}" target="_blank" style="border: none; border-radius: 50px; color: #000000; display: inline-block; font-size: 16px; font-weight: 500; padding: 14px 28px; text-decoration: none;">
-                                                ${
-                                                    emailContent.button ||
-                                                    'Confirm Your Email'
-                                                }
+                                                ${emailTemplate.button}
                                             </a>
                                         </td>
                                     </tr>
@@ -253,10 +289,7 @@ async function sendBrevoEmail({ name, email, message, emailContent }) {
                         <tr>
                             <td align="center" class="secondary-text-dark light-secondary-text" style="padding: 0 24px 16px 24px; color: #8492a6; font-size: 12px;">
                                 <p style="margin: 0;">
-                                    ${
-                                        emailContent.privacy ||
-                                        'Your data is handled securely according to our privacy policy.'
-                                    }
+                                    ${emailTemplate.privacy}
                                 </p>
                             </td>
                         </tr>

@@ -72,16 +72,23 @@
         
         isSubmitting = true;
 
+        // Sicherstellen, dass emailText existiert
+        const emailText = content[$currentLanguage]?.contactForm?.emailText || {};
+        
+        // Email-Template-Inhalt mit Fallbacks
         const emailContent = {
-            greeting: content[$currentLanguage].contactForm.emailText.greeting,
-            intro: content[$currentLanguage].contactForm.emailText.intro,
-            verification: content[$currentLanguage].contactForm.emailText.doubleCheck,
-            buttonText: content[$currentLanguage].contactForm.emailText.button,
-            privacy: content[$currentLanguage].contactForm.emailText.privacy,
-            footer: content[$currentLanguage].contactForm.footerText
+            greeting: emailText.greeting || 'Hello',
+            intro: emailText.intro || 'Thank you for contacting us.',
+            doubleCheck: emailText.doubleCheck || "We've received your message with the following details:",
+            button: emailText.button || 'Confirm Your Email',
+            privacy: emailText.privacy || 'Your data is handled securely according to our privacy policy.',
+            footer: content[$currentLanguage]?.contactForm?.footerText || 'Developed with love'
         };
 
         try {
+            console.log('Sending to:', WEBHOOKS.CONTACT.SEND_MAIL);
+            console.log('Email content:', emailContent);
+            
             const response = await fetch(WEBHOOKS.CONTACT.SEND_MAIL, {
                 method: 'POST',
                 headers: {
@@ -94,13 +101,16 @@
                     message: message.trim(),
                     newsletterOptIn,
                     honeypot,
-                    emailContent 
+                    emailContent
                 })
             });
 
-            if (!response.ok) throw new Error('Server error');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Server error');
+            }
 
-            modalMessage.set(content[$currentLanguage].contactForm.successMessage);
+            modalMessage.set(content[$currentLanguage].contactForm.successMessage || 'Message sent successfully!');
             
             // Reset form
             name = email = message = honeypot = '';
@@ -109,7 +119,7 @@
             setTimeout(() => navigate(`/${$currentLanguage}`), 3000);
         } catch (error) {
             console.error('Submission error:', error);
-            modalMessage.set(content[$currentLanguage].contactForm.errorMessage);
+            modalMessage.set(content[$currentLanguage].contactForm.errorMessage || 'There was an error sending your message. Please try again.');
         } finally {
             isSubmitting = false;
         }
