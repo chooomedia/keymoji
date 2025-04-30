@@ -1,8 +1,6 @@
 <script>
     import { onMount } from 'svelte';
     import { hamburger } from "./shapes.js";
-    import { slide } from 'svelte/transition';
-    import { cubicInOut } from 'svelte/easing';
     import { currentLanguage, showLanguageMenu, getText, isDisabled } from './stores/appStores.js';
     import GitButton from './widgets/GitButton.svelte';
     import content from './content.js';
@@ -49,15 +47,6 @@
                 </h2>
             </div>
             <div class="flex items-center md:order-2 rtl:space-x-reverse space-x-2">
-                <!--<button
-                    on:click={navigateToBlog}
-                    class="relative btn btn-default btn-md"
-                    aria-label="Navigate to the blog article overview" 
-                    disabled
-                >
-                📝
-                </button>-->
-                
                 <!-- Language Switcher Component -->
                 <LanguageSwitcher position="top" display="full" showLabels={true} />
 

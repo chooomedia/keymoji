@@ -2,7 +2,7 @@
 <script>
     import { fly } from 'svelte/transition';
     import { onMount } from 'svelte';
-    import { currentLanguage, modalMessage, successfulStoryRequests, isModalVisible, isDisabled } from './stores/appStores.js';
+    import { currentLanguage, modalMessage, isModalVisible, successfulStoryRequests, isDisabled } from './stores/appStores.js';
     import emojisData from '../public/emojisArray.json';
     import content from './content.js';
     import { WEBHOOKS } from './config/api.js';
@@ -180,6 +180,7 @@
         console.error('Clipboard Error:', error);
         // Wir werfen den Fehler nicht, sondern zeigen eine benutzerfreundliche Nachricht
         modalMessage.set(content[$currentLanguage].emojiDisplay.clipboardError || 'Unable to copy to clipboard. Please try again.');
+        isModalVisible.set(true);
       }
     }
   
@@ -196,10 +197,12 @@
   
     function showErrorMessage(message) {
       modalMessage.set(message);
+      isModalVisible.set(true);
     }
   
     function showSuccessMessage(message) {
       modalMessage.set(message);
+      isModalVisible.set(true);
     }
   
     // Local Storage Functions
@@ -295,17 +298,15 @@
       aria-pressed="false"
     >
       <div class="mt-1 md:mt-0 flex gap-2">
-        {#if randomEmojis && shouldAnimateEmojis}
+        {#if randomEmojis && randomEmojis.length > 0}
           {#each randomEmojis.filter(isVisible) as emoji, index (emoji)}
             <span class="text-2xl md:text-3xl" in:fly={{y: 100, duration: 300, delay: index * 300}}>
               {getEmojiDisplay(emoji)}
             </span>
           {/each}
-        {/if}
-  
-        {#if randomEmojis.filter(isVisible).length === 0}
+        {:else}
           <div class="text-xs">
-            {content[$currentLanguage].emojiDisplay.dailyLimitReachedMessage}
+            {content[$currentLanguage].emojiDisplay.noEmojisGenerated || "Click the button below to generate emojis"}
           </div>
         {/if}
       </div>

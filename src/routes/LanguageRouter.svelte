@@ -1,8 +1,9 @@
+<!-- src/routes/LanguageRouter.svelte -->
 <script>
     import { Router, Route, navigate } from 'svelte-routing';
     import { onMount, onDestroy } from 'svelte';
     import { currentLanguage, setLanguage } from '../stores/appStores.js';
-    import { getSupportedLanguageCodes, getBrowserLanguage } from '../utils/languages.js';
+    import { isLanguageSupported, getBrowserLanguage } from '../utils/languages.js';
     import Index from '../index.svelte';
     import BlogGrid from '../BlogGrid.svelte';
     import BlogPost from '../BlogPost.svelte';
@@ -10,14 +11,14 @@
     import ContactForm from './ContactForm.svelte';
     import Layout from '../Layout.svelte';
     import NotFound from './NotFound.svelte';
-    // Korrektur der Case-Sensitivity beim Import
     import SEO from '../components/SEO.svelte';
+    import { appVersion } from '../utils/version.js';
     
     export const url = "";
-    export const currentVersion = "";
+    export let currentVersion = appVersion;
     
-    
-    // Hole die unterstützten Sprachcodes
+    // Hole die unterstützten Sprachcodes direkt aus der utils/languages.js
+    import { getSupportedLanguageCodes } from '../utils/languages.js';
     const supportedLanguages = getSupportedLanguageCodes();
     
     // Verfolge die aktuelle Route
@@ -25,6 +26,7 @@
     let currentPageType = "home";
     let pageURL = "";
     let initialRouteProcessed = false;
+    let processingRoute = false; // Verhindert gleichzeitige Route-Verarbeitung
     
     // Bestimme den Seitentyp für SEO-Komponente
     function determinePageType(path) {
@@ -67,132 +69,193 @@
         }
     }
     
-    function handleRouteChange() {
-        // Extrahiere den aktuellen Pfad
-        currentPath = window.location.pathname;
-        pageURL = currentPath; // Set pageURL for SEO component
-        
-        // Determine page type for SEO
-        currentPageType = determinePageType(currentPath);
-        console.log('Current page type:', currentPageType, 'URL:', pageURL);
-        
-        // Parse URL parameters for action=random functionality
-        const urlParams = new URLSearchParams(window.location.search);
-        const action = urlParams.get('action');
-        
-        // Check if we are on the root route with action=random
-        if ((currentPath === '/' || currentPath === '') && action === 'random') {
-            // We'll navigate to the correct language but keep the action parameter
-            navigate(`/${$currentLanguage}?action=random`, { replace: true });
+    // Verbesserte Route-Verarbeitung mit Debug-Logging
+    async function handleRouteChange() {
+        // Vermeide gleichzeitige Verarbeitung, was zu Race Conditions führen könnte
+        if (processingRoute) {
+            console.log('Route processing already in progress, skipping...');
             return;
         }
         
-        // Check if we're on the root route without any parameters
-        if ((currentPath === '/' || currentPath === '') && !action) {
-            navigate(`/${$currentLanguage}`, { replace: true });
-            return;
-        }
+        processingRoute = true;
         
-        // Extract path segments for language detection
-        const pathSegments = currentPath.split('/').filter(segment => segment !== '');
-        const potentialLang = pathSegments[0];
-        
-        // If first segment is a valid language code
-        if (potentialLang && supportedLanguages.includes(potentialLang)) {
-            // Set the language based on URL if it's different
-            if (potentialLang !== $currentLanguage) {
-                console.log('Setting language from URL:', potentialLang);
-                setLanguage(potentialLang);
-            }
-        } else if (pathSegments.length > 0) {
-            // URL has a path but no language code - add current language
-            const newPath = `/${$currentLanguage}${currentPath}`;
-            console.log('Adding language to path:', newPath);
-            navigate(newPath, { replace: true });
-        }
-    }
-    
-    function getBrowserPreferredLanguage() {
-        return getBrowserLanguage();
-    }
-    
-    onMount(() => {
-        // Initialize pageURL and currentPageType
-        currentPath = window.location.pathname;
-        pageURL = currentPath;
-        currentPageType = determinePageType(currentPath);
-        
-        // Set initial language from URL, localStorage, or browser preference
-        const pathSegments = window.location.pathname.split('/').filter(segment => segment !== '');
-        const potentialLang = pathSegments[0];
-        
-        if (potentialLang && supportedLanguages.includes(potentialLang)) {
-            // URL has a language - use it
-            if (potentialLang !== $currentLanguage) {
-                setLanguage(potentialLang);
-            }
-        } else {
-            // No language in URL - check localStorage or browser preference
-            const storedLang = localStorage.getItem('language');
-            let preferredLang;
+        try {
+            // Extrahiere den aktuellen Pfad
+            currentPath = window.location.pathname;
+            pageURL = currentPath; // Set pageURL for SEO component
             
-            try {
-                // Sicherer Parse von localStorage
-                preferredLang = storedLang ? JSON.parse(storedLang) : null;
-                if (preferredLang && !supportedLanguages.includes(preferredLang)) {
-                    preferredLang = null;
-                }
-            } catch (e) {
-                preferredLang = null;
-                console.warn('Error parsing stored language', e);
-            }
+            // Debug-Logging
+            console.log(`Route change detected: ${currentPath}`);
             
-            // Fallback auf Browser-Präferenz
-            if (!preferredLang) {
-                preferredLang = getBrowserPreferredLanguage();
-            }
+            // Determine page type for SEO
+            currentPageType = determinePageType(currentPath);
+            console.log('Current page type:', currentPageType, 'URL:', pageURL);
             
-            if (preferredLang && preferredLang !== $currentLanguage) {
-                setLanguage(preferredLang);
-            }
-        }
-        
-        // Process initial route after language is set
-        setTimeout(() => {
-            handleRouteChange();
-            initialRouteProcessed = true;
-        }, 50);
-        
-        // Add listeners for navigation
-        window.addEventListener('popstate', handleRouteChange);
-        
-        // Handle clicks on language-link elements
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('[data-language-link]')) {
-                setTimeout(handleRouteChange, 50);
-            }
-        });
-    });
-    
-    onDestroy(() => {
-        window.removeEventListener('popstate', handleRouteChange);
-    });
-    
-    // Watch for changes to currentLanguage and update path if needed
-    $: {
-        if ($currentLanguage && initialRouteProcessed && currentPath && !currentPath.startsWith(`/${$currentLanguage}`)) {
-            // Aktualisiere den Pfad mit der neuen Sprache
+            // Parse URL parameters for action=random functionality
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            
+            // Extrahiere Pfadsegmente für die Spracherkennung
             const pathSegments = currentPath.split('/').filter(segment => segment !== '');
-            if (pathSegments.length > 0 && supportedLanguages.includes(pathSegments[0])) {
-                // Ersetze den vorhandenen Sprachcode
-                pathSegments[0] = $currentLanguage;
-            } else {
-                // Füge einen Sprachcode hinzu
-                pathSegments.unshift($currentLanguage);
+            const potentialLang = pathSegments[0];
+            
+            // Sonderfall: Root-Route mit action=random
+            if ((currentPath === '/' || currentPath === '') && action === 'random') {
+                // Wir werden zur richtigen Sprache navigieren, aber den Action-Parameter beibehalten
+                const navigatePath = `/${$currentLanguage}?action=random`;
+                console.log(`Redirecting to: ${navigatePath} (root with action=random)`);
+                
+                processingRoute = false; // Freigeben vor Navigation
+                navigate(navigatePath, { replace: true });
+                return;
             }
-            const newPath = `/${pathSegments.join('/')}`;
-            if (newPath !== currentPath) {
+            
+            // Sonderfall: Root-Route ohne Parameter
+            if ((currentPath === '/' || currentPath === '')) {
+                const navigatePath = `/${$currentLanguage}`;
+                console.log(`Redirecting to: ${navigatePath} (root without params)`);
+                
+                processingRoute = false; // Freigeben vor Navigation
+                navigate(navigatePath, { replace: true });
+                return;
+            }
+            
+            // Wenn das erste Segment ein gültiger Sprachcode ist
+            if (potentialLang && supportedLanguages.includes(potentialLang)) {
+                // Setze die Sprache basierend auf der URL, wenn sie anders ist
+                if (potentialLang !== $currentLanguage) {
+                    console.log('Setting language from URL:', potentialLang);
+                    await setLanguage(potentialLang);
+                }
+            } else if (pathSegments.length > 0) {
+                // URL hat einen Pfad, aber keinen Sprachcode - aktuelle Sprache hinzufügen
+                const newPath = `/${$currentLanguage}${currentPath}`;
+                console.log('Adding language to path:', newPath);
+                
+                processingRoute = false; // Freigeben vor Navigation
                 navigate(newPath, { replace: true });
+                return;
+            }
+        } catch (error) {
+            console.error('Error in route handling:', error);
+        } finally {
+            // Freigeben nach Verarbeitung
+            processingRoute = false;
+        }
+    }
+    
+    // Initialize when component mounts
+    onMount(async () => {
+        try {
+            // Initialize pageURL and currentPageType
+            currentPath = window.location.pathname;
+            pageURL = currentPath;
+            currentPageType = determinePageType(currentPath);
+            
+            console.log('LanguageRouter mounted, initializing with path:', currentPath);
+            
+            // Set initial language from URL, localStorage, or browser preference
+            const pathSegments = window.location.pathname.split('/').filter(segment => segment !== '');
+            const potentialLang = pathSegments[0];
+            
+            if (potentialLang && supportedLanguages.includes(potentialLang)) {
+                // URL has a language - use it
+                if (potentialLang !== $currentLanguage) {
+                    console.log('Setting initial language from URL:', potentialLang);
+                    await setLanguage(potentialLang);
+                }
+            } else {
+                // No language in URL - check localStorage or browser preference
+                const storedLang = localStorage.getItem('language');
+                let preferredLang;
+                
+                try {
+                    // Sicherer Parse von localStorage
+                    preferredLang = storedLang ? JSON.parse(storedLang) : null;
+                    if (preferredLang && !supportedLanguages.includes(preferredLang)) {
+                        console.log('Stored language not supported:', preferredLang);
+                        preferredLang = null;
+                    }
+                } catch (e) {
+                    preferredLang = null;
+                    console.warn('Error parsing stored language', e);
+                }
+                
+                // Fallback auf Browser-Präferenz
+                if (!preferredLang) {
+                    preferredLang = getBrowserLanguage();
+                    console.log('Using browser preferred language:', preferredLang);
+                }
+                
+                if (preferredLang && preferredLang !== $currentLanguage) {
+                    console.log('Setting language from preference:', preferredLang);
+                    await setLanguage(preferredLang);
+                }
+            }
+            
+            // Process initial route after language is set
+            // Wichtig: Verzögerung, um sicherzustellen, dass die Sprache gesetzt wurde
+            await new Promise(resolve => setTimeout(resolve, 50));
+            await handleRouteChange();
+            initialRouteProcessed = true;
+            
+            // Browser-Navigation-Ereignisse
+            window.addEventListener('popstate', handleRouteChange);
+            
+            // Benutzerdefinierte Navigationsereignisse verarbeiten
+            document.addEventListener('click', (e) => {
+                const langLink = e.target.closest('[data-language-link]');
+                if (langLink) {
+                    console.log('Language link clicked');
+                    // Verzögerung für die Sprachaktualisierung
+                    setTimeout(handleRouteChange, 50);
+                }
+            });
+            
+            // Sprachänderungen überwachen und URL aktualisieren
+            const unsubscribe = currentLanguage.subscribe(async (lang) => {
+                if (initialRouteProcessed && lang && !processingRoute) {
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                    handleRouteChange();
+                }
+            });
+            
+            // Cleanup-Funktion
+            return () => {
+                window.removeEventListener('popstate', handleRouteChange);
+                unsubscribe();
+            };
+        } catch (error) {
+            console.error('Error in LanguageRouter onMount:', error);
+        }
+    });
+    
+    // Watch for URL changes that require language updates
+    $: {
+        if (initialRouteProcessed && currentPath && $currentLanguage && !processingRoute) {
+            // URL has changed but doesn't start with current language
+            if (!currentPath.startsWith(`/${$currentLanguage}`)) {
+                console.log('URL changed but doesn\'t have current language prefix, updating...');
+                
+                // Get current path segments
+                const pathSegments = currentPath.split('/').filter(segment => segment !== '');
+                
+                // Create new path with current language
+                let newPath;
+                if (pathSegments.length > 0 && supportedLanguages.includes(pathSegments[0])) {
+                    // Replace existing language code
+                    pathSegments[0] = $currentLanguage;
+                    newPath = `/${pathSegments.join('/')}`;
+                } else {
+                    // Add language code
+                    newPath = `/${$currentLanguage}${currentPath.startsWith('/') ? currentPath : '/' + currentPath}`;
+                }
+                
+                // Only navigate if the path actually changed
+                if (newPath !== currentPath) {
+                    console.log('Updating path to include language:', newPath);
+                    navigate(newPath, { replace: true });
+                }
             }
         }
     }
@@ -221,7 +284,7 @@
         </Route>
         
         <Route path="/versions" component={VersionHistory} />
-        <Route path="/:lang/versions" component={VersionHistory} currentVersion={currentVersion} />
+        <Route path="/:lang/versions" component={VersionHistory} {currentVersion} />
         
         <Route path="/contact" component={ContactForm} />
         <Route path="/:lang/contact" component={ContactForm} />

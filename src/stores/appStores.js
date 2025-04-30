@@ -1,13 +1,19 @@
-// src/stores.js - Update for proper dark mode handling
+// src/stores/appStores.js
 import { writable, derived, get } from 'svelte/store';
 import content from '../content.js';
 import {
     supportedLanguages,
     isLanguageSupported,
-    getSupportedLanguageCodes,
     getBrowserLanguage,
     getText as getTextUtil
 } from '../utils/languages.js';
+import { appVersion, formatVersion } from '../utils/version.js';
+
+// Enhancement: Exportiere die Version als Teil der App-Stores
+export const version = writable(appVersion);
+export const formattedVersion = derived(version, $version =>
+    formatVersion($version)
+);
 
 // Enhanced local storage store with error handling and fallbacks
 const localStore = (key, initial) => {
@@ -82,7 +88,8 @@ async function fetchCounter() {
             body: JSON.stringify({
                 client: navigator.userAgent.substring(0, 80),
                 path: window.location.pathname.replace(/\/$/, ''),
-                env: process.env.NODE_ENV // Optional für Debugging
+                env: process.env.NODE_ENV, // Optional für Debugging
+                version: appVersion // Version senden für Analyse
             })
         });
 
@@ -115,6 +122,7 @@ export const showDonateMenu = writable(false);
 export const showShareMenu = writable(false);
 export const showLanguageMenu = writable(false);
 
+// Modal System
 export const modalMessage = writable('');
 export const isModalVisible = writable(false);
 

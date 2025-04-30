@@ -1,24 +1,21 @@
 <!-- src/ErrorModal.svelte -->
 <script>
     import { fade, fly } from 'svelte/transition';
-    import { modalMessage, isModalVisible } from './stores/appStores.js';
+    import { modalMessage, isModalVisible, modalType, modalData, closeModal } from './stores/modalStore.js';
     import FocusManager from './components/A11y/FocusManager.svelte';
+    import { onMount, onDestroy } from 'svelte';
   
     // State management
     $: message = $modalMessage;
-    $: messageType = getMessageType(message);
+    $: messageType = $modalType || getMessageType(message);
     let showMessage = false;
     let imageLoaded = false;
     let modalRef;
     let lastActiveElement;
-    let modalCloseTimeout;
   
     // Constants for animation and accessibility
     const ANIMATION_DURATION = 300;
     const IMAGE_DISPLAY_DURATION = 1200;
-    const MESSAGE_MIN_DURATION = 2500; // Increased minimum display time
-    const MESSAGE_WORD_MULTIPLIER = 210;
-    const DEFAULT_AUTO_CLOSE_DELAY = 3000;
   
     // Icons for different message types
     const ICONS = {
@@ -30,21 +27,19 @@
       sending: '📨'
     };
   
-    // Message type detector
+    // Message type detector als Fallback
     function getMessageType(msg) {
       if (!msg) return 'info';
       
       const lowerMsg = msg.toLowerCase();
       
-      // Contact form specific patterns
-      if (lowerMsg.includes('sent') || lowerMsg.includes('success')) return 'success';
-      if (lowerMsg.includes('sending')) return 'sending';
-      if (lowerMsg.includes('pending')) return 'contact';
-      if (lowerMsg.includes('error') || lowerMsg.includes('failed')) return 'error';
-      if (lowerMsg.includes('warning')) return 'warning';
+      if (lowerMsg.includes('success') || lowerMsg.includes('sent') || lowerMsg.includes('received')) return 'success';
+      if (lowerMsg.includes('sending') || lowerMsg.includes('processing')) return 'sending';
+      if (lowerMsg.includes('error') || lowerMsg.includes('failed') || lowerMsg.includes('could not')) return 'error';
+      if (lowerMsg.includes('warning') || lowerMsg.includes('invalid') || lowerMsg.includes('check')) return 'warning';
       if (lowerMsg.includes('fix') || lowerMsg.includes('validation')) return 'warning';
+      if (lowerMsg.includes('contact') || lowerMsg.includes('message')) return 'contact';
       
-      // Default or unrecognizable is info
       return 'info';
     }
   
@@ -65,92 +60,40 @@
       return ICONS[type] || ICONS.info;
     }
   
-    // Get auto-close delay based on message type and length
-    function getAutoCloseDelay(message, type) {
-      // Error messages require manual closing
-      if (type === 'error') return null;
-      
-      // For sending messages, we don't auto-close as they will be replaced
-      // by success or error messages
-      if (type === 'sending') return null;
-      
-      const wordCount = message.split(' ').length;
-      const calculatedDuration = Math.max(
-        MESSAGE_MIN_DURATION,
-        wordCount * MESSAGE_WORD_MULTIPLIER
-      );
-      
-      // Add extra time for success messages to ensure users see them
-      if (type === 'success') {
-        return calculatedDuration + IMAGE_DISPLAY_DURATION + 500;
-      }
-      
-      return calculatedDuration + IMAGE_DISPLAY_DURATION;
-    }
-  
-    // Modal subscription handler
-    modalMessage.subscribe(value => {
-      // Clear any existing timeout to prevent premature closing
-      if (modalCloseTimeout) {
-        clearTimeout(modalCloseTimeout);
-        modalCloseTimeout = null;
-      }
-      
-      if (value) {
+    // Handle visibility state changes
+    function handleVisibilityChange(isVisible) {
+      if (isVisible && $modalMessage) {
         showMessage = true;
-        isModalVisible.set(true);
-        imageLoaded = false;
-        lastActiveElement = document.activeElement;
-  
-        // Set focus when modal becomes visible
+        
+        // Ensure modal element is focused
         setTimeout(() => {
           if (modalRef) {
             modalRef.focus();
           }
         }, ANIMATION_DURATION);
+      } else {
+        showMessage = false;
+      }
+    }
   
-        // Calculate auto-close delay based on type and length
-        const type = getMessageType(value);
-        const autoCloseDelay = getAutoCloseDelay(value, type);
-        
-        // Set up auto-close timeout if needed
-        if (autoCloseDelay !== null) {
-          modalCloseTimeout = setTimeout(() => {
-            closeMessage();
-          }, autoCloseDelay);
-        }
+    // Überwache isModalVisible und modalMessage
+    $: handleVisibilityChange($isModalVisible);
+    $: {
+      if ($modalMessage && !$isModalVisible) {
+        isModalVisible.set(true);
       }
-    });
+    }
   
-    // Close the modal
-    function closeMessage() {
-      showMessage = false;
-      modalMessage.set('');
-      isModalVisible.set(false);
-      
-      // Return focus to previous element
-      if (lastActiveElement && typeof lastActiveElement.focus === 'function') {
-        setTimeout(() => {
-          try {
-            lastActiveElement.focus();
-          } catch (e) {
-            console.warn('Could not return focus to previous element', e);
-          }
-        }, 100);
-      }
-      
-      // Clear any existing timeout
-      if (modalCloseTimeout) {
-        clearTimeout(modalCloseTimeout);
-        modalCloseTimeout = null;
-      }
+    // Handle manually closing the modal
+    function handleCloseModal() {
+      closeModal();
     }
   
     // Keyboard handlers
     function handleKeydown(event) {
       if (event.key === 'Escape') {
         event.preventDefault();
-        closeMessage();
+        handleCloseModal();
       }
   
       // Trap focus inside modal
@@ -184,17 +127,35 @@
   
     function handleBackdropClick(event) {
       if (event.target === event.currentTarget) {
-        closeMessage();
+        handleCloseModal();
       }
     }
     
-    // Cleanup on component destroy
-    import { onDestroy } from 'svelte';
-    
-    onDestroy(() => {
-      if (modalCloseTimeout) {
-        clearTimeout(modalCloseTimeout);
+    // Component lifecycle
+    onMount(() => {
+      // Save current focused element
+      lastActiveElement = document.activeElement;
+      
+      // Initial check if message exists
+      if ($modalMessage && $modalMessage.trim() !== '') {
+        showMessage = true;
       }
+      
+      // Debugging info
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[ErrorModal] Component mounted, modal state:', {
+          message: $modalMessage,
+          visible: $isModalVisible,
+          showMessage,
+          type: $modalType
+        });
+      }
+    });
+    
+    // Cleanup on component destroy
+    onDestroy(() => {
+      // Stelle sicher, dass das Modal geschlossen wird
+      closeModal();
     });
 </script>
   
@@ -216,7 +177,7 @@
       >
         <div 
           class="relative flex flex-col items-center justify-center mb-4 px-4 md:px-0"
-          in:fly={{ y: 20, duration: ANIMATION_DURATION, delay: ANIMATION_DURATION }}
+          in:fly={{ y: 20, duration: ANIMATION_DURATION, delay: ANIMATION_DURATION/2 }}
         >
           <!-- Show animated image for contact/success/sending states -->
           {#if messageType === 'contact' || messageType === 'success' || messageType === 'sending'}
@@ -242,7 +203,7 @@
           
           <div 
             class="bg-transparent text-center z-50 max-w-md"
-            in:fly={{ y: 20, duration: ANIMATION_DURATION, delay: ANIMATION_DURATION + 200 }}
+            in:fly={{ y: 20, duration: ANIMATION_DURATION, delay: ANIMATION_DURATION }}
           >
             <h2 
               id="modal-title"
@@ -252,14 +213,17 @@
               {message}
             </h2>
             <p id="modal-description" class="sr-only">
-              Press Escape to close this message
+              {messageType === 'error' || messageType === 'warning' 
+                ? 'Press Escape or click the close button to dismiss this message' 
+                : 'This message will close automatically'}
             </p>
             
             <!-- Show action button for certain message types -->
             {#if messageType === 'error' || messageType === 'warning'}
               <button 
-                class="mt-4 px-4 py-2 bg-yellow text-black rounded-full hover:bg-yellow hover:opacity-90 transition-colors duration-200 min-h-11 min-w-20"
-                on:click={closeMessage}
+                class="mt-4 px-6 py-3 bg-yellow text-black rounded-full hover:bg-yellow hover:opacity-90 transition-colors duration-200 min-h-11 min-w-28"
+                on:click={handleCloseModal}
+                aria-label="Close message"
               >
                 OK
               </button>
@@ -271,6 +235,17 @@
                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             {/if}
+            
+            <!-- Show custom button content if provided via modalData -->
+            {#if $modalData && $modalData.buttonText}
+              <button 
+                class="mt-4 px-6 py-3 bg-yellow text-black rounded-full hover:bg-yellow hover:opacity-90 transition-colors duration-200 min-h-11 min-w-28"
+                on:click={$modalData.buttonAction || handleCloseModal}
+                aria-label={$modalData.buttonText}
+              >
+                {$modalData.buttonText}
+              </button>
+            {/if}
           </div>
         </div>
         
@@ -278,7 +253,7 @@
         {#if messageType !== 'sending'}
           <button 
             class="btn btn-fixed absolute top-5 right-4 py-3 px-4" 
-            on:click={closeMessage}
+            on:click={handleCloseModal}
             aria-label="Close notification"
             in:fade={{ duration: ANIMATION_DURATION, delay: ANIMATION_DURATION }}
           >
@@ -323,8 +298,8 @@
       min-height: 2.75rem;
     }
     
-    .min-w-20 {
-      min-width: 5rem;
+    .min-w-28 {
+      min-width: 7rem;
     }
   
     /* Improved visual feedback */

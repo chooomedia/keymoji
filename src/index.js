@@ -1,8 +1,8 @@
-// src/index.js - Enhanced with better service worker handling
+// src/index.js - Enhanced with better service worker handling and central version management
 import Root from './routes/LanguageRouter.svelte';
 import './index.css';
-import { appVersion } from './utils/version.js';
-import { modalMessage } from './stores/appStores.js';
+import { appVersion, versionInfo } from './utils/version.js'; // Importiere aus zentraler Quelle
+import { modalMessage, isModalVisible } from './stores/appStores.js'; // Behalte die ursprünglichen Stores
 import content from './content.js';
 
 // Get the current URL
@@ -38,7 +38,7 @@ const app = new Root({
     target: document.body,
     props: {
         url: currentUrl,
-        currentVersion: appVersion
+        currentVersion: appVersion // Verwende die zentrale Versionsdefinition
     }
 });
 
@@ -72,15 +72,18 @@ if ('serviceWorker' in navigator && environment === 'production') {
                         // Store update availability in session storage
                         sessionStorage.setItem('swUpdateAvailable', 'true');
 
-                        // Show update notification to user
+                        // Zeige Update-Meldung mit dem vorhandenen Modal-System
                         const defaultMessage =
                             'A new version is available. Refresh to update!';
+
+                        // Verwende die bestehenden modalMessage und isModalVisible Stores
                         modalMessage.set(
                             content.en?.serviceWorker?.updateAvailable ||
                                 defaultMessage
                         );
+                        isModalVisible.set(true);
 
-                        // Add refresh button handler
+                        // Refresh button handler
                         const refreshButton = document.createElement('button');
                         refreshButton.textContent = 'Refresh Now';
                         refreshButton.className =
@@ -158,11 +161,15 @@ if ('serviceWorker' in navigator && environment === 'production') {
     console.log(`Running in ${environment} mode - Service Worker disabled`);
 }
 
-// Add version info to console
+// Add version info to console with updated style and more details
 console.info(
-    `%c Keymoji v${appVersion} `,
-    'background: #f4ab25; color: #000; padding: 4px;'
+    `%c Keymoji ${appVersion} (${versionInfo.codename}) `,
+    'background: #f4ab25; color: #000; padding: 4px; border-radius: 4px;'
 );
-console.log('Current language:', document.documentElement.lang);
+console.log(
+    `Last updated: ${versionInfo.updated}
+Environment: ${environment}
+Language: ${document.documentElement.lang}`
+);
 
 export default app;
