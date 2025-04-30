@@ -95,7 +95,7 @@
                     newsletterOptIn,
                     honeypot,
                     language: $currentLanguage,
-                    emailContent // Alle benötigten Texte werden mitgeschickt
+                    emailContent 
                 })
             });
 
