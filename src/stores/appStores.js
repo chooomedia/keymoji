@@ -73,12 +73,7 @@ async function fetchCounter() {
         const origin = window.location.origin;
         if (!ALLOWED_ORIGINS.has(origin)) return;
 
-        const webhookUrl =
-            process.env.NODE_ENV === 'development'
-                ? 'https://n8n.chooomedia.com/webhook-test/xn--moji-pb73c-userCounter'
-                : 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-userCounter';
-
-        const response = await fetch(webhookUrl, {
+        const response = await fetch(WEBHOOKS.USER_COUNTER, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

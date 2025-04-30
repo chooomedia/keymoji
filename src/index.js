@@ -4,11 +4,25 @@ import './index.css';
 import { appVersion } from './utils/version.js';
 import { modalMessage } from './stores/appStores.js';
 import content from './content.js';
+import { WEBHOOKS } from './config/api.js';
 
 // Get the current URL
 const currentUrl = window.location.pathname;
 
-console.log('Starting app with URL:', currentUrl, 'Version:', appVersion);
+console.log(
+    'Starting app with URL:',
+    currentUrl,
+    'Version:',
+    appVersion,
+    'Environment:',
+    process.env.NODE_ENV
+);
+
+// Log environment variables (nicht sensible)
+console.log(
+    'Webhook Base:',
+    process.env.WEBHOOK_BASE ? 'Configured' : 'Using default'
+);
 
 const app = new Root({
     target: document.body,

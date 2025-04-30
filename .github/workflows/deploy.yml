@@ -24,6 +24,12 @@ jobs:
             - name: Generate updated time
               run: cat ./src/updatedTime.js
 
+            - name: Generate .env file
+              run: |
+                  echo "WEBHOOK_BASE=${{ secrets.WEBHOOK_BASE }}" > .env.production
+                  echo "WEBHOOK_TEST_BASE=${{ secrets.WEBHOOK_TEST_BASE }}" >> .env.production
+                  echo "API_TIMEOUT=10000" >> .env.production
+
             - name: Build
               run: npm run build
               env:

@@ -13,7 +13,7 @@ module.exports = {
     common: [],
     start: [
         new plugins.Define({
-            'process.env.OPENAI_API_KEY': environment.development.OPENAI_API_KEY,
+            // Für jede Umgebungsvariable in process.env eine entsprechende Variable erstellen
             'process.env': JSON.stringify(environment.development)
         }),
         new plugins.Html({
@@ -43,7 +43,7 @@ module.exports = {
             }
         }),
         new plugins.Define({
-            'process.env.OPENAI_API_KEY': environment.production.OPENAI_API_KEY,
+            // Für jede Umgebungsvariable in process.env eine entsprechende Variable erstellen
             'process.env': JSON.stringify(environment.production)
         }),
         new plugins.CopyWebpack({

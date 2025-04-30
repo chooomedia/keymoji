@@ -5,6 +5,7 @@
     import { currentLanguage, modalMessage, successfulStoryRequests, isModalVisible, isDisabled } from './stores/appStores.js';
     import emojisData from '../public/emojisArray.json';
     import content from './content.js';
+    import { WEBHOOKS } from './config/api.js';
 
     // Props
     export let showEmojiCodes = false;
@@ -23,7 +24,6 @@
     // Constants
     const DISABLE_DURATION_MS = 3000;
     const DAILY_LIMIT = 4;
-    const WEBHOOK_URL = 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-generate-story';
   
     // Lifecycle
     onMount(() => {
@@ -93,7 +93,6 @@
     // Helper Functions
     function checkLimits() {
       if ($isDisabled || isDailyLimitReached()) {
-        //navigator.vibrate?.(200);
         isDisabled.set(true);
         showErrorMessage(content[$currentLanguage].emojiDisplay.dailyLimitReachedMessage);
         return true;
@@ -118,7 +117,7 @@
     }
   
     async function fetchEmojiStory() {
-      const response = await fetch(WEBHOOK_URL, {
+      const response = await fetch(WEBHOOKS.STORY_GENERATOR, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

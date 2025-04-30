@@ -5,6 +5,7 @@
     import { fade, fly, scale } from 'svelte/transition';
     import Header from '../Header.svelte';
     import FixedMenu from '../widgets/FixedMenu.svelte';
+    import { WEBHOOKS } from '../config/api.js';
   
     let name = '',
         email = '',
@@ -76,10 +77,6 @@
       isImageLoaded = true;
     }
   
-    const proxyURL = 'https://cors-anywhere.herokuapp.com/';
-    const webhookUrl = 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-mail';
-    const webhookOptin = 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-optin-keymoji';
-  
     function checkEmailTimeout(email) {
       const timestamps = JSON.parse(localStorage.getItem('emailTimestamps')) || {};
       const now = Date.now();
@@ -117,7 +114,7 @@
           return;
         }
   
-        const response = await fetch(webhookUrl, {
+        const response = await fetch(WEBHOOKS.CONTACT.SEND_MAIL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -128,7 +125,7 @@
             email, 
             message,
             targetEmail: "hi@keymoji.wtf",
-            emailData: compileEmailTemplate(name, webhookOptin),
+            emailData: compileEmailTemplate(name, WEBHOOKS.CONTACT.OPTIN),
           }),
         });
   
