@@ -16,6 +16,10 @@ _content.js
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
+# Server
+/server/
+src/services/
+
 # Runtime data
 pids
 *.pid
