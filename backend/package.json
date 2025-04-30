@@ -7,10 +7,9 @@
         "start": "vercel dev"
     },
     "dependencies": {
-        "axios": "^1.6.7",
+        "axios": "^1.9.0",
         "validator": "^13.11.0"
     },
-    "devDependencies": {},
     "engines": {
         "node": ">=18"
     },

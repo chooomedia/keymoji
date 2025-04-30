@@ -43,7 +43,7 @@ export const WEBHOOKS = {
 
     // Kontaktformular - Brevo Integration
     CONTACT: {
-        SEND_MAIL: 'https://keymoji.vercel.app/api/contact',
+        SEND_MAIL: 'https://keymoji-chi.vercel.app/api/contact',
 
         // Legacy-Endpunkte
         OPTIN: `${getBaseUrl()}/xn--moji-pb73c-optin-keymoji`,

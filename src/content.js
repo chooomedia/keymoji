@@ -94,6 +94,7 @@ export const content = {
                 "Frontend Developer and i love to design and code userfriendly Websites with JavaScript, PHP and HTML. Don't hesitate and send me a message if you like.",
             privacyNotice:
                 'Rest assured, your data is in good hands with us 🤲. Your details will not be passed on to third parties 🔒.',
+            newsletterLabel: 'Yes, I would like to subscribe to the newsletter',
             emailText: {
                 greeting: 'Welcome',
                 intro: 'Thank you for sending a message 📩!',
@@ -260,6 +261,7 @@ export const content = {
                 'Frontend Entwickler und ich liebe es, benutzerfreundliche Webseiten mit JavaScript, PHP und HTML zu gestalten und zu programmieren. Zögere nicht und schick mir eine Nachricht, wenn es dir gefällt.',
             privacyNotice:
                 'Keine Sorge, deine Daten sind bei uns in guten Händen 🤲. Deine Details werden nicht an Dritte weitergegeben 🔒.',
+            newsletterLabel: 'Ja ich möchte den Newsletter abonnieren',
             emailText: {
                 greeting: 'Willkommen',
                 intro: 'Danke für das Senden einer Nachricht 📩!',
