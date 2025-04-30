@@ -1,8 +1,15 @@
 import validator from 'validator';
 
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
+    res.setHeader('Access-Control-Allow-Origin', 'https://keymoji.wtf');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type, X-Requested-With'
+    );
+
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
     }
 
     const { name, email, message, newsletterOptIn, honeypot } = req.body;
@@ -53,7 +60,7 @@ async function sendBrevoEmail({ name, email, message, emailContent }) {
 
     const emailHtml = `
     <!DOCTYPE html>
-    <html lang="${emailContent.language}">
+    <html lang="${emailContent?.language || 'de'}">
     <head>
         <meta charset="utf-8">
         <title>${intro} ${name}</title>
@@ -76,7 +83,7 @@ async function sendBrevoEmail({ name, email, message, emailContent }) {
                 <pstyle="margin: 8px 0;"><strong>${
                     emailContent.verification
                 }</strong></p>
-                <ul style="margin: 0 0 8px 0; color: #4B5563; white-space: pre-wrap;>
+                <ul style="margin: 0 0 8px 0; color: #4B5563; white-space: pre-wrap;">
                     <li><strong>Name:</strong> ${validator.escape(name)}</li>
                     <li><strong>Email:</strong> ${validator.escape(email)}</li>
                     <li><strong>Message:</strong> ${validator.escape(
