@@ -33,7 +33,7 @@
   
     // Constants
     const DISABLE_DURATION_MS = 3000;
-    const DAILY_LIMIT = 4;
+    const DAILY_LIMIT = 3;
   
     // Lifecycle
     onMount(() => {
@@ -318,7 +318,7 @@
           {/each}
         {:else}
           <div class="text-xs">
-            {content[$currentLanguage].emojiDisplay.noEmojisGenerated || "Click the button below to generate emojis"}
+            {content[$currentLanguage].emojiDisplay.dailyLimitReachedMessage || "Sorry, daily limit of requests reached 😔"}
           </div>
         {/if}
       </div>

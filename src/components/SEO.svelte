@@ -161,7 +161,7 @@
     {#each alternateUrls as alt}
       <link rel="alternate" hreflang={alt.lang} href={alt.url} />
     {/each}
-    <link rel="alternate" hreflang="x-default" href="https://keymoji.wtf/" />
+    <link rel="alternate" hreflang="x-default" href="https://keymoji.wtf/en" />
     
     <!-- Open Graph Tags -->
     <meta property="og:title" content={pageTitle} />

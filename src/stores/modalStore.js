@@ -21,7 +21,7 @@ let modalTimeout = null;
  * @param {number} duration - Anzeigedauer in ms, null für manuelle Schließung
  * @param {object} data - Zusätzliche Daten, die im Modal verwendet werden können
  */
-export function showModal(message, type = 'info', duration = 5000, data = {}) {
+export function showModal(message, type = 'info', duration = 4000, data = {}) {
     // Bestehenden Timeout löschen
     if (modalTimeout) {
         clearTimeout(modalTimeout);
