@@ -1,9 +1,6 @@
 // src/config/api.js
 // Zentrale Konfiguration für API-Endpoints und Webhooks
 
-// DIREKTE LÖSUNG: Im Entwicklungsmodus immer localhost:3000 verwenden
-// Da wir im Browser sind, können wir window.location überprüfen, um zu entscheiden
-
 // Erkennen, ob wir in der Entwicklungsumgebung sind
 const isLocalDevelopment =
     typeof window !== 'undefined' &&
@@ -15,10 +12,10 @@ console.log(
     isLocalDevelopment ? 'Lokale Entwicklung' : 'Produktion'
 );
 
-// Lokale API-URL oder Produktions-URL basierend auf der Umgebung
-const API_URL = isLocalDevelopment
+// Basis-URL für die API
+const API_BASE = isLocalDevelopment
     ? 'http://localhost:3000/api' // Lokaler Test-Server
-    : 'https://api.keymoji.wtf/api'; // Produktionsserver
+    : 'https://its.keymoji.wtf/api'; // Produktionsserver
 
 // Legacy n8n Basis-URLs
 const WEBHOOK_BASE = 'https://n8n.chooomedia.com/webhook';
@@ -44,15 +41,24 @@ export const WEBHOOKS = {
     // Kontaktformular - Brevo Integration
     CONTACT: {
         SEND_MAIL: 'https://its.keymoji.wtf/api/contact',
-
-        // Legacy-Endpunkte
         OPTIN: `${getBaseUrl()}/xn--moji-pb73c-optin-keymoji`,
         NEWSLETTER: `${getBaseUrl()}/xn--moji-pb73c-newsletter`
+    },
+
+    // Emoji Generator API
+    EMOJI_API: {
+        // Neuer Server-basierter API-Endpunkt
+        RANDOM: `${API_BASE}/random`,
+
+        // Funktion zum Generieren der API-URL für random Emojis
+        getRandomUrl: count => {
+            return `${API_BASE}/random?count=${count}`;
+        }
     }
 };
 
 // Debug-Ausgabe zur Überprüfung
-console.log('Kontaktformular-Endpunkt:', WEBHOOKS.CONTACT.SEND_MAIL);
+console.log('Emoji API Endpunkt:', WEBHOOKS.EMOJI_API.RANDOM);
 
 // API-Konfiguration
 export const API_CONFIG = {
@@ -73,6 +79,42 @@ export const API_CONFIG = {
     RATE_LIMITING: {
         MAX_SUBMISSIONS_PER_EMAIL: 3,
         SUBMISSION_WINDOW_HOURS: 24
+    },
+
+    // Emoji API Einstellungen
+    EMOJI_API: {
+        MIN_COUNT: 5,
+        MAX_COUNT: 9,
+        DEFAULT_COUNT: 5,
+        PARAM_NAME: 'count'
+    }
+};
+
+// Hilfsfunktionen für die API
+export const ApiUtils = {
+    // Einen API-Request für zufällige Emojis durchführen
+    async fetchRandomEmojis(count = API_CONFIG.EMOJI_API.DEFAULT_COUNT) {
+        try {
+            const validCount = Math.min(
+                Math.max(count, API_CONFIG.EMOJI_API.MIN_COUNT),
+                API_CONFIG.EMOJI_API.MAX_COUNT
+            );
+
+            const response = await fetch(
+                WEBHOOKS.EMOJI_API.getRandomUrl(validCount)
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `API Error: ${response.status} ${response.statusText}`
+                );
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error('Error fetching random emojis:', error);
+            throw error;
+        }
     }
 };
 
