@@ -4,6 +4,10 @@
         {
             "src": "api/contact.js",
             "use": "@vercel/node"
+        },
+        {
+            "src": "api/random.js",
+            "use": "@vercel/node"
         }
     ],
     "routes": [
@@ -21,6 +25,22 @@
                 "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
                 "X-Content-Type-Options": "nosniff",
                 "X-Frame-Options": "DENY"
+            }
+        },
+        {
+            "src": "/api/random",
+            "dest": "/api/random.js",
+            "methods": [
+                "GET",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
+                "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+                "X-Content-Type-Options": "nosniff",
+                "Cache-Control": "no-cache, no-store, must-revalidate"
             }
         },
         {
