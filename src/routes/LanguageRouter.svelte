@@ -3,7 +3,7 @@
     import { Router, Route, navigate } from 'svelte-routing';
     import { onMount, onDestroy } from 'svelte';
     import { currentLanguage, setLanguage } from '../stores/appStores.js';
-    import { getBrowserLanguage } from '../utils/languages.js';
+    import { getBrowserLanguage, isLanguageSupported } from '../utils/languages.js';
     import Index from '../index.svelte';
     import BlogGrid from '../BlogGrid.svelte';
     import BlogPost from '../BlogPost.svelte';
@@ -27,9 +27,6 @@
     let pageURL = "";
     let initialRouteProcessed = false;
     let processingRoute = false; // Verhindert gleichzeitige Route-Verarbeitung
-    
-    // Flag zur Steuerung des initialLoadHandled-Status
-    const INITIAL_LOAD_FLAG = 'keymoji_initialLoadHandled';
     
     // Bestimme den Seitentyp für SEO-Komponente
     function determinePageType(path) {
@@ -72,7 +69,7 @@
         }
     }
     
-    // Verbesserte Route-Verarbeitung
+    // Verbesserte Route-Verarbeitung ohne Weiterleitung von Root zu Sprach-URL
     async function handleRouteChange() {
         // Vermeide gleichzeitige Verarbeitung, was zu Race Conditions führen könnte
         if (processingRoute) {
@@ -98,73 +95,17 @@
             const pathSegments = currentPath.split('/').filter(segment => segment !== '');
             const potentialLang = pathSegments[0];
             
-            // Sonderfall: Root-Route mit action=random
-            if ((currentPath === '/' || currentPath === '') && action === 'random') {
-                // Setze Flag für Umleitung
-                sessionStorage.setItem('redirectInProgress', 'true');
-                
-                // Wir werden zur richtigen Sprache navigieren, aber den Action-Parameter beibehalten
-                const navigatePath = `/${$currentLanguage}?action=random`;
-                
-                processingRoute = false; // Freigeben vor Navigation
-                navigate(navigatePath, { replace: true });
-                return;
-            }
-            
-            // Sonderfall: Root-Route ohne Parameter
-            if ((currentPath === '/' || currentPath === '')) {
-                // Setze Flag für Umleitung, um zu verhindern, dass das Tageslimit falsch gezählt wird
-                sessionStorage.setItem('redirectInProgress', 'true');
-                
-                const navigatePath = `/${$currentLanguage}`;
-                
-                processingRoute = false; // Freigeben vor Navigation
-                
-                // Verzögerung zum Setzen des Flags vor der Navigation
-                setTimeout(() => {
-                    navigate(navigatePath, { replace: true });
-                    
-                    // Flag nach Navigation entfernen
-                    setTimeout(() => {
-                        sessionStorage.removeItem('redirectInProgress');
-                    }, 100);
-                }, 0);
-                
-                return;
-            }
-            
             // Wenn das erste Segment ein gültiger Sprachcode ist
             if (potentialLang && supportedLanguages.includes(potentialLang)) {
                 // Setze die Sprache basierend auf der URL, wenn sie anders ist
                 if (potentialLang !== $currentLanguage) {
                     await setLanguage(potentialLang);
                 }
-            } else if (pathSegments.length > 0) {
-                // URL hat einen Pfad, aber keinen Sprachcode - aktuelle Sprache hinzufügen
-                // Setze Flag für Umleitung
-                sessionStorage.setItem('redirectInProgress', 'true');
-                
-                const newPath = `/${$currentLanguage}${currentPath}`;
-                
-                processingRoute = false; // Freigeben vor Navigation
-                
-                // Verzögerung zum Setzen des Flags vor der Navigation
-                setTimeout(() => {
-                    navigate(newPath, { replace: true });
-                    
-                    // Flag nach Navigation entfernen
-                    setTimeout(() => {
-                        sessionStorage.removeItem('redirectInProgress');
-                    }, 100);
-                }, 0);
-                
-                return;
             }
             
             // Markiere, dass anfängliche Route verarbeitet wurde
             if (!initialRouteProcessed) {
                 initialRouteProcessed = true;
-                sessionStorage.setItem(INITIAL_LOAD_FLAG, 'true');
             }
         } catch (error) {
             console.error('Error in route handling:', error);
@@ -182,14 +123,7 @@
             pageURL = currentPath;
             currentPageType = determinePageType(currentPath);
             
-            // Prüfen, ob dies die erste Sitzung ist oder nach Neustart
-            const isNewSession = !sessionStorage.getItem(INITIAL_LOAD_FLAG);
-            if (isNewSession) {
-                // Zurücksetzen des Flags für die initiale Verarbeitung für neue Sitzungen
-                sessionStorage.setItem(INITIAL_LOAD_FLAG, 'false');
-            }
-            
-            // Set initial language from URL, localStorage, or browser preference
+            // Set initial language from URL or localStorage
             const pathSegments = window.location.pathname.split('/').filter(segment => segment !== '');
             const potentialLang = pathSegments[0];
             
@@ -199,33 +133,15 @@
                     await setLanguage(potentialLang);
                 }
             } else {
-                // No language in URL - check localStorage or browser preference
-                const storedLang = localStorage.getItem('language');
-                let preferredLang;
-                
-                try {
-                    // Sicherer Parse von localStorage
-                    preferredLang = storedLang ? JSON.parse(storedLang) : null;
-                    if (preferredLang && !supportedLanguages.includes(preferredLang)) {
-                        preferredLang = null;
-                    }
-                } catch (e) {
-                    preferredLang = null;
-                    console.warn('Error parsing stored language', e);
-                }
-                
-                // Fallback auf Browser-Präferenz
-                if (!preferredLang) {
-                    preferredLang = getBrowserLanguage();
-                }
-                
-                if (preferredLang && preferredLang !== $currentLanguage) {
-                    await setLanguage(preferredLang);
+                // Für den unwahrscheinlichen Fall, dass keine Sprache in der URL ist
+                // (sollte durch server-side Redirect vermieden werden)
+                const defaultLang = 'en';
+                if (defaultLang !== $currentLanguage) {
+                    await setLanguage(defaultLang);
                 }
             }
             
             // Process initial route after language is set
-            // Wichtig: Verzögerung, um sicherzustellen, dass die Sprache gesetzt wurde
             await new Promise(resolve => setTimeout(resolve, 50));
             await handleRouteChange();
             initialRouteProcessed = true;
@@ -259,33 +175,6 @@
             console.error('Error in LanguageRouter onMount:', error);
         }
     });
-    
-    // Watch for URL changes that require language updates
-    $: {
-        if (initialRouteProcessed && currentPath && $currentLanguage && !processingRoute) {
-            // URL has changed but doesn't start with current language
-            if (!currentPath.startsWith(`/${$currentLanguage}`)) {
-                // Get current path segments
-                const pathSegments = currentPath.split('/').filter(segment => segment !== '');
-                
-                // Create new path with current language
-                let newPath;
-                if (pathSegments.length > 0 && supportedLanguages.includes(pathSegments[0])) {
-                    // Replace existing language code
-                    pathSegments[0] = $currentLanguage;
-                    newPath = `/${pathSegments.join('/')}`;
-                } else {
-                    // Add language code
-                    newPath = `/${$currentLanguage}${currentPath.startsWith('/') ? currentPath : '/' + currentPath}`;
-                }
-                
-                // Only navigate if the path actually changed
-                if (newPath !== currentPath) {
-                    navigate(newPath, { replace: true });
-                }
-            }
-        }
-    }
 </script>
 
 <!-- Zentralisierte SEO-Komponente für die gesamte App -->

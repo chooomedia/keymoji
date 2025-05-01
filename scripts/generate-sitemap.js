@@ -27,7 +27,7 @@ try {
 
 // Definiere die unterstützten Sprachen manuell, um Probleme beim Parsen von content.js zu vermeiden
 const languages = [
-    'en',
+    'en', // Englisch ist die Standardsprache
     'de',
     'dech',
     'es',
@@ -59,15 +59,13 @@ sitemapContent += 'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n';
 
 // Add entries for each route in each language
 routes.forEach(route => {
+    // Haupteintrag - immer mit /en (Standardsprache)
+    const canonicalUrl =
+        route === '/' ? `${baseUrl}/en` : `${baseUrl}/en${route}`;
+
     sitemapContent += '  <url>\n';
-
-    // Default URL (no language prefix)
-    sitemapContent += `    <loc>${baseUrl}${route}</loc>\n`;
-
-    // Add lastmod date from the updatedTime
+    sitemapContent += `    <loc>${canonicalUrl}</loc>\n`;
     sitemapContent += `    <lastmod>${updatedTime.split('T')[0]}</lastmod>\n`;
-
-    // Set change frequency
     sitemapContent += '    <changefreq>weekly</changefreq>\n';
 
     // Set priority (home page has highest priority)
@@ -76,36 +74,41 @@ routes.forEach(route => {
 
     // Add alternate language versions
     languages.forEach(lang => {
-        const langUrl = `${baseUrl}/${lang}${route}`;
+        const langUrl =
+            route === '/' ? `${baseUrl}/${lang}` : `${baseUrl}/${lang}${route}`;
+
         sitemapContent += `    <xhtml:link rel="alternate" hreflang="${lang}" href="${langUrl}" />\n`;
     });
 
-    // Add x-default hreflang
-    sitemapContent += `    <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}${route}" />\n`;
+    // Add x-default hreflang (pointing to English version)
+    sitemapContent += `    <xhtml:link rel="alternate" hreflang="x-default" href="${canonicalUrl}" />\n`;
 
     sitemapContent += '  </url>\n';
 
-    // Also add language-specific URLs
-    languages.forEach(lang => {
-        sitemapContent += '  <url>\n';
-        sitemapContent += `    <loc>${baseUrl}/${lang}${route}</loc>\n`;
-        sitemapContent += `    <lastmod>${
-            updatedTime.split('T')[0]
-        }</lastmod>\n`;
-        sitemapContent += '    <changefreq>weekly</changefreq>\n';
-        sitemapContent += `    <priority>${priority}</priority>\n`;
+    // Add language-specific URLs (except for English which is already added as canonical)
+    languages
+        .filter(lang => lang !== 'en')
+        .forEach(lang => {
+            const langUrl =
+                route === '/'
+                    ? `${baseUrl}/${lang}`
+                    : `${baseUrl}/${lang}${route}`;
 
-        // Add alternate language versions
-        languages.forEach(alternateLang => {
-            const langUrl = `${baseUrl}/${alternateLang}${route}`;
-            sitemapContent += `    <xhtml:link rel="alternate" hreflang="${alternateLang}" href="${langUrl}" />\n`;
+            sitemapContent += '  <url>\n';
+            sitemapContent += `    <loc>${langUrl}</loc>\n`;
+            sitemapContent += `    <lastmod>${
+                updatedTime.split('T')[0]
+            }</lastmod>\n`;
+            sitemapContent += '    <changefreq>weekly</changefreq>\n';
+            sitemapContent += `    <priority>${priority}</priority>\n`;
+
+            // Add canonical link to English version
+            sitemapContent += `    <xhtml:link rel="alternate" hreflang="${lang}" href="${langUrl}" />\n`;
+            sitemapContent += `    <xhtml:link rel="alternate" hreflang="en" href="${canonicalUrl}" />\n`;
+            sitemapContent += `    <xhtml:link rel="alternate" hreflang="x-default" href="${canonicalUrl}" />\n`;
+
+            sitemapContent += '  </url>\n';
         });
-
-        // Add x-default hreflang
-        sitemapContent += `    <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}${route}" />\n`;
-
-        sitemapContent += '  </url>\n';
-    });
 });
 
 sitemapContent += '</urlset>';

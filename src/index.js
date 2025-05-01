@@ -1,8 +1,8 @@
-// src/index.js - Korrekte Modal-Integration
+// src/index.js - Optimierter Haupteinstiegspunkt
 import Root from './routes/LanguageRouter.svelte';
 import './index.css';
 import { appVersion, versionInfo } from './utils/version.js';
-import { showSuccess, showWarning } from './stores/modalStore.js'; // Importiere direkt aus modalStore.js
+import { showSuccess, showWarning } from './stores/modalStore.js';
 import content from './content.js';
 
 // Get the current URL
@@ -24,6 +24,22 @@ const getEnvironment = () => {
     }
 };
 
+// Überprüfe, ob die aktuelle URL den Sprachcode enthält
+// Falls nicht, sollte der Server-Redirect bereits stattgefunden haben
+const ensureLanguageInPath = () => {
+    const path = window.location.pathname;
+    const pathSegments = path.split('/').filter(segment => segment !== '');
+
+    // Wenn die Pfadsegmente leer sind (Wurzel-URL) oder das erste Segment
+    // nicht wie ein Sprachcode aussieht, logge eine Warnung
+    if (pathSegments.length === 0 || pathSegments[0].length !== 2) {
+        console.warn(
+            'URL does not contain language code, server-side redirect may have failed:',
+            path
+        );
+    }
+};
+
 const environment = getEnvironment();
 console.log(
     'Starting app with URL:',
@@ -33,6 +49,11 @@ console.log(
     'Environment:',
     environment
 );
+
+// Sprachcode-Prüfung im Development-Modus
+if (environment === 'development') {
+    ensureLanguageInPath();
+}
 
 const app = new Root({
     target: document.body,

@@ -29,9 +29,28 @@ const routes = ['/blog', '/versions', '/contact'];
 const indexPath = path.join(__dirname, '../build/index.html');
 const indexContent = fs.readFileSync(indexPath, 'utf8');
 
-// Erstelle Verzeichnisse für Sprachrouten
+// Sicherstellen, dass der Basis-Build-Ordner existiert
+const buildDir = path.join(__dirname, '../build');
+if (!fs.existsSync(buildDir)) {
+    fs.mkdirSync(buildDir, { recursive: true });
+}
+
+// Stelle sicher, dass die "en" Route als Standard existiert
+// WICHTIG: Die Root-Route wird nun durch den Server auf /en umgeleitet
+const enDir = path.join(buildDir, 'en');
+if (!fs.existsSync(enDir)) {
+    fs.mkdirSync(enDir, { recursive: true });
+}
+
+// Erstelle index.html für die Englische Version (Standard)
+fs.writeFileSync(path.join(enDir, 'index.html'), indexContent);
+
+// Erstelle Verzeichnisse für die übrigen Sprachrouten
 languages.forEach(lang => {
-    const langDir = path.join(__dirname, '../build', lang);
+    // Überspringe "en", da wir es bereits erstellt haben
+    if (lang === 'en') return;
+
+    const langDir = path.join(buildDir, lang);
 
     // Erstelle Sprachverzeichnis
     if (!fs.existsSync(langDir)) {
@@ -56,10 +75,11 @@ languages.forEach(lang => {
     });
 });
 
-// Erstelle auch die Routen ohne Sprachpräfix
+// Erstelle auch die englischen Routen ohne Sprachpräfix für Fallback
+// (falls Server-Redirect nicht funktioniert)
 routes.forEach(route => {
     const routePath = route.startsWith('/') ? route.substring(1) : route;
-    const routeDir = path.join(__dirname, '../build', routePath);
+    const routeDir = path.join(buildDir, routePath);
 
     // Erstelle Verzeichnis für Route
     if (!fs.existsSync(routeDir)) {
@@ -70,4 +90,6 @@ routes.forEach(route => {
     fs.writeFileSync(path.join(routeDir, 'index.html'), indexContent);
 });
 
-console.log('Static routes generated successfully!');
+console.log(
+    'Static routes generated successfully with /en as default language!'
+);
