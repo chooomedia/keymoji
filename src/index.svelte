@@ -82,7 +82,7 @@
                 type="button"
                 aria-label="View version history"
               >
-                {getText('header.pageVersion') || 'v0.2.2'}
+                v{getText('header.pageVersion') || 'v0.4.2'}
               </button>
               <span class="px-2">·</span>
               <span>Created by</span>
