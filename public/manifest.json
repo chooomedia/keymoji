@@ -70,7 +70,7 @@
     "protocol_handlers": [
         {
             "protocol": "web+keymoji",
-            "url": "/?emoji=%s"
+            "url": "/?random=%s"
         }
     ]
 }

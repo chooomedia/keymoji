@@ -28,40 +28,19 @@
     let shouldAnimateEmojis = false;
     let isStoryMode = false;
     let initialRenderComplete = false;
-  
+
     const emojis = emojisData.emojis;
   
     // Constants
     const DISABLE_DURATION_MS = 3000;
     const DAILY_LIMIT = 3;
-  
+    
     // Lifecycle
     onMount(() => {
       checkAndResetDailyLimit();
-      
-      // Check for direct URL with action=random
-      const urlParams = new URLSearchParams(window.location.search);
-      const action = urlParams.get('action');
-      
-      // Only generate random emoji on direct landing with action=random
-      // or when first loading the app (not when navigating back to home)
-      if (action === 'random' || !initialRenderComplete) {
-        generateRandomEmojis(false); // Don't count initial load towards daily limit
-        
-        // If this is an API request (action=random), prepare JSON response
-        if (action === 'random') {
-          // For API use - could expose the emoji data through a custom DOM element
-          // that external scripts can read
-          const apiResponseElement = document.createElement('script');
-          apiResponseElement.id = 'keymoji-api-response';
-          apiResponseElement.type = 'application/json';
-          apiResponseElement.textContent = JSON.stringify({
-            emojis: randomEmojis,
-            timestamp: new Date().toISOString(),
-            count: emojiCount
-          });
-          document.head.appendChild(apiResponseElement);
-        }
+
+      if (!initialRenderComplete) {
+        generateRandomEmojis(true); // count initial load towards daily limit
       }
       
       initialRenderComplete = true;
@@ -81,7 +60,7 @@
       }
     }
   
-  
+
     async function generateEmojis() {
       try {
         if (checkLimits()) return;
