@@ -24,8 +24,8 @@
     let message = '';
     let newsletterOptIn = false;
     let honeypot = ''; // Hidden honeypot field
-    let emoijSmirkingFace = '../images/keymoji-animated-optimize-resize-160x160px.webp',
-        realAuthorImage = '../images/chris-matt-keymoji-creator-frontend-developer.png',
+    let emoijSmirkingFace = '/images/keymoji-animated-optimize-resize-160x160px.webp',
+        realAuthorImage = '/images/chris-matt-keymoji-creator-frontend-developer.png',
         whileLoading = "😏",
         isImageLoaded = false,
         showRealImage = false;

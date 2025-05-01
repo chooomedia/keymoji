@@ -1,4 +1,4 @@
-<!-- src/EmojiDisplay.svelte (update) -->
+<!-- src/EmojiDisplay.svelte (updated) -->
 <script>
     import { fly } from 'svelte/transition';
     import { onMount } from 'svelte';
@@ -46,7 +46,7 @@
       // Only generate random emoji on direct landing with action=random
       // or when first loading the app (not when navigating back to home)
       if (action === 'random' || !initialRenderComplete) {
-        generateRandomEmojis();
+        generateRandomEmojis(false); // Don't count initial load towards daily limit
         
         // If this is an API request (action=random), prepare JSON response
         if (action === 'random') {
@@ -68,14 +68,14 @@
     });
   
     // Main Functions
-    async function generateRandomEmojis() {
+    async function generateRandomEmojis(countTowardsLimit = true) {
       try {
         if (checkLimits()) return;
   
         randomEmojis = getRandomEmojis(emojiCount);
         // Fokussiere das Dokument vor dem Kopieren
         window.focus();
-        await handleSuccessfulGeneration();
+        await handleSuccessfulGeneration(countTowardsLimit);
       } catch (error) {
         handleError('Random Generation Error', error);
       }
@@ -111,12 +111,16 @@
       return false;
     }
   
-    async function handleSuccessfulGeneration() {
+    async function handleSuccessfulGeneration(countTowardsLimit = true) {
       await copyToClipboard(randomEmojis.join(' '));
       showSuccessMessage(content[$currentLanguage].emojiDisplay.successMessage);
       showTextArea = false;
       temporarilyDisableButton();
-      incrementDailyRequestCount();
+      
+      // Only increment counter if this is a user-initiated action
+      if (countTowardsLimit) {
+        incrementDailyRequestCount();
+      }
     }
   
     async function handleSuccessfulStoryGeneration(response) {
@@ -392,7 +396,7 @@
   
       <button
         aria-label={content[$currentLanguage].emojiDisplay.randomButton}
-        on:click={generateRandomEmojis} 
+        on:click={() => generateRandomEmojis(true)} 
         on:keydown={handleKeyPress} 
         class="bg-yellow text-black shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full"
         class:opacity-50={$isDisabled}

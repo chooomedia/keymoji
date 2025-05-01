@@ -519,7 +519,7 @@ async function sendUserEmail({
                                     <tbody>
                                     <tr>
                                         <td align="center" class="secondary-text-light secondary-text-dark" style="color: #8492a6; font-size: 12px; padding-bottom: 10px;">
-                                            <span style="display: inline-block; margin-right: 10px; font-weight: 600;">${versionInfo}</span>
+                                            <span style="display: inline-block; margin-right: 10px;">${versionInfo}</span>
                                             <span style="display: inline-block;">${flagsHtml}</span>
                                         </td>
                                     </tr>

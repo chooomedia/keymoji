@@ -34,9 +34,12 @@
       // Als gerendert markieren
       isRendered = true;
       
-      // Bestätigen, dass die Komponente gemountet wurde
-      console.log('Index component mounted with language:', $currentLanguage);
-      console.log('Current URL:', window.location.pathname);
+      // Bei initialem Laden, cleanup von Redirect-Flags durchführen
+      if (sessionStorage.getItem('redirectInProgress')) {
+        setTimeout(() => {
+          sessionStorage.removeItem('redirectInProgress');
+        }, 200);
+      }
     });
 </script>
   
