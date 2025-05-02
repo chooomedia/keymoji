@@ -14,7 +14,7 @@
         isModalVisible
     } from './stores/modalStore.js';
     import emojisData from '../public/emojisArray.json';
-    import content from './content.js';
+    import content from '../public/content/content.js';
     import { WEBHOOKS } from './config/api.js';
 
     // Props

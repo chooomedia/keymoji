@@ -2,7 +2,7 @@
   import { slide } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
   import { navigate } from "svelte-routing";
-  import EraseLocalstorage from '../EraseLocalstorage.svelte';
+  import EraseLocalstorage from '../components/EraseLocalstorage.svelte';
   import { darkMode, showDonateMenu, languageText } from '../stores/appStores.js';
   import { createEventDispatcher, onMount } from 'svelte';
 

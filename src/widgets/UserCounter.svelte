@@ -1,5 +1,5 @@
 <script>
-    import { localUserCounter } from './stores/appStores';
+    import { localUserCounter } from '../stores/appStores';
     import { onMount } from 'svelte';
   
     let error = null;

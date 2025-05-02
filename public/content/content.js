@@ -1,4 +1,4 @@
-import { appVersion } from './utils/version';
+import { appVersion } from '../../src/utils/version';
 import {
     emailIcon,
     fbmessengerIcon,

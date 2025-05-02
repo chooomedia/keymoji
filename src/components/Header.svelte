@@ -1,12 +1,12 @@
 <script>
     import { onMount } from 'svelte';
-    import { hamburger } from "./shapes.js";
-    import { currentLanguage, showLanguageMenu, getText, isDisabled } from './stores/appStores.js';
-    import GitButton from './widgets/GitButton.svelte';
-    import content from './content.js';
+    import { hamburger } from "../utils/shapes.js";
+    import { currentLanguage, showLanguageMenu, getText, isDisabled } from '../stores/appStores.js';
+    import GitButton from '../widgets/GitButton.svelte';
+    import content from '../../public/content/content.js';
     import { createEventDispatcher } from 'svelte';
     import { navigate } from 'svelte-routing';
-    import LanguageSwitcher from './components/LanguageSwitcher.svelte';
+    import LanguageSwitcher from './LanguageSwitcher.svelte';
 
     const dispatch = createEventDispatcher();
 
