@@ -227,15 +227,6 @@
       return getDailyRequestCount() >= DAILY_LIMIT;
     }
   
-    // Event Handlers
-    function handleEmojiDisplayClick() {
-      if (randomEmojis.length > 0) {
-        copyToClipboard(randomEmojis.join(' '))
-          .then(() => showSuccessMessage(content[$currentLanguage].emojiDisplay.successMessage))
-          .catch(error => handleError('Display Click Error', error));
-      }
-    }
-  
     function handleKeyPress(event) {
       if (event.key === 'Enter' || event.key === ' ') {
         generateRandomEmojis();
@@ -282,8 +273,8 @@
       id="emoji-display" 
       tabindex="0" 
       class="max-w-72 flex flex-row h-14 justify-center items-center transform scale-114 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-117 focus:outline-none text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray z-10" 
-      on:click={handleEmojiDisplayClick} 
-      on:keydown={e => e.key === 'Enter' && handleEmojiDisplayClick()} 
+      on:click={generateRandomEmojis} 
+      on:keydown={e => e.key === 'Enter' && generateRandomEmojis()} 
       aria-label={content[$currentLanguage].emojiDisplay.clickToCopy} 
       aria-live="polite"
       aria-pressed="false"
