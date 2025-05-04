@@ -8,6 +8,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+test.txt
 
 # structure and testing file
 *.xcf
