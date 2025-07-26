@@ -18,8 +18,9 @@ jobs:
               with:
                   node-version: '20'
 
+            # WICHTIG: npm install statt npm ci verwenden, da package-lock.json fehlt
             - name: Install dependencies
-              run: npm ci
+              run: npm install
 
             - name: Generate updated time
               run: cat ./src/updatedTime.js

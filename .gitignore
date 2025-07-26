@@ -27,8 +27,8 @@ pids
 *.seed
 *.pid.lock
 
-# npm packe-lock
-package-lock.json
+# WICHTIG: package-lock.json NICHT ignorieren für CI/CD
+# package-lock.json
 
 # vs code workspace data
 *.code-workspace

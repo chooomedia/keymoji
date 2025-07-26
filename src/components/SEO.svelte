@@ -106,6 +106,31 @@
         script.textContent = JSON.stringify(structuredData);
         document.head.appendChild(script);
         
+        // Optional: Load Web Vitals only in production
+        if (window.location.hostname === 'keymoji.wtf' && 'requestIdleCallback' in window) {
+          requestIdleCallback(() => {
+            import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+              const sendToAnalytics = (metric) => {
+                // Log to console in development
+                if (process.env.NODE_ENV === 'development') {
+                  console.log(`Web Vital ${metric.name}:`, metric.value, metric.rating);
+                }
+                
+                // Send to your analytics here if needed
+                // e.g., Google Analytics, custom endpoint, etc.
+              };
+              
+              getCLS(sendToAnalytics);
+              getFID(sendToAnalytics);
+              getFCP(sendToAnalytics);
+              getLCP(sendToAnalytics);
+              getTTFB(sendToAnalytics);
+            }).catch(err => {
+              console.warn('Web Vitals not available:', err);
+            });
+          });
+        }
+        
         return () => {
           // Clean up when component is destroyed
           if (script && script.parentNode) {
@@ -184,4 +209,10 @@
     <meta name="apple-mobile-web-app-title" content="Keymoji" />
     <meta name="generator" content="Svelte" />
     <meta name="author" content="Christopher Matt" />
+    
+    <!-- Performance Hints -->
+    <link rel="preconnect" href="https://n8n.chooomedia.com">
+    <link rel="preconnect" href="https://api.keymoji.wtf">
+    <link rel="dns-prefetch" href="https://n8n.chooomedia.com">
+    <link rel="dns-prefetch" href="https://api.keymoji.wtf">
 </svelte:head>
