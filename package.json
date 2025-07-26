@@ -17,8 +17,7 @@
         "url": "https://github.com/chooomedia/keymoji/issues"
     },
     "scripts": {
-        "dev": "webpack serve --config webpack.dev.config.js",
-        "dev:old": "webpack serve --config webpack/start.js",
+        "dev": "webpack serve --config webpack/start.js",
         "prebuild": "node scripts/update-timestamp.js && node scripts/generate-sitemap.js",
         "build": "webpack --config webpack/build.js && node scripts/generate-static-routes.js && node scripts/optimize-build.js",
         "setup:fonts": "node scripts/setup-fonts.js",

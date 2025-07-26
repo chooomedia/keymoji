@@ -6,14 +6,13 @@ module.exports = merge(common, {
     mode: 'development',
     stats: 'minimal',
 
-    // DevServer-Konfiguration mit deaktiviertem Overlay
+    // DevServer-Konfiguration optimiert
     devServer: {
         allowedHosts: 'all',
         historyApiFallback: true,
         client: {
-            overlay: false, // WICHTIG: Overlay komplett deaktiviert
-            progress: true,
-            logging: 'info'
+            overlay: false, // WICHTIG: Deaktiviert das problematische Overlay
+            progress: true
         },
         compress: true,
         headers: {
@@ -37,6 +36,7 @@ module.exports = merge(common, {
         }
     },
 
+    // Output-Konfiguration vereinfacht
     output: {
         filename: '[name].js',
         chunkFilename: '[name].chunk.js',
@@ -44,6 +44,7 @@ module.exports = merge(common, {
         publicPath: '/'
     },
 
+    // Module-Rules optimiert
     module: {
         rules: [
             {
@@ -72,8 +73,11 @@ module.exports = merge(common, {
     },
 
     plugins: plugins.start,
+
+    // Optimierte Source Maps für Entwicklung
     devtool: 'eval-cheap-module-source-map',
 
+    // Cache-Konfiguration für schnellere Rebuilds
     cache: {
         type: 'filesystem',
         buildDependencies: {
