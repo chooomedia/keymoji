@@ -51,7 +51,7 @@ export const content = {
             clearButton: '✖️ Clear',
             storyButton: '📝 Story',
             storyButtonClicked: '📩 Send story',
-            randomButton: '*️⃣ Random'
+            randomButton: '🎲 Random'
         },
         donateButton: {
             text: 'Buy me a coffee',
@@ -218,7 +218,7 @@ export const content = {
             clearButton: '✖️ Löschen',
             storyButton: '📝 Geschichte',
             storyButtonClicked: '📩 Geschichte senden',
-            randomButton: '*️⃣ Zufällig'
+            randomButton: '🎲 Zufällig'
         },
         donateButton: {
             text: 'Kauf mir einen Kaffee',
@@ -388,7 +388,7 @@ export const content = {
             clearButton: '✖️ Lösche',
             storyButton: '📝 Gschicht',
             storyButtonClicked: '📩 Gschicht schicke',
-            randomButton: '*️⃣ Zuefällig'
+            randomButton: '🎲 Zuefällig'
         },
         donateButton: {
             text: 'Kauf mer en Kafi',
@@ -555,7 +555,7 @@ export const content = {
             clearButton: '✖️ Limpiar',
             storyButton: '📝 Historia',
             storyButtonClicked: '📩 Enviar historia',
-            randomButton: '*️⃣ Aleatorio'
+            randomButton: '🎲 Aleatorio'
         },
         donateButton: {
             text: 'Cómprame un café',
@@ -720,7 +720,7 @@ export const content = {
             clearButton: '✖️ Wissen',
             storyButton: '📝 Verhaal',
             storyButtonClicked: '📩 Verhaal verzenden',
-            randomButton: '*️⃣ Willekeurige'
+            randomButton: '🎲 Willekeurige'
         },
         donateButton: {
             text: 'Koop mij een koffie',
@@ -886,7 +886,7 @@ export const content = {
             clearButton: '✖️ Pulisci',
             storyButton: '📝 Storia',
             storyButtonClicked: '📩 Invia storia',
-            randomButton: '*️⃣ Casuale'
+            randomButton: '🎲 Casuale'
         },
         donateButton: {
             text: 'Offrimi un caffè',
@@ -1052,7 +1052,7 @@ export const content = {
             clearButton: '✖️ Effacer',
             storyButton: '📝 Histoire',
             storyButtonClicked: "📩 Envoyer l'histoire",
-            randomButton: '*️⃣ Aléatoire'
+            randomButton: '🎲 Aléatoire'
         },
         donateButton: {
             text: 'Offrez-moi un café',
@@ -1217,7 +1217,7 @@ export const content = {
             clearButton: '✖️ Wyczyść',
             storyButton: '📝 Opowieść',
             storyButtonClicked: '📩 Wyślij opowieść',
-            randomButton: '*️⃣ Losowy'
+            randomButton: '🎲 Losowy'
         },
         donateButton: {
             text: 'Postaw mi kawę',
@@ -1384,7 +1384,7 @@ export const content = {
             clearButton: '✖️ Ryd',
             storyButton: '📝 Historie',
             storyButtonClicked: '📩 Send historie',
-            randomButton: '*️⃣ Tilfældig'
+            randomButton: '🎲 Tilfældig'
         },
         donateButton: {
             text: 'Køb mig en kaffe',
@@ -1549,7 +1549,7 @@ export const content = {
             clearButton: '✖️ Очистить',
             storyButton: '📝 История',
             storyButtonClicked: '📩 Отправить историю',
-            randomButton: '*️⃣ Случайно'
+            randomButton: '🎲 Случайно'
         },
         donateButton: {
             text: 'Купите мне кофе',
@@ -1714,7 +1714,7 @@ export const content = {
             clearButton: '✖️ Temizle',
             storyButton: '📝 Hikaye',
             storyButtonClicked: '📩 Hikaye gönder',
-            randomButton: '*️⃣ Rastgele'
+            randomButton: '🎲 Rastgele'
         },
         donateButton: {
             text: 'Bana kahve ısmarla',
@@ -1880,7 +1880,7 @@ export const content = {
             clearButton: '✖️ Wis',
             storyButton: '📝 Storie',
             storyButtonClicked: '📩 Storie stuur',
-            randomButton: '*️⃣ Willekeurig'
+            randomButton: '🎲 Willekeurig'
         },
         donateButton: {
             text: "Koop vir my 'n koffie",
@@ -2046,7 +2046,7 @@ export const content = {
             clearButton: '✖️ クリア',
             storyButton: '📝 ストーリー',
             storyButtonClicked: '📩 ストーリーを送信',
-            randomButton: '*️⃣ ランダム'
+            randomButton: '🎲 ランダム'
         },
         donateButton: {
             text: 'コーヒーをおごってください',
@@ -2213,7 +2213,7 @@ export const content = {
             clearButton: '✖️ 지우기',
             storyButton: '📝 스토리',
             storyButtonClicked: '📩 스토리 보내기',
-            randomButton: '*️⃣ 랜덤'
+            randomButton: '🎲 랜덤'
         },
         donateButton: {
             text: '커피 한 잔 사주기',
@@ -2380,7 +2380,7 @@ export const content = {
             clearButton: '✖️ qIb',
             storyButton: '📝 Daq',
             storyButtonClicked: "📩 Daq bIqaw'a'!",
-            randomButton: '*️⃣ QIn'
+            randomButton: '🎲 QIn'
         },
         donateButton: {
             text: "wo' QeH",
@@ -2542,7 +2542,7 @@ export const content = {
             clearButton: '✖️ Laive',
             storyButton: '📝 Melme',
             storyButtonClicked: '📩 Send melme',
-            randomButton: '*️⃣ Random'
+            randomButton: '🎲 Random'
         },
         donateButton: {
             text: 'Nai elenë ailin',

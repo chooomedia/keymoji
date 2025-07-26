@@ -143,39 +143,58 @@
     }
   
     async function copyToClipboard(text) {
-      const cleanText = text.replace(/ /g, '');
-      try {
-        // Prüfe zuerst ob wir das Clipboard-API nutzen können
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(cleanText);
+    const cleanText = text.replace(/ /g, '');
+    
+    try {
+        // Fokussiere das Dokument zuerst
+        window.focus();
+        
+        // Prüfe ob Clipboard API verfügbar und Dokument fokussiert ist
+        if (navigator.clipboard && window.isSecureContext && document.hasFocus()) {
+            await navigator.clipboard.writeText(cleanText);
+            console.log('Clipboard: Success via API');
         } else {
-          // Fallback für nicht-sichere Kontexte oder ältere Browser
-          const textArea = document.createElement('textarea');
-          textArea.value = cleanText;
-          
-          // Macht das Element unsichtbar
-          textArea.style.position = 'fixed';
-          textArea.style.opacity = '0';
-          
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
-          
-          try {
-            document.execCommand('copy');
-            textArea.remove();
-          } catch (err) {
-            console.error('Fallback: Copying text command failed', err);
-            textArea.remove();
-            throw new Error('Copy failed');
-          }
+            // Fallback Methode
+            const textArea = document.createElement('textarea');
+            textArea.value = cleanText;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            textArea.setAttribute('readonly', '');
+            
+            document.body.appendChild(textArea);
+            
+            // Fokus und Select
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    console.log('Clipboard: Success via fallback');
+                } else {
+                    throw new Error('Copy command failed');
+                }
+            } catch (err) {
+                console.error('Clipboard: Fallback failed', err);
+                throw err;
+            } finally {
+                document.body.removeChild(textArea);
+            }
         }
-      } catch (error) {
+    } catch (error) {
         console.error('Clipboard Error:', error);
-        // Wir werfen den Fehler nicht, sondern zeigen eine benutzerfreundliche Nachricht
-        showError(content[$currentLanguage].emojiDisplay.clipboardError || 'Unable to copy to clipboard. Please try again.');
-      }
+        
+        // Zeige alternative Lösung
+        showWarning(
+            content[$currentLanguage]?.emojiDisplay?.clipboardError || 
+            'Unable to copy automatically. Click the emoji display to copy!'
+        );
+        
+        // Speichere Text für manuelles Kopieren
+        window.lastGeneratedEmojis = cleanText;
     }
+}
   
     function handleError(type, error) {
       console.error(`${type}:`, error);

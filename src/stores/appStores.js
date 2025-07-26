@@ -8,6 +8,11 @@ import {
     getText as getTextUtil
 } from '../utils/languages.js';
 import { appVersion, formatVersion } from '../utils/version.js';
+import { WEBHOOKS } from '../config/api.js';
+
+console.log('[Counter] appStores.js loaded');
+console.log('[Counter] WEBHOOKS:', WEBHOOKS);
+console.log('[Counter] Environment:', process.env.NODE_ENV);
 
 // Enhancement: Exportiere die Version als Teil der App-Stores
 export const version = writable(appVersion);
@@ -77,42 +82,89 @@ const ALLOWED_ORIGINS = new Set([
 async function fetchCounter() {
     try {
         const origin = window.location.origin;
-        if (!ALLOWED_ORIGINS.has(origin)) return;
+        const counterUrl = WEBHOOKS.USER_COUNTER;
 
-        const response = await fetch(WEBHOOKS.USER_COUNTER, {
+        // Debug URL
+        console.log('[Counter] URL:', counterUrl);
+        console.log('[Counter] Origin:', origin);
+
+        const requestBody = {
+            path: window.location.pathname,
+            client: navigator.userAgent.substring(0, 100),
+            version: appVersion,
+            env: process.env.NODE_ENV || 'production',
+            timestamp: new Date().toISOString(),
+            language: get(currentLanguage) || 'en',
+            referrer: document.referrer || 'direct',
+            screen: `${window.screen.width}x${window.screen.height}`
+        };
+
+        console.log('[Counter] Sending data:', requestBody);
+
+        const response = await fetch(counterUrl, {
             method: 'POST',
+            mode: 'cors', // ← Explizit CORS Mode
             headers: {
                 'Content-Type': 'application/json',
-                Origin: origin
+                Accept: 'application/json'
+                // Origin wird automatisch gesetzt
             },
-            body: JSON.stringify({
-                client: navigator.userAgent.substring(0, 80),
-                path: window.location.pathname.replace(/\/$/, ''),
-                env: process.env.NODE_ENV, // Optional für Debugging
-                version: appVersion // Version senden für Analyse
-            })
+            body: JSON.stringify(requestBody)
         });
 
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        // Detailliertes Error Handling
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[Counter] Response error:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
 
-        const { counter } = await response.json();
-        localUserCounter.set(Number(counter));
+        const data = await response.json();
+        console.log('[Counter] Success:', data);
+
+        localUserCounter.set(Number(data.counter));
     } catch (error) {
-        console.error('Counter error:', error);
-        localUserCounter.update(
-            c => c || Math.floor(Math.random() * 4000 + 1000)
-        );
+        console.error('[Counter] Detailed error:', {
+            message: error.message,
+            stack: error.stack,
+            type: error.name
+        });
+
+        // Fallback nur im Development
+        if (process.env.NODE_ENV === 'development') {
+            console.log('[Counter] Using development fallback');
+            localUserCounter.set(12345); // Erkennbarer Test-Wert
+        }
     }
 }
 
-if (
-    typeof window !== 'undefined' &&
-    ['/', '/en', '/de'].includes(window.location.pathname)
-) {
+if (typeof window !== 'undefined') {
+    console.log('[Counter] Window check passed');
+
     window.addEventListener('load', () => {
+        console.log('[Counter] Window loaded');
+        console.log(
+            '[Counter] Session storage check:',
+            window.sessionStorage.getItem('counterTracked')
+        );
+
+        // Entferne temporär die Development-Skip
+        /*
+        if (process.env.NODE_ENV === 'development') {
+            console.log('[Counter] Skipped in development');
+            localUserCounter.set(12345);
+            return;
+        }
+        */
+
         if (!window.sessionStorage.getItem('counterTracked')) {
-            fetchCounter();
-            window.sessionStorage.setItem('counterTracked', 'true');
+            console.log('[Counter] Calling fetchCounter...');
+            setTimeout(() => {
+                fetchCounter();
+                window.sessionStorage.setItem('counterTracked', 'true');
+            }, 100);
+        } else {
+            console.log('[Counter] Already tracked in this session');
         }
     });
 }
