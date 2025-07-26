@@ -3,19 +3,17 @@ const common = require('./common');
 const { paths, plugins } = require('./utils');
 
 module.exports = merge(common, {
-    mode: 'development', // Webpack setzt process.env.NODE_ENV = 'development'
+    mode: 'development',
     stats: 'minimal',
 
-    // DevServer-Konfiguration optimiert
+    // DevServer-Konfiguration mit deaktiviertem Overlay
     devServer: {
         allowedHosts: 'all',
-        historyApiFallback: true, // This is crucial for SPA routing
+        historyApiFallback: true,
         client: {
-            overlay: {
-                errors: true,
-                warnings: false
-            },
-            progress: true
+            overlay: false, // WICHTIG: Overlay komplett deaktiviert
+            progress: true,
+            logging: 'info'
         },
         compress: true,
         headers: {
@@ -25,7 +23,6 @@ module.exports = merge(common, {
             'Access-Control-Allow-Headers':
                 'X-Requested-With, content-type, Authorization'
         },
-        historyApiFallback: true,
         hot: true,
         open: true,
         port: process.env.PORT || 8080,
@@ -40,7 +37,6 @@ module.exports = merge(common, {
         }
     },
 
-    // Output-Konfiguration vereinfacht
     output: {
         filename: '[name].js',
         chunkFilename: '[name].chunk.js',
@@ -48,7 +44,6 @@ module.exports = merge(common, {
         publicPath: '/'
     },
 
-    // Module-Rules optimiert
     module: {
         rules: [
             {
@@ -77,11 +72,8 @@ module.exports = merge(common, {
     },
 
     plugins: plugins.start,
-
-    // Optimierte Source Maps für Entwicklung
     devtool: 'eval-cheap-module-source-map',
 
-    // Cache-Konfiguration für schnellere Rebuilds
     cache: {
         type: 'filesystem',
         buildDependencies: {
