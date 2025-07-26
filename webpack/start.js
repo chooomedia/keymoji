@@ -6,12 +6,12 @@ module.exports = merge(common, {
     mode: 'development',
     stats: 'minimal',
 
-    // DevServer-Konfiguration optimiert
+    // DevServer v5 Konfiguration
     devServer: {
         allowedHosts: 'all',
         historyApiFallback: true,
         client: {
-            overlay: false, // WICHTIG: Deaktiviert das problematische Overlay
+            overlay: false,
             progress: true
         },
         compress: true,
@@ -30,13 +30,9 @@ module.exports = merge(common, {
             directory: paths.APP_PUBLIC,
             publicPath: '/',
             watch: true
-        },
-        devMiddleware: {
-            writeToDisk: true
         }
     },
 
-    // Output-Konfiguration vereinfacht
     output: {
         filename: '[name].js',
         chunkFilename: '[name].chunk.js',
@@ -44,7 +40,6 @@ module.exports = merge(common, {
         publicPath: '/'
     },
 
-    // Module-Rules optimiert
     module: {
         rules: [
             {
@@ -73,11 +68,8 @@ module.exports = merge(common, {
     },
 
     plugins: plugins.start,
-
-    // Optimierte Source Maps für Entwicklung
     devtool: 'eval-cheap-module-source-map',
 
-    // Cache-Konfiguration für schnellere Rebuilds
     cache: {
         type: 'filesystem',
         buildDependencies: {

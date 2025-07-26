@@ -293,7 +293,7 @@
                             id="message"
                             bind:value={message}
                             placeholder={content[$currentLanguage]?.contactForm?.messageLabel || "Message"}
-                            rows="4"
+                            rows="3"
                             class="contact-input"
                             aria-invalid={!!formErrors.message}
                             aria-describedby={formErrors.message ? "message-error" : undefined}
