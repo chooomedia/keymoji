@@ -20,7 +20,14 @@
         "dev": "webpack serve --config webpack/start.js",
         "prebuild": "node scripts/update-timestamp.js && node scripts/generate-sitemap.js",
         "build": "webpack --config webpack/build.js && node scripts/generate-static-routes.js && node scripts/optimize-build.js",
-        "setup:fonts": "node scripts/setup-fonts.js"
+        "setup:fonts": "node scripts/setup-fonts.js",
+        "test:seo": "lighthouse https://keymoji.wtf --only-categories=seo --output=html --output-path=./reports/seo-report.html",
+        "test:seo:local": "lighthouse http://localhost:8080 --only-categories=seo --output=html --output-path=./reports/seo-report-local.html",
+        "test:performance": "lighthouse https://keymoji.wtf --only-categories=performance --output=html --output-path=./reports/performance-report.html",
+        "test:all": "npm run test:seo && npm run test:performance",
+        "validate:schema": "node scripts/validate-structured-data.js",
+        "build:seo": "npm run build && npm run test:seo:local",
+        "report:seo": "mkdir -p reports && npm run test:all"
     },
     "devDependencies": {
         "@babel/cli": "^7.12.1",
@@ -47,11 +54,14 @@
         "webpack": "^5.88.2",
         "webpack-cli": "^5.1.4",
         "webpack-dev-server": "^4.15.1",
-        "webpack-merge": "5.7.3"
+        "webpack-merge": "5.7.3",
+        "lighthouse": "^11.0.0",
+        "web-vitals": "^3.5.0"
     },
     "dependencies": {
         "dotenv": "^16.3.1",
-        "svelte": "^3.59.2"
+        "svelte": "^3.59.2",
+        "web-vitals": "^5.0.3"
     },
     "babel": {
         "presets": [
