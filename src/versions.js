@@ -1,4 +1,41 @@
 export const versions = {
+    '0.4.3': {
+        date: 'July 2025',
+        core: {
+            seo: {
+                title: 'SEO & Favicon Optimization',
+                improvements: [
+                    'Complete favicon setup for all platforms',
+                    'Added structured data for rich snippets',
+                    'Enhanced meta tags for social sharing',
+                    'Improved Open Graph implementation',
+                    'Added Twitter Card support',
+                    'Microsoft Tile configuration',
+                    'Safari Pinned Tab support'
+                ]
+            },
+            performance: {
+                title: 'Performance Enhancements',
+                improvements: [
+                    'Added DNS prefetch for external domains',
+                    'Preconnect optimization for API calls',
+                    'Improved resource loading priorities'
+                ]
+            }
+        },
+        technical: {
+            favicon: {
+                title: 'Favicon Implementation',
+                improvements: [
+                    'Multi-size favicon.ico support',
+                    'Apple Touch Icons (120px, 152px, 180px)',
+                    'Android Chrome icons (192px, 512px)',
+                    'Microsoft Tile images',
+                    'Safari mask icon preparation'
+                ]
+            }
+        }
+    },
     '0.4.2': {
         date: 'May 2025',
         core: {
