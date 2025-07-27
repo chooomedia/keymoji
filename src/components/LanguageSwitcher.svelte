@@ -156,14 +156,27 @@
     </button>
   
     {#if $showLanguageMenu}
+    <!-- Mobile backdrop -->
+    <div 
+      class="fixed inset-0 bg-black bg-opacity-25 z-40 sm:hidden"
+      on:click={toggleLanguageMenu}
+      aria-hidden="true"
+    ></div>
+    
     <div 
       id="language-dropdown-menu" 
-      class="language-dropdown {position === 'top' ? 'top-full mt-2' : 'bottom-full mb-2'} w-36 mx-auto rounded-xl shadow-lg bg-creme dark:bg-aubergine-dark ring-1 ring-black ring-opacity-5 z-50 transform transition-all duration-300 ease-in-out"
+      class="language-dropdown {position === 'top' ? 'top-full mt-2' : 'bottom-full mb-2'} 
+             w-48 sm:w-36 
+             max-h-[60vh] sm:max-h-96 
+             mx-auto rounded-xl shadow-lg bg-creme dark:bg-aubergine-dark 
+             ring-1 ring-black ring-opacity-5 z-50 
+             transform transition-all duration-300 ease-in-out
+             overflow-hidden"
       role="menu" 
       aria-orientation="vertical" 
       aria-labelledby="language-toggle-button"
     >
-      <div class="py-2 overflow-y-auto">
+      <div class="py-2 overflow-y-auto max-h-[calc(60vh-1rem)] sm:max-h-[calc(24rem-1rem)] overscroll-contain">
         <ul>
           {#each languages as lang}
             <li
@@ -171,15 +184,22 @@
               out:slide={{ y: 5, duration: 400, easing: cubicInOut }}
             >
               <button
-                class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 text-sm transition-colors {selectedLang === lang.code ? 'font-bold bg-gray-50 dark:bg-aubergine-50' : ''} {lang.code === 'qya' ? 'elvish-language-option' : ''}"
+                class="flex items-center w-full 
+                       px-4 py-4 sm:py-3 
+                       hover:bg-aubergine-50 
+                       text-sm transition-colors 
+                       active:bg-aubergine-50
+                       focus:bg-aubergine-50 focus:outline-none
+                       {selectedLang === lang.code ? 'font-bold bg-gray-50 dark:bg-aubergine-50' : ''} 
+                       {lang.code === 'qya' ? 'elvish-language-option' : ''}"
                 role="menuitem"
                 on:click={() => handleLanguageChange(lang.code)}
                 aria-current={selectedLang === lang.code ? 'true' : 'false'}
               >
-                <span class="flag-icon text-xl mr-3">{lang.flag}</span>
-                <span class="lang-name text-black dark:text-white">{lang.name}</span>
+                <span class="flag-icon text-xl mr-3" aria-hidden="true">{lang.flag}</span>
+                <span class="lang-name text-black dark:text-white flex-1 text-left">{lang.name}</span>
                 {#if selectedLang === lang.code}
-                  <span class="ml-auto text-yellow">
+                  <span class="ml-auto text-yellow shrink-0" aria-label="Selected">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>

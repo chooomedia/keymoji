@@ -1,14 +1,14 @@
 <script>
     import { fade, fly } from 'svelte/transition';
     import { onMount } from 'svelte';
-    import { modalMessage, currentLanguage, darkMode, getText } from './stores/appStores.js';
+    import { currentLanguage, getText } from './stores/appStores.js'; // modalMessage darkMode
     import { updateSeo } from './stores/seoStore.js';
     import { linkedinIcon } from './shapes.js';
     import { navigate } from 'svelte-routing';
     import Header from './Header.svelte';
     import UserCounter from './UserCounter.svelte';
     import EmojiDisplay from './EmojiDisplay.svelte';
-    import ErrorModal from './ErrorModal.svelte';
+    //import ErrorModal from './ErrorModal.svelte';
     import FixedMenu from './widgets/FixedMenu.svelte';
     import content from './content.js';
   

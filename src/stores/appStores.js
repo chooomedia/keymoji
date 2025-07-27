@@ -177,8 +177,6 @@ export const formattedVersion = derived(version, $version =>
 export const showDonateMenu = writable(false);
 export const showShareMenu = writable(false);
 export const showLanguageMenu = writable(false);
-export const modalMessage = writable('');
-export const isModalVisible = writable(false);
 export const successfulStoryRequests = writable([]);
 export const isDisabled = writable(false);
 

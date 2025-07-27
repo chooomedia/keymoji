@@ -186,7 +186,7 @@
         closeModal();
         
         // Only in development mode: Test modal system
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development' && window.location.search.includes('test=modal')) {
             console.log('Testing modal system in development mode');
             setTimeout(() => {
                 showSuccess('Modal system test', 2000);
@@ -293,7 +293,7 @@
                             id="message"
                             bind:value={message}
                             placeholder={content[$currentLanguage]?.contactForm?.messageLabel || "Message"}
-                            rows="3"
+                            rows="2"
                             class="contact-input"
                             aria-invalid={!!formErrors.message}
                             aria-describedby={formErrors.message ? "message-error" : undefined}

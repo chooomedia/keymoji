@@ -1,7 +1,8 @@
 <!-- src/components/ServiceWorkerHandler.svelte -->
 <script>
     import { onMount } from 'svelte';
-    import { currentLanguage, modalMessage } from '../stores/appStores.js';
+    import { currentLanguage } from '../stores/appStores.js';
+    import { modalMessage } from '../stores/modalStore.js';
     import content from '../content.js';
   
     // State
