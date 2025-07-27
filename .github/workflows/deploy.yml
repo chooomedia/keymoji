@@ -42,43 +42,95 @@ jobs:
                   # Enable rewriting
                   RewriteEngine On
 
-                  # If the request is not for a real file or directory
+                  # Force HTTPS (wichtig für Social Sharing)
+                  RewriteCond %{HTTPS} off
+                  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+                  # Redirect root to /en for better SEO
+                  RewriteRule ^$ /en/ [R=301,L]
+
+                  # Social Media Bot Detection und Prerendering
+                  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|TelegramBot|Slackbot|Discordbot|Signal|embedly|quora|outbrain|pinterest|vkShare|W3C_Validator) [NC]
+                  RewriteCond %{REQUEST_URI} !^/api
+                  RewriteCond %{REQUEST_FILENAME} !-f
+                  RewriteRule ^(.*)$ /social-preview.php?path=$1 [L]
+
+                  # Regular SPA routing
                   RewriteCond %{REQUEST_FILENAME} !-f
                   RewriteCond %{REQUEST_FILENAME} !-d
-
-                  # Rewrite everything to index.html
                   RewriteRule ^ index.html [QSA,L]
+
+                  # Security Headers
+                  <IfModule mod_headers.c>
+                      Header set X-Content-Type-Options "nosniff"
+                      Header set X-Frame-Options "SAMEORIGIN"
+                      Header set X-XSS-Protection "1; mode=block"
+                      Header set Referrer-Policy "strict-origin-when-cross-origin"
+                      Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+                  </IfModule>
 
                   # Set correct content type for JavaScript modules
                   <IfModule mod_mime.c>
-                    AddType application/javascript .js
-                    AddType text/css .css
+                      AddType application/javascript .js
+                      AddType text/css .css
+                      AddType image/webp .webp
+                      AddCharset UTF-8 .html .css .js
                   </IfModule>
 
-                  # Compression and caching
+                  # Compression
                   <IfModule mod_deflate.c>
-                    AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/javascript text/css application/javascript application/x-javascript
+                      AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/javascript text/css application/javascript application/x-javascript image/svg+xml
                   </IfModule>
 
+                  # Caching with shorter times for HTML
                   <IfModule mod_expires.c>
-                    ExpiresActive On
-                    
-                    # Cache CSS und JavaScript für 1 Jahr
-                    ExpiresByType text/css "access plus 1 year"
-                    ExpiresByType application/javascript "access plus 1 year"
-                    
-                    # Cache Bilder und Schriftarten für 1 Jahr
-                    ExpiresByType image/jpeg "access plus 1 year"
-                    ExpiresByType image/png "access plus 1 year"
-                    ExpiresByType image/svg+xml "access plus 1 year"
-                    ExpiresByType image/webp "access plus 1 year"
-                    ExpiresByType font/ttf "access plus 1 year"
-                    ExpiresByType font/woff "access plus 1 year"
-                    ExpiresByType font/woff2 "access plus 1 year"
-                    
-                    # HTML und XML für 1 Stunde cachen
-                    ExpiresByType text/html "access plus 1 hour"
-                    ExpiresByType application/xml "access plus 1 hour"
+                      ExpiresActive On
+                      
+                      # HTML - kurze Cache-Zeit für Updates
+                      ExpiresByType text/html "access plus 1 hour"
+                      ExpiresByType application/xhtml+xml "access plus 1 hour"
+                      
+                      # CSS und JavaScript - längere Cache-Zeit
+                      ExpiresByType text/css "access plus 1 month"
+                      ExpiresByType application/javascript "access plus 1 month"
+                      
+                      # Bilder - sehr lange Cache-Zeit
+                      ExpiresByType image/jpeg "access plus 1 year"
+                      ExpiresByType image/png "access plus 1 year"
+                      ExpiresByType image/gif "access plus 1 year"
+                      ExpiresByType image/svg+xml "access plus 1 year"
+                      ExpiresByType image/webp "access plus 1 year"
+                      ExpiresByType image/x-icon "access plus 1 year"
+                      ExpiresByType image/vnd.microsoft.icon "access plus 1 year"
+                      
+                      # Fonts
+                      ExpiresByType font/ttf "access plus 1 year"
+                      ExpiresByType font/woff "access plus 1 year"
+                      ExpiresByType font/woff2 "access plus 1 year"
+                      ExpiresByType font/eot "access plus 1 year"
+                      ExpiresByType font/otf "access plus 1 year"
+                      
+                      # Manifest und JSON
+                      ExpiresByType application/manifest+json "access plus 1 week"
+                      ExpiresByType application/json "access plus 1 day"
+                  </IfModule>
+
+                  # Cache-Control Headers
+                  <IfModule mod_headers.c>
+                      # Versionierte Assets können lange gecacht werden
+                      <FilesMatch "\.(css|js|woff2?|ttf|eot|otf)$">
+                          Header set Cache-Control "public, max-age=31536000, immutable"
+                      </FilesMatch>
+                      
+                      # Bilder
+                      <FilesMatch "\.(jpg|jpeg|png|gif|svg|webp|ico)$">
+                          Header set Cache-Control "public, max-age=31536000"
+                      </FilesMatch>
+                      
+                      # HTML sollte revalidiert werden
+                      <FilesMatch "\.(html)$">
+                          Header set Cache-Control "no-cache, must-revalidate"
+                      </FilesMatch>
                   </IfModule>
                   EOL
 

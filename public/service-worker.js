@@ -38,6 +38,16 @@ const isImageRequest = url =>
 const isAPIRequest = url =>
     url.pathname.startsWith('/api/') || url.hostname.includes('api.');
 
+// Helper to check if URL should be cached
+const isValidCacheableUrl = url => {
+    // Ignore chrome-extension:// URLs
+    if (url.protocol === 'chrome-extension:') return false;
+    // Ignore invalid URLs
+    if (url.hostname === 'invalid') return false;
+    // Only cache http/https
+    return url.protocol === 'http:' || url.protocol === 'https:';
+};
+
 // Cache Management
 async function addToCache(cacheName, requests) {
     const cache = await caches.open(cacheName);
@@ -66,15 +76,6 @@ async function cleanupCaches() {
     return Promise.all(oldCaches.map(key => caches.delete(key)));
 }
 
-const isValidCacheableUrl = url => {
-    // Ignore chrome-extension:// URLs
-    if (url.protocol === 'chrome-extension:') return false;
-    // Ignore invalid URLs
-    if (url.hostname === 'invalid') return false;
-    // Only cache http/https
-    return url.protocol === 'http:' || url.protocol === 'https:';
-};
-
 // Service Worker Event Handlers
 self.addEventListener('install', event => {
     event.waitUntil(
@@ -90,6 +91,7 @@ self.addEventListener('install', event => {
             );
         })()
     );
+});
 
 self.addEventListener('activate', event => {
     event.waitUntil(
@@ -119,6 +121,9 @@ self.addEventListener('fetch', event => {
 
     // Ignore non-GET requests
     if (event.request.method !== 'GET') return;
+
+    // Ignore chrome-extension and invalid URLs
+    if (!isValidCacheableUrl(url)) return;
 
     // Define caching strategy based on request type
     let strategy;
@@ -150,7 +155,10 @@ async function cacheFirstStrategy(request) {
 
     try {
         const response = await fetch(request);
-        if (response.ok) cache.put(request, response.clone());
+        // Only cache successful responses from valid origins
+        if (response.ok && response.type !== 'opaque') {
+            cache.put(request, response.clone());
+        }
         return response;
     } catch {
         return new Response('Network error happened', {
@@ -163,8 +171,11 @@ async function cacheFirstStrategy(request) {
 async function networkFirstStrategy(request) {
     try {
         const response = await fetch(request);
-        const cache = await caches.open(CACHE_NAME);
-        cache.put(request, response.clone());
+        // Only cache successful responses from valid origins
+        if (response.ok && response.type !== 'opaque') {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, response.clone());
+        }
         return response;
     } catch (error) {
         const cached = await caches.match(request);

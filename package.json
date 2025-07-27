@@ -20,6 +20,8 @@
         "dev": "webpack serve --config webpack/start.js",
         "prebuild": "node scripts/update-timestamp.js && node scripts/generate-sitemap.js",
         "build": "webpack --config webpack/build.js && node scripts/generate-static-routes.js && node scripts/optimize-build.js",
+        "postbuild": "node scripts/prerender-meta.js",
+        "check:images": "node scripts/check-social-images.js",
         "setup:fonts": "node scripts/setup-fonts.js",
         "test:seo": "lighthouse https://keymoji.wtf --only-categories=seo --output=html --output-path=./reports/seo-report.html",
         "test:seo:local": "lighthouse http://localhost:8080 --only-categories=seo --output=html --output-path=./reports/seo-report-local.html",
