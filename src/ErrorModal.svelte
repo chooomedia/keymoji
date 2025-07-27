@@ -79,30 +79,6 @@
         event.preventDefault();
         handleCloseModal();
       }
-  
-      // Trap focus inside modal
-      if (event.key === 'Tab') {
-        const focusableElements = modalRef.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        
-        if (focusableElements.length < 2) return;
-        
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-  
-        if (event.shiftKey) {
-          if (document.activeElement === firstElement) {
-            event.preventDefault();
-            lastElement.focus();
-          }
-        } else {
-          if (document.activeElement === lastElement) {
-            event.preventDefault();
-            firstElement.focus();
-          }
-        }
-      }
     }
   
     function handleImageLoad() {
@@ -196,7 +172,7 @@
             <!-- Show action button for certain message types -->
             {#if messageType === 'error' || messageType === 'warning'}
               <button 
-                class="mt-4 px-6 py-3 bg-yellow text-black rounded-full hover:bg-yellow hover:opacity-90 transition-colors duration-200 min-h-11 min-w-28"
+                class="mt-4 px-6 py-3 bg-yellow text-black rounded-full hover:bg-yellow hover:opacity-90 transition-colors duration-200 min-h-11 min-w-28 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow"
                 on:click={handleCloseModal}
                 aria-label="Close message"
               >
@@ -206,7 +182,7 @@
             
             <!-- For sending state, show a spinner -->
             {#if messageType === 'sending'}
-              <div class="flex justify-center mt-3">
+              <div class="flex justify-center mt-3" aria-label="Loading">
                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             {/if}
@@ -214,7 +190,7 @@
             <!-- Show custom button content if provided via modalData -->
             {#if $modalData && $modalData.buttonText}
               <button 
-                class="mt-4 px-6 py-3 bg-yellow text-black rounded-full hover:bg-yellow hover:opacity-90 transition-colors duration-200 min-h-11 min-w-28"
+                class="mt-4 px-6 py-3 bg-yellow text-black rounded-full hover:bg-yellow hover:opacity-90 transition-colors duration-200 min-h-11 min-w-28 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow"
                 on:click={$modalData.buttonAction || handleCloseModal}
                 aria-label={$modalData.buttonText}
               >
@@ -227,7 +203,7 @@
         <!-- Close button - always visible except for 'sending' state -->
         {#if messageType !== 'sending'}
           <button 
-            class="btn btn-fixed absolute top-5 right-4 py-3 px-4" 
+            class="btn btn-fixed absolute top-5 right-4 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow" 
             on:click={handleCloseModal}
             aria-label="Close notification"
             in:fade={{ duration: ANIMATION_DURATION, delay: ANIMATION_DURATION }}
@@ -240,12 +216,6 @@
 {/if}
   
 <style>
-    div[role="dialog"] {
-      &::backdrop {
-        background: rgba(0, 0, 0, 0.95);
-      }
-    }
-  
     /* Optimize performance with composited animations */
     img, div {
       will-change: opacity, transform;
@@ -276,13 +246,6 @@
     
     .min-w-28 {
       min-width: 7rem;
-    }
-  
-    /* Improved visual feedback */
-    button:focus-visible {
-      outline: 2px solid currentColor;
-      outline-offset: 2px;
-      box-shadow: 0 0 0 2px rgb(255, 255, 255);
     }
   
     @media (prefers-reduced-motion: reduce) {

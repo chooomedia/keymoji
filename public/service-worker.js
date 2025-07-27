@@ -66,6 +66,15 @@ async function cleanupCaches() {
     return Promise.all(oldCaches.map(key => caches.delete(key)));
 }
 
+const isValidCacheableUrl = url => {
+    // Ignore chrome-extension:// URLs
+    if (url.protocol === 'chrome-extension:') return false;
+    // Ignore invalid URLs
+    if (url.hostname === 'invalid') return false;
+    // Only cache http/https
+    return url.protocol === 'http:' || url.protocol === 'https:';
+};
+
 // Service Worker Event Handlers
 self.addEventListener('install', event => {
     event.waitUntil(
@@ -81,7 +90,6 @@ self.addEventListener('install', event => {
             );
         })()
     );
-});
 
 self.addEventListener('activate', event => {
     event.waitUntil(

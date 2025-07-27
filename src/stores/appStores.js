@@ -10,19 +10,11 @@ import {
 import { appVersion, formatVersion } from '../utils/version.js';
 import { WEBHOOKS } from '../config/api.js';
 
-console.log('[Counter] appStores.js loaded');
-console.log('[Counter] WEBHOOKS:', WEBHOOKS);
-console.log('[Counter] Environment:', process.env.NODE_ENV);
+// Only log in development
+const isDev = process.env.NODE_ENV === 'development';
 
-// Enhancement: Exportiere die Version als Teil der App-Stores
-export const version = writable(appVersion);
-export const formattedVersion = derived(version, $version =>
-    formatVersion($version)
-);
-
-// Enhanced local storage store with error handling and fallbacks
+// === LOCAL STORAGE HELPER ===
 const localStore = (key, initial) => {
-    // Server-side rendering check
     if (typeof window === 'undefined') return writable(initial);
 
     const toString = value => JSON.stringify(value);
@@ -34,7 +26,6 @@ const localStore = (key, initial) => {
         }
     };
 
-    // Try to get from localStorage with fallback to initial
     let saved;
     try {
         saved = toObj(localStorage.getItem(key));
@@ -73,124 +64,132 @@ const localStore = (key, initial) => {
     };
 };
 
-export const localUserCounter = writable(0);
-const ALLOWED_ORIGINS = new Set([
-    'https://keymoji.wtf',
-    'http://localhost:8080'
-]);
+// === USER COUNTER STORE ===
+// Cache settings
+const COUNTER_CACHE_KEY = 'keymoji_user_counter';
+const COUNTER_TIMESTAMP_KEY = 'keymoji_user_counter_timestamp';
+const COUNTER_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
-async function fetchCounter() {
-    try {
-        const origin = window.location.origin;
-        const counterUrl = WEBHOOKS.USER_COUNTER;
+// Counter stores
+const counterValue = writable(0);
+const counterLoading = writable(true);
+const counterError = writable(false);
+const counterCached = writable(false);
 
-        // Debug URL
-        console.log('[Counter] URL:', counterUrl);
-        console.log('[Counter] Origin:', origin);
+// Combined counter store for components
+export const userCounter = derived(
+    [counterValue, counterLoading, counterError, counterCached],
+    ([$value, $loading, $error, $cached]) => ({
+        value: $value,
+        isLoading: $loading,
+        hasError: $error,
+        isCached: $cached
+    })
+);
 
-        const requestBody = {
-            path: window.location.pathname,
-            client: navigator.userAgent.substring(0, 100),
-            version: appVersion,
-            env: process.env.NODE_ENV || 'production',
-            timestamp: new Date().toISOString(),
-            language: get(currentLanguage) || 'en',
-            referrer: document.referrer || 'direct',
-            screen: `${window.screen.width}x${window.screen.height}`
-        };
-
-        console.log('[Counter] Sending data:', requestBody);
-
-        const response = await fetch(counterUrl, {
-            method: 'POST',
-            mode: 'cors', // ← Explizit CORS Mode
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json'
-                // Origin wird automatisch gesetzt
-            },
-            body: JSON.stringify(requestBody)
-        });
-
-        // Detailliertes Error Handling
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('[Counter] Response error:', errorText);
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
-        }
-
-        const data = await response.json();
-        console.log('[Counter] Success:', data);
-
-        localUserCounter.set(Number(data.counter));
-    } catch (error) {
-        console.error('[Counter] Detailed error:', {
-            message: error.message,
-            stack: error.stack,
-            type: error.name
-        });
-
-        // Fallback nur im Development
-        if (process.env.NODE_ENV === 'development') {
-            console.log('[Counter] Using development fallback');
-            localUserCounter.set(12345); // Erkennbarer Test-Wert
-        }
-    }
-}
-
+// Initialize counter on app load
 if (typeof window !== 'undefined') {
-    console.log('[Counter] Window check passed');
+    // Try to load from cache first
+    try {
+        const cached = localStorage.getItem(COUNTER_CACHE_KEY);
+        const timestamp = localStorage.getItem(COUNTER_TIMESTAMP_KEY);
 
-    window.addEventListener('load', () => {
-        console.log('[Counter] Window loaded');
-        console.log(
-            '[Counter] Session storage check:',
-            window.sessionStorage.getItem('counterTracked')
-        );
-
-        // Entferne temporär die Development-Skip
-        /*
-        if (process.env.NODE_ENV === 'development') {
-            console.log('[Counter] Skipped in development');
-            localUserCounter.set(12345);
-            return;
+        if (cached && timestamp) {
+            const age = Date.now() - parseInt(timestamp);
+            if (age < COUNTER_CACHE_DURATION) {
+                const value = parseInt(cached);
+                if (!isNaN(value) && value > 0) {
+                    counterValue.set(value);
+                    counterCached.set(true);
+                    counterLoading.set(false);
+                }
+            }
         }
-        */
+    } catch (error) {
+        if (isDev) console.warn('Failed to load counter from cache:', error);
+    }
 
-        if (!window.sessionStorage.getItem('counterTracked')) {
-            console.log('[Counter] Calling fetchCounter...');
-            setTimeout(() => {
-                fetchCounter();
-                window.sessionStorage.setItem('counterTracked', 'true');
-            }, 100);
-        } else {
-            console.log('[Counter] Already tracked in this session');
+    // Fetch fresh data
+    window.addEventListener('load', async () => {
+        try {
+            const response = await fetch(WEBHOOKS.USER_COUNTER, {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                },
+                body: JSON.stringify({
+                    path: window.location.pathname,
+                    client: navigator.userAgent.substring(0, 100),
+                    version: appVersion,
+                    timestamp: new Date().toISOString(),
+                    language: get(currentLanguage) || 'en',
+                    referrer: document.referrer || 'direct',
+                    screen: `${window.screen.width}x${window.screen.height}`
+                }),
+                signal: AbortSignal.timeout(10000) // 10s timeout
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const newValue = Number(data.counter);
+
+                if (!isNaN(newValue) && newValue > 0) {
+                    counterValue.set(newValue);
+                    counterCached.set(false);
+                    counterError.set(false);
+
+                    // Save to cache
+                    try {
+                        localStorage.setItem(
+                            COUNTER_CACHE_KEY,
+                            newValue.toString()
+                        );
+                        localStorage.setItem(
+                            COUNTER_TIMESTAMP_KEY,
+                            Date.now().toString()
+                        );
+                    } catch (e) {
+                        if (isDev) console.warn('Failed to cache counter:', e);
+                    }
+                }
+            }
+        } catch (error) {
+            // Only show error if no cached value exists
+            if (get(counterValue) === 0) {
+                counterError.set(true);
+            }
+            if (isDev) console.error('Counter fetch failed:', error);
+        } finally {
+            counterLoading.set(false);
         }
     });
 }
 
-// UI state stores
+// === VERSION STORES ===
+export const version = writable(appVersion);
+export const formattedVersion = derived(version, $version =>
+    formatVersion($version)
+);
+
+// === UI STATE STORES ===
 export const showDonateMenu = writable(false);
 export const showShareMenu = writable(false);
 export const showLanguageMenu = writable(false);
-
-// Modal System
 export const modalMessage = writable('');
 export const isModalVisible = writable(false);
-
 export const successfulStoryRequests = writable([]);
-
 export const isDisabled = writable(false);
 
+// === DARK MODE ===
 // Initialize dark mode from system preference or localStorage
 function initializeDarkMode() {
-    // Default to system preference
     const systemPrefersDark =
         typeof window !== 'undefined' &&
         window.matchMedia &&
         window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    // Try to get stored preference
     let storedPreference;
     try {
         const stored = localStorage.getItem('darkMode');
@@ -201,13 +200,11 @@ function initializeDarkMode() {
         console.warn('Error reading dark mode preference:', e);
     }
 
-    // Return stored preference if it exists, otherwise system preference
     return storedPreference !== undefined
         ? storedPreference
         : systemPrefersDark;
 }
 
-// Create dark mode store
 export const darkMode = localStore('darkMode', initializeDarkMode());
 
 // Setup dark mode media query listener
@@ -216,10 +213,8 @@ if (typeof window !== 'undefined') {
         '(prefers-color-scheme: dark)'
     );
 
-    // Update dark mode when system preference changes (if user hasn't set a preference)
     const handleMediaQueryChange = e => {
         try {
-            // Only update if user hasn't explicitly set a preference
             if (localStorage.getItem('darkMode') === null) {
                 darkMode.set(e.matches);
             }
@@ -228,11 +223,9 @@ if (typeof window !== 'undefined') {
         }
     };
 
-    // Add event listener with browser compatibility
     if (darkModeMediaQuery.addEventListener) {
         darkModeMediaQuery.addEventListener('change', handleMediaQueryChange);
     } else if (darkModeMediaQuery.addListener) {
-        // Older browsers
         darkModeMediaQuery.addListener(handleMediaQueryChange);
     }
 }
@@ -248,11 +241,9 @@ darkMode.subscribe(isDarkMode => {
     }
 });
 
-// Language handling
 function getInitialLanguage() {
     if (typeof window === 'undefined') return 'en';
 
-    // First check localStorage
     try {
         const storedLang = localStorage.getItem('language');
         if (storedLang && isLanguageSupported(JSON.parse(storedLang))) {
@@ -262,7 +253,6 @@ function getInitialLanguage() {
         console.warn('Error reading language from localStorage:', e);
     }
 
-    // Next check URL path for language
     if (typeof window !== 'undefined') {
         const pathLang = window.location.pathname.split('/')[1];
         if (pathLang && isLanguageSupported(pathLang)) {
@@ -270,7 +260,6 @@ function getInitialLanguage() {
         }
     }
 
-    // Finally check browser languages
     return getBrowserLanguage();
 }
 
@@ -281,7 +270,7 @@ export const languageText = derived(
     $currentLanguage => content[$currentLanguage] || content['en']
 );
 
-// Wrapper for the getText function from languageUtils, to use the currentLanguage store
+// Wrapper for the getText function
 export function getText(key, lang = null) {
     return getTextUtil(key, lang, currentLanguage);
 }
@@ -310,7 +299,6 @@ export function setLanguage(lang) {
         if (typeof document !== 'undefined') {
             document.documentElement.lang = lang;
 
-            // Explicitly update language-specific styles
             if (lang === 'qya') {
                 document.body.classList.add('font-elvish');
             } else {
@@ -318,7 +306,6 @@ export function setLanguage(lang) {
             }
         }
 
-        // Notify any listeners
         notifyLanguageChange(lang);
     } else {
         console.error(`Language '${lang}' is not supported.`);
