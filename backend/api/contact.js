@@ -117,21 +117,12 @@ async function sendToN8nWebhook({
 
     // Use provided emailContent with fallbacks to default values
     const emailTemplate = {
-        greeting:
-            (emailContent && emailContent.greeting) ||
-            defaultEmailContent.greeting,
-        intro:
-            (emailContent && emailContent.intro) || defaultEmailContent.intro,
-        doubleCheck:
-            (emailContent && emailContent.doubleCheck) ||
-            defaultEmailContent.doubleCheck,
-        button:
-            (emailContent && emailContent.button) || defaultEmailContent.button,
-        subject:
-            (emailContent && emailContent.subject) ||
-            defaultEmailContent.subject,
-        footer:
-            (emailContent && emailContent.footer) || defaultEmailContent.footer
+        greeting: defaultEmailContent.greeting,
+        intro: defaultEmailContent.intro,
+        doubleCheck: defaultEmailContent.doubleCheck,
+        button: defaultEmailContent.button,
+        subject: defaultEmailContent.subject,
+        footer: defaultEmailContent.footer
     };
 
     // Define webhookOptin URL with fallback
