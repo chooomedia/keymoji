@@ -22,6 +22,10 @@
             "use": "@vercel/node"
         },
         {
+            "src": "api/account/update.js",
+            "use": "@vercel/node"
+        },
+        {
             "src": "api/test-emails.js",
             "use": "@vercel/node"
         }
@@ -35,12 +39,9 @@
                 "OPTIONS"
             ],
             "headers": {
-                "Access-Control-Allow-Origin": "https://keymoji.wtf",
+                "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
-                "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
-                "X-Content-Type-Options": "nosniff",
-                "X-Frame-Options": "DENY"
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With"
             }
         },
         {
@@ -53,10 +54,7 @@
             "headers": {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
-                "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
-                "X-Content-Type-Options": "nosniff",
-                "Cache-Control": "no-cache, no-store, must-revalidate"
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With"
             }
         },
         {
@@ -67,12 +65,9 @@
                 "OPTIONS"
             ],
             "headers": {
-                "Access-Control-Allow-Origin": "https://keymoji.wtf",
+                "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
-                "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
-                "X-Content-Type-Options": "nosniff",
-                "X-Frame-Options": "DENY"
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With"
             }
         },
         {
@@ -83,12 +78,9 @@
                 "OPTIONS"
             ],
             "headers": {
-                "Access-Control-Allow-Origin": "https://keymoji.wtf",
+                "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
-                "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
-                "X-Content-Type-Options": "nosniff",
-                "X-Frame-Options": "DENY"
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With"
             }
         },
         {
@@ -99,12 +91,22 @@
                 "OPTIONS"
             ],
             "headers": {
-                "Access-Control-Allow-Origin": "https://keymoji.wtf",
+                "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
-                "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
-                "X-Content-Type-Options": "nosniff",
-                "X-Frame-Options": "DENY"
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With"
+            }
+        },
+        {
+            "src": "/api/account/update",
+            "dest": "/api/account/update.js",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With"
             }
         },
         {
@@ -128,17 +130,6 @@
         }
     ],
     "github": {
-        "enabled": true,
-        "autoJobCancelation": true,
-        "silent": false,
-        "autoDeploy": true,
-        "autoAlias": true,
-        "jobFilters": {
-            "actions": [
-                "opened",
-                "synchronize",
-                "reopened"
-            ]
-        }
+        "silent": true
     }
 }
