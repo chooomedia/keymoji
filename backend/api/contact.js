@@ -23,8 +23,7 @@ async function sendUserEmail({ name, email, message, emailContent = {} }) {
         message,
         newsletterOptIn: false,
         langCode: 'en',
-        appVersion: 'unknown',
-        emailContent
+        appVersion: 'unknown'
     });
 }
 
@@ -95,8 +94,7 @@ async function sendToN8nWebhook({
     message,
     newsletterOptIn,
     langCode,
-    appVersion,
-    emailContent = {}
+    appVersion
 }) {
     const brevoApiKey = process.env.BREVO_API_KEY;
 
@@ -106,23 +104,13 @@ async function sendToN8nWebhook({
     }
 
     // Default values for email template content
-    const defaultEmailContent = {
+    const emailTemplate = {
         greeting: 'Hello',
         intro: 'Thank you for contacting us.',
         doubleCheck: "We've received your message with the following details:",
         button: 'Confirm Your Email',
         subject: 'Your message to Keymoji has been received',
         footer: 'Developed with love'
-    };
-
-    // Use provided emailContent with fallbacks to default values
-    const emailTemplate = {
-        greeting: defaultEmailContent.greeting,
-        intro: defaultEmailContent.intro,
-        doubleCheck: defaultEmailContent.doubleCheck,
-        button: defaultEmailContent.button,
-        subject: defaultEmailContent.subject,
-        footer: defaultEmailContent.footer
     };
 
     // Define webhookOptin URL with fallback
