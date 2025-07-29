@@ -25,7 +25,7 @@ async function sendUserEmail({ name, email, message, emailContent = {} }) {
         emailContent,
         langCode,
         appVersion
-    } = req.body;
+    });
 
     // Log the request for debugging (ohne sensible Inhalte)
     console.log('Received contact form submission:', {
