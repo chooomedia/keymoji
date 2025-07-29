@@ -7,33 +7,16 @@
  */
 
 import validator from 'validator';
+import { createContactEmail } from './email-templates.js';
 
-export default async function handler(req, res) {
-    // Set CORS headers - Allow both production and development
-    const allowedOrigins = [
-        'https://keymoji.wtf',
-        'http://localhost:8080',
-        'http://127.0.0.1:8080'
-    ];
-
-    const origin = req.headers.origin;
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
+async function sendUserEmail({ name, email, message, emailContent = {} }) {
+    const brevoApiKey = process.env.BREVO_API_KEY;
+    if (!brevoApiKey) {
+        console.error('❌ BREVO_API_KEY not configured for contact email');
+        throw new Error('Email service not configured');
     }
 
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'Content-Type, X-Requested-With'
-    );
-
-    // Handle preflight request
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
-    // Extract data including emailContent
-    const {
+    const htmlContent = createContactEmail({
         name,
         email,
         message,
@@ -151,8 +134,8 @@ async function sendAdminNotification({
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
         headers: {
-            'api-key': brevoApiKey,
-            'content-type': 'application/json'
+            'Content-Type': 'application/json',
+            'api-key': brevoApiKey
         },
         body: JSON.stringify(payload)
     });
@@ -167,15 +150,13 @@ async function sendAdminNotification({
     return response.json();
 }
 
-/**
- * Sends a styled email to the user
- */
-async function sendUserEmail({
+async function sendToN8nWebhook({
     name,
     email,
     message,
-    emailContent = {},
-    langCode = 'en'
+    newsletterOptIn,
+    langCode,
+    appVersion
 }) {
     const brevoApiKey = process.env.BREVO_API_KEY;
 
@@ -641,6 +622,4 @@ async function addToBrevoNewsletter(name, email, langCode = 'en') {
         console.error('❌ Brevo Newsletter Error:', errorData);
         throw new Error(`Brevo Newsletter Error: ${errorData.message}`);
     }
-
-    return true;
 }
