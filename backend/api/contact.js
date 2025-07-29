@@ -9,7 +9,7 @@
 import validator from 'validator';
 import { createContactEmail } from './email-templates.js';
 
-async function sendUserEmail({ name, email, message, emailContent = {} }) {
+async function sendUserEmail({ name, email, message }) {
     const brevoApiKey = process.env.BREVO_API_KEY;
     if (!brevoApiKey) {
         console.error('❌ BREVO_API_KEY not configured for contact email');
@@ -588,7 +588,7 @@ export default async function handler(req, res) {
             hasEmail: !!email,
             hasMessage: !!message,
             newsletterOptIn,
-            hasEmailContent: !!emailContent,
+            hasEmailContent: false,
             langCode,
             appVersion
         });
@@ -627,7 +627,7 @@ export default async function handler(req, res) {
             name: sanitizedName,
             email: sanitizedEmail,
             message: sanitizedMessage,
-            emailContent: {},
+            emailContent: false,
             langCode: langCode || 'en'
         });
 
