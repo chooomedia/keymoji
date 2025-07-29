@@ -131,7 +131,11 @@ async function handleAccountCreation({ userId, email, profile, metadata }) {
     };
 
     // Send to n8n webhook
-    const n8nResponse = await fetch(process.env.N8N_ACCOUNT_WEBHOOK_URL, {
+    const n8nWebhookUrl =
+        process.env.N8N_ACCOUNT_WEBHOOK_URL ||
+        'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account';
+
+    const n8nResponse = await fetch(n8nWebhookUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -173,7 +177,11 @@ async function handleAccountRetrieval(userId) {
     };
 
     // Send to n8n webhook
-    const n8nResponse = await fetch(process.env.N8N_ACCOUNT_WEBHOOK_URL, {
+    const n8nWebhookUrl =
+        process.env.N8N_ACCOUNT_WEBHOOK_URL ||
+        'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account';
+
+    const n8nResponse = await fetch(n8nWebhookUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -215,7 +223,11 @@ async function handleAccountUpdate({ userId, email, profile, metadata }) {
     };
 
     // Send to n8n webhook
-    const n8nResponse = await fetch(process.env.N8N_ACCOUNT_WEBHOOK_URL, {
+    const n8nWebhookUrl =
+        process.env.N8N_ACCOUNT_WEBHOOK_URL ||
+        'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account';
+
+    const n8nResponse = await fetch(n8nWebhookUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
