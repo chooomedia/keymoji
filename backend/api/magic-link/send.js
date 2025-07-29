@@ -15,6 +15,9 @@ export default async function handler(req, res) {
     }
 
     try {
+        // Aktivieren: Vercel ENV TEST_MODE=true oder local .env
+        const TEST_MODE = process.env.TEST_MODE === 'true';
+
         const { email, name, userId, language } = req.body;
 
         // Validate required fields
@@ -41,6 +44,20 @@ export default async function handler(req, res) {
 
         // Send email via Brevo
         const brevoApiKey = process.env.BREVO_API_KEY;
+
+        // Im Test-Modus E-Mail-Versand überspringen und sofort Erfolg melden
+        if (TEST_MODE) {
+            console.log(
+                '🧪 TEST_MODE aktiv – Magic Link wird nicht wirklich gesendet'
+            );
+            return res.status(200).json({
+                success: true,
+                testMode: true,
+                message: 'Magic link simulated (TEST_MODE)',
+                expiresAt: expiresAt.toISOString()
+            });
+        }
+
         if (!brevoApiKey) {
             console.error('❌ BREVO_API_KEY not configured');
             return res.status(500).json({
