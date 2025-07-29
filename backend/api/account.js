@@ -149,7 +149,44 @@ async function handleAccountCreation({ userId, email, profile, metadata }) {
         throw new Error('Failed to create account via n8n');
     }
 
-    const n8nResult = await n8nResponse.json();
+    const responseText = await n8nResponse.text();
+    console.log('📡 n8n response text:', responseText);
+
+    // Handle empty response (n8n might return empty response)
+    if (!responseText || responseText.trim() === '') {
+        console.log('⚠️ Empty response from n8n - creating local account');
+        const localAccount = {
+            userId,
+            email,
+            tier: 'FREE',
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
+            profile: profile || {},
+            status: 'active',
+            metadata: metadata || {}
+        };
+
+        // Send welcome email
+        await sendWelcomeEmail({
+            name: profile?.name || 'Keymoji User',
+            email,
+            userId
+        });
+
+        console.log(
+            '✅ Account created successfully (local fallback):',
+            userId
+        );
+        return localAccount;
+    }
+
+    let n8nResult;
+    try {
+        n8nResult = JSON.parse(responseText);
+    } catch (error) {
+        console.error('❌ Failed to parse n8n response:', error);
+        throw new Error('Invalid response from n8n');
+    }
 
     if (!n8nResult.success) {
         throw new Error(n8nResult.error || 'Account creation failed');
@@ -195,7 +232,28 @@ async function handleAccountRetrieval(userId) {
         throw new Error('Failed to retrieve account via n8n');
     }
 
-    const n8nResult = await n8nResponse.json();
+    const responseText = await n8nResponse.text();
+    console.log('📡 n8n response text:', responseText);
+
+    // Handle empty response (n8n might return empty response)
+    if (!responseText || responseText.trim() === '') {
+        console.log('⚠️ Empty response from n8n - returning default account');
+        const defaultAccount = {
+            userId,
+            tier: 'FREE',
+            createdAt: new Date().toISOString(),
+            lastSeen: new Date().toISOString()
+        };
+        return defaultAccount;
+    }
+
+    let n8nResult;
+    try {
+        n8nResult = JSON.parse(responseText);
+    } catch (error) {
+        console.error('❌ Failed to parse n8n response:', error);
+        throw new Error('Invalid response from n8n');
+    }
 
     if (!n8nResult.success) {
         throw new Error(n8nResult.error || 'Account retrieval failed');
@@ -241,7 +299,30 @@ async function handleAccountUpdate({ userId, email, profile, metadata }) {
         throw new Error('Failed to update account via n8n');
     }
 
-    const n8nResult = await n8nResponse.json();
+    const responseText = await n8nResponse.text();
+    console.log('📡 n8n response text:', responseText);
+
+    // Handle empty response (n8n might return empty response)
+    if (!responseText || responseText.trim() === '') {
+        console.log('⚠️ Empty response from n8n - updating local account');
+        const updatedAccount = {
+            userId,
+            email,
+            profile: profile || {},
+            metadata: metadata || {},
+            lastLogin: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        return updatedAccount;
+    }
+
+    let n8nResult;
+    try {
+        n8nResult = JSON.parse(responseText);
+    } catch (error) {
+        console.error('❌ Failed to parse n8n response:', error);
+        throw new Error('Invalid response from n8n');
+    }
 
     if (!n8nResult.success) {
         throw new Error(n8nResult.error || 'Account update failed');
