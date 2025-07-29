@@ -8,6 +8,22 @@
         {
             "src": "api/random.js",
             "use": "@vercel/node"
+        },
+        {
+            "src": "api/send-magic-link.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "api/verify-magic-link.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "api/account.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "api/test-emails.js",
+            "use": "@vercel/node"
         }
     ],
     "routes": [
@@ -41,6 +57,68 @@
                 "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
                 "X-Content-Type-Options": "nosniff",
                 "Cache-Control": "no-cache, no-store, must-revalidate"
+            }
+        },
+        {
+            "src": "/api/magic-link/send",
+            "dest": "/api/send-magic-link.js",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "https://keymoji.wtf",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
+                "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+                "X-Content-Type-Options": "nosniff",
+                "X-Frame-Options": "DENY"
+            }
+        },
+        {
+            "src": "/api/magic-link/verify",
+            "dest": "/api/verify-magic-link.js",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "https://keymoji.wtf",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
+                "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+                "X-Content-Type-Options": "nosniff",
+                "X-Frame-Options": "DENY"
+            }
+        },
+        {
+            "src": "/api/account",
+            "dest": "/api/account.js",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "https://keymoji.wtf",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With",
+                "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+                "X-Content-Type-Options": "nosniff",
+                "X-Frame-Options": "DENY"
+            }
+        },
+        {
+            "src": "/api/test-emails",
+            "dest": "/api/test-emails.js",
+            "methods": [
+                "GET",
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With"
             }
         },
         {
