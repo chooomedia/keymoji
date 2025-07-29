@@ -23,7 +23,8 @@ async function sendUserEmail({ name, email, message, emailContent = {} }) {
         message,
         newsletterOptIn: false,
         langCode: 'en',
-        appVersion: 'unknown'
+        appVersion: 'unknown',
+        emailContent
     });
 }
 
