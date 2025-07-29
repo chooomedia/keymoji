@@ -16,77 +16,15 @@ async function sendUserEmail({ name, email, message, emailContent = {} }) {
         throw new Error('Email service not configured');
     }
 
-    const htmlContent = createContactEmail({
+    // Call the sendToN8nWebhook function which contains the email logic
+    return await sendToN8nWebhook({
         name,
         email,
         message,
-        newsletterOptIn,
-        honeypot,
-        emailContent,
-        langCode,
-        appVersion
+        newsletterOptIn: false,
+        langCode: 'en',
+        appVersion: 'unknown'
     });
-
-    // Log the request for debugging (ohne sensible Inhalte)
-    console.log('Received contact form submission:', {
-        hasName: !!name,
-        hasEmail: !!email,
-        hasMessage: !!message,
-        newsletterOptIn,
-        hasEmailContent: !!emailContent,
-        langCode,
-        appVersion
-    });
-
-    // Honeypot Check
-    if (honeypot) {
-        console.log('Honeypot triggered:', honeypot);
-        return res.status(200).json({ success: true });
-    }
-
-    // Validation
-    if (
-        !validator.isLength(name, { min: 2, max: 50 }) ||
-        !validator.isEmail(email) ||
-        !validator.isLength(message, { min: 10, max: 1000 })
-    ) {
-        return res.status(400).json({ error: 'Invalid input' });
-    }
-
-    // Sanitize Inputs
-    const sanitizedName = validator.escape(name);
-    const sanitizedEmail = validator.normalizeEmail(email);
-    const sanitizedMessage = validator.escape(message);
-
-    try {
-        // First, notify the admin with a plain email
-        await sendAdminNotification({
-            name: sanitizedName,
-            email: sanitizedEmail,
-            message: sanitizedMessage,
-            newsletterOptIn,
-            appVersion: appVersion || 'unknown'
-        });
-
-        // Then, send styled email to the user
-        await sendUserEmail({
-            name: sanitizedName,
-            email: sanitizedEmail,
-            message: sanitizedMessage,
-            emailContent: emailContent || {},
-            langCode: langCode || 'en'
-        });
-
-        // Handle Newsletter Opt-In
-        if (newsletterOptIn) {
-            await addToBrevoNewsletter(sanitizedName, sanitizedEmail, langCode);
-        }
-
-        return res.status(200).json({ success: true });
-    } catch (error) {
-        console.error('Error sending email:', error);
-        return res.status(500).json({ error: error.message });
-    }
 }
 
 /**
@@ -621,5 +559,100 @@ async function addToBrevoNewsletter(name, email, langCode = 'en') {
         const errorData = await response.json();
         console.error('❌ Brevo Newsletter Error:', errorData);
         throw new Error(`Brevo Newsletter Error: ${errorData.message}`);
+    }
+}
+
+/**
+ * Vercel Serverless Function Handler
+ */
+export default async function handler(req, res) {
+    // CORS Headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type, X-Requested-With'
+    );
+
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+        const {
+            name,
+            email,
+            message,
+            newsletterOptIn = false,
+            honeypot = '',
+            langCode = 'en',
+            appVersion = 'unknown'
+        } = req.body;
+
+        // Log the request for debugging (ohne sensible Inhalte)
+        console.log('Received contact form submission:', {
+            hasName: !!name,
+            hasEmail: !!email,
+            hasMessage: !!message,
+            newsletterOptIn,
+            hasEmailContent: !!emailContent,
+            langCode,
+            appVersion
+        });
+
+        // Honeypot Check
+        if (honeypot) {
+            console.log('Honeypot triggered:', honeypot);
+            return res.status(200).json({ success: true });
+        }
+
+        // Validation
+        if (
+            !validator.isLength(name, { min: 2, max: 50 }) ||
+            !validator.isEmail(email) ||
+            !validator.isLength(message, { min: 10, max: 1000 })
+        ) {
+            return res.status(400).json({ error: 'Invalid input' });
+        }
+
+        // Sanitize Inputs
+        const sanitizedName = validator.escape(name);
+        const sanitizedEmail = validator.normalizeEmail(email);
+        const sanitizedMessage = validator.escape(message);
+
+        // First, notify the admin with a plain email
+        await sendAdminNotification({
+            name: sanitizedName,
+            email: sanitizedEmail,
+            message: sanitizedMessage,
+            newsletterOptIn,
+            appVersion: appVersion || 'unknown'
+        });
+
+        // Then, send styled email to the user
+        await sendUserEmail({
+            name: sanitizedName,
+            email: sanitizedEmail,
+            message: sanitizedMessage,
+            emailContent: {},
+            langCode: langCode || 'en'
+        });
+
+        // Handle Newsletter Opt-In
+        if (newsletterOptIn) {
+            await addToBrevoNewsletter(sanitizedName, sanitizedEmail, langCode);
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Contact form submitted successfully'
+        });
+    } catch (error) {
+        console.error('Error in contact handler:', error);
+        return res.status(500).json({ error: error.message });
     }
 }
