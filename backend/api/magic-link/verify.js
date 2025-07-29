@@ -40,7 +40,9 @@ export default async function handler(req, res) {
         // Validate required fields
         if (!token || !userId) {
             return res.status(400).json({
-                error: 'Missing required fields: token, userId'
+                error: `Missing required fields: ${!token ? 'token' : ''}${
+                    !token && !userId ? ', ' : ''
+                }${!userId ? 'userId' : ''}`
             });
         }
 
