@@ -1,5 +1,6 @@
 {
     "name": "keymoji-backend",
+    "type": "module",
     "version": "1.0.0",
     "description": "Backend für Keymoji SPA - Brevo Mailing API",
     "main": "api/contact.js",
