@@ -119,6 +119,11 @@ async function sendAdminNotification({
     const toEmail = process.env.ADMIN_EMAIL || 'hi@keymoji.wtf';
     const brevoApiKey = process.env.BREVO_API_KEY;
 
+    if (!brevoApiKey) {
+        console.error('❌ BREVO_API_KEY not configured');
+        throw new Error('Email service not configured');
+    }
+
     // Simple text-based email for admin
     const adminContent = `
         New contact form submission received:
@@ -141,6 +146,8 @@ async function sendAdminNotification({
         headers: { 'X-Mailin-custom': 'contact-form-admin' }
     };
 
+    console.log('📧 Sending admin notification to:', toEmail);
+
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
         headers: {
@@ -152,9 +159,11 @@ async function sendAdminNotification({
 
     if (!response.ok) {
         const errorData = await response.json();
+        console.error('❌ Brevo API error:', errorData);
         throw new Error(`Admin notification error: ${errorData.message}`);
     }
 
+    console.log('✅ Admin notification sent successfully');
     return response.json();
 }
 
@@ -169,6 +178,11 @@ async function sendUserEmail({
     langCode = 'en'
 }) {
     const brevoApiKey = process.env.BREVO_API_KEY;
+
+    if (!brevoApiKey) {
+        console.error('❌ BREVO_API_KEY not configured for user email');
+        throw new Error('Email service not configured');
+    }
 
     // Default values for email template content
     const defaultEmailContent = {
@@ -593,6 +607,16 @@ async function addToBrevoNewsletter(name, email, langCode = 'en') {
     const brevoApiKey = process.env.BREVO_API_KEY;
     const listId = process.env.BREVO_LIST_ID;
 
+    if (!brevoApiKey) {
+        console.error('❌ BREVO_API_KEY not configured for newsletter');
+        return; // No action if email service is not configured
+    }
+
+    if (!listId) {
+        console.error('❌ BREVO_LIST_ID not configured for newsletter');
+        return; // No action if list ID is not configured
+    }
+
     const contactData = {
         email: email,
         attributes: {
@@ -614,6 +638,7 @@ async function addToBrevoNewsletter(name, email, langCode = 'en') {
 
     if (!response.ok && response.status !== 400) {
         const errorData = await response.json();
+        console.error('❌ Brevo Newsletter Error:', errorData);
         throw new Error(`Brevo Newsletter Error: ${errorData.message}`);
     }
 
