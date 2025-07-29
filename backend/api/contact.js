@@ -94,7 +94,8 @@ async function sendToN8nWebhook({
     message,
     newsletterOptIn,
     langCode,
-    appVersion
+    appVersion,
+    emailContent = {}
 }) {
     const brevoApiKey = process.env.BREVO_API_KEY;
 
