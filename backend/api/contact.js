@@ -90,7 +90,7 @@ async function sendToN8nWebhook({
                 newsletterOptIn: newsletterOptIn || false,
                 language: langCode || 'en',
                 timestamp: new Date().toISOString(),
-                appVersion: appVersion || '0.4.0'
+                appVersion: appVersion || process.env.APP_VERSION || '0.4.3'
             })
         });
         console.log('✅ Contact form data sent to n8n webhook');
@@ -177,7 +177,7 @@ export default async function handler(req, res) {
             message: sanitizedMessage,
             newsletterOptIn: newsletterOptIn || false,
             langCode: langCode || 'en',
-            appVersion: appVersion || '0.4.0'
+            appVersion: appVersion || process.env.APP_VERSION || '0.4.3'
         });
 
         return res.status(200).json({

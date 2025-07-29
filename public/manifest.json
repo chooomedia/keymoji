@@ -47,7 +47,7 @@
     "shortcuts": [
         {
             "name": "Generate Random Password",
-            "url": "https://its.keymoji.wtf/api/random?count=5",
+            "short_name": "Generate",
             "description": "Generate a new random emoji password"
         }
     ],
@@ -69,8 +69,7 @@
     },
     "protocol_handlers": [
         {
-            "protocol": "web+keymoji",
-            "url": "https://its.keymoji.wtf/api/random?count=%s"
+            "protocol": "web+keymoji"
         }
     ]
 }

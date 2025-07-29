@@ -2,7 +2,7 @@
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { onMount, createEventDispatcher } from 'svelte';
-    import { currentLanguage, setLanguage, showLanguageMenu } from '../stores/appStores.js';
+    import { currentLanguage, changeLanguage, showLanguageMenu } from '../stores/contentStore.js';
     import { supportedLanguages } from '../utils/languages.js';
     import { navigate } from "svelte-routing";
     
@@ -14,6 +14,8 @@
     
     let selectedLang = $currentLanguage;
     let elvishFontLoaded = false;
+    let menuRef;
+    let buttonRef;
     
     // Direkter Zugriff auf die supportedLanguages aus languageUtils
     const languages = supportedLanguages;
@@ -36,8 +38,24 @@
             fontLink.crossOrigin = 'anonymous';
             document.head.appendChild(fontLink);
             
+            // Font-Face definieren falls nicht vorhanden
+            if (!document.querySelector('style[data-elvish-font]')) {
+                const fontFaceStyle = document.createElement('style');
+                fontFaceStyle.setAttribute('data-elvish-font', 'true');
+                fontFaceStyle.textContent = `
+                    @font-face {
+                        font-family: 'Tengwar Annatar';
+                        src: url('/fonts/tengwar_annatar.ttf') format('truetype');
+                        font-weight: normal;
+                        font-style: normal;
+                        font-display: swap;
+                    }
+                `;
+                document.head.appendChild(fontFaceStyle);
+            }
+            
             elvishFontLoaded = true;
-            console.log('Elvish font preloaded');
+            console.log('Elvish font preloaded and ready');
         } catch (error) {
             console.warn('Failed to preload Elvish font:', error);
         }
@@ -59,43 +77,58 @@
         // Split path to extract non-language part
         const pathSegments = path.split('/').filter(segment => segment !== '');
         
-        // Check if first segment is a language code
-        if (pathSegments.length > 0 && languages.some(lang => lang.code === pathSegments[0])) {
-            // Remove language code
-            pathSegments.shift();
-        }
+        // Remove ALL language codes from the path
+        const languageCodes = languages.map(lang => lang.code);
+        const nonLanguageSegments = pathSegments.filter(segment => !languageCodes.includes(segment));
         
         // Construct new URL with new language code
-        return `/${langCode}${pathSegments.length > 0 ? '/' + pathSegments.join('/') : ''}`;
+        const newPath = `/${langCode}${nonLanguageSegments.length > 0 ? '/' + nonLanguageSegments.join('/') : ''}`;
+        
+        console.log('🔄 updateCurrentPath:', {
+            originalPath: path,
+            pathSegments,
+            languageCodes,
+            nonLanguageSegments,
+            newPath
+        });
+        
+        return newPath;
     }
     
-    function handleLanguageChange(langCode) {
+    async function handleLanguageChange(langCode) {
+        console.log('🔄 LanguageSwitcher: handleLanguageChange called with:', langCode);
+        console.log('🔄 LanguageSwitcher: current selectedLang:', selectedLang);
+        
         // Do nothing if it's the same language
         if (langCode === selectedLang) {
+            console.log('🔄 LanguageSwitcher: Same language, closing menu');
             $showLanguageMenu = false;
             return;
         }
         
         // Vorladen der Elvish Schriftart, wenn auf Elvish gewechselt wird
-        if (langCode === 'qya') {
+        if (langCode === 'sjn') {
             preloadElvishFont();
         }
         
+        console.log('🔄 LanguageSwitcher: Calling changeLanguage...');
         // Set language in store
-        setLanguage(langCode);
+        await changeLanguage(langCode);
         selectedLang = langCode;
+        console.log('🔄 LanguageSwitcher: Language changed to:', selectedLang);
         
         // Get new path with updated language
         const newPath = updateCurrentPath(langCode);
         
         // Debug output
-        console.log('Navigating to new path with language change:', newPath);
+        console.log('🔄 LanguageSwitcher: Navigating to new path:', newPath);
         
         // Update URL without reload
         navigate(newPath, { replace: true });
         
         // Close menu
         $showLanguageMenu = false;
+        console.log('🔄 LanguageSwitcher: Menu closed');
         
         // Trigger event for parent components
         dispatch('languageChange', langCode);
@@ -105,9 +138,46 @@
         return languages.find(lang => lang.code === code) || languages[0];
     }
     
+    // Keyboard navigation
+    function handleKeydown(event) {
+        if (!$showLanguageMenu) return;
+        
+        switch (event.key) {
+            case 'Escape':
+                $showLanguageMenu = false;
+                buttonRef?.focus();
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                const firstMenuItem = menuRef?.querySelector('[role="menuitem"]');
+                firstMenuItem?.focus();
+                break;
+        }
+    }
+    
+    function handleMenuKeydown(event, langCode) {
+        switch (event.key) {
+            case 'Enter':
+            case ' ':
+                event.preventDefault();
+                handleLanguageChange(langCode);
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                const nextItem = event.target.parentElement?.nextElementSibling?.querySelector('[role="menuitem"]');
+                nextItem?.focus();
+                break;
+            case 'ArrowUp':
+                event.preventDefault();
+                const prevItem = event.target.parentElement?.previousElementSibling?.querySelector('[role="menuitem"]');
+                prevItem?.focus();
+                break;
+        }
+    }
+    
     onMount(() => {
         // Schriftart vorladen, wenn die aktuelle Sprache Elvish ist
-        if ($currentLanguage === 'qya') {
+        if ($currentLanguage === 'sjn') {
             preloadElvishFont();
             
             // Ensure the correct class is applied
@@ -115,101 +185,101 @@
         }
         
         const handleClickOutside = (event) => {
-            if ($showLanguageMenu && !event.target.closest('#language-dropdown-menu') && !event.target.closest('#language-toggle-button')) {
+            if ($showLanguageMenu && 
+                !event.target.closest('#language-dropdown-menu') && 
+                !event.target.closest('#language-toggle-button')) {
                 $showLanguageMenu = false;
             }
         };
         
         document.addEventListener('click', handleClickOutside);
+        document.addEventListener('keydown', handleKeydown);
         
         return () => {
             document.removeEventListener('click', handleClickOutside);
+            document.removeEventListener('keydown', handleKeydown);
         };
     });
     
     // Update selectedLang when currentLanguage changes
     $: selectedLang = $currentLanguage;
+    
+    // Reaktive Schriftart-Anwendung
+    $: if ($currentLanguage === 'sjn') {
+        preloadElvishFont();
+        document.body.classList.add('font-elvish');
+    } else {
+        document.body.classList.remove('font-elvish');
+    }
 </script>
     
 <div class="language-switcher {position} {display}">
     <button
-      id="language-toggle-button"
-      type="button"
-      class="btn btn-default btn-md flex items-center text-base"
-      on:click={toggleLanguageMenu}
-      aria-label="Change language"
-      aria-haspopup="true"
-      aria-expanded={$showLanguageMenu}
-      aria-controls="language-dropdown-menu"
+        id="language-toggle-button"
+        bind:this={buttonRef}
+        type="button"
+        class="btn btn-default btn-md flex items-center text-base h-[56px]"
+        on:click={toggleLanguageMenu}
+        aria-label="Change language"
+        aria-haspopup="true"
+        aria-expanded={$showLanguageMenu}
+        aria-controls="language-dropdown-menu"
     >
-      <span class="flag-icon mr-3">{getCurrentLanguageInfo(selectedLang).flag}</span>
-      {#if showLabels || display === 'full'}
-        <span class="lang-code uppercase">{getCurrentLanguageInfo(selectedLang).code}</span>
-        {#if display === 'full'}
-            <span class="dropdown-arrow ml-3">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{$showLanguageMenu ? 'transform rotate-180' : ''}">
-                <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-            </span>
-        {/if}
-      {/if}
-    </button>
-  
-    {#if $showLanguageMenu}
-    <!-- Mobile backdrop -->
-    <div 
-      class="fixed inset-0 bg-black bg-opacity-25 z-40 sm:hidden"
-      on:click={toggleLanguageMenu}
-      aria-hidden="true"
-    ></div>
-    
-    <div 
-      id="language-dropdown-menu" 
-      class="language-dropdown {position === 'top' ? 'top-full mt-2' : 'bottom-full mb-2'} 
-             w-48 sm:w-36 
-             max-h-[60vh] sm:max-h-96 
-             mx-auto rounded-xl shadow-lg bg-creme dark:bg-aubergine-dark 
-             ring-1 ring-black ring-opacity-5 z-50 
-             transform transition-all duration-300 ease-in-out
-             overflow-hidden"
-      role="menu" 
-      aria-orientation="vertical" 
-      aria-labelledby="language-toggle-button"
-    >
-      <div class="py-2 overflow-y-auto max-h-[calc(60vh-1rem)] sm:max-h-[calc(24rem-1rem)] overscroll-contain">
-        <ul>
-          {#each languages as lang}
-            <li
-              in:slide={{ y: -5, duration: 400, easing: cubicInOut }} 
-              out:slide={{ y: 5, duration: 400, easing: cubicInOut }}
-            >
-              <button
-                class="flex items-center w-full 
-                       px-4 py-4 sm:py-3 
-                       hover:bg-aubergine-50 
-                       text-sm transition-colors 
-                       active:bg-aubergine-50
-                       focus:bg-aubergine-50 focus:outline-none
-                       {selectedLang === lang.code ? 'font-bold bg-gray-50 dark:bg-aubergine-50' : ''} 
-                       {lang.code === 'qya' ? 'elvish-language-option' : ''}"
-                role="menuitem"
-                on:click={() => handleLanguageChange(lang.code)}
-                aria-current={selectedLang === lang.code ? 'true' : 'false'}
-              >
-                <span class="flag-icon text-xl mr-3" aria-hidden="true">{lang.flag}</span>
-                <span class="lang-name text-black dark:text-white flex-1 text-left">{lang.name}</span>
-                {#if selectedLang === lang.code}
-                  <span class="ml-auto text-yellow shrink-0" aria-label="Selected">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
+        <span class="flag-icon mr-3">{getCurrentLanguageInfo(selectedLang).flag}</span>
+        {#if showLabels || display === 'full'}
+            <span class="lang-code uppercase">{getCurrentLanguageInfo(selectedLang).code}</span>
+            {#if display === 'full'}
+                <span class="dropdown-arrow ml-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{$showLanguageMenu ? 'transform rotate-180' : ''}">
+                        <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
-                  </span>
-                {/if}
-              </button>
-            </li>
-          {/each}
-        </ul>
-      </div>
-    </div>
+                </span>
+            {/if}
+        {/if}
+    </button>
+    
+    <!-- Dropdown Menu -->
+    {#if $showLanguageMenu}
+        <div 
+            id="language-dropdown-menu"
+            bind:this={menuRef}
+            class="fixed w-full flex flex-wrap justify-center top-20 mx-auto z-20 right-0 left-0"
+            role="menu"
+            aria-orientation="vertical"
+            aria-labelledby="language-toggle-button"
+            aria-label="Language selection menu"
+        >
+            <div 
+                class="w-48 mx-auto max-h-96 overflow-y-auto scrollbar-consistent scroll-smooth rounded-b-xl shadow-lg bg-creme-500 dark:bg-aubergine-900 ring-1 ring-black ring-opacity-5 z-20 transform pb-2 mt-1"
+                in:slide={{ y: -5, duration: 400, easing: cubicInOut }}
+                out:slide={{ y: 5, duration: 400, easing: cubicInOut }}
+            >
+                <ul class="py-2" role="none">
+                    {#each languages as lang}
+                        <li role="none">
+                            <button
+                                class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 text-sm transition-colors text-black dark:text-white  focus:ring-2 focus:ring-yellow focus:ring-offset-2"
+                                role="menuitem"
+                                on:click={() => handleLanguageChange(lang.code)}
+                                on:keydown={(e) => handleMenuKeydown(e, lang.code)}
+                                aria-current={$currentLanguage === lang.code ? 'true' : 'false'}
+                                tabindex="-1"
+                                aria-label="Switch to {lang.name} language"
+                            >
+                                <span class="flag-icon text-xl mr-3" aria-hidden="true">{lang.flag}</span>
+                                <span class="lang-name flex-1 text-left">{lang.name}</span>
+                                {#if $currentLanguage === lang.code}
+                                    <span class="ml-auto text-yellow shrink-0" aria-label="Currently selected language">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                    </span>
+                                {/if}
+                            </button>
+                        </li>
+                    {/each}
+                </ul>
+            </div>
+        </div>
     {/if}
 </div>

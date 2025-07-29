@@ -2,6 +2,13 @@
 const fs = require('fs');
 const path = require('path');
 
+// Import SEO utilities
+const {
+    DEFAULT_SEO,
+    formatCanonicalUrl,
+    getLocale
+} = require('../src/utils/seo.js');
+
 // Language configurations
 const languages = [
     'en',
@@ -12,14 +19,13 @@ const languages = [
     'it',
     'fr',
     'pl',
-    'da',
     'ru',
     'tr',
     'af',
     'ja',
     'ko',
     'tlh',
-    'qya'
+    'sjn'
 ];
 
 // Routes that need meta tags
@@ -30,7 +36,7 @@ const metaTemplates = {
     '/': {
         title: 'Keymoji - Emoji Password Generator',
         description:
-            'Generate secure, AI-resistant emoji passwords. Create memorable passwords with emojis in 15+ languages. Free, open-source, and privacy-focused.',
+            'Generate secure, AI-resistant emoji passwords. Create memorable passwords with emojis in 15+ languages.',
         keywords:
             'emoji password, password generator, secure passwords, AI resistant, keymoji'
     },
@@ -61,7 +67,9 @@ function generateMetaTags(route, lang = 'en') {
     const baseUrl = 'https://keymoji.wtf';
     const url =
         route === '/' ? `${baseUrl}/${lang}` : `${baseUrl}/${lang}${route}`;
-    const imageUrl = `${baseUrl}/images/keymoji-social-media-banner-10-2024-min.png`;
+    const canonicalUrl = formatCanonicalUrl(url);
+    const imageUrl = `${baseUrl}${DEFAULT_SEO.image}`;
+    const locale = getLocale(lang);
 
     return `
     <!-- Primary Meta Tags -->
@@ -72,47 +80,24 @@ function generateMetaTags(route, lang = 'en') {
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="${url}">
+    <meta property="og:url" content="${canonicalUrl}">
     <meta property="og:title" content="${meta.title}">
     <meta property="og:description" content="${meta.description}">
     <meta property="og:image" content="${imageUrl}">
     <meta property="og:image:width" content="1640">
     <meta property="og:image:height" content="924">
     <meta property="og:site_name" content="Keymoji">
-    <meta property="og:locale" content="${getLocale(lang)}">
+    <meta property="og:locale" content="${locale}">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="${url}">
+    <meta property="twitter:url" content="${canonicalUrl}">
     <meta property="twitter:title" content="${meta.title}">
     <meta property="twitter:description" content="${meta.description}">
     <meta property="twitter:image" content="${imageUrl}">
     
     <!-- Canonical -->
-    <link rel="canonical" href="${url}">`;
-}
-
-// Get locale string from language code
-function getLocale(lang) {
-    const localeMap = {
-        en: 'en_US',
-        de: 'de_DE',
-        dech: 'de_CH',
-        es: 'es_ES',
-        nl: 'nl_NL',
-        it: 'it_IT',
-        fr: 'fr_FR',
-        pl: 'pl_PL',
-        da: 'da_DK',
-        ru: 'ru_RU',
-        tr: 'tr_TR',
-        af: 'af_ZA',
-        ja: 'ja_JP',
-        ko: 'ko_KR',
-        tlh: 'tlh',
-        qya: 'qya'
-    };
-    return localeMap[lang] || 'en_US';
+    <link rel="canonical" href="${canonicalUrl}">`;
 }
 
 // Update index.html with proper meta tags

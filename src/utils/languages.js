@@ -1,9 +1,25 @@
 // src/utils/languageUtils.js
-import content from '../content.js';
+// Content wird jetzt über contentStore verwaltet
 import { get } from 'svelte/store';
 
-// Derive supported languages from content.js to ensure consistency
-const contentLanguages = Object.keys(content).filter(key => key !== 'logo');
+// Supported languages - jetzt statisch definiert
+const contentLanguages = [
+    'en',
+    'de',
+    'dech',
+    'es',
+    'nl',
+    'it',
+    'fr',
+    'pl',
+    'ru',
+    'tr',
+    'af',
+    'ja',
+    'ko',
+    'tlh',
+    'sjn'
+];
 
 export const supportedLanguages = [
     { code: 'en', name: 'English', flag: '🇺🇸', ogLocale: 'en_US' },
@@ -14,15 +30,14 @@ export const supportedLanguages = [
     { code: 'it', name: 'Italiano', flag: '🇮🇹', ogLocale: 'it_IT' },
     { code: 'fr', name: 'Français', flag: '🇫🇷', ogLocale: 'fr_FR' },
     { code: 'pl', name: 'Polski', flag: '🇵🇱', ogLocale: 'pl_PL' },
-    { code: 'da', name: 'Dansk', flag: '🇩🇰', ogLocale: 'da_DK' },
     { code: 'ru', name: 'Русский', flag: '🇷🇺', ogLocale: 'ru_RU' },
     { code: 'tr', name: 'Türkçe', flag: '🇹🇷', ogLocale: 'tr_TR' },
     { code: 'af', name: 'Afrikaans', flag: '🇿🇦', ogLocale: 'af_ZA' },
     { code: 'ja', name: '日本語', flag: '🇯🇵', ogLocale: 'ja_JP' },
     { code: 'ko', name: '한국어', flag: '🇰🇷', ogLocale: 'ko_KO' },
     { code: 'tlh', name: 'Klingon', flag: '🖖', ogLocale: 'tlh_Qo' },
-    { code: 'qya', name: 'Elvish', flag: '🧝‍♀️', ogLocale: 'qya_Qo' }
-].filter(lang => contentLanguages.includes(lang.code));
+    { code: 'sjn', name: 'Sindarin', flag: '🧝‍♀️', ogLocale: 'sjn_Qo' }
+];
 
 // Helper functions for language operations
 export function isLanguageSupported(langCode) {
@@ -69,38 +84,11 @@ export function getBrowserLanguage() {
  * @returns {Object} - Object with preloaded translations
  */
 export function preloadTranslations(keys = [], langCode = null) {
-    const translations = {};
-
-    // If langCode is not provided and currentLanguage is available, use it
-    let lang = langCode;
-
-    // Navigate the path for each key
-    for (const keyPath of keys) {
-        const pathParts = keyPath.split('.');
-        let value = content[lang];
-
-        // Fallback to English if language not found
-        if (!value) {
-            console.warn(
-                `Language '${lang}' not found, falling back to English`
-            );
-            value = content['en'];
-        }
-
-        // Navigate the path
-        for (const part of pathParts) {
-            if (!value || typeof value !== 'object') {
-                value = null;
-                break;
-            }
-            value = value[part];
-        }
-
-        // Store the value
-        translations[keyPath] = value;
-    }
-
-    return translations;
+    // Diese Funktion wird jetzt über contentStore verwaltet
+    console.warn(
+        'preloadTranslations is deprecated - use contentStore instead'
+    );
+    return {};
 }
 
 /**
@@ -110,23 +98,7 @@ export function preloadTranslations(keys = [], langCode = null) {
  * @returns {string} - Translated text or key if not found
  */
 export function getText(key, lang, currentLangStore) {
-    const currentLang =
-        lang || (currentLangStore ? get(currentLangStore) : 'en');
-
-    const keys = key.split('.');
-    let text = content[currentLang];
-
-    // Fallback to English if language not found
-    if (!text) {
-        console.warn(
-            `Language '${currentLang}' not found, falling back to English`
-        );
-        text = content['en'];
-    }
-
-    for (const k of keys) {
-        if (text === undefined) return key;
-        text = text[k];
-    }
-    return text || key;
+    // Diese Funktion wird jetzt über contentStore verwaltet
+    console.warn('getText is deprecated - use contentStore.t() instead');
+    return key;
 }

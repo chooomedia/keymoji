@@ -1,5 +1,5 @@
 /**
- * Backend Test Script für Keymoji
+ * Complete Backend Test für Keymoji
  * Testet alle Vercel APIs und n8n Webhooks
  */
 
@@ -10,26 +10,42 @@ const N8N_BASE = 'https://n8n.chooomedia.com/webhook';
 const testData = {
     account: {
         action: 'create',
-        userId: 'test_user_' + Date.now(),
-        email: 'test@example.com',
+        userId: 'complete_test_' + Date.now(),
+        email: 'complete.test@example.com',
         profile: {
-            name: 'Test User'
+            name: 'Complete Test User'
         },
         metadata: {
             test: true,
             timestamp: new Date().toISOString()
         }
     },
+    accountUpdate: {
+        userId: 'update_test_' + Date.now(),
+        email: 'update.test@example.com',
+        profile: {
+            name: 'Update Test User',
+            newsletter: true
+        },
+        metadata: {
+            test: 'update',
+            timestamp: new Date().toISOString()
+        }
+    },
     magicLink: {
-        email: 'test@example.com',
-        name: 'Test User',
-        userId: 'test_user_' + Date.now(),
+        email: 'magiclink.test@example.com',
+        name: 'Magic Link Test User',
+        userId: 'magiclink_test_' + Date.now(),
         language: 'en'
     },
+    magicLinkVerify: {
+        token: 'test_token_123456789',
+        userId: 'verify_test_' + Date.now()
+    },
     contact: {
-        name: 'Test User',
-        email: 'test@example.com',
-        message: 'This is a test message from the backend test script.',
+        name: 'Contact Test User',
+        email: 'contact.test@example.com',
+        message: 'This is a complete backend test message.',
         newsletterOptIn: false,
         honeypot: '',
         emailContent: {
@@ -42,7 +58,7 @@ const testData = {
             footer: 'Developed with love'
         },
         langCode: 'en',
-        appVersion: '0.4.0'
+        appVersion: '0.4.3'
     }
 };
 
@@ -90,30 +106,47 @@ async function testVercelAPIs() {
     let passed = 0;
     let total = 0;
 
-    // Test Email Templates
-    console.log('\n📧 Testing Email Templates...');
-    const emailResult = await testAPI(
-        '/api/test-emails',
-        { template: 'welcome' },
-        'GET'
+    // Test Account API (Create)
+    console.log('\n👤 Testing Account Creation...');
+    const accountCreateResult = await testAPI('/api/account', testData.account);
+    total += 1;
+    if (accountCreateResult) passed += 1;
+
+    // Test Account API (Get)
+    console.log('\n👤 Testing Account Retrieval...');
+    const accountGetResult = await testAPI('/api/account', {
+        action: 'get',
+        userId: testData.account.userId
+    });
+    total += 1;
+    if (accountGetResult) passed += 1;
+
+    // Test Account Update API
+    console.log('\n👤 Testing Account Update...');
+    const accountUpdateResult = await testAPI(
+        '/api/account/update',
+        testData.accountUpdate
     );
     total += 1;
-    if (emailResult) passed += 1;
+    if (accountUpdateResult) passed += 1;
 
-    // Test Account API
-    console.log('\n👤 Testing Account API...');
-    const accountResult = await testAPI('/api/account', testData.account);
-    total += 1;
-    if (accountResult) passed += 1;
-
-    // Test Magic Link API
-    console.log('\n🔗 Testing Magic Link API...');
-    const magicLinkResult = await testAPI(
+    // Test Magic Link Send API
+    console.log('\n🔗 Testing Magic Link Send...');
+    const magicLinkSendResult = await testAPI(
         '/api/magic-link/send',
         testData.magicLink
     );
     total += 1;
-    if (magicLinkResult) passed += 1;
+    if (magicLinkSendResult) passed += 1;
+
+    // Test Magic Link Verify API
+    console.log('\n🔗 Testing Magic Link Verify...');
+    const magicLinkVerifyResult = await testAPI(
+        '/api/magic-link/verify',
+        testData.magicLinkVerify
+    );
+    total += 1;
+    if (magicLinkVerifyResult) passed += 1;
 
     // Test Contact API
     console.log('\n📧 Testing Contact API...');
@@ -154,7 +187,7 @@ async function testN8nWebhooks() {
     const analyticsData = {
         action: 'track',
         userId: testData.account.userId,
-        event: 'test_event',
+        event: 'complete_test_event',
         timestamp: new Date().toISOString()
     };
     const analyticsResult = await testAPI(
@@ -170,8 +203,8 @@ async function testN8nWebhooks() {
 }
 
 // Haupt-Test-Funktion
-async function runAllTests() {
-    console.log('🚀 Starting Keymoji Backend Tests...');
+async function runCompleteTests() {
+    console.log('🚀 Starting Complete Keymoji Backend Tests...');
     console.log(`📍 Vercel Base: ${VERCEL_BASE}`);
     console.log(`📍 n8n Base: ${N8N_BASE}`);
     console.log('=' * 60);
@@ -187,7 +220,7 @@ async function runAllTests() {
     const totalTests = vercelResults.total + n8nResults.total;
 
     console.log('\n' + '=' * 60);
-    console.log('📊 FINAL TEST RESULTS');
+    console.log('📊 COMPLETE BACKEND TEST RESULTS');
     console.log('=' * 60);
     console.log(
         `Vercel APIs: ${vercelResults.passed}/${vercelResults.total} passed`
@@ -198,7 +231,9 @@ async function runAllTests() {
     console.log(`TOTAL: ${totalPassed}/${totalTests} tests passed`);
 
     if (totalPassed === totalTests) {
-        console.log('🎉 ALL TESTS PASSED! Backend is ready for production!');
+        console.log(
+            '🎉 ALL BACKEND TESTS PASSED! Backend is complete and ready!'
+        );
     } else {
         console.log('⚠️ Some tests failed. Check the logs above for details.');
     }
@@ -212,12 +247,12 @@ async function runAllTests() {
 
 // Script ausführen
 if (require.main === module) {
-    runAllTests().catch(console.error);
+    runCompleteTests().catch(console.error);
 }
 
 module.exports = {
     testAPI,
     testVercelAPIs,
     testN8nWebhooks,
-    runAllTests
+    runCompleteTests
 };

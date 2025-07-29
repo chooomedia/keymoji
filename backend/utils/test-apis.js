@@ -41,7 +41,7 @@ const testData = {
             footer: 'Developed with love'
         },
         langCode: 'en',
-        appVersion: '0.4.0'
+        appVersion: process.env.APP_VERSION || '0.4.3'
     }
 };
 

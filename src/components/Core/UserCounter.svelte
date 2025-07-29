@@ -1,6 +1,6 @@
 <!-- src/UserCounter.svelte -->
 <script>
-    import { userCounter } from './stores/appStores.js';
+    import { userCounter } from '../../stores/appStores.js';
     
     // Formatter basierend auf der Dokumentsprache
     $: formatter = new Intl.NumberFormat(

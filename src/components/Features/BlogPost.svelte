@@ -1,6 +1,11 @@
 <script>
+    import { currentLanguage, darkMode, showShareMenu } from '../../stores/contentStore.js';
+    import { t } from '../../stores/contentStore.js';
     import { onMount } from 'svelte';
-    import { currentLanguage, darkMode, showShareMenu } from './stores/appStores.js';
+    import { navigate } from 'svelte-routing';
+    import { fade, fly } from 'svelte/transition';
+    import { linkedinIcon, fbmessengerIcon, whatsappIcon, emailIcon, redditIcon, instagramIcon } from '../../assets/shapes.js';
+    import { updateSeo } from '../../stores/seoStore.js';
   
     export let slug;
     
@@ -14,21 +19,14 @@
         post = data;
         loading = false;
         
-        // Manually add JSON-LD after component mount
+        // Update SEO for blog post
         if (post) {
-          const script = document.createElement('script');
-          script.type = 'application/ld+json';
-          script.text = JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'BlogPosting',
-            'headline': post.title,
-            'datePublished': post.date,
-            'author': {
-              '@type': 'Person',
-              'name': 'Chris Matt'
-            }
+          updateSeo({
+            title: post.title,
+            description: post.excerpt || post.content.substring(0, 160),
+            url: window.location.pathname,
+            pageType: 'blog'
           });
-          document.head.appendChild(script);
         }
       } catch (error) {
         console.error('Error fetching post:', error);
@@ -76,7 +74,7 @@
           {new Date(post.date).toLocaleDateString($currentLanguage)}
         </time>
         
-        <span class="bg-yellow text-black px-2 py-1 rounded-full">
+        <span class="bg-yellow-500 text-black px-2 py-1 rounded-full">
           {post.category}
         </span>
         
@@ -118,7 +116,7 @@
         {@html post.content}
       </article>
   
-      <section class="my-16 bg-yellow dark:bg-aubergine rounded-xl p-8 text-center">
+      <section class="my-16 bg-yellow-500 dark:bg-aubergine-800 rounded-xl p-8 text-center">
         <h2 class="text-2xl font-bold mb-4">Want to create your own secure emoji passwords?</h2>
         <p class="mb-6">Try Keymoji now and enhance your online security with unique emoji combinations.</p>
         <a 

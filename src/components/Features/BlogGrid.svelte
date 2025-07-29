@@ -1,7 +1,10 @@
 <script>
+    import { currentLanguage } from '../../stores/contentStore.js';
+    import { t } from '../../stores/contentStore.js';
     import { onMount } from 'svelte';
-    import { currentLanguage } from './stores/appStores.js';
-    import { linkedinIcon, fbmessengerIcon, whatsappIcon, emailIcon, redditIcon, instagramIcon } from './shapes.js';
+    import { navigate } from 'svelte-routing';
+    import { fade, fly } from 'svelte/transition';
+    import { linkedinIcon, fbmessengerIcon, whatsappIcon, emailIcon, redditIcon, instagramIcon } from '../../assets/shapes.js';
     
     let posts = [];
     let loading = true;
@@ -118,7 +121,7 @@
 {:else}
 <main class="columns">
     {#each posts as post (post.row_number)}
-        <article class="masonry-item bg-creme dark:bg-aubergine-80 rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 mb-6 group
+        <article class="masonry-item bg-creme-500 dark:bg-aubergine-80 rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:scale-105 mb-6 group
             {post.row_number === featuredPost?.row_number ? 'md:col-span-2 md:max-w-none' : ''}"
         >
             <a href={post.link} target="_blank" rel="noopener noreferrer" class="block">
@@ -131,15 +134,15 @@
                             loading="lazy"
                         />
                     {:else}
-                        <div class="w-full {post.row_number === featuredPost?.row_number ? 'h-64 md:h-96' : 'h-48'} bg-gray-200 dark:bg-aubergine-dark bg-gray-light flex items-center justify-center">
+                        <div class="w-full {post.row_number === featuredPost?.row_number ? 'h-64 md:h-96' : 'h-48'} bg-gray-200 dark:bg-aubergine-900 bg-gray-light flex items-center justify-center">
                             <span class="text-8xl opacity-30 transition-transform duration-300 group-hover:scale-110">🔑</span>
                         </div>
                     {/if}
-                    <div class="absolute top-4 right-4 bg-yellow text-black px-2 py-1 rounded-full text-xs font-medium">
+                    <div class="absolute top-4 right-4 bg-yellow-500 text-black px-2 py-1 rounded-full text-xs font-medium">
                         {post.category}
                     </div>
                     {#if post.row_number === featuredPost?.row_number}
-                        <div class="absolute top-4 left-4 bg-yellow text-black px-2 py-1 rounded-full text-xs font-medium">
+                        <div class="absolute top-4 left-4 bg-yellow-500 text-black px-2 py-1 rounded-full text-xs font-medium">
                             ⭐ Featured
                         </div>
                     {/if}

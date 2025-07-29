@@ -80,12 +80,11 @@ module.exports = {
         ...convertEnvValues(developmentEnv),
         // Stelle sicher, dass kritische Variablen immer verfügbar sind
         WEBHOOK_BASE: stringify(
-            developmentEnv.WEBHOOK_BASE ||
-                'https://n8n.chooomedia.com/webhook-test'
+            developmentEnv.WEBHOOK_BASE || 'https://n8n.chooomedia.com/webhook'
         ),
         WEBHOOK_TEST_BASE: stringify(
             developmentEnv.WEBHOOK_TEST_BASE ||
-                'https://n8n.chooomedia.com/webhook-test'
+                'https://n8n.chooomedia.com/webhook'
         )
     },
     production: {
@@ -98,7 +97,7 @@ module.exports = {
         ),
         WEBHOOK_TEST_BASE: stringify(
             productionEnv.WEBHOOK_TEST_BASE ||
-                'https://n8n.chooomedia.com/webhook-test'
+                'https://n8n.chooomedia.com/webhook'
         )
     }
 };

@@ -139,7 +139,18 @@ self.addEventListener('fetch', event => {
         strategy = networkFirstStrategy;
     }
 
-    event.respondWith(strategy(event.request));
+    try {
+        event.respondWith(strategy(event.request));
+    } catch (error) {
+        console.error('Service worker strategy failed:', error);
+        // Fallback to a basic error response
+        event.respondWith(
+            new Response('Service worker error', {
+                status: 500,
+                headers: { 'Content-Type': 'text/plain' }
+            })
+        );
+    }
 });
 
 // Cache Strategies
@@ -178,15 +189,29 @@ async function networkFirstStrategy(request) {
         }
         return response;
     } catch (error) {
+        console.warn('Network first strategy failed for:', request.url, error);
+
+        // Try to get from cache
         const cached = await caches.match(request);
-        if (cached) return cached;
+        if (cached) {
+            console.log('Serving from cache:', request.url);
+            return cached;
+        }
 
         // Offline fallback for navigation
         if (isNavigationRequest(request)) {
-            return caches.match(OFFLINE_URL);
+            const offlineResponse = await caches.match(OFFLINE_URL);
+            if (offlineResponse) {
+                console.log('Serving offline page for:', request.url);
+                return offlineResponse;
+            }
         }
 
-        throw error;
+        // Return a proper error response instead of throwing
+        return new Response('Network error happened', {
+            status: 408,
+            headers: { 'Content-Type': 'text/plain' }
+        });
     }
 }
 
@@ -200,8 +225,16 @@ async function staleWhileRevalidateStrategy(request) {
             return response;
         })
         .catch(error => {
-            console.log(`Failed to fetch ${request.url}:`, error);
-            throw error;
+            console.warn(`Failed to fetch ${request.url}:`, error);
+            // Return cached response if available, otherwise return error response
+            if (cached) {
+                console.log('Serving stale from cache:', request.url);
+                return cached;
+            }
+            return new Response('Network error happened', {
+                status: 408,
+                headers: { 'Content-Type': 'text/plain' }
+            });
         });
 
     return cached || networkPromise;
@@ -210,9 +243,13 @@ async function staleWhileRevalidateStrategy(request) {
 async function networkOnlyStrategy(request) {
     try {
         return await fetch(request);
-    } catch {
-        // No offline fallback for API requests
-        throw new Error('Network error');
+    } catch (error) {
+        console.warn('Network only strategy failed for:', request.url, error);
+        // Return a proper error response instead of throwing
+        return new Response('Network error happened', {
+            status: 408,
+            headers: { 'Content-Type': 'text/plain' }
+        });
     }
 }
 

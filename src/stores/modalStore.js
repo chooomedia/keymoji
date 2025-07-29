@@ -1,31 +1,98 @@
 // src/stores/modalStore.js
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
+import { isDevelopment, devLog } from '../utils/environment.js';
 
 /**
  * Zentralisierter Store für das Modal-System
+ * - Einheitliche Notification-Verwaltung
+ * - Debugging und Logging
+ * - Fehlerbehandlung
+ * - Smooth Initialisierung ohne Flackern
  */
 
 // Hauptstores für die Modal-Anzeige
 export const modalMessage = writable('');
 export const isModalVisible = writable(false);
-export const modalType = writable('info'); // 'info', 'success', 'error', 'warning', 'sending'
+export const modalType = writable('info'); // 'info', 'success', 'error', 'warning', 'sending', 'contact'
 export const modalData = writable({});
 
 // Timeout-Verwaltung
 let modalTimeout = null;
+let modalHistory = [];
+let isInitialized = false;
+
+/**
+ * Debug-Logging für Modal-Aktionen
+ */
+function debugLog(action, data = {}) {
+    if (isDevelopment()) {
+        devLog(`🔔 Modal ${action}:`, {
+            timestamp: new Date().toISOString(),
+            ...data
+        });
+    }
+}
+
+/**
+ * Initialisiert das Modal-System smooth
+ */
+function initializeModalSystem() {
+    if (isInitialized) return;
+
+    // Stelle sicher, dass alle Stores im korrekten Zustand sind
+    modalMessage.set('');
+    isModalVisible.set(false);
+    modalType.set('info');
+    modalData.set({});
+
+    // Lösche alle bestehenden Timeouts
+    if (modalTimeout) {
+        clearTimeout(modalTimeout);
+        modalTimeout = null;
+    }
+
+    isInitialized = true;
+    debugLog('INITIALIZED');
+}
 
 /**
  * Zeigt eine Modal-Nachricht mit optionalen Parametern an
  * @param {string} message - Der anzuzeigende Text
- * @param {string} type - Typ der Nachricht ('info', 'success', 'error', 'warning', 'sending')
+ * @param {string} type - Typ der Nachricht ('info', 'success', 'error', 'warning', 'sending', 'contact')
  * @param {number} duration - Anzeigedauer in ms, null für manuelle Schließung
  * @param {object} data - Zusätzliche Daten, die im Modal verwendet werden können
  */
 export function showModal(message, type = 'info', duration = 4000, data = {}) {
+    // Stelle sicher, dass das System initialisiert ist
+    if (!isInitialized) {
+        initializeModalSystem();
+    }
+
+    // Validierung
+    if (!message || typeof message !== 'string') {
+        console.error('❌ showModal: Invalid message provided:', message);
+        return null;
+    }
+
     // Bestehenden Timeout löschen
     if (modalTimeout) {
         clearTimeout(modalTimeout);
         modalTimeout = null;
+    }
+
+    // Modal-Historie für Debugging
+    const modalEntry = {
+        message,
+        type,
+        duration,
+        data,
+        timestamp: new Date().toISOString()
+    };
+    modalHistory.push(modalEntry);
+
+    // Nur die letzten 10 Einträge behalten
+    if (modalHistory.length > 10) {
+        modalHistory = modalHistory.slice(-10);
     }
 
     // Stores aktualisieren
@@ -37,9 +104,12 @@ export function showModal(message, type = 'info', duration = 4000, data = {}) {
         modalData.set(data);
     }
 
+    debugLog('SHOW', modalEntry);
+
     // Automatisches Schließen, wenn gewünscht
-    if (duration !== null) {
+    if (duration !== null && duration > 0) {
         modalTimeout = setTimeout(() => {
+            debugLog('AUTO_CLOSE', { message, type, duration });
             closeModal();
         }, duration);
     }
@@ -52,6 +122,11 @@ export function showModal(message, type = 'info', duration = 4000, data = {}) {
  * Schließt das Modal und setzt alle Werte zurück
  */
 export function closeModal() {
+    debugLog('CLOSE', {
+        currentMessage: get(modalMessage),
+        currentType: get(modalType)
+    });
+
     modalMessage.set('');
     isModalVisible.set(false);
     modalType.set('info');
@@ -91,6 +166,52 @@ export function showSending(message = 'Sending...', data = {}) {
     return showModal(message, 'sending', null, data);
 }
 
+/**
+ * Info-Nachricht anzeigen
+ */
+export function showInfo(message, duration = 4000, data = {}) {
+    return showModal(message, 'info', duration, data);
+}
+
+/**
+ * Kontakt-Nachricht anzeigen
+ */
+export function showContact(message, duration = 6000, data = {}) {
+    return showModal(message, 'contact', duration, data);
+}
+
+/**
+ * Debug-Funktion: Zeigt Modal-Historie an
+ */
+export function getModalHistory() {
+    if (isDevelopment()) {
+        console.log('📋 Modal History:', modalHistory);
+        return modalHistory;
+    }
+    return [];
+}
+
+/**
+ * Debug-Funktion: Zeigt aktuellen Modal-Status an
+ */
+export function getModalStatus() {
+    return {
+        message: get(modalMessage),
+        isVisible: get(isModalVisible),
+        type: get(modalType),
+        data: get(modalData),
+        hasTimeout: modalTimeout !== null
+    };
+}
+
+/**
+ * Debug-Funktion: Löscht Modal-Historie
+ */
+export function clearModalHistory() {
+    modalHistory = [];
+    debugLog('CLEAR_HISTORY');
+}
+
 // Exportiere ein Objekt mit allen Funktionen
 export default {
     modalMessage,
@@ -102,5 +223,10 @@ export default {
     showSuccess,
     showError,
     showWarning,
-    showSending
+    showSending,
+    showInfo,
+    showContact,
+    getModalHistory,
+    getModalStatus,
+    clearModalHistory
 };

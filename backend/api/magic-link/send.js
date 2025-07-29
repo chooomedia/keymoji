@@ -107,7 +107,7 @@ export default async function handler(req, res) {
                         userId: userId,
                         language: language || 'en',
                         timestamp: new Date().toISOString(),
-                        appVersion: process.env.APP_VERSION || '0.4.0'
+                        appVersion: process.env.APP_VERSION || '0.4.3'
                     })
                 });
             }

@@ -1,45 +1,58 @@
 <script>
-    import { currentLanguage, getText } from '../../stores/appStores.js';
+  import { onDestroy } from 'svelte';
+  
+  export let targetId = 'main-content';
+  export let label = 'Skip to main content';
+  
+  // Timeout-Tracking für Memory Leak Prevention
+  let activeTimeouts = new Set();
+  
+  // Helper-Funktion für sichere setTimeout mit Cleanup
+  function safeSetTimeout(callback, delay) {
+    const timeoutId = setTimeout(() => {
+      activeTimeouts.delete(timeoutId);
+      callback();
+    }, delay);
+    activeTimeouts.add(timeoutId);
+    return timeoutId;
+  }
+  
+  onDestroy(() => {
+    // Bereinige alle aktiven Timeouts
+    activeTimeouts.forEach(timeoutId => {
+      clearTimeout(timeoutId);
+    });
+    activeTimeouts.clear();
+  });
+
+  function handleSkip() {
+    const targetElement = document.getElementById(targetId);
     
-    // Props
-    export const target = "#main-content"; // ID of the main content
-    export const label = null; // Custom label
-    
-    // Get label from translation if not provided
-    $: skipLabel = 'Skip to content';
-    
-    // Define the missing handleClick function
-    function handleClick(event) {
-      event.preventDefault();
+    if (targetElement) {
+      // Make sure the element can receive focus
+      if (!targetElement.getAttribute('tabindex')) {
+        targetElement.setAttribute('tabindex', '-1');
+      }
       
-      // Find the target element
-      const targetElement = document.querySelector(target);
+      // Focus the element
+      targetElement.focus();
       
-      if (targetElement) {
-        // Make sure the element is focusable
-        if (!targetElement.hasAttribute('tabindex')) {
-          targetElement.setAttribute('tabindex', '-1');
-        }
-        
-        // Focus and scroll to the element
-        targetElement.focus();
-        
-        // Remove tabindex after focus (if it wasn't there originally)
-        if (targetElement.getAttribute('tabindex') === '-1') {
-          // Use a timeout to prevent immediate blur
-          setTimeout(() => {
-            targetElement.removeAttribute('tabindex');
-          }, 100);
-        }
+      // Remove tabindex after focus (if it wasn't there originally)
+      if (targetElement.getAttribute('tabindex') === '-1') {
+        // Use a timeout to prevent immediate blur
+        safeSetTimeout(() => {
+          targetElement.removeAttribute('tabindex');
+        }, 100);
       }
     }
+  }
 </script>
 
 <a
-  href={target}
+  href={`#${targetId}`}
   class="skip-link"
-  on:click={handleClick}
-  aria-label={skipLabel}
+  on:click={handleSkip}
+  aria-label={label}
 >
-  {skipLabel}
+  {label}
 </a>

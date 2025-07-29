@@ -1,18 +1,19 @@
 <!-- src/Layout.svelte -->
 <script>
     import { onMount, afterUpdate } from 'svelte';
-    import { currentLanguage, darkMode } from './stores/appStores.js';
-    import content from './content.js';
-    import { updatedTime } from './updatedTime.js';
-    import SkipLink from './components/A11y/SkipLink.svelte';
-    import ServiceWorkerHandler from './components/ServiceWorkerHandler.svelte';
-    import ErrorModal from './ErrorModal.svelte';
+    import { darkMode } from '../../stores/appStores.js';
+    import { currentLanguage } from '../../stores/contentStore.js';
+import { updatedTime } from '../../utils/timestamp.js';
+    import SkipLink from '../A11y/SkipLink.svelte';
+import ServiceWorkerHandler from '../ServiceWorkerHandler.svelte';
+import Modal from '../UI/Modal.svelte';
+import ModalDebug from '../UI/ModalDebug.svelte';
     
     // URL für Logging
     export const url = "";
     
     // Hintergrundbild-Eigenschaften
-    const hieroglyphicEmojisSrc = '../images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
+    const hieroglyphicEmojisSrc = '/images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
     const darkGradient = 'linear-gradient(-45deg, #050413, #040320f5, #080715, #040310)';
     const lightGradient = 'linear-gradient(-45deg, #e0e0e0f7, #f8f8f8f0, #ecececf0, #e0e0e0f2)';
     
@@ -99,7 +100,7 @@
         document.documentElement.lang = $currentLanguage;
         
         // Update special language class
-        if ($currentLanguage === 'qya') {
+        if ($currentLanguage === 'sjn') {
             document.body.classList.add('font-elvish');
         } else {
             document.body.classList.remove('font-elvish');
@@ -111,7 +112,10 @@
 <ServiceWorkerHandler />
 
 <!-- Modal Component - Always include it regardless of message state -->
-<ErrorModal />
+<Modal />
+
+<!-- Debug Component - Only in development -->
+<ModalDebug />
 
 <SkipLink target="#main-content" />
   

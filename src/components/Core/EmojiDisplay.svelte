@@ -1,21 +1,21 @@
 <!-- src/EmojiDisplay.svelte (updated) -->
 <script>
     import { fly } from 'svelte/transition';
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { 
-        currentLanguage, 
         successfulStoryRequests, 
         isDisabled 
-    } from './stores/appStores.js';
+    } from '../../stores/appStores.js';
     import { 
         showSuccess, 
         showError, 
         showWarning,
         isModalVisible
-    } from './stores/modalStore.js';
-    import emojisData from '../public/emojisArray.json';
-    import content from './content.js';
-    import { WEBHOOKS } from './config/api.js';
+    } from '../../stores/modalStore.js';
+    import { translations } from '../../stores/contentStore.js';
+import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
+    import emojisData from '../../../public/emojisArray.json';
+    import { WEBHOOKS } from '../../../src/config/api.js';
 
     // Props
     export let showEmojiCodes = false;
@@ -29,11 +29,25 @@
     let isStoryMode = false;
     let initialRenderComplete = false;
 
+    // Timeout-Tracking für Memory Leak Prevention
+    let activeTimeouts = new Set();
+    let modalVisibilityUnsubscribe;
+
     const emojis = emojisData.emojis;
   
     // Constants
     const DISABLE_DURATION_MS = 3000;
     const DAILY_LIMIT = 3;
+    
+    // Helper-Funktion für sichere setTimeout mit Cleanup
+    function safeSetTimeout(callback, delay) {
+        const timeoutId = setTimeout(() => {
+            activeTimeouts.delete(timeoutId);
+            callback();
+        }, delay);
+        activeTimeouts.add(timeoutId);
+        return timeoutId;
+    }
     
     // Lifecycle
     onMount(() => {
@@ -44,6 +58,28 @@
       }
       
       initialRenderComplete = true;
+      
+      // Subscribe to modal visibility with cleanup tracking
+      modalVisibilityUnsubscribe = isModalVisible.subscribe((visible) => {
+        if (visible) {
+          safeSetTimeout(() => {
+            shouldAnimateEmojis = true;
+          }, 1000);
+        }
+      });
+    });
+    
+    onDestroy(() => {
+      // Bereinige alle aktiven Timeouts
+      activeTimeouts.forEach(timeoutId => {
+        clearTimeout(timeoutId);
+      });
+      activeTimeouts.clear();
+      
+      // Bereinige Store-Subscriptions
+      if (modalVisibilityUnsubscribe) {
+        modalVisibilityUnsubscribe();
+      }
     });
   
     // Main Functions
@@ -73,7 +109,7 @@
         if (response?.length > 0) {
           await handleSuccessfulStoryGeneration(response);
         } else {
-          showErrorMessage(content[$currentLanguage].emojiDisplay.errorMessage);
+          showErrorMessage($translations.emojiDisplay.errorMessage);
         }
       } catch (error) {
         handleError('Story Generation Error', error);
@@ -84,7 +120,7 @@
     function checkLimits() {
       if ($isDisabled || isDailyLimitReached()) {
         isDisabled.set(true);
-        showErrorMessage(content[$currentLanguage].emojiDisplay.dailyLimitReachedMessage);
+        showErrorMessage($translations.emojiDisplay.dailyLimitReachedMessage);
         return true;
       }
       return false;
@@ -92,7 +128,7 @@
   
     async function handleSuccessfulGeneration(countTowardsLimit = true) {
       await copyToClipboard(randomEmojis.join(' '));
-      showSuccessMessage(content[$currentLanguage].emojiDisplay.successMessage);
+      showSuccessMessage($translations.emojiDisplay.successMessage);
       showTextArea = false;
       temporarilyDisableButton();
       
@@ -105,7 +141,7 @@
     async function handleSuccessfulStoryGeneration(response) {
       randomEmojis = response;
       await copyToClipboard(randomEmojis.join(' '));
-      showSuccessMessage(content[$currentLanguage].emojiDisplay.successStoryMessage);
+              showSuccessMessage($translations.emojiDisplay.successStoryMessage);
       shouldAnimateEmojis = true;
       incrementDailyRequestCount();
     }
@@ -144,6 +180,9 @@
   
     async function copyToClipboard(text) {
     const cleanText = text.replace(/ /g, '');
+    
+    // Save to recent emojis
+    saveToRecentEmojis(cleanText);
     
     try {
         // Fokussiere das Dokument zuerst
@@ -187,7 +226,7 @@
         
         // Zeige alternative Lösung
         showWarning(
-            content[$currentLanguage]?.emojiDisplay?.clipboardError || 
+            $translations.emojiDisplay.clipboardError || 
             'Unable to copy automatically. Click the emoji display to copy!'
         );
         
@@ -198,13 +237,13 @@
   
     function handleError(type, error) {
       console.error(`${type}:`, error);
-      showErrorMessage(content[$currentLanguage].emojiDisplay.errorMessage);
+              showErrorMessage($translations.emojiDisplay.errorMessage);
     }
   
     // State Management Functions
     function temporarilyDisableButton() {
       isDisabled.set(true);
-      setTimeout(() => isDisabled.set(false), DISABLE_DURATION_MS);
+      safeSetTimeout(() => isDisabled.set(false), DISABLE_DURATION_MS);
     }
   
     function showErrorMessage(message) {
@@ -217,11 +256,11 @@
   
     // Local Storage Functions
     function getDailyRequestCount() {
-      return parseInt(localStorage.getItem('dailyRequestCount') || '0', 10);
+      return parseInt(storageHelpers.get(STORAGE_KEYS.DAILY_REQUEST_COUNT, '0'), 10);
     }
   
     function setDailyRequestCount(count) {
-      localStorage.setItem('dailyRequestCount', count.toString());
+      storageHelpers.set(STORAGE_KEYS.DAILY_REQUEST_COUNT, count);
     }
   
     function incrementDailyRequestCount() {
@@ -233,12 +272,29 @@
     }
   
     function checkAndResetDailyLimit() {
-      const storedDate = localStorage.getItem('storedDate');
+      const storedDate = storageHelpers.get(STORAGE_KEYS.STORED_DATE);
       const currentDate = new Date().toDateString();
   
       if (storedDate !== currentDate) {
         resetDailyRequestCount();
-        localStorage.setItem('storedDate', currentDate);
+        storageHelpers.set(STORAGE_KEYS.STORED_DATE, currentDate);
+      }
+    }
+    
+    // Recent Emojis Management
+    function saveToRecentEmojis(emojiString) {
+      try {
+        const recent = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
+        
+        // Remove if already exists (to move to front)
+        const filtered = recent.filter(emoji => emoji !== emojiString);
+        
+        // Add to front, limit to 10 items
+        const updated = [emojiString, ...filtered].slice(0, 10);
+        
+        storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, updated);
+      } catch (error) {
+        console.warn('Failed to save recent emoji:', error);
       }
     }
   
@@ -277,37 +333,30 @@
         showTextArea = true;
       }
     }
-  
-    // Reactive Statements
-    $: if ($isModalVisible) {
-      setTimeout(() => {
-        shouldAnimateEmojis = true;
-      }, 1000);
-    }
 </script>
   
-<div id="emoji-password-generator" class="flex flex-col space-t-6 rounded-xl relative">
+<div id="emoji-password-generator" class="flex flex-col space-t-6 rounded-xl relative w-full">
     <!-- Emoji Display Section -->
     <button 
       id="emoji-display" 
       tabindex="0" 
-      class="max-w-72 flex flex-row h-14 justify-center items-center transform scale-114 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-117 focus:outline-none text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray z-10" 
+      class="max-w-72 flex flex-row h-14 justify-center items-center transform scale-114 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-117 text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray-400 z-10" 
       on:click={generateRandomEmojis} 
       on:keydown={e => e.key === 'Enter' && generateRandomEmojis()} 
-      aria-label={content[$currentLanguage].emojiDisplay.clickToCopy} 
+              aria-label={$translations.emojiDisplay.clickToCopy} 
       aria-live="polite"
       aria-pressed="false"
     >
-      <div class="mt-1 md:mt-0 flex gap-2">
+      <div class="mt-1 md:mt-0 flex gap-2 overflow-visible">
         {#if randomEmojis && randomEmojis.length > 0}
           {#each randomEmojis.filter(isVisible) as emoji, index (emoji)}
-            <span class="text-2xl md:text-3xl" in:fly={{y: 100, duration: 300, delay: index * 300}}>
+            <span class="text-2xl md:text-3xl" in:fly={{y: 50, duration: 300, delay: index * 100}}>
               {getEmojiDisplay(emoji)}
             </span>
           {/each}
         {:else}
           <div class="text-xs">
-            {content[$currentLanguage].emojiDisplay.dailyLimitReachedMessage || "Sorry, daily limit of requests reached 😔"}
+            {$translations.emojiDisplay.dailyLimitReachedMessage}
           </div>
         {/if}
       </div>
@@ -316,7 +365,7 @@
     <!-- Instructions Section -->
     <div class="flex flex-wrap justify-center items-center">
       <h2 class="mt-1 text-xs text-center dark:text-white z-10">
-        {#each content[$currentLanguage].index.pageInstruction as instruction, i}
+        {#each $translations.index.pageInstruction as instruction, i}
           {#if i === 0}
             <p><u>Story Mode coming soon</u></p>
           {:else}
@@ -327,7 +376,7 @@
     </div>
   
     <!-- Emoji Count Slider -->
-    <div class="flex flex-auto items-baseline md:w-100 space-x-4 my-1 pt-1 dark:text-white">
+    <div class="flex flex-auto items-baseline md:w-100 space-x-4 my-1 pt-1 dark:text-white w-full">
       <label for="emojiCount">Level</label>
       <input 
         type="range" 
@@ -335,7 +384,7 @@
         min="4" 
         max="9" 
         bind:value={emojiCount} 
-        class="md:w-100 w-screen mt-3 appearance-none rounded-full bg-gray h-2 transition-all" 
+        class="md:w-100 w-full mt-3 appearance-none rounded-full bg-gray-600 h-2 transition-all" 
       />
       <span>{emojiCount}</span>
     </div>
@@ -344,55 +393,55 @@
     {#if showTextArea}
       <textarea 
         bind:value={storyInput} 
-        placeholder={content[$currentLanguage].emojiDisplay.placeholderText} 
-        class="appearance-none block w-full text-gray-dark rounded-2xl py-3 px-4 md:mb-3 leading-tight transition duration-300 ease-in-out transform dark:bg-aubergine-dark dark:text-white focus:outline-none focus:bg-white" 
+        placeholder={$translations.emojiDisplay.placeholderText} 
+        class="appearance-none block w-full text-gray rounded-2xl py-3 px-4 md:mb-3 leading-tight transition duration-300 ease-in-out transform dark:bg-aubergine-900 dark:text-white  focus:bg-white" 
         on:keydown={handleTextareaKeydown} 
         minlength="40"
       />
       <p class="text-sm text-gray text-left py-3" aria-label="information">
-        {content[$currentLanguage].emojiDisplay.dataPrivacyProcessingInfo}
+        {$translations.emojiDisplay.dataPrivacyProcessingInfo}
       </p>
       <button aria-label="Clear the form inputs" 
         on:click={clearInput} 
-        class="bg-white dark:bg-aubergine-dark text-gray-dark dark:text-white transition duration-300 ease-in-out transform hover:scale-105 px-3 py-3 rounded-full"
+        class="bg-white dark:bg-aubergine-900 text-gray transition duration-300 ease-in-out transform hover:scale-105 px-3 py-3 rounded-full"
       >
-        {content[$currentLanguage].emojiDisplay.clearButton}
+        {$translations.emojiDisplay.clearButton}
       </button>
     {/if}
   
     <!-- Action Buttons -->
     <div 
       role="main"
-      aria-label={content[$currentLanguage].emojiDisplay.emojiDisplayTitle} 
+              aria-label={$translations.emojiDisplay.emojiDisplayTitle} 
       class="flex space-x-4 mt-3 mb-2"
     >
       {#if isStoryMode}
         <button aria-label="Generate your writte Story into fitting emojis" 
           on:click={generateEmojis} 
-          class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full"
+          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-4 rounded-full"
         >
-          {content[$currentLanguage].emojiDisplay.storyButtonClicked}
+          {$translations.emojiDisplay.storyButtonClicked}
         </button>
       {:else}
         <button aria-label="Toggle Story Form" 
           on:click={toggleStoryMode} 
-          class="bg-powder text-black dark:bg-aubergine-dark dark:text-powder shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full opacity-50 cursor-not-allowed" 
+          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-4 rounded-full opacity-50 cursor-not-allowed" 
           disabled
         >
-          🔜 {content[$currentLanguage].emojiDisplay.storyButton}
+          🔜 {$translations.emojiDisplay.storyButton}
         </button>
       {/if}
   
       <button
-        aria-label={content[$currentLanguage].emojiDisplay.randomButton}
+        aria-label={$translations.emojiDisplay.randomButton}
         on:click={() => generateRandomEmojis(true)} 
         on:keydown={handleKeyPress} 
-        class="bg-yellow text-black shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full"
+        class="bg-yellow-500 text-black shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full"
         class:opacity-50={$isDisabled}
         class:cursor-not-allowed={$isDisabled}
         disabled={$isDisabled}
       >
-        {content[$currentLanguage].emojiDisplay.randomButton}
+        {$translations.emojiDisplay.randomButton}
       </button>
     </div>
 </div>

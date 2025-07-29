@@ -2,154 +2,132 @@
 import Root from './routes/LanguageRouter.svelte';
 import './index.css';
 import { appVersion, versionInfo } from './utils/version.js';
-import { showSuccess, showWarning } from './stores/modalStore.js';
-import content from './content.js';
+import { closeModal, isModalVisible } from './stores/modalStore.js';
+import {
+    getEnvironment,
+    isDevelopment,
+    isProduction,
+    devLog,
+    devWarn
+} from './utils/environment.js';
 
 // Get the current URL
 const currentUrl = window.location.pathname;
 
-// Umgebungsvariablen sicher abfragen
-const getEnvironment = () => {
-    try {
-        return typeof process !== 'undefined' &&
-            process.env &&
-            process.env.NODE_ENV
-            ? process.env.NODE_ENV
-            : 'production';
-    } catch (e) {
-        console.warn(
-            'Could not access environment variables, defaulting to production'
-        );
-        return 'production';
-    }
-};
-
-// Überprüfe, ob die aktuelle URL den Sprachcode enthält
-// Falls nicht, sollte der Server-Redirect bereits stattgefunden haben
 const ensureLanguageInPath = () => {
-    const path = window.location.pathname;
-    const pathSegments = path.split('/').filter(segment => segment !== '');
+    const pathSegments = currentUrl
+        .split('/')
+        .filter(segment => segment !== '');
 
-    // Wenn die Pfadsegmente leer sind (Wurzel-URL) oder das erste Segment
-    // nicht wie ein Sprachcode aussieht, logge eine Warnung
-    if (pathSegments.length === 0 || pathSegments[0].length !== 2) {
-        console.warn(
-            'URL does not contain language code, server-side redirect may have failed:',
-            path
-        );
+    if (pathSegments.length === 0) {
+        devWarn('⚠️ Development: Root path detected, should redirect to /en');
     }
 };
 
-const environment = getEnvironment();
-console.log(
-    'Starting app with URL:',
-    currentUrl,
-    'Version:',
-    appVersion,
-    'Environment:',
-    environment
-);
+// SEO-optimierte App-Initialisierung
+const initializeModalSmoothly = () => {
+    if (typeof document !== 'undefined') {
+        const handleDOMReady = () => {
+            if (isModalVisible) {
+                closeModal();
+            }
+        };
 
-// Sprachcode-Prüfung im Development-Modus
-if (environment === 'development') {
-    ensureLanguageInPath();
-}
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', handleDOMReady);
+        } else {
+            handleDOMReady();
+        }
+    }
+};
+
+// SEO-optimierte Preload-State-Verarbeitung
+const initializePreloadedState = () => {
+    if (window.__PRELOADED_STATE__) {
+        const { route, language, seoData } = window.__PRELOADED_STATE__;
+
+        // SEO-optimierte State-Initialisierung
+        if (route && language) {
+            devLog('🔍 Preloaded state detected:', { route, language });
+
+            // Setze initiale Route für bessere SEO
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', route);
+            }
+        }
+
+        // Cleanup preloaded state
+        delete window.__PRELOADED_STATE__;
+    }
+};
+
+const initializeApp = () => {
+    if (isDevelopment()) {
+        ensureLanguageInPath();
+    }
+
+    initializeModalSmoothly();
+    initializePreloadedState();
+
+    devLog('🚀 Keymoji App Starting:', {
+        version: appVersion,
+        codename: versionInfo.codename,
+        environment: getEnvironment(),
+        url: currentUrl
+    });
+};
+
+initializeApp();
 
 const app = new Root({
-    target: document.body,
-    props: {
-        url: currentUrl,
-        currentVersion: appVersion
-    }
+    target: document.body
 });
 
-// Enhanced Service Worker Registration with update handling
-if ('serviceWorker' in navigator && environment === 'production') {
+// SEO-optimierte Service Worker-Registrierung
+if (isProduction() && 'serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
         try {
             const registration = await navigator.serviceWorker.register(
                 '/service-worker.js'
             );
-            console.log(
-                'ServiceWorker registration successful with scope:',
+
+            devLog(
+                'Service Worker registered successfully:',
                 registration.scope
             );
 
-            // Handle service worker updates
-            registration.addEventListener('updatefound', () => {
-                const newWorker = registration.installing;
-
-                // Track state changes of the new service worker
-                newWorker.addEventListener('statechange', () => {
-                    if (
-                        newWorker.state === 'installed' &&
-                        navigator.serviceWorker.controller
-                    ) {
-                        // New version installed but waiting to activate
-                        console.log(
-                            'New version available! Ready when you are...'
-                        );
-
-                        // Store update availability in session storage
-                        sessionStorage.setItem('swUpdateAvailable', 'true');
-
-                        // Zeige Update-Meldung mit dem einheitlichen Modal-System
-                        const defaultMessage =
-                            'A new version is available. Refresh to update!';
-
-                        // Use the unified modal system
-                        showWarning(
-                            content.en?.serviceWorker?.updateAvailable ||
-                                defaultMessage,
-                            0, // Don't auto-close
-                            {
-                                buttonText: 'Refresh Now',
-                                buttonAction: () => {
-                                    newWorker.postMessage({
-                                        type: 'SKIP_WAITING'
-                                    });
-                                    window.location.reload();
-                                }
-                            }
-                        );
-                    }
-                });
-            });
-
-            // Handle messages from service worker
-            navigator.serviceWorker.addEventListener('message', event => {
+            // SEO-optimierte Update-Behandlung
+            const messageHandler = event => {
                 if (event.data && event.data.type === 'SW_UPDATED') {
-                    console.log(
+                    devLog(
                         `Service Worker updated to version ${event.data.version}`
                     );
                 }
-            });
+            };
 
-            // Check for updates periodically (every 60 minutes)
-            setInterval(() => {
-                registration.update();
-            }, 60 * 60 * 1000);
+            navigator.serviceWorker.addEventListener('message', messageHandler);
 
-            // Set up periodic sync if supported
-            if ('periodicSync' in registration) {
+            // SEO-optimierte Background Sync
+            if ('sync' in registration) {
                 try {
-                    await registration.periodicSync.register('update-cache', {
-                        minInterval: 24 * 60 * 60 * 1000 // Once a day
-                    });
+                    await registration.sync.register('background-sync');
+                    devLog('Background sync registered successfully');
                 } catch (error) {
-                    console.log(
-                        'Periodic Sync could not be registered:',
-                        error
-                    );
+                    devLog('Periodic Sync could not be registered:', error);
                 }
             }
 
-            // Handle offline/online status changes
-            window.addEventListener('online', async () => {
+            // SEO-optimierte Push-Benachrichtigungen
+            if ('pushManager' in registration) {
                 try {
-                    const reg = await navigator.serviceWorker.ready;
-                    if ('sync' in reg) {
-                        await reg.sync.register('syncData');
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        const subscription =
+                            await registration.pushManager.subscribe({
+                                userVisibleOnly: true,
+                                applicationServerKey: 'your-vapid-public-key'
+                            });
+                        devLog('Push notification subscription successful');
                     }
                 } catch (error) {
                     console.error(
@@ -157,19 +135,44 @@ if ('serviceWorker' in navigator && environment === 'production') {
                         error
                     );
                 }
-            });
+            }
         } catch (error) {
-            console.error('ServiceWorker registration failed:', error);
+            devLog('Service Worker registration failed:', error);
         }
     });
 } else {
-    console.log(`Running in ${environment} mode - Service Worker disabled`);
+    devLog(`Running in ${getEnvironment()} mode - Service Worker disabled`);
 }
 
-// Add version info to console
+// SEO-optimierte Console-Info
 console.info(
     `%c Keymoji ${appVersion} (${versionInfo.codename}) `,
     'background: #f4ab25; color: #000; padding: 4px; border-radius: 4px;'
 );
+
+// SEO-optimierte Performance-Monitoring
+if (isProduction()) {
+    // Core Web Vitals Monitoring
+    if ('PerformanceObserver' in window) {
+        try {
+            const observer = new PerformanceObserver(list => {
+                for (const entry of list.getEntries()) {
+                    if (entry.entryType === 'largest-contentful-paint') {
+                        devLog('LCP:', entry.startTime);
+                    }
+                    if (entry.entryType === 'first-input') {
+                        devLog('FID:', entry.processingStart - entry.startTime);
+                    }
+                }
+            });
+
+            observer.observe({
+                entryTypes: ['largest-contentful-paint', 'first-input']
+            });
+        } catch (error) {
+            devLog('Performance monitoring failed:', error);
+        }
+    }
+}
 
 export default app;

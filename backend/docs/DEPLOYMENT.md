@@ -57,7 +57,7 @@ vercel --prod
 | Variable      | Beschreibung | Standard              |
 | ------------- | ------------ | --------------------- |
 | `VERCEL_URL`  | Vercel URL   | Automatisch gesetzt   |
-| `APP_VERSION` | App Version  | `0.4.0`               |
+| `APP_VERSION` | App Version  | `0.4.3`               |
 | `NODE_ENV`    | Environment  | `development`         |
 | `CORS_ORIGIN` | CORS Origin  | `https://keymoji.wtf` |
 

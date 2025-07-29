@@ -3,9 +3,7 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-::-webkit-scrollbar {
-    display: none;
-}
+
 
 .hieroglyphemojis {
     animation: gradient 270s ease infinite;
@@ -31,12 +29,22 @@
     height: 100%;
     box-sizing: border-box;
     scroll-behavior: smooth;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb-light) var(--scrollbar-track-light);
 }
 
 :global(body) {
     margin: 0;
     padding: 0;
     min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 :global(.dark) {
@@ -59,31 +67,10 @@
     }
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-* {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
-}
-
-/* Ensure content is always scrollable but scrollbar hidden */
-html,
-body {
-    overflow-y: auto;
-    overflow-x: hidden;
-    margin-right: 0 !important;
-    /* Prevent layout shift */
-    width: 100vw;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
 /* Container styles to ensure proper scrolling behavior */
 .scroll-container {
     height: 100vh;
     overflow-y: auto;
-    overflow-x: hidden;
     position: relative;
     -webkit-overflow-scrolling: touch;
     /* Smooth scrolling on iOS */
@@ -91,31 +78,142 @@ body {
 
 /* Prevent horizontal scrollbar */
 .wrapper {
-    overflow-x: clip;
     position: relative;
     width: 100%;
+}
+
+/* Global scrollbar styling - EINFACHE & EFFEKTIVE Lösung */
+@layer utilities {
+
+    /* CSS Variables mit Tailwind-Farben */
+    :root {
+        --scrollbar-track-light: theme('colors.gray.200');
+        --scrollbar-thumb-light: theme('colors.gray.400');
+        --scrollbar-track-dark: theme('colors.gray.800');
+        --scrollbar-thumb-dark: theme('colors.gray.600');
+    }
+
+    /* Scrollbar-Styling bereits in :global(html) oben definiert */
+
+    /* WebKit: Sichtbare Scrollbar */
+    :global(html::-webkit-scrollbar) {
+        width: 8px;
+    }
+
+    :global(html::-webkit-scrollbar-track) {
+        background: var(--scrollbar-track-light);
+        border-radius: 4px;
+    }
+
+    :global(html::-webkit-scrollbar-thumb) {
+        background: var(--scrollbar-thumb-light);
+        border-radius: 4px;
+    }
+
+    /* Dark mode scrollbar */
+    :global(.dark) :global(html::-webkit-scrollbar-track) {
+        background: var(--scrollbar-track-dark);
+    }
+
+    :global(.dark) :global(html::-webkit-scrollbar-thumb) {
+        background: var(--scrollbar-thumb-dark);
+    }
+
+    /* Custom scrollbar für alle scrollbaren Bereiche */
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar-thumb-light) var(--scrollbar-track-light);
+    }
+
+    /* Dark mode scrollbar */
+    .dark .scrollbar-thin {
+        scrollbar-color: var(--scrollbar-thumb-dark) var(--scrollbar-track-dark) !important;
+    }
+
+    /* WebKit scrollbar styling */
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: var(--scrollbar-track-light);
+        border-radius: 4px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb-light);
+        border-radius: 4px;
+    }
+
+    .dark .scrollbar-thin::-webkit-scrollbar-track {
+        background: var(--scrollbar-track-dark);
+    }
+
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb-dark);
+    }
+
+    /* Smooth scrolling für mobile Geräte */
+    .scroll-smooth {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Konsistente Scrollbar-Behandlung */
+    .scrollbar-consistent {
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar-thumb-light) var(--scrollbar-track-light);
+    }
+
+    .scrollbar-consistent::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .scrollbar-consistent::-webkit-scrollbar-track {
+        background: var(--scrollbar-track-light);
+        border-radius: 4px;
+    }
+
+    .scrollbar-consistent::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb-light);
+        border-radius: 4px;
+    }
+
+    .dark .scrollbar-consistent::-webkit-scrollbar-track {
+        background: var(--scrollbar-track-dark);
+    }
+
+    .dark .scrollbar-consistent::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb-dark);
+    }
+
+    /* Hide scrollbar für spezielle Bereiche */
+    .scrollbar-none {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 @layer components {
 
     .contact-input {
-        @apply w-full bg-white dark:bg-aubergine-dark dark:text-white rounded-xl p-4 border border-gray-light dark:border-aubergine focus:ring-1 focus:ring-yellow focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
+        @apply w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl p-4 border border-gray-light dark:border-aubergine-800 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
     }
 
     .contact-checkbox {
-        @apply bg-white dark:bg-aubergine-dark rounded-xl p-4 border border-gray-light dark:border-aubergine focus:ring-1 focus:ring-yellow focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
-    }
-
-    .form-error {
-        @apply text-red-500 text-xs mt-1 pl-2;
+        @apply bg-white dark:bg-aubergine-900 rounded-xl p-4 border dark:border-aubergine-800 border-creme-500 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
     }
 
     .btn-primary {
-        @apply bg-yellow hover:bg-yellow text-black px-6 py-3 rounded-full font-medium transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow focus:ring-offset-2 w-full;
+        @apply bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-3 rounded-full font-medium transition-all duration-200 transform hover:scale-105 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 w-full;
     }
 
     .btn-secondary {
-        @apply bg-powder dark:bg-aubergine-dark text-black dark:text-powder px-6 py-3 rounded-full border border-transparent hover:border-yellow transition-all duration-200 w-full;
+        @apply bg-powder-50 dark:bg-aubergine-900 text-black dark:text-powder-50 px-6 py-3 rounded-full border border-transparent hover:border-yellow-300 transition-all duration-200 w-full;
     }
 
     .btn-primary:disabled {
@@ -123,19 +221,20 @@ body {
     }
 
     .btn {
-        @apply transition transform hover:scale-105 focus:outline-none rounded-full;
+        @apply transition transform hover:scale-105 rounded-full;
     }
 
     .btn-default {
-        @apply relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder;
+        @apply relative bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50;
+        height: 50px;
     }
 
     .btn-fixed {
-        @apply fixed bg-powder text-black dark:bg-aubergine-dark dark:text-powder border-4 border-creme dark:border-aubergine;
+        @apply bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 border-4 border-creme-50 dark:border-aubergine-800;
     }
 
     .btn-yellow {
-        @apply bg-yellow text-black;
+        @apply bg-yellow-500 text-black;
     }
 
     .btn-sm {
@@ -143,9 +242,8 @@ body {
     }
 
     .btn-md {
-        @apply px-4 text-xl;
-        padding-top: 14px;
-        padding-bottom: 14px;
+        @apply px-4 py-3;
+        height: 56px;
     }
 
     .btn-menu {
@@ -176,11 +274,24 @@ body {
         display: flex;
         flex-direction: column;
         min-height: 100vh;
+        overflow-x: hidden;
+        width: 100%;
+    }
+
+    /* EmojiDisplay spezielle Behandlung */
+    #emoji-password-generator {
+        overflow: visible;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #emoji-display {
+        overflow: visible;
     }
 
     /* Sicherstellen der Inhalts-Sichtbarkeit während Animationen */
     :global(body) {
-        overflow-x: hidden;
+        /* Keine overflow-x Beschränkung mehr */
     }
 
     /* Barrierefreiheitsverbesserungen */
@@ -273,7 +384,7 @@ body {
 /* Elvish Font Definition */
 @font-face {
     font-family: 'Tengwar Annatar';
-    src: url('./tengwar_annatar.ttf') format('truetype');
+    src: url('../public/fonts/tengwar_annatar.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;

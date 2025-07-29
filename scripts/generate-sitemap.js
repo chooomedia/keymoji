@@ -1,33 +1,19 @@
 // scripts/generate-sitemap.js
+// Generiert eine vollständige XML-Sitemap für bessere SEO
 const fs = require('fs');
 const path = require('path');
 
-// Prüfe ob updatedTime.js importiert werden kann
-let updatedTime;
-try {
-    const updatedTimePath = path.join(__dirname, '../src/updatedTime.js');
-    const updatedTimeContent = fs.readFileSync(updatedTimePath, 'utf8');
+// SEO-optimierte Routen-Konfiguration
+const routes = [
+    { path: '/', priority: '1.0', changefreq: 'daily' },
+    { path: '/versions', priority: '0.8', changefreq: 'weekly' },
+    { path: '/contact', priority: '0.7', changefreq: 'monthly' },
+    { path: '/blog', priority: '0.9', changefreq: 'weekly' }
+];
 
-    // Extrahiere das Datum mit Regex (robuster als Import)
-    const dateMatch = updatedTimeContent.match(
-        /['"](\d{4}-\d{2}-\d{2}T[^'"]+)['"]/
-    );
-    if (dateMatch && dateMatch[1]) {
-        updatedTime = dateMatch[1];
-    } else {
-        updatedTime = new Date().toISOString();
-        console.warn(
-            'Could not extract date from updatedTime.js, using current date'
-        );
-    }
-} catch (error) {
-    console.warn('Error reading updatedTime.js:', error);
-    updatedTime = new Date().toISOString();
-}
-
-// Definiere die unterstützten Sprachen manuell, um Probleme beim Parsen von content.js zu vermeiden
+// Unterstützte Sprachen
 const languages = [
-    'en', // Englisch ist die Standardsprache
+    'en',
     'de',
     'dech',
     'es',
@@ -35,99 +21,181 @@ const languages = [
     'it',
     'fr',
     'pl',
-    'da',
     'ru',
     'tr',
     'af',
     'ja',
     'ko',
     'tlh',
-    'qya'
+    'sjn'
 ];
 
-// Define the base URL
-const baseUrl = 'https://keymoji.wtf';
+// Generiere XML-Sitemap
+function generateSitemap() {
+    const baseUrl = 'https://keymoji.wtf';
+    const currentDate = new Date().toISOString();
 
-// Define all routes (without language prefix)
-const routes = ['/', '/blog', '/versions', '/contact'];
-
-// Generate the sitemap XML content
-let sitemapContent = '<?xml version="1.0" encoding="UTF-8"?>\n';
-sitemapContent +=
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" ';
-sitemapContent += 'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n';
-
-// Add entries for each route in each language
-routes.forEach(route => {
-    // Haupteintrag - immer mit /en (Standardsprache)
-    const canonicalUrl =
-        route === '/' ? `${baseUrl}/en` : `${baseUrl}/en${route}`;
-
-    sitemapContent += '  <url>\n';
-    sitemapContent += `    <loc>${canonicalUrl}</loc>\n`;
-    sitemapContent += `    <lastmod>${updatedTime.split('T')[0]}</lastmod>\n`;
-    sitemapContent += '    <changefreq>weekly</changefreq>\n';
-
-    // Set priority (home page has highest priority)
-    const priority = route === '/' ? '1.0' : '0.8';
-    sitemapContent += `    <priority>${priority}</priority>\n`;
-
-    // Add alternate language versions
-    languages.forEach(lang => {
-        const langUrl =
-            route === '/' ? `${baseUrl}/${lang}` : `${baseUrl}/${lang}${route}`;
-
-        sitemapContent += `    <xhtml:link rel="alternate" hreflang="${lang}" href="${langUrl}" />\n`;
-    });
-
-    // Add x-default hreflang (pointing to English version)
-    sitemapContent += `    <xhtml:link rel="alternate" hreflang="x-default" href="${canonicalUrl}" />\n`;
-
-    sitemapContent += '  </url>\n';
-
-    // Add language-specific URLs (except for English which is already added as canonical)
-    languages
-        .filter(lang => lang !== 'en')
-        .forEach(lang => {
-            const langUrl =
-                route === '/'
-                    ? `${baseUrl}/${lang}`
-                    : `${baseUrl}/${lang}${route}`;
-
-            sitemapContent += '  <url>\n';
-            sitemapContent += `    <loc>${langUrl}</loc>\n`;
-            sitemapContent += `    <lastmod>${
-                updatedTime.split('T')[0]
-            }</lastmod>\n`;
-            sitemapContent += '    <changefreq>weekly</changefreq>\n';
-            sitemapContent += `    <priority>${priority}</priority>\n`;
-
-            // Add canonical link to English version
-            sitemapContent += `    <xhtml:link rel="alternate" hreflang="${lang}" href="${langUrl}" />\n`;
-            sitemapContent += `    <xhtml:link rel="alternate" hreflang="en" href="${canonicalUrl}" />\n`;
-            sitemapContent += `    <xhtml:link rel="alternate" hreflang="x-default" href="${canonicalUrl}" />\n`;
-
-            sitemapContent += '  </url>\n';
-        });
-});
-
-sitemapContent += '</urlset>';
-
-// Write the sitemap XML file
-const sitemapPath = path.join(__dirname, '../public/sitemap.xml');
-fs.writeFileSync(sitemapPath, sitemapContent);
-
-console.log('Sitemap generated successfully at', sitemapPath);
-
-// Create robots.txt
-const robotsContent = `User-agent: *
-Allow: /
-
-# Sitemaps
-Sitemap: ${baseUrl}/sitemap.xml
+    let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 `;
 
-const robotsPath = path.join(__dirname, '../public/robots.txt');
-fs.writeFileSync(robotsPath, robotsContent);
+    // Generiere URLs für jede Route und Sprache
+    routes.forEach(route => {
+        languages.forEach(lang => {
+            const url =
+                route.path === '/'
+                    ? `${baseUrl}/${lang}`
+                    : `${baseUrl}/${lang}${route.path}`;
 
-console.log('robots.txt generated successfully at', robotsPath);
+            const lastmod = currentDate;
+
+            sitemap += `  <url>
+    <loc>${url}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${route.changefreq}</changefreq>
+    <priority>${route.priority}</priority>`;
+
+            // Füge hreflang-Links hinzu
+            languages.forEach(altLang => {
+                const altUrl =
+                    route.path === '/'
+                        ? `${baseUrl}/${altLang}`
+                        : `${baseUrl}/${altLang}${route.path}`;
+
+                sitemap += `
+    <xhtml:link rel="alternate" hreflang="${altLang}" href="${altUrl}" />`;
+            });
+
+            // Füge x-default hinzu
+            const defaultUrl = `${baseUrl}${route.path}`;
+            sitemap += `
+    <xhtml:link rel="alternate" hreflang="x-default" href="${defaultUrl}" />`;
+
+            sitemap += `
+  </url>
+`;
+        });
+    });
+
+    sitemap += `</urlset>`;
+
+    return sitemap;
+}
+
+// Generiere robots.txt
+function generateRobotsTxt() {
+    return `User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://keymoji.wtf/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Block unnecessary files
+Disallow: /api/
+Disallow: /admin/
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /static/js/
+Disallow: /static/css/
+
+# Allow important files
+Allow: /manifest.json
+Allow: /service-worker.js
+Allow: /favicon.ico
+Allow: /images/
+Allow: /fonts/
+
+# Social Media Bot Optimization
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: Discordbot
+Allow: /
+
+User-agent: Signal
+Allow: /
+
+User-agent: embedly
+Allow: /
+
+User-agent: quora
+Allow: /
+
+User-agent: outbrain
+Allow: /
+
+User-agent: pinterest
+Allow: /
+
+User-agent: vkShare
+Allow: /
+
+User-agent: W3C_Validator
+Allow: /`;
+}
+
+// Hauptfunktion
+function generateSitemapAndRobots() {
+    const buildDir = path.join(__dirname, '../build');
+
+    if (!fs.existsSync(buildDir)) {
+        console.error('❌ Build directory not found. Run npm run build first.');
+        return;
+    }
+
+    console.log('🚀 Generating sitemap.xml and robots.txt...');
+
+    // Generiere sitemap.xml
+    const sitemap = generateSitemap();
+    const sitemapPath = path.join(buildDir, 'sitemap.xml');
+    fs.writeFileSync(sitemapPath, sitemap);
+    console.log('✅ Generated: sitemap.xml');
+
+    // Generiere robots.txt
+    const robots = generateRobotsTxt();
+    const robotsPath = path.join(buildDir, 'robots.txt');
+    fs.writeFileSync(robotsPath, robots);
+    console.log('✅ Generated: robots.txt');
+
+    // Generiere sitemap-index.xml für bessere Organisation
+    const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://keymoji.wtf/sitemap.xml</loc>
+    <lastmod>${new Date().toISOString()}</lastmod>
+  </sitemap>
+</sitemapindex>`;
+
+    const sitemapIndexPath = path.join(buildDir, 'sitemap-index.xml');
+    fs.writeFileSync(sitemapIndexPath, sitemapIndex);
+    console.log('✅ Generated: sitemap-index.xml');
+
+    console.log('🎉 Sitemap and robots.txt generation completed!');
+    console.log(
+        `📊 Generated ${routes.length * languages.length} URLs for ${
+            languages.length
+        } languages`
+    );
+}
+
+// Script ausführen
+generateSitemapAndRobots();

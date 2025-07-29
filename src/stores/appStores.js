@@ -1,6 +1,6 @@
 // src/stores/appStores.js
 import { writable, derived, get } from 'svelte/store';
-import content from '../content.js';
+// Content wird jetzt über contentStore verwaltet
 import {
     supportedLanguages,
     isLanguageSupported,
@@ -8,66 +8,38 @@ import {
     getText as getTextUtil
 } from '../utils/languages.js';
 import { appVersion, formatVersion } from '../utils/version.js';
-import { WEBHOOKS } from '../config/api.js';
-
-// Only log in development
-const isDev = process.env.NODE_ENV === 'development';
+import { WEBHOOKS } from '../../src/config/api.js';
+import { STORAGE_KEYS, storageHelpers } from '../config/storage.js';
+import { isDevelopment, devWarn } from '../utils/environment.js';
 
 // === LOCAL STORAGE HELPER ===
+// Verwende zentrale Storage-Helpers
 const localStore = (key, initial) => {
     if (typeof window === 'undefined') return writable(initial);
 
-    const toString = value => JSON.stringify(value);
-    const toObj = value => {
-        try {
-            return JSON.parse(value);
-        } catch {
-            return initial;
-        }
-    };
-
-    let saved;
-    try {
-        saved = toObj(localStorage.getItem(key));
-    } catch (e) {
-        console.warn(`Error reading ${key} from localStorage:`, e);
-        saved = initial;
-    }
-
-    const { subscribe, set, update } = writable(saved ?? initial);
+    const saved = storageHelpers.get(key, initial);
+    const { subscribe, set, update } = writable(saved);
 
     return {
         subscribe,
         set: value => {
-            try {
-                localStorage.setItem(key, toString(value));
-            } catch (error) {
-                console.warn(`Failed to save ${key} to localStorage:`, error);
-            }
+            storageHelpers.set(key, value);
             return set(value);
         },
         update: updater => {
             return update(value => {
-                try {
-                    const newValue = updater(value);
-                    localStorage.setItem(key, toString(newValue));
-                    return newValue;
-                } catch (error) {
-                    console.warn(
-                        `Failed to update ${key} in localStorage:`,
-                        error
-                    );
-                    return value;
-                }
+                const newValue = updater(value);
+                storageHelpers.set(key, newValue);
+                return newValue;
             });
         }
     };
 };
 
 // === USER COUNTER STORE ===
-// Cache settings
-const COUNTER_CACHE_KEY = 'keymoji_user_counter';
-const COUNTER_TIMESTAMP_KEY = 'keymoji_user_counter_timestamp';
+// Cache settings - verwende zentrale Storage-Keys
+const COUNTER_CACHE_KEY = STORAGE_KEYS.COUNTER_CACHE;
+const COUNTER_TIMESTAMP_KEY = STORAGE_KEYS.COUNTER_TIMESTAMP;
 const COUNTER_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Counter stores
@@ -91,8 +63,8 @@ export const userCounter = derived(
 if (typeof window !== 'undefined') {
     // Try to load from cache first
     try {
-        const cached = localStorage.getItem(COUNTER_CACHE_KEY);
-        const timestamp = localStorage.getItem(COUNTER_TIMESTAMP_KEY);
+        const cached = storageHelpers.get(COUNTER_CACHE_KEY);
+        const timestamp = storageHelpers.get(COUNTER_TIMESTAMP_KEY);
 
         if (cached && timestamp) {
             const age = Date.now() - parseInt(timestamp);
@@ -106,7 +78,7 @@ if (typeof window !== 'undefined') {
             }
         }
     } catch (error) {
-        if (isDev) console.warn('Failed to load counter from cache:', error);
+        if (isDevelopment) devWarn('Failed to load counter from cache:', error);
     }
 
     // Fetch fresh data
@@ -142,16 +114,11 @@ if (typeof window !== 'undefined') {
 
                     // Save to cache
                     try {
-                        localStorage.setItem(
-                            COUNTER_CACHE_KEY,
-                            newValue.toString()
-                        );
-                        localStorage.setItem(
-                            COUNTER_TIMESTAMP_KEY,
-                            Date.now().toString()
-                        );
+                        storageHelpers.set(COUNTER_CACHE_KEY, newValue);
+                        storageHelpers.set(COUNTER_TIMESTAMP_KEY, Date.now());
                     } catch (e) {
-                        if (isDev) console.warn('Failed to cache counter:', e);
+                        if (isDevelopment)
+                            devWarn('Failed to cache counter:', e);
                     }
                 }
             }
@@ -160,7 +127,7 @@ if (typeof window !== 'undefined') {
             if (get(counterValue) === 0) {
                 counterError.set(true);
             }
-            if (isDev) console.error('Counter fetch failed:', error);
+            if (isDevelopment) devWarn('Counter fetch failed:', error);
         } finally {
             counterLoading.set(false);
         }
@@ -176,7 +143,7 @@ export const formattedVersion = derived(version, $version =>
 // === UI STATE STORES ===
 export const showDonateMenu = writable(false);
 export const showShareMenu = writable(false);
-export const showLanguageMenu = writable(false);
+// Moved to contentStore.js for better organization
 export const successfulStoryRequests = writable([]);
 export const isDisabled = writable(false);
 
@@ -190,9 +157,9 @@ function initializeDarkMode() {
 
     let storedPreference;
     try {
-        const stored = localStorage.getItem('darkMode');
+        const stored = storageHelpers.get(STORAGE_KEYS.DARK_MODE);
         if (stored !== null) {
-            storedPreference = JSON.parse(stored);
+            storedPreference = stored;
         }
     } catch (e) {
         console.warn('Error reading dark mode preference:', e);
@@ -203,7 +170,10 @@ function initializeDarkMode() {
         : systemPrefersDark;
 }
 
-export const darkMode = localStore('darkMode', initializeDarkMode());
+export const darkMode = localStore(
+    STORAGE_KEYS.DARK_MODE,
+    initializeDarkMode()
+);
 
 // Setup dark mode media query listener
 if (typeof window !== 'undefined') {
@@ -213,7 +183,7 @@ if (typeof window !== 'undefined') {
 
     const handleMediaQueryChange = e => {
         try {
-            if (localStorage.getItem('darkMode') === null) {
+            if (storageHelpers.get(STORAGE_KEYS.DARK_MODE) === null) {
                 darkMode.set(e.matches);
             }
         } catch (err) {
@@ -243,9 +213,9 @@ function getInitialLanguage() {
     if (typeof window === 'undefined') return 'en';
 
     try {
-        const storedLang = localStorage.getItem('language');
-        if (storedLang && isLanguageSupported(JSON.parse(storedLang))) {
-            return JSON.parse(storedLang);
+        const storedLang = storageHelpers.get(STORAGE_KEYS.LANGUAGE);
+        if (storedLang && isLanguageSupported(storedLang)) {
+            return storedLang;
         }
     } catch (e) {
         console.warn('Error reading language from localStorage:', e);
@@ -261,12 +231,12 @@ function getInitialLanguage() {
     return getBrowserLanguage();
 }
 
-export const currentLanguage = localStore('language', getInitialLanguage());
-
-export const languageText = derived(
-    currentLanguage,
-    $currentLanguage => content[$currentLanguage] || content['en']
+export const currentLanguage = localStore(
+    STORAGE_KEYS.LANGUAGE,
+    getInitialLanguage()
 );
+
+// languageText wird jetzt über contentStore verwaltet
 
 // Wrapper for the getText function
 export function getText(key, lang = null) {

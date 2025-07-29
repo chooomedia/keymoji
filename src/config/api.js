@@ -22,9 +22,7 @@ const API_URL = isLocalDevelopment
 
 // Legacy n8n Basis-URLs
 const WEBHOOK_BASE = 'https://n8n.chooomedia.com/webhook';
-const WEBHOOK_TEST_BASE = 'https://n8n.chooomedia.com/webhook-test';
-const getBaseUrl = () =>
-    isLocalDevelopment ? WEBHOOK_TEST_BASE : WEBHOOK_BASE;
+const getBaseUrl = () => WEBHOOK_BASE;
 
 // Zentrale Endpunkt-Definitionen
 export const WEBHOOKS = {
