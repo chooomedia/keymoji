@@ -83,7 +83,7 @@
 
             <!-- 404 Content - Parent ohne Hintergrund, Content mit Hintergrund -->
             <div class="w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-500 dark:bg-aubergine-80 backdrop-opacity-60 shadow-xl overflow-hidden">
-                <div class="p-6 md:p-8 space-y-6 max-h-[60vh] overflow-y-auto scrollbar-thin scroll-smooth">
+                <div class="p-4 md:p-8 space-y-6 max-h-[60vh] overflow-y-auto scrollbar-thin scroll-smooth">
                     <!-- Site Navigation -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold dark:text-white text-center">

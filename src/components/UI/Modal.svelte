@@ -154,7 +154,7 @@
             role="document"
         >
             <!-- Modal Header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-3">
                     <span class="text-2xl" style="color: {getIconColor(messageType)}">
                         {getIcon(messageType)}
@@ -180,7 +180,7 @@
             </div>
 
             <!-- Modal Body -->
-            <div class="p-6">
+            <div class="p-4">
                 <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
                     {message}
                 </p>

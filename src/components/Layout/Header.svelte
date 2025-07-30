@@ -3,7 +3,7 @@
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { hamburger, logo } from "../../assets/shapes.js";
-    import { isDisabled, showDonateMenu } from '../../stores/appStores.js';
+    import { isDisabled, showDonateMenu, isLoggedIn, currentAccount } from '../../stores/appStores.js';
     import { currentLanguage, t, showLanguageMenu, changeLanguage } from '../../stores/contentStore.js';
     import GitButton from '../../widgets/GitButton.svelte';
     import { createEventDispatcher } from 'svelte';
@@ -20,6 +20,10 @@
     
     function handleBlogNavigation() {
         navigateToBlog(false);
+    }
+
+    function navigateToAccount() {
+        navigate('/account', { replace: true });
     }
 
     async function handleLanguageChange(langCode) {
@@ -74,6 +78,17 @@
                 <!-- Language Switcher -->
                 <div class="relative">
                     <LanguageSwitcher position="bottom" display="full" showLabels={true} />
+                </div>
+                
+                <!-- Account Button -->
+                <div class="flex">
+                    <button 
+                        on:click={navigateToAccount}
+                        class="btn btn-default btn-md"
+                        aria-label="navigate to account"
+                    >
+                        {#if $isLoggedIn}👤{:else}🔐{/if}
+                    </button>
                 </div>
                 
                 <!-- GitHub Button (mobile und desktop) -->

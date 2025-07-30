@@ -11,6 +11,7 @@
 import BlogPost from '../components/Features/BlogPost.svelte';
     import VersionHistory from './VersionHistory.svelte';
     import ContactForm from './ContactForm.svelte';
+    import AccountManager from './AccountManager.svelte';
     import Layout from '../components/Layout/Layout.svelte';
     import NotFound from './NotFound.svelte';
     import SEO from '../components/SEO.svelte';
@@ -55,6 +56,7 @@ import BlogPost from '../components/Features/BlogPost.svelte';
                 case 'blog': return 'blog';
                 case 'versions': return 'versions';
                 case 'contact': return 'contact';
+                case 'account': return 'account';
                 default: return 'home';
             }
         } else {
@@ -66,6 +68,7 @@ import BlogPost from '../components/Features/BlogPost.svelte';
                 case 'blog': return 'blog';
                 case 'versions': return 'versions';
                 case 'contact': return 'contact';
+                case 'account': return 'account';
                 default: return 'home';
             }
         }
@@ -231,6 +234,13 @@ import BlogPost from '../components/Features/BlogPost.svelte';
         </Route>
         <Route path="/:lang/contact" let:params>
             <ContactForm />
+        </Route>
+        
+        <Route path="/account" let:params>
+            <AccountManager />
+        </Route>
+        <Route path="/:lang/account" let:params>
+            <AccountManager />
         </Route>
         
         <Route path="/blog" let:params>

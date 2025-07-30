@@ -4,7 +4,11 @@
     import { onMount, onDestroy } from 'svelte';
     import { 
         successfulStoryRequests, 
-        isDisabled 
+        isDisabled,
+        dailyLimit,
+        isLoggedIn,
+        currentAccount,
+        accountTier
     } from '../../stores/appStores.js';
     import { 
         showSuccess, 
@@ -86,6 +90,16 @@ import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
     async function generateRandomEmojis(countTowardsLimit = true) {
       try {
         if (checkLimits()) return;
+
+        // Check daily limit for guest and free users
+        if (!$isLoggedIn || $accountTier === 'free') {
+          const remaining = ($dailyLimit?.limit || 5) - ($dailyLimit?.used || 0);
+          if (remaining <= 0) {
+            // Redirect to account page for upsell
+            window.location.href = '/account';
+            return;
+          }
+        }
   
         randomEmojis = getRandomEmojis(emojiCount);
         // Fokussiere das Dokument vor dem Kopieren

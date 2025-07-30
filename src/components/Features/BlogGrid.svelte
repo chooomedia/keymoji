@@ -148,7 +148,7 @@
                     {/if}
                 </div>
                 
-                <div class="p-6">
+                <div class="p-4">
                     <div class="flex items-center gap-3 mb-3 text-xs text-gray-500 dark:text-gray-light justify-center">
                         <time class="flex items-center">
                             📅 {formatDate(post.isodate)}

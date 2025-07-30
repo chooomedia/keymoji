@@ -1,350 +1,390 @@
 <!-- src/components/UI/ModalDebug.svelte -->
 <script>
-    import { onMount } from 'svelte';
-    import { slide, fly } from 'svelte/transition';
+    import { createEventDispatcher } from 'svelte';
+    import { slide, fade } from 'svelte/transition';
     import { 
-        modalMessage, 
-        isModalVisible, 
-        modalType, 
-        modalData,
-        getModalHistory,
-        getModalStatus,
-        clearModalHistory,
-        showSuccess,
-        showError,
-        showWarning,
-        showInfo,
-        showContact,
-        showSending
-    } from '../../stores/modalStore.js';
-    import { 
-        darkMode, 
-        isDisabled, 
-        showDonateMenu,
-        userCounter
+        isLoggedIn, 
+        dailyLimit, 
+        currentAccount, 
+        userProfile, 
+        accountTier,
+        successfulStoryRequests,
+        isDisabled,
+        currentLanguage,
+        darkMode
     } from '../../stores/appStores.js';
-    import { 
-        currentLanguage, 
-        translations,
-        changeLanguage
-    } from '../../stores/contentStore.js';
-    import { isDebugMode } from '../../utils/environment.js';
+    import { accountData, isLoggingIn, loginError, loginWithMagicLink } from '../../stores/accountStore.js';
+    import { showSuccess, showError, showWarning, showInfo } from '../../stores/modalStore.js';
 
-    let debugVisible = false;
-    let modalHistory = [];
-    let modalStatus = {};
-    let currentTab = 'modals';
-    let testEmojis = ['😀', '🎉', '🚀', '💡', '🔥', '⭐', '🎯', '💎'];
+    const dispatch = createEventDispatcher();
 
-    // Toggle debug panel
-    function toggleDebug() {
-        debugVisible = !debugVisible;
-        if (debugVisible) {
-            updateDebugInfo();
+    export let isVisible = false;
+
+    function closeModal() {
+        dispatch('close');
+    }
+
+    function handleBackdropClick(event) {
+        if (event.target === event.currentTarget) {
+            closeModal();
         }
     }
 
-    // Update debug information
-    function updateDebugInfo() {
-        modalHistory = getModalHistory();
-        modalStatus = getModalStatus();
+    // Test Functions
+    async function testLogin() {
+        try {
+            await loginWithMagicLink('test@example.com', 'Test User');
+            showSuccess('Login test completed!', 2000);
+        } catch (error) {
+            showError('Login test failed: ' + error.message, 3000);
+        }
     }
 
-    // Modal Test Functions
-    function testSuccess() {
-        showSuccess('This is a success message! 🎉', 3000);
+    function testDailyLimit() {
+        dailyLimit.set({ limit: 5, used: 3 });
+        showInfo('Daily limit set to 3/5', 2000);
     }
 
-    function testError() {
-        showError('This is an error message! ❌', null);
+    function testProAccount() {
+        accountTier.set('pro');
+        isLoggedIn.set(true);
+        currentAccount.set({
+            email: 'pro@example.com',
+            name: 'Pro User',
+            verified: true
+        });
+        showSuccess('Pro account activated!', 2000);
     }
 
-    function testWarning() {
-        showWarning('This is a warning message! ⚠️', 5000);
+    function testFreeAccount() {
+        accountTier.set('free');
+        isLoggedIn.set(true);
+        currentAccount.set({
+            email: 'free@example.com',
+            name: 'Free User',
+            verified: true
+        });
+        showSuccess('Free account activated!', 2000);
     }
 
-    function testInfo() {
-        showInfo('This is an info message! ℹ️', 4000);
+    function testGuestAccount() {
+        isLoggedIn.set(false);
+        currentAccount.set(null);
+        accountTier.set('free');
+        dailyLimit.set({ limit: 5, used: 0 });
+        showInfo('Guest account activated!', 2000);
     }
 
-    function testContact() {
-        showContact('This is a contact message! 💌', 6000);
+    function testDailyLimitExceeded() {
+        dailyLimit.set({ limit: 5, used: 5 });
+        showWarning('Daily limit exceeded!', 3000);
     }
 
-    function testSending() {
-        showSending('Sending your message... 📨');
+    function testStoryGeneration() {
+        successfulStoryRequests.update(n => n + 1);
+        showSuccess('Story generated!', 2000);
     }
 
-    function testWithButton() {
-        showWarning(
-            'This modal has a custom button!',
-            0,
-            {
-                buttonText: 'Custom Action',
-                buttonAction: () => {
-                    console.log('Custom button clicked!');
-                }
-            }
-        );
-    }
-
-    // Store Test Functions
-    function toggleDarkMode() {
+    function testDarkMode() {
         darkMode.update(value => !value);
-    }
-
-    function toggleDisabled() {
-        isDisabled.update(value => !value);
-    }
-
-    function toggleDonateMenu() {
-        showDonateMenu.update(value => !value);
+        showInfo('Dark mode toggled!', 2000);
     }
 
     function testLanguageChange() {
         const languages = ['en', 'de', 'fr', 'es', 'ja', 'ko', 'tlh', 'sjn'];
         const randomLang = languages[Math.floor(Math.random() * languages.length)];
-        changeLanguage(randomLang);
+        currentLanguage.set(randomLang);
+        showInfo(`Language changed to ${randomLang}!`, 2000);
     }
 
-    function testUserCounter() {
-        // Simulate counter update
-        console.log('User counter test:', $userCounter);
+    function testModalSystem() {
+        showSuccess('Success modal test!', 2000);
+        setTimeout(() => showError('Error modal test!', 2000), 500);
+        setTimeout(() => showWarning('Warning modal test!', 2000), 1000);
+        setTimeout(() => showInfo('Info modal test!', 2000), 1500);
     }
 
-    // Debug Functions
-    function clearAllStorage() {
-        localStorage.clear();
-        sessionStorage.clear();
-        console.log('All storage cleared');
-        showSuccess('All storage cleared! 🗑️', 2000);
+    function clearAllData() {
+        isLoggedIn.set(false);
+        currentAccount.set(null);
+        accountTier.set('free');
+        dailyLimit.set({ limit: 5, used: 0 });
+        successfulStoryRequests.set(0);
+        loginError.set(null);
+        isLoggingIn.set(false);
+        showSuccess('All data cleared!', 2000);
     }
 
-    function clearLocalStorage() {
-        localStorage.clear();
-        window.location.reload();
+    function eraseLocalStorage() {
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+            showSuccess('Local storage cleared! 🗑️', 2000);
+        } catch (error) {
+            showError('Failed to clear storage: ' + error.message, 3000);
+        }
     }
 
-    function logAppState() {
-        console.log('=== APP DEBUG STATE ===');
-        console.log('Dark Mode:', $darkMode);
-        console.log('Current Language:', $currentLanguage);
-        console.log('Is Disabled:', $isDisabled);
-        console.log('Show Donate Menu:', $showDonateMenu);
-        console.log('Modal Visible:', $isModalVisible);
-        console.log('Modal Type:', $modalType);
-        console.log('User Counter:', $userCounter);
-        console.log('Local Storage Keys:', Object.keys(localStorage));
-        console.log('Session Storage Keys:', Object.keys(sessionStorage));
-        console.log('========================');
-        showInfo('App state logged to console! 📋', 2000);
+    function eraseAndReload() {
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+            showSuccess('Storage cleared, reloading... 🔄', 2000);
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } catch (error) {
+            showError('Failed to clear and reload: ' + error.message, 3000);
+        }
     }
 
-    function testEmojiGeneration() {
-        const randomEmojis = testEmojis.sort(() => Math.random() - 0.5).slice(0, 5);
-        console.log('Generated Emojis:', randomEmojis);
-        showSuccess(`Generated: ${randomEmojis.join(' ')}`, 3000);
+    function testAccountData() {
+        accountData.set({
+            email: 'test@example.com',
+            name: 'Test User',
+            magicLinkSent: true,
+            sentAt: new Date().toISOString()
+        });
+        showInfo('Account data set!', 2000);
     }
-
-    // Update debug info when modal state changes
-    $: if (debugVisible && $isModalVisible) {
-        updateDebugInfo();
-    }
-
-    onMount(() => {
-        console.log('Debug Panel mounted');
-    });
 </script>
 
-{#if true}
-    <!-- Debug Buttons - Fixed top right, matching header style -->
-    <div class="fixed top-5 right-5 z-40 flex gap-2">
-        <!-- Clear All Storage Button -->
-        <button
-            class="btn border-4 p-4 border-gray-300 dark:border-aubergine-800 dark:text-white bg-creme-500 dark:bg-aubergine-900"
-            title="Clear All Storage"
-            on:click={clearAllStorage}
-        >
-            🗑️ CLEAR
-        </button>
-        
-        <!-- Debug Button -->
-        <button
-            class="btn border-4 p-4 border-gray-300 dark:border-aubergine-800 dark:text-white bg-creme-500 dark:bg-aubergine-900"
-            title="Debug Panel"
-            on:click={toggleDebug}
-        >
-            🐛 DEBUG
-        </button>
-    </div>
-
-    <!-- Debug Panel - Slides in from right, positioned below buttons -->
-    {#if debugVisible}
+{#if isVisible}
+    <div 
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        on:click={handleBackdropClick}
+        transition:fade={{ duration: 200 }}
+    >
         <div 
-            class="fixed right-0 top-20 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl z-30 overflow-y-auto"
-            in:slide={{ duration: 300, axis: 'x' }}
-            out:slide={{ duration: 300, axis: 'x' }}
+            class="bg-white dark:bg-aubergine-800 rounded-xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+            transition:slide={{ duration: 300, axis: 'y' }}
         >
+            <!-- Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    🐛 Debug Panel - Test All Features
+                </h2>
+                <button
+                    on:click={closeModal}
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                >
+                    <span class="text-2xl">×</span>
+                </button>
+            </div>
+
+            <!-- Content -->
             <div class="p-4">
-                <!-- Header -->
-                <div class="flex justify-between items-center mb-6 border-b border-gray-200 dark:border-gray-700 pb-4">
-                    <h3 class="text-lg font-bold text-gray-800 dark:text-white">🐛 Debug Panel</h3>
-                    <button 
-                        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                        on:click={toggleDebug}
-                    >
-                        ✕
-                    </button>
-                </div>
-
-                <!-- Tab Navigation -->
-                <div class="flex space-x-1 mb-4">
-                    <button 
-                        class="px-3 py-2 text-sm rounded-lg transition-colors {currentTab === 'modals' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}"
-                        on:click={() => currentTab = 'modals'}
-                    >
-                        Modals
-                    </button>
-                    <button 
-                        class="px-3 py-2 text-sm rounded-lg transition-colors {currentTab === 'stores' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}"
-                        on:click={() => currentTab = 'stores'}
-                    >
-                        Stores
-                    </button>
-                    <button 
-                        class="px-3 py-2 text-sm rounded-lg transition-colors {currentTab === 'debug' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}"
-                        on:click={() => currentTab = 'debug'}
-                    >
-                        Debug
-                    </button>
-                </div>
-
-                <!-- Modal Tests Tab -->
-                {#if currentTab === 'modals'}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <!-- Account Status -->
                     <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-800 dark:text-white">Modal Tests</h4>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Account Status</h3>
                         
-                        <div class="grid grid-cols-2 gap-2">
-                            <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={testSuccess}>
-                                Success
-                            </button>
-                            <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={testError}>
-                                Error
-                            </button>
-                            <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={testWarning}>
-                                Warning
-                            </button>
-                            <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={testInfo}>
-                                Info
-                            </button>
-                            <button class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={testContact}>
-                                Contact
-                            </button>
-                            <button class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={testSending}>
-                                Sending
-                            </button>
-                            <button class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded text-sm transition-colors col-span-2" on:click={testWithButton}>
-                                With Button
-                            </button>
-                        </div>
-
-                        <!-- Modal Status -->
-                        <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                            <h5 class="font-semibold mb-2 text-gray-800 dark:text-white">Status</h5>
-                            <div class="text-xs space-y-1">
-                                <p><strong>Visible:</strong> {$isModalVisible ? 'Yes' : 'No'}</p>
-                                <p><strong>Type:</strong> {$modalType || 'None'}</p>
-                                <p><strong>Message:</strong> {$modalMessage || 'None'}</p>
+                        <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Logged In:</span>
+                                    <span class="font-mono {$isLoggedIn ? 'text-green-600' : 'text-red-600'}">
+                                        {$isLoggedIn ? 'true' : 'false'}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Account Tier:</span>
+                                    <span class="font-mono text-blue-600">{$accountTier}</span>
+                                </div>
+                                {#if $currentAccount}
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Email:</span>
+                                    <span class="font-mono text-gray-800 dark:text-gray-200">{$currentAccount.email}</span>
+                                </div>
+                                {/if}
                             </div>
                         </div>
 
-                        <!-- Modal History -->
-                        {#if modalHistory.length > 0}
-                            <div class="mt-4">
-                                <h5 class="font-semibold mb-2 text-gray-800 dark:text-white">History</h5>
-                                <div class="max-h-32 overflow-y-auto text-xs space-y-1">
-                                    {#each modalHistory.slice(-5) as entry}
-                                        <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded">
-                                            <div><strong>{entry.type}:</strong> {entry.message}</div>
-                                            <div class="text-gray-500">{entry.timestamp}</div>
-                                        </div>
-                                    {/each}
+                        <!-- Account Test Buttons -->
+                        <div class="space-y-2">
+                            <button on:click={testLogin} class="w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm">
+                                🔐 Test Login
+                            </button>
+                            <button on:click={testProAccount} class="w-full px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded text-sm">
+                                💎 Activate Pro
+                            </button>
+                            <button on:click={testFreeAccount} class="w-full px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm">
+                                ✨ Activate Free
+                            </button>
+                            <button on:click={testGuestAccount} class="w-full px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm">
+                                👤 Activate Guest
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Daily Limit -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Daily Limit</h3>
+                        
+                        <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Used:</span>
+                                    <span class="font-mono text-red-600">{$dailyLimit?.used || 0}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Limit:</span>
+                                    <span class="font-mono text-blue-600">{$dailyLimit?.limit || 5}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Remaining:</span>
+                                    <span class="font-mono text-green-600">{Math.max(0, ($dailyLimit?.limit || 5) - ($dailyLimit?.used || 0))}</span>
                                 </div>
                             </div>
-                        {/if}
-                    </div>
-                {/if}
-
-                <!-- Store Tests Tab -->
-                {#if currentTab === 'stores'}
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-800 dark:text-white">Store Tests</h4>
-                        
-                        <div class="grid grid-cols-2 gap-2">
-                            <button class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={toggleDarkMode}>
-                                Toggle Dark
-                            </button>
-                            <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={toggleDisabled}>
-                                Toggle Disabled
-                            </button>
-                            <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={toggleDonateMenu}>
-                                Toggle Donate
-                            </button>
-                            <button class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={testLanguageChange}>
-                                Random Lang
-                            </button>
-                            <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={testUserCounter}>
-                                Test Counter
-                            </button>
-                            <button class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={testEmojiGeneration}>
-                                Test Emojis
-                            </button>
                         </div>
 
-                        <!-- Store Status -->
-                        <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                            <h5 class="font-semibold mb-2 text-gray-800 dark:text-white">Store Status</h5>
-                            <div class="text-xs space-y-1">
-                                <p><strong>Dark Mode:</strong> {$darkMode ? 'On' : 'Off'}</p>
-                                <p><strong>Language:</strong> {$currentLanguage}</p>
-                                <p><strong>Disabled:</strong> {$isDisabled ? 'Yes' : 'No'}</p>
-                                <p><strong>Donate Menu:</strong> {$showDonateMenu ? 'Open' : 'Closed'}</p>
-                                <p><strong>User Counter:</strong> {$userCounter.value}</p>
+                        <!-- Daily Limit Test Buttons -->
+                        <div class="space-y-2">
+                            <button on:click={testDailyLimit} class="w-full px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded text-sm">
+                                📊 Set Daily Limit (3/5)
+                            </button>
+                            <button on:click={testDailyLimitExceeded} class="w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded text-sm">
+                                ⚠️ Exceed Daily Limit
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Story Requests -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Story Requests</h3>
+                        
+                        <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Successful:</span>
+                                    <span class="font-mono text-green-600">{$successfulStoryRequests || 0}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Disabled:</span>
+                                    <span class="font-mono {$isDisabled ? 'text-red-600' : 'text-green-600'}">
+                                        {$isDisabled ? 'true' : 'false'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Story Test Buttons -->
+                        <div class="space-y-2">
+                            <button on:click={testStoryGeneration} class="w-full px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded text-sm">
+                                📝 Generate Story
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- System Tests -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">System Tests</h3>
+                        
+                        <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Language:</span>
+                                    <span class="font-mono text-blue-600">{$currentLanguage}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Dark Mode:</span>
+                                    <span class="font-mono {$darkMode ? 'text-purple-600' : 'text-yellow-600'}">
+                                        {$darkMode ? 'true' : 'false'}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Logging In:</span>
+                                    <span class="font-mono {$isLoggingIn ? 'text-yellow-600' : 'text-gray-600'}">
+                                        {$isLoggingIn ? 'true' : 'false'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Test Buttons -->
+                        <div class="space-y-2">
+                            <button on:click={testDarkMode} class="w-full px-3 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded text-sm">
+                                🌙 Toggle Dark Mode
+                            </button>
+                            <button on:click={testLanguageChange} class="w-full px-3 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded text-sm">
+                                🌍 Random Language
+                            </button>
+                            <button on:click={testModalSystem} class="w-full px-3 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded text-sm">
+                                📢 Test Modals
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Account Data -->
+                    {#if $accountData}
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Account Data</h3>
+                        
+                        <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Magic Link Sent:</span>
+                                    <span class="font-mono {$accountData.magicLinkSent ? 'text-green-600' : 'text-red-600'}">
+                                        {$accountData.magicLinkSent ? 'true' : 'false'}
+                                    </span>
+                                </div>
+                                {#if $accountData.sentAt}
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Sent At:</span>
+                                    <span class="font-mono text-gray-800 dark:text-gray-200">{$accountData.sentAt}</span>
+                                </div>
+                                {/if}
+                            </div>
+                        </div>
+
+                        <!-- Account Data Test Buttons -->
+                        <div class="space-y-2">
+                            <button on:click={testAccountData} class="w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm">
+                                📧 Set Account Data
+                            </button>
+                        </div>
+                    </div>
+                    {/if}
+
+                    <!-- Error Status -->
+                    {#if $loginError}
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Error Status</h3>
+                        
+                        <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-red-600 dark:text-red-400">Error:</span>
+                                    <span class="font-mono text-red-600 dark:text-red-400">{$loginError}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                {/if}
+                    {/if}
+                </div>
 
-                <!-- Debug Tools Tab -->
-                {#if currentTab === 'debug'}
-                    <div class="space-y-4">
-                        <h4 class="font-semibold text-gray-800 dark:text-white">Debug Tools</h4>
-                        
-                        <div class="grid grid-cols-1 gap-2">
-                            <button class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={clearLocalStorage}>
-                                🛁 Clear & Reload
-                            </button>
-                            <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={logAppState}>
-                                📋 Log App State
-                            </button>
-                            <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition-colors" on:click={testEmojiGeneration}>
-                                🎲 Test Emoji Gen
-                            </button>
-                        </div>
-
-                        <!-- Quick Info -->
-                        <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                            <h5 class="font-semibold mb-2 text-gray-800 dark:text-white">Quick Info</h5>
-                            <div class="text-xs space-y-1">
-                                <p><strong>URL:</strong> {window.location.href}</p>
-                                <p><strong>User Agent:</strong> {navigator.userAgent.substring(0, 50)}...</p>
-                                <p><strong>Screen:</strong> {window.screen.width}x{window.screen.height}</p>
-                                <p><strong>Viewport:</strong> {window.innerWidth}x{window.innerHeight}</p>
-                            </div>
-                        </div>
+                <!-- Global Actions -->
+                <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Global Actions</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button on:click={clearAllData} class="px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium">
+                            🗑️ Clear All Data
+                        </button>
+                        <button on:click={eraseLocalStorage} class="px-4 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium">
+                            🧹 Erase Storage
+                        </button>
+                        <button on:click={eraseAndReload} class="px-4 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium">
+                            🔄 Erase & Reload
+                        </button>
                     </div>
-                {/if}
+                    <div class="mt-4 text-center">
+                        <button on:click={closeModal} class="px-4 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium">
+                            ❌ Close Debug
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    {/if}
+    </div>
 {/if} 

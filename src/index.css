@@ -202,6 +202,10 @@
 
     .contact-input {
         @apply w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl p-4 border border-gray-light dark:border-aubergine-800 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
+
+        &::placeholder {
+            @apply gap-2;
+        }
     }
 
     .contact-checkbox {

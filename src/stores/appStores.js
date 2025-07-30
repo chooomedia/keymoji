@@ -279,3 +279,14 @@ export function setLanguage(lang) {
         console.error(`Language '${lang}' is not supported.`);
     }
 }
+
+// === ACCOUNT STORES ===
+export const isLoggedIn = writable(false);
+export const dailyLimit = writable({ limit: 5, used: 0 });
+export const accountSettings = writable({});
+export const isGuestUser = writable(true);
+export const isProUser = writable(false);
+export const currentAccount = writable(null);
+export const userProfile = writable(null);
+export const accountTier = writable('free');
+export const translations = writable({});

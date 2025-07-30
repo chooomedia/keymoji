@@ -46,6 +46,14 @@ export const WEBHOOKS = {
         // Legacy-Endpunkte
         OPTIN: `${getBaseUrl()}/xn--moji-pb73c-optin-keymoji`,
         NEWSLETTER: `${getBaseUrl()}/xn--moji-pb73c-newsletter`
+    },
+
+    // Account Management
+    ACCOUNT: {
+        CRUD: `${API_URL}/account`,
+        UPDATE: `${API_URL}/account/update`,
+        MAGIC_LINK_SEND: `${API_URL}/magic-link/send`,
+        MAGIC_LINK_VERIFY: `${API_URL}/magic-link/verify`
     }
 };
 

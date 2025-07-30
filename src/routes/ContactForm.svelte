@@ -263,9 +263,9 @@
             </div>
 
             <!-- Contact Form Component -->
-            <div class="content-wrapper pl-4 pr-4 pb-4 w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-500 dark:bg-aubergine-80 backdrop-opacity-60">
+            <div class="content-wrapper pb-4 px-4 w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-500 dark:bg-aubergine-80 backdrop-opacity-60">
                 <!-- Contact Form -->
-    <form on:submit|preventDefault={handleSubmit} class="space-y-3">
+    <form on:submit|preventDefault={handleSubmit} class="space-y-4">
                     <!-- Honeypot Field -->
                     <div class="hidden" aria-hidden="true">
                         <input type="text" name="website" bind:value={honeypot} autocomplete="off" tabindex="-1" />
