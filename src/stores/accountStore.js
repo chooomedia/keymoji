@@ -108,3 +108,94 @@ export function getCurrentAccount() {
     accountData.subscribe(value => (data = value))();
     return data;
 }
+
+// Account Management via n8n Workflow
+export async function createAccount(
+    userId,
+    email,
+    profile = {},
+    metadata = {}
+) {
+    try {
+        const response = await fetch(WEBHOOKS.ACCOUNT.CRUD, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'create',
+                userId,
+                email,
+                profile,
+                metadata,
+                timestamp: new Date().toISOString()
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to create account');
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Create account error:', error);
+        throw error;
+    }
+}
+
+export async function getAccount(userId) {
+    try {
+        const response = await fetch(WEBHOOKS.ACCOUNT.CRUD, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'get',
+                userId,
+                timestamp: new Date().toISOString()
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to get account');
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Get account error:', error);
+        throw error;
+    }
+}
+
+export async function updateAccount(userId, updates = {}) {
+    try {
+        const response = await fetch(WEBHOOKS.ACCOUNT.CRUD, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'update',
+                userId,
+                updates,
+                timestamp: new Date().toISOString()
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to update account');
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Update account error:', error);
+        throw error;
+    }
+}

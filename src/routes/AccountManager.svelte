@@ -20,6 +20,7 @@
         currentLanguage
     } from '../stores/appStores.js';
     import { loginWithMagicLink, isLoggingIn, loginError } from '../stores/accountStore.js';
+    import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore.js';
     import { WEBHOOKS } from '../config/api.js';
 
     // Toggle state
@@ -75,6 +76,11 @@
             name = $currentAccount.name || '';
         }
     });
+
+    // Reactive statement to show error as modal
+    $: if ($loginError) {
+        showError($loginError, 5000);
+    }
 </script>
 
 <svelte:head>
@@ -372,14 +378,12 @@
                             </form>
 
                             {#if $loginError}
-                            <div class="mt-6 p-4 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg text-sm border border-red-200 dark:border-red-800">
-                                {$loginError}
-                            </div>
+                            <!-- Error will be shown as modal via reactive statement -->
                             {/if}
                         </div>
 
                         <!-- Footer -->
-                        <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                             <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                                 <span class="flex items-center">
                                     <span class="text-green-500 mr-2">🔒</span>

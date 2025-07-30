@@ -202,46 +202,51 @@ import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
         // Fokussiere das Dokument zuerst
         window.focus();
         
-        // Prüfe ob Clipboard API verfügbar und Dokument fokussiert ist
-        if (navigator.clipboard && window.isSecureContext && document.hasFocus()) {
+        // Moderne Clipboard API verwenden
+        if (navigator.clipboard && window.isSecureContext) {
             await navigator.clipboard.writeText(cleanText);
             console.log('Clipboard: Success via API');
-        } else {
-            // Fallback Methode
-            const textArea = document.createElement('textarea');
-            textArea.value = cleanText;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            textArea.setAttribute('readonly', '');
+            return;
+        }
+        
+        // Fallback für nicht-secure Contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = cleanText;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        textArea.setAttribute('readonly', '');
+        
+        document.body.appendChild(textArea);
+        
+        // Fokus und Select
+        textArea.focus();
+        textArea.select();
+        
+        // Versuche modernen Ansatz
+        try {
+            await navigator.clipboard.writeText(cleanText);
+            console.log('Clipboard: Success via fallback API');
+        } catch (clipboardError) {
+            // Letzter Fallback - zeige manuelle Kopier-Option
+            console.log('Clipboard: Manual copy required');
+            showInfo(
+                $translations.emojiDisplay.clipboardManual || 
+                'Click the emoji display to copy manually!'
+            );
             
-            document.body.appendChild(textArea);
-            
-            // Fokus und Select
-            textArea.focus();
-            textArea.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    console.log('Clipboard: Success via fallback');
-                } else {
-                    throw new Error('Copy command failed');
-                }
-            } catch (err) {
-                console.error('Clipboard: Fallback failed', err);
-                throw err;
-            } finally {
-                document.body.removeChild(textArea);
-            }
+            // Speichere Text für manuelles Kopieren
+            window.lastGeneratedEmojis = cleanText;
+        } finally {
+            document.body.removeChild(textArea);
         }
     } catch (error) {
         console.error('Clipboard Error:', error);
         
         // Zeige alternative Lösung
-        showWarning(
+        showInfo(
             $translations.emojiDisplay.clipboardError || 
-            'Unable to copy automatically. Click the emoji display to copy!'
+            'Click the emoji display to copy manually!'
         );
         
         // Speichere Text für manuelles Kopieren

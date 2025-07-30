@@ -6,6 +6,7 @@
     import { navigate } from 'svelte-routing';
     import { formatVersion } from './utils/version.js';
     import { closeModal, isModalVisible } from './stores/modalStore.js';
+    import Modal from './components/UI/Modal.svelte';
     import PageLayout from './components/Layout/PageLayout.svelte';
     import UserCounter from './components/Core/UserCounter.svelte';
     import EmojiDisplay from './components/Core/EmojiDisplay.svelte';
@@ -95,3 +96,6 @@
         </div>
     </footer>
 </PageLayout>
+
+<!-- Modal Component -->
+<Modal />

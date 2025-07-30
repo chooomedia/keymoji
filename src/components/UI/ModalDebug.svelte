@@ -151,12 +151,12 @@
 
 {#if isVisible}
     <div 
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
         on:click={handleBackdropClick}
         transition:fade={{ duration: 200 }}
     >
         <div 
-            class="bg-white dark:bg-aubergine-800 rounded-xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+            class="bg-white dark:bg-aubergine-800 rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
             transition:slide={{ duration: 300, axis: 'y' }}
         >
             <!-- Header -->
@@ -352,13 +352,20 @@
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Error Status</h3>
                         
-                        <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
+                        <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
                             <div class="space-y-2 text-sm">
                                 <div class="flex justify-between">
-                                    <span class="text-red-600 dark:text-red-400">Error:</span>
-                                    <span class="font-mono text-red-600 dark:text-red-400">{$loginError}</span>
+                                    <span class="text-gray-600 dark:text-gray-400">Has Error:</span>
+                                    <span class="font-mono text-red-600">true</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Error Test Button -->
+                        <div class="space-y-2">
+                            <button on:click={() => showError($loginError, 5000)} class="w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded text-sm">
+                                🚨 Show Error Modal
+                            </button>
                         </div>
                     </div>
                     {/if}

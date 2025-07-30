@@ -17,8 +17,8 @@ console.log(
 
 // Lokale API-URL oder Produktions-URL basierend auf der Umgebung
 const API_URL = isLocalDevelopment
-    ? 'http://localhost:3000/api' // Lokaler Test-Server
-    : 'https://api.keymoji.wtf/api'; // Produktionsserver
+    ? 'https://its.keymoji.wtf/api' // Vercel API für Entwicklung
+    : 'https://its.keymoji.wtf/api'; // Produktionsserver
 
 // Legacy n8n Basis-URLs
 const WEBHOOK_BASE = 'https://n8n.chooomedia.com/webhook';
