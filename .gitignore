@@ -21,6 +21,9 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 /server/
 src/services/
 
+# Backend (separates Repository)
+backend/
+
 # Runtime data
 pids
 *.pid
