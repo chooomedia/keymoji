@@ -19,7 +19,7 @@
         translations,
         currentLanguage
     } from '../stores/appStores.js';
-    import { loginWithMagicLink, isLoggingIn, loginError } from '../stores/accountStore.js';
+    import { loginWithMagicLink, isLoggingIn, loginError, createAccount } from '../stores/accountStore.js';
     import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore.js';
     import { WEBHOOKS } from '../config/api.js';
 
@@ -30,6 +30,9 @@
     let showProfileForm = false;
     let isSubmitting = false;
     let showSettings = false;
+    let accountCreationStep = 'benefits'; // 'benefits', 'form', 'verification'
+    let selectedAccountType = 'free'; // 'free', 'pro'
+    let showAdvancedOptions = false;
 
     // Email validation
     const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -55,18 +58,57 @@
         navigate('/', { replace: true });
     }
 
+    function selectAccountType(type) {
+        selectedAccountType = type;
+        showBenefitsToggle = type;
+    }
+
+    function startAccountCreation() {
+        if (accountCreationStep === 'benefits') {
+            accountCreationStep = 'form';
+        } else {
+            accountCreationStep = 'benefits';
+        }
+    }
+
+    function goBackToBenefits() {
+        accountCreationStep = 'benefits';
+    }
+
+
+
     async function handleLogin(event) {
         event.preventDefault();
         isSubmitting = true;
 
         try {
+            // Create account first if it's a new user
+            if (selectedAccountType === 'pro') {
+                await createAccount(
+                    `user_${Date.now()}`,
+                    email,
+                    { name, accountType: 'pro' },
+                    { source: 'account_manager', tier: 'pro' }
+                );
+            }
+
             await loginWithMagicLink(email, name);
-            // Success will be handled by the store
+            
+            // Show success message
+            showSuccess('Magic link sent! Check your email to complete account creation.', 5000);
+            
+            // Move to verification step
+            accountCreationStep = 'verification';
         } catch (error) {
             console.error('Login error:', error);
+            showError('Failed to send magic link. Please try again.', 5000);
         } finally {
             isSubmitting = false;
         }
+    }
+
+    function resendMagicLink() {
+        handleLogin(new Event('submit'));
     }
 
     onMount(() => {
@@ -101,15 +143,17 @@
             <!-- Main Heading -->
             <div class="w-11/12 md:w-26r flex flex-wrap justify-center" role="banner">
                 <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                    Account Management
+                    {accountCreationStep === 'verification' ? '📧 Check Your Email and Verfiy' : 'Account Management'}
                 </h1>
                 <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                    Manage your security settings and account preferences
+                    {@html accountCreationStep === 'verification'
+                    ? `Check your email <strong>${email}</strong> and click the magic link to complete setup`
+                    : 'Manage your security settings and account preferences'}
                 </p>
             </div>
 
             <!-- Account Content -->
-            <div class="content-wrapper pb-4 w-11/12 md:w-26r rounded-xl bg-creme-500 dark:bg-aubergine-800">
+            <div class="content-wrapper w-11/12 md:w-26r rounded-xl bg-creme-500 dark:bg-aubergine-800">
                 <!-- Account Status -->
                 {#if $isLoggedIn}
                     <div class="p-4">
@@ -218,6 +262,46 @@
                         </div>
                         {/if}
                     </div>
+                {:else if accountCreationStep === 'verification'}
+                    <!-- Verification Step -->
+                    <div class="p-4 text-center">
+                        <div class="space-y-4">
+                            <button
+                                on:click={resendMagicLink}
+                                disabled={isSubmitting}
+                                class="btn btn-primary btn-md rounded-full w-full"
+                            >
+                                {#if isSubmitting}
+                                    <span class="animate-spin mr-1">⏳</span>
+                                    Sending...
+                                {:else}
+                                    <span class="mr-1">🔄</span>
+                                    Resend Magic Link
+                                {/if}
+                            </button>
+                            
+                            <button
+                                on:click={goBackToBenefits}
+                                class="btn btn-secondary btn-md rounded-full w-full"
+                            >
+                                <span class="mr-1">←</span>
+                                Back to Account Options
+                            </button>
+                            
+                            <!-- Help Section -->
+                            <div class="mt-6 p-4 bg-creme-600 dark:bg-aubergine-900 rounded-xl">
+                                <h3 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                                    💡 Need Help?
+                                </h3>
+                                <ul class="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                                    <li>• Check your spam folder if you don't see the email</li>
+                                    <li>• Magic links expire after 15 minutes</li>
+                                    <li>• You can request a new link anytime</li>
+                                    <li>• No password required - just click the link</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 {:else}
                     <!-- Benefits Toggle -->
                     <div class="p-4">
@@ -229,7 +313,7 @@
                             <div class="relative flex h-full">
                                 <button
                                     class="flex-1 flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
-                                    on:click={() => showBenefitsToggle = 'free'}
+                                    on:click={() => selectAccountType('free')}
                                 >
                                     <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
                                         FREE
@@ -240,7 +324,7 @@
                                 </button>
                                 <button
                                     class="flex-1 flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
-                                    on:click={() => showBenefitsToggle = 'pro'}
+                                    on:click={() => selectAccountType('pro')}
                                 >
                                     <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
                                         PRO
@@ -262,7 +346,7 @@
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">✓</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">Unbegrenzte sichere Generierungen</span>
+                                            <span class="text-md font-bold text-black dark:text-white">5 tägliche sichere Generierungen</span>
                                             <p class="text-gray-600 dark:text-gray-400">KI-resistente Technologie</p>
                                         </div>
                                     </div>
@@ -271,7 +355,7 @@
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">🔒</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">Erweiterte Datenschutz-Kontrollen</span>
+                                            <span class="text-md font-bold text-black dark:text-white">Grundlegende Datenschutz-Kontrollen</span>
                                             <p class="text-gray-600 dark:text-gray-400">Deine Daten bleiben privat</p>
                                         </div>
                                     </div>
@@ -292,6 +376,15 @@
                                 <div class="space-y-4">
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
                                         <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                            <span class="text-purple-600 dark:text-purple-400 text-2xl">∞</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-md font-bold text-black dark:text-white">Unbegrenzte sichere Generierungen</span>
+                                            <p class="text-gray-600 dark:text-gray-400">Keine täglichen Limits</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
                                             <span class="text-purple-600 dark:text-purple-400 text-2xl">🧠</span>
                                         </div>
                                         <div>
@@ -299,7 +392,7 @@
                                             <p class="text-gray-600 dark:text-gray-400">Proaktive Sicherheitsanalyse</p>
                                         </div>
                                     </div>
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
                                         <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
                                             <span class="text-purple-600 dark:text-purple-400 text-2xl">🌐</span>
                                         </div>
@@ -321,7 +414,23 @@
                             </div>
                         </div>
 
+                        <!-- Create Account Button -->
+                        <div class="text-center mb-6">
+                            <button
+                                on:click={startAccountCreation}
+                                class="btn btn-primary btn-md rounded-full"
+                            >
+                                <span class="mr-2">🚀</span>
+                                {#if accountCreationStep === 'form'}
+                                   Auf {selectedAccountType === 'pro' ? 'PRO' : 'FREE'} verzichten
+                                {:else}
+                                    {selectedAccountType === 'pro' ? 'PRO' : 'FREE'} Account anlegen
+                                {/if}
+                            </button>
+                        </div>
+
                         <!-- Login Form -->
+                        {#if accountCreationStep === 'form'}
                         <div class="bg-transparent mb-8">      
                             <form on:submit={handleLogin} class="space-y-4">
                                 <div>
@@ -362,18 +471,31 @@
                                 >
                                     {#if isSubmitting}
                                         <span class="animate-spin mr-1">⏳</span>
-                                        Sending Magic Link...
+                                        Sending Magic-Link...
                                     {:else}
                                         <span class="mr-1">🔐</span>
-                                        Send Magic Link
+                                        Create Magic-Link
                                     {/if}
                                 </button>
+                                
+                                <!-- Form Validation -->
+                                {#if !isFormValid && email}
+                                    <div class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                                        {#if !isEmailValid}
+                                            <p>⚠️ Please enter a valid email address</p>
+                                        {/if}
+                                        {#if showProfileForm && !isNameValid}
+                                            <p>⚠️ Please enter your name (minimum 2 characters)</p>
+                                        {/if}
+                                    </div>
+                                {/if}
+                                
                                 <button
-                                on:click={() => showProfileForm = !showProfileForm}
-                                class="btn btn-secondary btn-md rounded-full"
-                            >
-                            <span class="mr-1.5">👤</span>{showProfileForm ? 'Hide' : 'Add'} Data
-                            </button>
+                                    on:click={() => showProfileForm = !showProfileForm}
+                                    class="btn btn-secondary btn-md rounded-full"
+                                    >
+                                    <span class="mr-1.5">👤</span>{showProfileForm ? 'Hide' : 'Add'} Profile Data
+                                </button>
                             </div>
                             </form>
 
@@ -381,13 +503,14 @@
                             <!-- Error will be shown as modal via reactive statement -->
                             {/if}
                         </div>
+                        {/if}
 
                         <!-- Footer -->
                         <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                             <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                                 <span class="flex items-center">
                                     <span class="text-green-500 mr-2">🔒</span>
-                                    Secure & Private
+                                    Magic link
                                 </span>
                                 <span class="flex items-center">
                                     <span class="text-blue-500 mr-2">⚡</span>

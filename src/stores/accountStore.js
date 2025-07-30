@@ -1,6 +1,6 @@
 // src/stores/accountStore.js
 import { writable } from 'svelte/store';
-import { WEBHOOKS } from '../config/api.js';
+import { WEBHOOKS, mockAPI } from '../config/api.js';
 
 // Account stores
 export const accountData = writable(null);
@@ -13,18 +13,32 @@ export async function loginWithMagicLink(email, name = '', userId = '') {
         isLoggingIn.set(true);
         loginError.set(null);
 
-        const response = await fetch(WEBHOOKS.ACCOUNT.MAGIC_LINK_SEND, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
+        // Verwende Mock-API im Entwicklungsmodus
+        let response;
+
+        if (mockAPI) {
+            // Mock-API für Entwicklung
+            response = await mockAPI.post(WEBHOOKS.ACCOUNT.MAGIC_LINK_SEND, {
                 email,
                 name,
                 userId,
                 language: 'en'
-            })
-        });
+            });
+        } else {
+            // Echte API für Produktion
+            response = await fetch(WEBHOOKS.ACCOUNT.MAGIC_LINK_SEND, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email,
+                    name,
+                    userId,
+                    language: 'en'
+                })
+            });
+        }
 
         if (!response.ok) {
             const errorData = await response.json();
@@ -59,16 +73,27 @@ export async function loginWithMagicLink(email, name = '', userId = '') {
 // Verify magic link
 export async function verifyMagicLink(token, email) {
     try {
-        const response = await fetch(WEBHOOKS.ACCOUNT.MAGIC_LINK_VERIFY, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
+        let response;
+
+        if (mockAPI) {
+            // Mock-API für Entwicklung
+            response = await mockAPI.post(WEBHOOKS.ACCOUNT.MAGIC_LINK_VERIFY, {
                 token,
                 email
-            })
-        });
+            });
+        } else {
+            // Echte API für Produktion
+            response = await fetch(WEBHOOKS.ACCOUNT.MAGIC_LINK_VERIFY, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    token,
+                    email
+                })
+            });
+        }
 
         if (!response.ok) {
             const errorData = await response.json();

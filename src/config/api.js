@@ -15,6 +15,23 @@ console.log(
     isLocalDevelopment ? 'Lokale Entwicklung' : 'Produktion'
 );
 
+// Mock-API für Entwicklung (CORS-Probleme umgehen)
+const createMockAPI = () => ({
+    async post(endpoint, data) {
+        console.log('🧪 Mock API called:', endpoint, data);
+
+        // Simuliere erfolgreiche Antwort
+        return {
+            ok: true,
+            json: async () => ({
+                success: true,
+                message: 'Mock response (development mode)',
+                testMode: true
+            })
+        };
+    }
+});
+
 // Lokale API-URL oder Produktions-URL basierend auf der Umgebung
 const API_URL = isLocalDevelopment
     ? 'https://its.keymoji.wtf/api' // Vercel API für Entwicklung
@@ -81,5 +98,8 @@ export const API_CONFIG = {
         SUBMISSION_WINDOW_HOURS: 24
     }
 };
+
+// Mock-API für Entwicklung exportieren
+export const mockAPI = isLocalDevelopment ? createMockAPI() : null;
 
 export default WEBHOOKS;

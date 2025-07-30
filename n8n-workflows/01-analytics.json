@@ -1,0 +1,490 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "content": "## Analytics\n",
+                "height": 656,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -368,
+                16
+            ],
+            "id": "116c06e8-a274-4b39-a0ec-1a7d7168b9f6",
+            "name": "Sticky Note"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-counter",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "a625d087-4617-4f15-9162-570181cdd4b8",
+            "name": "Counter Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -288,
+                496
+            ],
+            "webhookId": "counter-webhook"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate counter request\nconst webhookData = $input.first().json;\n\nconsole.log('=== COUNTER WEBHOOK ===');\nconsole.log('Raw webhook data:', JSON.stringify(webhookData, null, 2));\n\n// Extract body from webhook data\nconst data = webhookData.body || webhookData;\n\nconsole.log('Body data:', JSON.stringify(data, null, 2));\n\n// Validate required fields\nif (!data.type) {\n    throw new Error('Missing required field: type');\n}\n\nif (data.type !== 'user_counter') {\n    throw new Error('Invalid type: expected user_counter');\n}\n\nconsole.log('✅ Counter data validation passed');\nconsole.log('Event type:', data.type);\n\n// Format data for processing\nconst formattedData = {\n    type: data.type,\n    path: data.path || '/',\n    client: data.client || '',\n    version: data.version || '0.5.0',\n    timestamp: data.timestamp || new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' }),\n    language: data.language || 'en',\n    referrer: data.referrer || 'direct',\n    screen: data.screen || '',\n    data: data.data || ''\n};\n\nconsole.log('Formatted data for processing:', JSON.stringify(formattedData, null, 2));\n\nreturn { json: formattedData };"
+            },
+            "id": "3188f91b-08e0-4f42-afba-b42a5b3dee5b",
+            "name": "Validate Counter Data",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -64,
+                496
+            ]
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "gid=0",
+                    "mode": "list",
+                    "cachedResultName": "counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=0"
+                },
+                "options": {}
+            },
+            "id": "a15e341e-b1e7-4141-b318-ad3147ccfb81",
+            "name": "Read Current Counter",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                160,
+                496
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Find the highest counter value from all rows\nconst items = $input.all();\nlet maxCounter = 0;\n\nconsole.log('=== FIND MAX COUNTER ===');\nconsole.log('Total rows:', items.length);\n\n// Go through all rows to find the highest counter\nitems.forEach((item, index) => {\n    const row = item.json;\n    console.log(`Row ${index}:`, row);\n    \n    // Try different possible counter field names (column B)\n    let counterValue = 0;\n    if (row.B) {\n        counterValue = parseInt(row.B) || 0;\n    } else if (row.counter) {\n        counterValue = parseInt(row.counter) || 0;\n    } else if (row.Counter) {\n        counterValue = parseInt(row.Counter) || 0;\n    } else if (row.COUNTER) {\n        counterValue = parseInt(row.COUNTER) || 0;\n    } else if (row[1]) {\n        counterValue = parseInt(row[1]) || 0;\n    }\n    \n    if (counterValue > maxCounter) {\n        maxCounter = counterValue;\n        console.log(`New max counter found: ${maxCounter} in row ${index}`);\n    }\n});\n\nconsole.log(`Final max counter: ${maxCounter}`);\n\n// Increment counter\nconst newCounter = maxCounter + 1;\nconsole.log(`New counter value: ${newCounter}`);\n\n// Format for Google Sheets append (ONLY counter and timestamp)\nconst updateData = {\n    counter: newCounter.toString(),\n    lastUpdate: new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })\n};\n\nconsole.log('Update data:', JSON.stringify(updateData, null, 2));\n\nreturn { json: updateData };"
+            },
+            "id": "a2cacaff-01c0-4442-84b7-dd0bbe56c52a",
+            "name": "Update Counter Value",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                368,
+                496
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "gid=0",
+                    "mode": "list",
+                    "cachedResultName": "counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=0"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "counter",
+                            "displayName": "counter",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "lastupdated",
+                            "displayName": "lastupdated",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "9c9bb7f4-439e-4a1f-9c48-747ceaa309e1",
+            "name": "Save Updated Counter",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                592,
+                496
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"message\": \"Counter updated successfully\",\n  \"counter\": {{ $json.counter }},\n  \"timestamp\": \"{{ $json.timestamp }}\"\n}",
+                "options": {}
+            },
+            "id": "5a7994c5-ebd6-4d22-9a14-b0042cd9670f",
+            "name": "Success Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                816,
+                496
+            ]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-analytics",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "f76fe045-9ee8-4296-afd4-8e024605423c",
+            "name": "Analytics Only Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -288,
+                256
+            ],
+            "webhookId": "analytics-only-webhook"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate analytics request\nconst webhookData = $input.first().json;\n\nconsole.log('=== ANALYTICS WEBHOOK ===');\nconsole.log('Raw webhook data:', JSON.stringify(webhookData, null, 2));\n\n// Extract body from webhook data\nconst data = webhookData.body || webhookData;\n\nconsole.log('Body data:', JSON.stringify(data, null, 2));\n\n// Validate required fields\nif (!data.type) {\n    throw new Error('Missing required field: type');\n}\n\nconsole.log('✅ Analytics data validation passed');\nconsole.log('Event type:', data.type);\n\n// Format data for processing (ALL DETAILS)\nconst formattedData = {\n    type: data.type,\n    path: data.path || '/',\n    client: data.client || '',\n    version: data.version || '0.5.0',\n    timestamp: data.timestamp || new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' }),\n    language: data.language || 'en',\n    referrer: data.referrer || 'direct',\n    screen: data.screen || '',\n    data: data.data || '',\n    eventData: data.eventData || ''\n};\n\nconsole.log('Formatted data for processing:', JSON.stringify(formattedData, null, 2));\n\nreturn { json: formattedData };"
+            },
+            "id": "5e1c8acc-8149-49d5-a78d-bd28f98b32e8",
+            "name": "Validate Analytics Data",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -80,
+                256
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 949619593,
+                    "mode": "list",
+                    "cachedResultName": "analytics",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=949619593"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "Timestamp",
+                            "displayName": "Timestamp",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "UserID",
+                            "displayName": "UserID",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "Event",
+                            "displayName": "Event",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "Data",
+                            "displayName": "Data",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "Language",
+                            "displayName": "Language",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "Path",
+                            "displayName": "Path",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "Client",
+                            "displayName": "Client",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "Version",
+                            "displayName": "Version",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "Screen",
+                            "displayName": "Screen",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "Referrer",
+                            "displayName": "Referrer",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "31297db1-a5d6-445f-8a82-f15e6766fd54",
+            "name": "Save to Analytics Sheet",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                144,
+                256
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"message\": \"Analytics saved\",\n  \"timestamp\": \"{{ new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' }) }}\"\n}",
+                "options": {}
+            },
+            "id": "8176d6aa-429f-4d7b-9140-7b2a6a0e557d",
+            "name": "Analytics Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                352,
+                256
+            ]
+        }
+    ],
+    "connections": {
+        "Counter Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Counter Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Counter Data": {
+            "main": [
+                [
+                    {
+                        "node": "Read Current Counter",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Current Counter": {
+            "main": [
+                [
+                    {
+                        "node": "Update Counter Value",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Counter Value": {
+            "main": [
+                [
+                    {
+                        "node": "Save Updated Counter",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Updated Counter": {
+            "main": [
+                [
+                    {
+                        "node": "Success Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Analytics Only Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Analytics Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Analytics Data": {
+            "main": [
+                [
+                    {
+                        "node": "Save to Analytics Sheet",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save to Analytics Sheet": {
+            "main": [
+                [
+                    {
+                        "node": "Analytics Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "3dae61a0a24f0b093f057680559772c3c73ec97ec47a9bd2a5ad745c7d8f0365"
+    }
+}

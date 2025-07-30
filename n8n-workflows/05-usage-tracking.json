@@ -1,0 +1,306 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-usage",
+                "responseMode": "responseNode",
+                "options": {
+                    "allowedOrigins": "*"
+                }
+            },
+            "id": "6b074f19-9949-4c23-9546-db1da8b3c92c",
+            "name": "Usage Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -240,
+                3232
+            ],
+            "webhookId": "usage-webhook",
+            "disabled": true
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 834587958,
+                    "mode": "list",
+                    "cachedResultName": "usage",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=834587958"
+                },
+                "options": {}
+            },
+            "id": "de4a77e1-ed7a-4139-a46f-8285eba89573",
+            "name": "Read Usage Data",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                208,
+                3232
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Process usage data\nconst data = $input.first().json;\nconst usageData = $input.all();\nconst userId = data.userId;\nconst feature = data.feature;\nconst period = data.period;\n\n// Find user's usage for this feature and period\nconst userUsage = usageData.find(u => \n  u.userId === userId && \n  u.feature === feature && \n  u.period === period\n);\n\n// Default limits based on feature\nconst limits = {\n  emoji_generation: { free: 10, pro: 100, experimental: 1000 },\n  story_generation: { free: 3, pro: 50, experimental: 500 },\n  analytics: { free: 5, pro: 100, experimental: 1000 }\n};\n\n// Get user tier (default to free)\nconst tier = userUsage?.tier || 'free';\nconst limit = limits[feature]?.[tier] || 10;\n\nreturn { json: { userId, feature, period, tier, limit, currentUsage: userUsage?.usage || 0 } };"
+            },
+            "id": "c1b13ea6-edd1-4885-9951-95fe35d425fc",
+            "name": "Process Usage",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                432,
+                3232
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Track usage\nconst data = $input.first().json;\nconst usage = data.usage;\nconst currentUsage = data.currentUsage;\nconst newUsage = currentUsage + usage;\n\n// Check if limit exceeded\nconst limitExceeded = newUsage > data.limit;\n\n// Update usage data\nconst updatedUsage = {\n  userId: data.userId,\n  feature: data.feature,\n  period: data.period,\n  tier: data.tier,\n  usage: newUsage,\n  limit: data.limit,\n  lastUpdated: new Date().toISOString()\n};\n\nreturn { json: { ...updatedUsage, limitExceeded } };"
+            },
+            "id": "d333d4ec-e37d-4da6-b791-7625fb0cc5e0",
+            "name": "Track Usage",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                864,
+                3120
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 834587958,
+                    "mode": "list",
+                    "cachedResultName": "usage",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=834587958"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": null,
+                    "matchingColumns": [],
+                    "schema": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "c448ab9c-ce10-44fb-9a23-7a9d8072ce96",
+            "name": "Save Usage",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                1088,
+                3120
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"usage\": {\n    \"current\": {{ $json.usage }},\n    \"limit\": {{ $json.limit }},\n    \"remaining\": {{ $json.limit - $json.usage }},\n    \"resetDate\": \"{{ new Date(Date.now() + 24*60*60*1000).toISOString() }}\"\n  },\n  \"limitExceeded\": {{ $json.limitExceeded }},\n  \"message\": \"Usage tracked successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "942dfa65-7d79-4598-a6f4-08df39f0fbbc",
+            "name": "Track Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1312,
+                3120
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"usage\": {\n    \"current\": {{ $json.currentUsage }},\n    \"limit\": {{ $json.limit }},\n    \"remaining\": {{ $json.limit - $json.currentUsage }},\n    \"resetDate\": \"{{ new Date(Date.now() + 24*60*60*1000).toISOString() }}\"\n  },\n  \"message\": \"Usage retrieved successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "e4f08312-0f60-4844-b89b-335b025b8a66",
+            "name": "Get Usage Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                656,
+                3488
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId) {\n  throw new Error('Missing required fields: action, userId');\n}\n\n// Validate action\nconst validActions = ['track', 'get', 'reset'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: track, get, reset');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  feature: data.feature || 'emoji_generation',\n  usage: parseInt(data.usage) || 1,\n  period: data.period || 'daily'\n};\n\nreturn { json: sanitizedData };"
+            },
+            "id": "9bb06c77-3c05-4e7f-9ac1-bbc23af6585e",
+            "name": "Validate Data4",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -16,
+                3232
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "action-check",
+                            "leftValue": "={{ $json.action }}",
+                            "rightValue": "track",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "0bcf8acb-a7f1-413e-a90c-390672e801db",
+            "name": "Route by Action3",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                656,
+                3232
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## Usage Tracking\n\n",
+                "height": 560,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                3088
+            ],
+            "id": "e5547394-1cd0-479e-bc74-b6d14f15472b",
+            "name": "Sticky Note4"
+        }
+    ],
+    "connections": {
+        "Usage Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Data4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Usage Data": {
+            "main": [
+                [
+                    {
+                        "node": "Process Usage",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Usage": {
+            "main": [
+                [
+                    {
+                        "node": "Route by Action3",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Track Usage": {
+            "main": [
+                [
+                    {
+                        "node": "Save Usage",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Usage": {
+            "main": [
+                [
+                    {
+                        "node": "Track Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Data4": {
+            "main": [
+                [
+                    {
+                        "node": "Read Usage Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route by Action3": {
+            "main": [
+                [
+                    {
+                        "node": "Track Usage",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Get Usage Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "3dae61a0a24f0b093f057680559772c3c73ec97ec47a9bd2a5ad745c7d8f0365"
+    }
+}

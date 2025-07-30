@@ -153,6 +153,10 @@
     <div 
         class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
         on:click={handleBackdropClick}
+        on:keydown={(e) => e.key === 'Escape' && handleBackdropClick(e)}
+        role="dialog"
+        aria-modal="true"
+        tabindex="-1"
         transition:fade={{ duration: 200 }}
     >
         <div 

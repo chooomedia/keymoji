@@ -1,0 +1,306 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-features",
+                "responseMode": "responseNode",
+                "options": {
+                    "allowedOrigins": "*"
+                }
+            },
+            "id": "5b571eec-c59f-445b-bd43-34231cc0dccd",
+            "name": "Feature Flags Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -240,
+                2512
+            ],
+            "webhookId": "feature-flags-webhook",
+            "disabled": true
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1412122533,
+                    "mode": "list",
+                    "cachedResultName": "features",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1412122533"
+                },
+                "options": {}
+            },
+            "id": "2318c8b2-cf3d-4cd0-8313-a87375c5e71d",
+            "name": "Read Feature Flags",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                208,
+                2512
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Get user's feature flags\nconst data = $input.first().json;\nconst features = $input.all();\nconst userId = data.userId;\nconst tier = data.tier;\n\n// Find user's feature flags\nconst userFeatures = features.find(f => f.userId === userId);\n\n// Default feature flags based on tier\nconst defaultFlags = {\n  free: {\n    STORY_MODE: false,\n    ADVANCED_ANALYTICS: false,\n    NO_DAILY_LIMIT: false,\n    CUSTOM_EMOJIS: false,\n    EXPORT_HISTORY: false,\n    PRIORITY_SUPPORT: false\n  },\n  pro: {\n    STORY_MODE: true,\n    ADVANCED_ANALYTICS: true,\n    NO_DAILY_LIMIT: true,\n    CUSTOM_EMOJIS: false,\n    EXPORT_HISTORY: true,\n    PRIORITY_SUPPORT: false\n  },\n  experimental: {\n    STORY_MODE: true,\n    ADVANCED_ANALYTICS: true,\n    NO_DAILY_LIMIT: true,\n    CUSTOM_EMOJIS: true,\n    EXPORT_HISTORY: true,\n    PRIORITY_SUPPORT: true\n  }\n};\n\n// Return user's flags or default based on tier\nconst flags = userFeatures?.featureFlags || defaultFlags[tier] || defaultFlags.free;\n\nreturn { json: { userId, tier, features: flags } };"
+            },
+            "id": "035b9cb0-dbc7-4d0a-9ac9-2cd5de3c6a31",
+            "name": "Process Feature Flags",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                432,
+                2512
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Update feature flags\nconst data = $input.first().json;\nconst updates = data.features;\n\n// Merge with existing flags\nconst updatedFlags = {\n  ...data.features,\n  ...updates,\n  updatedAt: new Date().toISOString()\n};\n\nreturn { json: { userId: data.userId, tier: data.tier, features: updatedFlags } };"
+            },
+            "id": "0f9a639c-b3de-4fca-b5ec-ff87d57b2032",
+            "name": "Update Feature Flags",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                864,
+                2400
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1412122533,
+                    "mode": "list",
+                    "cachedResultName": "features",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1412122533"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": null,
+                    "matchingColumns": [],
+                    "schema": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "cd67bc38-ec21-45e5-96dc-eefa4391adbb",
+            "name": "Save Feature Flags",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                1088,
+                2400
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"features\": {{ $json.features }},\n  \"tier\": \"{{ $json.tier }}\",\n  \"message\": \"Feature flags retrieved successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "77b93e53-e322-4972-8a5e-45f65621ffd9",
+            "name": "Get Features Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                656,
+                2752
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"features\": {{ $json.features }},\n  \"tier\": \"{{ $json.tier }}\",\n  \"message\": \"Feature flags updated successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "a05292f3-308f-4e45-9f0c-0ea6fff755d5",
+            "name": "Update Features Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1312,
+                2400
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId) {\n  throw new Error('Missing required fields: action, userId');\n}\n\n// Validate action\nconst validActions = ['get_flags', 'update_flags'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: get_flags, update_flags');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  tier: data.tier || 'free',\n  features: data.features || {}\n};\n\nreturn { json: sanitizedData };"
+            },
+            "id": "b89e1e17-6fb4-4019-9825-143c197fd3d1",
+            "name": "Validate Data3",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -16,
+                2512
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "action-check",
+                            "leftValue": "={{ $json.action }}",
+                            "rightValue": "update_flags",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "40533aa3-0b6e-4d1f-b71b-001ac614f637",
+            "name": "Route by Action2",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                656,
+                2512
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## Feature Flags\n",
+                "height": 672,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                2288
+            ],
+            "id": "268944e6-4253-462a-b0fd-42a2f2064e52",
+            "name": "Sticky Note3"
+        }
+    ],
+    "connections": {
+        "Feature Flags Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Data3",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Feature Flags": {
+            "main": [
+                [
+                    {
+                        "node": "Process Feature Flags",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Feature Flags": {
+            "main": [
+                [
+                    {
+                        "node": "Route by Action2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Feature Flags": {
+            "main": [
+                [
+                    {
+                        "node": "Save Feature Flags",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Feature Flags": {
+            "main": [
+                [
+                    {
+                        "node": "Update Features Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Data3": {
+            "main": [
+                [
+                    {
+                        "node": "Read Feature Flags",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route by Action2": {
+            "main": [
+                [
+                    {
+                        "node": "Update Feature Flags",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Get Features Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "3dae61a0a24f0b093f057680559772c3c73ec97ec47a9bd2a5ad745c7d8f0365"
+    }
+}
