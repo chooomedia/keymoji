@@ -10,11 +10,11 @@
             "use": "@vercel/node"
         },
         {
-            "src": "api/send-magic-link.js",
+            "src": "api/magic-link/send.js",
             "use": "@vercel/node"
         },
         {
-            "src": "api/verify-magic-link.js",
+            "src": "api/magic-link/verify.js",
             "use": "@vercel/node"
         },
         {
@@ -59,7 +59,7 @@
         },
         {
             "src": "/api/magic-link/send",
-            "dest": "/api/send-magic-link.js",
+            "dest": "/api/magic-link/send.js",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -72,7 +72,7 @@
         },
         {
             "src": "/api/magic-link/verify",
-            "dest": "/api/verify-magic-link.js",
+            "dest": "/api/magic-link/verify.js",
             "methods": [
                 "POST",
                 "OPTIONS"
