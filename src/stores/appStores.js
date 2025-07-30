@@ -285,6 +285,7 @@ export function setLanguage(lang) {
 export const isLoggedIn = writable(false);
 export const dailyLimit = writable({ limit: 5, used: 0 });
 export const accountSettings = writable({});
+export const currentSettings = writable({}); // Alias for accountSettings for modular components
 export const isGuestUser = writable(true);
 export const isProUser = writable(false);
 export const currentAccount = writable(null);

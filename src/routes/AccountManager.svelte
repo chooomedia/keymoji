@@ -21,6 +21,7 @@
     } from '../stores/appStores.js';
     import { loginWithMagicLink, isLoggingIn, loginError, createAccount } from '../stores/accountStore.js';
     import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore.js';
+    import { currentSettings, resetSettings, exportSettings, importSettings } from '../stores/userSettingsStore.js';
     import { WEBHOOKS } from '../config/api.js';
     import UserSettings from '../components/UserSettings.svelte';
 
@@ -35,6 +36,11 @@
     let accountCreationStep = 'benefits'; // 'benefits', 'form', 'verification'
     let selectedAccountType = 'free'; // 'free', 'pro'
     let showAdvancedOptions = false;
+
+    // Context menu state
+    let showContextMenu = false;
+    let contextMenuPosition = { x: 0, y: 0 };
+    let fileInput;
 
     // Email validation
     const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -87,7 +93,67 @@
         accountCreationStep = 'benefits';
     }
 
+    // Context menu functions
+    function toggleContextMenu(event) {
+        event.stopPropagation();
+        showContextMenu = !showContextMenu;
+        if (showContextMenu) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            contextMenuPosition = {
+                x: rect.left,
+                y: rect.bottom + 8
+            };
+        }
+    }
 
+    function closeContextMenu() {
+        showContextMenu = false;
+    }
+
+    // Close context menu when clicking outside
+    function handleClickOutside(event) {
+        if (showContextMenu && !event.target.closest('.context-menu')) {
+            closeContextMenu();
+        }
+    }
+
+    // Handle settings reset
+    function handleResetSettings() {
+        resetSettings();
+        showSuccess('Settings reset to default', 3000);
+        closeContextMenu();
+    }
+
+    // Handle settings export
+    function handleExportSettings() {
+        try {
+            exportSettings();
+            showSuccess('Settings exported successfully', 3000);
+        } catch (error) {
+            showError('Failed to export settings', 3000);
+        }
+        closeContextMenu();
+    }
+
+    // Handle settings import
+    function handleImportSettings(event) {
+        const file = event.target.files[0];
+        if (file) {
+            importSettings(file)
+                .then(() => {
+                    showSuccess('Settings imported successfully', 3000);
+                })
+                .catch((error) => {
+                    showError(`Import failed: ${error.message}`, 3000);
+                });
+        }
+        closeContextMenu();
+    }
+
+    // Trigger file input
+    function triggerFileInput() {
+        fileInput.click();
+    }
 
     async function handleLogin(event) {
         event.preventDefault();
@@ -129,12 +195,21 @@
             email = $currentAccount.email;
             name = $currentAccount.name || '';
         }
+        
+        // Add global click listener for context menu
+        document.addEventListener('click', handleClickOutside);
+        
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
     });
 
     // Reactive statement to show error as modal
     $: if ($loginError) {
         showError($loginError, 5000);
     }
+
+
 </script>
 
 <svelte:head>
@@ -184,15 +259,68 @@
                 {#if $isLoggedIn}
                     <div class="p-4">
                         <div class="flex items-center justify-between mb-6">
-                            <div>
-                                <p class="text-gray-600 dark:text-gray-400">
-                                    {$currentAccount?.email}
-                                </p>
-                            </div>
-                            <div class="text-right">
+                            <p class="text-gray-600 dark:text-gray-400">
+                                {$currentAccount?.email}
+                            </p>
+
+                            <!-- PRO Badge and Context Menu -->
+                            <div class="flex items-center gap-2">
+                                <!-- PRO Badge -->
                                 <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold {$accountTier === 'pro' ? 'dark:text-white bg-purple-700' : 'dark:text-white bg-yellow-700'}" >
                                     {$accountTier === 'pro' ? '💎 PRO' : '✨ FREE'}
                                 </span>
+
+                                <!-- Context Menu Button (only for Pro users) -->
+                                {#if isProUser}
+                                <div class="relative context-menu">
+                                    <button
+                                        on:click={toggleContextMenu}
+                                        class="p-2 rounded-full bg-creme-500 dark:bg-aubergine-950 text-gray-700 dark:text-white hover:bg-creme-600 dark:hover:bg-aubergine-900 transition-colors"
+                                        aria-label="Settings menu"
+                                    >
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- Context Menu Dropdown -->
+                                    {#if showContextMenu}
+                                        <div 
+                                            class="absolute right-0 mt-2 w-48 bg-white dark:bg-aubergine-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+                                            style="top: 100%;"
+                                            transition:slide={{ duration: 200 }}
+                                        >
+                                            <div class="py-1">
+                                                <button
+                                                    on:click={handleExportSettings}
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 transition-colors flex items-center"
+                                                >
+                                                    <span class="mr-2">📤</span>
+                                                    Export Settings
+                                                </button>
+                                                
+                                                <button
+                                                    on:click={triggerFileInput}
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 transition-colors flex items-center"
+                                                >
+                                                    <span class="mr-2">📥</span>
+                                                    Import Settings
+                                                </button>
+                                                
+                                                <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                                                
+                                                <button
+                                                    on:click={handleResetSettings}
+                                                    class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center"
+                                                >
+                                                    <span class="mr-2">🔄</span>
+                                                    Reset to Default
+                                                </button>
+                                            </div>
+                                        </div>
+                                    {/if}
+                                </div>
+                                {/if}
                             </div>
                         </div>
 
@@ -238,23 +366,33 @@
                         </div>
 
                         <!-- Settings Section -->
-                        <div class="bg-creme-600 dark:bg-aubergine-800 rounded-lg" transition:slide={{ duration: 300 }}>
+                        <div transition:slide={{ duration: 300 }}>
                             <UserSettings />
                         </div>                      
 
-                        <!-- Home Button -->
-                        {#if getRemainingGenerations() > 0}
-                        <div class="text-center mt-6">
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-6 space-y-3">
+                            <!-- Primary Action: Save Settings -->
+                            <button
+                                on:click={() => showSuccess('Settings saved successfully!', 3000)}
+                                class="btn btn-primary btn-md rounded-full w-full"
+                            >
+                                <span class="text-xl">💾</span>
+                                Save Settings
+                            </button>
+                            
+                            <!-- Secondary Action: Back to Home -->
+                            {#if getRemainingGenerations() > 0}
                             <button
                                 on:click={navigateToHome}
-                                class="btn btn-primary btn-md rounded-full"
+                                class="btn btn-secondary btn-md rounded-full w-full"
                                 aria-label="Back to home"
                             >
                                 <span class="text-xl">🏠</span>
                                 Back to Home
                             </button>
+                            {/if}
                         </div>
-                        {/if}
                     </div>
                 {:else if accountCreationStep === 'verification'}
                     <!-- Verification Step -->
@@ -301,7 +439,7 @@
                     <div class="p-4">
                         <div class="relative h-20 bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-inner p-2 overflow-hidden mb-4">
                             <div
-                                class="absolute inset-y-2 left-2 bg-creme-600 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
+                                class="absolute inset-y-2 left-2 bg-creme-500 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
                                 style="width: calc(50% - 4px); transform: translateX({showBenefitsToggle === 'pro' ? 'calc(100% - 6px)' : '0'})"
                             ></div>
                             <div class="relative flex h-full">
@@ -524,4 +662,13 @@
 
     <!-- Fixed Menu -->
     <FixedMenu align={'bottom'} />
+    
+    <!-- Hidden file input for settings import -->
+    <input
+        bind:this={fileInput}
+        type="file"
+        accept=".json"
+        on:change={handleImportSettings}
+        class="hidden"
+    />
 </main> 
