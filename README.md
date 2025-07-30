@@ -1,59 +1,44 @@
-# keymoji emoji password generator
-A project template using Svelte, Tailwind CSS, PostCSS and Webpack
+# Keymoji - Emoji Generator
 
-The base webpack configuration is based on [start template project 🎒](https://github.com/davi-mbatista/start)
+Ein KI-gestützter Emoji-Generator mit sicherer Account-Verwaltung.
 
-To run locally
-````bash
-npm run start
-````
+## Projektstruktur
 
-To make a production build
-````bash
-npm run build
-````# Keymoji 🌟
+Dieses Repository enthält nur das **Frontend** der Keymoji-Anwendung. Das Backend ist in einem separaten Repository organisiert.
 
-**Keymoji** - The ultimate Emoji Password Generator SPA!
+### Frontend (dieses Repository)
 
-## 🚀 Introduction
+-   **Technologie**: Svelte/SvelteKit
+-   **Styling**: Tailwind CSS
+-   **Deployment**: Statisches Hosting (z.B. Netlify, Vercel)
 
-**Keymoji** isn't just another SPA. It's your go-to solution for generating secure yet memorable passwords using emojis. Why settle for boring alphanumeric passwords when you can have the fun and security of emojis?
+### Backend (separates Repository)
 
-## 🌈 Features
+-   **Technologie**: Node.js mit Vercel Serverless Functions
+-   **Services**:
+    -   Magic Link Authentication
+    -   Email Templates (Brevo)
+    -   Account Management
+    -   Contact Form Processing
+-   **Deployment**: Vercel
 
-- **Random Emoji Generation**: Get a unique password from a selection of emojis.
-- **Story Mode**: Tell a story and let us generate a password from it!
-- **Light & Dark Mode**: Because we all love choices.
-- **Social Sharing**: Share your love for Keymoji with the world!
+## Entwicklung
 
-## 🛠 Installation & Setup
+### Frontend starten
 
-1. Clone the repository:
 ```bash
-git clone https://github.com/chooomedia/keymoji.git
-```
-2. Navigate into the directory and install the dependencies:
-```bash
-cd keymoji
 npm install
-```
-3. Start the app:
-```bash
 npm run dev
 ```
 
-## 🤝 Contributing
+### Backend (separates Repository)
 
-We love contributions! If you find a bug or want to suggest a new feature, please open an issue or a pull request.
+Das Backend-Repository muss separat geklont und konfiguriert werden.
 
+## Umgebung
 
-## 📜 License
+Stelle sicher, dass die Backend-API-URL in der Frontend-Konfiguration korrekt gesetzt ist.
 
-This project is licensed under the MIT License. See LICENSE.md for details.
+## Lizenz
 
-
-## 💌 Contact
-Got questions or feedback? Contact us at hello@chooomedia.de.
-
-Keymoji - Bring emojis into your passwords!
-
+MIT
