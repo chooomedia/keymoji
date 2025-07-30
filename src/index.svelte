@@ -4,7 +4,6 @@
     import { updateSeo } from './stores/seoStore.js';
     import { linkedinIcon } from './assets/shapes.js';
     import { navigate } from 'svelte-routing';
-    import { formatVersion } from './utils/version.js';
     import { closeModal, isModalVisible } from './stores/modalStore.js';
     import Modal from './components/UI/Modal.svelte';
     import PageLayout from './components/Layout/PageLayout.svelte';
@@ -14,6 +13,8 @@
     import { translations } from './stores/contentStore.js';
     import { navigateToVersions } from './utils/navigation.js';
     import { isDebugMode } from './utils/environment.js';
+    import { initializeAccountFromCookies } from './stores/accountStore.js';
+    import { initializeSettingsForUser } from './stores/userSettingsStore.js';
   
     // Debug-Flag - für die Produktion entfernen
     let showDebug = isDebugMode();
@@ -28,6 +29,12 @@
     onMount(() => {
       // Als gerendert markieren
       isRendered = true;
+      
+      // Initialize account from cookies
+      initializeAccountFromCookies();
+      
+      // Initialize user settings
+      initializeSettingsForUser();
       
       // Clean up any modals when arriving at home page
       if ($isModalVisible) {

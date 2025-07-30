@@ -2,7 +2,7 @@
 <script>
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
-    import { fade, fly } from 'svelte/transition';
+    import { fade, fly, slide } from 'svelte/transition';
     import Header from '../components/Layout/Header.svelte';
     import FixedMenu from '../widgets/FixedMenu.svelte';
     import { 
@@ -22,6 +22,7 @@
     import { loginWithMagicLink, isLoggingIn, loginError, createAccount } from '../stores/accountStore.js';
     import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore.js';
     import { WEBHOOKS } from '../config/api.js';
+    import UserSettings from '../components/UserSettings.svelte';
 
     // Toggle state
     let showBenefitsToggle = 'free';
@@ -30,6 +31,7 @@
     let showProfileForm = false;
     let isSubmitting = false;
     let showSettings = false;
+    let showUserSettings = false;
     let accountCreationStep = 'benefits'; // 'benefits', 'form', 'verification'
     let selectedAccountType = 'free'; // 'free', 'pro'
     let showAdvancedOptions = false;
@@ -39,6 +41,16 @@
     $: isEmailValid = validateEmail(email);
     $: isNameValid = name.trim().length >= 2;
     $: isFormValid = isEmailValid && (showProfileForm ? isNameValid : true);
+    
+    // Ensure we always have a valid name for the API
+    function getValidName() {
+        const trimmedName = name.trim();
+        if (trimmedName.length >= 2) {
+            return trimmedName;
+        }
+        // Fallback to email username or default
+        return email.split('@')[0] || 'User';
+    }
 
     function validateEmail(email) {
         return EMAIL_REGEX.test(email);
@@ -142,14 +154,28 @@
 
             <!-- Main Heading -->
             <div class="w-11/12 md:w-26r flex flex-wrap justify-center" role="banner">
-                <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                    {accountCreationStep === 'verification' ? '📧 Check Your Email and Verfiy' : 'Account Management'}
-                </h1>
-                <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                    {@html accountCreationStep === 'verification'
-                    ? `Check your email <strong>${email}</strong> and click the magic link to complete setup`
-                    : 'Manage your security settings and account preferences'}
-                </p>
+                {#if $isLoggedIn}
+                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
+                        Welcome back, {$userProfile?.name || $currentAccount?.name || 'User'}! 👋
+                    </h1>
+                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
+                        Ready to create some amazing emoji passwords? Your account is secure and ready to go!
+                    </p>
+                {:else if accountCreationStep === 'verification'}
+                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
+                        📧 Check Your Email and Verify
+                    </h1>
+                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
+                        {@html `Check your email <strong>${email}</strong> and click the magic link to complete setup`}
+                    </p>
+                {:else}
+                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
+                        Account Management
+                    </h1>
+                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
+                        Manage your security settings and account preferences
+                    </p>
+                {/if}
             </div>
 
             <!-- Account Content -->
@@ -159,9 +185,6 @@
                     <div class="p-4">
                         <div class="flex items-center justify-between mb-6">
                             <div>
-                                <h2 class="text-2xl font-bold text-black dark:text-white mb-2">
-                                    Welcome back, {$userProfile?.name || 'User'}! 👋
-                                </h2>
                                 <p class="text-gray-600 dark:text-gray-400">
                                     {$currentAccount?.email}
                                 </p>
@@ -174,7 +197,7 @@
                         </div>
 
                         <!-- Daily Limit Status -->
-                        <div class="bg-creme-500 dark:bg-aubergine-900 rounded-xl p-4 mb-5">
+                        <div class="bg-powder-300 dark:bg-aubergine-900 rounded-xl p-4 mb-5">
                             <div class="flex justify-between items-center mb-3">
                                 <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">
                                     Daily Generations
@@ -183,7 +206,7 @@
                                     {getRemainingGenerations()} / {$dailyLimit?.limit || 5} remaining
                                 </span>
                             </div>
-                            <div class="w-full bg-gray-200 dark:bg-aubergine-600 rounded-full h-3 mb-2">
+                            <div class="w-full bg-gray-300 dark:bg-aubergine-600 rounded-full h-3 mb-2">
                                 <div 
                                     class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500"
                                     style="width: {Math.min(100, (($dailyLimit?.used || 0) / ($dailyLimit?.limit || 5)) * 100)}%"
@@ -196,7 +219,7 @@
 
                         <!-- Account Statistics -->
                         <div class="grid grid-cols-2 gap-4 mb-6">
-                            <div class="text-center p-4 bg-gray-200 dark:bg-aubergine-900 rounded-xl">
+                            <div class="text-center p-4 bg-powder-300 dark:bg-aubergine-900 rounded-xl">
                                 <div class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
                                     {$successfulStoryRequests || 0}
                                 </div>
@@ -204,7 +227,7 @@
                                     Stories Generated
                                 </div>
                             </div>
-                            <div class="text-center p-4 bg-gray-200 dark:bg-aubergine-900 rounded-xl">
+                            <div class="text-center p-4 bg-powder-300 dark:bg-aubergine-900 rounded-xl">
                                 <div class="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
                                     {$accountTier === 'pro' ? '∞' : getRemainingGenerations()}
                                 </div>
@@ -215,38 +238,9 @@
                         </div>
 
                         <!-- Settings Section -->
-                        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                            <h3 class="text-lg font-semibold text-black dark:text-white mb-4">Account Settings</h3>
-                            <div class="space-y-3">
-                                <button class="w-full text-left p-4 rounded-lg bg-gray-300 dark:bg-aubergine-950 transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <span class="text-xl mr-3">🔐</span>
-                                            <span class="font-medium text-black dark:text-white">Security Settings</span>
-                                        </div>
-                                        <span class="text-gray-400">→</span>
-                                    </div>
-                                </button>
-                                <button class="w-full text-left p-4 rounded-lg bg-gray-300 dark:bg-aubergine-950 transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <span class="text-xl mr-3">📧</span>
-                                            <span class="font-medium text-black dark:text-white">Email Preferences</span>
-                                        </div>
-                                        <span class="text-gray-400">→</span>
-                                    </div>
-                                </button>
-                                <button class="w-full text-left p-4 rounded-lg bg-gray-300 dark:bg-aubergine-950 transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <span class="text-xl mr-3">🗑️</span>
-                                            <span class="font-medium text-black dark:text-white">Delete Account</span>
-                                        </div>
-                                        <span class="text-gray-400">→</span>
-                                    </div>
-                                </button>
-                            </div>
-                        </div>
+                        <div class="bg-creme-600 dark:bg-aubergine-800 rounded-lg" transition:slide={{ duration: 300 }}>
+                            <UserSettings />
+                        </div>                      
 
                         <!-- Home Button -->
                         {#if getRemainingGenerations() > 0}
@@ -305,9 +299,9 @@
                 {:else}
                     <!-- Benefits Toggle -->
                     <div class="p-4">
-                        <div class="relative h-20 bg-gray-200 dark:bg-aubergine-900 rounded-full shadow-inner p-2 overflow-hidden mb-4">
+                        <div class="relative h-20 bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-inner p-2 overflow-hidden mb-4">
                             <div
-                                class="absolute inset-y-2 left-2 bg-white dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
+                                class="absolute inset-y-2 left-2 bg-creme-600 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
                                 style="width: calc(50% - 4px); transform: translateX({showBenefitsToggle === 'pro' ? 'calc(100% - 6px)' : '0'})"
                             ></div>
                             <div class="relative flex h-full">
@@ -355,7 +349,7 @@
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">🔒</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">Grundlegende Datenschutz-Kontrollen</span>
+                                            <span class="text-md font-bold text-black dark:text-white">Denzentrale Datenverabeitung</span>
                                             <p class="text-gray-600 dark:text-gray-400">Deine Daten bleiben privat</p>
                                         </div>
                                     </div>
@@ -364,7 +358,7 @@
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">📱</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">Geräteübergreifende Synchronisation</span>
+                                            <span class="text-md font-bold text-black dark:text-white">Als Webapp nutzbar</span>
                                             <p class="text-gray-600 dark:text-gray-400">Sicherer Zugriff von überall</p>
                                         </div>
                                     </div>

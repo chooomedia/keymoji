@@ -14,7 +14,19 @@
         darkMode
     } from '../../stores/appStores.js';
     import { accountData, isLoggingIn, loginError, loginWithMagicLink } from '../../stores/accountStore.js';
-    import { showSuccess, showError, showWarning, showInfo } from '../../stores/modalStore.js';
+    import { 
+        showSuccess, 
+        showError, 
+        showWarning, 
+        showInfo,
+        showMagicLinkSending,
+        showMagicLinkSent,
+        showMagicLinkVerifying,
+        showMagicLinkVerified,
+        showMagicLinkVerificationFailed,
+        showAccountLoginSuccess,
+        showAccountLogoutSuccess
+    } from '../../stores/modalStore.js';
 
     const dispatch = createEventDispatcher();
 
@@ -102,6 +114,49 @@
         setTimeout(() => showError('Error modal test!', 2000), 500);
         setTimeout(() => showWarning('Warning modal test!', 2000), 1000);
         setTimeout(() => showInfo('Info modal test!', 2000), 1500);
+    }
+
+    // Modal Test Functions
+    function testMagicLinkSending() {
+        showMagicLinkSending('test@example.com');
+    }
+
+    function testMagicLinkSent() {
+        showMagicLinkSent('test@example.com');
+    }
+
+    function testMagicLinkVerifying() {
+        showMagicLinkVerifying('test@example.com');
+    }
+
+    function testMagicLinkVerified() {
+        showMagicLinkVerified('test@example.com', 'TestUser');
+    }
+
+    function testMagicLinkVerificationFailed() {
+        showMagicLinkVerificationFailed('Invalid token');
+    }
+
+    function testAccountLoginSuccess() {
+        showAccountLoginSuccess('TestUser');
+    }
+
+    function testAccountLogoutSuccess() {
+        showAccountLogoutSuccess();
+    }
+
+    function testModalSequence() {
+        // Simulate complete magic link flow
+        showMagicLinkSending('test@example.com');
+        setTimeout(() => {
+            showMagicLinkSent('test@example.com');
+        }, 2000);
+        setTimeout(() => {
+            showMagicLinkVerifying('test@example.com');
+        }, 4000);
+        setTimeout(() => {
+            showMagicLinkVerified('test@example.com', 'TestUser');
+        }, 6000);
     }
 
     function clearAllData() {
@@ -316,6 +371,52 @@
                             </button>
                             <button on:click={testModalSystem} class="w-full px-3 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded text-sm">
                                 📢 Test Modals
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Tests -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Modal Tests</h3>
+                        
+                        <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Magic Link Flow:</span>
+                                    <span class="font-mono text-blue-600">Complete</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Account Actions:</span>
+                                    <span class="font-mono text-green-600">Available</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Test Buttons -->
+                        <div class="space-y-2">
+                            <button on:click={testModalSequence} class="w-full px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded text-sm">
+                                🔄 Complete Magic Link Flow
+                            </button>
+                            <button on:click={testMagicLinkSending} class="w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm">
+                                📤 Magic Link Sending
+                            </button>
+                            <button on:click={testMagicLinkSent} class="w-full px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded text-sm">
+                                ✅ Magic Link Sent
+                            </button>
+                            <button on:click={testMagicLinkVerifying} class="w-full px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm">
+                                🔍 Magic Link Verifying
+                            </button>
+                            <button on:click={testMagicLinkVerified} class="w-full px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded text-sm">
+                                🎉 Magic Link Verified
+                            </button>
+                            <button on:click={testMagicLinkVerificationFailed} class="w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded text-sm">
+                                ❌ Magic Link Failed
+                            </button>
+                            <button on:click={testAccountLoginSuccess} class="w-full px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded text-sm">
+                                👋 Account Login Success
+                            </button>
+                            <button on:click={testAccountLogoutSuccess} class="w-full px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm">
+                                👋 Account Logout Success
                             </button>
                         </div>
                     </div>

@@ -48,7 +48,8 @@
         {
             "name": "Generate Random Password",
             "short_name": "Generate",
-            "description": "Generate a new random emoji password"
+            "description": "Generate a new random emoji password",
+            "url": "/"
         }
     ],
     "edge_side_panel": {
@@ -69,7 +70,8 @@
     },
     "protocol_handlers": [
         {
-            "protocol": "web+keymoji"
+            "protocol": "web+keymoji",
+            "url": "/"
         }
     ]
 }

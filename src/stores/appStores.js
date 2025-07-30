@@ -143,6 +143,7 @@ export const formattedVersion = derived(version, $version =>
 // === UI STATE STORES ===
 export const showDonateMenu = writable(false);
 export const showShareMenu = writable(false);
+export const showLanguageMenu = writable(false);
 // Moved to contentStore.js for better organization
 export const successfulStoryRequests = writable([]);
 export const isDisabled = writable(false);

@@ -15,7 +15,10 @@ console.log(
     isLocalDevelopment ? 'Lokale Entwicklung' : 'Produktion'
 );
 
-// Mock-API für Entwicklung (CORS-Probleme umgehen)
+// Lokale API-URL oder Produktions-URL basierend auf der Umgebung
+const API_URL = 'https://its.keymoji.wtf/api'; // Vercel API für alle Umgebungen
+
+// Mock-API für Entwicklung (nur für Tests)
 const createMockAPI = () => ({
     async post(endpoint, data) {
         console.log('🧪 Mock API called:', endpoint, data);
@@ -31,11 +34,6 @@ const createMockAPI = () => ({
         };
     }
 });
-
-// Lokale API-URL oder Produktions-URL basierend auf der Umgebung
-const API_URL = isLocalDevelopment
-    ? 'https://its.keymoji.wtf/api' // Vercel API für Entwicklung
-    : 'https://its.keymoji.wtf/api'; // Produktionsserver
 
 // Legacy n8n Basis-URLs
 const WEBHOOK_BASE = 'https://n8n.chooomedia.com/webhook';

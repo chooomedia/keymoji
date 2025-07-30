@@ -167,6 +167,103 @@ export function showSending(message = 'Sending...', data = {}) {
 }
 
 /**
+ * Magic Link wird gesendet
+ */
+export function showMagicLinkSending(email) {
+    return showModal(`Sending magic link to ${email}...`, 'sending', null, {
+        email,
+        showSpinner: true,
+        progress: 0
+    });
+}
+
+/**
+ * Magic Link wurde gesendet
+ */
+export function showMagicLinkSent(email) {
+    return showModal(
+        `Magic link sent to ${email}! Check your inbox and click the link to verify your account.`,
+        'success',
+        8000,
+        {
+            email,
+            showSpinner: false,
+            progress: 100
+        }
+    );
+}
+
+/**
+ * Magic Link Verifikation läuft
+ */
+export function showMagicLinkVerifying(email) {
+    return showModal(`Verifying your magic link...`, 'sending', null, {
+        email,
+        showSpinner: true,
+        progress: 50
+    });
+}
+
+/**
+ * Magic Link Verifikation erfolgreich
+ */
+export function showMagicLinkVerified(email, name) {
+    return showModal(
+        `Welcome back, ${name}! Your account has been verified successfully.`,
+        'success',
+        5000,
+        {
+            email,
+            name,
+            showSpinner: false,
+            progress: 100
+        }
+    );
+}
+
+/**
+ * Magic Link Verifikation fehlgeschlagen
+ */
+export function showMagicLinkVerificationFailed(error) {
+    return showModal(
+        `Verification failed: ${error}. Please try again.`,
+        'error',
+        null,
+        {
+            error,
+            showSpinner: false,
+            progress: 0
+        }
+    );
+}
+
+/**
+ * Account Login erfolgreich
+ */
+export function showAccountLoginSuccess(name) {
+    return showModal(
+        `Welcome back, ${name}! You're now logged in.`,
+        'success',
+        4000,
+        {
+            name,
+            showSpinner: false,
+            progress: 100
+        }
+    );
+}
+
+/**
+ * Account Logout erfolgreich
+ */
+export function showAccountLogoutSuccess() {
+    return showModal(`You've been logged out successfully.`, 'info', 3000, {
+        showSpinner: false,
+        progress: 100
+    });
+}
+
+/**
  * Info-Nachricht anzeigen
  */
 export function showInfo(message, duration = 4000, data = {}) {
