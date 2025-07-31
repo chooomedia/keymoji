@@ -272,11 +272,9 @@
 
 <div class="user-settings">
     <!-- Header -->
-    <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-            {getLocalizedText($translations?.userSettings?.title, 'User Settings')}
-        </h2>
-    </div>
+    <p class="sr-only">
+        {getLocalizedText($translations?.userSettings?.title, 'User Settings')}
+    </p>
 
     <!-- Settings Sections -->
     <div class="space-y-4">

@@ -15,6 +15,7 @@
     import { isDebugMode } from './utils/environment.js';
     import { initializeAccountFromCookies, setupMagicLinkListener } from './stores/accountStore.js';
     import { initializeSettingsForUser } from './stores/userSettingsStore.js';
+    import { testLimitConfiguration, testLimitConsistency } from './utils/test-limits.js';
   
     // Debug-Flag - für die Produktion entfernen
     let showDebug = isDebugMode();
@@ -49,6 +50,13 @@
         setTimeout(() => {
           sessionStorage.removeItem('redirectInProgress');
         }, 200);
+      }
+      
+      // Test Limit Configuration (nur in Development)
+      if (isDebugMode()) {
+        console.log('🧪 Running Limit Tests...');
+        testLimitConfiguration();
+        testLimitConsistency();
       }
     });
 

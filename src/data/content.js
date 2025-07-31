@@ -115,7 +115,7 @@ export const commonContent = {
         }
     },
     limits: {
-        dailyRequests: 3,
+        // Limits werden jetzt zentral in config/limits.js verwaltet
         storyMinLength: 40,
         contactMinLength: 10,
         maxEmojiCount: 9,

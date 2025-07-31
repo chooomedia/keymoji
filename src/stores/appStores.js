@@ -11,6 +11,7 @@ import { appVersion, formatVersion } from '../utils/version.js';
 import { WEBHOOKS } from '../config/api.js';
 import { STORAGE_KEYS, storageHelpers } from '../config/storage.js';
 import { isDevelopment, devWarn } from '../utils/environment.js';
+import { getDailyLimitForUser, validateUserLimits } from '../config/limits.js';
 
 // === LOCAL STORAGE HELPER ===
 // Verwende zentrale Storage-Helpers
@@ -341,7 +342,7 @@ export function setLanguage(lang) {
 
 // === ACCOUNT STORES ===
 export const isLoggedIn = writable(false);
-export const dailyLimit = writable({ limit: 5, used: 0 });
+export const dailyLimit = writable({ limit: 3, used: 0 }); // Default to guest limit
 export const accountSettings = writable({});
 export const currentSettings = writable({}); // Alias for accountSettings for modular components
 export const isGuestUser = writable(true);
@@ -349,6 +350,13 @@ export const isProUser = writable(false);
 export const currentAccount = writable(null);
 export const userProfile = writable(null);
 export const accountTier = writable('free');
+
+// Sichere Limit-Update-Funktion
+export function updateDailyLimit(isLoggedIn, accountTier, usedCount = 0) {
+    const limit = getDailyLimitForUser(isLoggedIn, accountTier);
+    dailyLimit.set({ limit, used: usedCount });
+    return { limit, used: usedCount };
+}
 
 // Initialize stores
 if (typeof window !== 'undefined') {

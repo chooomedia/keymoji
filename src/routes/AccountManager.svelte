@@ -38,6 +38,7 @@
     import { get } from 'svelte/store';
     import ContextMenu from '../components/UI/ContextMenu.svelte';
     import { isDevelopment } from '../utils/environment.js';
+    import { validateUserLimits } from '../config/limits.js';
 
     // Toggle state
     let showBenefitsToggle = 'free';
@@ -60,6 +61,11 @@
     // Return user view state
     let hasLoggedInBefore = false;
     let shouldShowSimplifiedView = false;
+    
+    // Reactive daily limit calculation
+    $: currentUserLimits = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
+    $: remainingGenerations = currentUserLimits.remaining;
+    $: dailyLimitDisplay = `${remainingGenerations} / ${currentUserLimits.limit} remaining`;
 
     // Magic Link verification state
     let isVerifyingMagicLink = false;
@@ -100,9 +106,8 @@
     }
 
     function getRemainingGenerations() {
-        const limit = $dailyLimit?.limit || 5;
-        const used = $dailyLimit?.used || 0;
-        return Math.max(0, limit - used);
+        const userLimits = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
+        return userLimits.remaining;
     }
 
     function navigateToHome() {
@@ -324,6 +329,30 @@
             const accountRestored = await initializeAccountFromCookies();
             console.log('🔐 AccountManager: Account restoration result:', accountRestored);
             
+            // Update daily limits based on current user state
+            let currentUsed = storageHelpers.get(STORAGE_KEYS.DAILY_REQUEST_COUNT, 0);
+            const userLimits = validateUserLimits($isLoggedIn, $accountTier, currentUsed);
+            
+            // Fix inconsistent localStorage values
+            if (currentUsed > userLimits.limit) {
+                console.log('⚠️ Fixing inconsistent localStorage: User has', currentUsed, 'generations but limit is', userLimits.limit);
+                console.log('🔧 Resetting to limit:', userLimits.limit);
+                storageHelpers.set(STORAGE_KEYS.DAILY_REQUEST_COUNT, userLimits.limit);
+                currentUsed = userLimits.limit; // Update for this session
+            }
+            
+            // Debug: Log current state
+            console.log('🔍 Current state:', {
+                isLoggedIn: $isLoggedIn,
+                accountTier: $accountTier,
+                localStorageCount: currentUsed,
+                calculatedLimit: userLimits.limit,
+                remaining: userLimits.remaining
+            });
+            
+            dailyLimit.set({ limit: userLimits.limit, used: Math.min(currentUsed, userLimits.limit) });
+            console.log('🔢 Updated daily limits:', userLimits);
+            
             // Check for magic link verification - this works for both direct URL access and new tabs
             const urlParams = new URLSearchParams(window.location.search);
             const token = urlParams.get('token') || urlParams.get('t'); // Support both long and short parameter
@@ -437,6 +466,14 @@
     // Reactive statement to show error as modal
     $: if ($loginError) {
         showError($loginError, 5000);
+    }
+    
+    // Reactive statement to update daily limits when user state changes
+    $: if ($isLoggedIn !== undefined && $accountTier !== undefined) {
+        const currentUsed = storageHelpers.get(STORAGE_KEYS.DAILY_REQUEST_COUNT, 0);
+        const userLimits = validateUserLimits($isLoggedIn, $accountTier, currentUsed);
+        dailyLimit.set({ limit: userLimits.limit, used: currentUsed });
+        console.log('🔄 Daily limits updated due to user state change:', userLimits);
     }
 
     // Check if user has a valid session
@@ -680,17 +717,17 @@
                                     {$translations?.accountManager?.dailyGenerations || 'Daily Generations'}
                                 </span>
                                 <span class="text-lg font-bold text-yellow-600 dark:text-yellow-400">
-                                    {($translations?.accountManager?.remainingGenerations || '{remaining} / {limit} remaining').replace('{remaining}', getRemainingGenerations()).replace('{limit}', $dailyLimit?.limit || 5)}
+                                    {dailyLimitDisplay}
                                 </span>
                             </div>
                             <div class="w-full bg-gray-300 dark:bg-aubergine-600 rounded-full h-3 mb-2">
                                 <div 
                                     class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500"
-                                    style="width: {Math.min(100, (($dailyLimit?.used || 0) / ($dailyLimit?.limit || 5)) * 100)}%"
+                                    style="width: {Math.min(100, (($dailyLimit?.used || 0) / currentUserLimits.limit) * 100)}%"
                                 ></div>
                             </div>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                {getRemainingGenerations() > 0 ? ($translations?.accountManager?.canStillGenerate || 'You can still generate emojis!') : ($translations?.accountManager?.limitReached || 'Daily limit reached. Upgrade to PRO for unlimited generations.')}
+                                {remainingGenerations > 0 ? ($translations?.accountManager?.canStillGenerate || 'You can still generate emojis!') : ($translations?.accountManager?.limitReached || 'Daily limit reached. Upgrade to PRO for unlimited generations.')}
                             </p>
                         </div>
 
@@ -706,7 +743,7 @@
                             </div>
                             <div class="text-center p-4 bg-powder-300 dark:bg-aubergine-900 rounded-xl">
                                 <div class="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
-                                    {$accountTier === 'pro' ? '∞' : getRemainingGenerations()}
+                                    {$accountTier === 'pro' ? '∞' : remainingGenerations}
                                 </div>
                                 <div class="text-sm font-medium text-green-800 dark:text-green-200">
                                     {$translations?.accountManager?.statistics?.remainingGenerations || 'Remaining Generations'}
@@ -730,7 +767,7 @@
                             </button>
                             
                             <!-- Secondary Action: Back to Home -->
-                            {#if getRemainingGenerations() > 0}
+                            {#if remainingGenerations > 0}
                             <button
                                 on:click={navigateToHome}
                                 class="btn btn-secondary btn-md rounded-full w-full"

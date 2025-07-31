@@ -18,8 +18,9 @@
     } from '../../stores/modalStore.js';
     import { translations } from '../../stores/contentStore.js';
 import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
-    import emojisData from '../../../public/emojisArray.json';
-    import { WEBHOOKS } from '../../../src/config/api.js';
+import emojisData from '../../../public/emojisArray.json';
+import { WEBHOOKS } from '../../../src/config/api.js';
+import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js';
 
     // Props
     export let showEmojiCodes = false;
@@ -41,7 +42,6 @@ import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
   
     // Constants
     const DISABLE_DURATION_MS = 3000;
-    const DAILY_LIMIT = 3;
     
     // Helper-Funktion für sichere setTimeout mit Cleanup
     function safeSetTimeout(callback, delay) {
@@ -91,14 +91,12 @@ import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
       try {
         if (checkLimits()) return;
 
-        // Check daily limit for guest and free users
-        if (!$isLoggedIn || $accountTier === 'free') {
-          const remaining = ($dailyLimit?.limit || 5) - ($dailyLimit?.used || 0);
-          if (remaining <= 0) {
+        // Check daily limit using central configuration
+        const userLimits = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
+        if (userLimits.isReached) {
             // Redirect to account page for upsell
             window.location.href = '/account';
             return;
-          }
         }
   
         randomEmojis = getRandomEmojis(emojiCount);
@@ -318,7 +316,8 @@ import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
     }
   
     function isDailyLimitReached() {
-      return getDailyRequestCount() >= DAILY_LIMIT;
+      const userLimits = validateUserLimits($isLoggedIn, $accountTier, getDailyRequestCount());
+      return userLimits.isReached;
     }
   
     function handleKeyPress(event) {

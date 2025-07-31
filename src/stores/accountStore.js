@@ -7,7 +7,8 @@ import {
     isLoggedIn,
     userProfile,
     accountTier,
-    dailyLimit
+    dailyLimit,
+    updateDailyLimit
 } from './appStores.js';
 import { showExistingAccountFound } from './modalStore.js';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
@@ -581,22 +582,19 @@ function syncAccountData(accountData) {
         userProfile.set(accountData.profile || {});
         accountTier.set(accountData.tier || 'free');
 
-        // Set daily limit based on tier
-        if (accountData.tier === 'pro') {
-            dailyLimit.set({ limit: 999999, used: 0 }); // Unlimited for pro
-        } else {
-            dailyLimit.set({
-                limit: 5,
-                used: accountData.usedGenerations || 0
-            });
-        }
+        // Set daily limit based on tier using central configuration
+        updateDailyLimit(
+            true,
+            accountData.tier,
+            accountData.usedGenerations || 0
+        );
     } else {
         // Reset all stores when no account data
         isLoggedIn.set(false);
         currentAccount.set(null);
         userProfile.set(null);
         accountTier.set('free');
-        dailyLimit.set({ limit: 5, used: 0 });
+        updateDailyLimit(false, 'free', 0); // Reset to guest limits
     }
 }
 
