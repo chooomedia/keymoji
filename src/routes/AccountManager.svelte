@@ -645,7 +645,7 @@
                             <!-- PRO Badge and Context Menu -->
                             <div class="flex items-center gap-2">
                                 <!-- PRO Badge -->
-                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold {$accountTier === 'pro' ? 'dark:text-white bg-purple-700' : 'dark:text-white bg-yellow-700'}" >
+                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold text-creme-500 dark:text-white {$accountTier === 'pro' ? 'bg-purple-700' : 'bg-yellow-600'}" >
                                     {$accountTier === 'pro' ? ($translations?.accountManager?.proBadge || '💎 PRO') : ($translations?.accountManager?.freeBadge || '✨ FREE')}
                                 </span>
 

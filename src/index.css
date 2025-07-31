@@ -201,7 +201,48 @@
 @layer components {
 
     .contact-input {
-        @apply w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl p-4 border border-gray-light dark:border-aubergine-800 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
+        @apply w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border border-gray-light dark:border-aubergine-800 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
+    }
+
+    input.contact-input,
+    textarea.contact-input {
+        @apply p-4;
+    }
+
+    select.contact-input {
+        @apply appearance-none p-4 bg-no-repeat bg-right bg-origin-content;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='none' stroke='%23666' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-size: 1.25rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        select.contact-input {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='none' stroke='%23fff' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+    }
+
+
+    /* Improve form field styles for disabled state */
+    .contact-input:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    /* Improve button styles for disabled state */
+    button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: scale(1) !important;
+    }
+
+    /* Form error styles */
+    .form-error {
+        color: #ef4444;
+        /* Red for error */
+        font-size: 0.875rem;
+        /* Smaller font size */
+        margin-top: 0.25rem;
+        /* Smaller top margin */
     }
 
     .contact-checkbox {

@@ -2,6 +2,7 @@
 <script>
     import { onMount } from 'svelte';
     import { fade, slide } from 'svelte/transition';
+    import { get } from 'svelte/store';
     import { currentLanguage, translations } from '../stores/contentStore.js';
     import { accountTier } from '../stores/appStores.js';
     import { 
@@ -38,14 +39,8 @@
         return getEffectiveValue(item.id) ?? item.defaultValue;
     }
 
-    // Get available sections based on user tier - optimiert mit $:
-    $: availableSections = Object.values(settingsConfig.sections || {}).filter(section => {
-        // Show all sections for pro users
-        if (isProUser) return true;
-        
-        // For free users, only show sections without proItems or with empty proItems
-        return !section.proItems || section.proItems.length === 0;
-    });
+    // Get available sections based on user tier - Free users now see Pro features
+    $: availableSections = Object.values(settingsConfig.sections || {});
 
     // Debug logging for reactivity
     $: if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
@@ -125,6 +120,9 @@
                         // Reset loading state
                         settingsStatus.update(status => ({ ...status, isSaving: false }));
                         
+                        // Apply settings immediately after save
+                        applySettingsImmediately();
+                        
                     } catch (error) {
                         // Show error message
                         showError('Failed to save settings: ' + error.message, 5000);
@@ -141,6 +139,54 @@
                 }
             }
         });
+    }
+    
+    // Apply settings immediately after save
+    function applySettingsImmediately() {
+        const settings = get(userSettings);
+        
+        // Apply theme changes
+        if (settings.theme) {
+            applyTheme(settings.theme);
+        }
+        
+        // Apply language changes
+        if (settings.language) {
+            applyLanguage(settings.language);
+        }
+        
+        // Apply other settings as needed
+        console.log('✅ Settings applied immediately:', settings);
+    }
+    
+    // Apply theme changes
+    function applyTheme(theme) {
+        const root = document.documentElement;
+        
+        if (theme === 'dark') {
+            root.classList.add('dark');
+        } else if (theme === 'light') {
+            root.classList.remove('dark');
+        } else {
+            // Auto theme - use system preference
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                root.classList.add('dark');
+            } else {
+                root.classList.remove('dark');
+            }
+        }
+    }
+    
+    // Apply language changes
+    function applyLanguage(language) {
+        // Update current language store
+        currentLanguage.set(language);
+        
+        // Update document language
+        document.documentElement.lang = language;
+        
+        // Trigger language change event
+        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language } }));
     }
 
     function handleDiscardChanges() {
@@ -283,7 +329,7 @@
                 <!-- Section Header -->
                 <button
                     on:click={() => toggleSection(section.id)}
-                    class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    class="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                     <div class="flex items-center space-x-3">
                         <span class="text-xl">{section.icon}</span>
@@ -308,7 +354,7 @@
 
                 <!-- Section Content -->
                 {#if activeSection === section.id}
-                    <div class="px-6 pb-4" transition:slide={{ duration: 300 }}>
+                    <div class="p-4" transition:slide={{ duration: 300 }}>
                         <!-- Regular Items -->
                         {#each section.items as item}
                             <div class="mb-4 last:mb-0">
@@ -338,64 +384,35 @@
                             </div>
                         {/each}
 
-                        <!-- Pro Items (only for pro users or as preview for free users) -->
+                        <!-- Pro Items (now functional for all users) -->
                         {#if section.proItems}
-                            {#if isProUser}
-                                {#each section.proItems as item}
-                                    <div class="mb-4 last:mb-0">
-                                        <ModularInput
-                                            config={{
-                                                type: item.type,
-                                                id: item.id,
-                                                icon: item.icon,
-                                                label: item.title,
-                                                description: item.description,
-                                                placeholder: item.placeholder,
-                                                value: getCurrentValue(item),
-                                                options: item.options?.map(opt => ({
-                                                    value: opt.value,
-                                                    label: opt.label
-                                                })) || [],
-                                                min: item.min,
-                                                max: item.max,
-                                                labels: item.labels,
-                                                defaultValue: item.defaultValue,
-                                                class: 'contact-input'
-                                            }}
-                                            currentLanguage={$currentLanguage}
-                                            currentValue={getCurrentValue(item)}
-                                            onValueChange={(value) => handleSettingUpdate(item.id, value)}
-                                        />
-                                    </div>
-                                {/each}
-                            {:else}
-                                {#each section.proItems as item}
-                                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-4 border-purple-500 opacity-60">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center space-x-3">
-                                                <span class="text-xl">{item.icon}</span>
-                                                <div>
-                                                    <h4 class="font-medium text-gray-900 dark:text-white">
-                                                        {getLocalizedText(item.title)}
-                                                    </h4>
-                                                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                                                        {getLocalizedText(item.description)}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <button
-                                                on:click={() => handleProFeature(
-                                                    getLocalizedText(item.title),
-                                                    getLocalizedText(item.description)
-                                                )}
-                                                class="px-3 py-1 text-sm text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 rounded hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
-                                            >
-                                                Try Pro Feature
-                                            </button>
-                                        </div>
-                                    </div>
-                                {/each}
-                            {/if}
+                            {#each section.proItems as item}
+                                <div class="mb-4 last:mb-0">
+                                    <ModularInput
+                                        config={{
+                                            type: item.type,
+                                            id: item.id,
+                                            icon: item.icon,
+                                            label: item.title,
+                                            description: item.description,
+                                            placeholder: item.placeholder,
+                                            value: getCurrentValue(item),
+                                            options: item.options?.map(opt => ({
+                                                value: opt.value,
+                                                label: opt.label
+                                            })) || [],
+                                            min: item.min,
+                                            max: item.max,
+                                            labels: item.labels,
+                                            defaultValue: item.defaultValue,
+                                            class: 'contact-input'
+                                        }}
+                                        currentLanguage={$currentLanguage}
+                                        currentValue={getCurrentValue(item)}
+                                        onValueChange={(value) => handleSettingUpdate(item.id, value)}
+                                    />
+                                </div>
+                            {/each}
                         {/if}
                     </div>
                 {/if}

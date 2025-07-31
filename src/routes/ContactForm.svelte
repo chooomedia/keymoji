@@ -400,25 +400,3 @@
     <!-- Fixed Menu -->
     <FixedMenu align={'bottom'} />
 </main>
-
-<style>
-    /* Improve form field styles for disabled state */
-    .contact-input:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-  
-    /* Improve button styles for disabled state */
-    button:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: scale(1) !important;
-    }
-    
-    /* Form error styles */
-    .form-error {
-      color: #ef4444; /* Red for error */
-      font-size: 0.875rem; /* Smaller font size */
-      margin-top: 0.25rem; /* Smaller top margin */
-    }
-</style>

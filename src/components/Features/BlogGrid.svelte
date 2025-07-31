@@ -170,7 +170,7 @@
                     </p>
                 </div>
             </a>
-            <div class="px-6 pb-4 flex justify-between items-center border-t border-gray-100 dark:border-gray-800 mt-2 pt-4">
+            <div class="pb-4 flex justify-between items-center border-t border-gray-100 dark:border-gray-800 mt-2 pt-4">
                 <button aria-label="Like the blog post" 
                     class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                     on:click={() => handleLike(post.row_number)}>

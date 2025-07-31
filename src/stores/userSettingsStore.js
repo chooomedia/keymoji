@@ -172,11 +172,65 @@ export function saveSettings(settings) {
         // Update store
         userSettings.set(settings);
 
+        // Apply settings immediately
+        applySettingsReactive(settings);
+
         return true;
     } catch (error) {
         console.error('Failed to save settings:', error);
         return false;
     }
+}
+
+// Apply settings reactively
+export function applySettingsReactive(settings) {
+    // Apply theme
+    if (settings.theme) {
+        applyThemeReactive(settings.theme);
+    }
+
+    // Apply language
+    if (settings.language) {
+        applyLanguageReactive(settings.language);
+    }
+
+    // Apply other settings as needed
+    console.log('🔄 Settings applied reactively:', settings);
+}
+
+// Apply theme reactively
+export function applyThemeReactive(theme) {
+    if (typeof document === 'undefined') return;
+
+    const root = document.documentElement;
+
+    if (theme === 'dark') {
+        root.classList.add('dark');
+    } else if (theme === 'light') {
+        root.classList.remove('dark');
+    } else {
+        // Auto theme - use system preference
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
+    }
+}
+
+// Apply language reactively
+export function applyLanguageReactive(language) {
+    if (typeof document === 'undefined') return;
+
+    // Update document language
+    document.documentElement.lang = language;
+
+    // Trigger language change event
+    window.dispatchEvent(
+        new CustomEvent('languageChanged', {
+            detail: { language }
+        })
+    );
 }
 
 // Neue Funktionen für Settings-Management
@@ -219,6 +273,9 @@ export async function saveAllSettings() {
 
         // Update user settings store
         userSettings.set(updatedSettings);
+
+        // Apply settings immediately
+        applySettingsReactive(updatedSettings);
 
         // Clear pending changes
         pendingChanges.set({});
