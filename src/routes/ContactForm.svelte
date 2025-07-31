@@ -9,7 +9,10 @@
         showWarning, 
         showSending, 
         closeModal,
-        isModalVisible 
+        isModalVisible,
+        showModalWithContent,
+        showConfirmation,
+        showInfo
     } from '../stores/modalStore.js';
     import { navigate } from "svelte-routing";
     import { fade, fly, scale } from 'svelte/transition';
@@ -226,6 +229,34 @@
         initializeAccountFromCookies();
     });
 
+    // Test dynamic modal content - moved outside onMount
+    function testDynamicModal() {
+        showModalWithContent({
+            title: 'Dynamisches Modal',
+            description: 'Dies ist ein Beispiel für ein dynamisches Modal mit Header, Body und Footer.',
+            html: '<div class="bg-yellow-100 dark:bg-yellow-900 p-3 rounded-lg mb-4"><strong>HTML Content:</strong> Hier können beliebige HTML-Inhalte angezeigt werden!</div>'
+        }, {
+            title: 'Test Modal',
+            icon: '🧪',
+            type: 'info',
+            buttons: [
+                {
+                    text: 'Abbrechen',
+                    variant: 'secondary',
+                    action: () => closeModal()
+                },
+                {
+                    text: 'Bestätigen',
+                    variant: 'primary',
+                    action: () => {
+                        showSuccess('Aktion bestätigt!', 2000);
+                        closeModal();
+                    }
+                }
+            ]
+        });
+    }
+
     $: isFormValid = name.trim().length >= 2 && 
                      validateEmail(email) && 
                      message.trim().length >= MIN_MESSAGE_LENGTH;
@@ -329,6 +360,26 @@
                 {$translations.contactForm.newsletterOptIn}
             </label>
         </div>
+
+        <!-- Test Buttons for Dynamic Modals (Development Only) -->
+        {#if isTestMode()}
+            <div class="flex gap-2 mt-4">
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    on:click={testDynamicModal}
+                >
+                    Test Dynamic Modal
+                </Button>
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    on:click={testConfirmationModal}
+                >
+                    Test Confirmation
+                </Button>
+            </div>
+        {/if}
 
         <!-- Form Buttons -->
         <div class="flex flex-col sm:flex-row gap-3 pt-4">

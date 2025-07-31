@@ -16,6 +16,10 @@
     backface-visibility: hidden;
 }
 
+.core-button {
+    @apply max-w-105 flex flex-row h-16 justify-center items-center scale-114 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-117 gap-2 md:px-0 border-4 z-10;
+}
+
 .bg-loading .hieroglyphemojis {
     /* Smooth transition while loading */
     background-size: 0%, cover;
@@ -176,6 +180,27 @@
     color-scheme: dark;
 }
 
+/* Global fixed positioning for header and footer */
+.main-header {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    z-index: 50;
+}
+
+.main-footer {
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    z-index: 40;
+}
+
 /* Main content area - positioned between fixed header and footer */
 .main-content {
     width: 100%;
@@ -190,9 +215,9 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     gap: 2rem;
-    padding-top: 100px;
+    padding-top: 120px;
     /* Space for fixed header */
-    padding-bottom: 100px;
+    padding-bottom: 120px;
     /* Space for fixed footer */
     box-sizing: border-box;
 }
@@ -231,9 +256,9 @@
 
     .main-header,
     .main-footer {
-        position: -webkit-sticky;
-        position: sticky;
-        position: fixed;
+        position: fixed !important;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
     }
 }
 
@@ -389,8 +414,6 @@
 }
 
 @layer components {
-
-    /* Form field styles moved to Input.svelte component */
 
     /* Improve button styles for disabled state */
     button:disabled {

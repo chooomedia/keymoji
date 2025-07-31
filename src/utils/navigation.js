@@ -15,6 +15,10 @@ import { currentLanguage } from '../stores/contentStore.js';
  */
 export function navigateToRoute(path, replace = false) {
     try {
+        // Mark that user has navigated away from initial load
+        sessionStorage.setItem('hasNavigatedAway', 'true');
+        console.log('🔄 User navigated away - hasNavigatedAway set to true');
+
         const lang = get(currentLanguage) || 'en';
         const fullPath = path ? `/${lang}/${path}` : `/${lang}`;
         console.log('🔄 Navigation: navigateToRoute', {
@@ -36,6 +40,10 @@ export function navigateToRoute(path, replace = false) {
  */
 export function navigateToHome(replace = false) {
     try {
+        // Mark that user has navigated away from initial load
+        sessionStorage.setItem('hasNavigatedAway', 'true');
+        console.log('🔄 User navigated away - hasNavigatedAway set to true');
+
         const lang = get(currentLanguage) || 'en';
         const fullPath = lang === 'en' ? '/' : `/${lang}`;
         console.log('🔄 Navigation: navigateToHome', { fullPath, replace });

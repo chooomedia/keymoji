@@ -168,10 +168,10 @@
   ></button>
 {/if}
 
-<div id="fixed-menu" class="main-footer fixed bottom-0 left-0 right-0 pb-4 flex flex-col justify-center items-center w-full z-40 bg-transparent backdrop-blur-md">
+<div id="fixed-menu" class="main-footer pb-4 flex flex-col justify-center items-center w-full bg-transparent backdrop-blur-md">
   {#if showMenu && shareLinks.length > 0}
     <ul 
-    class="w-34 mx-auto rounded-t-xl shadow-lg bg-creme-500 dark:bg-aubergine-900 ring-1 ring-black ring-opacity-5 z-auto pt-2" 
+    class="w-34 mx-auto rounded-t-xl bg-creme-500 dark:bg-aubergine-900 ring-1 ring-black ring-opacity-5 z-auto pt-2 shadow-lg" 
     role="menu" 
     aria-orientation="vertical" 
     aria-labelledby="menu-button">
@@ -201,7 +201,7 @@
       </ul>
   {/if}
 
-  <nav id="fixed-menu-nav" class="bg-creme-500 dark:bg-aubergine-800 rounded-full transition duration-300 ease-in-out transform {align}-0 flex {showMenu ? 'opened' : 'closed'}" aria-label="Main">
+  <nav id="fixed-menu-nav" class="bg-creme-500 dark:bg-aubergine-800 rounded-full transition duration-300 ease-in-out transform shadow-lg {align}-0 flex {showMenu ? 'opened' : 'closed'}" aria-label="Main">
     <div class="w-auto justify-center flex gap-2 rounded-full">
       <button aria-label="toggle color schema (dark/light)" on:click={toggleDarkMode} class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
         {#if $darkMode}🌙{:else}🌞{/if}

@@ -50,8 +50,8 @@
 </script>
 
 <!-- Header mit Logo links, Buttons rechts -->
-<div class="main-header w-full fixed top-0 left-0 right-0 flex flex-wrap justify-center pt-5 mx-auto z-50 overflow-x-hidden bg-transparent backdrop-blur-md">
-    <nav class="md:w-1/3 w-full mx-3 bg-creme-500 dark:bg-aubergine-800 justify-center rounded-full p-1 relative z-30 overflow-x-hidden">
+<div class="main-header w-full flex flex-wrap justify-center pt-5 mx-auto bg-transparent backdrop-blur-md">
+    <nav class="md:w-1/3 w-full mx-3 bg-creme-500 dark:bg-aubergine-800 justify-center rounded-full p-1 relative z-30 shadow-lg">
         <div class="max-w-screen-2xl flex items-center justify-between">
             <!-- Logo und Titel links -->
             <div class="flex items-center">

@@ -369,7 +369,7 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
     <button 
       id="emoji-display" 
       tabindex="0" 
-      class="max-w-72 flex flex-row h-14 justify-center items-center transform scale-114 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-117 text-white bg-black gap-2 md:px-0 px-3 mb-4 md:pt-1 md:pb-1 pb-1 border-4 border-gray-400 z-10" 
+      class="core-button text-white bg-black border-gray-400 px-3 mb-2 md:pt-1 md:pb-1 pb-1 transform -translate-y-2.5" 
       on:click={generateRandomEmojis} 
       on:keydown={e => e.key === 'Enter' && generateRandomEmojis()} 
               aria-label={$translations.emojiDisplay.clickToCopy} 

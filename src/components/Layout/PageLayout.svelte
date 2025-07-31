@@ -50,15 +50,15 @@
 <Modal />
 <ModalDebug />
 
+<!-- Header - AUßERHALB des main Containers für echtes fixed positioning -->
+<Header />
+
 <!-- App Container mit animiertem Background -->
 <main 
     class="app-container overflow-x-hidden route-transition hieroglyphemojis {$darkMode ? 'dark' : ''} {backgroundLoaded ? 'bg-loaded' : 'bg-loading'}" 
     style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}; will-change: background-position;"
     data-lang={$currentLanguage}
 >
-    <!-- Header -->
-    <Header />
-    
     <!-- Main Content Container -->
     <div class="min-h-screen scroll-smooth overflow-x-hidden" in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}>
         <!-- Main Content -->
@@ -96,7 +96,7 @@
             <slot name="before-content" />
 
             <!-- Main Content Box - Mit Hintergrund für Modularität -->
-            <div class="content-wrapper pl-4 pr-4 pb-4 w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-500 dark:bg-aubergine-80 backdrop-opacity-60 shadow-xl">
+            <div class="content-wrapper p-4 w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-500 dark:bg-aubergine-80 backdrop-opacity-60 shadow-xl">
                 <slot />
             </div>
 
@@ -104,10 +104,10 @@
             <slot name="footer" />
         </section>
     </div>
-
-    <!-- Fixed Menu -->
-    <FixedMenu align={'bottom'} />
 </main>
+
+<!-- Fixed Menu - AUßERHALB des main Containers für echtes fixed positioning -->
+<FixedMenu align={'bottom'} />
 
 <!-- Modal-Komponenten - Immer verfügbar -->
 <Modal />

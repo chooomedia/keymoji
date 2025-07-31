@@ -15,6 +15,9 @@ module.exports = {
             elvish: ['tengwar_annatar', 'serif'] // für Elbisch/sjn
         },
         extend: {
+            maxWidth: {
+                105: '26rem'
+            },
             colors: {
                 // Standard Tailwind colors
                 blue: {

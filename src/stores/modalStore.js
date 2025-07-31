@@ -178,6 +178,22 @@ export function showModal(
         return null;
     }
 
+    // Prevent duplicate modals with same message and type
+    if (isModalInQueue(message, type)) {
+        debugLog('DUPLICATE_PREVENTED', { message, type });
+        return null;
+    }
+
+    // Prevent duplicate modals that are currently visible
+    if (
+        get(isModalVisible) &&
+        get(modalMessage) === message &&
+        get(modalType) === type
+    ) {
+        debugLog('DUPLICATE_CURRENTLY_VISIBLE_PREVENTED', { message, type });
+        return null;
+    }
+
     // Enhanced Options (Apple/Airbnb Style)
     const enhancedOptions = {
         pauseAsyncOperations: true,
@@ -334,7 +350,13 @@ export function closeModal() {
  */
 export function showSuccess(message, duration = 5000, data = {}) {
     // Vermeide Duplikate von Erfolgs-Nachrichten
-    if (isModalInQueue(message, 'success')) {
+    if (
+        isModalInQueue(message, 'success') ||
+        (get(isModalVisible) &&
+            get(modalMessage) === message &&
+            get(modalType) === 'success')
+    ) {
+        debugLog('SUCCESS_DUPLICATE_PREVENTED', { message });
         return null;
     }
     return showModal(message, 'success', duration, data);
@@ -353,7 +375,13 @@ export function showError(message, duration = null, data = {}) {
  */
 export function showWarning(message, duration = 8000, data = {}) {
     // Vermeide Duplikate von Warn-Nachrichten
-    if (isModalInQueue(message, 'warning')) {
+    if (
+        isModalInQueue(message, 'warning') ||
+        (get(isModalVisible) &&
+            get(modalMessage) === message &&
+            get(modalType) === 'warning')
+    ) {
+        debugLog('WARNING_DUPLICATE_PREVENTED', { message });
         return null;
     }
     return showModal(message, 'warning', duration, data);
@@ -510,6 +538,142 @@ export function showInfo(message, duration = 4000, data = {}) {
  */
 export function showContact(message, duration = 6000, data = {}) {
     return showModal(message, 'contact', duration, data);
+}
+
+/**
+ * Erweiterte Modal-Funktionen für dynamische Inhalte
+ */
+
+/**
+ * Zeigt ein Modal mit Header, Body und Footer an
+ */
+export function showModalWithContent(content, options = {}) {
+    const {
+        title = 'Information',
+        icon = 'ℹ️',
+        type = 'info',
+        duration = null,
+        buttons = [],
+        primaryButton = null,
+        secondaryButton = null,
+        onClose = null
+    } = options;
+
+    const modalData = {
+        title,
+        icon,
+        content: {
+            title: content.title,
+            description: content.description,
+            html: content.html
+        },
+        buttons,
+        primaryButton,
+        secondaryButton,
+        onClose,
+        duration
+    };
+
+    // Ensure we have a valid message
+    const message =
+        content.description || content.html || content.title || 'Information';
+
+    return showModal(message, type, duration, modalData);
+}
+
+/**
+ * Zeigt ein Bestätigungs-Modal an
+ */
+export function showConfirmation(title, message, options = {}) {
+    const {
+        confirmText = 'Bestätigen',
+        cancelText = 'Abbrechen',
+        type = 'warning',
+        icon = '⚠️',
+        onConfirm = null,
+        onCancel = null
+    } = options;
+
+    const modalData = {
+        title,
+        icon,
+        content: {
+            description: message
+        },
+        primaryButton: {
+            text: confirmText,
+            action: () => {
+                if (onConfirm) onConfirm();
+                closeModal();
+            }
+        },
+        secondaryButton: {
+            text: cancelText,
+            action: () => {
+                if (onCancel) onCancel();
+                closeModal();
+            }
+        }
+    };
+
+    return showModal(message, type, null, modalData);
+}
+
+/**
+ * Zeigt ein Informations-Modal an
+ */
+export function showInfoModal(title, message, options = {}) {
+    const { icon = 'ℹ️', buttons = [], onClose = null } = options;
+
+    const modalData = {
+        title,
+        icon,
+        content: {
+            description: message
+        },
+        buttons,
+        onClose
+    };
+
+    return showModal(message, 'info', null, modalData);
+}
+
+/**
+ * Zeigt ein Erfolgs-Modal an
+ */
+export function showSuccessModal(title, message, options = {}) {
+    const { icon = '✅', buttons = [], onClose = null } = options;
+
+    const modalData = {
+        title,
+        icon,
+        content: {
+            description: message
+        },
+        buttons,
+        onClose
+    };
+
+    return showModal(message, 'success', null, modalData);
+}
+
+/**
+ * Zeigt ein Fehler-Modal an
+ */
+export function showErrorModal(title, message, options = {}) {
+    const { icon = '❌', buttons = [], onClose = null } = options;
+
+    const modalData = {
+        title,
+        icon,
+        content: {
+            description: message
+        },
+        buttons,
+        onClose
+    };
+
+    return showModal(message, 'error', null, modalData);
 }
 
 /**

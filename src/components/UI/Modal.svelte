@@ -167,6 +167,15 @@
 
     // Progress bar management
     function startProgressBar() {
+        // Get duration from modalData or use default
+        const duration = $modalData?.duration || MODAL_TIMEOUT;
+        
+        // Only start progress bar if duration is set and > 0
+        if (!duration || duration <= 0) {
+            progressBar = 0;
+            return;
+        }
+        
         // Reset progress bar
         progressBar = 100;
         
@@ -175,9 +184,13 @@
             clearInterval(progressInterval);
         }
         
+        // Calculate update interval based on duration
+        const updateInterval = Math.max(50, duration / 100); // At least 50ms, max 100 updates
+        
         // Start progress bar countdown
         progressInterval = setInterval(() => {
-            progressBar -= (100 / (MODAL_TIMEOUT / PROGRESS_UPDATE_INTERVAL));
+            const decrement = (100 * updateInterval) / duration;
+            progressBar -= decrement;
             
             if (progressBar <= 0) {
                 progressBar = 0;
@@ -189,7 +202,7 @@
                     }
                 }, 100);
             }
-        }, PROGRESS_UPDATE_INTERVAL);
+        }, updateInterval);
     }
 
     function stopProgressBar() {
@@ -199,7 +212,11 @@
     }
 
     // Calculate remaining time in seconds
-    $: remainingSeconds = Math.round(progressBar / 20); // 100% = 5 seconds
+    $: remainingSeconds = (() => {
+        const duration = $modalData?.duration || MODAL_TIMEOUT;
+        if (!duration || duration <= 0) return 0;
+        return Math.round((progressBar / 100) * (duration / 1000));
+    })();
 
     // Debug reactive statement
     $: if (debugMode && showMessage && isComponentMounted) {
@@ -240,6 +257,10 @@
                             <div class="text-2xl">
                                 {@html Spinner()}
                             </div>
+                        {:else if $modalData?.icon}
+                            <span class="text-2xl modal-icon">
+                                {$modalData.icon}
+                            </span>
                         {:else}
                             <span class="text-2xl modal-icon" style="color: {getIconColor(messageType)}">
                                 {getIcon(messageType)}
@@ -248,7 +269,7 @@
                         <h2 
                             id="modal-title"
                             class="text-lg font-semibold text-gray-900 dark:text-white">
-                            {messageType.charAt(0).toUpperCase() + messageType.slice(1)}
+                            {$modalData?.title || messageType.charAt(0).toUpperCase() + messageType.slice(1)}
                         </h2>
                     </div>
                     
@@ -301,15 +322,30 @@
                                 </ul>
                             </div>
                         </div>
-                        
-                        <!-- Pro Feature Actions moved to footer -->
+                    {:else if $modalData?.content}
+                        <!-- Custom Content -->
+                        <div class="mb-6">
+                            {#if $modalData.content.title}
+                                <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                    {$modalData.content.title}
+                                </h4>
+                            {/if}
+                            {#if $modalData.content.description}
+                                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                                    {$modalData.content.description}
+                                </p>
+                            {/if}
+                            {#if $modalData.content.html}
+                                <div class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                    {@html $modalData.content.html}
+                                </div>
+                            {/if}
+                        </div>
                     {:else}
-                        <!-- Modal Message -->
+                        <!-- Default Modal Message -->
                         <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
                             {$modalMessage}
                         </p>
-                        
-                        <!-- Custom Buttons moved to footer -->
                     {/if}
                 </div>
 
@@ -365,19 +401,34 @@
                                 </Button>
                             {/if}
                         </div>
+                    {:else if $modalData?.buttons}
+                        <!-- Dynamic Button Array -->
+                        <div class="flex gap-3 mb-4 px-4">
+                            {#each $modalData.buttons as button, index}
+                                <Button
+                                    variant={button.variant || 'secondary'}
+                                    size="sm"
+                                    fullWidth={true}
+                                    on:click={button.action}
+                                >
+                                    {button.text}
+                                </Button>
+                            {/each}
+                        </div>
                     {/if}
                     
-                    <!-- Auto-Close Progress Bar -->
-                    <div class="w-full h-1">
-                        <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700"></div>
-                        <div 
-                            class="h-1 transition-all duration-500 ease-out z-10"
-                            style="width: {progressBar}%; background-color: {getIconColor(messageType)}"
-                        ></div>
-                    </div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 text-center p-4">
-                        Modal schließt in {remainingSeconds} Sekunden
-                    </div>
+                    <!-- Auto-Close Progress Bar - Show for all modals with duration -->
+                    {#if showMessage && progressBar > 0 && remainingSeconds > 0}
+                        <div class="w-full h-1">
+                            <div 
+                                class="h-1 transition-all duration-500 ease-out z-10"
+                                style="width: {progressBar}%; background-color: {getIconColor(messageType)}"
+                            ></div>
+                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 text-center p-4">
+                            Modal schließt in {remainingSeconds} Sekunden
+                        </div>
+                    {/if}
                 </div>
             </div>
         </div>

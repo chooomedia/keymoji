@@ -510,7 +510,7 @@ export default {
             saveSettings: '💾 Save Settings',
             backToHome: '🏠 Back to Home',
             createAccount: '🚀 {type} Account anlegen',
-            skipAccount: 'Auf {type} verzichten',
+            skipAccount: '❌ Auf {type} verzichten',
             createMagicLink: '🔐 Create Magic-Link',
             sendingMagicLink: '⏳ Sending Magic-Link...',
             resendMagicLink: '🔄 Resend Magic Link',

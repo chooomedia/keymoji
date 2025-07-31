@@ -4,7 +4,6 @@
     import { navigate } from 'svelte-routing';
     import { fade, fly, slide } from 'svelte/transition';
     import PageLayout from '../components/Layout/PageLayout.svelte';
-    import FixedMenu from '../widgets/FixedMenu.svelte';
     import { 
         isLoggedIn, 
         dailyLimit, 
@@ -99,7 +98,7 @@
     let isSubmitting = false;
     let showSettings = false;
     let showUserSettings = false;
-    let accountCreationStep = 'benefits'; // 'benefits', 'form', 'verification'
+    let accountCreationStep = null; // 'benefits', 'form', 'verification' - null for initial state
     let selectedAccountType = 'free'; // 'free', 'pro'
     let showAdvancedOptions = false;
 
@@ -179,7 +178,43 @@
     
     // Return user view state
     let hasLoggedInBefore = false;
+    
+    // State for expanded view
+    let showExpandedView = false;
+    
+    // Initialize shouldShowSimplifiedView with initial value
     let shouldShowSimplifiedView = false;
+    
+    // Check if user has navigated away from initial load (stored in sessionStorage)
+    let hasNavigatedAway = sessionStorage.getItem('hasNavigatedAway') === 'true';
+    
+    // Reactive simplified view logic
+    $: shouldShowSimplifiedView = (() => {
+        // Check if user is not logged in but has login history
+        const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
+        const loggedIn = get(isLoggedIn);
+        
+        // If expanded view is active, don't show simplified view
+        if (showExpandedView) {
+            return false;
+        }
+        
+        // Show simplified view only if user hasn't navigated away
+        const shouldShow = !!(history && history.email && !loggedIn && !hasNavigatedAway);
+        
+        console.log('🔄 shouldShowSimplifiedView reactive check:', {
+            history: history,
+            loggedIn: loggedIn,
+            hasHistory: !!(history && history.email),
+            shouldShow: shouldShow,
+            showExpandedView: showExpandedView,
+            historyEmail: history?.email,
+            isLoggedIn: loggedIn,
+            hasNavigatedAway: hasNavigatedAway
+        });
+        
+        return shouldShow;
+    })();
     
     // Reactive daily limit calculation
     $: currentUserLimits = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
@@ -230,6 +265,10 @@
     }
 
     function navigateToHome() {
+        // Mark that user has navigated away from initial load
+        hasNavigatedAway = true;
+        sessionStorage.setItem('hasNavigatedAway', 'true');
+        console.log('🔄 User navigated away - hasNavigatedAway set to true');
         navigate('/', { replace: true });
     }
     
@@ -246,15 +285,11 @@
 
         if (history && history.email && !loggedIn) {
             hasLoggedInBefore = true;
-            shouldShowSimplifiedView = true;
             email = history.email;
             console.log('👤 Return user erkannt:', history.email);
-            console.log('👤 shouldShowSimplifiedView:', shouldShowSimplifiedView);
         } else {
             hasLoggedInBefore = false;
-            shouldShowSimplifiedView = false;
             console.log('👤 Kein Return user');
-            console.log('👤 shouldShowSimplifiedView:', shouldShowSimplifiedView);
         }
     }
     
@@ -295,9 +330,9 @@
     }
     
     function startAccountCreationForReturnUser() {
-        // For return users, skip benefits and go directly to form
-        accountCreationStep = 'form';
-        shouldShowSimplifiedView = false;
+        // For return users, show the expanded view
+        showExpandedView = true;
+        // shouldShowSimplifiedView will automatically become false due to reactive logic
     }
 
     function goBackToBenefits() {
@@ -371,7 +406,11 @@
         accountExists = false;
         // Reset return user view state
         hasLoggedInBefore = false;
-        shouldShowSimplifiedView = false;
+        
+        // Keep login history for return user functionality
+        console.log('🔐 Login history preserved for return user functionality');
+        
+        // shouldShowSimplifiedView is now reactive, no need to set it manually
         showSuccess('Successfully logged out', 3000);
         closeContextMenu();
         
@@ -413,9 +452,6 @@
             if (loginResult?.result?.isDevMode !== undefined) {
                 console.log('🔧 Backend dev mode confirmation:', loginResult.result.isDevMode);
             }
-            
-            // Mark successful login for return user tracking
-            markSuccessfulLogin(email);
             
             // Log accounting event
             logAccountingEvent('LOGIN_ATTEMPT_SUCCESS', {
@@ -546,6 +582,9 @@
                         magicLinkStatus = 'success';
                         showSuccess('Magic Link erfolgreich verifiziert!', 3000);
                         
+                        // Mark successful login for return user tracking (only on successful verification)
+                        markSuccessfulLogin(magicLinkEmail);
+                        
                         // Clean up URL parameters but keep the account page
                         const newUrl = window.location.pathname;
                         window.history.replaceState({}, '', newUrl);
@@ -572,8 +611,38 @@
             // Check session status
             checkSessionStatus();
             
-            // Check user login history for return user view
+            // Initialize user login history for return user view
             checkUserLoginHistory();
+            
+            // Pre-fill email from login history if available
+            const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
+            if (history && history.email && !get(isLoggedIn)) {
+                email = history.email;
+                console.log('👤 Pre-filled email from login history:', history.email);
+            }
+            
+            // Force initial reactive update
+            shouldShowSimplifiedView = !!(history && history.email && !get(isLoggedIn) && !hasNavigatedAway);
+            
+            // Initialize accountCreationStep based on user state
+            if (shouldShowSimplifiedView) {
+                accountCreationStep = null; // Show simplified view
+            } else {
+                accountCreationStep = 'benefits'; // Show benefits view
+            }
+            
+            // hasNavigatedAway remains false on initial load
+            console.log('🔄 Initial load - hasNavigatedAway remains false');
+            
+            // Debug: Log initial state
+            console.log('🔍 Initial AccountManager state:', {
+                shouldShowSimplifiedView: shouldShowSimplifiedView,
+                isLoggedIn: get(isLoggedIn),
+                history: history,
+                email: email,
+                showExpandedView: showExpandedView,
+                accountCreationStep: accountCreationStep
+            });
             
             // Initialize with current account data if available
             if ($currentAccount?.email) {
@@ -714,12 +783,12 @@
     <!-- Main Content Container -->
     <div in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}>
         <!-- Main Content -->
-        <section class="flex flex-col justify-center items-center  z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
+        <section class="flex flex-col justify-center items-center z-10 gap-4 w-full">
             <!-- Account Content -->
-            <div class="content-wrapper w-11/12 md:w-26r rounded-xl">
+            <div class="w-full">
                 <!-- Account Status -->
                 {#if $isLoggedIn}
-                    <div class="p-4">
+                    <div>
                         <div class="flex items-center justify-between mb-6">
                             <p class="text-gray-600 dark:text-gray-400">
                                 {$currentAccount?.email}
@@ -915,83 +984,83 @@
                     </div>
                 {:else if shouldShowSimplifiedView}
                     <!-- Return User Simplified Form -->
-                    <div class="p-4">
-                        <!-- Pro upgrade hint -->
-                        <div class="bg-creme-600 dark:bg-aubergine-900 rounded-xl p-4 mb-6 border border-purple-200 dark:border-purple-700">
-                            <div class="flex items-center justify-center space-x-2 mb-2">
-                                <span class="text-purple-600 dark:text-purple-400">💎</span>
-                                <span class="font-semibold text-purple-800 dark:text-purple-200">
-                                    Upgrade auf PRO
+                    <!-- Pro upgrade hint -->
+                    <div class="bg-creme-600 dark:bg-aubergine-900 rounded-xl p-4 mb-6 border border-purple-200 dark:border-purple-700">
+                        <div class="flex items-center justify-center space-x-2 mb-2">
+                            <span class="text-purple-600 dark:text-purple-400">💎</span>
+                            <span class="font-semibold text-purple-800 dark:text-purple-200">
+                                Upgrade auf PRO
+                            </span>
+                        </div>
+                        <p class="text-sm text-purple-700 dark:text-purple-300">
+                            Unbegrenzte Generierungen und erweiterte Sicherheitsfeatures
+                        </p>
+                    </div>
+
+                    <!-- Login form -->
+                    <form on:submit|preventDefault={handleLogin} class="space-y-4">
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            size="md"
+                            fullWidth={true}
+                            disabled={isSubmitting || !isEmailValid}
+                        >
+                            <div class="flex flex-col items-center justify-center -m-2">
+                                <span>{intelligentButtonText}</span>
+                                <span class="text-sm text-gray-500">
+                                    ({anonymizeEmail(email)})
                                 </span>
                             </div>
-                            <p class="text-sm text-purple-700 dark:text-purple-300">
-                                Unbegrenzte Generierungen und erweiterte Sicherheitsfeatures
-                            </p>
-                        </div>
-
-                        <!-- Login form -->
-                        <form on:submit|preventDefault={handleLogin} class="space-y-4">
-                            <Button
-                                type="submit"
-                                variant="primary"
-                                size="md"
-                                fullWidth={true}
-                                disabled={isSubmitting || !isEmailValid}
-                            >
-                                <div class="flex flex-col items-center justify-center">
-                                    <span>{intelligentButtonText}</span>
-                                    <span class="text-sm">
-                                        ({anonymizeEmail(email)})
-                                    </span>
+                        </Button>
+                        
+                        <!-- Alternative actions -->
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            fullWidth={true}
+                            on:click={() => startAccountCreationForReturnUser()}
+                        >
+                            Vollständiges Formular anzeigen
+                        </Button>
+                    </form>
+                {:else if showExpandedView}
+                    <!-- Expanded View for Return Users -->
+                    <div in:fly={{y: 20, duration: 400}} out:fly={{y: -20, duration: 400}}>
+                        <!-- Account Creation Flow -->
+                         <div class="transform -translate-y-2.5">
+                            <div class="core-button relative h-20 bg-creme-500 dark:bg-aubergine-900 border-powder-300 dark:border-aubergine-800 shadow-inner overflow-hidden mb-1">
+                                <div
+                                    class="absolute inset-y-1 bg-powder-300 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
+                                    style="width: calc(50% - 2px); left: 4px; transform: translateX({showBenefitsToggle === 'pro' ? 'calc(98%)' : '0'})"
+                                ></div>
+                                <div class="w-full h-full relative flex justify-around">
+                                    <button
+                                        class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
+                                        on:click={() => selectAccountType('free')}
+                                    >
+                                        <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
+                                            FREE
+                                        </span>
+                                        <span class="text-xs transition-colors duration-300 text-yellow-600">
+                                            {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
+                                        </span>
+                                    </button>
+                                    <button
+                                        class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
+                                        on:click={() => selectAccountType('pro')}
+                                    >
+                                        <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
+                                            PRO
+                                        </span>
+                                        <span class="text-xs transition-colors duration-300 text-purple-600">
+                                            {$translations?.accountManager?.proDescription || '💎 Enterprise Security'}
+                                        </span>
+                                    </button>
                                 </div>
-                            </Button>
-                            
-                            <!-- Alternative actions -->
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                fullWidth={true}
-                                on:click={() => shouldShowSimplifiedView = false}
-                            >
-                                Vollständiges Formular anzeigen
-                            </Button>
-                        </form>
-                    </div>
-                {:else}
-                    <!-- Account Creation Flow -->
-                    <div class="p-4">
-                        <div class="relative h-20 bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-inner p-2 overflow-hidden mb-4">
-                            <div
-                                class="absolute inset-y-2 left-2 bg-creme-500 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
-                                style="width: calc(50% - 4px); transform: translateX({showBenefitsToggle === 'pro' ? 'calc(100% - 6px)' : '0'})"
-                            ></div>
-                            <div class="relative flex h-full">
-                                <button
-                                    class="flex-1 flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
-                                    on:click={() => selectAccountType('free')}
-                                >
-                                    <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                        FREE
-                                    </span>
-                                    <span class="text-sm transition-colors duration-300 text-gray-700 dark:text-gray-200">
-                                        {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
-                                    </span>
-                                </button>
-                                <button
-                                    class="flex-1 flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
-                                    on:click={() => selectAccountType('pro')}
-                                >
-                                    <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                        PRO
-                                    </span>
-                                    <span class="text-sm transition-colors duration-300 text-gray-500 dark:text-gray-500">
-                                        {$translations?.accountManager?.proDescription || '💎 Enterprise Security'}
-                                    </span>
-                                </button>
                             </div>
                         </div>
-
                         <!-- Benefits Content -->
                         <div class="relative min-h-[400px] mb-5">
                             <!-- FREE Benefits -->
@@ -1050,27 +1119,235 @@
                                     </div>
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
                                         <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-purple-600 dark:text-purple-400 text-2xl">🌐</span>
+                                            <span class="text-purple-600 dark:text-purple-400 text-2xl">⚡</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.browserExtension || 'Browser-Erweiterung (Q4 2025)'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.browserExtensionDesc || 'Sicherheit überall im Web'}</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-purple-600 dark:text-purple-400 text-2xl">📝</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.wordpressPlugin || 'WordPress-Plugin (Q4 2025)'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.wordpressPluginDesc || 'Sicherheit in deine Website integrieren'}</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.prioritySupport || 'Prioritäts-Support'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.prioritySupportDesc || 'Schnelle Hilfe bei Fragen'}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Create Account Button -->
+                                            <!-- Action Buttons for Expanded View -->
+                    <div class="space-y-4">
+                        <!-- Back to simplified view button - Only show if no login history -->
+                        {#if !storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY)?.email}
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                fullWidth={true}
+                                on:click={() => showExpandedView = false}
+                            >
+                                Kompakte Ansicht
+                            </Button>
+                        {/if}
+                    </div>
+                    
+                    <!-- Login Form for Return Users -->
+                    <div class="bg-transparent mb-2">
+                        <form on:submit|preventDefault={handleLogin} class="space-y-4">
+                            <div>
+                                <label for="email-expanded" class="sr-only">{$translations?.accountManager?.emailLabel || 'Email'}</label>
+                                <Input
+                                    id="email-expanded"
+                                    type="email"
+                                    bind:value={email}
+                                    placeholder={$translations?.accountManager?.emailLabel || 'Email'}
+                                    required={true}
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+
+                            {#if showProfileForm}
+                                <div>
+                                    <label for="name-expanded" class="sr-only">{$translations?.accountManager?.nameLabel || 'Name'}</label>
+                                    <Input
+                                        id="name-expanded"
+                                        type="text"
+                                        bind:value={name}
+                                        placeholder={$translations?.accountManager?.nameLabel || 'Name'}
+                                        required={true}
+                                        disabled={isSubmitting}
+                                    />
+                                </div>
+                            {/if}
+
+                            <!-- Form Validation -->
+                            {#if !isFormValid && email}
+                                <div class="text-sm text-red-600 dark:text-red-400 text-center mt-1">
+                                    {#if !isEmailValid}
+                                        <p>⚠️ Please enter a valid email address</p>
+                                    {/if}
+                                    {#if showProfileForm && !isNameValid}
+                                        <p>⚠️ Please enter your name (minimum 2 characters)</p>
+                                    {/if}
+                                </div>
+                            {/if}
+
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                size="md"
+                                fullWidth={true}
+                                disabled={isSubmitting || !isFormValid}
+                            >
+                                {#if isSubmitting}
+                                    <span class="flex items-center justify-center">
+                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        {loginButtonText}
+                                    </span>
+                                {:else}
+                                    {loginButtonText}
+                                {/if}
+                            </Button>
+                            
+                            <!-- Small buttons side by side -->
+                            <div class="flex gap-3">
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    fullWidth={true}
+                                    on:click={() => showProfileForm = !showProfileForm}
+                                >
+                                    <span class="mr-1.5">👤</span>{showProfileForm ? 'Hide' : 'Add'} Profile Data
+                                </Button>
+                                
+                                <!-- Only show if no login history -->
+                                {#if !storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY)?.email}
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        fullWidth={true}
+                                        on:click={() => showExpandedView = false}
+                                    >
+                                        Kompakte Ansicht
+                                    </Button>
+                                {/if}
+                            </div>
+                        </form>
+                    </div>
+                    </div>
+                {:else}
+                                            <!-- Account Creation Flow - Styled like EmojiDisplay -->
+                    <div class="w-11/12 md:w-26r mx-auto mb-6">
+                        <div class="relative h-20 bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-inner p-2 overflow-hidden">
+                            <div
+                                class="absolute inset-y-2 left-2 bg-creme-500 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
+                                style="width: calc(50% - 4px); transform: translateX({showBenefitsToggle === 'pro' ? 'calc(100% - 6px)' : '0'})"
+                            ></div>
+                            <div class="relative flex h-full">
+                                <button
+                                    class="flex-1 flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
+                                    on:click={() => selectAccountType('free')}
+                                >
+                                    <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
+                                        FREE
+                                    </span>
+                                    <span class="text-sm transition-colors duration-300 text-yellow-600">
+                                        {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
+                                    </span>
+                                </button>
+                                <button
+                                    class="flex-1 flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
+                                    on:click={() => selectAccountType('pro')}
+                                >
+                                    <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
+                                        PRO
+                                    </span>
+                                    <span class="text-sm transition-colors duration-300 text-purple-600">
+                                        {$translations?.accountManager?.proDescription || '💎 Enterprise Security'}
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Benefits Content -->
+                    <div class="relative min-h-[400px] mb-5">
+                        <!-- FREE Benefits -->
+                        <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'free' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0'}">
+                            <div class="space-y-4">
+                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                        <span class="text-yellow-600 dark:text-yellow-400 text-2xl">✓</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.dailyGenerations || '5 tägliche sichere Generierungen'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.dailyGenerationsDesc || 'KI-resistente Technologie'}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                        <span class="text-yellow-600 dark:text-yellow-400 text-2xl">🔒</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.decentralizedData || 'Denzentrale Datenverabeitung'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.decentralizedDataDesc || 'Deine Daten bleiben privat'}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                        <span class="text-yellow-600 dark:text-yellow-400 text-2xl">📱</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.webApp || 'Als Webapp nutzbar'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.webAppDesc || 'Sicherer Zugriff von überall'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PRO Benefits -->
+                        <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'pro' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0'}">
+                            <div class="space-y-4">
+                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                        <span class="text-purple-600 dark:text-purple-400 text-2xl">∞</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerations || 'Unbegrenzte sichere Generierungen'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerationsDesc || 'Keine täglichen Limits'}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                        <span class="text-purple-600 dark:text-purple-400 text-2xl">🧠</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.aiThreatDetection || 'KI-gestützte Bedrohungserkennung'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.aiThreatDetectionDesc || 'Proaktive Sicherheitsanalyse'}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                        <span class="text-purple-600 dark:text-purple-400 text-2xl">🌐</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.browserExtension || 'Browser-Erweiterung (Q4 2025)'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.browserExtensionDesc || 'Sicherheit überall im Web'}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                        <span class="text-purple-600 dark:text-purple-400 text-2xl">📝</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.wordpressPlugin || 'WordPress-Plugin (Q4 2025)'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.wordpressPluginDesc || 'Sicherheit in deine Website integrieren'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Create Account Button - Hidden when expanded view is active -->
+                    {#if !showExpandedView}
                         <div class="text-center mb-6">
                             <Button
                                 variant="primary"
@@ -1079,88 +1356,88 @@
                                 on:click={startAccountCreation}
                             >
                                 {#if accountCreationStep === 'form'}
-                                   {($translations?.accountManager?.actions?.skipAccount || 'Auf {type} verzichten').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
+                                    {($translations?.accountManager?.actions?.skipAccount || '❌ Auf {type} verzichten').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
                                 {:else}
                                     {($translations?.accountManager?.actions?.createAccount || '🚀 {type} Account anlegen').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
                                 {/if}
                             </Button>
                         </div>
+                    {/if}
 
-                        <!-- Login Form -->
-                        <div class="bg-transparent mb-2">      
-                            <form on:submit|preventDefault={handleLogin} class="space-y-4">
+                    <!-- Login Form -->
+                    <div class="bg-transparent mb-2">      
+                        <form on:submit|preventDefault={handleLogin} class="space-y-4">
+                            <div>
+                                <label for="email" class="sr-only">{$translations?.accountManager?.emailLabel || 'Email'}</label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    bind:value={email}
+                                    placeholder={$translations?.accountManager?.emailLabel || 'Email'}
+                                    required={true}
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+
+                            {#if showProfileForm}
                                 <div>
-                                    <label for="email" class="sr-only">{$translations?.accountManager?.emailLabel || 'Email'}</label>
+                                    <label for="name" class="sr-only">{$translations?.accountManager?.nameLabel || 'Name'}</label>
                                     <Input
-                                        id="email"
-                                        type="email"
-                                        bind:value={email}
-                                        placeholder={$translations?.accountManager?.emailLabel || 'Email'}
+                                        id="name"
+                                        type="text"
+                                        bind:value={name}
+                                        placeholder={$translations?.accountManager?.nameLabel || 'Name'}
                                         required={true}
                                         disabled={isSubmitting}
                                     />
                                 </div>
+                            {/if}
 
-                                {#if showProfileForm}
-                                    <div>
-                                        <label for="name" class="sr-only">{$translations?.accountManager?.nameLabel || 'Name'}</label>
-                                        <Input
-                                            id="name"
-                                            type="text"
-                                            bind:value={name}
-                                            placeholder={$translations?.accountManager?.nameLabel || 'Name'}
-                                            required={true}
-                                            disabled={isSubmitting}
-                                        />
-                                    </div>
-                                {/if}
-
-                                <Button
-                                    type="submit"
-                                    variant="primary"
-                                    size="md"
-                                    fullWidth={true}
-                                    disabled={isSubmitting || !isFormValid}
-                                >
-                                    {#if isSubmitting}
-                                        <span class="flex items-center justify-center">
-                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            {loginButtonText}
-                                        </span>
-                                    {:else}
-                                        {loginButtonText}
+                            <!-- Form Validation -->
+                            {#if !isFormValid && email}
+                                <div class="text-sm text-red-600 dark:text-red-400 text-center">
+                                    {#if !isEmailValid}
+                                        <p>⚠️ Please enter a valid email address</p>
                                     {/if}
-                                </Button>
-                                
-                                <!-- Form Validation -->
-                                {#if !isFormValid && email}
-                                    <div class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
-                                        {#if !isEmailValid}
-                                            <p>⚠️ Please enter a valid email address</p>
-                                        {/if}
-                                        {#if showProfileForm && !isNameValid}
-                                            <p>⚠️ Please enter your name (minimum 2 characters)</p>
-                                        {/if}
-                                    </div>
+                                    {#if showProfileForm && !isNameValid}
+                                        <p>⚠️ Please enter your name (minimum 2 characters)</p>
+                                    {/if}
+                                </div>
+                            {/if}
+
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                size="md"
+                                fullWidth={true}
+                                disabled={isSubmitting || !isFormValid}
+                            >
+                                {#if isSubmitting}
+                                    <span class="flex items-center justify-center">
+                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        {loginButtonText}
+                                    </span>
+                                {:else}
+                                    {loginButtonText}
                                 {/if}
-                                
-                                <Button
-                                    variant="secondary"
-                                    size="md"
-                                    fullWidth={true}
-                                    on:click={() => showProfileForm = !showProfileForm}
-                                    >
-                                    <span class="mr-1.5">👤</span>{showProfileForm ? 'Hide' : 'Add'} Profile Data
-                                </Button>
-                            </form>
-                        </div>
+                            </Button>
+                            
+                            <Button
+                                variant="secondary"
+                                size="md"
+                                fullWidth={true}
+                                on:click={() => showProfileForm = !showProfileForm}
+                                >
+                                <span class="mr-1.5">👤</span>{showProfileForm ? 'Hide' : 'Add'} Profile Data
+                            </Button>
+                        </form>
                     </div>
 
                     <!-- Footer -->
-                    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                             <span class="flex items-center">
                                 {$translations?.accountManager?.footer?.magicLink || 'Magic link'}
@@ -1178,9 +1455,6 @@
         </section>
     </div>
 
-    <!-- Fixed Menu -->
-    <FixedMenu align={'bottom'} />
-    
     <!-- Hidden file input for settings import -->
     <input
         bind:this={fileInput}
