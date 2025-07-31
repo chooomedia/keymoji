@@ -373,7 +373,8 @@
                         
                         <button
                             type="submit"
-                            class="btn-primary btn-md {isSubmitting ? 'opacity-75 cursor-wait' : ''}"
+                            class="btn-primary btn-md {isSubmitting ? 'opacity-75 cursor-wait' : ''} {!isFormValid ? 'opacity-50 cursor-not-allowed' : ''}"
+                            disabled={!isFormValid || isSubmitting}
                             aria-label={isSubmitting 
                                 ? $translations.contactForm.sendingButton
                                 : $translations.contactForm.sendButton}

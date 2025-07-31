@@ -104,7 +104,7 @@
       href: `https://www.reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent('Keymoji - Emoji Password Generator')}`,
       target: '_blank',
       svgContent: redditIcon
-    }.
+    },
     {
       id: 'twitter',
       name: 'X (twitter)',
@@ -203,19 +203,19 @@
 
   <nav id="fixed-menu-nav" class="bg-creme-500 dark:bg-aubergine-800 rounded-full transition duration-300 ease-in-out transform {align}-0 flex {showMenu ? 'opened' : 'closed'}" aria-label="Main">
     <div class="w-auto justify-center flex gap-2 rounded-full">
-      <button aria-label="toggle color schema (dark/light)" on:click={toggleDarkMode} class="btn border-4 p-4 border-powder-200 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
+      <button aria-label="toggle color schema (dark/light)" on:click={toggleDarkMode} class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
         {#if $darkMode}🌙{:else}🌞{/if}
       </button>
-      <button aria-label="open share menu" on:click={() => toggleMenu('share')} class="{showMenu ? 'opened' : 'closed'} btn border-4 p-4 border-powder-200 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
+      <button aria-label="open share menu" on:click={() => toggleMenu('share')} class="{showMenu ? 'opened' : 'closed'} btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
         {#if showMenu}💔{:else}❤️{/if}
       </button>
-      <button aria-label="navigate to contact form" on:click={navigateToContact} class="btn border-4 p-4 border-powder-200 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
+      <button aria-label="navigate to contact form" on:click={navigateToContact} class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
         💌
       </button>
-      <button aria-label="open debug modal" on:click={toggleDebugModal} class="btn border-4 p-4 border-powder-200 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
+      <button aria-label="open debug modal" on:click={toggleDebugModal} class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
         🐛
       </button>
-      <button aria-label="open donation menu" on:click={() => toggleMenu('donate')} class="btn border-4 p-4 border-powder-200 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl md:hidden">
+      <button aria-label="open donation menu" on:click={() => toggleMenu('donate')} class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl md:hidden">
         {#if $showDonateMenu}❌{:else}☕{/if}
       </button>
     </div>
