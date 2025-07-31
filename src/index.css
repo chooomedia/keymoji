@@ -605,8 +605,8 @@
     right: 0 !important;
     bottom: 0 !important;
     z-index: 9999 !important;
-    background-color: rgba(0, 0, 0, 0.3) !important;
-    backdrop-filter: blur(2px) !important;
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(7px) !important;
 }
 
 .modal-container {
