@@ -154,6 +154,163 @@ export async function refreshUserCounter() {
     }
 }
 
+// Detect if running as webapp
+function detectWebappUsage() {
+    // Check for webapp indicators
+    const isStandalone = window.matchMedia(
+        '(display-mode: standalone)'
+    ).matches;
+    const isFullscreen = window.matchMedia(
+        '(display-mode: fullscreen)'
+    ).matches;
+    const hasWebappManifest =
+        document.querySelector('link[rel="manifest"]') !== null;
+    const isPWA = 'serviceWorker' in navigator;
+
+    // Check if launched from home screen
+    const isFromHomeScreen = window.navigator.standalone === true;
+
+    // Check for mobile webapp indicators
+    const isMobile =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent
+        );
+    const hasWebappViewport =
+        document.querySelector(
+            'meta[name="viewport"][content*="user-scalable=no"]'
+        ) !== null;
+
+    return (
+        isStandalone ||
+        isFullscreen ||
+        (isMobile && hasWebappViewport) ||
+        isFromHomeScreen
+    );
+}
+
+// Get appropriate referrer value
+function getReferrerValue() {
+    // If running as webapp, use 'webapp' as referrer
+    if (detectWebappUsage()) {
+        return 'webapp';
+    }
+
+    // Otherwise use actual referrer or 'direct'
+    return document.referrer || 'direct';
+}
+
+// Get detailed client information
+function getDetailedClientInfo() {
+    const isWebapp = detectWebappUsage();
+
+    // Basic client info
+    const clientInfo = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        languages: navigator.languages,
+        cookieEnabled: navigator.cookieEnabled,
+        onLine: navigator.onLine,
+        doNotTrack: navigator.doNotTrack,
+        maxTouchPoints: navigator.maxTouchPoints || 0,
+        hardwareConcurrency: navigator.hardwareConcurrency || 0,
+        deviceMemory: navigator.deviceMemory || 0
+    };
+
+    // Screen info
+    const screenInfo = {
+        width: screen.width,
+        height: screen.height,
+        availWidth: screen.availWidth,
+        availHeight: screen.availHeight,
+        colorDepth: screen.colorDepth,
+        pixelDepth: screen.pixelDepth,
+        orientation: screen.orientation?.type || 'unknown'
+    };
+
+    // Window info
+    const windowInfo = {
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        outerWidth: window.outerWidth,
+        outerHeight: window.outerHeight,
+        devicePixelRatio: window.devicePixelRatio || 1
+    };
+
+    // Webapp specific info
+    if (isWebapp) {
+        clientInfo.displayMode = window.matchMedia('(display-mode: standalone)')
+            .matches
+            ? 'standalone'
+            : window.matchMedia('(display-mode: fullscreen)').matches
+            ? 'fullscreen'
+            : 'browser';
+        clientInfo.standalone = window.navigator.standalone || false;
+        clientInfo.hasServiceWorker = 'serviceWorker' in navigator;
+        clientInfo.hasWebAppManifest =
+            document.querySelector('link[rel="manifest"]') !== null;
+    }
+
+    return {
+        ...clientInfo,
+        screen: screenInfo,
+        window: windowInfo,
+        isWebapp: isWebapp
+    };
+}
+
+// Send analytics event to n8n
+export async function sendAnalyticsEvent(eventType, eventData = {}) {
+    try {
+        console.log('📊 Sending analytics event:', eventType, eventData);
+
+        const detailedClientInfo = getDetailedClientInfo();
+
+        const response = await fetch(WEBHOOKS.ANALYTICS, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+            },
+            body: JSON.stringify({
+                type: eventType,
+                path: window.location.pathname,
+                client: detailedClientInfo.isWebapp
+                    ? 'webapp'
+                    : navigator.userAgent.substring(0, 100),
+                version: appVersion,
+                timestamp: new Date().toISOString(),
+                language: get(currentLanguage) || 'en',
+                referrer: getReferrerValue(),
+                screen: `${window.screen.width}x${window.screen.height}`,
+                userAgent: detailedClientInfo.userAgent,
+                platform: detailedClientInfo.platform,
+                deviceType: detailedClientInfo.isWebapp ? 'webapp' : 'browser',
+                data: JSON.stringify({
+                    ...eventData,
+                    webapp: detailedClientInfo.isWebapp,
+                    displayMode: detailedClientInfo.displayMode || 'browser',
+                    clientInfo: detailedClientInfo
+                })
+            }),
+            signal: AbortSignal.timeout(10000) // 10s timeout
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Analytics event sent successfully:', data);
+            return data;
+        } else {
+            console.error('❌ Analytics event failed:', response.status);
+            return null;
+        }
+    } catch (error) {
+        console.error('❌ Analytics event error:', error);
+        return null;
+    }
+}
+
 // Initialize counter on page load
 function initializeUserCounter() {
     const isDevelopment = process.env.NODE_ENV === 'development';

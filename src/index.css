@@ -3,8 +3,6 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-
-
 .hieroglyphemojis {
     animation: gradient 270s ease infinite;
     background-size: 16%;
@@ -45,6 +43,92 @@
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
+    overflow-y: auto;
+    /* Unsichtbare Scrollbar für Body */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+    /* Verhindert Scrollbar-Hüpfen bei Routenwechsel */
+    padding-right: 0px;
+}
+
+/* WebKit: Unsichtbare Scrollbar für Body */
+:global(body::-webkit-scrollbar) {
+    display: none !important;
+}
+
+/* Alle Scrollbars unsichtbar machen (außer Language Dialog) */
+:global(*) {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+:global(*::-webkit-scrollbar) {
+    display: none !important;
+}
+
+/* Ausnahme: Language Dialog behält sichtbare Scrollbar */
+:global(.language-dialog-scrollbar) {
+    scrollbar-width: thin !important;
+    -ms-overflow-style: auto !important;
+    scrollbar-color: theme('colors.purple.400') theme('colors.gray.200');
+}
+
+:global(.language-dialog-scrollbar::-webkit-scrollbar) {
+    display: block !important;
+    width: 8px;
+}
+
+:global(.language-dialog-scrollbar::-webkit-scrollbar-track) {
+    background: theme('colors.gray.200');
+    border-radius: 4px;
+}
+
+:global(.language-dialog-scrollbar::-webkit-scrollbar-thumb) {
+    background: theme('colors.purple.400');
+    border-radius: 4px;
+}
+
+/* Dark mode für Language Dialog */
+:global(.dark) .language-dialog-scrollbar {
+    scrollbar-color: theme('colors.purple.600') theme('colors.gray.800');
+}
+
+:global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-track {
+    background: theme('colors.gray.800');
+}
+
+:global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-thumb {
+    background: theme('colors.purple.600');
+}
+
+:global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-track {
+    background: theme('colors.gray.800');
+}
+
+:global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-thumb {
+    background: theme('colors.purple.600');
+}
+
+/* Smooth Route Transitions */
+:global(.route-transition) {
+    position: relative;
+}
+
+:global(.route-transition > *) {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Modal/Menu Status Management */
+:global(body.modal-open) {
+    overflow: hidden;
+    padding-right: 0px;
+}
+
+:global(body.menu-open) {
+    overflow: hidden;
+    padding-right: 0px;
 }
 
 :global(.dark) {
@@ -196,37 +280,13 @@
     .scrollbar-none::-webkit-scrollbar {
         display: none;
     }
+
+
 }
 
 @layer components {
 
-    .contact-input {
-        @apply w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border border-gray-light dark:border-aubergine-800 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
-    }
-
-    input.contact-input,
-    textarea.contact-input {
-        @apply p-4;
-    }
-
-    select.contact-input {
-        @apply appearance-none p-4 bg-no-repeat bg-right bg-origin-content;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='none' stroke='%23666' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-        background-size: 1.25rem;
-    }
-
-    @media (prefers-color-scheme: dark) {
-        select.contact-input {
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='none' stroke='%23fff' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-        }
-    }
-
-
-    /* Improve form field styles for disabled state */
-    .contact-input:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-    }
+    /* Form field styles moved to Input.svelte component */
 
     /* Improve button styles for disabled state */
     button:disabled {
@@ -249,53 +309,7 @@
         @apply bg-white dark:bg-aubergine-900 rounded-xl p-4 border dark:border-aubergine-800 border-creme-500 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
     }
 
-    .btn-primary {
-        @apply bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-3 rounded-full font-medium transition-all duration-200 transform hover:scale-105 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 w-full;
-    }
-
-    .btn-secondary {
-        @apply bg-powder-50 dark:bg-aubergine-900 text-black dark:text-powder-50 px-6 py-3 rounded-full border border-transparent hover:border-yellow-300 transition-all duration-200 w-full;
-    }
-
-    .btn-primary:disabled {
-        @apply opacity-50 cursor-not-allowed hover:scale-100;
-    }
-
-    .btn {
-        @apply transition transform hover:scale-105 rounded-full;
-    }
-
-    .btn-default {
-        @apply relative bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50;
-        height: 50px;
-    }
-
-    .btn-fixed {
-        @apply bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 border-4 border-creme-50 dark:border-aubergine-800;
-    }
-
-    .btn-yellow {
-        @apply bg-yellow-500 text-black;
-    }
-
-    .btn-sm {
-        @apply px-3 py-2 text-sm;
-    }
-
-    .btn-md {
-        @apply px-4 py-3;
-        height: 56px;
-    }
-
-    .btn-menu {
-        @apply px-4 text-xl;
-        padding-top: 12px;
-        padding-bottom: 12px;
-    }
-
-    .btn-lg {
-        @apply px-6 py-4 text-3xl;
-    }
+    /* Button styles moved to Button.svelte component */
 
     .columns {
         columns: 3 300px;
@@ -410,10 +424,7 @@
         box-shadow: 0 0 0 2px #000;
     }
 
-    /* Optional: Verhindert Scrolling wenn Overlay aktiv ist */
-    :global(body.menu-open) {
-        overflow: hidden;
-    }
+
 
     /* Optimierte Transitions */
     :global(.menu-transition) {
@@ -477,24 +488,9 @@
 }
 
 .modal-content {
-    background-color: white !important;
-    border-radius: 0.75rem !important;
+    @apply w-96 relative mx-4 bg-white dark:bg-aubergine-900 text-gray-900 dark:text-powder-600 rounded-xl overflow-hidden pointer-events-auto;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-    max-width: 28rem !important;
-    width: 100% !important;
-    margin: 0 1rem !important;
-    position: relative !important;
-    overflow: hidden !important;
-    pointer-events: auto !important;
     z-index: 10001 !important;
-}
-
-/* Dark mode support for modals */
-@media (prefers-color-scheme: dark) {
-    .modal-content {
-        background-color: #1f2937 !important;
-        color: #f9fafb !important;
-    }
 }
 
 /* Ensure modals are always on top */
@@ -505,7 +501,7 @@
 
 /* Override any parent z-index issues */
 .modal-force-top {
-    z-index: 99999 !important;
+    z-index: 9999 !important;
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;

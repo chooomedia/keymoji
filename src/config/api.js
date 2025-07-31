@@ -28,6 +28,7 @@ export const WEBHOOKS = {
 
     // Analytics & User Counter
     USER_COUNTER: `${N8N_URL}/xn--moji-pb73c-counter`,
+    ANALYTICS: `${N8N_URL}/xn--moji-pb73c-analytics`,
 
     // Contact Form
     CONTACT: {

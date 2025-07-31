@@ -12,6 +12,7 @@
     import { supportedLanguages } from '../../utils/languages.js';
     import { translations } from '../../stores/contentStore.js';
     import { navigateToBlog } from '../../utils/navigation.js';
+    import Button from '../UI/Button.svelte';
 
     const dispatch = createEventDispatcher();
 
@@ -84,22 +85,24 @@
                 
                 <!-- Account Button -->
                 <div class="flex">
-                    <button 
+                    <Button 
+                        variant="default"
+                        size="md"
                         on:click={navigateToAccount}
-                        class="btn btn-default btn-md"
-                        aria-label="navigate to account"
                     >
-                        {#if $isLoggedIn}👤{:else}🔐{/if}
-                    </button>
+                        <span class="text-xl">{#if $isLoggedIn}👤{:else}🔐{/if}</span>
+                    </Button>
                 </div>
                 
                 <!-- GitHub Button (mobile und desktop) -->
                 <div class="flex">
-                    <button class="btn btn-default btn-md">
-                        <a href="https://github.com/chooomedia/keymoji" target="_blank" aria-label="Star chooomedia/keymoji on GitHub">
-                            ⭐
-                        </a>
-                    </button>
+                    <Button 
+                        variant="default"
+                        size="md"
+                        href="https://github.com/chooomedia/keymoji"
+                    >
+                        <span class="text-xl">⭐</span>
+                    </Button>
                 </div>
             </div>
         </div>

@@ -15,7 +15,7 @@
 </script>
 
 <!-- App Container -->
-<main class="app-container overflow-x-hidden" data-lang={$currentLanguage}>
+<main class="app-container overflow-x-hidden route-transition" data-lang={$currentLanguage}>
     <!-- Header -->
     <Header />
     

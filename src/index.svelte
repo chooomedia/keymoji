@@ -16,6 +16,7 @@
     import { initializeAccountFromCookies, setupMagicLinkListener } from './stores/accountStore.js';
     import { initializeSettingsForUser } from './stores/userSettingsStore.js';
     import { testLimitConfiguration, testLimitConsistency } from './utils/test-limits.js';
+    import { sendAnalyticsEvent } from './stores/appStores.js';
   
     // Debug-Flag - für die Produktion entfernen
     let showDebug = isDebugMode();
@@ -58,6 +59,12 @@
         testLimitConfiguration();
         testLimitConsistency();
       }
+      
+      // Send page view analytics
+      sendAnalyticsEvent('page_view', {
+        page: 'home',
+        language: $currentLanguage
+      });
     });
 
     // Reaktive Übersetzungen
@@ -87,7 +94,7 @@
     
     <!-- Footer slot content -->
     <footer slot="footer">
-        <div class="flex items-center justify-center space-x-1 text-sm text-gray dark:text-gray-300">
+        <div class="flex items-center justify-center space-x-1 text-sm text-gray-400">
             <button class="hover:text-yellow transition-colors duration-200" 
                 on:click={navigateToVersion} 
                 type="button"

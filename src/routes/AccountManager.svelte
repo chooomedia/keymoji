@@ -47,6 +47,9 @@
     import ContextMenu from '../components/UI/ContextMenu.svelte';
     import { isDevelopment } from '../utils/environment.js';
     import { validateUserLimits } from '../config/limits.js';
+    import { sendAnalyticsEvent } from '../stores/appStores.js';
+    import Input from '../components/UI/Input.svelte';
+    import Button from '../components/UI/Button.svelte';
 
     // Toggle state
     let showBenefitsToggle = 'free';
@@ -65,6 +68,74 @@
     let checkingAccount = false;
     let sessionExpired = false;
     let hasValidSession = false;
+
+    // Calculate days since account creation
+    function getDaysSinceAccountCreation() {
+        // Debug: Log the current account structure
+        console.log('🔍 DEBUG: Current account structure:', $currentAccount);
+        console.log('🔍 DEBUG: metadata:', $currentAccount?.metadata);
+        console.log('🔍 DEBUG: createdAt paths:', {
+            'metadata.createdAt': $currentAccount?.metadata?.createdAt,
+            'createdAt': $currentAccount?.createdAt,
+            'profile.createdAt': $currentAccount?.profile?.createdAt,
+            'lastLogin': $currentAccount?.lastLogin,
+            'timestamp': $currentAccount?.timestamp
+        });
+        
+        // Try different possible paths for creation date
+        const possibleDates = [
+            $currentAccount?.metadata?.createdAt,
+            $currentAccount?.createdAt,
+            $currentAccount?.profile?.createdAt,
+            $currentAccount?.timestamp,
+            $currentAccount?.lastLogin
+        ];
+        
+        // Also try localStorage as fallback
+        const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
+        if (userPrefs?.metadata?.createdAt) {
+            possibleDates.push(userPrefs.metadata.createdAt);
+        }
+        if (userPrefs?.lastLogin) {
+            possibleDates.push(userPrefs.lastLogin);
+        }
+        
+        const createdAtValue = possibleDates.find(date => date);
+        
+        if (!createdAtValue) {
+            console.warn('⚠️ No creation date found in account data');
+            return 0;
+        }
+        
+        try {
+            const createdAt = new Date(createdAtValue);
+            const now = new Date();
+            const diffTime = Math.abs(now - createdAt);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            console.log('✅ Days since creation calculated:', {
+                createdAtValue,
+                createdAt,
+                diffDays
+            });
+            
+            return diffDays;
+        } catch (error) {
+            console.warn('Error calculating days since account creation:', error);
+            return 0;
+        }
+    }
+    
+    // Reactive calculation for days since account creation
+    $: daysSinceCreation = getDaysSinceAccountCreation();
+    
+    // TEMPORARY TEST: Force a value to test UI
+    $: daysSinceCreation = 42; // Uncomment this line to test with 42 days
+    
+    // Debug: Log when daysSinceCreation changes
+    $: if (daysSinceCreation !== undefined) {
+        console.log('🔄 daysSinceCreation updated:', daysSinceCreation);
+    }
     
     // Return user view state
     let hasLoggedInBefore = false;
@@ -323,6 +394,14 @@
                 accountType: selectedAccountType,
                 dev: isDevMode,
                 accountExists: accountCheck.exists
+            });
+            
+            // Send analytics event
+            sendAnalyticsEvent('account_login_attempt', {
+                email: email,
+                accountType: selectedAccountType,
+                accountExists: accountCheck.exists,
+                dev: isDevMode
             });
             
             // Show success message
@@ -666,9 +745,14 @@
 
                             <!-- PRO Badge and Context Menu -->
                             <div class="flex items-center gap-2">
-                                <!-- PRO Badge -->
-                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold text-creme-500 dark:text-white {$accountTier === 'pro' ? 'bg-purple-700' : 'bg-yellow-600'}" >
+                                <!-- PRO Badge with Hover Info -->
+                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold text-creme-500 dark:text-white {$accountTier === 'pro' ? 'bg-purple-700' : 'bg-yellow-600'} cursor-pointer group relative" 
+                                      title="{daysSinceCreation > 0 ? `Account seit ${daysSinceCreation} ${daysSinceCreation === 1 ? 'Tag' : 'Tagen'}` : 'Account erstellt'}"
+                                      aria-label="Account Tier: {$accountTier === 'pro' ? 'PRO' : 'FREE'}, {daysSinceCreation > 0 ? `seit ${daysSinceCreation} ${daysSinceCreation === 1 ? 'Tag' : 'Tagen'}` : 'Account erstellt'}">
                                     {$accountTier === 'pro' ? ($translations?.accountManager?.proBadge || '💎 PRO') : ($translations?.accountManager?.freeBadge || '✨ FREE')}
+                                    <span class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-gray-700 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
+                                        {daysSinceCreation > 0 ? `seit ${daysSinceCreation} ${daysSinceCreation === 1 ? 'Tag' : 'Tagen'}` : 'Account erstellt'}
+                                    </span>
                                 </span>
 
                                 <div class="relative context-menu">
@@ -781,22 +865,25 @@
                         <!-- Action Buttons -->
                         <div class="text-center mt-6 space-y-3">
                             <!-- Primary Action: Save Settings -->
-                            <button
+                            <Button
+                                variant="primary"
+                                size="md"
+                                fullWidth={true}
                                 on:click={() => showSuccess('Settings saved successfully!', 3000)}
-                                class="btn btn-primary btn-md rounded-full w-full"
                             >
                                 {$translations?.accountManager?.actions?.saveSettings || '💾 Save Settings'}
-                            </button>
+                            </Button>
                             
                             <!-- Secondary Action: Back to Home -->
                             {#if remainingGenerations > 0}
-                            <button
+                            <Button
+                                variant="secondary"
+                                size="md"
+                                fullWidth={true}
                                 on:click={navigateToHome}
-                                class="btn btn-secondary btn-md rounded-full w-full"
-                                aria-label="Back to home"
                             >
                                 {$translations?.accountManager?.actions?.backToHome || '🏠 Back to Home'}
-                            </button>
+                            </Button>
                             {/if}
                         </div>
                     </div>
@@ -804,10 +891,12 @@
                     <!-- Verification Step -->
                     <div class="p-4 text-center">
                         <div class="space-y-4">
-                            <button
+                            <Button
+                                variant="primary"
+                                size="md"
+                                fullWidth={true}
                                 on:click={resendMagicLink}
                                 disabled={isSubmitting}
-                                class="btn btn-primary btn-md rounded-full w-full"
                             >
                                 {#if isSubmitting}
                                     <span class="animate-spin mr-1">⏳</span>
@@ -816,15 +905,17 @@
                                     <span class="mr-1">🔄</span>
                                     Resend Magic Link
                                 {/if}
-                            </button>
+                            </Button>
                             
-                            <button
+                            <Button
+                                variant="secondary"
+                                size="md"
+                                fullWidth={true}
                                 on:click={goBackToBenefits}
-                                class="btn btn-secondary btn-md rounded-full w-full"
                             >
                                 <span class="mr-1">←</span>
                                 Back to Account Options
-                            </button>
+                            </Button>
                             
                             <!-- Help Section -->
                             <div class="mt-6 p-4 bg-creme-600 dark:bg-aubergine-900 rounded-xl">
@@ -858,25 +949,31 @@
 
                         <!-- Login form -->
                         <form on:submit|preventDefault={handleLogin} class="space-y-4">
-                            <button
+                            <Button
                                 type="submit"
+                                variant="primary"
+                                size="md"
+                                fullWidth={true}
                                 disabled={isSubmitting || !isEmailValid}
-                                class="btn btn-primary btn-md rounded-full w-full flex flex-col items-center justify-center"
                             >
-                                <span>{intelligentButtonText}</span>
-                                <span class="text-sm">
-                                    ({anonymizeEmail(email)})
-                                </span>
-                            </button>
+                                <div class="flex flex-col items-center justify-center">
+                                    <span>{intelligentButtonText}</span>
+                                    <span class="text-sm">
+                                        ({anonymizeEmail(email)})
+                                    </span>
+                                </div>
+                            </Button>
                             
                             <!-- Alternative actions -->
-                            <button
+                            <Button
                                 type="button"
+                                variant="secondary"
+                                size="sm"
+                                fullWidth={true}
                                 on:click={() => shouldShowSimplifiedView = false}
-                                class="btn btn-secondary btn-sm rounded-full w-full"
                             >
                                 Vollständiges Formular anzeigen
-                            </button>
+                            </Button>
                         </form>
                     </div>
                 {:else}
@@ -993,16 +1090,18 @@
 
                         <!-- Create Account Button -->
                         <div class="text-center mb-6">
-                            <button
+                            <Button
+                                variant="primary"
+                                size="md"
+                                fullWidth={true}
                                 on:click={startAccountCreation}
-                                class="btn btn-primary btn-md rounded-full"
                             >
                                 {#if accountCreationStep === 'form'}
                                    {($translations?.accountManager?.actions?.skipAccount || 'Auf {type} verzichten').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
                                 {:else}
                                     {($translations?.accountManager?.actions?.createAccount || '🚀 {type} Account anlegen').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
                                 {/if}
-                            </button>
+                            </Button>
                         </div>
 
                         <!-- Login Form -->
@@ -1010,13 +1109,12 @@
                             <form on:submit|preventDefault={handleLogin} class="space-y-4">
                                 <div>
                                     <label for="email" class="sr-only">{$translations?.accountManager?.emailLabel || 'Email'}</label>
-                                    <input
+                                    <Input
                                         id="email"
                                         type="email"
                                         bind:value={email}
                                         placeholder={$translations?.accountManager?.emailLabel || 'Email'}
-                                        class="contact-input"
-                                        required
+                                        required={true}
                                         disabled={isSubmitting}
                                     />
                                 </div>
@@ -1024,23 +1122,23 @@
                                 {#if showProfileForm}
                                     <div>
                                         <label for="name" class="sr-only">{$translations?.accountManager?.nameLabel || 'Name'}</label>
-                                        <input
+                                        <Input
                                             id="name"
                                             type="text"
                                             bind:value={name}
                                             placeholder={$translations?.accountManager?.nameLabel || 'Name'}
-                                            class="contact-input"
-                                            required
+                                            required={true}
                                             disabled={isSubmitting}
                                         />
                                     </div>
                                 {/if}
 
-                                <button
+                                <Button
                                     type="submit"
-                                    class="btn-primary btn-md w-full {isSubmitting ? 'opacity-75 cursor-wait' : ''}"
+                                    variant="primary"
+                                    size="md"
+                                    fullWidth={true}
                                     disabled={isSubmitting || !isFormValid}
-                                    aria-label={loginButtonText}
                                 >
                                     {#if isSubmitting}
                                         <span class="flex items-center justify-center">
@@ -1053,7 +1151,7 @@
                                     {:else}
                                         {loginButtonText}
                                     {/if}
-                                </button>
+                                </Button>
                                 
                                 <!-- Form Validation -->
                                 {#if !isFormValid && email}
@@ -1067,12 +1165,14 @@
                                     </div>
                                 {/if}
                                 
-                                <button
+                                <Button
+                                    variant="secondary"
+                                    size="md"
+                                    fullWidth={true}
                                     on:click={() => showProfileForm = !showProfileForm}
-                                    class="btn btn-secondary btn-md rounded-full"
                                     >
                                     <span class="mr-1.5">👤</span>{showProfileForm ? 'Hide' : 'Add'} Profile Data
-                                </button>
+                                </Button>
                             </form>
                         </div>
                     </div>

@@ -11,8 +11,8 @@ let showEraseButton = true;
 </script>
   
 {#if showEraseButton}
-    <button aria-label="DEV: Clear the LocalStorage" class="btn btn-default btn-menu"
+    <Button variant="default" size="menu"
         on:click={clearLocalStorage}>
         🛁
-    </button>
+    </Button>
 {/if}

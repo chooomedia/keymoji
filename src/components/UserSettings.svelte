@@ -39,8 +39,15 @@
         return getEffectiveValue(item.id) ?? item.defaultValue;
     }
 
-    // Get available sections based on user tier - Free users now see Pro features
-    $: availableSections = Object.values(settingsConfig.sections || {});
+    // Get available sections based on user tier
+    $: availableSections = Object.values(settingsConfig.sections || {}).filter(section => {
+        // Free users: only basic and emoji sections
+        if (!isProUser) {
+            return section.id === 'basic' || section.id === 'emoji';
+        }
+        // Pro users: all sections
+        return true;
+    });
 
     // Debug logging for reactivity
     $: if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
@@ -272,10 +279,6 @@
         showProModal = false;
     }
 
-    function handleProModalClose() {
-        showProModal = false;
-    }
-
     function toggleSection(sectionId) {
         activeSection = activeSection === sectionId ? null : sectionId;
     }
@@ -322,6 +325,45 @@
         {getLocalizedText($translations?.userSettings?.title, 'User Settings')}
     </p>
 
+    <!-- Account Tier Info -->
+    <div class="mb-6 p-4 bg-powder-300 dark:bg-aubergine-700 rounded-lg border border-purple-700">
+        <div class="flex items-start flex-col justify-center space-y-3">
+            <div class="flex items-start space-x-3">
+                <span class="text-2xl">
+                    {#if isProUser}
+                        💎
+                    {:else}
+                        🆓
+                    {/if}
+                </span>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        {#if isProUser}
+                            Pro Account
+                        {:else}
+                            Free Account
+                        {/if}
+                    </h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        {#if isProUser}
+                            You have access to all features
+                        {:else}
+                            Upgrade to Pro for advanced features
+                        {/if}
+                    </p>
+                </div>
+            </div>
+            {#if !isProUser}
+                <button
+                    on:click={() => handleProFeature('Pro Upgrade', 'Unlock all advanced features and settings')}
+                    class="w-full inline-flex justify-center items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+                >
+                💎 Upgrade Pro now
+                </button>
+            {/if}
+        </div>
+    </div>
+
     <!-- Settings Sections -->
     <div class="space-y-4">
         {#each availableSections as section}
@@ -334,22 +376,39 @@
                     <div class="flex items-center space-x-3">
                         <span class="text-xl">{section.icon}</span>
                         <div class="text-left">
-                            <h3 class="font-semibold text-gray-900 dark:text-white">
-                                {getLocalizedText(section.title)}
-                            </h3>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="font-semibold text-gray-900 dark:text-white">
+                                    {getLocalizedText(section.title)}
+                                </h3>
+                                {#if !isProUser && (section.id === 'security' || section.id === 'generation' || section.id === 'privacy' || section.id === 'pro')}
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                        💎 Pro
+                                    </span>
+                                {/if}
+                            </div>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
                                 {getLocalizedText(section.description)}
                             </p>
                         </div>
                     </div>
-                    <svg 
-                        class="w-5 h-5 text-gray-400 transition-all duration-300 ease-out {activeSection === section.id ? 'rotate-180' : 'rotate-0'}" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                    >
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+                    <div class="flex items-center space-x-2">
+                        {#if !isProUser && (section.id === 'security' || section.id === 'generation' || section.id === 'privacy' || section.id === 'pro')}
+                            <button
+                                on:click|stopPropagation={() => handleProFeature(getLocalizedText(section.title), getLocalizedText(section.description))}
+                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
+                            >
+                                Upgrade
+                            </button>
+                        {/if}
+                        <svg 
+                            class="w-5 h-5 text-gray-400 transition-all duration-300 ease-out {activeSection === section.id ? 'rotate-180' : 'rotate-0'}" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
                 </button>
 
                 <!-- Section Content -->

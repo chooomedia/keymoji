@@ -54,6 +54,7 @@
 <script>
     import { createEventDispatcher } from 'svelte';
     import { showSuccess, showError, showInfo } from '../../stores/modalStore.js';
+    import Toggle from './Toggle.svelte';
     
     // Props
     export let config;
@@ -133,16 +134,22 @@
     function handleValueChange(event) {
         let value;
         
-        switch (config.type) {
-            case 'checkbox':
-                value = event.target.checked;
-                break;
-            case 'number':
-            case 'range':
-                value = parseFloat(event.target.value);
-                break;
-            default:
-                value = event.target.value;
+        // Handle custom toggle events
+        if (event.detail && typeof event.detail.checked === 'boolean') {
+            value = event.detail.checked;
+        } else {
+            // Handle regular input events
+            switch (config.type) {
+                case 'checkbox':
+                    value = event.target.checked;
+                    break;
+                case 'number':
+                case 'range':
+                    value = parseFloat(event.target.value);
+                    break;
+                default:
+                    value = event.target.value;
+            }
         }
         
         // Validate the new value
@@ -199,7 +206,7 @@
     
     // Get input classes based on validation state
     function getInputClasses() {
-        const baseClasses = 'contact-input';
+        const baseClasses = 'w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border border-gray-light dark:border-aubergine-800 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light p-4 disabled:opacity-70 disabled:cursor-not-allowed';
         const stateClasses = isValid 
             ? '' 
             : 'border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-100';
@@ -255,7 +262,8 @@
                 bind:value={currentValue}
                 on:change={handleValueChange}
                 disabled={config.disabled}
-                class={`${getInputClasses()} ${config.class}`}
+                class={`${getInputClasses()} ${config.class} appearance-none bg-no-repeat pr-12`}
+                style="background-image: url('data:image/svg+xml,%3Csvg viewBox=\'0 0 20 20\' fill=\'none\' stroke=\'%23666\' stroke-width=\'2\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M6 8l4 4 4-4\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E'); background-position: right 1rem center; background-size: 1.25rem;"
             >
                 {#each config.options || [] as option}
                     <option value={option.value}>
@@ -346,48 +354,13 @@
                     {/if}
                 </div>
                 
-                <label
-                    for={config.id}
-                    class="relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full transition-colors duration-300 {currentValue ? 'bg-yellow-500' : 'bg-gray-light dark:bg-aubergine-900'}"
-                >
-                    <input 
-                        type="checkbox" 
-                        id={config.id}
-                        class="sr-only" 
-                        bind:checked={currentValue}
-                        on:change={handleValueChange}
-                        disabled={config.disabled}
-                    />
-
-                    <span
-                        class="absolute left-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-gray-500 transition-all duration-300 ease-in-out dark:bg-aubergine-800 dark:text-creme-500 transform {currentValue ? 'translate-x-5' : 'translate-x-0'}"
-                    >
-                        <!-- X Icon (unchecked) -->
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="2"
-                            stroke="currentColor"
-                            class="w-4 h-4 transition-opacity duration-300 {currentValue ? 'opacity-0' : 'opacity-100'}"
-                        >
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                        </svg>
-
-                        <!-- Check Icon (checked) -->
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="2"
-                            stroke="currentColor"
-                            style="top:2px;"
-                            class="w-4 h-4 mx-auto absolute inset-0 transition-opacity duration-300 {currentValue ? 'opacity-100' : 'opacity-0'}"
-                        >
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                        </svg>
-                    </span>
-                </label>
+                <Toggle 
+                    id={config.id}
+                    bind:checked={currentValue}
+                    disabled={config.disabled}
+                    color={config.color || 'yellow'}
+                    on:change={handleValueChange}
+                />
             </div>
         {:else}
             <!-- Standard Input (text, email, password, number, url, phone) -->
@@ -483,5 +456,12 @@
         cursor: pointer;
         border: 2px solid #ffffff;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Dark mode select arrow for ModularInput */
+    :global(.dark) select {
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='none' stroke='%23fff' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+        background-position: right 1rem center !important;
+        background-size: 1.25rem !important;
     }
 </style> 

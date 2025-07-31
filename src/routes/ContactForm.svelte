@@ -18,6 +18,8 @@
     import { WEBHOOKS, API_CONFIG } from '../config/api.js';
     import { appVersion } from '../utils/version.js';
     import { navigateToHome } from '../utils/navigation.js';
+    import Input from '../components/UI/Input.svelte';
+    import Button from '../components/UI/Button.svelte';
     import { isTestMode } from '../utils/environment.js';
     import { initializeAccountFromCookies } from '../stores/accountStore.js';
     
@@ -291,14 +293,11 @@
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
                             <label for="name" class="sr-only">{$translations.contactForm.nameLabel}</label>
-                            <input
+                            <Input
                                 id="name"
                                 type="text"
                                 bind:value={name}
                                 placeholder={$translations.contactForm.nameLabel}
-                                class="contact-input"
-                                aria-invalid={!!formErrors.name}
-                                aria-describedby={formErrors.name ? "name-error" : undefined}
                                 disabled={isSubmitting}
                             />
                             {#if formErrors.name}
@@ -308,14 +307,11 @@
 
                         <div>
                             <label for="email" class="sr-only">{$translations.contactForm.emailLabel}</label>
-                            <input
+                            <Input
                                 id="email"
                                 type="email"
                                 bind:value={email}
                                 placeholder={$translations.contactForm.emailLabel}
-                                class="contact-input"
-                                aria-invalid={!!formErrors.email}
-                                aria-describedby={formErrors.email ? "email-error" : undefined}
                                 disabled={isSubmitting}
                             />
                             {#if formErrors.email}
@@ -327,14 +323,11 @@
                     <!-- Message Field -->
                     <div>
                     <label for="message" class="sr-only">{$translations.contactForm.messageLabel}</label>
-                    <textarea
+                    <Input
                         id="message"
+                        type="textarea"
                         bind:value={message}
                         placeholder={$translations.contactForm.messageLabel}
-                        rows="2"
-                        class="contact-input"
-                        aria-invalid={!!formErrors.message}
-                        aria-describedby={formErrors.message ? "message-error" : undefined}
                         disabled={isSubmitting}
                     />
                     {#if formErrors.message}
@@ -361,23 +354,23 @@
 
                     <!-- Form Buttons -->
                     <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                        <button
+                        <Button
                             type="button"
+                            variant="secondary"
+                            size="md"
+                            fullWidth={true}
                             on:click={() => navigateToHome()}
-                            class="btn-secondary btn-md"
                             disabled={isSubmitting}
-                            aria-label={$translations.contactForm.backToMainButton}
                         >
                         🏠 {$translations.contactForm.backToMainButton}
-                        </button>
+                        </Button>
                         
-                        <button
+                        <Button
                             type="submit"
-                            class="btn-primary btn-md {isSubmitting ? 'opacity-75 cursor-wait' : ''} {!isFormValid ? 'opacity-50 cursor-not-allowed' : ''}"
+                            variant="primary"
+                            size="md"
+                            fullWidth={true}
                             disabled={!isFormValid || isSubmitting}
-                            aria-label={isSubmitting 
-                                ? $translations.contactForm.sendingButton
-                                : $translations.contactForm.sendButton}
                             aria-busy={isSubmitting}
                         >
                             {#if isSubmitting}
@@ -391,7 +384,7 @@
                             {:else}
                             {$translations.contactForm.sendButton}
                             {/if}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

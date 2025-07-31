@@ -3,6 +3,7 @@
     import { fade, fly } from 'svelte/transition';
     import { onMount, onDestroy } from 'svelte';
     import FocusManager from '../A11y/FocusManager.svelte';
+    import Button from './Button.svelte';
     
     // Import from the modal store
     import { 
@@ -20,6 +21,11 @@
     $: message = $modalMessage;
     $: messageType = $modalType || getMessageType(message);
     $: showMessage = $isModalVisible && $modalMessage && $modalMessage.trim() !== '';
+    
+    // Debug: Log messageType changes
+    $: if (debugMode && messageType) {
+        console.log('🔔 Modal messageType:', messageType, 'isProFeature:', messageType === 'pro-feature');
+    }
     
     let imageLoaded = false;
     let modalRef;
@@ -127,6 +133,9 @@
         // Save current focused element
         lastActiveElement = document.activeElement;
         
+        // Verhindert Scrollbar-Hüpfen bei Modal-Öffnung
+        document.body.classList.add('modal-open');
+        
         if (debugMode) {
             console.log('🔔 Modal component mounted');
         }
@@ -141,6 +150,9 @@
         if (progressInterval) {
             clearInterval(progressInterval);
         }
+        
+        // Entferne Modal-Open Klasse
+        document.body.classList.remove('modal-open');
         
         // Make sure we don't leave any modal state active when unmounting
         if (debugMode) {
@@ -253,7 +265,7 @@
                 </div>
 
                 <!-- Modal Body -->
-                <div class="p-4">
+                <div class="pt-4 px-4">
                     <!-- Pro Feature Content -->
                     {#if messageType === 'pro-feature'}
                         <div class="mb-6">
@@ -265,8 +277,8 @@
                             </p>
                             
                             <!-- Pro Benefits -->
-                            <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 mb-4">
-                                <h5 class="font-medium text-purple-900 dark:text-purple-100 mb-2">
+                            <div class="bg-powder-500 dark:bg-aubergine-900 rounded-lg border border-purple-700 p-4 mb-4">
+                                <h5 class="font-semibold text-purple-700 dark:text-purple-100 mb-2">
                                     Pro Benefits:
                                 </h5>
                                 <ul class="space-y-1 text-sm text-purple-800 dark:text-purple-200">
@@ -290,67 +302,81 @@
                             </div>
                         </div>
                         
-                        <!-- Pro Feature Actions -->
-                        <div class="flex space-x-3">
-                            <button
-                                on:click={handleCloseModal}
-                                class="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                            >
-                                Maybe Later
-                            </button>
-                            <button
-                                on:click={() => {
-                                    if ($modalData?.onUpgrade) {
-                                        $modalData.onUpgrade();
-                                    }
-                                    handleCloseModal();
-                                }}
-                                class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
-                            >
-                                Upgrade to Pro
-                            </button>
-                        </div>
+                        <!-- Pro Feature Actions moved to footer -->
                     {:else}
                         <!-- Modal Message -->
                         <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
                             {$modalMessage}
                         </p>
                         
-                        <!-- Custom Button if provided in modalData -->
-                        {#if $modalData?.primaryButton}
-                            <div class="mt-4 flex gap-2">
-                                {#if $modalData.primaryButton}
-                                    <button
-                                        class="btn btn-primary btn-md flex-1"
-                                        on:click={$modalData.primaryButton.action}
-                                    >
-                                        {$modalData.primaryButton.text}
-                                    </button>
-                                {/if}
-                                {#if $modalData.secondaryButton}
-                                    <button
-                                        class="btn btn-secondary btn-md flex-1"
-                                        on:click={$modalData.secondaryButton.action}
-                                    >
-                                        {$modalData.secondaryButton.text}
-                                    </button>
-                                {/if}
-                            </div>
-                        {/if}
-                        
-                        <!-- Auto-Close Progress Bar (Footer) -->
-                        <div class="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                <div 
-                                    class="h-2 rounded-full transition-all duration-500 ease-out"
-                                    style="width: {progressBar}%; background-color: {getIconColor(messageType)}"
-                                ></div>
-                            </div>
-                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-                                Modal schließt in {remainingSeconds} Sekunden
-                            </div>
+                        <!-- Custom Buttons moved to footer -->
+                    {/if}
+                </div>
+
+                <!-- Modal Footer with Buttons - Outside of if/else for all modal types -->
+                <div class="mt-4 pt-3">
+                    <!-- Buttons Section with same padding as content -->
+                    {#if messageType === 'pro-feature'}
+                        <!-- Pro Feature Buttons -->
+                        <div class="flex gap-3 mb-4 px-4">
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                fullWidth={true}
+                                on:click={handleCloseModal}
+                            >
+                                Maybe Later
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                fullWidth={true}
+                                on:click={() => {
+                                    if ($modalData?.onUpgrade) {
+                                        $modalData.onUpgrade();
+                                    }
+                                    handleCloseModal();
+                                }}
+                            >
+                                Upgrade to Pro
+                            </Button>
+                        </div>
+                    {:else if $modalData?.primaryButton || $modalData?.secondaryButton}
+                        <!-- Custom Buttons -->
+                        <div class="flex gap-3 mb-4 px-4 rounded-b-xl">
+                            {#if $modalData.secondaryButton}
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    fullWidth={true}
+                                    on:click={$modalData.secondaryButton.action}
+                                >
+                                    {$modalData.secondaryButton.text}
+                                </Button>
+                            {/if}
+                            {#if $modalData.primaryButton}
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    fullWidth={true}
+                                    on:click={$modalData.primaryButton.action}
+                                >
+                                    {$modalData.primaryButton.text}
+                                </Button>
+                            {/if}
                         </div>
                     {/if}
+                    
+                    <!-- Auto-Close Progress Bar -->
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 h-1">
+                        <div 
+                            class="h-1 transition-all duration-500 ease-out"
+                            style="width: {progressBar}%; background-color: {getIconColor(messageType)}"
+                        ></div>
+                    </div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 text-center p-4">
+                        Modal schließt in {remainingSeconds} Sekunden
+                    </div>
                 </div>
             </div>
         </div>

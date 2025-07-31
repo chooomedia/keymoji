@@ -227,7 +227,7 @@
       data-menu-type="donate"
       aria-label="open donation menu" 
       on:click={() => toggleMenu('donate')} 
-      class="hidden md:flex  items-center btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-lg relative z-50">
+      class="hidden md:flex  items-center btn border-4 p-3.5 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-lg relative z-50">
       <span class="text-xl mr-2">{#if $showDonateMenu}❌{:else}☕{/if}</span>
       <span class="text-sm font-semibold">
           {$showDonateMenu ? $translations.donateButton.openText : $translations.donateButton.text}
