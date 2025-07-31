@@ -13,7 +13,7 @@
     import { translations } from './stores/contentStore.js';
     import { navigateToVersions } from './utils/navigation.js';
     import { isDebugMode } from './utils/environment.js';
-    import { initializeAccountFromCookies } from './stores/accountStore.js';
+    import { initializeAccountFromCookies, setupMagicLinkListener } from './stores/accountStore.js';
     import { initializeSettingsForUser } from './stores/userSettingsStore.js';
   
     // Debug-Flag - für die Produktion entfernen
@@ -36,6 +36,9 @@
       // Initialize user settings
       initializeSettingsForUser();
       
+      // Setup cross-tab communication for magic links
+      setupMagicLinkListener();
+      
       // Clean up any modals when arriving at home page
       if ($isModalVisible) {
         closeModal();
@@ -50,8 +53,8 @@
     });
 
     // Reaktive Übersetzungen
-    $: pageTitle = $translations.index.pageTitle;
-    $: pageDescription = $translations.index.pageDescription;
+    $: pageTitle = $translations?.index?.pageTitle || 'Keymoji';
+    $: pageDescription = $translations?.index?.pageDescription || 'Create unique emoji stories with AI';
     
     // Reaktive SEO-Updates bei Sprachänderungen
     $: if (isRendered) {
@@ -82,7 +85,7 @@
                 type="button"
                 aria-label="View version history"
             >
-                {$translations.header?.pageVersion || 'v0.4.3'}
+                {$translations?.header?.pageVersion || 'v0.4.3'}
             </button>
             <span class="px-2">·</span>
             <span>Created by</span>

@@ -257,10 +257,44 @@ export function showAccountLoginSuccess(name) {
  * Account Logout erfolgreich
  */
 export function showAccountLogoutSuccess() {
-    return showModal(`You've been logged out successfully.`, 'info', 3000, {
-        showSpinner: false,
-        progress: 100
+    showModal('Successfully logged out! 👋', 'success', 3000, {
+        icon: '🚪',
+        action: 'logout'
     });
+}
+
+// Show existing account found modal
+export function showExistingAccountFound(email, name) {
+    // Use email username as fallback if name is undefined
+    const displayName = name || email?.split('@')[0] || 'User';
+
+    modalMessage.set(`Account gefunden! Willkommen zurück, ${displayName}! 🎉`);
+    modalType.set('success');
+    modalData.set({
+        icon: '✅',
+        title: 'Account gefunden',
+        message: `Ein Account mit der E-Mail ${email} existiert bereits. Sie wurden automatisch angemeldet.`,
+        primaryButton: {
+            text: 'Zum Account',
+            action: () => {
+                // Navigate to account page using Svelte routing
+                import('svelte-routing').then(({ navigate }) => {
+                    closeModal();
+                    // Small delay to ensure modal is closed before navigation
+                    setTimeout(() => {
+                        navigate('/account', { replace: true });
+                    }, 100);
+                });
+            }
+        },
+        secondaryButton: {
+            text: 'Schließen',
+            action: () => {
+                closeModal();
+            }
+        }
+    });
+    isModalVisible.set(true);
 }
 
 /**

@@ -14,64 +14,86 @@ export const COOKIE_KEYS = {
     ACCOUNT_TOKEN: 'keymoji_account_token',
     USER_ID: 'keymoji_user_id',
     SESSION_ID: 'keymoji_session_id',
-    PREFERENCES: 'keymoji_preferences'
+    PREFERENCES: 'keymoji_preferences',
+    LANGUAGE: 'keymoji_language',
+    THEME: 'keymoji_theme'
 };
 
 // Sichere Cookie setzen
 export function setSecureCookie(name, value, options = {}) {
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') return false;
 
-    const cookieOptions = {
-        ...COOKIE_OPTIONS,
-        ...options
-    };
+    try {
+        const cookieOptions = {
+            ...COOKIE_OPTIONS,
+            ...options
+        };
 
-    let cookieString = `${name}=${encodeURIComponent(value)}`;
+        let cookieString = `${name}=${encodeURIComponent(value)}`;
 
-    if (cookieOptions.maxAge) {
-        cookieString += `; max-age=${cookieOptions.maxAge}`;
-    }
-    if (cookieOptions.path) {
-        cookieString += `; path=${cookieOptions.path}`;
-    }
-    if (cookieOptions.secure) {
-        cookieString += '; secure';
-    }
-    if (cookieOptions.sameSite) {
-        cookieString += `; samesite=${cookieOptions.sameSite}`;
-    }
-    if (cookieOptions.httpOnly) {
-        cookieString += '; httponly';
-    }
+        if (cookieOptions.maxAge) {
+            cookieString += `; max-age=${cookieOptions.maxAge}`;
+        }
+        if (cookieOptions.path) {
+            cookieString += `; path=${cookieOptions.path}`;
+        }
+        if (cookieOptions.secure && window.location.protocol === 'https:') {
+            cookieString += '; secure';
+        }
+        if (cookieOptions.sameSite) {
+            cookieString += `; samesite=${cookieOptions.sameSite}`;
+        }
+        if (cookieOptions.httpOnly) {
+            cookieString += '; httponly';
+        }
 
-    document.cookie = cookieString;
+        document.cookie = cookieString;
+        return true;
+    } catch (error) {
+        console.warn('Failed to set cookie:', name, error);
+        return false;
+    }
 }
 
 // Cookie lesen
 export function getCookie(name) {
     if (typeof document === 'undefined') return null;
 
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-        const [cookieName, cookieValue] = cookie.split('=').map(c => c.trim());
-        if (cookieName === name) {
-            return decodeURIComponent(cookieValue);
+    try {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [cookieName, cookieValue] = cookie
+                .split('=')
+                .map(c => c.trim());
+            if (cookieName === name) {
+                return decodeURIComponent(cookieValue);
+            }
         }
+        return null;
+    } catch (error) {
+        console.warn('Failed to read cookie:', name, error);
+        return null;
     }
-    return null;
 }
 
 // Cookie löschen
 export function deleteCookie(name) {
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') return false;
 
-    document.cookie = `${name}=; max-age=0; path=/`;
+    try {
+        document.cookie = `${name}=; max-age=0; path=/`;
+        return true;
+    } catch (error) {
+        console.warn('Failed to delete cookie:', name, error);
+        return false;
+    }
 }
 
 // Account-Token setzen
 export function setAccountToken(token, userId) {
-    setSecureCookie(COOKIE_KEYS.ACCOUNT_TOKEN, token);
-    setSecureCookie(COOKIE_KEYS.USER_ID, userId);
+    const success1 = setSecureCookie(COOKIE_KEYS.ACCOUNT_TOKEN, token);
+    const success2 = setSecureCookie(COOKIE_KEYS.USER_ID, userId);
+    return success1 && success2;
 }
 
 // Account-Token lesen
@@ -84,8 +106,9 @@ export function getAccountToken() {
 
 // Account-Token löschen
 export function clearAccountToken() {
-    deleteCookie(COOKIE_KEYS.ACCOUNT_TOKEN);
-    deleteCookie(COOKIE_KEYS.USER_ID);
+    const success1 = deleteCookie(COOKIE_KEYS.ACCOUNT_TOKEN);
+    const success2 = deleteCookie(COOKIE_KEYS.USER_ID);
+    return success1 && success2;
 }
 
 // Session-ID generieren
@@ -99,8 +122,7 @@ export function generateSessionId() {
 // Session-ID setzen
 export function setSessionId() {
     const sessionId = generateSessionId();
-    setSecureCookie(COOKIE_KEYS.SESSION_ID, sessionId);
-    return sessionId;
+    return setSecureCookie(COOKIE_KEYS.SESSION_ID, sessionId);
 }
 
 // Session-ID lesen
@@ -108,20 +130,63 @@ export function getSessionId() {
     return getCookie(COOKIE_KEYS.SESSION_ID);
 }
 
-// Benutzer-Präferenzen speichern
+// User-Präferenzen setzen
 export function setUserPreferences(preferences) {
-    setSecureCookie(COOKIE_KEYS.PREFERENCES, JSON.stringify(preferences));
+    return setSecureCookie(
+        COOKIE_KEYS.PREFERENCES,
+        JSON.stringify(preferences)
+    );
 }
 
-// Benutzer-Präferenzen lesen
+// User-Präferenzen lesen
 export function getUserPreferences() {
     const prefs = getCookie(COOKIE_KEYS.PREFERENCES);
-    return prefs ? JSON.parse(prefs) : {};
+    return prefs ? JSON.parse(prefs) : null;
 }
 
-// Alle Cookies löschen (Logout)
+// Alle Cookies löschen
 export function clearAllCookies() {
-    Object.values(COOKIE_KEYS).forEach(key => {
-        deleteCookie(key);
-    });
+    const keys = Object.values(COOKIE_KEYS);
+    let success = true;
+
+    for (const key of keys) {
+        if (!deleteCookie(key)) {
+            success = false;
+        }
+    }
+
+    return success;
+}
+
+// Cookie-Validierung
+export function validateCookie(name, value) {
+    if (!name || !value) return false;
+
+    // Spezifische Validierungen je nach Cookie-Typ
+    switch (name) {
+        case COOKIE_KEYS.ACCOUNT_TOKEN:
+            return value.length >= 32; // Mindestlänge für Token
+        case COOKIE_KEYS.USER_ID:
+            return /^[a-zA-Z0-9-_]+$/.test(value); // Alphanumerisch + Bindestriche
+        case COOKIE_KEYS.SESSION_ID:
+            return value.length >= 20; // Mindestlänge für Session-ID
+        default:
+            return true;
+    }
+}
+
+// Cookie-Status prüfen
+export function getCookieStatus() {
+    const status = {};
+
+    for (const [key, value] of Object.entries(COOKIE_KEYS)) {
+        const cookieValue = getCookie(value);
+        status[key] = {
+            exists: cookieValue !== null,
+            valid: cookieValue ? validateCookie(value, cookieValue) : false,
+            value: cookieValue
+        };
+    }
+
+    return status;
 }

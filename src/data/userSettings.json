@@ -5,52 +5,433 @@
             "icon": "⚙️",
             "title": {
                 "en": "Basic Settings",
-                "de": "Grundeinstellungen"
+                "de": "Grundeinstellungen",
+                "fr": "Paramètres de base",
+                "es": "Configuración básica",
+                "it": "Impostazioni di base",
+                "ja": "基本設定",
+                "ko": "기본 설정",
+                "nl": "Basisinstellingen",
+                "pl": "Ustawienia podstawowe",
+                "ru": "Основные настройки",
+                "tr": "Temel ayarlar",
+                "af": "Basiese instellings",
+                "sjn": "Basic Settings",
+                "tlh": "Basic Settings",
+                "de-CH": "Grundeinstellungen"
             },
             "description": {
                 "en": "Language, theme, and notifications",
-                "de": "Sprache, Theme und Benachrichtigungen"
+                "de": "Sprache, Theme und Benachrichtigungen",
+                "fr": "Langue, thème et notifications",
+                "es": "Idioma, tema y notificaciones",
+                "it": "Lingua, tema e notifiche",
+                "ja": "言語、テーマ、通知",
+                "ko": "언어, 테마 및 알림",
+                "nl": "Taal, thema en meldingen",
+                "pl": "Język, motyw i powiadomienia",
+                "ru": "Язык, тема и уведомления",
+                "tr": "Dil, tema ve bildirimler",
+                "af": "Taal, tema en kennisgewings",
+                "sjn": "Language, theme, and notifications",
+                "tlh": "Language, theme, and notifications",
+                "de-CH": "Sprache, Theme und Benachrichtigungen"
             },
             "items": [
+                {
+                    "id": "name",
+                    "type": "text",
+                    "icon": "👤",
+                    "title": {
+                        "en": "Your Name",
+                        "de": "Dein Name",
+                        "fr": "Votre nom",
+                        "es": "Tu nombre",
+                        "it": "Il tuo nome",
+                        "ja": "あなたの名前",
+                        "ko": "당신의 이름",
+                        "nl": "Jouw naam",
+                        "pl": "Twoje imię",
+                        "ru": "Ваше имя",
+                        "tr": "Adınız",
+                        "af": "Jou naam",
+                        "sjn": "Your Name",
+                        "tlh": "Your Name",
+                        "de-CH": "Dein Name"
+                    },
+                    "description": {
+                        "en": "Your display name",
+                        "de": "Dein Anzeigename",
+                        "fr": "Votre nom d'affichage",
+                        "es": "Tu nombre de visualización",
+                        "it": "Il tuo nome visualizzato",
+                        "ja": "表示名",
+                        "ko": "표시 이름",
+                        "nl": "Jouw weergavenaam",
+                        "pl": "Twoja nazwa wyświetlana",
+                        "ru": "Ваше отображаемое имя",
+                        "tr": "Görünen adınız",
+                        "af": "Jou vertoonnaam",
+                        "sjn": "Your display name",
+                        "tlh": "Your display name",
+                        "de-CH": "Dein Anzeigename"
+                    },
+                    "defaultValue": "",
+                    "placeholder": {
+                        "en": "Enter your name",
+                        "de": "Gib deinen Namen ein",
+                        "fr": "Entrez votre nom",
+                        "es": "Ingresa tu nombre",
+                        "it": "Inserisci il tuo nome",
+                        "ja": "名前を入力してください",
+                        "ko": "이름을 입력하세요",
+                        "nl": "Voer je naam in",
+                        "pl": "Wprowadź swoje imię",
+                        "ru": "Введите ваше имя",
+                        "tr": "Adınızı girin",
+                        "af": "Voer jou naam in",
+                        "sjn": "Enter your name",
+                        "tlh": "Enter your name",
+                        "de-CH": "Gib deinen Namen ein"
+                    }
+                },
                 {
                     "id": "language",
                     "type": "select",
                     "icon": "🌍",
                     "title": {
                         "en": "Language",
-                        "de": "Sprache"
+                        "de": "Sprache",
+                        "fr": "Langue",
+                        "es": "Idioma",
+                        "it": "Lingua",
+                        "ja": "言語",
+                        "ko": "언어",
+                        "nl": "Taal",
+                        "pl": "Język",
+                        "ru": "Язык",
+                        "tr": "Dil",
+                        "af": "Taal",
+                        "sjn": "Language",
+                        "tlh": "Language",
+                        "de-CH": "Sprache"
                     },
                     "description": {
                         "en": "Choose your preferred language",
-                        "de": "Wähle deine bevorzugte Sprache"
+                        "de": "Wähle deine bevorzugte Sprache",
+                        "fr": "Choisissez votre langue préférée",
+                        "es": "Elige tu idioma preferido",
+                        "it": "Scegli la tua lingua preferita",
+                        "ja": "お好みの言語を選択してください",
+                        "ko": "선호하는 언어를 선택하세요",
+                        "nl": "Kies je voorkeurstaal",
+                        "pl": "Wybierz preferowany język",
+                        "ru": "Выберите предпочитаемый язык",
+                        "tr": "Tercih ettiğiniz dili seçin",
+                        "af": "Kies jou voorkeurtaal",
+                        "sjn": "Choose your preferred language",
+                        "tlh": "Choose your preferred language",
+                        "de-CH": "Wähle deine bevorzugte Sprache"
                     },
                     "options": [
                         {
                             "value": "en",
                             "label": {
                                 "en": "🇺🇸 English",
-                                "de": "🇺🇸 Englisch"
+                                "de": "🇺🇸 Englisch",
+                                "fr": "🇺🇸 Anglais",
+                                "es": "🇺🇸 Inglés",
+                                "it": "🇺🇸 Inglese",
+                                "ja": "🇺🇸 英語",
+                                "ko": "🇺🇸 영어",
+                                "nl": "🇺🇸 Engels",
+                                "pl": "🇺🇸 Angielski",
+                                "ru": "🇺🇸 Английский",
+                                "tr": "🇺🇸 İngilizce",
+                                "af": "🇺🇸 Engels",
+                                "sjn": "🇺🇸 English",
+                                "tlh": "🇺🇸 English",
+                                "de-CH": "🇺🇸 Englisch"
                             }
                         },
                         {
                             "value": "de",
                             "label": {
                                 "en": "🇩🇪 German",
-                                "de": "🇩🇪 Deutsch"
+                                "de": "🇩🇪 Deutsch",
+                                "fr": "🇩🇪 Allemand",
+                                "es": "🇩🇪 Alemán",
+                                "it": "🇩🇪 Tedesco",
+                                "ja": "🇩🇪 ドイツ語",
+                                "ko": "🇩🇪 독일어",
+                                "nl": "🇩🇪 Duits",
+                                "pl": "🇩🇪 Niemiecki",
+                                "ru": "🇩🇪 Немецкий",
+                                "tr": "🇩🇪 Almanca",
+                                "af": "🇩🇪 Duits",
+                                "sjn": "🇩🇪 German",
+                                "tlh": "🇩🇪 German",
+                                "de-CH": "🇩🇪 Deutsch"
                             }
                         },
                         {
                             "value": "fr",
                             "label": {
                                 "en": "🇫🇷 French",
-                                "de": "🇫🇷 Französisch"
+                                "de": "🇫🇷 Französisch",
+                                "fr": "🇫🇷 Français",
+                                "es": "🇫🇷 Francés",
+                                "it": "🇫🇷 Francese",
+                                "ja": "🇫🇷 フランス語",
+                                "ko": "🇫🇷 프랑스어",
+                                "nl": "🇫🇷 Frans",
+                                "pl": "🇫🇷 Francuski",
+                                "ru": "🇫🇷 Французский",
+                                "tr": "🇫🇷 Fransızca",
+                                "af": "🇫🇷 Frans",
+                                "sjn": "🇫🇷 French",
+                                "tlh": "🇫🇷 French",
+                                "de-CH": "🇫🇷 Französisch"
                             }
                         },
                         {
                             "value": "es",
                             "label": {
                                 "en": "🇪🇸 Spanish",
-                                "de": "🇪🇸 Spanisch"
+                                "de": "🇪🇸 Spanisch",
+                                "fr": "🇪🇸 Espagnol",
+                                "es": "🇪🇸 Español",
+                                "it": "🇪🇸 Spagnolo",
+                                "ja": "🇪🇸 スペイン語",
+                                "ko": "🇪🇸 스페인어",
+                                "nl": "🇪🇸 Spaans",
+                                "pl": "🇪🇸 Hiszpański",
+                                "ru": "🇪🇸 Испанский",
+                                "tr": "🇪🇸 İspanyolca",
+                                "af": "🇪🇸 Spaans",
+                                "sjn": "🇪🇸 Spanish",
+                                "tlh": "🇪🇸 Spanish",
+                                "de-CH": "🇪🇸 Spanisch"
+                            }
+                        },
+                        {
+                            "value": "it",
+                            "label": {
+                                "en": "🇮🇹 Italian",
+                                "de": "🇮🇹 Italienisch",
+                                "fr": "🇮🇹 Italien",
+                                "es": "🇮🇹 Italiano",
+                                "it": "🇮🇹 Italiano",
+                                "ja": "🇮🇹 イタリア語",
+                                "ko": "🇮🇹 이탈리아어",
+                                "nl": "🇮🇹 Italiaans",
+                                "pl": "🇮🇹 Włoski",
+                                "ru": "🇮🇹 Итальянский",
+                                "tr": "🇮🇹 İtalyanca",
+                                "af": "🇮🇹 Italiaans",
+                                "sjn": "🇮🇹 Italian",
+                                "tlh": "🇮🇹 Italian",
+                                "de-CH": "🇮🇹 Italienisch"
+                            }
+                        },
+                        {
+                            "value": "ja",
+                            "label": {
+                                "en": "🇯🇵 Japanese",
+                                "de": "🇯🇵 Japanisch",
+                                "fr": "🇯🇵 Japonais",
+                                "es": "🇯🇵 Japonés",
+                                "it": "🇯🇵 Giapponese",
+                                "ja": "🇯🇵 日本語",
+                                "ko": "🇯🇵 일본어",
+                                "nl": "🇯🇵 Japans",
+                                "pl": "🇯🇵 Japoński",
+                                "ru": "🇯🇵 Японский",
+                                "tr": "🇯🇵 Japonca",
+                                "af": "🇯🇵 Japannees",
+                                "sjn": "🇯🇵 Japanese",
+                                "tlh": "🇯🇵 Japanese",
+                                "de-CH": "🇯🇵 Japanisch"
+                            }
+                        },
+                        {
+                            "value": "ko",
+                            "label": {
+                                "en": "🇰🇷 Korean",
+                                "de": "🇰🇷 Koreanisch",
+                                "fr": "🇰🇷 Coréen",
+                                "es": "🇰🇷 Coreano",
+                                "it": "🇰🇷 Coreano",
+                                "ja": "🇰🇷 韓国語",
+                                "ko": "🇰🇷 한국어",
+                                "nl": "🇰🇷 Koreaans",
+                                "pl": "🇰🇷 Koreański",
+                                "ru": "🇰🇷 Корейский",
+                                "tr": "🇰🇷 Korece",
+                                "af": "🇰🇷 Koreaans",
+                                "sjn": "🇰🇷 Korean",
+                                "tlh": "🇰🇷 Korean",
+                                "de-CH": "🇰🇷 Koreanisch"
+                            }
+                        },
+                        {
+                            "value": "nl",
+                            "label": {
+                                "en": "🇳🇱 Dutch",
+                                "de": "🇳🇱 Niederländisch",
+                                "fr": "🇳🇱 Néerlandais",
+                                "es": "🇳🇱 Holandés",
+                                "it": "🇳🇱 Olandese",
+                                "ja": "🇳🇱 オランダ語",
+                                "ko": "🇳🇱 네덜란드어",
+                                "nl": "🇳🇱 Nederlands",
+                                "pl": "🇳🇱 Holenderski",
+                                "ru": "🇳🇱 Голландский",
+                                "tr": "🇳🇱 Hollandaca",
+                                "af": "🇳🇱 Nederlands",
+                                "sjn": "🇳🇱 Dutch",
+                                "tlh": "🇳🇱 Dutch",
+                                "de-CH": "🇳🇱 Niederländisch"
+                            }
+                        },
+                        {
+                            "value": "pl",
+                            "label": {
+                                "en": "🇵🇱 Polish",
+                                "de": "🇵🇱 Polnisch",
+                                "fr": "🇵🇱 Polonais",
+                                "es": "🇵🇱 Polaco",
+                                "it": "🇵🇱 Polacco",
+                                "ja": "🇵🇱 ポーランド語",
+                                "ko": "🇵🇱 폴란드어",
+                                "nl": "🇵🇱 Pools",
+                                "pl": "🇵🇱 Polski",
+                                "ru": "🇵🇱 Польский",
+                                "tr": "🇵🇱 Lehçe",
+                                "af": "🇵🇱 Pools",
+                                "sjn": "🇵🇱 Polish",
+                                "tlh": "🇵🇱 Polish",
+                                "de-CH": "🇵🇱 Polnisch"
+                            }
+                        },
+                        {
+                            "value": "ru",
+                            "label": {
+                                "en": "🇷🇺 Russian",
+                                "de": "🇷🇺 Russisch",
+                                "fr": "🇷🇺 Russe",
+                                "es": "🇷🇺 Ruso",
+                                "it": "🇷🇺 Russo",
+                                "ja": "🇷🇺 ロシア語",
+                                "ko": "🇷🇺 러시아어",
+                                "nl": "🇷🇺 Russisch",
+                                "pl": "🇷🇺 Rosyjski",
+                                "ru": "🇷🇺 Русский",
+                                "tr": "🇷🇺 Rusça",
+                                "af": "🇷🇺 Russies",
+                                "sjn": "🇷🇺 Russian",
+                                "tlh": "🇷🇺 Russian",
+                                "de-CH": "🇷🇺 Russisch"
+                            }
+                        },
+                        {
+                            "value": "tr",
+                            "label": {
+                                "en": "🇹🇷 Turkish",
+                                "de": "🇹🇷 Türkisch",
+                                "fr": "🇹🇷 Turc",
+                                "es": "🇹🇷 Turco",
+                                "it": "🇹🇷 Turco",
+                                "ja": "🇹🇷 トルコ語",
+                                "ko": "🇹🇷 터키어",
+                                "nl": "🇹🇷 Turks",
+                                "pl": "🇹🇷 Turecki",
+                                "ru": "🇹🇷 Турецкий",
+                                "tr": "🇹🇷 Türkçe",
+                                "af": "🇹🇷 Turks",
+                                "sjn": "🇹🇷 Turkish",
+                                "tlh": "🇹🇷 Turkish",
+                                "de-CH": "🇹🇷 Türkisch"
+                            }
+                        },
+                        {
+                            "value": "af",
+                            "label": {
+                                "en": "🇿🇦 Afrikaans",
+                                "de": "🇿🇦 Afrikaans",
+                                "fr": "🇿🇦 Afrikaans",
+                                "es": "🇿🇦 Afrikáans",
+                                "it": "🇿🇦 Afrikaans",
+                                "ja": "🇿🇦 アフリカーンス語",
+                                "ko": "🇿🇦 아프리칸스어",
+                                "nl": "🇿🇦 Afrikaans",
+                                "pl": "🇿🇦 Afrykanerski",
+                                "ru": "🇿🇦 Африкаанс",
+                                "tr": "🇿🇦 Afrikaanca",
+                                "af": "🇿🇦 Afrikaans",
+                                "sjn": "🇿🇦 Afrikaans",
+                                "tlh": "🇿🇦 Afrikaans",
+                                "de-CH": "🇿🇦 Afrikaans"
+                            }
+                        },
+                        {
+                            "value": "de-CH",
+                            "label": {
+                                "en": "🇨🇭 Swiss German",
+                                "de": "🇨🇭 Schweizerdeutsch",
+                                "fr": "🇨🇭 Allemand suisse",
+                                "es": "🇨🇭 Alemán suizo",
+                                "it": "🇨🇭 Tedesco svizzero",
+                                "ja": "🇨🇭 スイスドイツ語",
+                                "ko": "🇨🇭 스위스 독일어",
+                                "nl": "🇨🇭 Zwitserduits",
+                                "pl": "🇨🇭 Szwajcarski niemiecki",
+                                "ru": "🇨🇭 Швейцарский немецкий",
+                                "tr": "🇨🇭 İsviçre Almancası",
+                                "af": "🇨🇭 Switserse Duits",
+                                "sjn": "🇨🇭 Swiss German",
+                                "tlh": "🇨🇭 Swiss German",
+                                "de-CH": "🇨🇭 Schweizerdeutsch"
+                            }
+                        },
+                        {
+                            "value": "sjn",
+                            "label": {
+                                "en": "🧝 Sindarin",
+                                "de": "🧝 Sindarin",
+                                "fr": "🧝 Sindarin",
+                                "es": "🧝 Sindarin",
+                                "it": "🧝 Sindarin",
+                                "ja": "🧝 シンダール語",
+                                "ko": "🧝 신다린어",
+                                "nl": "🧝 Sindarin",
+                                "pl": "🧝 Sindarin",
+                                "ru": "🧝 Синдарин",
+                                "tr": "🧝 Sindarin",
+                                "af": "🧝 Sindarin",
+                                "sjn": "🧝 Sindarin",
+                                "tlh": "🧝 Sindarin",
+                                "de-CH": "🧝 Sindarin"
+                            }
+                        },
+                        {
+                            "value": "tlh",
+                            "label": {
+                                "en": "🖖 Klingon",
+                                "de": "🖖 Klingonisch",
+                                "fr": "🖖 Klingon",
+                                "es": "🖖 Klingon",
+                                "it": "🖖 Klingon",
+                                "ja": "🖖 クリンゴン語",
+                                "ko": "🖖 클링온어",
+                                "nl": "🖖 Klingon",
+                                "pl": "🖖 Klingon",
+                                "ru": "🖖 Клингонский",
+                                "tr": "🖖 Klingon",
+                                "af": "🖖 Klingon",
+                                "sjn": "🖖 Klingon",
+                                "tlh": "🖖 tlhIngan",
+                                "de-CH": "🖖 Klingonisch"
                             }
                         }
                     ],
@@ -62,32 +443,97 @@
                     "icon": "🎨",
                     "title": {
                         "en": "Theme",
-                        "de": "Theme"
+                        "de": "Theme",
+                        "fr": "Thème",
+                        "es": "Tema",
+                        "it": "Tema",
+                        "ja": "テーマ",
+                        "ko": "테마",
+                        "nl": "Thema",
+                        "pl": "Motyw",
+                        "ru": "Тема",
+                        "tr": "Tema",
+                        "af": "Tema",
+                        "sjn": "Theme",
+                        "tlh": "Theme",
+                        "de-CH": "Theme"
                     },
                     "description": {
                         "en": "Choose your visual theme",
-                        "de": "Wähle dein visuelles Theme"
+                        "de": "Wähle dein visuelles Theme",
+                        "fr": "Choisissez votre thème visuel",
+                        "es": "Elige tu tema visual",
+                        "it": "Scegli il tuo tema visivo",
+                        "ja": "視覚的なテーマを選択してください",
+                        "ko": "시각적 테마를 선택하세요",
+                        "nl": "Kies je visuele thema",
+                        "pl": "Wybierz swój motyw wizualny",
+                        "ru": "Выберите визуальную тему",
+                        "tr": "Görsel temanızı seçin",
+                        "af": "Kies jou visuele tema",
+                        "sjn": "Choose your visual theme",
+                        "tlh": "Choose your visual theme",
+                        "de-CH": "Wähle dein visuelles Theme"
                     },
                     "options": [
                         {
                             "value": "auto",
                             "label": {
                                 "en": "🔄 Auto",
-                                "de": "🔄 Auto"
+                                "de": "🔄 Auto",
+                                "fr": "🔄 Auto",
+                                "es": "🔄 Auto",
+                                "it": "🔄 Auto",
+                                "ja": "🔄 自動",
+                                "ko": "🔄 자동",
+                                "nl": "🔄 Auto",
+                                "pl": "🔄 Auto",
+                                "ru": "🔄 Авто",
+                                "tr": "🔄 Otomatik",
+                                "af": "🔄 Outomaties",
+                                "sjn": "🔄 Auto",
+                                "tlh": "🔄 Auto",
+                                "de-CH": "🔄 Auto"
                             }
                         },
                         {
                             "value": "light",
                             "label": {
                                 "en": "☀️ Light",
-                                "de": "☀️ Hell"
+                                "de": "☀️ Hell",
+                                "fr": "☀️ Clair",
+                                "es": "☀️ Claro",
+                                "it": "☀️ Chiaro",
+                                "ja": "☀️ ライト",
+                                "ko": "☀️ 라이트",
+                                "nl": "☀️ Licht",
+                                "pl": "☀️ Jasny",
+                                "ru": "☀️ Светлый",
+                                "tr": "☀️ Açık",
+                                "af": "☀️ Lig",
+                                "sjn": "☀️ Light",
+                                "tlh": "☀️ Light",
+                                "de-CH": "☀️ Hell"
                             }
                         },
                         {
                             "value": "dark",
                             "label": {
                                 "en": "🌙 Dark",
-                                "de": "🌙 Dunkel"
+                                "de": "🌙 Dunkel",
+                                "fr": "🌙 Sombre",
+                                "es": "🌙 Oscuro",
+                                "it": "🌙 Scuro",
+                                "ja": "🌙 ダーク",
+                                "ko": "🌙 다크",
+                                "nl": "🌙 Donker",
+                                "pl": "🌙 Ciemny",
+                                "ru": "🌙 Тёмный",
+                                "tr": "🌙 Koyu",
+                                "af": "🌙 Donker",
+                                "sjn": "🌙 Dark",
+                                "tlh": "🌙 Dark",
+                                "de-CH": "🌙 Dunkel"
                             }
                         }
                     ],
@@ -99,11 +545,37 @@
                     "icon": "🔔",
                     "title": {
                         "en": "Notifications",
-                        "de": "Benachrichtigungen"
+                        "de": "Benachrichtigungen",
+                        "fr": "Notifications",
+                        "es": "Notificaciones",
+                        "it": "Notifiche",
+                        "ja": "通知",
+                        "ko": "알림",
+                        "nl": "Meldingen",
+                        "pl": "Powiadomienia",
+                        "ru": "Уведомления",
+                        "tr": "Bildirimler",
+                        "af": "Kennisgewings",
+                        "sjn": "Notifications",
+                        "tlh": "Notifications",
+                        "de-CH": "Benachrichtigungen"
                     },
                     "description": {
                         "en": "Receive important updates",
-                        "de": "Wichtige Updates erhalten"
+                        "de": "Wichtige Updates erhalten",
+                        "fr": "Recevoir des mises à jour importantes",
+                        "es": "Recibir actualizaciones importantes",
+                        "it": "Ricevere aggiornamenti importanti",
+                        "ja": "重要な更新を受け取る",
+                        "ko": "중요한 업데이트 수신",
+                        "nl": "Belangrijke updates ontvangen",
+                        "pl": "Otrzymuj ważne aktualizacje",
+                        "ru": "Получать важные обновления",
+                        "tr": "Önemli güncellemeleri alın",
+                        "af": "Ontvang belangrike opdaterings",
+                        "sjn": "Receive important updates",
+                        "tlh": "Receive important updates",
+                        "de-CH": "Wichtige Updates erhalten"
                     },
                     "defaultValue": true,
                     "color": "green"
@@ -115,11 +587,37 @@
             "icon": "🔒",
             "title": {
                 "en": "Security Settings",
-                "de": "Sicherheitseinstellungen"
+                "de": "Sicherheitseinstellungen",
+                "fr": "Paramètres de sécurité",
+                "es": "Configuración de seguridad",
+                "it": "Impostazioni di sicurezza",
+                "ja": "セキュリティ設定",
+                "ko": "보안 설정",
+                "nl": "Beveiligingsinstellingen",
+                "pl": "Ustawienia bezpieczeństwa",
+                "ru": "Настройки безопасности",
+                "tr": "Güvenlik ayarları",
+                "af": "Sekuriteit instellings",
+                "sjn": "Security Settings",
+                "tlh": "Security Settings",
+                "de-CH": "Sicherheitseinstellungen"
             },
             "description": {
                 "en": "Password strength and character types",
-                "de": "Passwortstärke und Zeichentypen"
+                "de": "Passwortstärke und Zeichentypen",
+                "fr": "Force du mot de passe et types de caractères",
+                "es": "Fortaleza de contraseña y tipos de caracteres",
+                "it": "Forza della password e tipi di caratteri",
+                "ja": "パスワード強度と文字タイプ",
+                "ko": "비밀번호 강도 및 문자 유형",
+                "nl": "Wachtwoordsterkte en tekentypen",
+                "pl": "Siła hasła i typy znaków",
+                "ru": "Надежность пароля и типы символов",
+                "tr": "Şifre gücü ve karakter türleri",
+                "af": "Wagwoord sterkte en karaktersoorte",
+                "sjn": "Password strength and character types",
+                "tlh": "Password strength and character types",
+                "de-CH": "Passwortstärke und Zeichentypen"
             },
             "items": [
                 {
@@ -128,11 +626,37 @@
                     "icon": "📏",
                     "title": {
                         "en": "Password Length",
-                        "de": "Passwortlänge"
+                        "de": "Passwortlänge",
+                        "fr": "Longueur du mot de passe",
+                        "es": "Longitud de contraseña",
+                        "it": "Lunghezza password",
+                        "ja": "パスワード長",
+                        "ko": "비밀번호 길이",
+                        "nl": "Wachtwoordlengte",
+                        "pl": "Długość hasła",
+                        "ru": "Длина пароля",
+                        "tr": "Şifre uzunluğu",
+                        "af": "Wagwoord lengte",
+                        "sjn": "Password Length",
+                        "tlh": "Password Length",
+                        "de-CH": "Passwortlänge"
                     },
                     "description": {
                         "en": "Choose password strength",
-                        "de": "Passwortstärke wählen"
+                        "de": "Passwortstärke wählen",
+                        "fr": "Choisir la force du mot de passe",
+                        "es": "Elegir la fuerza de la contraseña",
+                        "it": "Scegli la forza della password",
+                        "ja": "パスワード強度を選択",
+                        "ko": "비밀번호 강도 선택",
+                        "nl": "Kies wachtwoordsterkte",
+                        "pl": "Wybierz siłę hasła",
+                        "ru": "Выберите надежность пароля",
+                        "tr": "Şifre gücünü seçin",
+                        "af": "Kies wagwoord sterkte",
+                        "sjn": "Choose password strength",
+                        "tlh": "Choose password strength",
+                        "de-CH": "Passwortstärke wählen"
                     },
                     "min": 6,
                     "max": 20,
@@ -140,28 +664,39 @@
                     "labels": {
                         "min": {
                             "en": "Weak (6)",
-                            "de": "Schwach (6)"
+                            "de": "Schwach (6)",
+                            "fr": "Faible (6)",
+                            "es": "Débil (6)",
+                            "it": "Debole (6)",
+                            "ja": "弱い (6)",
+                            "ko": "약함 (6)",
+                            "nl": "Zwak (6)",
+                            "pl": "Słabe (6)",
+                            "ru": "Слабый (6)",
+                            "tr": "Zayıf (6)",
+                            "af": "Swak (6)",
+                            "sjn": "Weak (6)",
+                            "tlh": "Weak (6)",
+                            "de-CH": "Schwach (6)"
                         },
                         "max": {
                             "en": "Strong (20)",
-                            "de": "Stark (20)"
+                            "de": "Stark (20)",
+                            "fr": "Fort (20)",
+                            "es": "Fuerte (20)",
+                            "it": "Forte (20)",
+                            "ja": "強い (20)",
+                            "ko": "강함 (20)",
+                            "nl": "Sterk (20)",
+                            "pl": "Silne (20)",
+                            "ru": "Сильный (20)",
+                            "tr": "Güçlü (20)",
+                            "af": "Sterk (20)",
+                            "sjn": "Strong (20)",
+                            "tlh": "Strong (20)",
+                            "de-CH": "Stark (20)"
                         }
                     }
-                },
-                {
-                    "id": "includeNumbers",
-                    "type": "toggle",
-                    "icon": "🔢",
-                    "title": {
-                        "en": "Include Numbers",
-                        "de": "Zahlen einschließen"
-                    },
-                    "description": {
-                        "en": "Add numeric characters (0-9)",
-                        "de": "Numerische Zeichen hinzufügen (0-9)"
-                    },
-                    "defaultValue": true,
-                    "color": "blue"
                 },
                 {
                     "id": "includeSymbols",
@@ -169,11 +704,37 @@
                     "icon": "🔣",
                     "title": {
                         "en": "Include Symbols",
-                        "de": "Symbole einschließen"
+                        "de": "Symbole einschließen",
+                        "fr": "Inclure les symboles",
+                        "es": "Incluir símbolos",
+                        "it": "Includi simboli",
+                        "ja": "記号を含める",
+                        "ko": "기호 포함",
+                        "nl": "Symbolen opnemen",
+                        "pl": "Uwzględnij symbole",
+                        "ru": "Включить символы",
+                        "tr": "Sembolleri dahil et",
+                        "af": "Simbole insluit",
+                        "sjn": "Include Symbols",
+                        "tlh": "Include Symbols",
+                        "de-CH": "Symbole einschließen"
                     },
                     "description": {
                         "en": "Add special characters (!@#$%^&*)",
-                        "de": "Sonderzeichen hinzufügen (!@#$%^&*)"
+                        "de": "Sonderzeichen hinzufügen (!@#$%^&*)",
+                        "fr": "Ajouter des caractères spéciaux (!@#$%^&*)",
+                        "es": "Agregar caracteres especiales (!@#$%^&*)",
+                        "it": "Aggiungi caratteri speciali (!@#$%^&*)",
+                        "ja": "特殊文字を追加 (!@#$%^&*)",
+                        "ko": "특수 문자 추가 (!@#$%^&*)",
+                        "nl": "Speciale tekens toevoegen (!@#$%^&*)",
+                        "pl": "Dodaj znaki specjalne (!@#$%^&*)",
+                        "ru": "Добавить специальные символы (!@#$%^&*)",
+                        "tr": "Özel karakterler ekle (!@#$%^&*)",
+                        "af": "Spesiale karakters byvoeg (!@#$%^&*)",
+                        "sjn": "Add special characters (!@#$%^&*)",
+                        "tlh": "Add special characters (!@#$%^&*)",
+                        "de-CH": "Sonderzeichen hinzufügen (!@#$%^&*)"
                     },
                     "defaultValue": true,
                     "color": "purple"
@@ -181,19 +742,45 @@
             ],
             "proItems": [
                 {
-                    "id": "includeSpecialChars",
+                    "id": "includeNumbers",
                     "type": "toggle",
-                    "icon": "🔤",
+                    "icon": "🔢",
                     "title": {
-                        "en": "Include Special Characters",
-                        "de": "Sonderzeichen einschließen"
+                        "en": "Include Numbers",
+                        "de": "Zahlen einschließen",
+                        "fr": "Inclure les chiffres",
+                        "es": "Incluir números",
+                        "it": "Includi numeri",
+                        "ja": "数字を含める",
+                        "ko": "숫자 포함",
+                        "nl": "Cijfers opnemen",
+                        "pl": "Uwzględnij liczby",
+                        "ru": "Включить цифры",
+                        "tr": "Sayıları dahil et",
+                        "af": "Getalle insluit",
+                        "sjn": "Include Numbers",
+                        "tlh": "Include Numbers",
+                        "de-CH": "Zahlen einschließen"
                     },
                     "description": {
-                        "en": "Add extended special characters",
-                        "de": "Erweiterte Sonderzeichen hinzufügen"
+                        "en": "Add numeric characters (0-9)",
+                        "de": "Numerische Zeichen hinzufügen (0-9)",
+                        "fr": "Ajouter des caractères numériques (0-9)",
+                        "es": "Agregar caracteres numéricos (0-9)",
+                        "it": "Aggiungi caratteri numerici (0-9)",
+                        "ja": "数字文字を追加 (0-9)",
+                        "ko": "숫자 문자 추가 (0-9)",
+                        "nl": "Numerieke tekens toevoegen (0-9)",
+                        "pl": "Dodaj znaki numeryczne (0-9)",
+                        "ru": "Добавить цифровые символы (0-9)",
+                        "tr": "Sayısal karakterler ekle (0-9)",
+                        "af": "Numeriese karakters byvoeg (0-9)",
+                        "sjn": "Add numeric characters (0-9)",
+                        "tlh": "Add numeric characters (0-9)",
+                        "de-CH": "Numerische Zeichen hinzufügen (0-9)"
                     },
-                    "defaultValue": false,
-                    "color": "orange"
+                    "defaultValue": true,
+                    "color": "blue"
                 },
                 {
                     "id": "excludeSimilarChars",
@@ -201,29 +788,40 @@
                     "icon": "🚫",
                     "title": {
                         "en": "Exclude Similar Characters",
-                        "de": "Ähnliche Zeichen ausschließen"
+                        "de": "Ähnliche Zeichen ausschließen",
+                        "fr": "Exclure les caractères similaires",
+                        "es": "Excluir caracteres similares",
+                        "it": "Escludi caratteri simili",
+                        "ja": "類似文字を除外",
+                        "ko": "유사한 문자 제외",
+                        "nl": "Vergelijkbare tekens uitsluiten",
+                        "pl": "Wyklucz podobne znaki",
+                        "ru": "Исключить похожие символы",
+                        "tr": "Benzer karakterleri hariç tut",
+                        "af": "Soortgelyke karakters uitsluit",
+                        "sjn": "Exclude Similar Characters",
+                        "tlh": "Exclude Similar Characters",
+                        "de-CH": "Ähnliche Zeichen ausschließen"
                     },
                     "description": {
                         "en": "Avoid confusing characters (l, 1, I)",
-                        "de": "Verwirrende Zeichen vermeiden (l, 1, I)"
+                        "de": "Verwirrende Zeichen vermeiden (l, 1, I)",
+                        "fr": "Éviter les caractères confus (l, 1, I)",
+                        "es": "Evitar caracteres confusos (l, 1, I)",
+                        "it": "Evita caratteri confusi (l, 1, I)",
+                        "ja": "紛らわしい文字を避ける (l, 1, I)",
+                        "ko": "혼동을 주는 문자 피하기 (l, 1, I)",
+                        "nl": "Verwarrende tekens vermijden (l, 1, I)",
+                        "pl": "Unikaj mylących znaków (l, 1, I)",
+                        "ru": "Избегать путающих символов (l, 1, I)",
+                        "tr": "Kafa karıştırıcı karakterlerden kaçının (l, 1, I)",
+                        "af": "Verwarrende karakters vermy (l, 1, I)",
+                        "sjn": "Avoid confusing characters (l, 1, I)",
+                        "tlh": "Avoid confusing characters (l, 1, I)",
+                        "de-CH": "Verwirrende Zeichen vermeiden (l, 1, I)"
                     },
                     "defaultValue": false,
                     "color": "red"
-                },
-                {
-                    "id": "requireUniqueChars",
-                    "type": "toggle",
-                    "icon": "✨",
-                    "title": {
-                        "en": "Require Unique Characters",
-                        "de": "Eindeutige Zeichen erforderlich"
-                    },
-                    "description": {
-                        "en": "No repeated characters in password",
-                        "de": "Keine wiederholten Zeichen im Passwort"
-                    },
-                    "defaultValue": false,
-                    "color": "indigo"
                 }
             ]
         },
@@ -232,11 +830,37 @@
             "icon": "😊",
             "title": {
                 "en": "Emoji Settings",
-                "de": "Emoji-Einstellungen"
+                "de": "Emoji-Einstellungen",
+                "fr": "Paramètres des émojis",
+                "es": "Configuración de emojis",
+                "it": "Impostazioni degli emoji",
+                "ja": "絵文字設定",
+                "ko": "이모지 설정",
+                "nl": "Emoji-instellingen",
+                "pl": "Ustawienia emoji",
+                "ru": "Настройки эмодзи",
+                "tr": "Emoji ayarları",
+                "af": "Emoji instellings",
+                "sjn": "Emoji Settings",
+                "tlh": "Emoji Settings",
+                "de-CH": "Emoji-Einstellungen"
             },
             "description": {
                 "en": "Emoji count, categories, and patterns",
-                "de": "Emoji-Anzahl, Kategorien und Muster"
+                "de": "Emoji-Anzahl, Kategorien und Muster",
+                "fr": "Nombre d'émojis, catégories et motifs",
+                "es": "Número de emojis, categorías y patrones",
+                "it": "Numero di emojis, categorie e pattern",
+                "ja": "絵文字の数、カテゴリ、パターン",
+                "ko": "이모지 수, 카테고리, 패턴",
+                "nl": "Aantal emojis, categorieën en patronen",
+                "pl": "Liczba emoji, kategorie i wzory",
+                "ru": "Количество эмодзи, категории и шаблоны",
+                "tr": "Emoji sayısı, kategoriler ve desenler",
+                "af": "Aantal emojis, kategorieën en patrone",
+                "sjn": "Emoji count, categories, and patterns",
+                "tlh": "Emoji count, categories, and patterns",
+                "de-CH": "Emoji-Anzahl, Kategorien und Muster"
             },
             "items": [
                 {
@@ -245,11 +869,37 @@
                     "icon": "📊",
                     "title": {
                         "en": "Emoji Count",
-                        "de": "Emoji-Anzahl"
+                        "de": "Emoji-Anzahl",
+                        "fr": "Nombre d'émojis",
+                        "es": "Número de emojis",
+                        "it": "Numero di emojis",
+                        "ja": "絵文字の数",
+                        "ko": "이모지 수",
+                        "nl": "Aantal emojis",
+                        "pl": "Liczba emoji",
+                        "ru": "Количество эмодзи",
+                        "tr": "Emoji sayısı",
+                        "af": "Aantal emojis",
+                        "sjn": "Emoji Count",
+                        "tlh": "Emoji Count",
+                        "de-CH": "Emoji-Anzahl"
                     },
                     "description": {
                         "en": "Number of emojis in password",
-                        "de": "Anzahl der Emojis im Passwort"
+                        "de": "Anzahl der Emojis im Passwort",
+                        "fr": "Nombre d'émojis dans le mot de passe",
+                        "es": "Número de emojis en la contraseña",
+                        "it": "Numero di emojis nella password",
+                        "ja": "パスワード内の絵文字の数",
+                        "ko": "비밀번호 내의 이모지 수",
+                        "nl": "Aantal emojis in het wachtwoord",
+                        "pl": "Liczba emoji w haśnie",
+                        "ru": "Количество эмодзи в пароле",
+                        "tr": "Şifre içindeki emoji sayısı",
+                        "af": "Aantal emojis in die wagwoord",
+                        "sjn": "Number of emojis in password",
+                        "tlh": "Number of emojis in password",
+                        "de-CH": "Anzahl der Emojis im Passwort"
                     },
                     "min": 3,
                     "max": 10,
@@ -257,11 +907,37 @@
                     "labels": {
                         "min": {
                             "en": "Min (3)",
-                            "de": "Min (3)"
+                            "de": "Min (3)",
+                            "fr": "Min (3)",
+                            "es": "Min (3)",
+                            "it": "Min (3)",
+                            "ja": "Min (3)",
+                            "ko": "Min (3)",
+                            "nl": "Min (3)",
+                            "pl": "Min (3)",
+                            "ru": "Min (3)",
+                            "tr": "Min (3)",
+                            "af": "Min (3)",
+                            "sjn": "Min (3)",
+                            "tlh": "Min (3)",
+                            "de-CH": "Min (3)"
                         },
                         "max": {
                             "en": "Max (10)",
-                            "de": "Max (10)"
+                            "de": "Max (10)",
+                            "fr": "Max (10)",
+                            "es": "Max (10)",
+                            "it": "Max (10)",
+                            "ja": "Max (10)",
+                            "ko": "Max (10)",
+                            "nl": "Max (10)",
+                            "pl": "Max (10)",
+                            "ru": "Max (10)",
+                            "tr": "Max (10)",
+                            "af": "Max (10)",
+                            "sjn": "Max (10)",
+                            "tlh": "Max (10)",
+                            "de-CH": "Max (10)"
                         }
                     }
                 }
@@ -273,32 +949,97 @@
                     "icon": "🎯",
                     "title": {
                         "en": "Emoji Pattern",
-                        "de": "Emoji-Muster"
+                        "de": "Emoji-Muster",
+                        "fr": "Motif des émojis",
+                        "es": "Patrón de emojis",
+                        "it": "Pattern degli emoji",
+                        "ja": "絵文字パターン",
+                        "ko": "이모지 패턴",
+                        "nl": "Emoji-patroon",
+                        "pl": "Wzór emoji",
+                        "ru": "Шаблон эмодзи",
+                        "tr": "Emoji desen",
+                        "af": "Emoji patrone",
+                        "sjn": "Emoji Pattern",
+                        "tlh": "Emoji Pattern",
+                        "de-CH": "Emoji-Muster"
                     },
                     "description": {
                         "en": "Choose emoji arrangement",
-                        "de": "Emoji-Anordnung wählen"
+                        "de": "Emoji-Anordnung wählen",
+                        "fr": "Choisir l'arrangement des émojis",
+                        "es": "Elegir el ordenamiento de emojis",
+                        "it": "Scegli l'ordine degli emoji",
+                        "ja": "絵文字の配置を選択",
+                        "ko": "이모지 배열을 선택",
+                        "nl": "Kies de opstelling van de emojis",
+                        "pl": "Wybierz układ emoji",
+                        "ru": "Выберите расположение эмодзи",
+                        "tr": "Emoji düzenini seçin",
+                        "af": "Kies die opstelling van die emojis",
+                        "sjn": "Choose emoji arrangement",
+                        "tlh": "Choose emoji arrangement",
+                        "de-CH": "Emoji-Anordnung wählen"
                     },
                     "options": [
                         {
                             "value": "random",
                             "label": {
                                 "en": "Random",
-                                "de": "Zufällig"
+                                "de": "Zufällig",
+                                "fr": "Aléatoire",
+                                "es": "Aleatorio",
+                                "it": "Casuale",
+                                "ja": "ランダム",
+                                "ko": "랜덤",
+                                "nl": "Willekeurig",
+                                "pl": "Losowy",
+                                "ru": "Случайный",
+                                "tr": "Rastgele",
+                                "af": "Willekeurig",
+                                "sjn": "Random",
+                                "tlh": "Random",
+                                "de-CH": "Zufällig"
                             }
                         },
                         {
                             "value": "sequential",
                             "label": {
                                 "en": "Sequential",
-                                "de": "Sequenziell"
+                                "de": "Sequenziell",
+                                "fr": "Séquentiel",
+                                "es": "Secuencial",
+                                "it": "Sequenziale",
+                                "ja": "連続",
+                                "ko": "순차적",
+                                "nl": "Sequentieel",
+                                "pl": "Sekwencyjny",
+                                "ru": "Последовательный",
+                                "tr": "Sıralı",
+                                "af": "Sekwensieel",
+                                "sjn": "Sequential",
+                                "tlh": "Sequential",
+                                "de-CH": "Sequenziell"
                             }
                         },
                         {
                             "value": "alternating",
                             "label": {
                                 "en": "Alternating",
-                                "de": "Wechselnd"
+                                "de": "Wechselnd",
+                                "fr": "Alterné",
+                                "es": "Alternante",
+                                "it": "Alternato",
+                                "ja": "交互",
+                                "ko": "교대",
+                                "nl": "Wisselend",
+                                "pl": "Zmienny",
+                                "ru": "Альтернативный",
+                                "tr": "Değişken",
+                                "af": "Wisselend",
+                                "sjn": "Alternating",
+                                "tlh": "Alternating",
+                                "de-CH": "Wechselnd"
                             }
                         }
                     ],
@@ -310,39 +1051,117 @@
                     "icon": "🎨",
                     "title": {
                         "en": "Emoji Theme",
-                        "de": "Emoji-Theme"
+                        "de": "Emoji-Theme",
+                        "fr": "Thème des émojis",
+                        "es": "Tema de emojis",
+                        "it": "Tema degli emoji",
+                        "ja": "絵文字テーマ",
+                        "ko": "이모지 테마",
+                        "nl": "Emoji-thema",
+                        "pl": "Motyw emoji",
+                        "ru": "Тема эмодзи",
+                        "tr": "Emoji tema",
+                        "af": "Emoji tema",
+                        "sjn": "Emoji Theme",
+                        "tlh": "Emoji Theme",
+                        "de-CH": "Emoji-Theme"
                     },
                     "description": {
                         "en": "Choose emoji style",
-                        "de": "Emoji-Stil wählen"
+                        "de": "Emoji-Stil wählen",
+                        "fr": "Choisir le style des émojis",
+                        "es": "Elegir el estilo de emojis",
+                        "it": "Scegli lo stile degli emoji",
+                        "ja": "絵文字のスタイルを選択",
+                        "ko": "이모지 스타일을 선택",
+                        "nl": "Kies de stijl van de emojis",
+                        "pl": "Wybierz styl emoji",
+                        "ru": "Выберите стиль эмодзи",
+                        "tr": "Emoji stilini seçin",
+                        "af": "Kies die stijl van die emojis",
+                        "sjn": "Choose emoji style",
+                        "tlh": "Choose emoji style",
+                        "de-CH": "Emoji-Stil wählen"
                     },
                     "options": [
                         {
                             "value": "mixed",
                             "label": {
                                 "en": "Mixed",
-                                "de": "Gemischt"
+                                "de": "Gemischt",
+                                "fr": "Mélangé",
+                                "es": "Mezclado",
+                                "it": "Misto",
+                                "ja": "混合",
+                                "ko": "혼합",
+                                "nl": "Gemengd",
+                                "pl": "Mieszany",
+                                "ru": "Смешанный",
+                                "tr": "Karışık",
+                                "af": "Gemengd",
+                                "sjn": "Mixed",
+                                "tlh": "Mixed",
+                                "de-CH": "Gemischt"
                             }
                         },
                         {
                             "value": "cute",
                             "label": {
                                 "en": "Cute",
-                                "de": "Süß"
+                                "de": "Süß",
+                                "fr": "Mignon",
+                                "es": "Adorable",
+                                "it": "Carino",
+                                "ja": "かわいい",
+                                "ko": "귀여운",
+                                "nl": "Lief",
+                                "pl": "Słodki",
+                                "ru": "Мило",
+                                "tr": "Sevimli",
+                                "af": "Süß",
+                                "sjn": "Cute",
+                                "tlh": "Cute",
+                                "de-CH": "Süß"
                             }
                         },
                         {
                             "value": "professional",
                             "label": {
                                 "en": "Professional",
-                                "de": "Professionell"
+                                "de": "Professionell",
+                                "fr": "Professionnel",
+                                "es": "Profesional",
+                                "it": "Professionale",
+                                "ja": "プロフェッショナル",
+                                "ko": "전문적인",
+                                "nl": "Professioneel",
+                                "pl": "Profesjonalny",
+                                "ru": "Профессиональный",
+                                "tr": "Profesyonel",
+                                "af": "Profesjonel",
+                                "sjn": "Professional",
+                                "tlh": "Professional",
+                                "de-CH": "Professionell"
                             }
                         },
                         {
                             "value": "fantasy",
                             "label": {
                                 "en": "Fantasy",
-                                "de": "Fantasy"
+                                "de": "Fantasy",
+                                "fr": "Fantasie",
+                                "es": "Fantasía",
+                                "it": "Fantasia",
+                                "ja": "ファンタジー",
+                                "ko": "판타지",
+                                "nl": "Fantasie",
+                                "pl": "Fantastyczny",
+                                "ru": "Фантастика",
+                                "tr": "Fantezi",
+                                "af": "Fantasie",
+                                "sjn": "Fantasy",
+                                "tlh": "Fantasy",
+                                "de-CH": "Fantasy"
                             }
                         }
                     ],
@@ -355,11 +1174,37 @@
             "icon": "⚡",
             "title": {
                 "en": "Generation Settings",
-                "de": "Generierungseinstellungen"
+                "de": "Generierungseinstellungen",
+                "fr": "Paramètres de génération",
+                "es": "Configuración de generación",
+                "it": "Impostazioni di generazione",
+                "ja": "生成設定",
+                "ko": "생성 설정",
+                "nl": "Generatie-instellingen",
+                "pl": "Ustawienia generacji",
+                "ru": "Настройки генерации",
+                "tr": "Oluşturma ayarları",
+                "af": "Generasie instellings",
+                "sjn": "Generation Settings",
+                "tlh": "Generation Settings",
+                "de-CH": "Generierungseinstellungen"
             },
             "description": {
                 "en": "Auto-generate and clipboard options",
-                "de": "Auto-Generierung und Zwischenablage-Optionen"
+                "de": "Auto-Generierung und Zwischenablage-Optionen",
+                "fr": "Générer automatiquement et options de copie",
+                "es": "Generar automáticamente y opciones de portapapeles",
+                "it": "Genera automaticamente e opzioni di copia",
+                "ja": "自動生成とクリップボードオプション",
+                "ko": "자동 생성 및 클립보드 옵션",
+                "nl": "Automatisch genereren en kopieeropties",
+                "pl": "Generuj automatycznie i opcje kopiowania",
+                "ru": "Автоматическая генерация и опции копирования",
+                "tr": "Otomatik oluşturma ve kopyalama seçenekleri",
+                "af": "Otomaties genereer en kopieeropties",
+                "sjn": "Auto-generate and clipboard options",
+                "tlh": "Auto-generate and clipboard options",
+                "de-CH": "Auto-Generierung und Zwischenablage-Optionen"
             },
             "items": [
                 {
@@ -368,11 +1213,37 @@
                     "icon": "⚡",
                     "title": {
                         "en": "Auto Generate",
-                        "de": "Auto-Generierung"
+                        "de": "Auto-Generierung",
+                        "fr": "Générer automatiquement",
+                        "es": "Generar automáticamente",
+                        "it": "Genera automaticamente",
+                        "ja": "自動生成",
+                        "ko": "자동 생성",
+                        "nl": "Automatisch genereren",
+                        "pl": "Generuj automatycznie",
+                        "ru": "Автоматическая генерация",
+                        "tr": "Otomatik oluşturma",
+                        "af": "Otomaties genereer",
+                        "sjn": "Auto Generate",
+                        "tlh": "Auto Generate",
+                        "de-CH": "Auto-Generierung"
                     },
                     "description": {
                         "en": "Automatically generate passwords",
-                        "de": "Passwörter automatisch generieren"
+                        "de": "Passwörter automatisch generieren",
+                        "fr": "Générer automatiquement des mots de passe",
+                        "es": "Generar automáticamente contraseñas",
+                        "it": "Genera automaticamente password",
+                        "ja": "パスワードを自動生成",
+                        "ko": "비밀번호를 자동 생성",
+                        "nl": "Wachtwoorden automatisch genereren",
+                        "pl": "Generuj automatycznie hasła",
+                        "ru": "Автоматически генерировать пароли",
+                        "tr": "Otomatik olarak şifreler oluştur",
+                        "af": "Wagwoorde automaties genereer",
+                        "sjn": "Automatically generate passwords",
+                        "tlh": "Automatically generate passwords",
+                        "de-CH": "Passwörter automatisch generieren"
                     },
                     "defaultValue": true,
                     "color": "yellow"
@@ -383,11 +1254,37 @@
                     "icon": "📋",
                     "title": {
                         "en": "Copy to Clipboard",
-                        "de": "In Zwischenablage kopieren"
+                        "de": "In Zwischenablage kopieren",
+                        "fr": "Copier dans le presse-papiers",
+                        "es": "Copiar al portapapeles",
+                        "it": "Copiare nella clipboard",
+                        "ja": "クリップボードにコピー",
+                        "ko": "클립보드에 복사",
+                        "nl": "Kopiëren naar het klembord",
+                        "pl": "Kopiuj do schowka",
+                        "ru": "Копировать в буфер обмена",
+                        "tr": "Kopyala",
+                        "af": "Kopieer naar die klembord",
+                        "sjn": "Copy to Clipboard",
+                        "tlh": "Copy to Clipboard",
+                        "de-CH": "In Zwischenablage kopieren"
                     },
                     "description": {
                         "en": "Auto-copy generated passwords",
-                        "de": "Generierte Passwörter automatisch kopieren"
+                        "de": "Generierte Passwörter automatisch kopieren",
+                        "fr": "Copier automatiquement les mots de passe générés",
+                        "es": "Copiar automáticamente las contraseñas generadas",
+                        "it": "Copiare automaticamente le password generata",
+                        "ja": "生成されたパスワードを自動でクリップボードにコピー",
+                        "ko": "생성된 비밀번호를 자동으로 클립보드에 복사",
+                        "nl": "Wachtwoorden automatisch kopiëren",
+                        "pl": "Generowane hasła automatycznie kopiuj",
+                        "ru": "Автоматически копировать сгенерированные пароли",
+                        "tr": "Otomatik olarak oluşturulan şifreleri kopyala",
+                        "af": "Wagwoorde automaties kopieer",
+                        "sjn": "Auto-copy generated passwords",
+                        "tlh": "Auto-copy generated passwords",
+                        "de-CH": "Generierte Passwörter automatisch kopieren"
                     },
                     "defaultValue": true,
                     "color": "teal"
@@ -398,11 +1295,37 @@
                     "icon": "💪",
                     "title": {
                         "en": "Show Strength",
-                        "de": "Stärke anzeigen"
+                        "de": "Stärke anzeigen",
+                        "fr": "Afficher la force",
+                        "es": "Mostrar fuerza",
+                        "it": "Mostra forza",
+                        "ja": "強度を表示",
+                        "ko": "강도 표시",
+                        "nl": "Toon sterkte",
+                        "pl": "Pokaż siłę",
+                        "ru": "Показать силу",
+                        "tr": "Güç göster",
+                        "af": "Wyskakel sterkte",
+                        "sjn": "Show Strength",
+                        "tlh": "Show Strength",
+                        "de-CH": "Stärke anzeigen"
                     },
                     "description": {
                         "en": "Display password strength meter",
-                        "de": "Passwortstärke-Meter anzeigen"
+                        "de": "Passwortstärke-Meter anzeigen",
+                        "fr": "Afficher le mètre de force du mot de passe",
+                        "es": "Mostrar el medidor de fuerza de la contraseña",
+                        "it": "Mostra il metro della forza della password",
+                        "ja": "パスワード強度メーターを表示",
+                        "ko": "비밀번호 강도 미터를 표시",
+                        "nl": "Meter van wachtwoordsterkte tonen",
+                        "pl": "Pokaż miernik siły hasła",
+                        "ru": "Показать индикатор силы пароля",
+                        "tr": "Şifre gücü ölçerini göster",
+                        "af": "Wyskakel sterkte meter",
+                        "sjn": "Display password strength meter",
+                        "tlh": "Display password strength meter",
+                        "de-CH": "Passwortstärke-Meter anzeigen"
                     },
                     "defaultValue": true,
                     "color": "pink"
@@ -415,32 +1338,97 @@
                     "icon": "🎯",
                     "title": {
                         "en": "Strength Threshold",
-                        "de": "Stärke-Schwelle"
+                        "de": "Stärke-Schwelle",
+                        "fr": "Seuil de force",
+                        "es": "Umbral de fuerza",
+                        "it": "Soglia di forza",
+                        "ja": "強度の閾値",
+                        "ko": "강도 임계값",
+                        "nl": "Sterkte-drempel",
+                        "pl": "Próg siły",
+                        "ru": "Порог надежности",
+                        "tr": "Güç eşiği",
+                        "af": "Sterkte-drempel",
+                        "sjn": "Strength Threshold",
+                        "tlh": "Strength Threshold",
+                        "de-CH": "Stärke-Schwelle"
                     },
                     "description": {
                         "en": "Minimum password strength required",
-                        "de": "Minimale erforderliche Passwortstärke"
+                        "de": "Minimale erforderliche Passwortstärke",
+                        "fr": "Force minimale requise",
+                        "es": "Fuerza mínima requerida",
+                        "it": "Forza minima richiesta",
+                        "ja": "必要な最小パスワード強度",
+                        "ko": "필요한 최소 비밀번호 강도",
+                        "nl": "Minimale wachtwoordsterkte vereist",
+                        "pl": "Minimalna siła hasła wymagana",
+                        "ru": "Минимальная надежность пароля требуется",
+                        "tr": "Gerekli olan minimum şifre gücü",
+                        "af": "Minimale wagwoord sterkte vereis",
+                        "sjn": "Minimum password strength required",
+                        "tlh": "Minimum password strength required",
+                        "de-CH": "Minimale erforderliche Passwortstärke"
                     },
                     "options": [
                         {
                             "value": "low",
                             "label": {
                                 "en": "Low",
-                                "de": "Niedrig"
+                                "de": "Niedrig",
+                                "fr": "Faible",
+                                "es": "Bajo",
+                                "it": "Basso",
+                                "ja": "弱い",
+                                "ko": "약함",
+                                "nl": "Zwak",
+                                "pl": "Słabe",
+                                "ru": "Слабый",
+                                "tr": "Zayıf",
+                                "af": "Swak",
+                                "sjn": "Low",
+                                "tlh": "Low",
+                                "de-CH": "Niedrig"
                             }
                         },
                         {
                             "value": "medium",
                             "label": {
                                 "en": "Medium",
-                                "de": "Mittel"
+                                "de": "Mittel",
+                                "fr": "Moyen",
+                                "es": "Medio",
+                                "it": "Medio",
+                                "ja": "中",
+                                "ko": "중간",
+                                "nl": "Gemiddeld",
+                                "pl": "Średni",
+                                "ru": "Средний",
+                                "tr": "Orta",
+                                "af": "Middel",
+                                "sjn": "Medium",
+                                "tlh": "Medium",
+                                "de-CH": "Mittel"
                             }
                         },
                         {
                             "value": "high",
                             "label": {
                                 "en": "High",
-                                "de": "Hoch"
+                                "de": "Hoch",
+                                "fr": "Fort",
+                                "es": "Fuerte",
+                                "it": "Forte",
+                                "ja": "強い",
+                                "ko": "강함",
+                                "nl": "Sterk",
+                                "pl": "Silne",
+                                "ru": "Сильный",
+                                "tr": "Güçlü",
+                                "af": "Sterk",
+                                "sjn": "High",
+                                "tlh": "High",
+                                "de-CH": "Hoch"
                             }
                         }
                     ],
@@ -452,11 +1440,37 @@
                     "icon": "🔄",
                     "title": {
                         "en": "Auto Refresh",
-                        "de": "Auto-Aktualisierung"
+                        "de": "Auto-Aktualisierung",
+                        "fr": "Actualiser automatiquement",
+                        "es": "Actualizar automáticamente",
+                        "it": "Aggiorna automaticamente",
+                        "ja": "自動更新",
+                        "ko": "자동 업데이트",
+                        "nl": "Automatisch vernieuwen",
+                        "pl": "Aktualizuj automatycznie",
+                        "ru": "Автоматическое обновление",
+                        "tr": "Otomatik güncelleme",
+                        "af": "Otomaties vernieuw",
+                        "sjn": "Auto Refresh",
+                        "tlh": "Auto Refresh",
+                        "de-CH": "Auto-Aktualisierung"
                     },
                     "description": {
                         "en": "Auto-regenerate weak passwords",
-                        "de": "Schwache Passwörter automatisch neu generieren"
+                        "de": "Schwache Passwörter automatisch neu generieren",
+                        "fr": "Regénérer automatiquement les mots de passe faibles",
+                        "es": "Regenerar automáticamente las contraseñas débiles",
+                        "it": "Regenera automaticamente le password de forza bassa",
+                        "ja": "弱いパスワードを自動的に再生成",
+                        "ko": "약한 비밀번호를 자동으로 다시 생성",
+                        "nl": "Zwakke wachtwoorden automatisch opnieuw genereren",
+                        "pl": "Generuj automatycznie słabe hasła",
+                        "ru": "Автоматически перегенерировать слабые пароли",
+                        "tr": "Otomatik olarak zayıf şifreleri yeniden oluştur",
+                        "af": "Wagwoorde automaties opnieuw genereer",
+                        "sjn": "Auto-regenerate weak passwords",
+                        "tlh": "Auto-regenerate weak passwords",
+                        "de-CH": "Schwache Passwörter automatisch neu generieren"
                     },
                     "defaultValue": false,
                     "color": "cyan"
@@ -468,11 +1482,37 @@
             "icon": "🔒",
             "title": {
                 "en": "Privacy Settings",
-                "de": "Datenschutz-Einstellungen"
+                "de": "Datenschutz-Einstellungen",
+                "fr": "Paramètres de confidentialité",
+                "es": "Configuración de privacidad",
+                "it": "Impostazioni di privacy",
+                "ja": "プライバシー設定",
+                "ko": "개인정보 설정",
+                "nl": "Privacy-instellingen",
+                "pl": "Ustawienia prywatności",
+                "ru": "Настройки конфиденциальности",
+                "tr": "Gizlilik ayarları",
+                "af": "Privaatheid instellings",
+                "sjn": "Privacy Settings",
+                "tlh": "Privacy Settings",
+                "de-CH": "Datenschutz-Einstellungen"
             },
             "description": {
                 "en": "Data collection and sharing preferences",
-                "de": "Datensammlung und Sharing-Präferenzen"
+                "de": "Datensammlung und Sharing-Präferenzen",
+                "fr": "Préférences de collecte de données et de partage",
+                "es": "Preferencias de recopilación de datos y compartido",
+                "it": "Preferenze di raccolta dati e condivisione",
+                "ja": "データ収集と共有の設定",
+                "ko": "데이터 수집 및 공유 설정",
+                "nl": "Privacy-instellingen en voorkeuren voor gegevensverzameling en deling",
+                "pl": "Preferencje dotyczące zbierania danych i udostępniania",
+                "ru": "Настройки сбора и передачи данных",
+                "tr": "Veri toplama ve paylaşım tercihleri",
+                "af": "Datainhouding en deelingsvoorkeure",
+                "sjn": "Data collection and sharing preferences",
+                "tlh": "Data collection and sharing preferences",
+                "de-CH": "Datensammlung und Sharing-Präferenzen"
             },
             "items": [
                 {
@@ -481,11 +1521,37 @@
                     "icon": "📚",
                     "title": {
                         "en": "Save History",
-                        "de": "Verlauf speichern"
+                        "de": "Verlauf speichern",
+                        "fr": "Enregistrer l'historique",
+                        "es": "Guardar historial",
+                        "it": "Salvare l'istoria",
+                        "ja": "履歴を保存",
+                        "ko": "기록 저장",
+                        "nl": "Wachtwoordgeschiedenis opslaan",
+                        "pl": "Zapisz historię",
+                        "ru": "Сохранять историю",
+                        "tr": "Geçmişi kaydet",
+                        "af": "Wagwoord geskiedheid opslaan",
+                        "sjn": "Save History",
+                        "tlh": "Save History",
+                        "de-CH": "Verlauf speichern"
                     },
                     "description": {
                         "en": "Store generated passwords locally",
-                        "de": "Generierte Passwörter lokal speichern"
+                        "de": "Generierte Passwörter lokal speichern",
+                        "fr": "Stocker les mots de passe générés localement",
+                        "es": "Almacenar contraseñas generadas localmente",
+                        "it": "Salvare le password generata localmente",
+                        "ja": "生成されたパスワードをローカルに保存",
+                        "ko": "생성된 비밀번호를 로컬에 저장",
+                        "nl": "Wachtwoordgeschiedenis lokaal opslaan",
+                        "pl": "Zapisz historię lokalnie",
+                        "ru": "Сохранять историю локально",
+                        "tr": "Geçmişi yerel olarak kaydet",
+                        "af": "Wagwoord geskiedheid lokaal opslaan",
+                        "sjn": "Store generated passwords locally",
+                        "tlh": "Store generated passwords locally",
+                        "de-CH": "Generierte Passwörter lokal speichern"
                     },
                     "defaultValue": false,
                     "color": "emerald"
@@ -496,11 +1562,37 @@
                     "icon": "📊",
                     "title": {
                         "en": "Analytics",
-                        "de": "Analytics"
+                        "de": "Analytics",
+                        "fr": "Analyse",
+                        "es": "Análisis",
+                        "it": "Analisi",
+                        "ja": "分析",
+                        "ko": "분석",
+                        "nl": "Analyse",
+                        "pl": "Analiza",
+                        "ru": "Анализ",
+                        "tr": "Analiz",
+                        "af": "Analise",
+                        "sjn": "Analytics",
+                        "tlh": "Analytics",
+                        "de-CH": "Analytics"
                     },
                     "description": {
                         "en": "Anonymous usage statistics",
-                        "de": "Anonyme Nutzungsstatistiken"
+                        "de": "Anonyme Nutzungsstatistiken",
+                        "fr": "Statistiques d'utilisation anonymes",
+                        "es": "Estadísticas de uso anónimas",
+                        "it": "Statistiche di utilizzo anonime",
+                        "ja": "匿名使用統計",
+                        "ko": "익명 사용 통계",
+                        "nl": "Anonieme gebruiksstatistieken",
+                        "pl": "Statystyki anonimowego użycia",
+                        "ru": "Анонимные статистические данные об использовании",
+                        "tr": "Anonim kullanım istatistikleri",
+                        "af": "Anonieme gebruik statistieke",
+                        "sjn": "Anonymous usage statistics",
+                        "tlh": "Anonymous usage statistics",
+                        "de-CH": "Anonyme Nutzungsstatistiken"
                     },
                     "defaultValue": true,
                     "color": "violet"
@@ -511,11 +1603,37 @@
                     "icon": "🤝",
                     "title": {
                         "en": "Share Usage",
-                        "de": "Nutzung teilen"
+                        "de": "Nutzung teilen",
+                        "fr": "Partager l'utilisation",
+                        "es": "Compartir uso",
+                        "it": "Condividere l'uso",
+                        "ja": "使用状況を共有",
+                        "ko": "사용 통계 공유",
+                        "nl": "Gebruik delen",
+                        "pl": "Udostępnij użycie",
+                        "ru": "Поделиться статистикой использования",
+                        "tr": "Kullanım istatistiklerini paylaş",
+                        "af": "Deel gebruik statistieke",
+                        "sjn": "Share Usage",
+                        "tlh": "Share Usage",
+                        "de-CH": "Nutzung teilen"
                     },
                     "description": {
                         "en": "Share usage data for improvements",
-                        "de": "Nutzungsdaten für Verbesserungen teilen"
+                        "de": "Nutzungsdaten für Verbesserungen teilen",
+                        "fr": "Partager les données d'utilisation pour les améliorations",
+                        "es": "Compartir datos de uso para mejoras",
+                        "it": "Condividere i dati di utilizzo per le miglioramenti",
+                        "ja": "使用状況データを共有して改善",
+                        "ko": "사용 통계 데이터를 공유하여 개선",
+                        "nl": "Deel gebruiksgegevens voor verbeteringen",
+                        "pl": "Udostępnij dane użycia do popraw",
+                        "ru": "Поделиться статистическими данными об использовании для улучшений",
+                        "tr": "Kullanım istatistiklerini paylaşarak iyileştirmeler",
+                        "af": "Deel gebruik statistieke vir verbeteringe",
+                        "sjn": "Share usage data for improvements",
+                        "tlh": "Share usage data for improvements",
+                        "de-CH": "Nutzungsdaten für Verbesserungen teilen"
                     },
                     "defaultValue": false,
                     "color": "rose"
@@ -528,11 +1646,37 @@
                     "icon": "📤",
                     "title": {
                         "en": "Export History",
-                        "de": "Verlauf exportieren"
+                        "de": "Verlauf exportieren",
+                        "fr": "Exporter l'historique",
+                        "es": "Exportar historial",
+                        "it": "Esportare l'istoria",
+                        "ja": "履歴をエクスポート",
+                        "ko": "기록 내보내기",
+                        "nl": "Wachtwoordgeschiedenis exporteren",
+                        "pl": "Eksportuj historię",
+                        "ru": "Экспортировать историю",
+                        "tr": "Geçmişi dışa aktar",
+                        "af": "Wagwoord geskiedheid uitvoer",
+                        "sjn": "Export History",
+                        "tlh": "Export History",
+                        "de-CH": "Verlauf exportieren"
                     },
                     "description": {
                         "en": "Export password history to file",
-                        "de": "Passwortverlauf in Datei exportieren"
+                        "de": "Passwortverlauf in Datei exportieren",
+                        "fr": "Exporter l'historique des mots de passe vers un fichier",
+                        "es": "Exportar historial de contraseñas a un archivo",
+                        "it": "Esportare l'istoria delle password in un file",
+                        "ja": "パスワード履歴をファイルにエクスポート",
+                        "ko": "비밀번호 기록을 파일로 내보내기",
+                        "nl": "Wachtwoordgeschiedenis exporteren naar een bestand",
+                        "pl": "Eksportuj historię hasła do pliku",
+                        "ru": "Экспортировать историю паролей в файл",
+                        "tr": "Şifre geçmişini dosyaya dışa aktar",
+                        "af": "Wagwoord geskiedheid uitvoer na 'n lêer",
+                        "sjn": "Export password history to file",
+                        "tlh": "Export password history to file",
+                        "de-CH": "Passwortverlauf in Datei exportieren"
                     },
                     "defaultValue": false,
                     "color": "sky"
@@ -543,11 +1687,37 @@
                     "icon": "💾",
                     "title": {
                         "en": "Backup Settings",
-                        "de": "Einstellungen sichern"
+                        "de": "Einstellungen sichern",
+                        "fr": "Sauvegarder les paramètres",
+                        "es": "Guardar ajustes",
+                        "it": "Salvare le impostazioni",
+                        "ja": "設定をバックアップ",
+                        "ko": "설정 백업",
+                        "nl": "Back-up instellingen",
+                        "pl": "Utwórz kopię zapasową ustawień",
+                        "ru": "Создать резервную копию настроек",
+                        "tr": "Ayarları yedekle",
+                        "af": "Instellings saai",
+                        "sjn": "Backup Settings",
+                        "tlh": "Backup Settings",
+                        "de-CH": "Einstellungen sichern"
                     },
                     "description": {
                         "en": "Automatically backup settings",
-                        "de": "Einstellungen automatisch sichern"
+                        "de": "Einstellungen automatisch sichern",
+                        "fr": "Sauvegarder automatiquement les paramètres",
+                        "es": "Guardar ajustes automáticamente",
+                        "it": "Salvare automaticamente le impostazioni",
+                        "ja": "設定を自動的にバックアップ",
+                        "ko": "설정을 자동으로 백업",
+                        "nl": "Instellingen automatisch back-up",
+                        "pl": "Utwórz automatyczną kopię zapasową ustawień",
+                        "ru": "Автоматически создавать резервную копию настроек",
+                        "tr": "Ayarları otomatik olarak yedekle",
+                        "af": "Instellings automaties saai",
+                        "sjn": "Automatically backup settings",
+                        "tlh": "Automatically backup settings",
+                        "de-CH": "Einstellungen automatisch sichern"
                     },
                     "defaultValue": false,
                     "color": "slate"
@@ -559,11 +1729,37 @@
             "icon": "💎",
             "title": {
                 "en": "Pro Features",
-                "de": "Pro-Features"
+                "de": "Pro-Features",
+                "fr": "Fonctionnalités Pro",
+                "es": "Características Pro",
+                "it": "Funzionalità Pro",
+                "ja": "プロ機能",
+                "ko": "프로 기능",
+                "nl": "Pro-functies",
+                "pl": "Funkcje Pro",
+                "ru": "Профессиональные функции",
+                "tr": "Pro özellikler",
+                "af": "Pro funksies",
+                "sjn": "Pro Features",
+                "tlh": "Pro Features",
+                "de-CH": "Pro-Features"
             },
             "description": {
                 "en": "Advanced settings and premium features",
-                "de": "Erweiterte Einstellungen und Premium-Features"
+                "de": "Erweiterte Einstellungen und Premium-Features",
+                "fr": "Paramètres avancés et fonctionnalités premium",
+                "es": "Ajustes avanzados y características premium",
+                "it": "Impostazioni avanzate e funzionalità premium",
+                "ja": "高度な設定とプレミアム機能",
+                "ko": "고급 설정 및 프리미엄 기능",
+                "nl": "Geavanceerde instellingen en premium-functies",
+                "pl": "Zaawansowane ustawienia i funkcje premium",
+                "ru": "Расширенные настройки и премиальные функции",
+                "tr": "Gelişmiş ayarlar ve premium özellikler",
+                "af": "Geavanceerde instellings en premium funksies",
+                "sjn": "Advanced settings and premium features",
+                "tlh": "Advanced settings and premium features",
+                "de-CH": "Erweiterte Einstellungen und Premium-Features"
             },
             "items": [
                 {
@@ -572,15 +1768,54 @@
                     "icon": "🔒",
                     "title": {
                         "en": "Security Audit",
-                        "de": "Sicherheits-Audit"
+                        "de": "Sicherheits-Audit",
+                        "fr": "Audit de sécurité",
+                        "es": "Auditoría de seguridad",
+                        "it": "Auditoria di sicurezza",
+                        "ja": "セキュリティ監査",
+                        "ko": "보안 감사",
+                        "nl": "Beveiligings-audit",
+                        "pl": "Audyt bezpieczeństwa",
+                        "ru": "Аудит безопасности",
+                        "tr": "Güvenlik auditi",
+                        "af": "Sekuriteit audit",
+                        "sjn": "Security Audit",
+                        "tlh": "Security Audit",
+                        "de-CH": "Sicherheits-Audit"
                     },
                     "description": {
                         "en": "Comprehensive security analysis",
-                        "de": "Umfassende Sicherheitsanalyse"
+                        "de": "Umfassende Sicherheitsanalyse",
+                        "fr": "Analyse de sécurité complète",
+                        "es": "Análisis de seguridad completo",
+                        "it": "Analisi di sicurezza completa",
+                        "ja": "包括的なセキュリティ分析",
+                        "ko": "철저한 보안 분석",
+                        "nl": "Uitgebreide beveiligingsanalyse",
+                        "pl": "Pełny audyt bezpieczeństwa",
+                        "ru": "Полный аудит безопасности",
+                        "tr": "Kapsamlı güvenlik analizi",
+                        "af": "Uitgebreide sekuriteit analise",
+                        "sjn": "Comprehensive security analysis",
+                        "tlh": "Comprehensive security analysis",
+                        "de-CH": "Umfassende Sicherheitsanalyse"
                     },
                     "buttonText": {
                         "en": "Run Audit",
-                        "de": "Audit starten"
+                        "de": "Audit starten",
+                        "fr": "Exécuter l'audit",
+                        "es": "Ejecutar auditoría",
+                        "it": "Esegui l'auditoria",
+                        "ja": "監査を実行",
+                        "ko": "감사 실행",
+                        "nl": "Audit uitvoeren",
+                        "pl": "Uruchom audyt",
+                        "ru": "Запустить аудит",
+                        "tr": "Audit'i çalıştır",
+                        "af": "Audit uitvoer",
+                        "sjn": "Run Audit",
+                        "tlh": "Run Audit",
+                        "de-CH": "Audit starten"
                     },
                     "action": "securityAudit"
                 },
@@ -590,11 +1825,37 @@
                     "icon": "🔍",
                     "title": {
                         "en": "Breach Check",
-                        "de": "Datenleck-Prüfung"
+                        "de": "Datenleck-Prüfung",
+                        "fr": "Vérification de fuite de données",
+                        "es": "Comprobación de filtración de datos",
+                        "it": "Verifica data leakage",
+                        "ja": "データ漏洩チェック",
+                        "ko": "데이터 누출 확인",
+                        "nl": "Data leak check",
+                        "pl": "Sprawdź przeciek danych",
+                        "ru": "Проверка на утечку данных",
+                        "tr": "Veri sızıntısı kontrolü",
+                        "af": "Data leak check",
+                        "sjn": "Breach Check",
+                        "tlh": "Breach Check",
+                        "de-CH": "Datenleck-Prüfung"
                     },
                     "description": {
                         "en": "Check passwords against known breaches",
-                        "de": "Passwörter gegen bekannte Datenlecks prüfen"
+                        "de": "Passwörter gegen bekannte Datenlecks prüfen",
+                        "fr": "Vérifier les mots de passe contre les fuites de données connues",
+                        "es": "Comprobar contraseñas contra filtraciones de datos conocidas",
+                        "it": "Controlla le password contro i data leakage conosciuti",
+                        "ja": "既知のデータ漏洩とパスワードを比較",
+                        "ko": "알려진 데이터 누출과 비밀번호를 비교",
+                        "nl": "Controleer wachtwoorden tegen bekende data leaks",
+                        "pl": "Sprawdź hasła przeciwko znanym przeciekom danych",
+                        "ru": "Проверьте пароли на наличие известных утечек данных",
+                        "tr": "Beklenen veri sızıntılarıyla şifreleri karşılaştır",
+                        "af": "Kontroleer wagwoorde teen bekende data leaks",
+                        "sjn": "Check passwords against known breaches",
+                        "tlh": "Check passwords against known breaches",
+                        "de-CH": "Passwörter gegen bekannte Datenlecks prüfen"
                     },
                     "defaultValue": false,
                     "color": "amber"
@@ -605,11 +1866,37 @@
                     "icon": "📈",
                     "title": {
                         "en": "Strength Analytics",
-                        "de": "Stärke-Analytics"
+                        "de": "Stärke-Analytics",
+                        "fr": "Analyse de force",
+                        "es": "Análisis de fuerza",
+                        "it": "Analisi di forza",
+                        "ja": "強度分析",
+                        "ko": "강도 분석",
+                        "nl": "Analyse van sterkte",
+                        "pl": "Analiza siły",
+                        "ru": "Анализ силы",
+                        "tr": "Güç analizi",
+                        "af": "Sterkte analise",
+                        "sjn": "Strength Analytics",
+                        "tlh": "Strength Analytics",
+                        "de-CH": "Stärke-Analytics"
                     },
                     "description": {
                         "en": "Advanced password strength analysis",
-                        "de": "Erweiterte Passwortstärke-Analyse"
+                        "de": "Erweiterte Passwortstärke-Analyse",
+                        "fr": "Analyse de force du mot de passe avancée",
+                        "es": "Análisis de fortaleza de contraseña avanzado",
+                        "it": "Analisi di forza della password avanzata",
+                        "ja": "高度なパスワード強度分析",
+                        "ko": "고급 비밀번호 강도 분석",
+                        "nl": "Geavanceerde analyse van wachtwoordsterkte",
+                        "pl": "Zaawansowana analiza siły hasła",
+                        "ru": "Расширенный анализ силы пароля",
+                        "tr": "Gelişmiş şifre gücü analizi",
+                        "af": "Geavanceerde sterkte analise",
+                        "sjn": "Advanced password strength analysis",
+                        "tlh": "Advanced password strength analysis",
+                        "de-CH": "Erweiterte Passwortstärke-Analyse"
                     },
                     "defaultValue": false,
                     "color": "lime"
@@ -622,7 +1909,20 @@
             "icon": "🔄",
             "title": {
                 "en": "Reset to Default",
-                "de": "Auf Standard zurücksetzen"
+                "de": "Auf Standard zurücksetzen",
+                "fr": "Réinitialiser par défaut",
+                "es": "Restablecer a los valores por defecto",
+                "it": "Ripristina impostazioni predefinite",
+                "ja": "デフォルトにリセット",
+                "ko": "기본값으로 초기화",
+                "nl": "Standaard instellingen herstellen",
+                "pl": "Przywróć ustawienia domyślne",
+                "ru": "Сбросить настройки по умолчанию",
+                "tr": "Varsayılır ayarlara sıfırla",
+                "af": "Standaard instellings herstel",
+                "sjn": "Reset to Default",
+                "tlh": "Reset to Default",
+                "de-CH": "Auf Standard zurücksetzen"
             },
             "color": "red"
         },
@@ -630,7 +1930,20 @@
             "icon": "📤",
             "title": {
                 "en": "Export Settings",
-                "de": "Einstellungen exportieren"
+                "de": "Einstellungen exportieren",
+                "fr": "Exporter les paramètres",
+                "es": "Exportar ajustes",
+                "it": "Esportare le impostazioni",
+                "ja": "設定をエクスポート",
+                "ko": "설정 내보내기",
+                "nl": "Instellingen exporteren",
+                "pl": "Eksportuj ustawienia",
+                "ru": "Экспортировать настройки",
+                "tr": "Ayarları dışa aktar",
+                "af": "Instellings uitvoer",
+                "sjn": "Export Settings",
+                "tlh": "Export Settings",
+                "de-CH": "Einstellungen exportieren"
             },
             "color": "blue"
         },
@@ -638,13 +1951,39 @@
             "icon": "📥",
             "title": {
                 "en": "Import Settings",
-                "de": "Einstellungen importieren"
+                "de": "Einstellungen importieren",
+                "fr": "Importer les paramètres",
+                "es": "Importar ajustes",
+                "it": "Importare le impostazioni",
+                "ja": "設定をインポート",
+                "ko": "설정 가져오기",
+                "nl": "Instellingen importeren",
+                "pl": "Importuj ustawienia",
+                "ru": "Импортировать настройки",
+                "tr": "Ayarları içe aktar",
+                "af": "Instellings invoer",
+                "sjn": "Import Settings",
+                "tlh": "Import Settings",
+                "de-CH": "Einstellungen importieren"
             },
             "color": "green"
         }
     },
     "proMessage": {
         "en": "💎 Pro users can export and import their settings",
-        "de": "💎 Pro-Nutzer können ihre Einstellungen exportieren und importieren"
+        "de": "💎 Pro-Nutzer können ihre Einstellungen exportieren und importieren",
+        "fr": "💎 Les utilisateurs Pro peuvent exporter et importer leurs paramètres",
+        "es": "💎 Los usuarios Pro pueden exportar y importar sus ajustes",
+        "it": "💎 Gli utenti Pro possono esportare e importare le loro impostazioni",
+        "ja": "💎 Proユーザーは設定をエクスポートしてインポートできます",
+        "ko": "💎 프로 사용자는 설정을 내보내고 가져올 수 있습니다",
+        "nl": "💎 Pro-gebruikers kunnen hun instellingen exporteren en importeren",
+        "pl": "💎 Użytkownicy Pro mogą eksportować i importować swoje ustawienia",
+        "ru": "💎 Профессиональные пользователи могут экспортировать и импортировать свои настройки",
+        "tr": "💎 Pro kullanıcılar ayarlarını dışa aktırıp içe aktırabilir",
+        "af": "💎 Pro gebruikers kan hulle instellings uitvoer en invoer",
+        "sjn": "💎 Pro users can export and import their settings",
+        "tlh": "💎 Pro users can export and import their settings",
+        "de-CH": "💎 Pro-Nutzer können ihre Einstellungen exportieren und importieren"
     }
 }

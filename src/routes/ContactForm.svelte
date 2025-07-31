@@ -15,14 +15,27 @@
     import { fade, fly, scale } from 'svelte/transition';
     import Header from '../components/Layout/Header.svelte';
     import FixedMenu from '../widgets/FixedMenu.svelte';
-    import { WEBHOOKS, API_CONFIG } from '../../src/config/api.js';
+    import { WEBHOOKS, API_CONFIG } from '../config/api.js';
     import { appVersion } from '../utils/version.js';
     import { navigateToHome } from '../utils/navigation.js';
     import { isTestMode } from '../utils/environment.js';
+    import { initializeAccountFromCookies } from '../stores/accountStore.js';
     
-    // Reaktive Übersetzungen
-    $: pageTitle = $translations.contactForm.pageTitle || 'Contact';
-    $: pageDescription = $translations.contactForm.pageDescription || 'Get in touch with us';
+    // Reaktive Übersetzungen - optimiert
+    $: pageTitle = $translations?.contactForm?.pageTitle || 'Contact';
+    $: pageDescription = $translations?.contactForm?.pageDescription || 'Get in touch with us';
+
+    // Debug-Logging für Reaktivität - nur in Development
+    $: if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        console.log('🔄 ContactForm: Language changed to:', $currentLanguage);
+        console.log('🔄 ContactForm: Translations updated:', {
+            pageTitle: $translations?.contactForm?.pageTitle,
+            pageDescription: $translations?.contactForm?.pageDescription,
+            nameLabel: $translations?.contactForm?.nameLabel,
+            emailLabel: $translations?.contactForm?.emailLabel,
+            messageLabel: $translations?.contactForm?.messageLabel
+        });
+    }
     
     // Form state
     let name = '';
@@ -41,7 +54,7 @@
         email: '',
         message: ''
     };
-    
+
     // Redirect management
     let redirectTimeout = null;
 
@@ -96,9 +109,9 @@
             showWarning($translations.contactForm.validationErrorMessage);
             return;
         }
-        
+
         isSubmitting = true;
-        
+
         // Clear any previous timeouts to prevent navigation issues
         if (redirectTimeout) {
             clearTimeout(redirectTimeout);
@@ -206,6 +219,9 @@
                 showSuccess('Modal system test', 2000);
             }, 500);
         }
+
+        // Initialize account from cookies
+        initializeAccountFromCookies();
     });
 
     $: isFormValid = name.trim().length >= 2 && 
@@ -289,7 +305,7 @@
                                 <p id="name-error" class="form-error">{formErrors.name}</p>
                             {/if}
                         </div>
-                        
+
                         <div>
                             <label for="email" class="sr-only">{$translations.contactForm.emailLabel}</label>
                             <input
@@ -310,21 +326,21 @@
 
                     <!-- Message Field -->
                     <div>
-                        <label for="message" class="sr-only">{$translations.contactForm.messageLabel}</label>
-                        <textarea
-                            id="message"
-                            bind:value={message}
-                            placeholder={$translations.contactForm.messageLabel}
-                            rows="2"
-                            class="contact-input"
-                            aria-invalid={!!formErrors.message}
-                            aria-describedby={formErrors.message ? "message-error" : undefined}
-                            disabled={isSubmitting}
-                        />
-                        {#if formErrors.message}
-                            <p id="message-error" class="form-error">{formErrors.message}</p>
-                        {/if}
-                    </div>
+                    <label for="message" class="sr-only">{$translations.contactForm.messageLabel}</label>
+                    <textarea
+                        id="message"
+                        bind:value={message}
+                        placeholder={$translations.contactForm.messageLabel}
+                        rows="2"
+                        class="contact-input"
+                        aria-invalid={!!formErrors.message}
+                        aria-describedby={formErrors.message ? "message-error" : undefined}
+                        disabled={isSubmitting}
+                    />
+                    {#if formErrors.message}
+                        <p id="message-error" class="form-error">{formErrors.message}</p>
+                    {/if}
+                </div>
 
                     <!-- Newsletter Opt-in -->
                     <div class="flex items-center space-x-2">
@@ -364,15 +380,15 @@
                             aria-busy={isSubmitting}
                         >
                             {#if isSubmitting}
-                                <span class="flex items-center">
-                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    {$translations.contactForm.sendingButton}
-                                </span>
+                            <span class="flex items-center">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                {$translations.contactForm.sendingButton}
+                            </span>
                             {:else}
-                                {$translations.contactForm.sendButton}
+                            {$translations.contactForm.sendButton}
                             {/if}
                         </button>
                     </div>
@@ -401,6 +417,8 @@
     
     /* Form error styles */
     .form-error {
-      @apply text-gray-500 text-sm mt-1;
+      color: #ef4444; /* Red for error */
+      font-size: 0.875rem; /* Smaller font size */
+      margin-top: 0.25rem; /* Smaller top margin */
     }
 </style>

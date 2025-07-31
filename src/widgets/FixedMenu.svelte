@@ -7,6 +7,7 @@
   import { t } from '../stores/contentStore.js';
   import { createEventDispatcher, onMount } from 'svelte';
   import ModalDebug from '../components/UI/ModalDebug.svelte';
+  import { initializeAccountFromCookies } from '../stores/accountStore.js';
   import { 
     whatsappIcon, 
     linkedinIcon, 
@@ -30,6 +31,9 @@
 
   // Click-Outside Handler hinzufügen
   onMount(() => {
+    // Initialize account from cookies
+    initializeAccountFromCookies();
+    
     const handleClickOutside = (event) => {
       const fixedMenu = document.getElementById('fixed-menu');
       const donateButton = document.querySelector('[data-menu-type="donate"]');

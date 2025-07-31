@@ -15,8 +15,10 @@
 
     const dispatch = createEventDispatcher();
 
-    // Reaktive Übersetzungen
-    $: headerTitle = $translations.header.pageTitle;
+    // Reaktive Übersetzungen mit robuster Fehlerbehandlung
+    $: headerTitle = $translations && $translations.header && $translations.header.pageTitle 
+        ? $translations.header.pageTitle 
+        : 'Keymoji';
     
     function handleBlogNavigation() {
         navigateToBlog(false);
@@ -49,7 +51,7 @@
 <!-- Header mit Logo links, Buttons rechts -->
 <div class="w-full fixed flex flex-wrap justify-center top-5 mx-auto z-30 overflow-x-hidden">
     <nav class="md:w-1/3 w-full mx-3 bg-creme-500 dark:bg-aubergine-800 justify-center rounded-full p-1 relative z-30 overflow-x-hidden">
-        <div class="max-w-screen-xl flex flex-wrap items-center justify-between">
+        <div class="max-w-screen-2xl flex items-center justify-between">
             <!-- Logo und Titel links -->
             <div class="flex items-center">
                 <h2 class="flex flex-wrap md:text-2xl font-semibold items-center whitespace-nowrap dark:text-white">

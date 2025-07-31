@@ -50,7 +50,8 @@ export default {
         storyButtonClicked: '📩 Invia storia',
         randomButton: '🎲 Casuale',
         placeholderText:
-            'Raccontami una storia e genererò password emoji basate su di essa...'
+            'Raccontami una storia e genererò password emoji basate su di essa...',
+        clipboardError: 'Errore nel copiare negli appunti'
     },
     donateButton: {
         text: 'Offrimi un caffè',
@@ -58,30 +59,48 @@ export default {
         textMobile: '☕'
     },
     contactForm: {
+        pageTitle: 'Ciao, sono Christopher',
+        pageDescription:
+            'Sviluppatore frontend e adoro creare siti web intuitivi con JavaScript, PHP e HTML. Non esitare a scrivermi se vuoi!',
         nameLabel: '🧑🏻 Il tuo nome',
         emailLabel: '📧 La tua email',
         messageLabel: '✍🏻 Il tuo messaggio',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Invia',
+        sendingButton: '📨 Invio...',
         successMessage: 'Successo, messaggio inviato - Risposta: < 24 ore 🚀',
-        errorMessage: 'Si è verificato un errore imprevisto 😟',
-        requestErrorMessage: "Errore nell'invio del messaggio, riprova 🙁",
-        smirkingFaceImageAlt: 'keymoji emoji faccia sorridente 1f60f',
-        introductionTitle: 'Ciao, sono Christopher',
-        introductionText:
-            'Sviluppatore frontend e amo progettare e codificare siti web user-friendly con JavaScript, PHP e HTML. Non esitare e mandami un messaggio se ti piace.',
+        errorMessage: 'Si è verificato un errore inaspettato 😟',
+        requestErrorMessage: "Errore durante l'invio del messaggio, riprova 🙁",
+        smirkingFaceImageAlt: 'keymoji emoji faccina sorridente 1f60f',
+        introductionTitle: 'Hai una domanda o un suggerimento?',
+        introductionText: 'Scrivimi un messaggio!',
         privacyNotice:
-            'Sii sicuro, i tuoi dati sono in buone mani con noi 🤲. I tuoi dettagli non saranno trasmessi a terzi 🔒.',
-        newsletterLabel: 'Sì, vorrei iscrivermi alla newsletter',
+            'I tuoi dati sono al sicuro con noi 🤲. I tuoi dettagli non saranno condivisi con terzi 🔒.',
+        newsletterLabel: 'Sì, voglio iscrivermi alla newsletter',
+        backToMainButton: 'Torna alla home',
+        footerText: 'Sviluppato con amore',
+        validationErrorMessage:
+            'Correggi gli errori del modulo prima di inviare 🔍',
+        sendingMessage: 'Invio del tuo messaggio... 📨',
         emailText: {
             greeting: 'Benvenuto',
-            intro: 'Grazie per aver inviato un messaggio 📩!',
             confirmationText:
-                'Per favore conferma la tua richiesta così Christopher sa che non sei un bot intelligente. Hai inviato un messaggio con i seguenti dati:'
+                'Per favore conferma la tua richiesta così Christopher sa che non sei un bot intelligente. Hai inviato un messaggio con i seguenti dati:',
+            doubleCheck:
+                'Abbiamo ricevuto il tuo messaggio con i seguenti dettagli:',
+            button: 'Conferma la tua email'
+        },
+        validation: {
+            nameRequired: 'Nome richiesto',
+            nameLength: 'Minimo 2 caratteri',
+            emailRequired: 'Email richiesta',
+            emailInvalid: 'Email non valida',
+            messageRequired: 'Messaggio richiesto',
+            messageLength: 'Minimo {min} caratteri'
         }
     },
     serviceWorker: {
-        updateAvailable: 'È disponibile una nuova versione!',
+        updateAvailable: 'Una nuova versione è disponibile!',
         manualRefreshNeeded:
             'Nuova versione attivata. Ricarica ora per le ultime funzionalità.',
         updateSuccess: 'App aggiornata con successo! 🎉'
@@ -113,7 +132,7 @@ export default {
         pro: 'PRO'
     },
     accessibility: {
-        skipToMain: 'Salta al contenuto principale',
+        skipToMain: 'Vai al contenuto principale',
         closeModal: 'Chiudi modal',
         openMenu: 'Apri menu',
         closeMenu: 'Chiudi menu',
@@ -131,12 +150,394 @@ export default {
         toggleLanguage: 'Cambia lingua'
     },
     validation: {
-        required: 'Questo campo è obbligatorio',
-        email: 'Inserisci un indirizzo email valido',
+        required: 'Questo campo è richiesto',
+        email: 'Per favore inserisci un indirizzo email valido',
         minLength: 'Deve contenere almeno {min} caratteri',
-        maxLength: 'Non deve superare {max} caratteri',
+        maxLength: 'Non deve contenere più di {max} caratteri',
         invalidFormat: 'Formato non valido',
         serverError: 'Errore del server, riprova',
-        networkError: 'Errore di rete, verifica la tua connessione'
+        networkError: 'Errore di rete, controlla la tua connessione'
+    },
+
+    // Traduzioni UserSettings
+    userSettings: {
+        // Impostazioni di base
+        basicSettings: {
+            title: 'Impostazioni di base',
+            description: 'Lingua, tema e notifiche',
+            language: {
+                label: 'Lingua',
+                description: 'Scegli la tua lingua preferita',
+                options: {
+                    en: '🇺🇸 Inglese',
+                    de: '🇩🇪 Tedesco',
+                    fr: '🇫🇷 Francese',
+                    es: '🇪🇸 Spagnolo',
+                    it: '🇮🇹 Italiano'
+                }
+            },
+            theme: {
+                label: 'Tema',
+                description: 'Scegli il tuo tema visivo',
+                options: {
+                    auto: '🔄 Auto',
+                    light: '☀️ Chiaro',
+                    dark: '🌙 Scuro'
+                }
+            },
+            notifications: {
+                label: 'Notifiche',
+                description: 'Ricevi aggiornamenti importanti'
+            }
+        },
+
+        // Impostazioni di sicurezza
+        securitySettings: {
+            title: 'Impostazioni di sicurezza',
+            description: 'Forza password e tipi di caratteri',
+            passwordLength: {
+                label: 'Lunghezza password',
+                description: 'Scegli la forza della password',
+                min: 'Debole (6)',
+                max: 'Forte (20)'
+            },
+            includeNumbers: {
+                label: 'Includi numeri',
+                description: 'Aggiungi caratteri numerici (0-9)'
+            },
+            includeSymbols: {
+                label: 'Includi simboli',
+                description: 'Aggiungi caratteri speciali (!@#$%^&*)'
+            },
+            includeSpecialChars: {
+                label: 'Includi caratteri speciali',
+                description: 'Aggiungi caratteri speciali estesi'
+            },
+            excludeSimilarChars: {
+                label: 'Escludi caratteri simili',
+                description: 'Evita caratteri confusi (l, 1, I)'
+            },
+            requireUniqueChars: {
+                label: 'Caratteri unici richiesti',
+                description: 'Nessun carattere ripetuto nella password'
+            }
+        },
+
+        // Impostazioni Emoji
+        emojiSettings: {
+            title: 'Impostazioni Emoji',
+            description: 'Numero emoji, categorie e pattern',
+            emojiCount: {
+                label: 'Numero emoji',
+                description: 'Numero di emoji nella password',
+                min: 'Min (3)',
+                max: 'Max (10)'
+            },
+            emojiPattern: {
+                label: 'Pattern Emoji',
+                description: 'Scegli la disposizione delle emoji',
+                options: {
+                    random: 'Casuale',
+                    sequential: 'Sequenziale',
+                    alternating: 'Alternato'
+                }
+            },
+            emojiTheme: {
+                label: 'Tema Emoji',
+                description: 'Scegli lo stile delle emoji',
+                options: {
+                    mixed: 'Misto',
+                    cute: 'Carino',
+                    professional: 'Professionale',
+                    fantasy: 'Fantasy'
+                }
+            }
+        },
+
+        // Impostazioni di generazione
+        generationSettings: {
+            title: 'Impostazioni di generazione',
+            description: 'Auto-generazione e opzioni appunti',
+            autoGenerate: {
+                label: 'Auto-generazione',
+                description: 'Genera password automaticamente'
+            },
+            copyToClipboard: {
+                label: 'Copia negli appunti',
+                description: 'Copia automaticamente le password generate'
+            },
+            showStrength: {
+                label: 'Mostra forza',
+                description: 'Mostra indicatore forza password'
+            },
+            strengthThreshold: {
+                label: 'Soglia forza',
+                description: 'Forza minima richiesta della password',
+                options: {
+                    low: 'Bassa',
+                    medium: 'Media',
+                    high: 'Alta'
+                }
+            },
+            autoRefresh: {
+                label: 'Auto-aggiornamento',
+                description: 'Rigenera automaticamente password deboli'
+            }
+        },
+
+        // Impostazioni privacy
+        privacySettings: {
+            title: 'Impostazioni privacy',
+            description: 'Raccolta dati e preferenze condivisione',
+            saveHistory: {
+                label: 'Salva cronologia',
+                description: 'Salva password generate localmente'
+            },
+            analytics: {
+                label: 'Analytics',
+                description: 'Statistiche uso anonime'
+            },
+            shareUsage: {
+                label: 'Condividi uso',
+                description: 'Condividi dati uso per miglioramenti'
+            },
+            exportHistory: {
+                label: 'Esporta cronologia',
+                description: 'Esporta cronologia password in file'
+            },
+            backupSettings: {
+                label: 'Backup impostazioni',
+                description: 'Backup automatico impostazioni'
+            }
+        },
+
+        // Funzionalità Pro
+        proFeatures: {
+            title: 'Funzionalità Pro',
+            description: 'Impostazioni avanzate e funzionalità premium',
+            securityAudit: {
+                label: 'Audit sicurezza',
+                description: 'Analisi sicurezza completa',
+                buttonText: 'Esegui audit'
+            },
+            breachCheck: {
+                label: 'Controllo violazioni',
+                description: 'Controlla password contro violazioni note'
+            },
+            strengthAnalytics: {
+                label: 'Analytics forza',
+                description: 'Analisi avanzata forza password'
+            }
+        }
+    },
+
+    // Accounting e sicurezza
+    accounting: {
+        // Login e autenticazione
+        login: {
+            title: 'Accedi',
+            emailPlaceholder: 'Inserisci il tuo indirizzo email',
+            magicLinkSent: 'Link magico inviato!',
+            magicLinkError: "Errore nell'invio del link magico",
+            verificationSuccess: 'Email verificata con successo!',
+            verificationError: 'Fallimento verifica email',
+            rateLimitExceeded: 'Troppi tentativi di accesso. Attendi.',
+            sessionExpired: 'Sessione scaduta. Accedi di nuovo.'
+        },
+
+        // Gestione account
+        account: {
+            title: 'Gestione account',
+            profile: 'Profilo',
+            settings: 'Impostazioni',
+            logout: 'Esci',
+            logoutSuccess: 'Disconnessione riuscita',
+            accountCreated: 'Account creato con successo',
+            accountUpdated: 'Account aggiornato con successo',
+            accountError: 'Errore nella gestione account'
+        },
+
+        // Eventi sicurezza
+        security: {
+            loginAttempt: 'Tentativo di accesso',
+            loginSuccess: 'Accesso riuscito',
+            loginFailed: 'Fallimento accesso',
+            logout: 'Disconnessione',
+            sessionExpired: 'Sessione scaduta',
+            suspiciousActivity: 'Attività sospetta',
+            verificationSuccess: 'Verifica riuscita',
+            verificationFailed: 'Fallimento verifica',
+            accountCreated: 'Account creato',
+            accountUpdated: 'Account aggiornato',
+            securityAudit: 'Audit sicurezza eseguito'
+        },
+
+        // Validazione
+        validation: {
+            required: 'Questo campo è richiesto',
+            emailInvalid: 'Inserisci un indirizzo email valido',
+            urlInvalid: 'Inserisci un URL valido',
+            phoneInvalid: 'Inserisci un numero di telefono valido',
+            passwordWeak:
+                'La password deve contenere almeno 8 caratteri con maiuscole, minuscole e numeri',
+            minLength: 'Lunghezza minima è {min} caratteri',
+            maxLength: 'Lunghezza massima è {max} caratteri',
+            minValue: 'Valore minimo è {min}',
+            maxValue: 'Valore massimo è {max}',
+            validInput: 'Input valido'
+        },
+
+        // Menu contestuale
+        contextMenu: {
+            exportSettings: 'Esporta impostazioni',
+            importSettings: 'Importa impostazioni',
+            resetToDefault: 'Ripristina valori predefiniti',
+            proMessage:
+                '💎 Gli utenti Pro possono esportare e importare le loro impostazioni'
+        }
+    },
+
+    // Modali e notifiche
+    modals: {
+        success: 'Successo',
+        error: 'Errore',
+        warning: 'Avviso',
+        info: 'Informazione',
+        confirm: 'Conferma',
+        cancel: 'Annulla',
+        close: 'Chiudi',
+        loading: 'Caricamento...',
+        saving: 'Salvataggio...',
+        exporting: 'Esportazione...',
+        importing: 'Importazione...',
+        resetting: 'Ripristino...'
+    },
+
+    // Traduzioni AccountManager
+    accountManager: {
+        // Intestazioni e descrizioni
+        pageTitle: 'Gestione account',
+        pageDescription:
+            'Gestisci le tue impostazioni di sicurezza e preferenze account',
+        welcomeBack: 'Bentornato, {name}! 👋',
+        welcomeDescription:
+            'Pronto a creare password emoji incredibili? Il tuo account è sicuro e pronto!',
+        verificationTitle: '📧 Controlla la tua email e verifica',
+        verificationDescription:
+            'Controlla la tua email {email} e clicca sul link magico per completare la configurazione',
+
+        // Stato account
+        accountStatus: 'Stato account',
+        emailLabel: 'Indirizzo email',
+        nameLabel: 'Il tuo nome',
+        profileDataLabel: 'Dati profilo',
+
+        // Livelli account
+        freeBadge: '✨ GRATIS',
+        proBadge: '💎 PRO',
+        freeDescription: '✨ Sicurezza gratuita',
+        proDescription: '💎 Sicurezza aziendale',
+
+        // Vantaggi
+        benefits: {
+            free: {
+                title: 'Vantaggi GRATIS',
+                dailyGenerations: '5 generazioni sicure giornaliere',
+                dailyGenerationsDesc: "Tecnologia resistente all'IA",
+                decentralizedData: 'Elaborazione dati decentralizzata',
+                decentralizedDataDesc: 'I tuoi dati rimangono privati',
+                webApp: 'Disponibile come app web',
+                webAppDesc: 'Accesso sicuro da ovunque'
+            },
+            pro: {
+                title: 'Vantaggi PRO',
+                unlimitedGenerations: 'Generazioni sicure illimitate',
+                unlimitedGenerationsDesc: 'Nessun limite giornaliero',
+                aiThreatDetection: "Rilevamento minacce alimentato dall'IA",
+                aiThreatDetectionDesc: 'Analisi di sicurezza proattiva',
+                browserExtension: 'Estensione browser (Q4 2025)',
+                browserExtensionDesc: 'Sicurezza ovunque sul web',
+                wordpressPlugin: 'Plugin WordPress (Q4 2025)',
+                wordpressPluginDesc: 'Integra la sicurezza nel tuo sito web'
+            }
+        },
+
+        // Limite giornaliero
+        dailyGenerations: 'Generazioni giornaliere',
+        remainingGenerations: '{remaining} / {limit} rimanenti',
+        canStillGenerate: 'Puoi ancora generare emoji!',
+        limitReached:
+            'Limite giornaliero raggiunto. Passa a PRO per generazioni illimitate.',
+
+        // Statistiche
+        statistics: {
+            storiesGenerated: 'Storie generate',
+            remainingGenerations: 'Generazioni rimanenti'
+        },
+
+        // Azioni
+        actions: {
+            saveSettings: '💾 Salva impostazioni',
+            backToHome: '🏠 Torna alla home',
+            createAccount: '🚀 Crea account {type}',
+            skipAccount: 'Salta account {type}',
+            createMagicLink: '🔐 Crea link magico',
+            sendingMagicLink: '⏳ Invio link magico...',
+            resendMagicLink: '🔄 Reinvia link magico',
+            backToAccountOptions: '← Torna alle opzioni account',
+            addProfileData: '👤 Aggiungi dati profilo',
+            hideProfileData: '👤 Nascondi dati profilo'
+        },
+
+        // Validazione form
+        validation: {
+            invalidEmail: '⚠️ Inserisci un indirizzo email valido',
+            invalidName: '⚠️ Inserisci il tuo nome (minimo 2 caratteri)',
+            requiredField: 'Questo campo è richiesto'
+        },
+
+        // Sezione aiuto
+        help: {
+            title: '💡 Hai bisogno di aiuto?',
+            checkSpam: "• Controlla la cartella spam se non vedi l'email",
+            linkExpires: '• I link magici scadono dopo 15 minuti',
+            requestNewLink:
+                '• Puoi richiedere un nuovo link in qualsiasi momento',
+            noPassword:
+                '• Nessuna password richiesta - clicca semplicemente sul link'
+        },
+
+        // Footer
+        footer: {
+            magicLink: '🔒 Link magico',
+            instantSetup: '⚡ Configurazione istantanea',
+            noSpam: '🎯 Nessuno spam'
+        }
+    },
+
+    // Testi UI generali
+    ui: {
+        save: 'Salva',
+        cancel: 'Annulla',
+        reset: 'Ripristina',
+        export: 'Esporta',
+        import: 'Importa',
+        delete: 'Elimina',
+        edit: 'Modifica',
+        add: 'Aggiungi',
+        remove: 'Rimuovi',
+        search: 'Cerca',
+        filter: 'Filtra',
+        sort: 'Ordina',
+        refresh: 'Aggiorna',
+        back: 'Indietro',
+        next: 'Avanti',
+        previous: 'Precedente',
+        submit: 'Invia',
+        loading: 'Caricamento...',
+        error: 'Errore',
+        success: 'Successo',
+        warning: 'Avviso',
+        info: 'Info'
     }
 };

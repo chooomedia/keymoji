@@ -139,7 +139,7 @@ export function generateAlternateUrls(url) {
     const supportedLanguages = [
         'en',
         'de',
-        'dech',
+        'de-CH',
         'es',
         'nl',
         'it',
@@ -155,21 +155,11 @@ export function generateAlternateUrls(url) {
     ];
 
     return supportedLanguages.map(lang => {
-        // Remove any existing language codes from URL
-        let cleanUrl = url;
-        const pathSegments = url.split('/').filter(segment => segment !== '');
-        const nonLanguageSegments = pathSegments.filter(
-            segment => !supportedLanguages.includes(segment)
-        );
-        cleanUrl =
-            nonLanguageSegments.length > 0
-                ? '/' + nonLanguageSegments.join('/')
-                : '';
-
-        const langPath = `/${lang}${cleanUrl}`;
+        const locale = getLocale(lang);
         return {
             lang,
-            url: `https://keymoji.wtf${langPath}`
+            locale,
+            url: url.replace(/^\/[a-z-]+/, `/${lang}`)
         };
     });
 }
@@ -183,7 +173,7 @@ export function getLocale(lang) {
     const localeMap = {
         en: 'en_US',
         de: 'de_DE',
-        dech: 'de_CH',
+        'de-CH': 'de_CH',
         es: 'es_ES',
         nl: 'nl_NL',
         it: 'it_IT',

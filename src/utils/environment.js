@@ -30,7 +30,24 @@ export function getEnvironment() {
  * @returns {boolean} True if in development mode
  */
 export function isDevelopment() {
-    return getEnvironment() === 'development';
+    // Check NODE_ENV first
+    if (getEnvironment() === 'development') {
+        return true;
+    }
+
+    // Check if running on localhost:8080 (for frontend development)
+    if (typeof window !== 'undefined') {
+        const isLocalhost =
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1';
+        const isPort8080 = window.location.port === '8080';
+
+        if (isLocalhost && isPort8080) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /**

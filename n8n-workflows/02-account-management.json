@@ -9,8 +9,8 @@
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                -352,
-                832
+                -336,
+                848
             ],
             "id": "42215759-58f8-43c9-8135-99e5c4817253",
             "name": "Sticky Note1"
@@ -24,47 +24,9 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                -64,
-                1168
+                -48,
+                1104
             ]
-        },
-        {
-            "parameters": {
-                "httpMethod": "POST",
-                "path": "xn--moji-pb73c-account",
-                "responseMode": "responseNode",
-                "options": {
-                    "responseHeaders": {
-                        "entries": [
-                            {
-                                "name": "Access-Control-Allow-Origin",
-                                "value": "*"
-                            },
-                            {
-                                "name": "Access-Control-Allow-Headers",
-                                "value": "Content-Type, Origin, Accept"
-                            },
-                            {
-                                "name": "Access-Control-Allow-Methods",
-                                "value": "POST, OPTIONS, GET"
-                            },
-                            {
-                                "name": "Access-Control-Allow-Credentials",
-                                "value": "true"
-                            }
-                        ]
-                    }
-                }
-            },
-            "id": "ff47b759-357e-49f3-acfd-1000287d2f0e",
-            "name": "Account Webhook1",
-            "type": "n8n-nodes-base.webhook",
-            "typeVersion": 1,
-            "position": [
-                -288,
-                1168
-            ],
-            "webhookId": "account-webhook"
         },
         {
             "parameters": {
@@ -72,7 +34,8 @@
                     "options": {
                         "caseSensitive": true,
                         "leftValue": "",
-                        "typeValidation": "strict"
+                        "typeValidation": "strict",
+                        "version": 1
                     },
                     "conditions": [
                         {
@@ -94,8 +57,8 @@
             "type": "n8n-nodes-base.if",
             "typeVersion": 2,
             "position": [
-                160,
-                1168
+                176,
+                1104
             ]
         },
         {
@@ -107,8 +70,8 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                368,
-                1072
+                608,
+                896
             ]
         },
         {
@@ -216,8 +179,8 @@
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                592,
-                1072
+                832,
+                896
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -249,8 +212,8 @@
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                368,
-                1264
+                384,
+                1216
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -268,8 +231,8 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                592,
-                1264
+                608,
+                1216
             ]
         },
         {
@@ -281,8 +244,8 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                816,
-                1264
+                608,
+                1056
             ]
         },
         {
@@ -296,8 +259,8 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                816,
-                1072
+                1056,
+                896
             ]
         },
         {
@@ -311,8 +274,8 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1040,
-                1264
+                1056,
+                1216
             ]
         },
         {
@@ -326,9 +289,92 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1040,
-                1072
+                1056,
+                1056
             ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Extract email from request body\nconst email = $input.first().json.email;\nconst name = $input.first().json.name || '';\nconst userId = $input.first().json.userId || '';\n\n// Validate email - more lenient validation\nif (!email || typeof email !== 'string' || email.length < 3) {\n  return {\n    json: {\n      success: false,\n      error: 'Invalid email address',\n      exists: false\n    }\n  };\n}\n\n// For now, we'll simulate account check\n// In production, this would query a database\nconst mockAccounts = [\n  { email: 'test@example.com', name: 'Test User', userId: 'user_123', tier: 'free' },\n  { email: 'admin@keymoji.wtf', name: 'Admin User', userId: 'user_456', tier: 'pro' }\n];\n\nconst existingAccount = mockAccounts.find(account => account.email.toLowerCase() === email.toLowerCase());\n\nif (existingAccount) {\n  return {\n    json: {\n      success: true,\n      exists: true,\n      account: existingAccount,\n      message: 'Account found'\n    }\n  };\n} else {\n  return {\n    json: {\n      success: true,\n      exists: false,\n      message: 'No account found'\n    }\n  };\n}"
+            },
+            "id": "9cbbf108-ef7c-4393-936a-03a2daf6592a",
+            "name": "Check Account",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                608,
+                1376
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json }}",
+                "options": {}
+            },
+            "id": "b1ab15de-05e1-4daf-9df5-1bc50abfef2f",
+            "name": "Respond",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1056,
+                1376
+            ]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "account-check",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "df911719-977d-43c9-8fcb-7b0bf5ccb62e",
+            "name": "CHECK Account",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -272,
+                1376
+            ],
+            "webhookId": "11b71124-242f-4f83-85c6-34ea46afb9bb"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-account",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS, GET"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Credentials",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "ff47b759-357e-49f3-acfd-1000287d2f0e",
+            "name": "CREATE Account",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -272,
+                1104
+            ],
+            "webhookId": "account-webhook"
         }
     ],
     "connections": {
@@ -337,17 +383,6 @@
                 [
                     {
                         "node": "Route by Action5",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Account Webhook1": {
-            "main": [
-                [
-                    {
-                        "node": "Validate Data",
                         "type": "main",
                         "index": 0
                     }
@@ -366,6 +401,11 @@
                 [
                     {
                         "node": "Read Accounts1",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Update Account1",
                         "type": "main",
                         "index": 0
                     }
@@ -421,6 +461,39 @@
                 [
                     {
                         "node": "Update Response1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Check Account": {
+            "main": [
+                [
+                    {
+                        "node": "Respond",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "CHECK Account": {
+            "main": [
+                [
+                    {
+                        "node": "Check Account",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "CREATE Account": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Data",
                         "type": "main",
                         "index": 0
                     }

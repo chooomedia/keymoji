@@ -5,6 +5,7 @@ import { writable, get, derived } from 'svelte/store';
 import { STORAGE_KEYS, storageHelpers } from '../config/storage.js';
 import { appVersion, formatVersion } from '../utils/version.js';
 import { isDevelopment, devLog, devWarn } from '../utils/environment.js';
+import { initializeAccountFromCookies } from './accountStore.js';
 
 // Stores für Content und Sprache
 export const currentLanguage = writable(
@@ -117,7 +118,8 @@ export const translations = derived(
                 contactForm: fallbackContent.contactForm,
                 donateButton: fallbackContent.donateButton,
                 notFound: fallbackContent.notFound,
-                versions: fallbackContent.versions
+                versions: fallbackContent.versions,
+                accountManager: fallbackContent.accountManager
             };
         }
 
@@ -131,7 +133,9 @@ export const translations = derived(
             donateButton:
                 currentContent.donateButton || fallbackContent.donateButton,
             notFound: currentContent.notFound || fallbackContent.notFound,
-            versions: currentContent.versions || fallbackContent.versions
+            versions: currentContent.versions || fallbackContent.versions,
+            accountManager:
+                currentContent.accountManager || fallbackContent.accountManager
         };
     }
 );
@@ -236,25 +240,46 @@ const fallbackContent = {
     versions: {
         currentVersion: formatVersion(),
         lastUpdated: 'Last updated: 2023-10-27'
+    },
+    accountManager: {
+        title: 'Account Manager',
+        subtitle: 'Manage your Keymoji account',
+        emailLabel: 'Your email address',
+        passwordLabel: 'Your password',
+        loginButton: 'Login',
+        registerButton: 'Register',
+        forgotPasswordLink: 'Forgot password?',
+        loginErrorMessage: 'Invalid email or password.',
+        registerErrorMessage: 'Email already in use.',
+        successMessage: 'Account created successfully!',
+        logoutButton: 'Logout',
+        profileTitle: 'My Profile',
+        profileSubtitle: 'Update your personal information',
+        nameLabel: 'Your name',
+        emailPlaceholder: 'Enter your email',
+        passwordPlaceholder: 'Enter your password',
+        confirmPasswordLabel: 'Confirm password',
+        updateProfileButton: 'Update Profile',
+        deleteAccountButton: 'Delete Account',
+        deleteAccountConfirmation:
+            'Are you sure you want to delete your account? This action cannot be undone.',
+        deleteAccountSuccess: 'Your account has been deleted.',
+        deleteAccountError: 'Failed to delete account.',
+        backToMainButton: 'Back to main page'
     }
 };
 
 // Cache für geladene Sprachen
 const loadedLanguages = new Set();
 
+// Cache für geladene Sprachmodule
+const languageModuleCache = new Map();
+
 /**
  * Lädt Content für eine Sprache
  */
 export async function loadLanguage(lang) {
     devLog('🔄 contentStore: loadLanguage called with:', lang);
-
-    // Prüfe Cache
-    if (loadedLanguages.has(lang)) {
-        devLog(`✅ contentStore: Language ${lang} already loaded`);
-        currentLanguage.set(lang);
-        storageHelpers.set(STORAGE_KEYS.LANGUAGE, lang);
-        return;
-    }
 
     devLog('🔄 contentStore: Setting loading state...');
     isLoading.set(true);
@@ -266,32 +291,52 @@ export async function loadLanguage(lang) {
             '🔄 contentStore: Trying to import: ../data/languages/${lang}.js'
         );
 
-        // Dynamischer Import der Sprachdatei mit Error-Handling
+        // Prüfe Cache zuerst
         let module;
-        try {
-            module = await import(`../data/languages/${lang}.js`);
-            devLog('✅ contentStore: Module imported successfully');
-        } catch (importError) {
-            devWarn(
-                `❌ contentStore: Failed to import ${lang}.js:`,
-                importError
-            );
-            devWarn(`⚠️ contentStore: Trying fallback to English`);
+        if (languageModuleCache.has(lang)) {
+            devLog('✅ contentStore: Using cached module for:', lang);
+            module = languageModuleCache.get(lang);
+        } else {
+            // Dynamischer Import der Sprachdatei mit Error-Handling
+            try {
+                module = await import(`../data/languages/${lang}.js`);
+                devLog('✅ contentStore: Module imported successfully');
 
-            // Fallback auf Englisch wenn Import fehlschlägt
-            if (lang !== 'en') {
-                try {
-                    module = await import(`../data/languages/en.js`);
-                    devLog('✅ contentStore: English fallback loaded');
-                } catch (fallbackError) {
-                    devWarn(
-                        '❌ contentStore: Even English fallback failed:',
-                        fallbackError
-                    );
-                    throw fallbackError;
+                // Cache das Modul
+                languageModuleCache.set(lang, module);
+                devLog('✅ contentStore: Module cached for:', lang);
+            } catch (importError) {
+                devWarn(
+                    `❌ contentStore: Failed to import ${lang}.js:`,
+                    importError
+                );
+                devWarn(`⚠️ contentStore: Trying fallback to English`);
+
+                // Fallback auf Englisch wenn Import fehlschlägt
+                if (lang !== 'en') {
+                    try {
+                        if (languageModuleCache.has('en')) {
+                            module = languageModuleCache.get('en');
+                            devLog(
+                                '✅ contentStore: Using cached English fallback'
+                            );
+                        } else {
+                            module = await import(`../data/languages/en.js`);
+                            languageModuleCache.set('en', module);
+                            devLog(
+                                '✅ contentStore: English fallback loaded and cached'
+                            );
+                        }
+                    } catch (fallbackError) {
+                        devWarn(
+                            '❌ contentStore: Even English fallback failed:',
+                            fallbackError
+                        );
+                        throw fallbackError;
+                    }
+                } else {
+                    throw importError;
                 }
-            } else {
-                throw importError;
             }
         }
 
@@ -322,6 +367,14 @@ export async function loadLanguage(lang) {
         devLog('🔍 contentStore: Sample translations:');
         devLog('- header.pageTitle:', languageContent.header?.pageTitle);
         devLog('- index.pageTitle:', languageContent.index?.pageTitle);
+        devLog(
+            '- contactForm.pageTitle:',
+            languageContent.contactForm?.pageTitle
+        );
+        devLog(
+            '- contactForm.pageDescription:',
+            languageContent.contactForm?.pageDescription
+        );
     } catch (err) {
         devWarn(`❌ contentStore: Failed to load language ${lang}:`, err);
         error.set(err.message);
@@ -344,7 +397,7 @@ export function isLanguageSupported(lang) {
     return [
         'en',
         'de',
-        'dech',
+        'de-CH',
         'es',
         'nl',
         'it',
@@ -422,22 +475,36 @@ export async function changeLanguage(lang) {
     devLog('🔄 contentStore: changeLanguage called with:', lang);
 
     if (!isLanguageSupported(lang)) {
-        devWarn(`❌ contentStore: Language ${lang} is not supported`);
-        return false;
+        devWarn(`❌ contentStore: Language ${lang} not supported`);
+        return;
     }
 
-    // Sofort die Sprache setzen für UI-Reaktivität
-    currentLanguage.set(lang);
-    storageHelpers.set(STORAGE_KEYS.LANGUAGE, lang);
+    try {
+        // Immer neu laden, auch wenn bereits geladen
+        await loadLanguage(lang);
 
-    devLog('🔄 contentStore: Loading language:', lang);
-    await loadLanguage(lang);
+        // Zusätzliche Validierung der Reaktivität
+        const currentContent = get(content);
+        devLog('🔄 contentStore: Content after language change:', {
+            language: lang,
+            contentKeys: currentContent
+                ? Object.keys(currentContent)
+                : 'no content',
+            hasContactForm: currentContent?.contactForm ? 'yes' : 'no',
+            hasAccountManager: currentContent?.accountManager ? 'yes' : 'no',
+            contactFormKeys: currentContent?.contactForm
+                ? Object.keys(currentContent.contactForm)
+                : 'no contactForm'
+        });
 
-    // URL synchronisieren
-    syncUrlWithLanguage();
+        // URL synchronisieren
+        syncUrlWithLanguage();
 
-    devLog('✅ contentStore: Language loaded successfully:', lang);
-    return true;
+        devLog(`✅ contentStore: Language changed to ${lang} successfully`);
+    } catch (error) {
+        devWarn('❌ contentStore: Error changing language:', error);
+        error.set(error.message);
+    }
 }
 
 /**
@@ -474,7 +541,7 @@ export function syncUrlWithLanguage() {
     const languageCodes = [
         'en',
         'de',
-        'dech',
+        'de-CH',
         'es',
         'nl',
         'it',
@@ -503,9 +570,12 @@ export function syncUrlWithLanguage() {
                     ? '/' + nonLanguageSegments.join('/')
                     : ''
             }`;
+            // Preserve query parameters for magic link verification
+            const queryString = window.location.search;
+            const fullPath = queryString ? `${newPath}${queryString}` : newPath;
             if (window.location.pathname !== newPath) {
-                window.history.replaceState(null, '', newPath);
-                devLog('🔄 contentStore: URL synchronized to:', newPath);
+                window.history.replaceState(null, '', fullPath);
+                devLog('🔄 contentStore: URL synchronized to:', fullPath);
             }
         } else if (currentLang === 'en') {
             // Store hat 'en' - URL ohne Sprachpräfix
@@ -513,9 +583,12 @@ export function syncUrlWithLanguage() {
                 nonLanguageSegments.length > 0
                     ? '/' + nonLanguageSegments.join('/')
                     : '/';
+            // Preserve query parameters for magic link verification
+            const queryString = window.location.search;
+            const fullPath = queryString ? `${newPath}${queryString}` : newPath;
             if (window.location.pathname !== newPath) {
-                window.history.replaceState(null, '', newPath);
-                devLog('🔄 contentStore: URL synchronized to root:', newPath);
+                window.history.replaceState(null, '', fullPath);
+                devLog('🔄 contentStore: URL synchronized to root:', fullPath);
             }
         } else if (pathSegments[0] && languageCodes.includes(pathSegments[0])) {
             // URL hat eine gültige Sprache - Store anpassen (nur wenn nicht bereits gesetzt)

@@ -12,10 +12,10 @@ const routes = [
 ];
 
 // Unterstützte Sprachen
-const languages = [
+const supportedLanguages = [
     'en',
     'de',
-    'dech',
+    'de-CH',
     'es',
     'nl',
     'it',
@@ -42,7 +42,7 @@ function generateSitemap() {
 
     // Generiere URLs für jede Route und Sprache
     routes.forEach(route => {
-        languages.forEach(lang => {
+        supportedLanguages.forEach(lang => {
             const url =
                 route.path === '/'
                     ? `${baseUrl}/${lang}`
@@ -57,7 +57,7 @@ function generateSitemap() {
     <priority>${route.priority}</priority>`;
 
             // Füge hreflang-Links hinzu
-            languages.forEach(altLang => {
+            supportedLanguages.forEach(altLang => {
                 const altUrl =
                     route.path === '/'
                         ? `${baseUrl}/${altLang}`
@@ -191,8 +191,8 @@ function generateSitemapAndRobots() {
 
     console.log('🎉 Sitemap and robots.txt generation completed!');
     console.log(
-        `📊 Generated ${routes.length * languages.length} URLs for ${
-            languages.length
+        `📊 Generated ${routes.length * supportedLanguages.length} URLs for ${
+            supportedLanguages.length
         } languages`
     );
 }

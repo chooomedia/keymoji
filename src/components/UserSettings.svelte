@@ -1,39 +1,79 @@
 <!-- src/components/UserSettings.svelte -->
 <script>
-    import { slide } from 'svelte/transition';
     import { onMount } from 'svelte';
-    import ModularInput from './UI/ModularInput.svelte';
-    import { loadContent } from '../utils/contentLoader.js';
+    import { fade, slide } from 'svelte/transition';
+    import { currentLanguage, translations } from '../stores/contentStore.js';
+    import { accountTier } from '../stores/appStores.js';
     import { 
-        currentSettings, 
+        userSettings, 
+        pendingChanges, 
+        hasUnsavedChanges, 
+        settingsStatus,
         updateSetting, 
-        resetSettings,
-        exportSettings,
-        importSettings,
-        runSecurityAudit
+        saveAllSettings, 
+        discardChanges,
+        getEffectiveValue
     } from '../stores/userSettingsStore.js';
-    import { accountTier, isLoggedIn } from '../stores/appStores.js';
-    import { showSuccess, showError, showInfo } from '../stores/modalStore.js';
-
-    // Accordion state - only one section open at a time
-    let activeSection = 'basic';
-
-    // File input for import
-    let fileInput;
-
-    // Context menu state
-    let showContextMenu = false;
-    let contextMenuPosition = { x: 0, y: 0 };
-
-    // Settings configuration
-    let settingsConfig = {};
+    import ModularInput from './UI/ModularInput.svelte';
+    import Modal from './UI/Modal.svelte';
+    import { showSuccess, showError, showWarning, showModal } from '../stores/modalStore.js';
 
     // Load settings configuration
+    let settingsConfig = {};
+    let activeSection = 'basic';
+    let showProModal = false;
+    let proFeatureName = '';
+    let proFeatureDescription = '';
+
+    // Check if user is pro - optimiert mit $: um zu viele Aufrufe zu vermeiden
+    $: isProUser = $accountTier === 'pro';
+
+    // Helper function to get localized text
+    function getLocalizedText(textObj, fallback = '') {
+        return textObj?.[$currentLanguage] || textObj?.en || fallback;
+    }
+
+    // Get effective value for a setting (includes pending changes) - optimiert
+    function getCurrentValue(item) {
+        return getEffectiveValue(item.id) ?? item.defaultValue;
+    }
+
+    // Get available sections based on user tier - optimiert mit $:
+    $: availableSections = Object.values(settingsConfig.sections || {}).filter(section => {
+        // Show all sections for pro users
+        if (isProUser) return true;
+        
+        // For free users, only show sections without proItems or with empty proItems
+        return !section.proItems || section.proItems.length === 0;
+    });
+
+    // Debug logging for reactivity
+    $: if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        console.log('🔄 UserSettings: availableSections updated:', availableSections);
+        console.log('🔄 UserSettings: isProUser:', isProUser);
+        console.log('🔄 UserSettings: settingsConfig:', settingsConfig);
+    }
+
+    // Track if user is trying to leave the page
+    let isLeavingPage = false;
+
+    // Handle page leave attempts
+    function handlePageLeaveAttempt() {
+        if ($hasUnsavedChanges && !isLeavingPage) {
+            isLeavingPage = true;
+            handlePageLeave();
+        }
+    }
+
     async function loadSettingsConfig() {
         try {
-            settingsConfig = await loadContent('userSettings.json');
+            console.log('🔄 UserSettings: Loading settings config...');
+            // Import the settings config directly instead of fetching
+            const configModule = await import('../data/userSettings.json');
+            settingsConfig = configModule.default;
+            console.log('✅ UserSettings: Settings config loaded:', settingsConfig);
         } catch (error) {
-            console.error('Failed to load settings configuration:', error);
+            console.error('❌ UserSettings: Failed to load settings config:', error);
             // Fallback configuration
             settingsConfig = {
                 sections: {
@@ -62,218 +102,302 @@
         }
     }
 
-    // Toggle section visibility (accordion style)
-    function toggleSection(section) {
-        activeSection = activeSection === section ? null : section;
-    }
-
-    // Handle setting update
     function handleSettingUpdate(key, value) {
         updateSetting(key, value);
-        showSuccess(`Setting updated: ${key}`, 2000);
     }
 
-    // Handle settings reset
-    function handleResetSettings() {
-        resetSettings();
-        showSuccess('Settings reset to default', 3000);
-        closeContextMenu();
+    function handleSaveSettings() {
+        // Show save modal with loading state
+        showModal('Do you want to save your changes?', 'info', {
+            primaryButton: {
+                text: 'Save Changes',
+                action: async () => {
+                    try {
+                        // Set loading state
+                        settingsStatus.update(status => ({ ...status, isSaving: true }));
+                        
+                        // Save settings
+                        await saveAllSettings();
+                        
+                        // Show success message
+                        showSuccess('Settings saved successfully!', 3000);
+                        
+                        // Reset loading state
+                        settingsStatus.update(status => ({ ...status, isSaving: false }));
+                        
+                    } catch (error) {
+                        // Show error message
+                        showError('Failed to save settings: ' + error.message, 5000);
+                        
+                        // Reset loading state
+                        settingsStatus.update(status => ({ ...status, isSaving: false }));
+                    }
+                }
+            },
+            secondaryButton: {
+                text: 'Cancel',
+                action: () => {
+                    // Just close the modal
+                }
+            }
+        });
     }
 
-    // Handle settings export
-    function handleExportSettings() {
-        try {
-            exportSettings();
-            showSuccess('Settings exported successfully', 3000);
-        } catch (error) {
-            showError('Failed to export settings', 3000);
+    function handleDiscardChanges() {
+        showModal('Are you sure you want to discard all changes?', 'warning', {
+            primaryButton: {
+                text: 'Discard Changes',
+                action: () => {
+                    discardChanges();
+                    showWarning('Changes discarded', 2000);
+                }
+            },
+            secondaryButton: {
+                text: 'Cancel',
+                action: () => {
+                    // Just close the modal
+                }
+            }
+        });
+    }
+
+    // Function for page leave confirmation
+    function handlePageLeave() {
+        if ($hasUnsavedChanges) {
+            showModal('Do you want to save your changes?', 'info', {
+                primaryButton: {
+                    text: 'Save Changes',
+                    action: async () => {
+                        try {
+                            // Set loading state
+                            settingsStatus.update(status => ({ ...status, isSaving: true }));
+                            
+                            // Save settings
+                            await saveAllSettings();
+                            
+                            // Show success message
+                            showSuccess('Settings saved successfully!', 3000);
+                            
+                            // Reset loading state
+                            settingsStatus.update(status => ({ ...status, isSaving: false }));
+                            
+                            // Allow page leave after save
+                            window.history.back();
+                            
+                        } catch (error) {
+                            // Show error message
+                            showError('Failed to save settings: ' + error.message, 5000);
+                            
+                            // Reset loading state
+                            settingsStatus.update(status => ({ ...status, isSaving: false }));
+                        }
+                    }
+                },
+                secondaryButton: {
+                    text: 'Leave Without Saving',
+                    action: () => {
+                        // Allow page leave without saving
+                        window.history.back();
+                    }
+                }
+            });
+            return false; // Prevent default navigation
         }
-        closeContextMenu();
+        return true; // Allow navigation
     }
 
-    // Handle settings import
-    function handleImportSettings(event) {
-        const file = event.target.files[0];
-        if (file) {
-            importSettings(file)
-                .then(() => {
-                    showSuccess('Settings imported successfully', 3000);
-                })
-                .catch((error) => {
-                    showError(`Import failed: ${error.message}`, 3000);
-                });
-        }
-        closeContextMenu();
-    }
-
-    // Handle security audit
-    function handleSecurityAudit() {
-        try {
-            const audit = runSecurityAudit();
-            showInfo(`Security Score: ${audit.overallScore}/100`, 4000);
-        } catch (error) {
-            showError('Security audit failed', 3000);
-        }
-        closeContextMenu();
-    }
-
-    // Trigger file input
-    function triggerFileInput() {
-        fileInput.click();
-    }
-
-    // Context menu functions
-    function toggleContextMenu(event) {
-        event.stopPropagation();
-        showContextMenu = !showContextMenu;
-        if (showContextMenu) {
-            const rect = event.currentTarget.getBoundingClientRect();
-            contextMenuPosition = {
-                x: rect.left,
-                y: rect.bottom + 8
-            };
-        }
-    }
-
-    function closeContextMenu() {
-        showContextMenu = false;
-    }
-
-    // Close context menu when clicking outside
-    function handleClickOutside(event) {
-        if (showContextMenu && !event.target.closest('.context-menu')) {
-            closeContextMenu();
-        }
-    }
-
-    // Check if user is pro
-    $: isProUser = $accountTier === 'pro';
-
-    // Helper function to get localized text
-    function getLocalizedText(textObj, fallback = '') {
-        return textObj?.en || fallback;
-    }
-
-    // Get current value for a setting with fallback to default
-    function getCurrentValue(item) {
-        const currentValue = $currentSettings[item.id];
-        if (currentValue !== undefined && currentValue !== null) {
-            return currentValue;
-        }
-        return item.defaultValue;
-    }
-
-    // Get available sections based on user tier
-    $: availableSections = Object.values(settingsConfig.sections || {}).filter(section => {
-        // Show all sections for pro users
-        if (isProUser) return true;
+    function handleProFeature(featureName, featureDescription) {
+        proFeatureName = featureName;
+        proFeatureDescription = featureDescription;
+        showProModal = true;
         
-        // For free users, only show sections without proItems or with empty proItems
-        return !section.proItems || section.proItems.length === 0;
-    });
+        // Show pro feature modal using the enhanced Modal component
+        showModal('Pro Feature', 'pro-feature', null, {
+            featureName: featureName,
+            featureDescription: featureDescription,
+            onUpgrade: handleProModalUpgrade
+        });
+    }
 
-    onMount(() => {
-        loadSettingsConfig();
-        // Add global click listener
-        document.addEventListener('click', handleClickOutside);
-        
+    function handleProModalUpgrade() {
+        // Handle upgrade action
+        showSuccess('Redirecting to Pro upgrade...', 3000);
+        // Add your upgrade logic here
+        showProModal = false;
+    }
+
+    function handleProModalClose() {
+        showProModal = false;
+    }
+
+    function toggleSection(sectionId) {
+        activeSection = activeSection === sectionId ? null : sectionId;
+    }
+
+    onMount(async () => {
+        console.log('🔄 UserSettings: Component mounting...');
+        await loadSettingsConfig();
+        console.log('✅ UserSettings: Component mounted with config:', settingsConfig);
+
+        // Add beforeunload event listener for page leave confirmation
+        const handleBeforeUnload = (event) => {
+            if ($hasUnsavedChanges) {
+                event.preventDefault();
+                event.returnValue = '';
+                handlePageLeaveAttempt();
+                return '';
+            }
+        };
+
+        // Add keyboard shortcut for saving (Ctrl+S)
+        const handleKeydown = (event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+                event.preventDefault();
+                if ($hasUnsavedChanges) {
+                    handleSaveSettings();
+                }
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('keydown', handleKeydown);
+
+        // Cleanup on component destroy
         return () => {
-            document.removeEventListener('click', handleClickOutside);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('keydown', handleKeydown);
         };
     });
 </script>
 
-<div class="w-full max-w-4xl mx-auto">
-    <!-- Settings Accordion -->
-    <div class="space-y-3">
+<div class="user-settings">
+    <!-- Header -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+            {getLocalizedText($translations?.userSettings?.title, 'User Settings')}
+        </h2>
+    </div>
+
+    <!-- Settings Sections -->
+    <div class="space-y-4">
         {#each availableSections as section}
-            <div class="w-full text-left px-4 rounded-lg bg-gray-200 dark:bg-aubergine-950 transition-colors">
+            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <!-- Section Header -->
                 <button
-                    class="w-full flex py-4 items-center justify-between transition-all duration-300 ease-out"
                     on:click={() => toggleSection(section.id)}
+                    class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-3">
                         <span class="text-xl">{section.icon}</span>
-                        <div class="justify-start text-left">
-                            <h3 class="font-semibold text-gray-900 dark:text-white text-md">
+                        <div class="text-left">
+                            <h3 class="font-semibold text-gray-900 dark:text-white">
                                 {getLocalizedText(section.title)}
                             </h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
                                 {getLocalizedText(section.description)}
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <svg class="w-5 h-5 text-gray-400 transition-all duration-300 ease-out {activeSection === section.id ? 'rotate-180' : 'rotate-0'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </div>
+                    <svg 
+                        class="w-5 h-5 text-gray-400 transition-all duration-300 ease-out {activeSection === section.id ? 'rotate-180' : 'rotate-0'}" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
                 </button>
-                
+
+                <!-- Section Content -->
                 {#if activeSection === section.id}
-                    <div class="space-y-6 pb-4" transition:slide={{ duration: 400 }}>
-                        <!-- Regular items -->
-                        {#each section.items || [] as item}
-                            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="px-6 pb-4" transition:slide={{ duration: 300 }}>
+                        <!-- Regular Items -->
+                        {#each section.items as item}
+                            <div class="mb-4 last:mb-0">
                                 <ModularInput
                                     config={{
-                                        id: item.id,
                                         type: item.type,
+                                        id: item.id,
                                         icon: item.icon,
                                         label: item.title,
                                         description: item.description,
-                                        defaultValue: item.defaultValue,
-                                        color: item.color,
-                                        options: item.options,
+                                        placeholder: item.placeholder,
+                                        value: getCurrentValue(item),
+                                        options: item.options?.map(opt => ({
+                                            value: opt.value,
+                                            label: opt.label
+                                        })) || [],
                                         min: item.min,
                                         max: item.max,
-                                        validation: item.validation,
-                                        buttonText: item.buttonText,
-                                        action: item.action
+                                        labels: item.labels,
+                                        defaultValue: item.defaultValue,
+                                        class: 'contact-input'
                                     }}
-                                    currentLanguage="en"
+                                    currentLanguage={$currentLanguage}
                                     currentValue={getCurrentValue(item)}
                                     onValueChange={(value) => handleSettingUpdate(item.id, value)}
-                                    onAction={(action) => {
-                                        if (action === 'securityAudit') {
-                                            handleSecurityAudit();
-                                        }
-                                    }}
                                 />
                             </div>
                         {/each}
 
-                        <!-- Pro-only items -->
-                        {#if isProUser && section.proItems}
-                            {#each section.proItems as item}
-                                <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-4 border-purple-500">
-                                    <ModularInput
-                                        config={{
-                                            id: item.id,
-                                            type: item.type,
-                                            icon: item.icon,
-                                            label: item.title,
-                                            description: item.description,
-                                            defaultValue: item.defaultValue,
-                                            color: item.color,
-                                            options: item.options,
-                                            min: item.min,
-                                            max: item.max,
-                                            validation: item.validation,
-                                            buttonText: item.buttonText,
-                                            action: item.action
-                                        }}
-                                        currentLanguage="en"
-                                        currentValue={getCurrentValue(item)}
-                                        onValueChange={(value) => handleSettingUpdate(item.id, value)}
-                                        onAction={(action) => {
-                                            if (action === 'securityAudit') {
-                                                handleSecurityAudit();
-                                            }
-                                        }}
-                                    />
-                                </div>
-                            {/each}
+                        <!-- Pro Items (only for pro users or as preview for free users) -->
+                        {#if section.proItems}
+                            {#if isProUser}
+                                {#each section.proItems as item}
+                                    <div class="mb-4 last:mb-0">
+                                        <ModularInput
+                                            config={{
+                                                type: item.type,
+                                                id: item.id,
+                                                icon: item.icon,
+                                                label: item.title,
+                                                description: item.description,
+                                                placeholder: item.placeholder,
+                                                value: getCurrentValue(item),
+                                                options: item.options?.map(opt => ({
+                                                    value: opt.value,
+                                                    label: opt.label
+                                                })) || [],
+                                                min: item.min,
+                                                max: item.max,
+                                                labels: item.labels,
+                                                defaultValue: item.defaultValue,
+                                                class: 'contact-input'
+                                            }}
+                                            currentLanguage={$currentLanguage}
+                                            currentValue={getCurrentValue(item)}
+                                            onValueChange={(value) => handleSettingUpdate(item.id, value)}
+                                        />
+                                    </div>
+                                {/each}
+                            {:else}
+                                {#each section.proItems as item}
+                                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-4 border-purple-500 opacity-60">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-3">
+                                                <span class="text-xl">{item.icon}</span>
+                                                <div>
+                                                    <h4 class="font-medium text-gray-900 dark:text-white">
+                                                        {getLocalizedText(item.title)}
+                                                    </h4>
+                                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                                        {getLocalizedText(item.description)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                on:click={() => handleProFeature(
+                                                    getLocalizedText(item.title),
+                                                    getLocalizedText(item.description)
+                                                )}
+                                                class="px-3 py-1 text-sm text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 rounded hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
+                                            >
+                                                Try Pro Feature
+                                            </button>
+                                        </div>
+                                    </div>
+                                {/each}
+                            {/if}
                         {/if}
                     </div>
                 {/if}
@@ -281,68 +405,6 @@
         {/each}
     </div>
 
-    <!-- Hidden file input -->
-    <input
-        bind:this={fileInput}
-        type="file"
-        accept=".json"
-        on:change={handleImportSettings}
-        class="hidden"
-    />
+    <!-- Global Modal -->
+    <Modal />
 </div>
-
-<style>
-    /* Custom slider styling */
-    .slider {
-        -webkit-appearance: none;
-        appearance: none;
-        background: transparent;
-        cursor: pointer;
-    }
-
-    .slider::-webkit-slider-track {
-        background: #e5e7eb;
-        height: 8px;
-        border-radius: 4px;
-    }
-
-    .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        background: #3b82f6;
-        height: 20px;
-        width: 20px;
-        border-radius: 50%;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .slider::-moz-range-track {
-        background: #e5e7eb;
-        height: 8px;
-        border-radius: 4px;
-        border: none;
-    }
-
-    .slider::-moz-range-thumb {
-        background: #3b82f6;
-        height: 20px;
-        width: 20px;
-        border-radius: 50%;
-        cursor: pointer;
-        border: none;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Smooth transitions */
-    * {
-        transition: all 0.2s ease-in-out;
-    }
-
-    /* Focus styles */
-    button:focus, select:focus, input:focus {
-        outline: none;
-        ring: 2px;
-        ring-color: #3b82f6;
-    }
-</style> 

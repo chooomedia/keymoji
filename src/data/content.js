@@ -239,9 +239,10 @@ export const contentTemplate = {
         newsletterLabel: 'Yes, I would like to subscribe to the newsletter',
         emailText: {
             greeting: 'Welcome',
-            intro: 'Thank you for sending a message 📩!',
             confirmationText:
-                'Please confirm your request so that Christopher knows that you are not a smart bot. You sent a message with the following Data:'
+                'Please confirm your request so Christopher knows you are not an intelligent bot. You sent a message with the following data:',
+            doubleCheck: 'We received your message with the following details:',
+            button: 'Confirm your email'
         }
     },
     serviceWorker: {

@@ -15,15 +15,29 @@
         userProfile, 
         accountTier,
         successfulStoryRequests,
-        isDisabled,
-        translations,
-        currentLanguage
+        isDisabled
     } from '../stores/appStores.js';
-    import { loginWithMagicLink, isLoggingIn, loginError, createAccount } from '../stores/accountStore.js';
+    import { translations, currentLanguage } from '../stores/contentStore.js';
+    import { 
+        loginWithMagicLink, 
+        isLoggingIn, 
+        loginError, 
+        createAccount, 
+        initializeAccountFromCookies, 
+        logout,
+        hasExistingUserPreferences,
+        hasValidUserSession,
+        getUserEmailFromPreferences,
+        verifyMagicLinkFrontend
+    } from '../stores/accountStore.js';
     import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore.js';
     import { currentSettings, resetSettings, exportSettings, importSettings } from '../stores/userSettingsStore.js';
     import { WEBHOOKS } from '../config/api.js';
+    import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
     import UserSettings from '../components/UserSettings.svelte';
+    import { get } from 'svelte/store';
+    import ContextMenu from '../components/UI/ContextMenu.svelte';
+    import { isDevelopment } from '../utils/environment.js';
 
     // Toggle state
     let showBenefitsToggle = 'free';
@@ -36,6 +50,21 @@
     let accountCreationStep = 'benefits'; // 'benefits', 'form', 'verification'
     let selectedAccountType = 'free'; // 'free', 'pro'
     let showAdvancedOptions = false;
+
+    // Session management
+    let accountExists = false;
+    let checkingAccount = false;
+    let sessionExpired = false;
+    let hasValidSession = false;
+    
+    // Return user view state
+    let hasLoggedInBefore = false;
+    let shouldShowSimplifiedView = false;
+
+    // Magic Link verification state
+    let isVerifyingMagicLink = false;
+    let magicLinkStatus = null; // 'verifying', 'success', 'error'
+    let magicLinkError = '';
 
     // Context menu state
     let showContextMenu = false;
@@ -58,12 +87,16 @@
         return email.split('@')[0] || 'User';
     }
 
+    function anonymizeEmail(email) {
+		const [local, domain] = email.split('@');
+		if (!local || !domain) return email;
+
+		const stars = '*'.repeat(Math.floor(Math.random() * 4) + 2); // 2–5 Sterne
+		return `${local[0]}${stars}@${domain}`;
+	}
+
     function validateEmail(email) {
         return EMAIL_REGEX.test(email);
-    }
-
-    function inputClasses(isValid) {
-        return `contact-input ${isValid ? 'border-green-400 focus:ring-green-500' : 'border-red-400 focus:ring-red-500'}`;
     }
 
     function getRemainingGenerations() {
@@ -75,6 +108,54 @@
     function navigateToHome() {
         navigate('/', { replace: true });
     }
+    
+    // Return user view functions
+    function checkUserLoginHistory() {
+        const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
+        const loggedIn = get(isLoggedIn);
+        console.log('🔍 Login history check:', {
+            history: history,
+            loggedIn: loggedIn,
+            hasHistory: !!(history && history.email),
+            shouldShow: !!(history && history.email && !loggedIn)
+        });
+
+        if (history && history.email && !loggedIn) {
+            hasLoggedInBefore = true;
+            shouldShowSimplifiedView = true;
+            email = history.email;
+            console.log('👤 Return user erkannt:', history.email);
+            console.log('👤 shouldShowSimplifiedView:', shouldShowSimplifiedView);
+        } else {
+            hasLoggedInBefore = false;
+            shouldShowSimplifiedView = false;
+            console.log('👤 Kein Return user');
+            console.log('👤 shouldShowSimplifiedView:', shouldShowSimplifiedView);
+        }
+    }
+    
+    function markSuccessfulLogin(email) {
+        if (!email) return;
+        const existingHistory = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY, { count: 0 });
+        const history = {
+            email,
+            lastLogin: new Date().toISOString(),
+            count: existingHistory.count + 1
+        };
+        storageHelpers.set(STORAGE_KEYS.LOGIN_HISTORY, history);
+        console.log('✅ Login history gesetzt:', history);
+    }
+    
+    // Intelligent button text based on user state
+    $: intelligentButtonText = (() => {
+        if (isSubmitting) {
+            return $translations?.accountManager?.buttons?.sendingMagicLink || 'Sending...';
+        }
+        if (hasLoggedInBefore) {
+            return $translations?.accountManager?.buttons?.loginAgain || '🔐 Erneut einloggen';
+        }
+        return $translations?.accountManager?.buttons?.createMagicLink || 'Create Magic Link';
+    })();
 
     function selectAccountType(type) {
         selectedAccountType = type;
@@ -88,6 +169,12 @@
             accountCreationStep = 'benefits';
         }
     }
+    
+    function startAccountCreationForReturnUser() {
+        // For return users, skip benefits and go directly to form
+        accountCreationStep = 'form';
+        shouldShowSimplifiedView = false;
+    }
 
     function goBackToBenefits() {
         accountCreationStep = 'benefits';
@@ -98,12 +185,20 @@
         event.stopPropagation();
         showContextMenu = !showContextMenu;
         if (showContextMenu) {
-            const rect = event.currentTarget.getBoundingClientRect();
-            contextMenuPosition = {
-                x: rect.left,
-                y: rect.bottom + 8
-            };
+            contextMenuPosition = { x: event.clientX, y: event.clientY };
         }
+    }
+
+    // Debug-Logging für Reaktivität - nur in Development
+    $: if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        console.log('🔄 AccountManager: Language changed to:', $currentLanguage);
+        console.log('🔄 AccountManager: Translations updated:', {
+            pageTitle: $translations?.accountManager?.pageTitle,
+            pageDescription: $translations?.accountManager?.pageDescription,
+            welcomeBack: $translations?.accountManager?.welcomeBack,
+            freeDescription: $translations?.accountManager?.freeDescription,
+            proDescription: $translations?.accountManager?.proDescription
+        });
     }
 
     function closeContextMenu() {
@@ -155,9 +250,28 @@
         fileInput.click();
     }
 
+    // Handle logout
+    function handleLogout() {
+        logout();
+        sessionExpired = false;
+        hasValidSession = false;
+        accountExists = false;
+        // Reset return user view state
+        hasLoggedInBefore = false;
+        shouldShowSimplifiedView = false;
+        showSuccess('Successfully logged out', 3000);
+        closeContextMenu();
+        
+        // Route zur Startseite nach Logout
+        setTimeout(() => {
+            navigateToHome();
+        }, 1000);
+    }
+
     async function handleLogin(event) {
         event.preventDefault();
         isSubmitting = true;
+        checkingAccount = true;
 
         try {
             // Create account first if it's a new user
@@ -170,7 +284,20 @@
                 );
             }
 
-            await loginWithMagicLink(email, name);
+            // Determine if we're in development mode
+            const isDevMode = isDevelopment();
+            
+            console.log('🔧 Development mode detected:', isDevMode);
+
+            const loginResult = await loginWithMagicLink(email, name, isDevMode);
+            
+            // Log the API response
+            if (loginResult?.result?.isDevMode !== undefined) {
+                console.log('🔧 Backend dev mode confirmation:', loginResult.result.isDevMode);
+            }
+            
+            // Mark successful login for return user tracking
+            markSuccessfulLogin(email);
             
             // Show success message
             showSuccess('Magic link sent! Check your email to complete account creation.', 5000);
@@ -182,6 +309,7 @@
             showError('Failed to send magic link. Please try again.', 5000);
         } finally {
             isSubmitting = false;
+            checkingAccount = false;
         }
     }
 
@@ -189,19 +317,121 @@
         handleLogin(new Event('submit'));
     }
 
-    onMount(() => {
-        // Initialize with current account data if available
-        if ($currentAccount?.email) {
-            email = $currentAccount.email;
-            name = $currentAccount.name || '';
+    onMount(async () => {
+        try {
+            // Initialize account from cookies
+            console.log('🔐 AccountManager: Initializing account from cookies...');
+            const accountRestored = await initializeAccountFromCookies();
+            console.log('🔐 AccountManager: Account restoration result:', accountRestored);
+            
+            // Check for magic link verification - this works for both direct URL access and new tabs
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token') || urlParams.get('t'); // Support both long and short parameter
+            const magicLinkEmail = urlParams.get('email') || urlParams.get('e'); // Support both long and short parameter
+            const isDevMode = urlParams.get('dev') === 'true';
+            
+            // Debug: Log all URL parameters
+            console.log('🔍 All URL parameters:', {
+                search: window.location.search,
+                href: window.location.href,
+                pathname: window.location.pathname,
+                hash: window.location.hash
+            });
+            
+            // Debug: Log all search params
+            for (const [key, value] of urlParams.entries()) {
+                console.log(`🔍 URL param: ${key} = ${value}`);
+            }
+            
+            console.log('🔍 URL Parameters check:', {
+                search: window.location.search,
+                token: token,
+                email: magicLinkEmail,
+                isDevMode: isDevMode,
+                pathname: window.location.pathname
+            });
+            
+            // Handle magic link with language prefix redirect
+            if (token && magicLinkEmail) {
+                console.log('🔗 Magic link verification detected:', { token, email: magicLinkEmail, isDevMode });
+                
+                // Check if we're on a language-prefixed route (e.g., /de/account)
+                const currentPath = window.location.pathname;
+                const pathSegments = currentPath.split('/').filter(segment => segment !== '');
+                const hasLanguagePrefix = pathSegments.length > 1 && pathSegments[0] && pathSegments[1] === 'account';
+                
+                console.log('🔍 Route analysis:', {
+                    currentPath: currentPath,
+                    pathSegments: pathSegments,
+                    hasLanguagePrefix: hasLanguagePrefix,
+                    currentLanguage: get(currentLanguage)
+                });
+                
+                // If we're on /account (without language prefix), redirect to /de/account (or current language)
+                if (currentPath === '/account') {
+                    const currentLang = get(currentLanguage);
+                    const redirectPath = `/${currentLang}/account?t=${token}&e=${magicLinkEmail}${isDevMode ? '&dev=true' : ''}`;
+                    console.log('🔄 Redirecting magic link to language-prefixed route:', redirectPath);
+                    navigate(redirectPath, { replace: true });
+                    return; // Exit early, let the redirect handle the verification
+                }
+                
+                // If we're already on a language-prefixed route, proceed with verification
+                if (hasLanguagePrefix || currentPath === '/account') {
+                    console.log('✅ Proceeding with magic link verification');
+                    isVerifyingMagicLink = true;
+                    magicLinkStatus = 'verifying';
+                    
+                    try {
+                        await verifyMagicLinkFrontend(token, magicLinkEmail);
+                        magicLinkStatus = 'success';
+                        showSuccess('Magic Link erfolgreich verifiziert!', 3000);
+                        
+                        // Clean up URL parameters but keep the account page
+                        const newUrl = window.location.pathname;
+                        window.history.replaceState({}, '', newUrl);
+                        console.log('🧹 URL parameters cleaned up:', newUrl);
+                        
+                        // Update the account view to show logged-in state
+                        checkSessionStatus();
+                        
+                    } catch (error) {
+                        console.error('❌ Magic link verification failed:', error);
+                        magicLinkStatus = 'error';
+                        magicLinkError = error.message || 'Verifikation fehlgeschlagen';
+                        showError('Magic Link Verifikation fehlgeschlagen', 5000);
+                    } finally {
+                        isVerifyingMagicLink = false;
+                    }
+                } else {
+                    console.log('❌ Invalid route for magic link verification:', currentPath);
+                }
+            } else {
+                console.log('🔍 No magic link parameters found in URL');
+            }
+            
+            // Check session status
+            checkSessionStatus();
+            
+            // Check user login history for return user view
+            checkUserLoginHistory();
+            
+            // Initialize with current account data if available
+            if ($currentAccount?.email) {
+                email = $currentAccount.email;
+                name = $currentAccount.name || '';
+            }
+            
+            // Add global click listener for context menu
+            document.addEventListener('click', handleClickOutside);
+            
+            return () => {
+                document.removeEventListener('click', handleClickOutside);
+            };
+            
+        } catch (error) {
+            console.error('❌ AccountManager onMount error:', error);
         }
-        
-        // Add global click listener for context menu
-        document.addEventListener('click', handleClickOutside);
-        
-        return () => {
-            document.removeEventListener('click', handleClickOutside);
-        };
     });
 
     // Reactive statement to show error as modal
@@ -209,6 +439,97 @@
         showError($loginError, 5000);
     }
 
+    // Check if user has a valid session
+    function checkSessionStatus() {
+        const account = get(currentAccount);
+        const loggedIn = get(isLoggedIn);
+        
+        // Check localStorage-based session first
+        const hasExistingPrefs = hasExistingUserPreferences();
+        const localStorageValidSession = hasValidUserSession();
+        const userEmailFromPrefs = getUserEmailFromPreferences();
+        
+        console.log('🔍 Session status check:', {
+            hasExistingPrefs,
+            localStorageValidSession,
+            userEmailFromPrefs,
+            currentAccount: account,
+            isLoggedIn: loggedIn
+        });
+        
+        if (hasExistingPrefs && localStorageValidSession && userEmailFromPrefs) {
+            hasValidSession = true;
+            sessionExpired = false;
+            
+            // Pre-fill email if available
+            if (!email && userEmailFromPrefs) {
+                email = userEmailFromPrefs;
+            }
+        } else if (hasExistingPrefs && !localStorageValidSession) {
+            // User has preferences but session expired
+            sessionExpired = true;
+            hasValidSession = false;
+            
+            // Pre-fill email if available
+            if (!email && userEmailFromPrefs) {
+                email = userEmailFromPrefs;
+            }
+        } else {
+            // No existing preferences
+            hasValidSession = false;
+            sessionExpired = false;
+        }
+        
+        // Fallback to cookie-based session if no localStorage data
+        if (account && loggedIn && !hasExistingPrefs) {
+            hasValidSession = true;
+            // Check if session is expired (7 days)
+            const lastLogin = new Date(account.lastLogin || 0);
+            const now = new Date();
+            const daysSinceLogin = (now - lastLogin) / (1000 * 60 * 60 * 24);
+            
+            if (daysSinceLogin > 7) {
+                sessionExpired = true;
+                hasValidSession = false;
+            }
+        }
+    }
+
+    // Get dynamic button text based on state
+    $: loginButtonText = (() => {
+        if (isSubmitting) {
+            return $translations?.accountManager?.buttons?.sendingMagicLink || 'Sending...';
+        }
+        if (checkingAccount) {
+            return $translations?.accountManager?.buttons?.checkAccountExists || 'Checking...';
+        }
+        if (accountExists) {
+            return $translations?.accountManager?.buttons?.accountExists || 'Account found...';
+        }
+        if (sessionExpired) {
+            return $translations?.accountManager?.buttons?.sessionExpired || 'Session expired';
+        }
+        if (hasValidSession) {
+            return $translations?.accountManager?.buttons?.loginToAccount || 'Login to Account';
+        }
+        return $translations?.accountManager?.buttons?.createMagicLink || 'Create Magic Link';
+    })();
+
+    // Context menu actions
+    function handleExport() {
+        // Export functionality
+        console.log('Export clicked');
+    }
+
+    function handleImport() {
+        // Import functionality
+        console.log('Import clicked');
+    }
+
+    function handleReset() {
+        // Reset functionality
+        console.log('Reset clicked');
+    }
 
 </script>
 
@@ -229,26 +550,47 @@
 
             <!-- Main Heading -->
             <div class="w-11/12 md:w-26r flex flex-wrap justify-center" role="banner">
-                {#if $isLoggedIn}
+                {#if isVerifyingMagicLink}
                     <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                        Welcome back, {$userProfile?.name || $currentAccount?.name || 'User'}! 👋
+                        🔗 Verifiziere Magic Link...
                     </h1>
                     <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                        Ready to create some amazing emoji passwords? Your account is secure and ready to go!
+                        Bitte warte, während wir deinen Account verifizieren.
+                    </p>
+                {:else if magicLinkStatus === 'error'}
+                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
+                        ❌ Verifikation Fehlgeschlagen
+                    </h1>
+                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
+                        {magicLinkError}
+                    </p>
+                {:else if $isLoggedIn}
+                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
+                        {$translations?.accountManager?.welcomeBack?.replace('{name}', $userProfile?.name || $currentAccount?.name || 'User') || 'Welcome back, User! 👋'}
+                    </h1>
+                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
+                        {$translations?.accountManager?.welcomeDescription || 'Ready to create some amazing emoji passwords? Your account is secure and ready to go!'}
                     </p>
                 {:else if accountCreationStep === 'verification'}
                     <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                        📧 Check Your Email and Verify
+                        {$translations?.accountManager?.verificationTitle || '📧 Check Your Email and Verify'}
                     </h1>
                     <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                        {@html `Check your email <strong>${email}</strong> and click the magic link to complete setup`}
+                        {@html ($translations?.accountManager?.verificationDescription || 'Check your email {email} and click the magic link to complete setup').replace('{email}', email)}
+                    </p>
+                {:else if shouldShowSimplifiedView}
+                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
+                        👋 Willkommen zurück!
+                    </h1>
+                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
+                        Wir haben deine E-Mail-Adresse erkannt. Logge dich schnell wieder ein.
                     </p>
                 {:else}
                     <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                        Account Management
+                        {$translations?.accountManager?.pageTitle || 'Account Management'}
                     </h1>
                     <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                        Manage your security settings and account preferences
+                        {$translations?.accountManager?.pageDescription || 'Manage your security settings and account preferences'}
                     </p>
                 {/if}
             </div>
@@ -267,11 +609,9 @@
                             <div class="flex items-center gap-2">
                                 <!-- PRO Badge -->
                                 <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold {$accountTier === 'pro' ? 'dark:text-white bg-purple-700' : 'dark:text-white bg-yellow-700'}" >
-                                    {$accountTier === 'pro' ? '💎 PRO' : '✨ FREE'}
+                                    {$accountTier === 'pro' ? ($translations?.accountManager?.proBadge || '💎 PRO') : ($translations?.accountManager?.freeBadge || '✨ FREE')}
                                 </span>
 
-                                <!-- Context Menu Button (only for Pro users) -->
-                                {#if isProUser}
                                 <div class="relative context-menu">
                                     <button
                                         on:click={toggleContextMenu}
@@ -311,16 +651,25 @@
                                                 
                                                 <button
                                                     on:click={handleResetSettings}
-                                                    class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center"
+                                                    class="w-full text-left px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors flex items-center"
                                                 >
                                                     <span class="mr-2">🔄</span>
                                                     Reset to Default
+                                                </button>
+                                                
+                                                <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                                                
+                                                <button
+                                                    on:click={handleLogout}
+                                                    class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center"
+                                                >
+                                                    <span class="mr-2">🚪</span>
+                                                    Logout
                                                 </button>
                                             </div>
                                         </div>
                                     {/if}
                                 </div>
-                                {/if}
                             </div>
                         </div>
 
@@ -328,10 +677,10 @@
                         <div class="bg-powder-300 dark:bg-aubergine-900 rounded-xl p-4 mb-5">
                             <div class="flex justify-between items-center mb-3">
                                 <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                                    Daily Generations
+                                    {$translations?.accountManager?.dailyGenerations || 'Daily Generations'}
                                 </span>
                                 <span class="text-lg font-bold text-yellow-600 dark:text-yellow-400">
-                                    {getRemainingGenerations()} / {$dailyLimit?.limit || 5} remaining
+                                    {($translations?.accountManager?.remainingGenerations || '{remaining} / {limit} remaining').replace('{remaining}', getRemainingGenerations()).replace('{limit}', $dailyLimit?.limit || 5)}
                                 </span>
                             </div>
                             <div class="w-full bg-gray-300 dark:bg-aubergine-600 rounded-full h-3 mb-2">
@@ -341,7 +690,7 @@
                                 ></div>
                             </div>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                {getRemainingGenerations() > 0 ? 'You can still generate emojis!' : 'Daily limit reached. Upgrade to PRO for unlimited generations.'}
+                                {getRemainingGenerations() > 0 ? ($translations?.accountManager?.canStillGenerate || 'You can still generate emojis!') : ($translations?.accountManager?.limitReached || 'Daily limit reached. Upgrade to PRO for unlimited generations.')}
                             </p>
                         </div>
 
@@ -349,10 +698,10 @@
                         <div class="grid grid-cols-2 gap-4 mb-6">
                             <div class="text-center p-4 bg-powder-300 dark:bg-aubergine-900 rounded-xl">
                                 <div class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                                    {$successfulStoryRequests || 0}
+                                    0
                                 </div>
                                 <div class="text-sm font-medium text-blue-800 dark:text-blue-200">
-                                    Stories Generated
+                                    {$translations?.accountManager?.statistics?.storiesGenerated || 'Stories Generated'}
                                 </div>
                             </div>
                             <div class="text-center p-4 bg-powder-300 dark:bg-aubergine-900 rounded-xl">
@@ -360,7 +709,7 @@
                                     {$accountTier === 'pro' ? '∞' : getRemainingGenerations()}
                                 </div>
                                 <div class="text-sm font-medium text-green-800 dark:text-green-200">
-                                    Remaining Generations
+                                    {$translations?.accountManager?.statistics?.remainingGenerations || 'Remaining Generations'}
                                 </div>
                             </div>
                         </div>
@@ -377,8 +726,7 @@
                                 on:click={() => showSuccess('Settings saved successfully!', 3000)}
                                 class="btn btn-primary btn-md rounded-full w-full"
                             >
-                                <span class="text-xl">💾</span>
-                                Save Settings
+                                {$translations?.accountManager?.actions?.saveSettings || '💾 Save Settings'}
                             </button>
                             
                             <!-- Secondary Action: Back to Home -->
@@ -388,8 +736,7 @@
                                 class="btn btn-secondary btn-md rounded-full w-full"
                                 aria-label="Back to home"
                             >
-                                <span class="text-xl">🏠</span>
-                                Back to Home
+                                {$translations?.accountManager?.actions?.backToHome || '🏠 Back to Home'}
                             </button>
                             {/if}
                         </div>
@@ -434,8 +781,47 @@
                             </div>
                         </div>
                     </div>
+                {:else if shouldShowSimplifiedView}
+                    <!-- Return User Simplified Form -->
+                    <div class="p-4">
+                        <!-- Pro upgrade hint -->
+                        <div class="bg-creme-600 dark:bg-aubergine-900 rounded-xl p-4 mb-6 border border-purple-200 dark:border-purple-700">
+                            <div class="flex items-center justify-center space-x-2 mb-2">
+                                <span class="text-purple-600 dark:text-purple-400">💎</span>
+                                <span class="font-semibold text-purple-800 dark:text-purple-200">
+                                    Upgrade auf PRO
+                                </span>
+                            </div>
+                            <p class="text-sm text-purple-700 dark:text-purple-300">
+                                Unbegrenzte Generierungen und erweiterte Sicherheitsfeatures
+                            </p>
+                        </div>
+
+                        <!-- Login form -->
+                        <form on:submit|preventDefault={handleLogin} class="space-y-4">
+                            <button
+                                type="submit"
+                                disabled={isSubmitting || !isEmailValid}
+                                class="btn btn-primary btn-md rounded-full w-full flex flex-col items-center justify-center"
+                            >
+                                <span>{intelligentButtonText}</span>
+                                <span class="text-sm">
+                                    ({anonymizeEmail(email)})
+                                </span>
+                            </button>
+                            
+                            <!-- Alternative actions -->
+                            <button
+                                type="button"
+                                on:click={() => shouldShowSimplifiedView = false}
+                                class="btn btn-secondary btn-sm rounded-full w-full"
+                            >
+                                Vollständiges Formular anzeigen
+                            </button>
+                        </form>
+                    </div>
                 {:else}
-                    <!-- Benefits Toggle -->
+                    <!-- Account Creation Flow -->
                     <div class="p-4">
                         <div class="relative h-20 bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-inner p-2 overflow-hidden mb-4">
                             <div
@@ -451,7 +837,7 @@
                                         FREE
                                     </span>
                                     <span class="text-sm transition-colors duration-300 text-gray-700 dark:text-gray-200">
-                                        ✨ Kostenlose Sicherheit
+                                        {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
                                     </span>
                                 </button>
                                 <button
@@ -462,7 +848,7 @@
                                         PRO
                                     </span>
                                     <span class="text-sm transition-colors duration-300 text-gray-500 dark:text-gray-500">
-                                        💎 Enterprise Security
+                                        {$translations?.accountManager?.proDescription || '💎 Enterprise Security'}
                                     </span>
                                 </button>
                             </div>
@@ -478,8 +864,8 @@
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">✓</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">5 tägliche sichere Generierungen</span>
-                                            <p class="text-gray-600 dark:text-gray-400">KI-resistente Technologie</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.dailyGenerations || '5 tägliche sichere Generierungen'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.dailyGenerationsDesc || 'KI-resistente Technologie'}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -487,8 +873,8 @@
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">🔒</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">Denzentrale Datenverabeitung</span>
-                                            <p class="text-gray-600 dark:text-gray-400">Deine Daten bleiben privat</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.decentralizedData || 'Denzentrale Datenverabeitung'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.decentralizedDataDesc || 'Deine Daten bleiben privat'}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -496,8 +882,8 @@
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">📱</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">Als Webapp nutzbar</span>
-                                            <p class="text-gray-600 dark:text-gray-400">Sicherer Zugriff von überall</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.webApp || 'Als Webapp nutzbar'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.webAppDesc || 'Sicherer Zugriff von überall'}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -511,8 +897,8 @@
                                             <span class="text-purple-600 dark:text-purple-400 text-2xl">∞</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">Unbegrenzte sichere Generierungen</span>
-                                            <p class="text-gray-600 dark:text-gray-400">Keine täglichen Limits</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerations || 'Unbegrenzte sichere Generierungen'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerationsDesc || 'Keine täglichen Limits'}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -520,8 +906,8 @@
                                             <span class="text-purple-600 dark:text-purple-400 text-2xl">🧠</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">KI-gestützte Bedrohungserkennung</span>
-                                            <p class="text-gray-600 dark:text-gray-400">Proaktive Sicherheitsanalyse</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.aiThreatDetection || 'KI-gestützte Bedrohungserkennung'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.aiThreatDetectionDesc || 'Proaktive Sicherheitsanalyse'}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -529,8 +915,8 @@
                                             <span class="text-purple-600 dark:text-purple-400 text-2xl">🌐</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">Browser-Erweiterung (Q4 2025)</span>
-                                            <p class="text-gray-600 dark:text-gray-400">Sicherheit überall im Web</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.browserExtension || 'Browser-Erweiterung (Q4 2025)'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.browserExtensionDesc || 'Sicherheit überall im Web'}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -538,8 +924,8 @@
                                             <span class="text-purple-600 dark:text-purple-400 text-2xl">📝</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">WordPress-Plugin (Q4 2025)</span>
-                                            <p class="text-gray-600 dark:text-gray-400">Sicherheit in deine Website integrieren</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.wordpressPlugin || 'WordPress-Plugin (Q4 2025)'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.wordpressPluginDesc || 'Sicherheit in deine Website integrieren'}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -552,61 +938,61 @@
                                 on:click={startAccountCreation}
                                 class="btn btn-primary btn-md rounded-full"
                             >
-                                <span class="mr-2">🚀</span>
                                 {#if accountCreationStep === 'form'}
-                                   Auf {selectedAccountType === 'pro' ? 'PRO' : 'FREE'} verzichten
+                                   {($translations?.accountManager?.actions?.skipAccount || 'Auf {type} verzichten').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
                                 {:else}
-                                    {selectedAccountType === 'pro' ? 'PRO' : 'FREE'} Account anlegen
+                                    {($translations?.accountManager?.actions?.createAccount || '🚀 {type} Account anlegen').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
                                 {/if}
                             </button>
                         </div>
 
                         <!-- Login Form -->
-                        {#if accountCreationStep === 'form'}
-                        <div class="bg-transparent mb-8">      
-                            <form on:submit={handleLogin} class="space-y-4">
+                        <div class="bg-transparent mb-2">      
+                            <form on:submit|preventDefault={handleLogin} class="space-y-4">
                                 <div>
-                                    <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                        Email Address
-                                    </label>
+                                    <label for="email" class="sr-only">{$translations?.accountManager?.emailLabel || 'Email'}</label>
                                     <input
                                         id="email"
                                         type="email"
                                         bind:value={email}
-                                        class={inputClasses(isEmailValid)}
-                                        placeholder="📧 your@email.com"
+                                        placeholder={$translations?.accountManager?.emailLabel || 'Email'}
+                                        class="contact-input"
                                         required
+                                        disabled={isSubmitting}
                                     />
                                 </div>
 
                                 {#if showProfileForm}
-                                <div>
-                                    <label for="name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                        Your Name
-                                    </label>
-                                    <input
-                                        id="name"
-                                        type="text"
-                                        bind:value={name}
-                                        class={inputClasses(isNameValid)}
-                                        placeholder="Your Name"
-                                        required
-                                    />
-                                </div>
+                                    <div>
+                                        <label for="name" class="sr-only">{$translations?.accountManager?.nameLabel || 'Name'}</label>
+                                        <input
+                                            id="name"
+                                            type="text"
+                                            bind:value={name}
+                                            placeholder={$translations?.accountManager?.nameLabel || 'Name'}
+                                            class="contact-input"
+                                            required
+                                            disabled={isSubmitting}
+                                        />
+                                    </div>
                                 {/if}
 
-                            <div class="flex flex-col gap-4 justify-center">
                                 <button
                                     type="submit"
-                                    class="btn btn-primary py-4 {(!isFormValid || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''}"
+                                    class="btn-primary btn-md w-full {isSubmitting ? 'opacity-75 cursor-wait' : ''}"
                                     disabled={isSubmitting || !isFormValid}
+                                    aria-label={loginButtonText}
                                 >
                                     {#if isSubmitting}
-                                        <span class="animate-spin mr-1">⏳</span>
-                                        Sending Magic-Link...
+                                        <span class="flex items-center justify-center">
+                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            {loginButtonText}
+                                        </span>
                                     {:else}
-                                        <span class="mr-1">🔐</span>
-                                        Create Magic-Link
+                                        {loginButtonText}
                                     {/if}
                                 </button>
                                 
@@ -628,31 +1014,22 @@
                                     >
                                     <span class="mr-1.5">👤</span>{showProfileForm ? 'Hide' : 'Add'} Profile Data
                                 </button>
-                            </div>
                             </form>
-
-                            {#if $loginError}
-                            <!-- Error will be shown as modal via reactive statement -->
-                            {/if}
                         </div>
-                        {/if}
+                    </div>
 
-                        <!-- Footer -->
-                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                            <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-                                <span class="flex items-center">
-                                    <span class="text-green-500 mr-2">🔒</span>
-                                    Magic link
-                                </span>
-                                <span class="flex items-center">
-                                    <span class="text-blue-500 mr-2">⚡</span>
-                                    Instant Setup
-                                </span>
-                                <span class="flex items-center">
-                                    <span class="text-purple-500 mr-2">🎯</span>
-                                    No Spam
-                                </span>
-                            </div>
+                    <!-- Footer -->
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                            <span class="flex items-center">
+                                {$translations?.accountManager?.footer?.magicLink || 'Magic link'}
+                            </span>
+                            <span class="flex items-center">
+                                {$translations?.accountManager?.footer?.instantSetup || 'Instant Setup'}
+                            </span>
+                            <span class="flex items-center">
+                                {$translations?.accountManager?.footer?.noSpam || 'No Spam'}
+                            </span>
                         </div>
                     </div>
                 {/if}

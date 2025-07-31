@@ -10,10 +10,10 @@ const {
 } = require('../src/utils/seo.js');
 
 // Language configurations
-const languages = [
+const supportedLanguages = [
     'en',
     'de',
-    'dech',
+    'de-CH',
     'es',
     'nl',
     'it',
@@ -126,7 +126,7 @@ function updateIndexHtml() {
 function createRouteFiles() {
     const buildDir = path.join(__dirname, '../build');
 
-    languages.forEach(lang => {
+    supportedLanguages.forEach(lang => {
         routes.forEach(route => {
             const routePath = route === '/' ? '' : route;
             const dir = path.join(buildDir, lang, routePath);

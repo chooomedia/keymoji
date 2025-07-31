@@ -19,6 +19,7 @@ export const STORAGE_KEYS = {
     // User-Präferenzen
     USER_PREFERENCES: 'keymoji_user_preferences',
     RECENT_EMOJIS: 'keymoji_recent_emojis',
+    LOGIN_HISTORY: 'keymoji_login_history',
 
     // Cache-Daten
     CACHE_PREFIX: 'keymoji_cache_',
@@ -77,6 +78,17 @@ export const storageHelpers = {
             }
         }
         keysToRemove.forEach(key => localStorage.removeItem(key));
+    },
+
+    // Alle localStorage Daten löschen
+    clearAll: () => {
+        try {
+            localStorage.clear();
+            return true;
+        } catch (error) {
+            console.warn('Failed to clear localStorage:', error);
+            return false;
+        }
     }
 };
 

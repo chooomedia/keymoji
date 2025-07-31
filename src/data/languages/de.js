@@ -101,7 +101,8 @@ export default {
             emailInvalid: 'Ungültige E-Mail',
             messageRequired: 'Nachricht erforderlich',
             messageLength: 'Mindestens {min} Zeichen'
-        }
+        },
+        autoFilledLabel: 'Automatisch aus deinem Konto ausgefüllt'
     },
     serviceWorker: {
         updateAvailable: 'Eine neue Version ist verfügbar!',
@@ -173,5 +174,398 @@ export default {
         pageTitle: 'Versionsverlauf',
         pageDescription:
             'Entwicklungshistorie und Changelog von Keymoji, dem Emoji-Passwort-Generator.'
+    },
+
+    // UserSettings Übersetzungen
+    userSettings: {
+        // Grundlegende Einstellungen
+        basicSettings: {
+            title: 'Grundeinstellungen',
+            description: 'Sprache, Theme und Benachrichtigungen',
+            language: {
+                label: 'Sprache',
+                description: 'Wähle deine bevorzugte Sprache',
+                options: {
+                    en: '🇺🇸 Englisch',
+                    de: '🇩🇪 Deutsch',
+                    fr: '🇫🇷 Französisch',
+                    es: '🇪🇸 Spanisch'
+                }
+            },
+            theme: {
+                label: 'Theme',
+                description: 'Wähle dein visuelles Theme',
+                options: {
+                    auto: '🔄 Auto',
+                    light: '☀️ Hell',
+                    dark: '🌙 Dunkel'
+                }
+            },
+            notifications: {
+                label: 'Benachrichtigungen',
+                description: 'Wichtige Updates erhalten'
+            }
+        },
+
+        // Sicherheitseinstellungen
+        securitySettings: {
+            title: 'Sicherheitseinstellungen',
+            description: 'Passwortstärke und Zeichentypen',
+            passwordLength: {
+                label: 'Passwortlänge',
+                description: 'Passwortstärke wählen',
+                min: 'Schwach (6)',
+                max: 'Stark (20)'
+            },
+            includeNumbers: {
+                label: 'Zahlen einschließen',
+                description: 'Numerische Zeichen hinzufügen (0-9)'
+            },
+            includeSymbols: {
+                label: 'Symbole einschließen',
+                description: 'Sonderzeichen hinzufügen (!@#$%^&*)'
+            },
+            includeSpecialChars: {
+                label: 'Sonderzeichen einschließen',
+                description: 'Erweiterte Sonderzeichen hinzufügen'
+            },
+            excludeSimilarChars: {
+                label: 'Ähnliche Zeichen ausschließen',
+                description: 'Verwirrende Zeichen vermeiden (l, 1, I)'
+            },
+            requireUniqueChars: {
+                label: 'Eindeutige Zeichen erforderlich',
+                description: 'Keine wiederholten Zeichen im Passwort'
+            }
+        },
+
+        // Emoji-Einstellungen
+        emojiSettings: {
+            title: 'Emoji-Einstellungen',
+            description: 'Emoji-Anzahl, Kategorien und Muster',
+            emojiCount: {
+                label: 'Emoji-Anzahl',
+                description: 'Anzahl der Emojis im Passwort',
+                min: 'Min (3)',
+                max: 'Max (10)'
+            },
+            emojiPattern: {
+                label: 'Emoji-Muster',
+                description: 'Emoji-Anordnung wählen',
+                options: {
+                    random: 'Zufällig',
+                    sequential: 'Sequenziell',
+                    alternating: 'Wechselnd'
+                }
+            },
+            emojiTheme: {
+                label: 'Emoji-Theme',
+                description: 'Emoji-Stil wählen',
+                options: {
+                    mixed: 'Gemischt',
+                    cute: 'Süß',
+                    professional: 'Professionell',
+                    fantasy: 'Fantasy'
+                }
+            }
+        },
+
+        // Generierungseinstellungen
+        generationSettings: {
+            title: 'Generierungseinstellungen',
+            description: 'Auto-Generierung und Zwischenablage-Optionen',
+            autoGenerate: {
+                label: 'Auto-Generierung',
+                description: 'Passwörter automatisch generieren'
+            },
+            copyToClipboard: {
+                label: 'In Zwischenablage kopieren',
+                description: 'Generierte Passwörter automatisch kopieren'
+            },
+            showStrength: {
+                label: 'Stärke anzeigen',
+                description: 'Passwortstärke-Meter anzeigen'
+            },
+            strengthThreshold: {
+                label: 'Stärke-Schwelle',
+                description: 'Minimale erforderliche Passwortstärke',
+                options: {
+                    low: 'Niedrig',
+                    medium: 'Mittel',
+                    high: 'Hoch'
+                }
+            },
+            autoRefresh: {
+                label: 'Auto-Aktualisierung',
+                description: 'Schwache Passwörter automatisch neu generieren'
+            }
+        },
+
+        // Datenschutz-Einstellungen
+        privacySettings: {
+            title: 'Datenschutz-Einstellungen',
+            description: 'Datensammlung und Sharing-Präferenzen',
+            saveHistory: {
+                label: 'Verlauf speichern',
+                description: 'Generierte Passwörter lokal speichern'
+            },
+            analytics: {
+                label: 'Analytics',
+                description: 'Anonyme Nutzungsstatistiken'
+            },
+            shareUsage: {
+                label: 'Nutzung teilen',
+                description: 'Nutzungsdaten für Verbesserungen teilen'
+            },
+            exportHistory: {
+                label: 'Verlauf exportieren',
+                description: 'Passwortverlauf in Datei exportieren'
+            },
+            backupSettings: {
+                label: 'Einstellungen sichern',
+                description: 'Einstellungen automatisch sichern'
+            }
+        },
+
+        // Pro-Features
+        proFeatures: {
+            title: 'Pro-Features',
+            description: 'Erweiterte Einstellungen und Premium-Features',
+            securityAudit: {
+                label: 'Sicherheits-Audit',
+                description: 'Umfassende Sicherheitsanalyse',
+                buttonText: 'Audit starten'
+            },
+            breachCheck: {
+                label: 'Datenleck-Prüfung',
+                description: 'Passwörter gegen bekannte Datenlecks prüfen'
+            },
+            strengthAnalytics: {
+                label: 'Stärke-Analytics',
+                description: 'Erweiterte Passwortstärke-Analyse'
+            }
+        }
+    },
+
+    // Accounting und Sicherheit
+    accounting: {
+        // Login und Authentifizierung
+        login: {
+            title: 'Anmelden',
+            emailPlaceholder: 'E-Mail-Adresse eingeben',
+            magicLinkSent: 'Magic Link gesendet!',
+            magicLinkError: 'Fehler beim Senden des Magic Links',
+            verificationSuccess: 'E-Mail erfolgreich verifiziert!',
+            verificationError: 'E-Mail-Verifikation fehlgeschlagen',
+            rateLimitExceeded: 'Zu viele Anmeldeversuche. Bitte warten Sie.',
+            sessionExpired:
+                'Sitzung abgelaufen. Bitte melden Sie sich erneut an.'
+        },
+
+        // Account-Management
+        account: {
+            title: 'Account-Verwaltung',
+            profile: 'Profil',
+            settings: 'Einstellungen',
+            logout: 'Abmelden',
+            logoutSuccess: 'Erfolgreich abgemeldet',
+            accountCreated: 'Account erfolgreich erstellt',
+            accountUpdated: 'Account erfolgreich aktualisiert',
+            accountError: 'Fehler bei der Account-Verwaltung'
+        },
+
+        // Sicherheits-Events
+        security: {
+            loginAttempt: 'Anmeldeversuch',
+            loginSuccess: 'Erfolgreiche Anmeldung',
+            loginFailed: 'Fehlgeschlagene Anmeldung',
+            logout: 'Abmeldung',
+            sessionExpired: 'Sitzung abgelaufen',
+            suspiciousActivity: 'Verdächtige Aktivität',
+            verificationSuccess: 'Verifikation erfolgreich',
+            verificationFailed: 'Verifikation fehlgeschlagen',
+            accountCreated: 'Account erstellt',
+            accountUpdated: 'Account aktualisiert',
+            securityAudit: 'Sicherheits-Audit durchgeführt'
+        },
+
+        // Validierung
+        validation: {
+            required: 'Dieses Feld ist erforderlich',
+            emailInvalid: 'Bitte geben Sie eine gültige E-Mail-Adresse ein',
+            urlInvalid: 'Bitte geben Sie eine gültige URL ein',
+            phoneInvalid: 'Bitte geben Sie eine gültige Telefonnummer ein',
+            passwordWeak:
+                'Passwort muss mindestens 8 Zeichen mit Groß-, Kleinbuchstaben und Zahl enthalten',
+            minLength: 'Mindestlänge ist {min} Zeichen',
+            maxLength: 'Maximallänge ist {max} Zeichen',
+            minValue: 'Mindestwert ist {min}',
+            maxValue: 'Maximalwert ist {max}',
+            validInput: 'Gültige Eingabe'
+        },
+
+        // Context Menu
+        contextMenu: {
+            exportSettings: 'Einstellungen exportieren',
+            importSettings: 'Einstellungen importieren',
+            resetToDefault: 'Auf Standard zurücksetzen',
+            proMessage:
+                '💎 Pro-Nutzer können ihre Einstellungen exportieren und importieren'
+        }
+    },
+
+    // Modals und Benachrichtigungen
+    modals: {
+        success: 'Erfolg',
+        error: 'Fehler',
+        warning: 'Warnung',
+        info: 'Information',
+        confirm: 'Bestätigen',
+        cancel: 'Abbrechen',
+        close: 'Schließen',
+        loading: 'Lädt...',
+        saving: 'Speichern...',
+        exporting: 'Exportieren...',
+        importing: 'Importieren...',
+        resetting: 'Zurücksetzen...'
+    },
+
+    // AccountManager Übersetzungen
+    accountManager: {
+        // Überschriften und Beschreibungen
+        pageTitle: 'Account Manager',
+        pageDescription:
+            'Manage your security settings and account preferences',
+        welcomeBack: 'Welcome back, {name}! 👋',
+        welcomeDescription:
+            'Ready to create some amazing emoji passwords? Your account is secure and ready to go!',
+        verificationTitle: '📧 Check Your Email and Verify',
+        verificationDescription:
+            'Check your email {email} and click the magic link to complete setup',
+
+        // Account Status
+        accountStatus: 'Account Status',
+        emailLabel: 'Email Address',
+        nameLabel: 'Your Name',
+        profileDataLabel: 'Profile Data',
+
+        // Account Tiers
+        freeBadge: '✨ FREE',
+        proBadge: '💎 PRO',
+        freeDescription: '✨ Kostenlose Sicherheit',
+        proDescription: '💎 Enterprise Security',
+
+        // Button Texts
+        buttons: {
+            createMagicLink: '✨ Magic Link erstellen',
+            loginToAccount: '👤 In Konto einloggen',
+            checkAccountExists: '🔄 Konto prüfen...',
+            sendingMagicLink: '🔄 Magic Link wird gesendet...',
+            accountExists: '✅ Konto gefunden - Einloggen...',
+            accountNotFound: '🚫 Konto nicht gefunden - Erstellen...',
+            sessionExpired: '🔄 Erneut anmelden',
+            loginAgain: '🔄 Erneut anmelden',
+            createNewAccount: '👤 Neues Konto erstellen'
+        },
+
+        // Benefits
+        benefits: {
+            free: {
+                title: 'FREE Benefits',
+                dailyGenerations: '5 tägliche sichere Generierungen',
+                dailyGenerationsDesc: 'KI-resistente Technologie',
+                decentralizedData: 'Denzentrale Datenverabeitung',
+                decentralizedDataDesc: 'Deine Daten bleiben privat',
+                webApp: 'Als Webapp nutzbar',
+                webAppDesc: 'Sicherer Zugriff von überall'
+            },
+            pro: {
+                title: 'PRO Benefits',
+                unlimitedGenerations: 'Unbegrenzte sichere Generierungen',
+                unlimitedGenerationsDesc: 'Keine täglichen Limits',
+                aiThreatDetection: 'KI-gestützte Bedrohungserkennung',
+                aiThreatDetectionDesc: 'Proaktive Sicherheitsanalyse',
+                browserExtension: 'Browser-Erweiterung (Q4 2025)',
+                browserExtensionDesc: 'Sicherheit überall im Web',
+                wordpressPlugin: 'WordPress-Plugin (Q4 2025)',
+                wordpressPluginDesc: 'Sicherheit in deine Website integrieren'
+            }
+        },
+
+        // Daily Limit
+        dailyGenerations: 'Daily Generations',
+        remainingGenerations: '{remaining} / {limit} remaining',
+        canStillGenerate: 'You can still generate emojis!',
+        limitReached:
+            'Daily limit reached. Upgrade to PRO for unlimited generations.',
+
+        // Statistics
+        statistics: {
+            storiesGenerated: 'Stories Generated',
+            remainingGenerations: 'Remaining Generations'
+        },
+
+        // Actions
+        actions: {
+            saveSettings: '💾 Save Settings',
+            backToHome: '🏠 Back to Home',
+            createAccount: '🚀 {type} Account anlegen',
+            skipAccount: 'Auf {type} verzichten',
+            createMagicLink: '🔐 Create Magic-Link',
+            sendingMagicLink: '⏳ Sending Magic-Link...',
+            resendMagicLink: '🔄 Resend Magic Link',
+            backToAccountOptions: '← Back to Account Options',
+            addProfileData: '👤 Add Profile Data',
+            hideProfileData: '👤 Hide Profile Data'
+        },
+
+        // Form Validation
+        validation: {
+            invalidEmail: '⚠️ Please enter a valid email address',
+            invalidName: '⚠️ Please enter your name (minimum 2 characters)',
+            requiredField: 'This field is required'
+        },
+
+        // Help Section
+        help: {
+            title: '💡 Need Help?',
+            checkSpam: "• Check your spam folder if you don't see the email",
+            linkExpires: '• Magic links expire after 15 minutes',
+            requestNewLink: '• You can request a new link anytime',
+            noPassword: '• No password required - just click the link'
+        },
+
+        // Footer
+        footer: {
+            magicLink: '🔒 Magic link',
+            instantSetup: '⚡ Instant Setup',
+            noSpam: '🎯 No Spam'
+        }
+    },
+
+    // Allgemeine UI-Texte
+    ui: {
+        save: 'Speichern',
+        cancel: 'Abbrechen',
+        reset: 'Zurücksetzen',
+        export: 'Exportieren',
+        import: 'Importieren',
+        delete: 'Löschen',
+        edit: 'Bearbeiten',
+        add: 'Hinzufügen',
+        remove: 'Entfernen',
+        search: 'Suchen',
+        filter: 'Filtern',
+        sort: 'Sortieren',
+        refresh: 'Aktualisieren',
+        back: 'Zurück',
+        next: 'Weiter',
+        previous: 'Zurück',
+        submit: 'Absenden',
+        loading: 'Lädt...',
+        error: 'Fehler',
+        success: 'Erfolg',
+        warning: 'Warnung',
+        info: 'Info'
     }
 };

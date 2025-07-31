@@ -13,7 +13,7 @@
         currentLanguage,
         darkMode
     } from '../../stores/appStores.js';
-    import { accountData, isLoggingIn, loginError, loginWithMagicLink } from '../../stores/accountStore.js';
+    import { isLoggingIn, loginError, loginWithMagicLink } from '../../stores/accountStore.js';
     import { 
         showSuccess, 
         showError, 
@@ -197,7 +197,7 @@
     }
 
     function testAccountData() {
-        accountData.set({
+        currentAccount.set({
             email: 'test@example.com',
             name: 'Test User',
             magicLinkSent: true,
@@ -456,20 +456,20 @@
                         </div>
 
                         <!-- Account Data -->
-                        {#if $accountData}
+                        {#if $currentAccount}
                         <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Account Data</h3>
                             <div class="space-y-2 text-xs">
                                 <div class="flex justify-between">
                                     <span class="text-gray-600 dark:text-gray-400">Magic Link Sent:</span>
-                                    <span class="font-mono {$accountData.magicLinkSent ? 'text-green-600' : 'text-red-600'}">
-                                        {$accountData.magicLinkSent ? '✓' : '✗'}
+                                    <span class="font-mono {$currentAccount.magicLinkSent ? 'text-green-600' : 'text-red-600'}">
+                                        {$currentAccount.magicLinkSent ? '✓' : '✗'}
                                     </span>
                                 </div>
-                                {#if $accountData.sentAt}
+                                {#if $currentAccount.sentAt}
                                 <div class="flex justify-between">
                                     <span class="text-gray-600 dark:text-gray-400">Sent At:</span>
-                                    <span class="font-mono text-gray-800 dark:text-gray-200 text-xs">{$accountData.sentAt}</span>
+                                    <span class="font-mono text-gray-800 dark:text-gray-200 text-xs">{$currentAccount.sentAt}</span>
                                 </div>
                                 {/if}
                             </div>

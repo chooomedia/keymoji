@@ -12,10 +12,10 @@ const routes = [
 ];
 
 // Unterstützte Sprachen
-const languages = [
+const supportedLanguages = [
     'en',
     'de',
-    'dech',
+    'de-CH',
     'es',
     'nl',
     'it',
@@ -113,7 +113,7 @@ function generateRouteHTML(route, lang = 'en') {
     <link rel="canonical" href="${canonicalUrl}">
     
     <!-- Language Alternates -->
-    ${languages
+    ${supportedLanguages
         .map(l => {
             const altUrl =
                 l === 'en'
@@ -204,7 +204,7 @@ function getLocale(lang) {
     const localeMap = {
         en: 'en_US',
         de: 'de_DE',
-        dech: 'de_CH',
+        'de-CH': 'de_CH',
         es: 'es_ES',
         nl: 'nl_NL',
         it: 'it_IT',
@@ -234,7 +234,7 @@ function generateStaticRoutes() {
 
     // Generiere HTML für jede Route und Sprache
     routes.forEach(route => {
-        languages.forEach(lang => {
+        supportedLanguages.forEach(lang => {
             const routePath = route.path === '/' ? '' : route.path;
             const dir = path.join(buildDir, lang, routePath);
 

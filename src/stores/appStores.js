@@ -8,7 +8,7 @@ import {
     getText as getTextUtil
 } from '../utils/languages.js';
 import { appVersion, formatVersion } from '../utils/version.js';
-import { WEBHOOKS } from '../../src/config/api.js';
+import { WEBHOOKS } from '../config/api.js';
 import { STORAGE_KEYS, storageHelpers } from '../config/storage.js';
 import { isDevelopment, devWarn } from '../utils/environment.js';
 
@@ -36,102 +36,160 @@ const localStore = (key, initial) => {
     };
 };
 
-// === USER COUNTER STORE ===
+// === USER COUNTER ===
 // Cache settings - verwende zentrale Storage-Keys
 const COUNTER_CACHE_KEY = STORAGE_KEYS.COUNTER_CACHE;
 const COUNTER_TIMESTAMP_KEY = STORAGE_KEYS.COUNTER_TIMESTAMP;
 const COUNTER_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
-// Counter stores
-const counterValue = writable(0);
-const counterLoading = writable(true);
-const counterError = writable(false);
-const counterCached = writable(false);
+// Single user counter store
+export const userCounter = writable({
+    value: 0,
+    isLoading: false,
+    hasError: false,
+    isCached: false
+});
 
-// Combined counter store for components
-export const userCounter = derived(
-    [counterValue, counterLoading, counterError, counterCached],
-    ([$value, $loading, $error, $cached]) => ({
-        value: $value,
-        isLoading: $loading,
-        hasError: $error,
-        isCached: $cached
-    })
-);
+// Extract counter logic into a reusable function
+export async function refreshUserCounter() {
+    const isDevelopment = process.env.NODE_ENV === 'development';
 
-// Initialize counter on app load
-if (typeof window !== 'undefined') {
-    // Try to load from cache first
+    console.log('🔄 Starting user counter refresh...');
+
+    // Set loading state
+    userCounter.update(state => ({
+        ...state,
+        isLoading: true,
+        hasError: false
+    }));
+
     try {
-        const cached = storageHelpers.get(COUNTER_CACHE_KEY);
-        const timestamp = storageHelpers.get(COUNTER_TIMESTAMP_KEY);
+        console.log('📡 Fetching from:', WEBHOOKS.USER_COUNTER);
 
-        if (cached && timestamp) {
-            const age = Date.now() - parseInt(timestamp);
-            if (age < COUNTER_CACHE_DURATION) {
-                const value = parseInt(cached);
-                if (!isNaN(value) && value > 0) {
-                    counterValue.set(value);
-                    counterCached.set(true);
-                    counterLoading.set(false);
+        const response = await fetch(WEBHOOKS.USER_COUNTER, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+            },
+            body: JSON.stringify({
+                type: 'user_counter', // Required by n8n workflow
+                path: window.location.pathname,
+                client: navigator.userAgent.substring(0, 100),
+                version: appVersion,
+                timestamp: new Date().toISOString(),
+                language: get(currentLanguage) || 'en',
+                referrer: document.referrer || 'direct',
+                screen: `${window.screen.width}x${window.screen.height}`
+            }),
+            signal: AbortSignal.timeout(10000) // 10s timeout
+        });
+
+        console.log('📥 Response status:', response.status);
+        console.log(
+            '📥 Response headers:',
+            Object.fromEntries(response.headers.entries())
+        );
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('📊 Response data:', data);
+
+            const newValue = Number(data.counter);
+            console.log('🔢 Parsed counter value:', newValue);
+
+            if (!isNaN(newValue) && newValue > 0) {
+                userCounter.update(state => ({
+                    ...state,
+                    value: newValue,
+                    isCached: false,
+                    hasError: false,
+                    isLoading: false
+                }));
+                console.log('✅ Counter updated successfully to:', newValue);
+
+                // Save to cache
+                try {
+                    storageHelpers.set(COUNTER_CACHE_KEY, newValue);
+                    storageHelpers.set(COUNTER_TIMESTAMP_KEY, Date.now());
+                    console.log('💾 Counter cached successfully');
+                } catch (e) {
+                    console.warn('⚠️ Failed to cache counter:', e);
                 }
+            } else {
+                console.warn(
+                    '⚠️ Invalid counter value received:',
+                    data.counter
+                );
+                userCounter.update(state => ({
+                    ...state,
+                    hasError: true,
+                    isLoading: false
+                }));
             }
+        } else {
+            console.error(
+                '❌ Counter fetch failed with status:',
+                response.status
+            );
+            const errorText = await response.text();
+            console.error('❌ Error response:', errorText);
+            userCounter.update(state => ({
+                ...state,
+                hasError: true,
+                isLoading: false
+            }));
         }
     } catch (error) {
-        if (isDevelopment) devWarn('Failed to load counter from cache:', error);
+        console.error('❌ Counter fetch error:', error);
+        userCounter.update(state => ({
+            ...state,
+            hasError: true,
+            isLoading: false
+        }));
+    } finally {
+        console.log('🏁 Counter refresh completed');
+    }
+}
+
+// Initialize counter on page load
+function initializeUserCounter() {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
+    // Try to load from cache first
+    try {
+        const cachedValue = storageHelpers.get(COUNTER_CACHE_KEY);
+        const cachedTimestamp = storageHelpers.get(COUNTER_TIMESTAMP_KEY);
+        const now = Date.now();
+        const cacheAge = now - (cachedTimestamp || 0);
+        const cacheValid = cacheAge < COUNTER_CACHE_DURATION;
+
+        if (cachedValue && cacheValid) {
+            userCounter.update(state => ({
+                ...state,
+                value: cachedValue,
+                isCached: true,
+                hasError: false
+            }));
+            if (isDevelopment)
+                console.log('📦 Loaded counter from cache:', cachedValue);
+        } else {
+            if (isDevelopment)
+                console.log('📦 No valid cache found, will fetch fresh data');
+        }
+    } catch (error) {
+        if (isDevelopment)
+            console.warn('⚠️ Failed to load counter from cache:', error);
     }
 
-    // Fetch fresh data
-    window.addEventListener('load', async () => {
-        try {
-            const response = await fetch(WEBHOOKS.USER_COUNTER, {
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                },
-                body: JSON.stringify({
-                    path: window.location.pathname,
-                    client: navigator.userAgent.substring(0, 100),
-                    version: appVersion,
-                    timestamp: new Date().toISOString(),
-                    language: get(currentLanguage) || 'en',
-                    referrer: document.referrer || 'direct',
-                    screen: `${window.screen.width}x${window.screen.height}`
-                }),
-                signal: AbortSignal.timeout(10000) // 10s timeout
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                const newValue = Number(data.counter);
-
-                if (!isNaN(newValue) && newValue > 0) {
-                    counterValue.set(newValue);
-                    counterCached.set(false);
-                    counterError.set(false);
-
-                    // Save to cache
-                    try {
-                        storageHelpers.set(COUNTER_CACHE_KEY, newValue);
-                        storageHelpers.set(COUNTER_TIMESTAMP_KEY, Date.now());
-                    } catch (e) {
-                        if (isDevelopment)
-                            devWarn('Failed to cache counter:', e);
-                    }
-                }
-            }
-        } catch (error) {
-            // Only show error if no cached value exists
-            if (get(counterValue) === 0) {
-                counterError.set(true);
-            }
-            if (isDevelopment) devWarn('Counter fetch failed:', error);
-        } finally {
-            counterLoading.set(false);
-        }
-    });
+    // Fetch fresh data on page load
+    if (typeof window !== 'undefined') {
+        window.addEventListener('load', () => {
+            console.log('🌐 Page loaded, refreshing counter...');
+            refreshUserCounter();
+        });
+    }
 }
 
 // === VERSION STORES ===
@@ -291,4 +349,8 @@ export const isProUser = writable(false);
 export const currentAccount = writable(null);
 export const userProfile = writable(null);
 export const accountTier = writable('free');
-export const translations = writable({});
+
+// Initialize stores
+if (typeof window !== 'undefined') {
+    initializeUserCounter();
+}

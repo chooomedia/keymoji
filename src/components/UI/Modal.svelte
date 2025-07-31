@@ -26,9 +26,13 @@
     let lastActiveElement;
     let debugMode = isDebugMode();
     let isComponentMounted = false;
+    let progressBar = 100; // Start at 100%
+    let progressInterval;
 
     // Constants for animation and accessibility
     const ANIMATION_DURATION = 300;
+    const MODAL_TIMEOUT = 5000; // 5 seconds
+    const PROGRESS_UPDATE_INTERVAL = 50; // Update every 50ms
   
     // Icons for different message types
     const ICONS = {
@@ -37,7 +41,8 @@
         error: '❌',
         info: 'ℹ️',
         contact: '💌',
-        sending: '📨'
+        sending: '📨',
+        'pro-feature': '💎'
     };
 
     // Loading spinner component
@@ -62,6 +67,7 @@
         if (lowerMsg.includes('warning') || lowerMsg.includes('invalid') || lowerMsg.includes('check')) return 'warning';
         if (lowerMsg.includes('fix') || lowerMsg.includes('validation')) return 'warning';
         if (lowerMsg.includes('contact') || lowerMsg.includes('message')) return 'contact';
+        if (lowerMsg.includes('pro') || lowerMsg.includes('upgrade') || lowerMsg.includes('premium')) return 'pro-feature';
         
         return 'info';
     }
@@ -74,6 +80,7 @@
             case 'warning': return '#FF9800'; // Orange
             case 'contact': return '#f4ab25'; // Keymoji yellow
             case 'sending': return '#2196F3'; // Blue
+            case 'pro-feature': return '#9333EA'; // Purple
             default: return '#2196F3';        // Blue for info
         }
     }
@@ -85,6 +92,9 @@
   
     // Handle manually closing the modal
     function handleCloseModal() {
+        // Stop progress bar
+        stopProgressBar();
+        
         if (debugMode) {
             console.log('🔔 Modal manually closed:', { message, type: messageType });
         }
@@ -127,11 +137,57 @@
         // Markiere Komponente als unmounted
         isComponentMounted = false;
         
+        // Clear progress interval
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+        
         // Make sure we don't leave any modal state active when unmounting
         if (debugMode) {
             console.log('🔔 Modal component destroyed');
         }
     });
+
+    // Start progress bar when modal becomes visible
+    $: if (showMessage && isComponentMounted) {
+        startProgressBar();
+    }
+
+    // Progress bar management
+    function startProgressBar() {
+        // Reset progress bar
+        progressBar = 100;
+        
+        // Clear existing interval
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+        
+        // Start progress bar countdown
+        progressInterval = setInterval(() => {
+            progressBar -= (100 / (MODAL_TIMEOUT / PROGRESS_UPDATE_INTERVAL));
+            
+            if (progressBar <= 0) {
+                progressBar = 0;
+                clearInterval(progressInterval);
+                // Auto-close modal when progress reaches 0
+                setTimeout(() => {
+                    if (showMessage) {
+                        handleCloseModal();
+                    }
+                }, 100);
+            }
+        }, PROGRESS_UPDATE_INTERVAL);
+    }
+
+    function stopProgressBar() {
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+    }
+
+    // Calculate remaining time in seconds
+    $: remainingSeconds = Math.round(progressBar / 20); // 100% = 5 seconds
 
     // Debug reactive statement
     $: if (debugMode && showMessage && isComponentMounted) {
@@ -147,7 +203,7 @@
 {#if showMessage && isComponentMounted}
     <!-- Modal Overlay -->
     <div 
-        class="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-[2px] z-50"
+        class="modal-overlay modal-force-top"
         on:click={handleBackdropClick}
         on:keydown={handleKeydown}
         role="dialog"
@@ -155,12 +211,13 @@
         aria-labelledby="modal-title"
         bind:this={modalRef}
         tabindex="-1"
+        data-modal="true"
         transition:fade={{ duration: ANIMATION_DURATION }}
     >
         <!-- Modal Content Container -->
-        <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
+        <div class="modal-container">
             <div 
-                class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full mx-4 relative overflow-hidden pointer-events-auto"
+                class="modal-content"
                 transition:fly={{ y: 20, duration: ANIMATION_DURATION }}
                 role="document"
             >
@@ -172,14 +229,13 @@
                                 {@html Spinner()}
                             </div>
                         {:else}
-                            <span class="text-2xl" style="color: {getIconColor(messageType)}">
+                            <span class="text-2xl modal-icon" style="color: {getIconColor(messageType)}">
                                 {getIcon(messageType)}
                             </span>
                         {/if}
                         <h2 
                             id="modal-title"
-                            class="text-lg font-semibold text-gray-900 dark:text-white"
-                        >
+                            class="text-lg font-semibold text-gray-900 dark:text-white">
                             {messageType.charAt(0).toUpperCase() + messageType.slice(1)}
                         </h2>
                     </div>
@@ -198,31 +254,101 @@
 
                 <!-- Modal Body -->
                 <div class="p-4">
-                    <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-                        {message}
-                    </p>
-                    
-                    <!-- Progress Bar for Account Actions -->
-                    {#if $modalData?.progress !== undefined}
-                        <div class="mt-4">
-                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                <div 
-                                    class="bg-blue-500 h-2 rounded-full transition-all duration-500 ease-out"
-                                    style="width: {$modalData.progress}%"
-                                ></div>
+                    <!-- Pro Feature Content -->
+                    {#if messageType === 'pro-feature'}
+                        <div class="mb-6">
+                            <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                {$modalData?.featureName || 'Pro Feature'}
+                            </h4>
+                            <p class="text-gray-600 dark:text-gray-300 mb-4">
+                                {$modalData?.featureDescription || message}
+                            </p>
+                            
+                            <!-- Pro Benefits -->
+                            <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 mb-4">
+                                <h5 class="font-medium text-purple-900 dark:text-purple-100 mb-2">
+                                    Pro Benefits:
+                                </h5>
+                                <ul class="space-y-1 text-sm text-purple-800 dark:text-purple-200">
+                                    <li class="flex items-center">
+                                        <span class="mr-2">✓</span>
+                                        Unlimited emoji generations
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="mr-2">✓</span>
+                                        Advanced security features
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="mr-2">✓</span>
+                                        Priority support
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="mr-2">✓</span>
+                                        Early access to new features
+                                    </li>
+                                </ul>
                             </div>
                         </div>
-                    {/if}
-                    
-                    <!-- Custom Button if provided in modalData -->
-                    {#if $modalData && $modalData.buttonText && $modalData.buttonAction}
-                        <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        
+                        <!-- Pro Feature Actions -->
+                        <div class="flex space-x-3">
                             <button
-                                on:click={$modalData.buttonAction}
-                                class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                                on:click={handleCloseModal}
+                                class="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                             >
-                                {$modalData.buttonText}
+                                Maybe Later
                             </button>
+                            <button
+                                on:click={() => {
+                                    if ($modalData?.onUpgrade) {
+                                        $modalData.onUpgrade();
+                                    }
+                                    handleCloseModal();
+                                }}
+                                class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                            >
+                                Upgrade to Pro
+                            </button>
+                        </div>
+                    {:else}
+                        <!-- Modal Message -->
+                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {$modalMessage}
+                        </p>
+                        
+                        <!-- Custom Button if provided in modalData -->
+                        {#if $modalData?.primaryButton}
+                            <div class="mt-4 flex gap-2">
+                                {#if $modalData.primaryButton}
+                                    <button
+                                        class="btn btn-primary btn-md flex-1"
+                                        on:click={$modalData.primaryButton.action}
+                                    >
+                                        {$modalData.primaryButton.text}
+                                    </button>
+                                {/if}
+                                {#if $modalData.secondaryButton}
+                                    <button
+                                        class="btn btn-secondary btn-md flex-1"
+                                        on:click={$modalData.secondaryButton.action}
+                                    >
+                                        {$modalData.secondaryButton.text}
+                                    </button>
+                                {/if}
+                            </div>
+                        {/if}
+                        
+                        <!-- Auto-Close Progress Bar (Footer) -->
+                        <div class="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div 
+                                    class="h-2 rounded-full transition-all duration-500 ease-out"
+                                    style="width: {progressBar}%; background-color: {getIconColor(messageType)}"
+                                ></div>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
+                                Modal schließt in {remainingSeconds} Sekunden
+                            </div>
                         </div>
                     {/if}
                 </div>
@@ -245,12 +371,6 @@
       will-change: opacity, transform;
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
-    }
-  
-    /* Larger touch targets */
-    button {
-      min-height: 44px;
-      min-width: 44px;
     }
   
     @media (prefers-reduced-motion: reduce) {

@@ -6,13 +6,14 @@
     import { getBrowserLanguage, isLanguageSupported } from '../utils/languages.js';
     import { closeModal, isModalVisible } from '../stores/modalStore.js';
     import { devLog } from '../utils/environment.js';
+    import { initializeAccountFromCookies } from '../stores/accountStore.js';
     import Index from '../index.svelte';
     import BlogGrid from '../components/Features/BlogGrid.svelte';
 import BlogPost from '../components/Features/BlogPost.svelte';
     import VersionHistory from './VersionHistory.svelte';
     import ContactForm from './ContactForm.svelte';
     import AccountManager from './AccountManager.svelte';
-    import Demo from './Demo.svelte';
+
     import Layout from '../components/Layout/Layout.svelte';
     import NotFound from './NotFound.svelte';
     import SEO from '../components/SEO.svelte';
@@ -70,7 +71,7 @@ import BlogPost from '../components/Features/BlogPost.svelte';
                 case 'versions': return 'versions';
                 case 'contact': return 'contact';
                 case 'account': return 'account';
-                case 'demo': return 'demo';
+
                 default: return 'home';
             }
         }
@@ -103,6 +104,13 @@ import BlogPost from '../components/Features/BlogPost.svelte';
             currentPageType = determinePageType(currentPath);
             console.log('🔄 LanguageRouter: Page type:', currentPageType);
             
+            // Überprüfe Login-Status bei jedem Route-Wechsel - nur wenn nötig
+            if (!initialRouteProcessed) {
+                console.log('🔐 LanguageRouter: Checking login status...');
+                const loginResult = initializeAccountFromCookies();
+                console.log('🔐 LanguageRouter: Login check result:', loginResult);
+            }
+            
             // Extrahiere Pfadsegmente für die Spracherkennung
             const pathSegments = currentPath.split('/').filter(segment => segment !== '');
             const potentialLang = pathSegments[0];
@@ -124,6 +132,15 @@ import BlogPost from '../components/Features/BlogPost.svelte';
                 console.log('🔄 LanguageRouter: No valid language in URL, using current:', $currentLanguage);
             }
             
+            // Preserve URL parameters for magic link verification
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasMagicLinkParams = urlParams.get('t') || urlParams.get('token') || urlParams.get('e') || urlParams.get('email');
+            
+            if (hasMagicLinkParams) {
+                console.log('🔗 LanguageRouter: Magic link parameters detected, preserving them');
+                console.log('🔗 LanguageRouter: URL params:', window.location.search);
+            }
+            
             // Markiere, dass anfängliche Route verarbeitet wurde
             if (!initialRouteProcessed) {
                 initialRouteProcessed = true;
@@ -142,6 +159,9 @@ import BlogPost from '../components/Features/BlogPost.svelte';
     onMount(async () => {
         try {
             devLog('🚀 LanguageRouter: Component mounted');
+            
+            // Initialize account from cookies
+            initializeAccountFromCookies();
             
             // SEO-optimierte Initialisierung
             currentPath = window.location.pathname;
@@ -243,13 +263,6 @@ import BlogPost from '../components/Features/BlogPost.svelte';
         </Route>
         <Route path="/:lang/account" let:params>
             <AccountManager />
-        </Route>
-        
-        <Route path="/demo" let:params>
-            <Demo />
-        </Route>
-        <Route path="/:lang/demo" let:params>
-            <Demo />
         </Route>
         
         <Route path="/blog" let:params>

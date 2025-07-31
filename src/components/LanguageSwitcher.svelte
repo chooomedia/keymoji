@@ -137,6 +137,15 @@
     function getCurrentLanguageInfo(code) {
         return languages.find(lang => lang.code === code) || languages[0];
     }
+
+    // Funktion für die korrekte Anzeige des Sprachcodes
+    function getDisplayCode(code) {
+        // Spezielle Anzeige für Schweizerdeutsch
+        if (code === 'de-CH') {
+            return 'CH';
+        }
+        return code.toUpperCase();
+    }
     
     // Keyboard navigation
     function handleKeydown(event) {
@@ -227,7 +236,7 @@
     >
         <span class="flag-icon mr-3">{getCurrentLanguageInfo(selectedLang).flag}</span>
         {#if showLabels || display === 'full'}
-            <span class="lang-code uppercase">{getCurrentLanguageInfo(selectedLang).code}</span>
+            <span class="lang-code uppercase">{getDisplayCode(selectedLang)}</span>
             {#if display === 'full'}
                 <span class="dropdown-arrow ml-3">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{$showLanguageMenu ? 'transform rotate-180' : ''}">
@@ -243,14 +252,15 @@
         <div 
             id="language-dropdown-menu"
             bind:this={menuRef}
-            class="fixed w-full flex flex-wrap justify-center top-20 mx-auto z-20 right-0 left-0"
+            class="fixed w-full flex flex-wrap justify-center z-50 right-0 left-0"
+            style="top: {buttonRef?.getBoundingClientRect().bottom + 5}px;"
             role="menu"
             aria-orientation="vertical"
             aria-labelledby="language-toggle-button"
             aria-label="Language selection menu"
         >
             <div 
-                class="w-48 mx-auto max-h-96 overflow-y-auto scrollbar-consistent scroll-smooth rounded-b-xl shadow-lg bg-creme-500 dark:bg-aubergine-900 ring-1 ring-black ring-opacity-5 z-20 transform pb-2 mt-1"
+                class="w-48 mx-auto max-h-96 overflow-y-auto scrollbar-consistent scroll-smooth rounded-b-xl shadow-lg bg-creme-500 dark:bg-aubergine-900 ring-1 ring-black ring-opacity-5 z-50 transform pb-2"
                 in:slide={{ y: -5, duration: 400, easing: cubicInOut }}
                 out:slide={{ y: 5, duration: 400, easing: cubicInOut }}
             >

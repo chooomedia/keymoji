@@ -11,20 +11,20 @@ class ContentLoader {
         this.cache = new Map();
         this.loading = new Map();
         this.fallbackLanguage = 'en';
-        this.supportedLanguages = [
+        const supportedLanguages = [
             'en',
             'de',
-            'dech',
-            'fr',
+            'de-CH',
             'es',
-            'it',
             'nl',
+            'it',
+            'fr',
             'pl',
             'ru',
-            'ja',
-            'ko',
             'tr',
             'af',
+            'ja',
+            'ko',
             'tlh',
             'sjn'
         ];

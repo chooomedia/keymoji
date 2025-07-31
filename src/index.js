@@ -10,6 +10,10 @@ import {
     devLog,
     devWarn
 } from './utils/environment.js';
+import { setupMagicLinkListener } from './stores/accountStore.js';
+
+// Setup magic link listener for cross-tab synchronization
+setupMagicLinkListener();
 
 // Get the current URL
 const currentUrl = window.location.pathname;

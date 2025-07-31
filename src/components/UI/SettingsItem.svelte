@@ -50,7 +50,7 @@
     
     // Helper function to get localized text
     function getLocalizedText(textObj, fallback = '') {
-        return textObj?.[currentLanguage] || textObj?.en || fallback;
+        return textObj?.[$currentLanguage] || textObj?.en || fallback;
     }
     
 

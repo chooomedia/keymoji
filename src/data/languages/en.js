@@ -83,12 +83,10 @@ export default {
         sendingMessage: 'Sending your message... 📨',
         emailText: {
             greeting: 'Welcome',
-            intro: 'Thank you for sending a message 📩!',
             confirmationText:
-                'Please confirm your request so that Christopher knows that you are not a smart bot. You sent a message with the following Data:',
-            doubleCheck:
-                "We've received your message with the following details:",
-            button: 'Confirm Your Email',
+                'Please confirm your request so Christopher knows you are not an intelligent bot. You sent a message with the following data:',
+            doubleCheck: 'We received your message with the following details:',
+            button: 'Confirm your email',
             subject: 'Your message to Keymoji has been received',
             privacy: 'Your data is handled securely.'
         },
@@ -99,7 +97,8 @@ export default {
             emailInvalid: 'Invalid email',
             messageRequired: 'Message required',
             messageLength: 'Minimum {min} characters'
-        }
+        },
+        autoFilledLabel: 'Auto-filled from your account'
     },
     serviceWorker: {
         updateAvailable: 'A new version is available!',
@@ -171,5 +170,315 @@ export default {
         pageTitle: 'Version History',
         pageDescription:
             'Check out the development history and changelog of Keymoji, the emoji password generator.'
+    },
+
+    // UserSettings translations
+    userSettings: {
+        // Basic settings
+        basicSettings: {
+            title: 'Basic Settings',
+            description: 'Language, theme and notifications',
+            language: {
+                label: 'Language',
+                description: 'Choose your preferred language',
+                options: {
+                    en: '🇺🇸 English',
+                    de: '🇩🇪 German',
+                    fr: '🇫🇷 French',
+                    es: '🇪🇸 Spanish'
+                }
+            },
+            theme: {
+                label: 'Theme',
+                description: 'Choose your visual theme',
+                options: {
+                    auto: '🔄 Auto',
+                    light: '☀️ Light',
+                    dark: '🌙 Dark'
+                }
+            },
+            notifications: {
+                label: 'Notifications',
+                description: 'Receive important updates'
+            }
+        },
+
+        // Security settings
+        securitySettings: {
+            title: 'Security Settings',
+            description: 'Password strength and character types',
+            passwordLength: {
+                label: 'Password Length',
+                description: 'Choose password strength',
+                min: 'Weak (6)',
+                max: 'Strong (20)'
+            },
+            includeNumbers: {
+                label: 'Include Numbers',
+                description: 'Add numeric characters (0-9)'
+            },
+            includeSymbols: {
+                label: 'Include Symbols',
+                description: 'Add special characters (!@#$%^&*)'
+            },
+            includeSpecialChars: {
+                label: 'Include Special Characters',
+                description: 'Add extended special characters'
+            },
+            excludeSimilarChars: {
+                label: 'Exclude Similar Characters',
+                description: 'Avoid confusing characters (l, 1, I)'
+            },
+            requireUniqueChars: {
+                label: 'Require Unique Characters',
+                description: 'No repeated characters in password'
+            }
+        },
+
+        // Emoji settings
+        emojiSettings: {
+            title: 'Emoji Settings',
+            description: 'Emoji count, categories and patterns',
+            emojiCount: {
+                label: 'Emoji Count',
+                description: 'Number of emojis in password',
+                min: 'Min (3)',
+                max: 'Max (10)'
+            },
+            emojiPattern: {
+                label: 'Emoji Pattern',
+                description: 'Choose emoji arrangement',
+                options: {
+                    random: 'Random',
+                    sequential: 'Sequential',
+                    alternating: 'Alternating'
+                }
+            },
+            emojiTheme: {
+                label: 'Emoji Theme',
+                description: 'Choose emoji style',
+                options: {
+                    mixed: 'Mixed',
+                    cute: 'Cute',
+                    professional: 'Professional',
+                    fantasy: 'Fantasy'
+                }
+            }
+        },
+
+        // Generation settings
+        generationSettings: {
+            title: 'Generation Settings',
+            description: 'Auto-generation and clipboard options',
+            autoGenerate: {
+                label: 'Auto Generate',
+                description: 'Automatically generate passwords'
+            },
+            copyToClipboard: {
+                label: 'Copy to Clipboard',
+                description: 'Automatically copy generated passwords'
+            },
+            showStrength: {
+                label: 'Show Strength',
+                description: 'Display password strength meter'
+            },
+            strengthThreshold: {
+                label: 'Strength Threshold',
+                description: 'Minimum required password strength',
+                options: {
+                    low: 'Low',
+                    medium: 'Medium',
+                    high: 'High'
+                }
+            },
+            autoRefresh: {
+                label: 'Auto Refresh',
+                description: 'Automatically regenerate weak passwords'
+            }
+        },
+
+        // Privacy settings
+        privacySettings: {
+            title: 'Privacy Settings',
+            description: 'Data collection and sharing preferences',
+            saveHistory: {
+                label: 'Save History',
+                description: 'Save generated passwords locally'
+            },
+            analytics: {
+                label: 'Analytics',
+                description: 'Anonymous usage statistics'
+            },
+            shareUsage: {
+                label: 'Share Usage',
+                description: 'Share usage data for improvements'
+            },
+            exportHistory: {
+                label: 'Export History',
+                description: 'Export password history to file'
+            },
+            backupSettings: {
+                label: 'Backup Settings',
+                description: 'Automatically backup settings'
+            }
+        },
+
+        // Pro features
+        proFeatures: {
+            title: 'Pro Features',
+            description: 'Advanced settings and premium features',
+            securityAudit: {
+                label: 'Security Audit',
+                description: 'Comprehensive security analysis',
+                buttonText: 'Start Audit'
+            },
+            breachCheck: {
+                label: 'Breach Check',
+                description: 'Check passwords against known breaches'
+            },
+            strengthAnalytics: {
+                label: 'Strength Analytics',
+                description: 'Advanced password strength analysis'
+            }
+        }
+    },
+
+    // Accounting and security
+    accounting: {
+        // Login and authentication
+        login: {
+            title: 'Login',
+            emailPlaceholder: 'Enter email address',
+            magicLinkSent: 'Magic link sent!',
+            magicLinkError: 'Error sending magic link',
+            verificationSuccess: 'Email verified successfully!',
+            verificationError: 'Email verification failed',
+            rateLimitExceeded: 'Too many login attempts. Please wait.',
+            sessionExpired: 'Session expired. Please login again.'
+        },
+
+        // Account management
+        account: {
+            title: 'Account Management',
+            profile: 'Profile',
+            settings: 'Settings',
+            logout: 'Logout',
+            logoutSuccess: 'Successfully logged out',
+            accountCreated: 'Account created successfully',
+            accountUpdated: 'Account updated successfully',
+            accountError: 'Account management error'
+        },
+
+        // Security events
+        security: {
+            loginAttempt: 'Login attempt',
+            loginSuccess: 'Successful login',
+            loginFailed: 'Failed login',
+            logout: 'Logout',
+            sessionExpired: 'Session expired',
+            suspiciousActivity: 'Suspicious activity',
+            verificationSuccess: 'Verification successful',
+            verificationFailed: 'Verification failed',
+            accountCreated: 'Account created',
+            accountUpdated: 'Account updated',
+            securityAudit: 'Security audit performed'
+        },
+
+        // Validation
+        validation: {
+            required: 'This field is required',
+            emailInvalid: 'Please enter a valid email address',
+            urlInvalid: 'Please enter a valid URL',
+            phoneInvalid: 'Please enter a valid phone number',
+            passwordWeak:
+                'Password must be at least 8 characters with uppercase, lowercase and number',
+            minLength: 'Minimum length is {min} characters',
+            maxLength: 'Maximum length is {max} characters',
+            minValue: 'Minimum value is {min}',
+            maxValue: 'Maximum value is {max}',
+            validInput: 'Valid input'
+        },
+
+        // Context menu
+        contextMenu: {
+            exportSettings: 'Export settings',
+            importSettings: 'Import settings',
+            resetToDefault: 'Reset to default',
+            proMessage: '💎 Pro users can export and import their settings'
+        }
+    },
+
+    // Modals and notifications
+    modals: {
+        success: 'Success',
+        error: 'Error',
+        warning: 'Warning',
+        info: 'Information',
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+        close: 'Close',
+        loading: 'Loading...',
+        saving: 'Saving...',
+        exporting: 'Exporting...',
+        importing: 'Importing...',
+        resetting: 'Resetting...'
+    },
+
+    // AccountManager translations
+    accountManager: {
+        title: 'Account Manager',
+        subtitle: 'Manage your Keymoji account',
+        description:
+            'Create an account or sign in to save your settings and track your usage.',
+        benefits: {
+            title: 'Benefits of an account:',
+            items: [
+                'Settings are saved',
+                'Usage statistics',
+                'Advanced features',
+                'Secure login'
+            ]
+        },
+        buttons: {
+            createMagicLink: 'Create Magic Link',
+            loginToAccount: 'Login to Account',
+            checkAccountExists: 'Checking account...',
+            sendingMagicLink: 'Sending magic link...',
+            accountExists: 'Account found - Logging in...',
+            accountNotFound: 'Account not found - Creating...',
+            sessionExpired: 'Session expired - Login again',
+            loginAgain: 'Login again',
+            createNewAccount: 'Create new account'
+        },
+        footer: {
+            text: 'Magic links are sent via email and valid for 15 minutes.',
+            privacy: 'Your data is handled securely.'
+        }
+    },
+
+    // General UI texts
+    ui: {
+        save: 'Save',
+        cancel: 'Cancel',
+        reset: 'Reset',
+        export: 'Export',
+        import: 'Import',
+        delete: 'Delete',
+        edit: 'Edit',
+        add: 'Add',
+        remove: 'Remove',
+        search: 'Search',
+        filter: 'Filter',
+        sort: 'Sort',
+        refresh: 'Refresh',
+        back: 'Back',
+        next: 'Next',
+        previous: 'Previous',
+        submit: 'Submit',
+        loading: 'Loading...',
+        error: 'Error',
+        success: 'Success',
+        warning: 'Warning',
+        info: 'Info'
     }
 };
