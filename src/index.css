@@ -3,23 +3,64 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* Enhanced Hieroglyphic Background Animation - Apple/Airbnb Performance Style */
 .hieroglyphemojis {
     animation: gradient 270s ease infinite;
-    background-size: 16%;
+    background-size: 16%, cover;
+    background-attachment: fixed;
     min-height: 100vh;
+    /* Performance-Optimierung */
+    will-change: background-position;
+    transform: translateZ(0);
+    /* GPU-Layer forcing */
+    backface-visibility: hidden;
 }
 
+.bg-loading .hieroglyphemojis {
+    /* Smooth transition while loading */
+    background-size: 0%, cover;
+    transition: background-size 0.3s ease-out;
+}
+
+.bg-loaded .hieroglyphemojis {
+    background-size: 16%, cover;
+}
+
+/* Performance-optimierte Keyframes */
 @keyframes gradient {
     0% {
         background-position: 0% 50%;
     }
 
-    50% {
+    25% {
         background-position: 100% 50%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    75% {
+        background-position: 0% 100%;
     }
 
     100% {
         background-position: 0% 50%;
+    }
+}
+
+/* Reduced motion support (Apple Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+    .hieroglyphemojis {
+        animation: none;
+        background-position: 0% 50%;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .hieroglyphemojis {
+        background-blend-mode: normal !important;
     }
 }
 
@@ -135,11 +176,74 @@
     color-scheme: dark;
 }
 
+/* Main content area - positioned between fixed header and footer */
 .main-content {
     width: 100%;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    gap: 2rem;
+    padding-top: 100px;
+    /* Space for fixed header */
+    padding-bottom: 100px;
+    /* Space for fixed footer */
+    box-sizing: border-box;
 }
+
+/* Mobile responsive padding and fixed positioning optimizations */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    /* Ensure proper fixed positioning on mobile */
+    .main-header {
+        position: fixed !important;
+        transform: translateZ(0);
+        /* Force hardware acceleration */
+        -webkit-transform: translateZ(0);
+    }
+
+    .main-footer {
+        position: fixed !important;
+        transform: translateZ(0);
+        /* Force hardware acceleration */
+        -webkit-transform: translateZ(0);
+    }
+
+    /* Mobile Safari viewport fixes */
+    .app-container {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+
+    .main-header,
+    .main-footer {
+        position: -webkit-sticky;
+        position: sticky;
+        position: fixed;
+    }
+}
+
+/* Minimal spacing since header/footer are now in normal document flow */
+:root {
+    --content-gap: 2rem;
+}
+
+/* Remove pseudo-elements since we don't need header/footer spacing anymore */
+/* Content spacing is now handled by flexbox gap and natural document flow */
 
 @media (prefers-reduced-motion: reduce) {
     .hieroglyphemojis {
@@ -306,7 +410,7 @@
     }
 
     .contact-checkbox {
-        @apply bg-white dark:bg-aubergine-900 rounded-xl p-4 border dark:border-aubergine-800 border-creme-500 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
+        @apply bg-white dark:bg-aubergine-900 rounded-xl p-4 border dark:border-aubergine-800 border-creme-500 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500;
     }
 
     /* Button styles moved to Button.svelte component */
@@ -330,7 +434,16 @@
         flex-direction: column;
         min-height: 100vh;
         overflow-x: hidden;
+        overflow-y: auto;
         width: 100%;
+        position: relative;
+        /* Hidden scrollbars but functional scrolling */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .app-container::-webkit-scrollbar {
+        display: none;
     }
 
     /* EmojiDisplay spezielle Behandlung */

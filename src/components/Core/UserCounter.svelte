@@ -46,8 +46,7 @@
     {:else if formattedCount}
         <!-- Zeige Zahl (aus Cache oder Live) -->
         <span 
-            class="font-medium transition-opacity duration-300"
-            class:opacity-75={$userCounter && $userCounter.isCached}
+            class="font-medium transition-opacity duration-300 {$userCounter && $userCounter.isCached ? 'opacity-75' : ''}"
             aria-label="Visitor count: {formattedCount}"
             title={$userCounter && $userCounter.isCached ? 'Cached value' : 'Live value'}
         >
@@ -70,15 +69,3 @@
         </span>
     {/if}
 </span>
-
-<style>
-    /* Smooth transitions */
-    span {
-        transition: opacity 0.3s ease-in-out;
-    }
-    
-    /* Subtle indication for cached values */
-    .opacity-75 {
-        opacity: 0.85;
-    }
-</style>

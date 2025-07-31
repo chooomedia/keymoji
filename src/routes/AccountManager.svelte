@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
     import { fade, fly, slide } from 'svelte/transition';
-    import Header from '../components/Layout/Header.svelte';
+    import PageLayout from '../components/Layout/PageLayout.svelte';
     import FixedMenu from '../widgets/FixedMenu.svelte';
     import { 
         isLoggedIn, 
@@ -50,6 +50,46 @@
     import { sendAnalyticsEvent } from '../stores/appStores.js';
     import Input from '../components/UI/Input.svelte';
     import Button from '../components/UI/Button.svelte';
+    import FooterInfo from '../widgets/FooterInfo.svelte';
+
+    // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
+    $: pageTitle = (() => {
+        if (isVerifyingMagicLink) {
+            return $translations?.accountManager?.verifyingTitle || '🔗 Verifiziere Magic Link...';
+        }
+        if (magicLinkStatus === 'error') {
+            return $translations?.accountManager?.verificationErrorTitle || '❌ Verifikation Fehlgeschlagen';
+        }
+        if ($isLoggedIn) {
+            return ($translations?.accountManager?.welcomeBack || 'Welcome back, {name}! 👋').replace('{name}', $userProfile?.name || $currentAccount?.name || 'User');
+        }
+        if (accountCreationStep === 'verification') {
+            return $translations?.accountManager?.verificationTitle || '📧 Check Your Email and Verify';
+        }
+        if (shouldShowSimplifiedView) {
+            return $translations?.accountManager?.returnUserTitle || '👋 Willkommen zurück!';
+        }
+        return $translations?.accountManager?.pageTitle || 'Account Manager';
+    })();
+
+    $: pageDescription = (() => {
+        if (isVerifyingMagicLink) {
+            return $translations?.accountManager?.verifyingDescription || 'Bitte warte, während wir deinen Account verifizieren.';
+        }
+        if (magicLinkStatus === 'error') {
+            return magicLinkError || ($translations?.accountManager?.verificationErrorDescription || 'Ein Fehler ist aufgetreten.');
+        }
+        if ($isLoggedIn) {
+            return $translations?.accountManager?.welcomeDescription || 'Ready to create some amazing emoji passwords? Your account is secure and ready to go!';
+        }
+        if (accountCreationStep === 'verification') {
+            return ($translations?.accountManager?.verificationDescription || 'Check your email {email} and click the magic link to complete setup').replace('{email}', email);
+        }
+        if (shouldShowSimplifiedView) {
+            return $translations?.accountManager?.returnUserDescription || 'Wir haben deine E-Mail-Adresse erkannt. Logge dich schnell wieder ein.';
+        }
+        return $translations?.accountManager?.pageDescription || 'Manage your security settings and account preferences';
+    })();
 
     // Toggle state
     let showBenefitsToggle = 'free';
@@ -130,7 +170,7 @@
     $: daysSinceCreation = getDaysSinceAccountCreation();
     
     // TEMPORARY TEST: Force a value to test UI
-    $: daysSinceCreation = 42; // Uncomment this line to test with 42 days
+    // $: daysSinceCreation = 42; // Uncomment this line to test with 42 days
     
     // Debug: Log when daysSinceCreation changes
     $: if (daysSinceCreation !== undefined) {
@@ -273,17 +313,6 @@
         }
     }
 
-    // Debug-Logging für Reaktivität - nur in Development
-    $: if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        console.log('🔄 AccountManager: Language changed to:', $currentLanguage);
-        console.log('🔄 AccountManager: Translations updated:', {
-            pageTitle: $translations?.accountManager?.pageTitle,
-            pageDescription: $translations?.accountManager?.pageDescription,
-            welcomeBack: $translations?.accountManager?.welcomeBack,
-            freeDescription: $translations?.accountManager?.freeDescription,
-            proDescription: $translations?.accountManager?.proDescription
-        });
-    }
 
     function closeContextMenu() {
         showContextMenu = false;
@@ -669,72 +698,25 @@
         console.log('Reset clicked');
     }
 
+    // Reaktive SEO Meta-Tags
+    $: seoTitle = $translations?.accountManager?.pageTitle || 'Account Manager';
+    $: seoDescription = $translations?.accountManager?.pageDescription || 'Manage your security settings and account preferences';
+
 </script>
 
 <svelte:head>
-    <title>Account Management - Keymoji</title>
-    <meta name="description" content="Manage your Keymoji account and security settings" />
+    <title>{seoTitle} - Keymoji</title>
+    <meta name="description" content={seoDescription} />
 </svelte:head>
 
-<!-- App Container -->
-<main class="app-container" data-lang={$currentLanguage}>
-    <!-- Header -->
-    <Header />
-    
+<PageLayout {pageTitle} {pageDescription}>
+
     <!-- Main Content Container -->
-    <div class="min-h-screen scroll-smooth overflow-x-hidden" in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}>
+    <div in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}>
         <!-- Main Content -->
-        <section class="flex flex-col justify-center items-center min-h-screen py-32 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
-
-            <!-- Main Heading -->
-            <div class="w-11/12 md:w-26r flex flex-wrap justify-center" role="banner">
-                {#if isVerifyingMagicLink}
-                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                        🔗 Verifiziere Magic Link...
-                    </h1>
-                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                        Bitte warte, während wir deinen Account verifizieren.
-                    </p>
-                {:else if magicLinkStatus === 'error'}
-                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                        ❌ Verifikation Fehlgeschlagen
-                    </h1>
-                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                        {magicLinkError}
-                    </p>
-                {:else if $isLoggedIn}
-                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                        {$translations?.accountManager?.welcomeBack?.replace('{name}', $userProfile?.name || $currentAccount?.name || 'User') || 'Welcome back, User! 👋'}
-                    </h1>
-                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                        {$translations?.accountManager?.welcomeDescription || 'Ready to create some amazing emoji passwords? Your account is secure and ready to go!'}
-                    </p>
-                {:else if accountCreationStep === 'verification'}
-                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                        {$translations?.accountManager?.verificationTitle || '📧 Check Your Email and Verify'}
-                    </h1>
-                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                        {@html ($translations?.accountManager?.verificationDescription || 'Check your email {email} and click the magic link to complete setup').replace('{email}', email)}
-                    </p>
-                {:else if shouldShowSimplifiedView}
-                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                        👋 Willkommen zurück!
-                    </h1>
-                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                        Wir haben deine E-Mail-Adresse erkannt. Logge dich schnell wieder ein.
-                    </p>
-                {:else}
-                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                        {$translations?.accountManager?.pageTitle || 'Account Management'}
-                    </h1>
-                    <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                        {$translations?.accountManager?.pageDescription || 'Manage your security settings and account preferences'}
-                    </p>
-                {/if}
-            </div>
-
+        <section class="flex flex-col justify-center items-center  z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
             <!-- Account Content -->
-            <div class="content-wrapper w-11/12 md:w-26r rounded-xl bg-creme-500 dark:bg-aubergine-800">
+            <div class="content-wrapper w-11/12 md:w-26r rounded-xl">
                 <!-- Account Status -->
                 {#if $isLoggedIn}
                     <div class="p-4">
@@ -1207,4 +1189,7 @@
         on:change={handleImportSettings}
         class="hidden"
     />
-</main> 
+
+    <!-- Footer Information Component -->
+    <FooterInfo slot="footer" />
+</PageLayout>

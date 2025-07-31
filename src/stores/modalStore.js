@@ -3,11 +3,12 @@ import { writable, get } from 'svelte/store';
 import { isDevelopment, devLog } from '../utils/environment.js';
 
 /**
- * Zentralisierter Store für das Modal-System
+ * Enhanced Modal-System mit pausierbaren async Funktionen (Apple/Airbnb UX-Style)
  * - Einheitliche Notification-Verwaltung
+ * - Pausierbare async Operations während Modal-Anzeige
+ * - Smooth UX mit Context Management
+ * - Event Bubbling Support
  * - Debugging und Logging
- * - Fehlerbehandlung
- * - Smooth Initialisierung ohne Flackern
  */
 
 // Hauptstores für die Modal-Anzeige
@@ -15,6 +16,15 @@ export const modalMessage = writable('');
 export const isModalVisible = writable(false);
 export const modalType = writable('info'); // 'info', 'success', 'error', 'warning', 'sending', 'contact'
 export const modalData = writable({});
+
+// Enhanced Stores für async Operations
+export const isAsyncOperationPaused = writable(false);
+export const pausedOperations = writable([]);
+
+// Context Manager für pausierbare Operationen
+let pausedCallbacks = new Map();
+let activeOperations = new Map();
+let operationIdCounter = 0;
 
 // Timeout-Verwaltung
 let modalTimeout = null;
@@ -27,14 +37,14 @@ let isProcessingQueue = false;
 let currentModalId = null;
 let modalIdCounter = 0;
 
-// Modal Prioritäten
+// Modal Prioritäten (Apple/Airbnb inspiriert)
 const MODAL_PRIORITIES = {
-    error: 1, // Höchste Priorität
-    warning: 2, // Hohe Priorität
-    sending: 3, // Mittlere Priorität
-    success: 4, // Normale Priorität
-    info: 5, // Niedrige Priorität
-    contact: 6, // Niedrige Priorität
+    error: 1, // Höchste Priorität - sofortige Aufmerksamkeit
+    warning: 2, // Hohe Priorität - wichtige Warnungen
+    sending: 3, // Mittlere Priorität - Ladezustände
+    success: 4, // Normale Priorität - Bestätigungen
+    info: 5, // Niedrige Priorität - Informationen
+    contact: 6, // Niedrige Priorität - Kontakt
     'pro-feature': 7 // Pro-Feature Modals
 };
 
@@ -51,6 +61,74 @@ function debugLog(action, data = {}) {
 }
 
 /**
+ * Enhanced Async Operation Manager (Apple/Airbnb Style)
+ * Pausiert async Operationen elegant während Modal-Anzeige
+ */
+export class AsyncOperationManager {
+    static async executeWithPause(operation, operationName = 'unknown') {
+        const operationId = ++operationIdCounter;
+
+        try {
+            // Registriere Operation
+            activeOperations.set(operationId, {
+                name: operationName,
+                startTime: Date.now(),
+                status: 'running'
+            });
+
+            debugLog('ASYNC_START', { operationId, operationName });
+
+            // Warte auf Modal-freie Zeit wenn Modal aktiv ist
+            await this.waitForModalClear();
+
+            // Führe Operation aus
+            const result = await operation();
+
+            activeOperations.delete(operationId);
+            debugLog('ASYNC_COMPLETE', { operationId, operationName });
+
+            return result;
+        } catch (error) {
+            activeOperations.delete(operationId);
+            debugLog('ASYNC_ERROR', {
+                operationId,
+                operationName,
+                error: error.message
+            });
+            throw error;
+        }
+    }
+
+    static async waitForModalClear() {
+        return new Promise(resolve => {
+            const checkModal = () => {
+                if (!get(isModalVisible)) {
+                    resolve();
+                } else {
+                    // Pausiere für smooth UX (Apple-Style)
+                    setTimeout(checkModal, 100);
+                }
+            };
+            checkModal();
+        });
+    }
+
+    static pauseAll() {
+        isAsyncOperationPaused.set(true);
+        debugLog('ASYNC_PAUSE_ALL');
+    }
+
+    static resumeAll() {
+        isAsyncOperationPaused.set(false);
+        debugLog('ASYNC_RESUME_ALL');
+    }
+
+    static getActiveOperations() {
+        return Array.from(activeOperations.values());
+    }
+}
+
+/**
  * Initialisiert das Modal-System smooth
  */
 function initializeModalSystem() {
@@ -61,6 +139,8 @@ function initializeModalSystem() {
     isModalVisible.set(false);
     modalType.set('info');
     modalData.set({});
+    isAsyncOperationPaused.set(false);
+    pausedOperations.set([]);
 
     // Lösche alle bestehenden Timeouts
     if (modalTimeout) {
@@ -73,13 +153,20 @@ function initializeModalSystem() {
 }
 
 /**
- * Zeigt eine Modal-Nachricht mit optionalen Parametern an
+ * Enhanced Modal Display mit pausierbaren async Operations
  * @param {string} message - Der anzuzeigende Text
- * @param {string} type - Typ der Nachricht ('info', 'success', 'error', 'warning', 'sending', 'contact')
+ * @param {string} type - Typ der Nachricht
  * @param {number} duration - Anzeigedauer in ms, null für manuelle Schließung
- * @param {object} data - Zusätzliche Daten, die im Modal verwendet werden können
+ * @param {object} data - Zusätzliche Daten
+ * @param {object} options - Erweiterte Optionen für UX
  */
-export function showModal(message, type = 'info', duration = 4000, data = {}) {
+export function showModal(
+    message,
+    type = 'info',
+    duration = 4000,
+    data = {},
+    options = {}
+) {
     // Stelle sicher, dass das System initialisiert ist
     if (!isInitialized) {
         initializeModalSystem();
@@ -90,6 +177,15 @@ export function showModal(message, type = 'info', duration = 4000, data = {}) {
         console.error('❌ showModal: Invalid message provided:', message);
         return null;
     }
+
+    // Enhanced Options (Apple/Airbnb Style)
+    const enhancedOptions = {
+        pauseAsyncOperations: true,
+        smoothTransition: true,
+        hapticFeedback: false, // für mobile devices
+        preventBodyScroll: true,
+        ...options
+    };
 
     // Erstelle Modal-Eintrag mit ID
     const modalId = ++modalIdCounter;
@@ -102,6 +198,7 @@ export function showModal(message, type = 'info', duration = 4000, data = {}) {
         duration,
         data,
         priority,
+        options: enhancedOptions,
         timestamp: new Date().toISOString()
     };
 
@@ -129,7 +226,7 @@ export function showModal(message, type = 'info', duration = 4000, data = {}) {
 }
 
 /**
- * Verarbeitet die Modal-Queue
+ * Enhanced Queue Processing mit UX-Optimierungen
  */
 function processModalQueue() {
     if (isProcessingQueue || modalQueue.length === 0) {
@@ -148,13 +245,23 @@ function processModalQueue() {
         modalTimeout = null;
     }
 
-    // Stores aktualisieren
+    // Apple/Airbnb Style: Pausiere async Operations wenn gewünscht
+    if (nextModal.options?.pauseAsyncOperations) {
+        AsyncOperationManager.pauseAll();
+    }
+
+    // Stores aktualisieren mit smooth transition
     modalMessage.set(nextModal.message);
     modalType.set(nextModal.type);
     isModalVisible.set(true);
 
     if (nextModal.data && Object.keys(nextModal.data).length > 0) {
         modalData.set(nextModal.data);
+    }
+
+    // Body scroll prevention (Apple Style)
+    if (nextModal.options?.preventBodyScroll) {
+        document.body.style.overflow = 'hidden';
     }
 
     debugLog('SHOW', nextModal);
@@ -186,7 +293,7 @@ function closeModalById(modalId) {
 }
 
 /**
- * Schließt das Modal und setzt alle Werte zurück
+ * Enhanced Modal Close mit UX-Optimierungen
  */
 export function closeModal() {
     debugLog('CLOSE', {
@@ -204,16 +311,22 @@ export function closeModal() {
         modalTimeout = null;
     }
 
+    // Restore body scroll (Apple Style)
+    document.body.style.overflow = '';
+
+    // Resume async operations
+    AsyncOperationManager.resumeAll();
+
     // Markiere Queue-Verarbeitung als beendet
     isProcessingQueue = false;
     currentModalId = null;
 
-    // Verarbeite das nächste Modal in der Queue
+    // Verarbeite das nächste Modal in der Queue mit Delay für smooth UX
     setTimeout(() => {
         if (modalQueue.length > 0) {
             processModalQueue();
         }
-    }, 100); // Kleine Verzögerung für bessere UX
+    }, 150); // Apple-Style delay für smooth transitions
 }
 
 /**

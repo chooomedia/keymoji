@@ -6,13 +6,13 @@
     import { updateSeo } from '../stores/seoStore.js';
     import { currentLanguage, translations } from '../stores/contentStore.js';
     import { navigate } from 'svelte-routing';
-    import Header from '../components/Layout/Header.svelte';
-    import FixedMenu from '../widgets/FixedMenu.svelte';
+    import PageLayout from '../components/Layout/PageLayout.svelte';
     import { versionInfo, appVersion } from '../utils/version.js';
+    import FooterInfo from '../widgets/FooterInfo.svelte';
 
-    // Reaktive Übersetzungen
-    $: pageTitle = $translations.versions?.pageTitle || 'Version History';
-    $: pageDescription = $translations.versions?.pageDescription || 'Check out the development history and changelog of Keymoji.';
+    // Reaktive PageLayout Props
+    $: pageTitle = $translations?.versions?.pageTitle || 'Version History';
+    $: pageDescription = $translations?.versions?.pageDescription || 'Check out the development history and changelog of Keymoji.';
    
     // Verwende appVersion statt currentVersion Prop
     let currentVersion = appVersion;
@@ -74,20 +74,15 @@
     });
 </script>
 
-<main class="app-container min-h-screen overflow-y-auto pt-20">
-    <Header />
+<svelte:head>
+    <title>{pageTitle} - Keymoji</title>
+    <meta name="description" content={pageDescription} />
+</svelte:head>
+
+<PageLayout {pageTitle} {pageDescription}>
     
     <!-- Content Container -->
-    <div class="container mx-auto px-4 pt-8 pb-24">
-        <!-- Page Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-black dark:text-white mb-4">
-                {$translations?.versions?.title || 'Version History'}
-            </h1>
-            <p class="text-lg text-gray dark:text-gray-400 max-w-2xl mx-auto">
-                {$translations?.versions?.description || 'Complete version history and changelog of Keymoji'}
-            </p>
-        </div>
+    <div class="container mx-auto py-4">
 
         <!-- Back Link nach der Beschreibung -->
         <div class="text-center mb-6">
@@ -103,7 +98,7 @@
 
         <!-- Version History Content - Breiter und ohne Parent-Hintergrund -->
         <div class="w-full max-w-xl mx-auto">
-            <div class="bg-creme-500 dark:bg-aubergine-80 rounded-xl shadow-xl p-4 max-h-[60vh]">
+            <div class="max-h-[60vh]">
                 <div class="mx-auto relative timeline-container">
                     <!-- Dynamische Timeline-Linie -->
                     <div 
@@ -169,9 +164,10 @@
             </div>
         </div>
     </div>
-</main>
 
-<FixedMenu />
+    <!-- Footer Information Component -->
+    <FooterInfo slot="footer" />
+</PageLayout>
 
 <style>
     /* Critical Lesson Learned Animation - Subtle but Contrasting */

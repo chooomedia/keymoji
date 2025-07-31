@@ -168,7 +168,7 @@
   ></button>
 {/if}
 
-<div id="fixed-menu" class="fixed bottom-4 flex flex-col justify-center items-center w-full z-10">
+<div id="fixed-menu" class="main-footer fixed bottom-0 left-0 right-0 pb-4 flex flex-col justify-center items-center w-full z-40 bg-transparent backdrop-blur-md">
   {#if showMenu && shareLinks.length > 0}
     <ul 
     class="w-34 mx-auto rounded-t-xl shadow-lg bg-creme-500 dark:bg-aubergine-900 ring-1 ring-black ring-opacity-5 z-auto pt-2" 

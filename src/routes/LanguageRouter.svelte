@@ -14,7 +14,6 @@ import BlogPost from '../components/Features/BlogPost.svelte';
     import ContactForm from './ContactForm.svelte';
     import AccountManager from './AccountManager.svelte';
 
-    import Layout from '../components/Layout/Layout.svelte';
     import NotFound from './NotFound.svelte';
     import SEO from '../components/SEO.svelte';
     import { appVersion } from '../utils/version.js';
@@ -238,49 +237,43 @@ import BlogPost from '../components/Features/BlogPost.svelte';
 />
   
 <Router {url}>
-    <Layout>
-        <!-- Home Routes - müssen zuerst kommen -->
-        <Route path="/" component={Index} />
-        <Route path="/:lang" component={Index} />
-        
-        <!-- Specific Routes - müssen vor generischen kommen -->
-        <Route path="/versions" let:params>
-            <VersionHistory />
-        </Route>
-        <Route path="/:lang/versions" let:params>
-            <VersionHistory />
-        </Route>
-        
-        <Route path="/contact" let:params>
-            <ContactForm />
-        </Route>
-        <Route path="/:lang/contact" let:params>
-            <ContactForm />
-        </Route>
-        
-        <Route path="/account" let:params>
-            <AccountManager />
-        </Route>
-        <Route path="/:lang/account" let:params>
-            <AccountManager />
-        </Route>
-        
-        <Route path="/blog" let:params>
-            <BlogGrid />
-        </Route>
-        <Route path="/:lang/blog" let:params>
-            <BlogGrid />
-        </Route>
-        
-        <!-- Dynamic Routes -->
-        <Route path="/blog/:slug" let:params>
-            <BlogPost slug={params.slug} />
-        </Route>
-        <Route path="/:lang/blog/:slug" let:params>
-            <BlogPost slug={params.slug} />
-        </Route>
-        
-        <!-- Fallback Route - muss am Ende stehen -->
-        <Route component={NotFound} />
-    </Layout>
+    <Route path="/" component={Index} />
+    <Route path="/:lang" component={Index} />
+    
+    <Route path="/versions" let:params>
+        <VersionHistory />
+    </Route>
+    <Route path="/:lang/versions" let:params>
+        <VersionHistory />
+    </Route>
+    
+    <Route path="/contact" let:params>
+        <ContactForm />
+    </Route>
+    <Route path="/:lang/contact" let:params>
+        <ContactForm />
+    </Route>
+    
+    <Route path="/account" let:params>
+        <AccountManager />
+    </Route>
+    <Route path="/:lang/account" let:params>
+        <AccountManager />
+    </Route>
+    
+    <Route path="/blog" let:params>
+        <BlogGrid />
+    </Route>
+    <Route path="/:lang/blog" let:params>
+        <BlogGrid />
+    </Route>
+    
+    <Route path="/blog/:slug" let:params>
+        <BlogPost slug={params.slug} />
+    </Route>
+    <Route path="/:lang/blog/:slug" let:params>
+        <BlogPost slug={params.slug} />
+    </Route>
+    
+    <Route component={NotFound} />
 </Router>

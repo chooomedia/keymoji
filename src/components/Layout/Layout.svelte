@@ -12,15 +12,60 @@ import ModalDebug from '../UI/ModalDebug.svelte';
     // URL für Logging
     export const url = "";
     
-    // Hintergrundbild-Eigenschaften
+    // Background-Optimierung: Performance-optimierte Bildquellen
     const hieroglyphicEmojisSrc = '/images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.svg';
+    const hieroglyphicEmojisWebP = '/images/keymoji-emoji-pattern-background-egypt-hieroglyphes-ai-dall-e.webp';
+    
+    // Apple/Airbnb-Style Gradients mit besserer Performance
     const darkGradient = 'linear-gradient(-45deg, #050413, #040320f5, #080715, #040310)';
     const lightGradient = 'linear-gradient(-45deg, #e0e0e0f7, #f8f8f8f0, #ecececf0, #e0e0e0f2)';
     
-    $: bgImage = `background-image: url("${hieroglyphicEmojisSrc}"), ${$darkMode ? darkGradient : lightGradient}`;
+    // Performance-State
+    let backgroundLoaded = false;
+    let supportsWebP = false;
+    
+    // Reactive background properties mit WebP-Support
+    $: finalBgSrc = supportsWebP ? hieroglyphicEmojisWebP : hieroglyphicEmojisSrc;
+    $: bgImage = `background-image: url("${finalBgSrc}"), ${$darkMode ? darkGradient : lightGradient}`;
     $: bgBlendMode = $darkMode ? 'multiply' : 'hue';
     
     let mounted = false;
+    
+    // WebP-Support-Detection (Apple/Airbnb-Style)
+    function checkWebPSupport() {
+        return new Promise((resolve) => {
+            const webP = new Image();
+            webP.onload = webP.onerror = () => resolve(webP.height === 2);
+            webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+        });
+    }
+    
+    // Background-Image preloading mit Intersection Observer
+    function preloadBackgroundImage() {
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !backgroundLoaded) {
+                        const link = document.createElement('link');
+                        link.rel = 'preload';
+                        link.href = finalBgSrc;
+                        link.as = 'image';
+                        link.onload = () => backgroundLoaded = true;
+                        document.head.appendChild(link);
+                        observer.disconnect();
+                    }
+                });
+            });
+            
+            const bgElement = document.querySelector('.hieroglyphemojis');
+            if (bgElement) observer.observe(bgElement);
+        } else {
+            // Fallback für ältere Browser
+            const img = new Image();
+            img.onload = () => backgroundLoaded = true;
+            img.src = finalBgSrc;
+        }
+    }
     
     // Sync the document attributes with store values
     function syncDocumentWithStores() {
@@ -29,14 +74,14 @@ import ModalDebug from '../UI/ModalDebug.svelte';
             document.documentElement.lang = $currentLanguage;
         }
         
-        // Set dark mode class
+        // Set dark mode class on HTML element for CSS 
         if ($darkMode) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
         }
         
-        // Set special language class for Elvish
+        // Handle special fonts (Elvish/Quenya)
         if ($currentLanguage === 'qya') {
             document.body.classList.add('font-elvish');
             
@@ -66,9 +111,16 @@ import ModalDebug from '../UI/ModalDebug.svelte';
         }
     });
     
-    onMount(() => {
+    onMount(async () => {
         mounted = true;
+        
+        // WebP-Support-Check
+        supportsWebP = await checkWebPSupport();
+        
         syncDocumentWithStores();
+        
+        // Background-Image intelligent preloading
+        setTimeout(() => preloadBackgroundImage(), 100);
         
         // Add MutationObserver to ensure lang attribute stays correct
         const observer = new MutationObserver((mutations) => {
@@ -80,32 +132,14 @@ import ModalDebug from '../UI/ModalDebug.svelte';
             });
         });
         
-        observer.observe(document.documentElement, { attributes: true });
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['lang']
+        });
         
-        return () => {
-            observer.disconnect();
-        };
+        // Cleanup observer on component destroy
+        return () => observer.disconnect();
     });
-    
-    // We also use reactive statements to ensure changes are reflected
-    $: if (mounted && $darkMode !== undefined) {
-        if ($darkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }
-    
-    $: if (mounted && $currentLanguage) {
-        document.documentElement.lang = $currentLanguage;
-        
-        // Update special language class
-        if ($currentLanguage === 'sjn') {
-            document.body.classList.add('font-elvish');
-        } else {
-            document.body.classList.remove('font-elvish');
-        }
-    }
 </script>
 
 <!-- Service Worker update handler -->
@@ -120,8 +154,8 @@ import ModalDebug from '../UI/ModalDebug.svelte';
 <SkipLink target="#main-content" />
   
 <div 
-    class="wrapper hieroglyphemojis {$darkMode ? 'dark' : ''}" 
-    style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}"
+    class="wrapper hieroglyphemojis {$darkMode ? 'dark' : ''} {backgroundLoaded ? 'bg-loaded' : 'bg-loading'}" 
+    style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}; will-change: background-position;"
     aria-hidden="false"
     data-url={url}
     data-lang={$currentLanguage}

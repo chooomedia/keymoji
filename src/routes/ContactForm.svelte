@@ -13,8 +13,7 @@
     } from '../stores/modalStore.js';
     import { navigate } from "svelte-routing";
     import { fade, fly, scale } from 'svelte/transition';
-    import Header from '../components/Layout/Header.svelte';
-    import FixedMenu from '../widgets/FixedMenu.svelte';
+    import PageLayout from '../components/Layout/PageLayout.svelte';
     import { WEBHOOKS, API_CONFIG } from '../config/api.js';
     import { appVersion } from '../utils/version.js';
     import { navigateToHome } from '../utils/navigation.js';
@@ -22,6 +21,7 @@
     import Button from '../components/UI/Button.svelte';
     import { isTestMode } from '../utils/environment.js';
     import { initializeAccountFromCookies } from '../stores/accountStore.js';
+    import FooterInfo from '../widgets/FooterInfo.svelte';
     
     // Reaktive Übersetzungen - optimiert
     $: pageTitle = $translations?.contactForm?.pageTitle || 'Contact';
@@ -229,168 +229,143 @@
     $: isFormValid = name.trim().length >= 2 && 
                      validateEmail(email) && 
                      message.trim().length >= MIN_MESSAGE_LENGTH;
+
+
 </script>
 
-<!-- App Container -->
-<main class="app-container" data-lang={$currentLanguage}>
-    <!-- Header -->
-    <Header />
-    
-    <!-- Main Content Container -->
-    <div class="min-h-screen overflow-y-auto scrollbar-consistent scroll-smooth" in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}>
-        <!-- Main Content -->
-        <section class="flex flex-col justify-center items-center min-h-screen py-8 px-4 z-10 gap-4 overflow-y-auto scrollbar-consistent scroll-smooth">
-
-            <!-- GIF Image above header -->
-            <div class="flex justify-center mb-4">
-                <div 
-                    class="relative w-32 h-32 cursor-pointer rounded-full overflow-hidden border-4 border-yellow-200 dark:border-yellow-600 shadow-lg transform-gpu"
-                    on:mouseenter={() => {showRealImage = true; console.log('Mouse enter - showing real image');}}
-                    on:mouseleave={() => {showRealImage = false; console.log('Mouse leave - showing GIF');}}
-                >
-                    <!-- Animated GIF (default layer) -->
-                    <img 
-                        src={emoijSmirkingFace} 
-                        alt={$translations.contactForm.smirkingFaceImageAlt}
-                        class="w-full h-full object-cover rounded-full absolute inset-0 z-0 transition-opacity duration-500 ease-in-out"
-                        class:opacity-0={showRealImage}
-                        on:load={() => {handleImageLoad(); console.log('GIF loaded successfully');}}
-                        on:error={() => console.log('Error loading GIF')}
-                    />
-                    
-                    <!-- Real Image (hover layer) -->
-                    <img 
-                        src={realAuthorImage} 
-                        alt="Chris Matt - Creator of Keymoji the {$translations.index.pageTitle}"
-                        class="w-full h-full object-cover rounded-full absolute inset-0 z-10 transition-all duration-500 ease-in-out"
-                        class:opacity-0={!showRealImage}
-                        class:scale-105={showRealImage}
-                        on:error={() => console.log('Error loading real author image')}
-                    />
-                </div>
-            </div>
-
-            <!-- Main Heading -->
-            <div class="w-11/12 md:w-26r flex flex-wrap justify-center" role="banner">
-                <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
-                    {pageTitle}
-                </h1>
-                <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed text-gray">
-                    {pageDescription}
-                </p>
-            </div>
-
-            <!-- Contact Form Component -->
-            <div class="content-wrapper pb-4 px-4 w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-500 dark:bg-aubergine-80 backdrop-opacity-60">
-                <!-- Contact Form -->
-    <form on:submit|preventDefault={handleSubmit} class="space-y-4">
-                    <!-- Honeypot Field -->
-                    <div class="hidden" aria-hidden="true">
-                        <input type="text" name="website" bind:value={honeypot} autocomplete="off" tabindex="-1" />
-                    </div>
-
-                    <!-- Name & Email Fields -->
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="name" class="sr-only">{$translations.contactForm.nameLabel}</label>
-                            <Input
-                                id="name"
-                                type="text"
-                                bind:value={name}
-                                placeholder={$translations.contactForm.nameLabel}
-                                disabled={isSubmitting}
-                            />
-                            {#if formErrors.name}
-                                <p id="name-error" class="form-error">{formErrors.name}</p>
-                            {/if}
-                        </div>
-
-                        <div>
-                            <label for="email" class="sr-only">{$translations.contactForm.emailLabel}</label>
-                            <Input
-                                id="email"
-                                type="email"
-                                bind:value={email}
-                                placeholder={$translations.contactForm.emailLabel}
-                                disabled={isSubmitting}
-                            />
-                            {#if formErrors.email}
-                                <p id="email-error" class="form-error">{formErrors.email}</p>
-                            {/if}
-                        </div>
-                    </div>
-
-                    <!-- Message Field -->
-                    <div>
-                    <label for="message" class="sr-only">{$translations.contactForm.messageLabel}</label>
-                    <Input
-                        id="message"
-                        type="textarea"
-                        bind:value={message}
-                        placeholder={$translations.contactForm.messageLabel}
-                        disabled={isSubmitting}
-                    />
-                    {#if formErrors.message}
-                        <p id="message-error" class="form-error">{formErrors.message}</p>
-                    {/if}
-                </div>
-
-                    <!-- Newsletter Opt-in -->
-                    <div class="flex items-center space-x-2">
-                        <input
-                            id="newsletter"
-                            type="checkbox"
-                            bind:checked={newsletterOptIn}
-                            class="rounded"
-                            disabled={isSubmitting}
-                        />
-                        <label class="dark:text-gray-400" for="newsletter">{$translations.contactForm.newsletterLabel}</label>
-                    </div>
-
-                    <!-- Privacy Notice -->
-                    <p class="sr-only">
-                        {$translations.contactForm.privacyNotice}
-                    </p>
-
-                    <!-- Form Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            size="md"
-                            fullWidth={true}
-                            on:click={() => navigateToHome()}
-                            disabled={isSubmitting}
-                        >
-                        🏠 {$translations.contactForm.backToMainButton}
-                        </Button>
-                        
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            size="md"
-                            fullWidth={true}
-                            disabled={!isFormValid || isSubmitting}
-                            aria-busy={isSubmitting}
-                        >
-                            {#if isSubmitting}
-                            <span class="flex items-center">
-                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                {$translations.contactForm.sendingButton}
-                            </span>
-                            {:else}
-                            {$translations.contactForm.sendButton}
-                            {/if}
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </section>
+<PageLayout {pageTitle} {pageDescription}>
+    <!-- GIF Image in before-header slot -->
+    <div slot="before-header" class="flex justify-center mb-4">
+        <div 
+            class="relative w-32 h-32 cursor-pointer rounded-full overflow-hidden border-4 border-yellow-200 dark:border-yellow-600 shadow-lg transform-gpu"
+            on:mouseenter={() => {showRealImage = true; console.log('Mouse enter - showing real image');}}
+            on:mouseleave={() => {showRealImage = false; console.log('Mouse leave - showing GIF');}}
+        >
+            <!-- Animated GIF (default layer) -->
+            <img 
+                src={emoijSmirkingFace} 
+                alt={$translations.contactForm.smirkingFaceImageAlt}
+                class="w-full h-full object-cover rounded-full absolute inset-0 z-0 transition-opacity duration-500 ease-in-out"
+                class:opacity-0={showRealImage}
+                on:load={() => {handleImageLoad(); console.log('GIF loaded successfully');}}
+                on:error={() => console.log('Error loading GIF')}
+            />
+            
+            <!-- Real Image (hover layer) -->
+            <img 
+                src={realAuthorImage} 
+                alt="Chris Matt - Creator of Keymoji the {$translations.index.pageTitle}"
+                class="w-full h-full object-cover rounded-full absolute inset-0 z-10 transition-all duration-500 ease-in-out"
+                class:opacity-0={!showRealImage}
+                class:scale-105={showRealImage}
+                on:error={() => console.log('Error loading real author image')}
+            />
+        </div>
     </div>
 
-    <!-- Fixed Menu -->
-    <FixedMenu align={'bottom'} />
-</main>
+    <!-- Contact Form Content -->
+    <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+        <!-- Honeypot Field -->
+        <div class="hidden" aria-hidden="true">
+            <input type="text" name="website" bind:value={honeypot} autocomplete="off" tabindex="-1" />
+        </div>
+
+        <!-- Name & Email Fields -->
+        <div class="grid md:grid-cols-2 gap-4">
+            <div>
+                <label for="name" class="sr-only">{$translations.contactForm.nameLabel}</label>
+                <Input
+                    id="name"
+                    type="text"
+                    bind:value={name}
+                    placeholder={$translations.contactForm.nameLabel}
+                    disabled={isSubmitting}
+                />
+                {#if formErrors.name}
+                    <p id="name-error" class="form-error">{formErrors.name}</p>
+                {/if}
+            </div>
+
+            <div>
+                <label for="email" class="sr-only">{$translations.contactForm.emailLabel}</label> 
+                <Input
+                    id="email"
+                    type="email"
+                    bind:value={email}
+                    placeholder={$translations.contactForm.emailLabel}
+                    disabled={isSubmitting}
+                />
+                {#if formErrors.email}
+                    <p id="email-error" class="form-error">{formErrors.email}</p>
+                {/if}
+            </div>
+        </div>
+
+        <!-- Message Field -->
+        <div>
+            <label for="message" class="sr-only">{$translations.contactForm.messageLabel}</label>
+            <Input
+                id="message"
+                type="textarea"
+                bind:value={message}
+                placeholder={$translations.contactForm.messageLabel}
+                disabled={isSubmitting}
+            />
+            {#if formErrors.message}
+                <p id="message-error" class="form-error">{formErrors.message}</p>
+            {/if}
+        </div>
+
+        <!-- Newsletter Opt-in -->
+        <div class="flex items-start space-x-2">
+            <input
+                type="checkbox"
+                id="newsletter"
+                bind:checked={newsletterOptIn}
+                class="contact-checkbox"
+                disabled={isSubmitting}
+            />
+            <label for="newsletter" class="text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
+                {$translations.contactForm.newsletterOptIn}
+            </label>
+        </div>
+
+        <!-- Form Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 pt-4">
+            <Button
+                type="button"
+                variant="secondary" 
+                size="md"
+                fullWidth={true}
+                on:click={() => navigateToHome()}
+                disabled={isSubmitting}
+            >
+                🏠 {$translations.contactForm.backToMainButton}
+            </Button>
+            
+            <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                fullWidth={true}
+                disabled={!isFormValid || isSubmitting}
+                aria-busy={isSubmitting}
+            >
+                {#if isSubmitting}
+                    <span class="flex items-center">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {$translations.contactForm.sendingButton}
+                    </span>
+                {:else}
+                    {$translations.contactForm.sendButton}
+                {/if}
+            </Button>
+        </div>
+    </form>
+
+    <!-- Footer Information Component -->
+    <FooterInfo slot="footer" />
+</PageLayout>

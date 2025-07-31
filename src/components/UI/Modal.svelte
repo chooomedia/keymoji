@@ -12,10 +12,10 @@
         modalType, 
         modalData, 
         closeModal 
-    } from '../../../src/stores/modalStore.js';
+    } from '../../stores/modalStore.js';
   
     // Import for isDebugMode
-    import { isDebugMode } from '../../../src/utils/environment.js';
+    import { isDebugMode } from '../../utils/environment.js';
   
     // State management
     $: message = $modalMessage;
@@ -391,21 +391,3 @@
         on:close={handleCloseModal}
     />
 {/if}
-  
-<style>
-    /* Optimize performance with composited animations */
-    div {
-      will-change: opacity, transform;
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-    }
-  
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-      }
-    }
-</style>

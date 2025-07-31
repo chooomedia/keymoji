@@ -106,18 +106,27 @@
         <noscript>
             <div
                 style="
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
                     text-align: center;
-                    padding: 50px;
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
                         Roboto, sans-serif;
+                    background-color: #253852;
+                    color: white;
                 "
             >
-                <h1>🔑 Keymoji - Emoji Password Generator</h1>
-                <p>You need to enable JavaScript to run this application.</p>
-                <p>
-                    Generate secure emoji passwords for better online security.
-                </p>
+                <div>
+                    <h1>🔑 Keymoji</h1>
+                    <p>
+                        You need to enable JavaScript to run this application.
+                    </p>
+                </div>
             </div>
         </noscript>
+
+        <!-- Svelte App Mount Point -->
+        <div id="app"></div>
     </body>
 </html>
