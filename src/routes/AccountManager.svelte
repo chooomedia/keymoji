@@ -315,6 +315,28 @@
         }
         return $translations?.accountManager?.buttons?.createMagicLink || 'Create Magic Link';
     })();
+    
+    // Account age label for psychological effect
+    $: accountAgeLabel = (() => {
+        if (daysSinceCreation === 0) {
+            return 'Heute erstellt';
+        } else if (daysSinceCreation === 1) {
+            return 'Gestern erstellt';
+        } else if (daysSinceCreation < 7) {
+            return `Seit ${daysSinceCreation} Tagen`;
+        } else if (daysSinceCreation < 30) {
+            const weeks = Math.floor(daysSinceCreation / 7);
+            return `Seit ${weeks} Woche${weeks > 1 ? 'n' : ''}`;
+        } else if (daysSinceCreation < 365) {
+            const months = Math.floor(daysSinceCreation / 30);
+            return `Seit ${months} Monat${months > 1 ? 'en' : ''}`;
+        } else {
+            const years = Math.floor(daysSinceCreation / 365);
+            return `Seit ${years} Jahr${years > 1 ? 'en' : ''}`;
+        }
+    })();
+    
+
 
     function selectAccountType(type) {
         selectedAccountType = type;
@@ -1043,20 +1065,20 @@
                                         <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
                                             FREE
                                         </span>
-                                        <span class="text-xs transition-colors duration-300 text-yellow-600">
-                                            {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
-                                        </span>
-                                    </button>
-                                    <button
-                                        class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
-                                        on:click={() => selectAccountType('pro')}
-                                    >
-                                        <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                            PRO
-                                        </span>
-                                        <span class="text-xs transition-colors duration-300 text-purple-600">
-                                            {$translations?.accountManager?.proDescription || '💎 Enterprise Security'}
-                                        </span>
+                                                                            <span class="text-xs transition-colors duration-300 text-yellow-600">
+                                        {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
+                                    </span>
+                                </button>
+                                <button
+                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
+                                    on:click={() => selectAccountType('pro')}
+                                >
+                                    <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
+                                        PRO
+                                    </span>
+                                    <span class="text-xs transition-colors duration-300 text-purple-600">
+                                        {$translations?.accountManager?.proDescription || '💎 Enterprise Security'}
+                                    </span>
                                     </button>
                                 </div>
                             </div>
@@ -1250,7 +1272,7 @@
                                         FREE
                                     </span>
                                     <span class="text-sm transition-colors duration-300 text-yellow-600">
-                                        {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
+                                        {accountAgeLabel}
                                     </span>
                                 </button>
                                 <button
@@ -1261,7 +1283,7 @@
                                         PRO
                                     </span>
                                     <span class="text-sm transition-colors duration-300 text-purple-600">
-                                        {$translations?.accountManager?.proDescription || '💎 Enterprise Security'}
+                                        {accountAgeLabel}
                                     </span>
                                 </button>
                             </div>
