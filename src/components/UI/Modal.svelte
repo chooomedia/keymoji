@@ -265,7 +265,7 @@
                 </div>
 
                 <!-- Modal Body -->
-                <div class="pt-4 px-4">
+                <div class="p-4" class:pb-0="{true}">
                     <!-- Pro Feature Content -->
                     {#if messageType === 'pro-feature'}
                         <div class="mb-6">
@@ -314,7 +314,7 @@
                 </div>
 
                 <!-- Modal Footer with Buttons - Outside of if/else for all modal types -->
-                <div class="mt-4 pt-3">
+                <div class="modal-footer mt-4 pt-3">
                     <!-- Buttons Section with same padding as content -->
                     {#if messageType === 'pro-feature'}
                         <!-- Pro Feature Buttons -->
@@ -343,7 +343,7 @@
                         </div>
                     {:else if $modalData?.primaryButton || $modalData?.secondaryButton}
                         <!-- Custom Buttons -->
-                        <div class="flex gap-3 mb-4 px-4 rounded-b-xl">
+                        <div class="flex gap-3 mb-4 px-4">
                             {#if $modalData.secondaryButton}
                                 <Button
                                     variant="secondary"
@@ -368,9 +368,10 @@
                     {/if}
                     
                     <!-- Auto-Close Progress Bar -->
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 h-1">
+                    <div class="w-full h-1">
+                        <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700"></div>
                         <div 
-                            class="h-1 transition-all duration-500 ease-out"
+                            class="h-1 transition-all duration-500 ease-out z-10"
                             style="width: {progressBar}%; background-color: {getIconColor(messageType)}"
                         ></div>
                     </div>

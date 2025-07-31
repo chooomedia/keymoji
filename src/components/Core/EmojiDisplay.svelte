@@ -14,6 +14,7 @@
         showSuccess, 
         showError, 
         showWarning,
+        showModal,
         isModalVisible
     } from '../../stores/modalStore.js';
     import { translations } from '../../stores/contentStore.js';
@@ -132,7 +133,7 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
     function checkLimits() {
       if ($isDisabled || isDailyLimitReached()) {
         isDisabled.set(true);
-        showErrorMessage($translations.emojiDisplay.dailyLimitReachedMessage);
+        showDailyLimitModal($translations.emojiDisplay.dailyLimitReachedMessage);
         return true;
       }
       return false;
@@ -263,6 +264,16 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
       safeSetTimeout(() => isDisabled.set(false), DISABLE_DURATION_MS);
     }
   
+    function showDailyLimitModal(message) {
+      console.log('🔴 DEBUG: Daily Limit Modal triggered!', { message });
+      // Dedicated function for Daily Limit Modal
+      showModal(message, 'warning', null, {
+        showSpinner: false,
+        isDailyLimitModal: true
+      });
+      console.log('🔴 DEBUG: Daily Limit Modal showModal called!');
+    }
+
     function showErrorMessage(message) {
       showWarning(message);
     }

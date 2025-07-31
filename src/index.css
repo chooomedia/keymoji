@@ -488,7 +488,7 @@
 }
 
 .modal-content {
-    @apply w-96 relative mx-4 bg-white dark:bg-aubergine-900 text-gray-900 dark:text-powder-600 rounded-xl overflow-hidden pointer-events-auto;
+    @apply w-96 relative bg-white dark:bg-aubergine-900 text-gray-900 dark:text-powder-600 rounded-xl overflow-hidden pointer-events-auto;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
     z-index: 10001 !important;
 }
