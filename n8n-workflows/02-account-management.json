@@ -10,16 +10,16 @@
             "typeVersion": 1,
             "position": [
                 -336,
-                848
+                832
             ],
-            "id": "42215759-58f8-43c9-8135-99e5c4817253",
+            "id": "c8522ab7-0f61-48b9-b5be-e8408d37e458",
             "name": "Sticky Note1"
         },
         {
             "parameters": {
                 "jsCode": "// Validate input data - n8n webhook format\nconst webhookData = $input.first().json;\n\n// Log incoming webhook data for debugging\nconsole.log('=== INCOMING WEBHOOK DATA ===');\nconsole.log('Raw webhook data:', JSON.stringify(webhookData, null, 2));\n\n// Extract body from webhook data\nconst data = webhookData.body || webhookData;\n\nconsole.log('=== EXTRACTED BODY DATA ===');\nconsole.log('Body data:', JSON.stringify(data, null, 2));\nconsole.log('Data type:', typeof data);\nconsole.log('Data keys:', Object.keys(data || {}));\nconsole.log('Action:', data?.action);\nconsole.log('UserId:', data?.userId);\nconsole.log('Email:', data?.email);\nconsole.log('Profile:', data?.profile);\nconsole.log('Metadata:', data?.metadata);\nconsole.log('Timestamp:', data?.timestamp);\nconsole.log('==========================');\n\n// Check required fields with better error messages\nif (!data?.action) {\n  console.log('❌ Missing action field');\n  throw new Error('Missing required field: action');\n}\n\nif (!data?.userId) {\n  console.log('❌ Missing userId field');\n  throw new Error('Missing required field: userId');\n}\n\n// Validate action\nconst validActions = ['create', 'update', 'get', 'delete'];\nif (!validActions.includes(data.action)) {\n  console.log('❌ Invalid action:', data.action);\n  throw new Error(`Invalid action: ${data.action}. Must be one of: ${validActions.join(', ')}`);\n}\n\n// Sanitize and prepare data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  email: data.email || '',\n  profile: data.profile || {},\n  metadata: data.metadata || {},\n  timestamp: data.timestamp || Date.now()\n};\n\nconsole.log('✅ Data validation passed');\nconsole.log('Sanitized data:', JSON.stringify(sanitizedData, null, 2));\n\nreturn { json: sanitizedData };"
             },
-            "id": "d19c3ea0-0cac-4fc9-a2b7-2b67a0f5bc3f",
+            "id": "f458f118-00f6-4f6a-bcda-b1f7a6c37d52",
             "name": "Validate Data",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
@@ -52,7 +52,7 @@
                 },
                 "options": {}
             },
-            "id": "dbd548c6-d223-4570-b066-c23d78000d34",
+            "id": "a3d44d83-58c4-4e16-8758-cd505cc0a7ed",
             "name": "Route by Action5",
             "type": "n8n-nodes-base.if",
             "typeVersion": 2,
@@ -65,13 +65,13 @@
             "parameters": {
                 "jsCode": "// Create new account\nconst data = $input.first().json;\nconst now = new Date().toISOString();\n\nconst newAccount = {\n  userId: data.userId,\n  email: data.email,\n  tier: 'free',\n  createdAt: now,\n  lastLogin: now,\n  profile: data.profile,\n  metadata: data.metadata,\n  status: 'active'\n};\n\nconsole.log('Creating account:', JSON.stringify(newAccount, null, 2));\n\nreturn { json: newAccount };"
             },
-            "id": "43af590e-5e14-4518-9d0b-bfeb831c1f9d",
+            "id": "a5367501-df7c-4f43-84c0-02b11e95c500",
             "name": "Create Account1",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                608,
-                896
+                640,
+                880
             ]
         },
         {
@@ -174,13 +174,13 @@
                 },
                 "options": {}
             },
-            "id": "2abedd74-2006-4eeb-b727-f79bef01034f",
+            "id": "a4596194-79a5-4e66-ba59-20b7adf44468",
             "name": "Save Account1",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                832,
-                896
+                848,
+                880
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -188,155 +188,49 @@
                     "name": "Google Sheets account"
                 }
             }
-        },
-        {
-            "parameters": {
-                "documentId": {
-                    "__rl": true,
-                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
-                    "mode": "list",
-                    "cachedResultName": "keymoji",
-                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
-                },
-                "sheetName": {
-                    "__rl": true,
-                    "value": 1278731717,
-                    "mode": "list",
-                    "cachedResultName": "accounts",
-                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1278731717"
-                },
-                "options": {}
-            },
-            "id": "09f253f8-6d32-4523-b42e-32eb354d4bd9",
-            "name": "Read Accounts1",
-            "type": "n8n-nodes-base.googleSheets",
-            "typeVersion": 4,
-            "position": [
-                384,
-                1216
-            ],
-            "credentials": {
-                "googleSheetsOAuth2Api": {
-                    "id": "SjlKGbio83VCvDmo",
-                    "name": "Google Sheets account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "jsCode": "// Find account by userId\nconst data = $input.first().json;\nconst accounts = $input.all();\nconst userId = data.userId;\n\nconsole.log('Looking for userId:', userId);\nconsole.log('Available accounts:', accounts.length);\n\n// Find account\nconst account = accounts.find(acc => acc.userId === userId);\n\nif (!account) {\n  console.log('Account not found for userId:', userId);\n  throw new Error(`Account not found for userId: ${userId}`);\n}\n\nconsole.log('Found account:', JSON.stringify(account, null, 2));\n\nreturn { json: account };"
-            },
-            "id": "e794b43f-e83b-4baf-9166-c52ae94d1b88",
-            "name": "Find Account1",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                608,
-                1216
-            ]
         },
         {
             "parameters": {
                 "jsCode": "// Update account\nconst data = $input.first().json;\nconst account = data.account;\nconst updates = data.updates;\n\n// Update fields\nconst updatedAccount = {\n  ...account,\n  ...updates,\n  lastLogin: new Date().toISOString()\n};\n\nconsole.log('Updated account:', JSON.stringify(updatedAccount, null, 2));\n\nreturn { json: updatedAccount };"
             },
-            "id": "f81fb3d0-c7e1-419b-8d4c-c844384ac625",
+            "id": "87505e25-b594-4e2c-9040-60640274c206",
             "name": "Update Account1",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                608,
-                1056
+                640,
+                1104
             ]
         },
         {
             "parameters": {
                 "respondWith": "json",
-                "responseBody": "={\n  \"success\": true,\n  \"account\": {{ $json }},\n  \"message\": \"Account created successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "responseBody": "={\n  \"success\": true,\n  \"account\": {{ $json | json }},\n  \"message\": \"Account created successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
                 "options": {}
             },
-            "id": "e6773126-a5e9-4aad-84b9-f6e8b57731be",
+            "id": "af2621fa-5c16-40fd-82b4-5375eba7cb20",
             "name": "Create Response2",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1056,
-                896
+                1344,
+                880
             ]
         },
         {
             "parameters": {
                 "respondWith": "json",
-                "responseBody": "={\n  \"success\": true,\n  \"account\": {{ $json }},\n  \"message\": \"Account retrieved successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "responseBody": "={\n  \"success\": true,\n  \"account\": {{ $json | json }},\n  \"message\": \"Account updated successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
                 "options": {}
             },
-            "id": "10eb106b-a811-4737-9822-c1cfccded483",
-            "name": "Get Response2",
-            "type": "n8n-nodes-base.respondToWebhook",
-            "typeVersion": 1,
-            "position": [
-                1056,
-                1216
-            ]
-        },
-        {
-            "parameters": {
-                "respondWith": "json",
-                "responseBody": "={\n  \"success\": true,\n  \"account\": {{ $json }},\n  \"message\": \"Account updated successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
-                "options": {}
-            },
-            "id": "b5582034-15d0-4094-b2f3-520a0081bdb3",
+            "id": "86d15e16-aa5e-4f4e-a5a6-2d1b2b5f2228",
             "name": "Update Response1",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1056,
-                1056
+                1344,
+                1104
             ]
-        },
-        {
-            "parameters": {
-                "jsCode": "// Extract email from request body\nconst email = $input.first().json.email;\nconst name = $input.first().json.name || '';\nconst userId = $input.first().json.userId || '';\n\n// Validate email - more lenient validation\nif (!email || typeof email !== 'string' || email.length < 3) {\n  return {\n    json: {\n      success: false,\n      error: 'Invalid email address',\n      exists: false\n    }\n  };\n}\n\n// For now, we'll simulate account check\n// In production, this would query a database\nconst mockAccounts = [\n  { email: 'test@example.com', name: 'Test User', userId: 'user_123', tier: 'free' },\n  { email: 'admin@keymoji.wtf', name: 'Admin User', userId: 'user_456', tier: 'pro' }\n];\n\nconst existingAccount = mockAccounts.find(account => account.email.toLowerCase() === email.toLowerCase());\n\nif (existingAccount) {\n  return {\n    json: {\n      success: true,\n      exists: true,\n      account: existingAccount,\n      message: 'Account found'\n    }\n  };\n} else {\n  return {\n    json: {\n      success: true,\n      exists: false,\n      message: 'No account found'\n    }\n  };\n}"
-            },
-            "id": "9cbbf108-ef7c-4393-936a-03a2daf6592a",
-            "name": "Check Account",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                608,
-                1376
-            ]
-        },
-        {
-            "parameters": {
-                "respondWith": "json",
-                "responseBody": "={{ $json }}",
-                "options": {}
-            },
-            "id": "b1ab15de-05e1-4daf-9df5-1bc50abfef2f",
-            "name": "Respond",
-            "type": "n8n-nodes-base.respondToWebhook",
-            "typeVersion": 1,
-            "position": [
-                1056,
-                1376
-            ]
-        },
-        {
-            "parameters": {
-                "httpMethod": "POST",
-                "path": "account-check",
-                "responseMode": "responseNode",
-                "options": {}
-            },
-            "id": "df911719-977d-43c9-8fcb-7b0bf5ccb62e",
-            "name": "CHECK Account",
-            "type": "n8n-nodes-base.webhook",
-            "typeVersion": 1,
-            "position": [
-                -272,
-                1376
-            ],
-            "webhookId": "11b71124-242f-4f83-85c6-34ea46afb9bb"
         },
         {
             "parameters": {
@@ -366,7 +260,7 @@
                     }
                 }
             },
-            "id": "ff47b759-357e-49f3-acfd-1000287d2f0e",
+            "id": "2497ad01-8f20-41f4-bf71-f137a2a9ca79",
             "name": "CREATE Account",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
@@ -375,6 +269,274 @@
                 1104
             ],
             "webhookId": "account-webhook"
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1278731717,
+                    "mode": "list",
+                    "cachedResultName": "accounts",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1278731717"
+                },
+                "options": {}
+            },
+            "id": "3ec93bdc-28cd-4327-bac8-5e61b71255e3",
+            "name": "Read Accounts",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                416,
+                1104
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1278731717,
+                    "mode": "list",
+                    "cachedResultName": "accounts",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1278731717"
+                },
+                "filtersUI": {
+                    "values": [
+                        {
+                            "lookupColumn": "email",
+                            "lookupValue": "={{ $json.body.email }}"
+                        }
+                    ]
+                },
+                "combineFilters": "AND",
+                "options": {
+                    "returnAllMatches": "returnFirstMatch"
+                }
+            },
+            "id": "875661fc-6e23-45b4-8347-7b8d176c2fc6",
+            "name": "Read Accounts2",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                176,
+                1312
+            ],
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json }}",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS, GET"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Credentials",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "ca03bf6f-88e4-46af-8804-b9b3ad919cc7",
+            "name": "Respond2",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1344,
+                1296
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "79476d68-4414-4110-a1f4-d1b6d91b14e3",
+                            "leftValue": "={{ $json.email }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "string",
+                                "operation": "exists",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                416,
+                1312
+            ],
+            "id": "179fdabe-61b3-45cd-8589-cb7883557bff",
+            "name": "If"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "4d15c31e-f60b-4b73-ae6d-99fc9772330f",
+                            "name": "success",
+                            "value": true,
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "02652a48-a80e-4dc3-bf5f-60d0436bbe1c",
+                            "name": "exists",
+                            "value": true,
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "432de590-1a7e-4b55-af04-e9d099b6e511",
+                            "name": "account",
+                            "value": "={{ $json.profile }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "be1126bf-5455-4c39-b0ae-f3fec79bc454",
+                            "name": "message",
+                            "value": "Account found!",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                640,
+                1248
+            ],
+            "id": "354c9a5c-6b31-4ecd-bf29-ae0ea9d0ebff",
+            "name": "Account True"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "4d15c31e-f60b-4b73-ae6d-99fc9772330f",
+                            "name": "success",
+                            "value": true,
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "02652a48-a80e-4dc3-bf5f-60d0436bbe1c",
+                            "name": "exists",
+                            "value": false,
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "432de590-1a7e-4b55-af04-e9d099b6e511",
+                            "name": "account",
+                            "value": "=No Account!",
+                            "type": "string"
+                        },
+                        {
+                            "id": "be1126bf-5455-4c39-b0ae-f3fec79bc454",
+                            "name": "message",
+                            "value": "No account found!",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                640,
+                1376
+            ],
+            "id": "6efcd96c-0e4d-4940-959e-c247f561c18c",
+            "name": "Account false"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-account-check",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS, GET"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Credentials",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "8e6d3866-7ea0-488e-9cec-4e28e122c69a",
+            "name": "CHECK Account",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -272,
+                1312
+            ],
+            "webhookId": "account-check-webhook"
         }
     ],
     "connections": {
@@ -400,12 +562,7 @@
                 ],
                 [
                     {
-                        "node": "Read Accounts1",
-                        "type": "main",
-                        "index": 0
-                    },
-                    {
-                        "node": "Update Account1",
+                        "node": "Read Accounts",
                         "type": "main",
                         "index": 0
                     }
@@ -434,28 +591,6 @@
                 ]
             ]
         },
-        "Read Accounts1": {
-            "main": [
-                [
-                    {
-                        "node": "Find Account1",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Find Account1": {
-            "main": [
-                [
-                    {
-                        "node": "Get Response2",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
         "Update Account1": {
             "main": [
                 [
@@ -467,11 +602,73 @@
                 ]
             ]
         },
-        "Check Account": {
+        "CREATE Account": {
             "main": [
                 [
                     {
-                        "node": "Respond",
+                        "node": "Validate Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Accounts": {
+            "main": [
+                [
+                    {
+                        "node": "Update Account1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Accounts2": {
+            "main": [
+                [
+                    {
+                        "node": "If",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If": {
+            "main": [
+                [
+                    {
+                        "node": "Account True",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Account false",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Account True": {
+            "main": [
+                [
+                    {
+                        "node": "Respond2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Account false": {
+            "main": [
+                [
+                    {
+                        "node": "Respond2",
                         "type": "main",
                         "index": 0
                     }
@@ -482,18 +679,7 @@
             "main": [
                 [
                     {
-                        "node": "Check Account",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "CREATE Account": {
-            "main": [
-                [
-                    {
-                        "node": "Validate Data",
+                        "node": "Read Accounts2",
                         "type": "main",
                         "index": 0
                     }

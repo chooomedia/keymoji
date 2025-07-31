@@ -386,33 +386,33 @@
 
                         <!-- Pro Items (now functional for all users) -->
                         {#if section.proItems}
-                            {#each section.proItems as item}
-                                <div class="mb-4 last:mb-0">
-                                    <ModularInput
-                                        config={{
-                                            type: item.type,
-                                            id: item.id,
-                                            icon: item.icon,
-                                            label: item.title,
-                                            description: item.description,
-                                            placeholder: item.placeholder,
-                                            value: getCurrentValue(item),
-                                            options: item.options?.map(opt => ({
-                                                value: opt.value,
-                                                label: opt.label
-                                            })) || [],
-                                            min: item.min,
-                                            max: item.max,
-                                            labels: item.labels,
-                                            defaultValue: item.defaultValue,
-                                            class: 'contact-input'
-                                        }}
-                                        currentLanguage={$currentLanguage}
-                                        currentValue={getCurrentValue(item)}
-                                        onValueChange={(value) => handleSettingUpdate(item.id, value)}
-                                    />
-                                </div>
-                            {/each}
+                                {#each section.proItems as item}
+                                    <div class="mb-4 last:mb-0">
+                                        <ModularInput
+                                            config={{
+                                                type: item.type,
+                                                id: item.id,
+                                                icon: item.icon,
+                                                label: item.title,
+                                                description: item.description,
+                                                placeholder: item.placeholder,
+                                                value: getCurrentValue(item),
+                                                options: item.options?.map(opt => ({
+                                                    value: opt.value,
+                                                    label: opt.label
+                                                })) || [],
+                                                min: item.min,
+                                                max: item.max,
+                                                labels: item.labels,
+                                                defaultValue: item.defaultValue,
+                                                class: 'contact-input'
+                                            }}
+                                            currentLanguage={$currentLanguage}
+                                            currentValue={getCurrentValue(item)}
+                                            onValueChange={(value) => handleSettingUpdate(item.id, value)}
+                                        />
+                                    </div>
+                                {/each}
                         {/if}
                     </div>
                 {/if}

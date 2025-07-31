@@ -18,8 +18,8 @@
     } from '../../stores/modalStore.js';
     import { translations } from '../../stores/contentStore.js';
 import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
-import emojisData from '../../../public/emojisArray.json';
-import { WEBHOOKS } from '../../../src/config/api.js';
+    import emojisData from '../../../public/emojisArray.json';
+    import { WEBHOOKS } from '../../../src/config/api.js';
 import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js';
 
     // Props

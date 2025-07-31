@@ -28,7 +28,15 @@
         hasExistingUserPreferences,
         hasValidUserSession,
         getUserEmailFromPreferences,
-        verifyMagicLinkFrontend
+        verifyMagicLinkFrontend,
+        checkAccountExists,
+        // Sichere Accounting-Funktionen
+        secureCreateAccount,
+        secureUpdateAccount,
+        secureGetAccount,
+        secureLoginWithMagicLink,
+        secureVerifyMagicLink,
+        logAccountingEvent
     } from '../stores/accountStore.js';
     import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore.js';
     import { currentSettings, resetSettings, exportSettings, importSettings } from '../stores/userSettingsStore.js';
@@ -279,14 +287,18 @@
         checkingAccount = true;
 
         try {
-            // Create account first if it's a new user
-            if (selectedAccountType === 'pro') {
-                await createAccount(
-                    `user_${Date.now()}`,
-                    email,
-                    { name, accountType: 'pro' },
-                    { source: 'account_manager', tier: 'pro' }
-                );
+            // Check if account already exists before creating
+            console.log('🔍 Checking if account already exists...');
+            const accountCheck = await checkAccountExists(email, name);
+            
+            if (accountCheck.exists) {
+                console.log('✅ Account already exists, proceeding with magic link');
+                // Account exists, proceed with magic link
+                showInfo('Account found! Sending magic link to existing account.', 3000);
+            } else {
+                console.log('🆕 No existing account found, will create new account');
+                // Account doesn't exist, will be created during magic link verification
+                showInfo('Creating new account and sending magic link.', 3000);
             }
 
             // Determine if we're in development mode
@@ -294,7 +306,8 @@
             
             console.log('🔧 Development mode detected:', isDevMode);
 
-            const loginResult = await loginWithMagicLink(email, name, isDevMode);
+            console.log('🔒 Starting secure magic link login...');
+            const loginResult = await secureLoginWithMagicLink(email, name, isDevMode);
             
             // Log the API response
             if (loginResult?.result?.isDevMode !== undefined) {
@@ -304,8 +317,16 @@
             // Mark successful login for return user tracking
             markSuccessfulLogin(email);
             
+            // Log accounting event
+            logAccountingEvent('LOGIN_ATTEMPT_SUCCESS', {
+                email,
+                accountType: selectedAccountType,
+                dev: isDevMode,
+                accountExists: accountCheck.exists
+            });
+            
             // Show success message
-            showSuccess('Magic link sent! Check your email to complete account creation.', 5000);
+            showSuccess('Magic link sent! Check your email to complete login.', 5000);
             
             // Move to verification step
             accountCreationStep = 'verification';
@@ -412,7 +433,8 @@
                     magicLinkStatus = 'verifying';
                     
                     try {
-                        await verifyMagicLinkFrontend(token, magicLinkEmail);
+                        console.log('🔒 Starting secure magic link verification...');
+                        await secureVerifyMagicLink(token, magicLinkEmail);
                         magicLinkStatus = 'success';
                         showSuccess('Magic Link erfolgreich verifiziert!', 3000);
                         
@@ -652,7 +674,7 @@
                                 <div class="relative context-menu">
                                     <button
                                         on:click={toggleContextMenu}
-                                        class="p-2 rounded-full bg-creme-500 dark:bg-aubergine-950 text-gray-700 dark:text-white hover:bg-creme-600 dark:hover:bg-aubergine-900 transition-colors"
+                                        class="p-2 rounded-full bg-powder-300 dark:bg-aubergine-950 text-gray-700 dark:text-white hover:bg-creme-600 dark:hover:bg-aubergine-900 transition-colors"
                                         aria-label="Settings menu"
                                     >
                                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

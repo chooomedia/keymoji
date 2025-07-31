@@ -18,7 +18,12 @@ export const WEBHOOKS = {
         UPDATE: `${API_URL}/account/update`,
         MAGIC_LINK_SEND: `${API_URL}/magic-link/send`,
         MAGIC_LINK_VERIFY: `${API_URL}/magic-link/verify`,
-        CHECK_EXISTS: `${N8N_URL}/account-check` // n8n workflow endpoint
+        CHECK_EXISTS: `${N8N_URL}/xn--moji-pb73c-account-check`, // n8n workflow endpoint
+        // Sichere Accounting-Endpunkte
+        SECURE_CREATE: `${N8N_URL}/xn--moji-pb73c-account`,
+        SECURE_UPDATE: `${N8N_URL}/xn--moji-pb73c-account`,
+        SECURE_GET: `${N8N_URL}/xn--moji-pb73c-account`,
+        AUDIT_LOG: `${N8N_URL}/xn--moji-pb73c-accounting-audit-log`
     },
 
     // Analytics & User Counter
@@ -47,6 +52,14 @@ export const WEBHOOKS = {
     // Email Templates
     EMAIL: {
         TEST: `${API_URL}/test-emails`
+    },
+
+    // Accounting & Financial Security
+    ACCOUNTING: {
+        AUDIT_LOG: `${N8N_URL}/xn--moji-pb73c-accounting-audit-log`,
+        SECURITY_LOG: `${N8N_URL}/xn--moji-pb73c-accounting-security-log`,
+        VALIDATION: `${N8N_URL}/xn--moji-pb73c-accounting-validation`,
+        RATE_LIMIT: `${N8N_URL}/xn--moji-pb73c-accounting-rate-limit`
     }
 };
 
