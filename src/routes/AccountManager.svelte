@@ -1051,7 +1051,7 @@
                     <!-- Expanded View for Return Users -->
                     <div in:fly={{y: 20, duration: 400}} out:fly={{y: -20, duration: 400}}>
                         <!-- Account Creation Flow -->
-                         <div class="transform -translate-y-2.5">
+                         <div class="transform -translate-y-3.5 scale-114">
                             <div class="core-button relative h-20 bg-creme-500 dark:bg-aubergine-900 border-powder-300 dark:border-aubergine-800 shadow-inner overflow-hidden mb-1">
                                 <div
                                     class="absolute inset-y-1 bg-powder-300 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
