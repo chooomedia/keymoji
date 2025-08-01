@@ -77,6 +77,7 @@ export default {
         privacyNotice:
             '귀하의 데이터는 안전하게 처리됩니다 🤲. 제3자에게 제공되지 않습니다 🔒.',
         newsletterLabel: '네, 뉴스레터를 구독하고 싶어요',
+        newsletterOptIn: '뉴스레터 구독',
         backToMainButton: '홈으로 돌아가기',
         footerText: '사랑을 담아 개발',
         validationErrorMessage: '제출 전에 양식 오류를 수정하세요 🔍',
@@ -409,36 +410,80 @@ export default {
         importing: '가져오는 중...',
         resetting: '재설정 중...'
     },
+    versions: {
+        pageTitle: '버전 기록',
+        pageDescription:
+            'Keymoji, 이모지 비밀번호 생성기의 개발 기록과 변경 기록을 확인하세요.'
+    },
 
     // 일반 UI 텍스트
     // AccountManager 번역
     accountManager: {
-        // 헤더 및 설명
+        // 페이지 제목 및 설명
         pageTitle: '계정 관리',
         pageDescription: '보안 설정 및 계정 환경설정 관리',
         welcomeBack: '다시 오신 것을 환영합니다, {name}님! 👋',
         welcomeDescription:
             '놀라운 이모지 비밀번호를 만들 준비가 되셨나요? 귀하의 계정은 안전하고 준비되었습니다!',
+        returnUserTitle: '👋 다시 오신 것을 환영합니다!',
+        returnUserDescription:
+            '귀하의 이메일 주소를 인식했습니다. 빠르게 로그인하세요.',
         verificationTitle: '📧 이메일을 확인하고 인증하세요',
         verificationDescription:
             '이메일 {email}을 확인하고 매직 링크를 클릭하여 설정을 완료하세요',
+        verifyingTitle: '🔗 매직 링크 인증 중...',
+        verifyingDescription: '계정을 인증하는 동안 기다려주세요.',
+        verificationErrorTitle: '❌ 인증 실패',
+        verificationErrorDescription: '오류가 발생했습니다.',
 
-        // 계정 상태
-        accountStatus: '계정 상태',
-        emailLabel: '이메일 주소',
+        // 버튼 및 작업
+        buttons: {
+            createMagicLink: '매직 링크 만들기',
+            loginToAccount: '계정에 로그인',
+            checkAccountExists: '계정 확인 중...',
+            sendingMagicLink: '매직 링크 전송 중...',
+            accountExists: '계정 발견 - 로그인 중...',
+            accountNotFound: '계정을 찾을 수 없음 - 생성 중...',
+            sessionExpired: '세션 만료 - 다시 로그인',
+            loginAgain: '🔐 다시 로그인',
+            createNewAccount: '새 계정 만들기',
+            resendMagicLink: '🔄 매직 링크 재전송',
+            backToAccountOptions: '← 계정 옵션으로 돌아가기',
+            addProfile: '추가',
+            hideProfile: '숨기기',
+            profileData: '프로필 데이터',
+            showFullForm: '전체 양식 표시',
+            compactView: '간소화된 보기'
+        },
+
+        // 폼 라벨
+        emailLabel: '이메일',
         nameLabel: '이름',
-        profileDataLabel: '프로필 데이터',
 
-        // 계정 레벨
-        freeBadge: '✨ 무료',
-        proBadge: '💎 PRO',
-        freeDescription: '✨ 무료 보안',
-        proDescription: '💎 엔터프라이즈 보안',
+        // 작업
+        actions: {
+            saveSettings: '💾 설정 저장',
+            backToHome: '🏠 홈으로 돌아가기',
+            skipAccount: '❌ {type} 건너뛰기',
+            createAccount: '🚀 {type} 계정 만들기',
+            settingsSaved: '설정이 저장되었습니다!'
+        },
+
+        // 통계
+        statistics: {
+            storiesGenerated: '생성된 스토리',
+            remainingGenerations: '남은 생성'
+        },
+
+        // 일일 생성
+        dailyGenerations: '일일 생성',
+
+        // 남은 생성 표시
+        remainingDisplay: '남은 {remaining} / {limit}',
 
         // 혜택
         benefits: {
             free: {
-                title: '무료 혜택',
                 dailyGenerations: '하루 5회 안전한 생성',
                 dailyGenerationsDesc: 'AI 저항 기술',
                 decentralizedData: '분산 데이터 처리',
@@ -447,11 +492,12 @@ export default {
                 webAppDesc: '어디서든 안전하게 접근'
             },
             pro: {
-                title: 'PRO 혜택',
                 unlimitedGenerations: '무제한 안전한 생성',
                 unlimitedGenerationsDesc: '일일 제한 없음',
                 aiThreatDetection: 'AI 기반 위협 탐지',
                 aiThreatDetectionDesc: '사전 보안 분석',
+                prioritySupport: '우선 지원',
+                prioritySupportDesc: '질문에 대한 빠른 도움',
                 browserExtension: '브라우저 확장 프로그램 (2025년 Q4)',
                 browserExtensionDesc: '웹 어디서든 보안',
                 wordpressPlugin: 'WordPress 플러그인 (2025년 Q4)',
@@ -459,55 +505,110 @@ export default {
             }
         },
 
-        // 일일 제한
-        dailyGenerations: '일일 생성',
-        remainingGenerations: '남은 {remaining} / {limit}',
-        canStillGenerate: '아직 이모지를 생성할 수 있습니다!',
-        limitReached:
-            '일일 제한에 도달했습니다. 무제한 생성을 위해 PRO로 업그레이드하세요.',
-
-        // 통계
-        statistics: {
-            storiesGenerated: '생성된 스토리',
-            remainingGenerations: '남은 생성'
-        },
-
-        // 작업
-        actions: {
-            saveSettings: '💾 설정 저장',
-            backToHome: '🏠 홈으로 돌아가기',
-            createAccount: '🚀 {type} 계정 만들기',
-            skipAccount: '{type} 계정 건너뛰기',
-            createMagicLink: '🔐 매직 링크 만들기',
-            sendingMagicLink: '⏳ 매직 링크 전송 중...',
-            resendMagicLink: '🔄 매직 링크 재전송',
-            backToAccountOptions: '← 계정 옵션으로 돌아가기',
-            addProfileData: '👤 프로필 데이터 추가',
-            hideProfileData: '👤 프로필 데이터 숨기기'
-        },
-
-        // 폼 검증
-        validation: {
-            invalidEmail: '⚠️ 유효한 이메일 주소를 입력하세요',
-            invalidName: '⚠️ 이름을 입력하세요 (최소 2자)',
-            requiredField: '이 필드는 필수입니다'
-        },
-
         // 도움말 섹션
         help: {
             title: '💡 도움이 필요하신가요?',
-            checkSpam: '• 이메일이 보이지 않으면 스팸 폴더를 확인하세요',
-            linkExpires: '• 매직 링크는 15분 후 만료됩니다',
+            spamFolder: '• 이메일이 보이지 않으면 스팸 폴더를 확인하세요',
+            magicLinkExpiry: '• 매직 링크는 15분 후 만료됩니다',
             requestNewLink: '• 언제든지 새 링크를 요청할 수 있습니다',
             noPassword: '• 비밀번호 불필요 - 링크만 클릭하세요'
         },
 
         // 푸터
         footer: {
-            magicLink: '🔒 매직 링크',
-            instantSetup: '⚡ 즉시 설정',
-            noSpam: '🎯 스팸 없음'
-        }
+            magicLink: '매직 링크',
+            instantSetup: '즉시 설정',
+            noSpam: '스팸 없음',
+            text: '매직 링크는 이메일로 전송되며 15분간 유효합니다.',
+            privacy: '귀하의 데이터는 안전하게 처리됩니다.'
+        },
+
+        // 제한 및 메시지
+        canStillGenerate: '아직 이모지를 생성할 수 있습니다!',
+        limitReached:
+            '일일 제한에 도달했습니다. 무제한 생성을 위해 PRO로 업그레이드하세요.',
+
+        // 계정 연령
+        accountAge: {
+            today: '오늘 생성됨',
+            yesterday: '어제 생성됨',
+            days: '{days}일 전부터',
+            weeks: '{weeks}주{plural} 전부터',
+            months: '{months}개월{plural} 전부터',
+            years: '{years}년{plural} 전부터',
+            accountSince: '{days} {unit} 전 계정',
+            since: '{days} {unit} 전부터',
+            day: '일',
+            daysLabel: '일',
+            accountCreated: '계정 생성됨'
+        },
+
+        // 검증
+        validation: {
+            emailInvalid: '유효한 이메일 주소를 입력하세요',
+            nameInvalid: '이름을 입력하세요 (최소 2자)'
+        },
+
+        // 메시지
+        messages: {
+            settingsReset: '설정이 기본값으로 재설정되었습니다',
+            exportFailed: '설정 내보내기 실패',
+            settingsExported: '설정이 성공적으로 내보내졌습니다',
+            freeAccountActivated: '무료 계정이 활성화되었습니다!'
+        },
+
+        // 업그레이드 섹션
+        upgrade: {
+            upgradeToPro: 'Pro로 업그레이드',
+            upgradeToProForFeatures: '고급 기능을 위해 Pro로 업그레이드',
+            unlimitedGenerations: '무제한 생성 및 고급 보안 기능'
+        },
+
+        // 컨텍스트 메뉴
+        contextMenu: {
+            exportSettings: '설정 내보내기',
+            importSettings: '설정 가져오기',
+            resetToDefault: '기본값으로 재설정',
+            logout: '로그아웃',
+            settingsMenu: '설정 메뉴'
+        },
+
+        // 기능
+        features: {
+            proFeature: 'Pro 기능'
+        },
+
+        // Pro 기능 모달
+        proFeatureModal: {
+            title: 'Pro 기능',
+            proBenefits: 'Pro 혜택:',
+            unlimitedGenerations: '무제한 이모지 생성',
+            advancedSecurity: '고급 보안 기능',
+            prioritySupport: '우선 지원',
+            earlyAccess: '새 기능에 대한 조기 액세스',
+            maybeLater: '나중에',
+            upgradeToPro: 'Pro로 업그레이드',
+            // Pro 업그레이드 전용
+            proUpgrade: 'Pro 업그레이드',
+            unlockAdvancedFeatures: '모든 고급 기능 및 설정 잠금 해제',
+            upgradeProNow: '💎 지금 Pro로 업그레이드'
+        },
+
+        // 계정 레벨
+        tiers: {
+            free: '무료',
+            pro: 'PRO',
+            freeAccount: '무료 계정',
+            proAccount: 'Pro 계정'
+        },
+
+        // 배지
+        freeBadge: '✨ 무료',
+        proBadge: '💎 PRO',
+
+        // 설명
+        freeDescription: '✨ 무료 보안',
+        proDescription: '�� 엔터프라이즈 보안'
     },
 
     ui: {

@@ -78,6 +78,7 @@ export default {
         privacyNotice:
             'Je gegevens zijn bij ons in goede handen 🤲. Je gegevens worden niet gedeeld met derden 🔒.',
         newsletterLabel: 'Ja, ik wil de nieuwsbrief ontvangen',
+        newsletterOptIn: 'Inschrijven voor nieuwsbrief',
         backToMainButton: 'Terug naar home',
         footerText: 'Met liefde ontwikkeld',
         validationErrorMessage:
@@ -413,37 +414,80 @@ export default {
         importing: 'Importeren...',
         resetting: 'Terugzetten...'
     },
+    versions: {
+        pageTitle: 'Versiegeschiedenis',
+        pageDescription:
+            'Bekijk de ontwikkelingsgeschiedenis en changelog van Keymoji, de emoji wachtwoord generator.'
+    },
 
     // Algemene UI-teksten
     // AccountManager vertalingen
     accountManager: {
-        // Koppen en beschrijvingen
+        // Paginatitels en beschrijvingen
         pageTitle: 'Accountbeheer',
         pageDescription:
             'Beheer je beveiligingsinstellingen en accountvoorkeuren',
         welcomeBack: 'Welkom terug, {name}! 👋',
         welcomeDescription:
             'Klaar om geweldige emoji-wachtwoorden te maken? Je account is veilig en klaar!',
+        returnUserTitle: '👋 Welkom terug!',
+        returnUserDescription: 'We hebben je e-mailadres herkend. Log snel in.',
         verificationTitle: '📧 Controleer je e-mail en verifieer',
         verificationDescription:
             'Controleer je e-mail {email} en klik op de magische link om de setup te voltooien',
+        verifyingTitle: '🔗 Magische link verifiëren...',
+        verifyingDescription: 'Even geduld terwijl we je account verifiëren.',
+        verificationErrorTitle: '❌ Verificatie mislukt',
+        verificationErrorDescription: 'Er is een fout opgetreden.',
 
-        // Account status
-        accountStatus: 'Account status',
-        emailLabel: 'E-mailadres',
-        nameLabel: 'Je naam',
-        profileDataLabel: 'Profielgegevens',
+        // Knoppen en acties
+        buttons: {
+            createMagicLink: 'Magische link maken',
+            loginToAccount: 'Inloggen op account',
+            checkAccountExists: 'Account controleren...',
+            sendingMagicLink: 'Magische link verzenden...',
+            accountExists: 'Account gevonden - Inloggen...',
+            accountNotFound: 'Account niet gevonden - Aanmaken...',
+            sessionExpired: 'Sessie verlopen - Opnieuw inloggen',
+            loginAgain: '🔐 Opnieuw inloggen',
+            createNewAccount: 'Nieuw account aanmaken',
+            resendMagicLink: '🔄 Magische link opnieuw verzenden',
+            backToAccountOptions: '← Terug naar accountopties',
+            addProfile: 'Toevoegen',
+            hideProfile: 'Verbergen',
+            profileData: 'Profielgegevens',
+            showFullForm: 'Volledig formulier tonen',
+            compactView: 'Compacte weergave'
+        },
 
-        // Account niveaus
-        freeBadge: '✨ GRATIS',
-        proBadge: '💎 PRO',
-        freeDescription: '✨ Gratis beveiliging',
-        proDescription: '💎 Enterprise beveiliging',
+        // Formulierlabels
+        emailLabel: 'E-mail',
+        nameLabel: 'Naam',
+
+        // Acties
+        actions: {
+            saveSettings: '💾 Instellingen opslaan',
+            backToHome: '🏠 Terug naar home',
+            skipAccount: '❌ {type} overslaan',
+            createAccount: '🚀 {type} account aanmaken',
+            settingsSaved: 'Instellingen succesvol opgeslagen!'
+        },
+
+        // Statistieken
+        statistics: {
+            storiesGenerated: 'Gegenereerde verhalen',
+            remainingGenerations: 'Resterende generaties'
+        },
+
+        // Dagelijkse generaties
+        dailyGenerations: 'Dagelijkse generaties',
+
+        // Weergave resterende generaties
+        remainingDisplay: '{remaining} / {limit} over',
 
         // Voordelen
         benefits: {
             free: {
-                title: 'GRATIS voordelen',
                 dailyGenerations: '5 dagelijkse veilige generaties',
                 dailyGenerationsDesc: 'AI-resistente technologie',
                 decentralizedData: 'Gedecentraliseerde gegevensverwerking',
@@ -452,11 +496,12 @@ export default {
                 webAppDesc: 'Veilige toegang overal vandaan'
             },
             pro: {
-                title: 'PRO voordelen',
                 unlimitedGenerations: 'Onbeperkte veilige generaties',
                 unlimitedGenerationsDesc: 'Geen dagelijkse limieten',
                 aiThreatDetection: 'AI-aangedreven bedreigingsdetectie',
                 aiThreatDetectionDesc: 'Proactieve beveiligingsanalyse',
+                prioritySupport: 'Prioriteit ondersteuning',
+                prioritySupportDesc: 'Snelle hulp bij vragen',
                 browserExtension: 'Browser-extensie (Q4 2025)',
                 browserExtensionDesc: 'Beveiliging overal op het web',
                 wordpressPlugin: 'WordPress-plugin (Q4 2025)',
@@ -464,55 +509,113 @@ export default {
             }
         },
 
-        // Dagelijkse limiet
-        dailyGenerations: 'Dagelijkse generaties',
-        remainingGenerations: '{remaining} / {limit} over',
-        canStillGenerate: "Je kunt nog steeds emoji's genereren!",
-        limitReached:
-            'Dagelijkse limiet bereikt. Upgrade naar PRO voor onbeperkte generaties.',
-
-        // Statistieken
-        statistics: {
-            storiesGenerated: 'Gegenereerde verhalen',
-            remainingGenerations: 'Resterende generaties'
-        },
-
-        // Acties
-        actions: {
-            saveSettings: '💾 Instellingen opslaan',
-            backToHome: '🏠 Terug naar home',
-            createAccount: '🚀 {type} account aanmaken',
-            skipAccount: '{type} account overslaan',
-            createMagicLink: '🔐 Magische link maken',
-            sendingMagicLink: '⏳ Magische link verzenden...',
-            resendMagicLink: '🔄 Magische link opnieuw verzenden',
-            backToAccountOptions: '← Terug naar accountopties',
-            addProfileData: '👤 Profielgegevens toevoegen',
-            hideProfileData: '👤 Profielgegevens verbergen'
-        },
-
-        // Formuliervalidatie
-        validation: {
-            invalidEmail: '⚠️ Voer een geldig e-mailadres in',
-            invalidName: '⚠️ Voer je naam in (minimaal 2 tekens)',
-            requiredField: 'Dit veld is verplicht'
-        },
-
         // Help sectie
         help: {
             title: '💡 Heb je hulp nodig?',
-            checkSpam: '• Controleer je spam-map als je de e-mail niet ziet',
-            linkExpires: '• Magische links verlopen na 15 minuten',
+            spamFolder: '• Controleer je spam-map als je de e-mail niet ziet',
+            magicLinkExpiry: '• Magische links verlopen na 15 minuten',
             requestNewLink: '• Je kunt altijd een nieuwe link aanvragen',
             noPassword: '• Geen wachtwoord nodig - klik gewoon op de link'
         },
 
         // Footer
         footer: {
-            magicLink: '🔒 Magische link',
-            instantSetup: '⚡ Directe setup',
-            noSpam: '🎯 Geen spam'
-        }
+            magicLink: 'Magische link',
+            instantSetup: 'Directe setup',
+            noSpam: 'Geen spam',
+            text: 'Magische links worden per e-mail verzonden en zijn 15 minuten geldig.',
+            privacy: 'Je gegevens worden veilig verwerkt.'
+        },
+
+        // Limieten en berichten
+        canStillGenerate: "Je kunt nog steeds emoji's genereren!",
+        limitReached:
+            'Dagelijkse limiet bereikt. Upgrade naar PRO voor onbeperkte generaties.',
+
+        // Account leeftijd
+        accountAge: {
+            today: 'Vandaag aangemaakt',
+            yesterday: 'Gisteren aangemaakt',
+            days: 'Sinds {days} dagen',
+            weeks: 'Sinds {weeks} week{plural}',
+            months: 'Sinds {months} maand{plural}',
+            years: 'Sinds {years} jaar{plural}',
+            accountSince: 'Account sinds {days} {unit}',
+            since: 'sinds {days} {unit}',
+            day: 'dag',
+            daysLabel: 'dagen',
+            accountCreated: 'Account aangemaakt'
+        },
+
+        // Validatie
+        validation: {
+            emailInvalid: 'Voer een geldig e-mailadres in',
+            nameInvalid: 'Voer je naam in (minimaal 2 tekens)'
+        },
+
+        // Berichten
+        messages: {
+            settingsReset: 'Instellingen teruggezet naar standaard',
+            exportFailed: 'Exporteren van instellingen mislukt',
+            settingsExported: 'Instellingen succesvol geëxporteerd',
+            freeAccountActivated: 'Gratis account geactiveerd!'
+        },
+
+        // Upgrade sectie
+        upgrade: {
+            upgradeToPro: 'Upgrade naar Pro',
+            upgradeToProForFeatures:
+                'Upgrade naar Pro voor geavanceerde functies',
+            unlimitedGenerations:
+                'Onbeperkte generaties en geavanceerde beveiligingsfuncties'
+        },
+
+        // Context menu
+        contextMenu: {
+            exportSettings: 'Instellingen exporteren',
+            importSettings: 'Instellingen importeren',
+            resetToDefault: 'Terugzetten naar standaard',
+            logout: 'Uitloggen',
+            settingsMenu: 'Instellingenmenu'
+        },
+
+        // Functies
+        features: {
+            proFeature: 'Pro functie'
+        },
+
+        // Pro functie modal
+        proFeatureModal: {
+            title: 'Pro functie',
+            proBenefits: 'Pro voordelen:',
+            unlimitedGenerations: 'Onbeperkte emoji generaties',
+            advancedSecurity: 'Geavanceerde beveiligingsfuncties',
+            prioritySupport: 'Prioriteit ondersteuning',
+            earlyAccess: 'Vroege toegang tot nieuwe functies',
+            maybeLater: 'Misschien later',
+            upgradeToPro: 'Upgrade naar Pro',
+            // Pro upgrade specifiek
+            proUpgrade: 'Pro upgrade',
+            unlockAdvancedFeatures:
+                'Ontgrendel alle geavanceerde functies en instellingen',
+            upgradeProNow: '💎 Nu upgraden naar Pro'
+        },
+
+        // Account niveaus
+        tiers: {
+            free: 'GRATIS',
+            pro: 'PRO',
+            freeAccount: 'Gratis account',
+            proAccount: 'Pro account'
+        },
+
+        // Badges
+        freeBadge: '✨ GRATIS',
+        proBadge: '💎 PRO',
+
+        // Beschrijvingen
+        freeDescription: '✨ Gratis beveiliging',
+        proDescription: '💎 Enterprise beveiliging'
     },
 
     // Contactformulier

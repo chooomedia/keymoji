@@ -78,6 +78,7 @@ export default {
         privacyNotice:
             'Sei versichert, deine Daten sind bei uns in guten Händen 🤲. Deine Details werden nicht an Dritte weitergegeben 🔒.',
         newsletterLabel: 'Ja, ich möchte den Newsletter abonnieren',
+        newsletterOptIn: 'Newsletter abonnieren',
         backToMainButton: 'Zurück zu Home',
         footerText: 'Mit Liebe entwickelt',
         validationErrorMessage:
@@ -117,7 +118,7 @@ export default {
         message: 'Hoppla! Seite nicht gefunden 🚫',
         suggestion:
             'Die Seite, die du suchst, wurde möglicherweise verschoben, gelöscht oder hat nie existiert.',
-        backButton: 'Zurück zur Startseite',
+        backButton: 'Zurück zu Home',
         contactButton: 'Kontaktiere uns',
         navigationTitle: 'Verfügbare Seiten',
         recentEmojis: 'Letzte Emojis'
@@ -435,56 +436,84 @@ export default {
         // Überschriften und Beschreibungen
         pageTitle: 'Account Manager',
         pageDescription:
-            'Manage your security settings and account preferences',
-        welcomeBack: 'Welcome back, {name}! 👋',
+            'Verwalte deine Sicherheitseinstellungen und Account-Präferenzen',
+        welcomeBack: 'Willkommen zurück, {name}! 👋',
         welcomeDescription:
-            'Ready to create some amazing emoji passwords? Your account is secure and ready to go!',
-        verificationTitle: '📧 Check Your Email and Verify',
+            'Bereit für starke Emoji-Passwörter? Dein Account ist sicher und startklar!',
+        returnUserTitle: '👋 Willkommen zurück!',
+        returnUserDescription:
+            'Wir haben deine E-Mail erkannt. Melde dich schnell wieder an.',
+        verificationTitle: '📧 E-Mail prüfen und verifizieren',
         verificationDescription:
-            'Check your email {email} and click the magic link to complete setup',
+            'Prüfe deine E-Mail {email} und klicke auf den Magic Link, um die Einrichtung abzuschließen',
+        verifyingTitle: '🔗 Magic Link wird verifiziert...',
+        verifyingDescription:
+            'Bitte warte, während wir deinen Account verifizieren.',
+        verificationErrorTitle: '❌ Verifikation fehlgeschlagen',
+        verificationErrorDescription: 'Ein Fehler ist aufgetreten.',
 
-        // Account Status
-        accountStatus: 'Account Status',
-        emailLabel: 'Email Address',
-        nameLabel: 'Your Name',
-        profileDataLabel: 'Profile Data',
-
-        // Account Tiers
-        freeBadge: '✨ FREE',
-        proBadge: '💎 PRO',
-        freeDescription: '✨ Kostenlose Sicherheit',
-        proDescription: '💎 Enterprise Security',
-
-        // Button Texts
+        // Buttons und Aktionen
         buttons: {
-            createMagicLink: '✨ Magic Link erstellen',
-            loginToAccount: '👤 In Konto einloggen',
-            checkAccountExists: '🔄 Konto prüfen...',
-            sendingMagicLink: '🔄 Magic Link wird gesendet...',
-            accountExists: '✅ Konto gefunden - Einloggen...',
-            accountNotFound: '🚫 Konto nicht gefunden - Erstellen...',
-            sessionExpired: '🔄 Erneut anmelden',
-            loginAgain: '🔄 Erneut anmelden',
-            createNewAccount: '👤 Neues Konto erstellen'
+            createMagicLink: 'Magic Link erstellen',
+            loginToAccount: 'Im Account einloggen',
+            checkAccountExists: 'Konto wird geprüft...',
+            sendingMagicLink: 'Magic Link wird gesendet...',
+            accountExists: 'Konto gefunden – Einloggen...',
+            accountNotFound: 'Konto nicht gefunden – wird erstellt...',
+            sessionExpired: 'Session abgelaufen – bitte neu anmelden',
+            loginAgain: '🔐 Erneut einloggen',
+            createNewAccount: 'Neues Konto erstellen',
+            resendMagicLink: '🔄 Magic Link erneut senden',
+            backToAccountOptions: '← Zurück zu den Account-Optionen',
+            addProfile: 'Profil hinzufügen',
+            hideProfile: 'Profil ausblenden',
+            profileData: 'Profildaten',
+            showFullForm: 'Vollständiges Formular anzeigen',
+            compactView: 'Kompakte Ansicht'
         },
 
-        // Benefits
+        // Formular-Labels
+        emailLabel: 'E-Mail',
+        nameLabel: 'Name',
+
+        // Aktionen
+        actions: {
+            saveSettings: '💾 Einstellungen speichern',
+            backToHome: '🏠 Zurück zu Home',
+            skipAccount: '❌ {type} überspringen',
+            createAccount: '🚀 {type} Account anlegen',
+            settingsSaved: 'Einstellungen erfolgreich gespeichert!'
+        },
+
+        // Statistiken
+        statistics: {
+            storiesGenerated: 'Generierte Stories',
+            remainingGenerations: 'Verbleibende Generierungen'
+        },
+
+        // Daily generations
+        dailyGenerations: 'Tägliche Generierungen',
+
+        // Remaining generations display
+        remainingDisplay: '{remaining} / {limit} verbleibend',
+
+        // Vorteile
         benefits: {
             free: {
-                title: 'FREE Benefits',
                 dailyGenerations: '5 tägliche sichere Generierungen',
                 dailyGenerationsDesc: 'KI-resistente Technologie',
-                decentralizedData: 'Denzentrale Datenverabeitung',
+                decentralizedData: 'Dezentrale Datenverarbeitung',
                 decentralizedDataDesc: 'Deine Daten bleiben privat',
                 webApp: 'Als Webapp nutzbar',
                 webAppDesc: 'Sicherer Zugriff von überall'
             },
             pro: {
-                title: 'PRO Benefits',
                 unlimitedGenerations: 'Unbegrenzte sichere Generierungen',
                 unlimitedGenerationsDesc: 'Keine täglichen Limits',
                 aiThreatDetection: 'KI-gestützte Bedrohungserkennung',
                 aiThreatDetectionDesc: 'Proaktive Sicherheitsanalyse',
+                prioritySupport: 'Prioritäts-Support',
+                prioritySupportDesc: 'Schnelle Hilfe bei Fragen',
                 browserExtension: 'Browser-Erweiterung (Q4 2025)',
                 browserExtensionDesc: 'Sicherheit überall im Web',
                 wordpressPlugin: 'WordPress-Plugin (Q4 2025)',
@@ -492,55 +521,113 @@ export default {
             }
         },
 
-        // Daily Limit
-        dailyGenerations: 'Daily Generations',
-        remainingGenerations: '{remaining} / {limit} remaining',
-        canStillGenerate: 'You can still generate emojis!',
-        limitReached:
-            'Daily limit reached. Upgrade to PRO for unlimited generations.',
-
-        // Statistics
-        statistics: {
-            storiesGenerated: 'Stories Generated',
-            remainingGenerations: 'Remaining Generations'
-        },
-
-        // Actions
-        actions: {
-            saveSettings: '💾 Save Settings',
-            backToHome: '🏠 Back to Home',
-            createAccount: '🚀 {type} Account anlegen',
-            skipAccount: '❌ Auf {type} verzichten',
-            createMagicLink: '🔐 Create Magic-Link',
-            sendingMagicLink: '⏳ Sending Magic-Link...',
-            resendMagicLink: '🔄 Resend Magic Link',
-            backToAccountOptions: '← Back to Account Options',
-            addProfileData: '👤 Add Profile Data',
-            hideProfileData: '👤 Hide Profile Data'
-        },
-
-        // Form Validation
-        validation: {
-            invalidEmail: '⚠️ Please enter a valid email address',
-            invalidName: '⚠️ Please enter your name (minimum 2 characters)',
-            requiredField: 'This field is required'
-        },
-
-        // Help Section
+        // Hilfe-Bereich
         help: {
-            title: '💡 Need Help?',
-            checkSpam: "• Check your spam folder if you don't see the email",
-            linkExpires: '• Magic links expire after 15 minutes',
-            requestNewLink: '• You can request a new link anytime',
-            noPassword: '• No password required - just click the link'
+            title: '💡 Hilfe benötigt?',
+            spamFolder:
+                '• Prüfe deinen Spam-Ordner, falls du keine E-Mail siehst',
+            magicLinkExpiry: '• Magic Links verfallen nach 15 Minuten',
+            requestNewLink: '• Du kannst jederzeit einen neuen Link anfordern',
+            noPassword: '• Kein Passwort nötig – einfach Link klicken'
         },
 
         // Footer
         footer: {
-            magicLink: '🔒 Magic link',
-            instantSetup: '⚡ Instant Setup',
-            noSpam: '🎯 No Spam'
-        }
+            magicLink: 'Magic Link',
+            instantSetup: 'Sofort-Setup',
+            noSpam: 'Kein Spam',
+            text: 'Magic Links werden per E-Mail gesendet und sind 15 Minuten gültig.',
+            privacy: 'Deine Daten werden sicher behandelt.'
+        },
+
+        // Limits und Hinweise
+        canStillGenerate: 'Du kannst weiterhin Emojis generieren!',
+        limitReached:
+            'Tageslimit erreicht. Upgrade auf PRO für unbegrenzte Generierungen.',
+
+        // Account-Alter
+        accountAge: {
+            today: 'Heute erstellt',
+            yesterday: 'Gestern erstellt',
+            days: 'Seit {days} Tagen',
+            weeks: 'Seit {weeks} Woche{plural}',
+            months: 'Seit {months} Monat{plural}',
+            years: 'Seit {years} Jahr{plural}',
+            accountSince: 'Account seit {days} {unit}',
+            since: 'seit {days} {unit}',
+            day: 'Tag',
+            daysLabel: 'Tagen',
+            accountCreated: 'Account erstellt'
+        },
+
+        // Validierung
+        validation: {
+            emailInvalid: 'Bitte gib eine gültige E-Mail-Adresse ein',
+            nameInvalid: 'Bitte gib deinen Namen ein (mindestens 2 Zeichen)'
+        },
+
+        // Nachrichten
+        messages: {
+            settingsReset: 'Einstellungen auf Standard zurückgesetzt',
+            exportFailed: 'Export der Einstellungen fehlgeschlagen',
+            settingsExported: 'Einstellungen erfolgreich exportiert',
+            freeAccountActivated: 'Kostenloser Account aktiviert!'
+        },
+
+        // Upgrade-Bereich
+        upgrade: {
+            upgradeToPro: 'Upgrade auf Pro',
+            upgradeToProForFeatures: 'Upgrade auf Pro für erweiterte Features',
+            unlimitedGenerations:
+                'Unbegrenzte Generierungen und erweiterte Sicherheitsfeatures'
+        },
+
+        // Kontextmenü
+        contextMenu: {
+            exportSettings: 'Einstellungen exportieren',
+            importSettings: 'Einstellungen importieren',
+            resetToDefault: 'Auf Standard zurücksetzen',
+            logout: 'Abmelden',
+            settingsMenu: 'Einstellungsmenü'
+        },
+
+        // Features
+        features: {
+            proFeature: 'Pro-Feature'
+        },
+
+        // Pro Feature Modal
+        proFeatureModal: {
+            title: 'Pro-Feature',
+            proBenefits: 'Pro-Vorteile:',
+            unlimitedGenerations: 'Unbegrenzte Emoji-Generierungen',
+            advancedSecurity: 'Erweiterte Sicherheitsfeatures',
+            prioritySupport: 'Prioritäts-Support',
+            earlyAccess: 'Früher Zugang zu neuen Features',
+            maybeLater: 'Vielleicht später',
+            upgradeToPro: 'Upgrade auf Pro',
+            // Pro Upgrade specific
+            proUpgrade: 'Pro Upgrade',
+            unlockAdvancedFeatures:
+                'Alle erweiterten Features und Einstellungen freischalten',
+            upgradeProNow: '💎 Jetzt Pro upgraden'
+        },
+
+        // Account-Tiers
+        tiers: {
+            free: 'KOSTENLOS',
+            pro: 'PRO',
+            freeAccount: 'Kostenloser Account',
+            proAccount: 'Pro Account'
+        },
+
+        // Badges
+        freeBadge: '✨ KOSTENLOS',
+        proBadge: '💎 PRO',
+
+        // Beschreibungen
+        freeDescription: '✨ Kostenlose Sicherheit',
+        proDescription: '💎 Enterprise-Sicherheit'
     },
 
     // Allgemeine UI-Texte

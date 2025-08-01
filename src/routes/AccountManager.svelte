@@ -219,7 +219,9 @@
     // Reactive daily limit calculation
     $: currentUserLimits = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
     $: remainingGenerations = currentUserLimits.remaining;
-    $: dailyLimitDisplay = `${remainingGenerations} / ${currentUserLimits.limit} remaining`;
+    $: dailyLimitDisplay = ($translations?.accountManager?.remainingDisplay || '{remaining} / {limit} remaining')
+        .replace('{remaining}', remainingGenerations)
+        .replace('{limit}', currentUserLimits.limit);
 
     // Magic Link verification state
     let isVerifyingMagicLink = false;
@@ -311,7 +313,7 @@
             return $translations?.accountManager?.buttons?.sendingMagicLink || 'Sending...';
         }
         if (hasLoggedInBefore) {
-            return $translations?.accountManager?.buttons?.loginAgain || '🔐 Erneut einloggen';
+            return $translations?.accountManager?.buttons?.loginAgain || '🔐 Login again';
         }
         return $translations?.accountManager?.buttons?.createMagicLink || 'Create Magic Link';
     })();
@@ -385,7 +387,7 @@
     // Handle settings reset
     function handleResetSettings() {
         resetSettings();
-        showSuccess('Settings reset to default', 3000);
+                                showSuccess($translations?.accountManager?.messages?.settingsReset || 'Settings reset to default', 3000);
         closeContextMenu();
     }
 
@@ -393,9 +395,9 @@
     function handleExportSettings() {
         try {
             exportSettings();
-            showSuccess('Settings exported successfully', 3000);
+                                    showSuccess($translations?.accountManager?.messages?.settingsExported || 'Settings exported successfully', 3000);
         } catch (error) {
-            showError('Failed to export settings', 3000);
+                                    showError($translations?.accountManager?.messages?.exportFailed || 'Failed to export settings', 3000);
         }
         closeContextMenu();
     }
@@ -820,11 +822,11 @@
                             <div class="flex items-center gap-2">
                                 <!-- PRO Badge with Hover Info -->
                                 <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold text-creme-500 dark:text-white {$accountTier === 'pro' ? 'bg-purple-700' : 'bg-yellow-600'} cursor-pointer group relative" 
-                                      title="{daysSinceCreation > 0 ? `Account seit ${daysSinceCreation} ${daysSinceCreation === 1 ? 'Tag' : 'Tagen'}` : 'Account erstellt'}"
-                                      aria-label="Account Tier: {$accountTier === 'pro' ? 'PRO' : 'FREE'}, {daysSinceCreation > 0 ? `seit ${daysSinceCreation} ${daysSinceCreation === 1 ? 'Tag' : 'Tagen'}` : 'Account erstellt'}">
+                                      title="{daysSinceCreation > 0 ? ($translations?.accountManager?.accountAge?.accountSince || 'Account seit {days} {unit}').replace('{days}', daysSinceCreation).replace('{unit}', daysSinceCreation === 1 ? ($translations?.accountManager?.accountAge?.day || 'Tag') : ($translations?.accountManager?.accountAge?.days || 'Tagen')) : ($translations?.accountManager?.accountAge?.accountCreated || 'Account erstellt')}"
+                                      aria-label="Account Tier: {$accountTier === 'pro' ? 'PRO' : 'FREE'}, {daysSinceCreation > 0 ? ($translations?.accountManager?.accountAge?.since || 'seit {days} {unit}').replace('{days}', daysSinceCreation).replace('{unit}', daysSinceCreation === 1 ? ($translations?.accountManager?.accountAge?.day || 'Tag') : ($translations?.accountManager?.accountAge?.days || 'Tagen')) : ($translations?.accountManager?.accountAge?.accountCreated || 'Account erstellt')}">
                                     {$accountTier === 'pro' ? ($translations?.accountManager?.proBadge || '💎 PRO') : ($translations?.accountManager?.freeBadge || '✨ FREE')}
                                     <span class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-gray-700 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                                        {daysSinceCreation > 0 ? `seit ${daysSinceCreation} ${daysSinceCreation === 1 ? 'Tag' : 'Tagen'}` : 'Account erstellt'}
+                                        {daysSinceCreation > 0 ? ($translations?.accountManager?.accountAge?.since || 'seit {days} {unit}').replace('{days}', daysSinceCreation).replace('{unit}', daysSinceCreation === 1 ? ($translations?.accountManager?.accountAge?.day || 'Tag') : ($translations?.accountManager?.accountAge?.days || 'Tagen')) : ($translations?.accountManager?.accountAge?.accountCreated || 'Account erstellt')}
                                     </span>
                                 </span>
 
@@ -832,7 +834,7 @@
                                     <button
                                         on:click={toggleContextMenu}
                                         class="p-2 rounded-full bg-powder-300 dark:bg-aubergine-950 text-gray-700 dark:text-white hover:bg-creme-600 dark:hover:bg-aubergine-900 transition-colors"
-                                        aria-label="Settings menu"
+                                        aria-label="{$translations?.accountManager?.contextMenu?.settingsMenu || 'Settings menu'}"
                                     >
                                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -852,7 +854,7 @@
                                                     class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 transition-colors flex items-center"
                                                 >
                                                     <span class="mr-2">📤</span>
-                                                    Export Settings
+                                                    {$translations?.accountManager?.contextMenu?.exportSettings || 'Export Settings'}
                                                 </button>
                                                 
                                                 <button
@@ -860,7 +862,7 @@
                                                     class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 transition-colors flex items-center"
                                                 >
                                                     <span class="mr-2">📥</span>
-                                                    Import Settings
+                                                    {$translations?.accountManager?.contextMenu?.importSettings || 'Import Settings'}
                                                 </button>
                                                 
                                                 <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
@@ -870,7 +872,7 @@
                                                     class="w-full text-left px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors flex items-center"
                                                 >
                                                     <span class="mr-2">🔄</span>
-                                                    Reset to Default
+                                                    {$translations?.accountManager?.contextMenu?.resetToDefault || 'Reset to Default'}
                                                 </button>
                                                 
                                                 <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
@@ -880,7 +882,7 @@
                                                     class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center"
                                                 >
                                                     <span class="mr-2">🚪</span>
-                                                    Logout
+                                                    {$translations?.accountManager?.contextMenu?.logout || 'Logout'}
                                                 </button>
                                             </div>
                                         </div>
@@ -942,7 +944,7 @@
                                 variant="primary"
                                 size="md"
                                 fullWidth={true}
-                                on:click={() => showSuccess('Settings saved successfully!', 3000)}
+                                on:click={() => showSuccess($translations?.accountManager?.actions?.settingsSaved || 'Settings saved successfully!', 3000)}
                             >
                                 {$translations?.accountManager?.actions?.saveSettings || '💾 Save Settings'}
                             </Button>
@@ -973,10 +975,9 @@
                             >
                                 {#if isSubmitting}
                                     <span class="animate-spin mr-1">⏳</span>
-                                    Sending...
+                                    {$translations?.accountManager?.buttons?.sendingMagicLink || 'Sending...'}
                                 {:else}
-                                    <span class="mr-1">🔄</span>
-                                    Resend Magic Link
+                                    {$translations?.accountManager?.buttons?.resendMagicLink || '🔄 Resend Magic Link'}
                                 {/if}
                             </Button>
                             
@@ -986,20 +987,19 @@
                                 fullWidth={true}
                                 on:click={goBackToBenefits}
                             >
-                                <span class="mr-1">←</span>
-                                Back to Account Options
+                                {$translations?.accountManager?.buttons?.backToAccountOptions || '← Back to Account Options'}
                             </Button>
                             
                             <!-- Help Section -->
                             <div class="mt-6 p-4 bg-creme-600 dark:bg-aubergine-900 rounded-xl">
                                 <h3 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                                    💡 Need Help?
+                                    {$translations?.accountManager?.help?.title || '💡 Need Help?'}
                                 </h3>
                                 <ul class="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                                    <li>• Check your spam folder if you don't see the email</li>
-                                    <li>• Magic links expire after 15 minutes</li>
-                                    <li>• You can request a new link anytime</li>
-                                    <li>• No password required - just click the link</li>
+                                    <li>{$translations?.accountManager?.help?.spamFolder || "• Check your spam folder if you don't see the email"}</li>
+                                    <li>{$translations?.accountManager?.help?.magicLinkExpiry || '• Magic links expire after 15 minutes'}</li>
+                                    <li>{$translations?.accountManager?.help?.requestNewLink || '• You can request a new link anytime'}</li>
+                                    <li>{$translations?.accountManager?.help?.noPassword || '• No password required - just click the link'}</li>
                                 </ul>
                             </div>
                         </div>
@@ -1011,11 +1011,11 @@
                         <div class="flex items-center justify-center space-x-2 mb-2">
                             <span class="text-purple-600 dark:text-purple-400">💎</span>
                             <span class="font-semibold text-purple-800 dark:text-purple-200">
-                                Upgrade auf PRO
+                                {$translations?.accountManager?.upgrade?.upgradeToPro || 'Upgrade to PRO'}
                             </span>
                         </div>
                         <p class="text-sm text-purple-700 dark:text-purple-300">
-                            Unbegrenzte Generierungen und erweiterte Sicherheitsfeatures
+                            {$translations?.accountManager?.upgrade?.unlimitedGenerations || 'Unlimited generations and advanced security features'}
                         </p>
                     </div>
 
@@ -1044,7 +1044,7 @@
                             fullWidth={true}
                             on:click={() => startAccountCreationForReturnUser()}
                         >
-                            Vollständiges Formular anzeigen
+                            {$translations?.accountManager?.buttons?.showFullForm || 'Show full form'}
                         </Button>
                     </form>
                 {:else if showExpandedView}
@@ -1055,7 +1055,7 @@
                             <div class="core-button relative h-20 bg-creme-500 dark:bg-aubergine-900 border-powder-300 dark:border-aubergine-800 shadow-inner overflow-hidden mb-1">
                                 <div
                                     class="absolute inset-y-1 bg-powder-300 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
-                                    style="width: calc(50% - 2px); left: 4px; transform: translateX({showBenefitsToggle === 'pro' ? 'calc(98%)' : '0'})"
+                                    style="width: calc(48% - 2px); left: 4px; transform: translateX({showBenefitsToggle === 'pro' ? 'calc(100% + 11px)' : '0'})"
                                 ></div>
                                 <div class="w-full h-full relative flex justify-around">
                                     <button
@@ -1063,7 +1063,7 @@
                                         on:click={() => selectAccountType('free')}
                                     >
                                         <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                            FREE
+                                            {$translations?.accountManager?.tiers?.free || 'FREE'}
                                         </span>
                                                                             <span class="text-xs transition-colors duration-300 text-yellow-600">
                                         {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
@@ -1074,7 +1074,7 @@
                                     on:click={() => selectAccountType('pro')}
                                 >
                                     <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                        PRO
+                                        {$translations?.accountManager?.tiers?.pro || 'PRO'}
                                     </span>
                                     <span class="text-xs transition-colors duration-300 text-purple-600">
                                         {$translations?.accountManager?.proDescription || '💎 Enterprise Security'}
@@ -1093,8 +1093,8 @@
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">✓</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.dailyGenerations || '5 tägliche sichere Generierungen'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.dailyGenerationsDesc || 'KI-resistente Technologie'}</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.dailyGenerations || '5 daily secure generations'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.dailyGenerationsDesc || 'AI-resistant technology'}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -1102,8 +1102,8 @@
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">🔒</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.decentralizedData || 'Denzentrale Datenverabeitung'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.decentralizedDataDesc || 'Deine Daten bleiben privat'}</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.decentralizedData || 'Decentralized data processing'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.decentralizedDataDesc || 'Your data stays private'}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -1111,8 +1111,8 @@
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">📱</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.webApp || 'Als Webapp nutzbar'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.webAppDesc || 'Sicherer Zugriff von überall'}</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.webApp || 'Available as web app'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.webAppDesc || 'Secure access from anywhere'}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1126,8 +1126,8 @@
                                             <span class="text-purple-600 dark:text-purple-400 text-2xl">∞</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerations || 'Unbegrenzte sichere Generierungen'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerationsDesc || 'Keine täglichen Limits'}</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerations || 'Unlimited secure generations'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerationsDesc || 'No daily limits'}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -1135,8 +1135,8 @@
                                             <span class="text-purple-600 dark:text-purple-400 text-2xl">🧠</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.aiThreatDetection || 'KI-gestützte Bedrohungserkennung'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.aiThreatDetectionDesc || 'Proaktive Sicherheitsanalyse'}</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.aiThreatDetection || 'AI-powered threat detection'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.aiThreatDetectionDesc || 'Proactive security analysis'}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -1144,8 +1144,8 @@
                                             <span class="text-purple-600 dark:text-purple-400 text-2xl">⚡</span>
                                         </div>
                                         <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.prioritySupport || 'Prioritäts-Support'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.prioritySupportDesc || 'Schnelle Hilfe bei Fragen'}</p>
+                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.prioritySupport || 'Priority support'}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.prioritySupportDesc || 'Quick help with questions'}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1163,7 +1163,7 @@
                                 fullWidth={true}
                                 on:click={() => showExpandedView = false}
                             >
-                                Kompakte Ansicht
+                                {$translations?.accountManager?.buttons?.compactView || 'Compact view'}
                             </Button>
                         {/if}
                     </div>
@@ -1201,10 +1201,10 @@
                             {#if !isFormValid && email}
                                 <div class="text-sm text-red-600 dark:text-red-400 text-center mt-1">
                                     {#if !isEmailValid}
-                                        <p>⚠️ Please enter a valid email address</p>
+                                        <p>⚠️ {$translations?.accountManager?.validation?.emailInvalid || 'Please enter a valid email address'}</p>
                                     {/if}
                                     {#if showProfileForm && !isNameValid}
-                                        <p>⚠️ Please enter your name (minimum 2 characters)</p>
+                                        <p>⚠️ {$translations?.accountManager?.validation?.nameInvalid || 'Please enter your name (minimum 2 characters)'}</p>
                                     {/if}
                                 </div>
                             {/if}
@@ -1237,7 +1237,7 @@
                                     fullWidth={true}
                                     on:click={() => showProfileForm = !showProfileForm}
                                 >
-                                    <span class="mr-1.5">👤</span>{showProfileForm ? 'Hide' : 'Add'} Profile Data
+                                    <span class="mr-1.5">👤</span>{showProfileForm ? ($translations?.accountManager?.buttons?.hideProfile || 'Hide') : ($translations?.accountManager?.buttons?.addProfile || 'Add')} {$translations?.accountManager?.buttons?.profileData || 'Profile Data'}
                                 </Button>
                                 
                                 <!-- Only show if no login history -->
@@ -1248,7 +1248,7 @@
                                         fullWidth={true}
                                         on:click={() => showExpandedView = false}
                                     >
-                                        Kompakte Ansicht
+                                        {$translations?.accountManager?.buttons?.compactView || 'Compact view'}
                                     </Button>
                                 {/if}
                             </div>
@@ -1256,31 +1256,31 @@
                     </div>
                     </div>
                 {:else}
-                                            <!-- Account Creation Flow - Styled like EmojiDisplay -->
-                    <div class="w-11/12 md:w-26r mx-auto mb-6">
-                        <div class="relative h-20 bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-inner p-2 overflow-hidden">
+                    <!-- Account Creation Flow - Styled like EmojiDisplay -->
+                    <div class="transform -translate-y-3.5 scale-114">
+                        <div class="core-button relative h-20 bg-creme-500 dark:bg-aubergine-900 border-powder-300 dark:border-aubergine-800 shadow-inner overflow-hidden mb-1">
                             <div
-                                class="absolute inset-y-2 left-2 bg-creme-500 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
-                                style="width: calc(50% - 4px); transform: translateX({showBenefitsToggle === 'pro' ? 'calc(100% - 6px)' : '0'})"
+                                class="absolute inset-y-1 bg-powder-300 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
+                                style="width: calc(48% - 2px); left: 4px; transform: translateX({showBenefitsToggle === 'pro' ? 'calc(100% + 11px)' : '0'})"
                             ></div>
-                            <div class="relative flex h-full">
+                            <div class="w-full h-full relative flex justify-around">
                                 <button
-                                    class="flex-1 flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
+                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
                                     on:click={() => selectAccountType('free')}
                                 >
                                     <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
                                         FREE
                                     </span>
-                                    <span class="text-sm transition-colors duration-300 text-yellow-600">
+                                    <span class="text-xs transition-colors duration-300 text-yellow-600">
                                         {accountAgeLabel}
                                     </span>
                                 </button>
                                 <button
-                                    class="flex-1 flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
+                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
                                     on:click={() => selectAccountType('pro')}
                                 >
                                     <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                        PRO
+                                        {$translations?.accountManager?.tiers?.pro || 'PRO'}
                                     </span>
                                     <span class="text-sm transition-colors duration-300 text-purple-600">
                                         {accountAgeLabel}
@@ -1300,8 +1300,8 @@
                                         <span class="text-yellow-600 dark:text-yellow-400 text-2xl">✓</span>
                                     </div>
                                     <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.dailyGenerations || '5 tägliche sichere Generierungen'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.dailyGenerationsDesc || 'KI-resistente Technologie'}</p>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.dailyGenerations || '5 daily secure generations'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.dailyGenerationsDesc || 'AI-resistant technology'}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -1309,8 +1309,8 @@
                                         <span class="text-yellow-600 dark:text-yellow-400 text-2xl">🔒</span>
                                     </div>
                                     <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.decentralizedData || 'Denzentrale Datenverabeitung'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.decentralizedDataDesc || 'Deine Daten bleiben privat'}</p>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.decentralizedData || 'Decentralized data processing'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.decentralizedDataDesc || 'Your data stays private'}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -1318,8 +1318,8 @@
                                         <span class="text-yellow-600 dark:text-yellow-400 text-2xl">📱</span>
                                     </div>
                                     <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.webApp || 'Als Webapp nutzbar'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.webAppDesc || 'Sicherer Zugriff von überall'}</p>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.webApp || 'Available as web app'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.webAppDesc || 'Secure access from anywhere'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -1333,8 +1333,8 @@
                                         <span class="text-purple-600 dark:text-purple-400 text-2xl">∞</span>
                                     </div>
                                     <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerations || 'Unbegrenzte sichere Generierungen'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerationsDesc || 'Keine täglichen Limits'}</p>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerations || 'Unlimited secure generations'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerationsDesc || 'No daily limits'}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -1342,8 +1342,8 @@
                                         <span class="text-purple-600 dark:text-purple-400 text-2xl">🧠</span>
                                     </div>
                                     <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.aiThreatDetection || 'KI-gestützte Bedrohungserkennung'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.aiThreatDetectionDesc || 'Proaktive Sicherheitsanalyse'}</p>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.aiThreatDetection || 'AI-powered threat detection'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.aiThreatDetectionDesc || 'Proactive security analysis'}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -1351,8 +1351,8 @@
                                         <span class="text-purple-600 dark:text-purple-400 text-2xl">🌐</span>
                                     </div>
                                     <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.browserExtension || 'Browser-Erweiterung (Q4 2025)'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.browserExtensionDesc || 'Sicherheit überall im Web'}</p>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.browserExtension || 'Browser extension (Q4 2025)'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.browserExtensionDesc || 'Security everywhere on the web'}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -1360,8 +1360,8 @@
                                         <span class="text-purple-600 dark:text-purple-400 text-2xl">📝</span>
                                     </div>
                                     <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.wordpressPlugin || 'WordPress-Plugin (Q4 2025)'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.wordpressPluginDesc || 'Sicherheit in deine Website integrieren'}</p>
+                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.wordpressPlugin || 'WordPress plugin (Q4 2025)'}</span>
+                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.wordpressPluginDesc || 'Integrate security into your website'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -1378,9 +1378,9 @@
                                 on:click={startAccountCreation}
                             >
                                 {#if accountCreationStep === 'form'}
-                                    {($translations?.accountManager?.actions?.skipAccount || '❌ Auf {type} verzichten').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
+                                    {($translations?.accountManager?.actions?.skipAccount || '❌ Skip {type}').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
                                 {:else}
-                                    {($translations?.accountManager?.actions?.createAccount || '🚀 {type} Account anlegen').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
+                                    {($translations?.accountManager?.actions?.createAccount || '🚀 Create {type} Account').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
                                 {/if}
                             </Button>
                         </div>
@@ -1419,10 +1419,10 @@
                             {#if !isFormValid && email}
                                 <div class="text-sm text-red-600 dark:text-red-400 text-center">
                                     {#if !isEmailValid}
-                                        <p>⚠️ Please enter a valid email address</p>
+                                        <p>⚠️ {$translations?.accountManager?.validation?.emailInvalid || 'Please enter a valid email address'}</p>
                                     {/if}
                                     {#if showProfileForm && !isNameValid}
-                                        <p>⚠️ Please enter your name (minimum 2 characters)</p>
+                                        <p>⚠️ {$translations?.accountManager?.validation?.nameInvalid || 'Please enter your name (minimum 2 characters)'}</p>
                                     {/if}
                                 </div>
                             {/if}
@@ -1453,7 +1453,7 @@
                                 fullWidth={true}
                                 on:click={() => showProfileForm = !showProfileForm}
                                 >
-                                <span class="mr-1.5">👤</span>{showProfileForm ? 'Hide' : 'Add'} Profile Data
+                                <span class="mr-1.5">👤</span>{showProfileForm ? ($translations?.accountManager?.buttons?.hideProfile || 'Hide') : ($translations?.accountManager?.buttons?.addProfile || 'Add')} {$translations?.accountManager?.buttons?.profileData || 'Profile Data'}
                             </Button>
                         </form>
                     </div>

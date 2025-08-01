@@ -27,6 +27,9 @@
         showAccountLoginSuccess,
         showAccountLogoutSuccess
     } from '../../stores/modalStore.js';
+    
+    // Import translations
+    import { translations } from '../../stores/contentStore.js';
 
     const dispatch = createEventDispatcher();
 
@@ -79,7 +82,7 @@
             name: 'Free User',
             verified: true
         });
-        showSuccess('Free account activated!', 2000);
+                    showSuccess($translations?.accountManager?.messages?.freeAccountActivated || 'Free account activated!', 2000);
     }
 
     function testGuestAccount() {
@@ -326,10 +329,10 @@
                                 🔐 Test Login
                             </button>
                             <button on:click={testProAccount} class="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-xs font-medium transition-colors">
-                                💎 Pro Account
+                                💎 {$translations?.accountManager?.tiers?.proAccount || 'Pro Account'}
                             </button>
                             <button on:click={testFreeAccount} class="px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium transition-colors">
-                                ✨ Free Account
+                                ✨ {$translations?.accountManager?.tiers?.freeAccount || 'Free Account'}
                             </button>
                             <button on:click={testGuestAccount} class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 👤 Guest Account

@@ -78,6 +78,7 @@ export default {
         privacyNotice:
             'あなたのデータは大切に扱われます 🤲。第三者に提供されることはありません 🔒。',
         newsletterLabel: 'はい、ニュースレターを購読したいです',
+        newsletterOptIn: 'ニュースレターを購読',
         backToMainButton: 'ホームに戻る',
         footerText: '愛を込めて開発',
         validationErrorMessage: '送信前にフォームのエラーを修正してください 🔍',
@@ -410,36 +411,80 @@ export default {
         importing: 'インポート中...',
         resetting: 'リセット中...'
     },
+    versions: {
+        pageTitle: 'バージョン履歴',
+        pageDescription:
+            'Keymoji、絵文字パスワードジェネレーターの開発履歴と変更履歴をご確認ください。'
+    },
 
     // 一般的なUIテキスト
     // AccountManager 翻訳
     accountManager: {
-        // ヘッダーと説明
+        // ページタイトルと説明
         pageTitle: 'アカウント管理',
         pageDescription: 'セキュリティ設定とアカウント設定を管理',
         welcomeBack: 'おかえりなさい、{name}さん！👋',
         welcomeDescription:
             '素晴らしい絵文字パスワードを作成する準備はできましたか？あなたのアカウントは安全で準備完了です！',
+        returnUserTitle: '👋 おかえりなさい！',
+        returnUserDescription:
+            'あなたのメールアドレスを認識しました。素早くログインしてください。',
         verificationTitle: '📧 メールを確認して認証',
         verificationDescription:
             'メール {email} を確認し、マジックリンクをクリックしてセットアップを完了',
+        verifyingTitle: '🔗 マジックリンク認証中...',
+        verifyingDescription: 'アカウントの認証をお待ちしています。',
+        verificationErrorTitle: '❌ 認証に失敗しました',
+        verificationErrorDescription: 'エラーが発生しました。',
 
-        // アカウント状態
-        accountStatus: 'アカウント状態',
+        // ボタンとアクション
+        buttons: {
+            createMagicLink: 'マジックリンクを作成',
+            loginToAccount: 'アカウントにログイン',
+            checkAccountExists: 'アカウント確認中...',
+            sendingMagicLink: 'マジックリンク送信中...',
+            accountExists: 'アカウントが見つかりました - ログイン中...',
+            accountNotFound: 'アカウントが見つかりません - 作成中...',
+            sessionExpired: 'セッションが期限切れ - 再ログイン',
+            loginAgain: '🔐 再ログイン',
+            createNewAccount: '新しいアカウントを作成',
+            resendMagicLink: '🔄 マジックリンクを再送信',
+            backToAccountOptions: '← アカウントオプションに戻る',
+            addProfile: '追加',
+            hideProfile: '非表示',
+            profileData: 'プロフィールデータ',
+            showFullForm: '完全なフォームを表示',
+            compactView: 'コンパクト表示'
+        },
+
+        // フォームラベル
         emailLabel: 'メールアドレス',
         nameLabel: 'お名前',
-        profileDataLabel: 'プロフィールデータ',
 
-        // アカウントレベル
-        freeBadge: '✨ 無料',
-        proBadge: '💎 PRO',
-        freeDescription: '✨ 無料セキュリティ',
-        proDescription: '💎 エンタープライズセキュリティ',
+        // アクション
+        actions: {
+            saveSettings: '💾 設定を保存',
+            backToHome: '🏠 ホームに戻る',
+            skipAccount: '❌ {type}をスキップ',
+            createAccount: '🚀 {type}アカウントを作成',
+            settingsSaved: '設定が保存されました！'
+        },
+
+        // 統計
+        statistics: {
+            storiesGenerated: '生成されたストーリー',
+            remainingGenerations: '残りの生成'
+        },
+
+        // 1日の生成
+        dailyGenerations: '1日の生成',
+
+        // 残り生成数の表示
+        remainingDisplay: '残り {remaining} / {limit}',
 
         // 特典
         benefits: {
             free: {
-                title: '無料特典',
                 dailyGenerations: '1日5回の安全な生成',
                 dailyGenerationsDesc: 'AI耐性技術',
                 decentralizedData: '分散データ処理',
@@ -449,11 +494,12 @@ export default {
                 webAppDesc: 'どこからでも安全にアクセス'
             },
             pro: {
-                title: 'PRO特典',
                 unlimitedGenerations: '無制限の安全な生成',
                 unlimitedGenerationsDesc: '1日の制限なし',
                 aiThreatDetection: 'AI駆動脅威検出',
                 aiThreatDetectionDesc: 'プロアクティブセキュリティ分析',
+                prioritySupport: '優先サポート',
+                prioritySupportDesc: '質問への迅速な対応',
                 browserExtension: 'ブラウザ拡張機能（2025年Q4）',
                 browserExtensionDesc: 'Webのどこでもセキュリティ',
                 wordpressPlugin: 'WordPressプラグイン（2025年Q4）',
@@ -461,56 +507,111 @@ export default {
             }
         },
 
-        // 1日の制限
-        dailyGenerations: '1日の生成',
-        remainingGenerations: '残り {remaining} / {limit}',
-        canStillGenerate: 'まだ絵文字を生成できます！',
-        limitReached:
-            '1日の制限に達しました。PROにアップグレードして無制限の生成を。',
-
-        // 統計
-        statistics: {
-            storiesGenerated: '生成されたストーリー',
-            remainingGenerations: '残りの生成'
-        },
-
-        // アクション
-        actions: {
-            saveSettings: '💾 設定を保存',
-            backToHome: '🏠 ホームに戻る',
-            createAccount: '🚀 {type}アカウントを作成',
-            skipAccount: '{type}アカウントをスキップ',
-            createMagicLink: '🔐 マジックリンクを作成',
-            sendingMagicLink: '⏳ マジックリンク送信中...',
-            resendMagicLink: '🔄 マジックリンクを再送信',
-            backToAccountOptions: '← アカウントオプションに戻る',
-            addProfileData: '👤 プロフィールデータを追加',
-            hideProfileData: '👤 プロフィールデータを非表示'
-        },
-
-        // フォーム検証
-        validation: {
-            invalidEmail: '⚠️ 有効なメールアドレスを入力してください',
-            invalidName: '⚠️ お名前を入力してください（最低2文字）',
-            requiredField: 'このフィールドは必須です'
-        },
-
         // ヘルプセクション
         help: {
             title: '💡 ヘルプが必要ですか？',
-            checkSpam:
+            spamFolder:
                 '• メールが見えない場合はスパムフォルダを確認してください',
-            linkExpires: '• マジックリンクは15分後に期限切れになります',
+            magicLinkExpiry: '• マジックリンクは15分後に期限切れになります',
             requestNewLink: '• いつでも新しいリンクをリクエストできます',
             noPassword: '• パスワード不要 - リンクをクリックするだけ'
         },
 
         // フッター
         footer: {
-            magicLink: '🔒 マジックリンク',
-            instantSetup: '⚡ 即座セットアップ',
-            noSpam: '🎯 スパムなし'
-        }
+            magicLink: 'マジックリンク',
+            instantSetup: '即座セットアップ',
+            noSpam: 'スパムなし',
+            text: 'マジックリンクはメールで送信され、15分間有効です。',
+            privacy: 'あなたのデータは安全に処理されます。'
+        },
+
+        // 制限とメッセージ
+        canStillGenerate: 'まだ絵文字を生成できます！',
+        limitReached:
+            '1日の制限に達しました。PROにアップグレードして無制限の生成を。',
+
+        // アカウント年齢
+        accountAge: {
+            today: '今日作成',
+            yesterday: '昨日作成',
+            days: '{days}日前から',
+            weeks: '{weeks}週間{plural}前から',
+            months: '{months}ヶ月{plural}前から',
+            years: '{years}年{plural}前から',
+            accountSince: '{days} {unit}前のアカウント',
+            since: '{days} {unit}前から',
+            day: '日',
+            daysLabel: '日',
+            accountCreated: 'アカウント作成'
+        },
+
+        // 検証
+        validation: {
+            emailInvalid: '有効なメールアドレスを入力してください',
+            nameInvalid: 'お名前を入力してください（最低2文字）'
+        },
+
+        // メッセージ
+        messages: {
+            settingsReset: '設定がデフォルトにリセットされました',
+            exportFailed: '設定のエクスポートに失敗しました',
+            settingsExported: '設定が正常にエクスポートされました',
+            freeAccountActivated: '無料アカウントがアクティブ化されました！'
+        },
+
+        // アップグレードセクション
+        upgrade: {
+            upgradeToPro: 'Proにアップグレード',
+            upgradeToProForFeatures: '高度な機能のためにProにアップグレード',
+            unlimitedGenerations: '無制限の生成と高度なセキュリティ機能'
+        },
+
+        // コンテキストメニュー
+        contextMenu: {
+            exportSettings: '設定をエクスポート',
+            importSettings: '設定をインポート',
+            resetToDefault: 'デフォルトにリセット',
+            logout: 'ログアウト',
+            settingsMenu: '設定メニュー'
+        },
+
+        // 機能
+        features: {
+            proFeature: 'Pro機能'
+        },
+
+        // Pro機能モーダル
+        proFeatureModal: {
+            title: 'Pro機能',
+            proBenefits: 'Pro特典:',
+            unlimitedGenerations: '無制限の絵文字生成',
+            advancedSecurity: '高度なセキュリティ機能',
+            prioritySupport: '優先サポート',
+            earlyAccess: '新機能への早期アクセス',
+            maybeLater: 'また後で',
+            upgradeToPro: 'Proにアップグレード',
+            // Proアップグレード専用
+            proUpgrade: 'Proアップグレード',
+            unlockAdvancedFeatures: 'すべての高度な機能と設定をアンロック',
+            upgradeProNow: '💎 今すぐProにアップグレード'
+        },
+
+        // アカウントレベル
+        tiers: {
+            free: '無料',
+            pro: 'PRO',
+            freeAccount: '無料アカウント',
+            proAccount: 'Proアカウント'
+        },
+
+        // バッジ
+        freeBadge: '✨ 無料',
+        proBadge: '💎 PRO',
+
+        // 説明
+        freeDescription: '✨ 無料セキュリティ',
+        proDescription: '💎 エンタープライズセキュリティ'
     },
 
     ui: {

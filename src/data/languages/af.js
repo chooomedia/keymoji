@@ -78,6 +78,7 @@ export default {
         privacyNotice:
             'Wees verseker, jou data is in goeie hande by ons 🤲. Jou besonderhede sal nie aan derdes oorgedra word nie 🔒.',
         newsletterLabel: 'Ja, ek wil inteken op die nuusbrief',
+        newsletterOptIn: 'Teken in op nuusbrief',
         backToMainButton: 'Terug na tuisblad',
         footerText: 'Ontwikkel met liefde',
         validationErrorMessage:
@@ -412,6 +413,212 @@ export default {
         exporting: 'Eksporteer...',
         importing: 'Importeer...',
         resetting: 'Herstel...'
+    },
+
+    versions: {
+        pageTitle: 'Weergawe Geskiedenis',
+        pageDescription:
+            'Kyk na die ontwikkelingsgeskiedenis en verandering log van Keymoji, die emoji wagwoord generator.'
+    },
+
+    // AccountManager vertalings
+    accountManager: {
+        // Bladsy titels en beskrywings
+        pageTitle: 'Rekening Bestuurder',
+        pageDescription:
+            'Bestuur jou sekuriteit instellings en rekening voorkeure',
+        welcomeBack: 'Welkom terug, {name}! 👋',
+        welcomeDescription:
+            'Gereed om wonderlike emoji wagwoorde te skep? Jou rekening is veilig en gereed!',
+        returnUserTitle: '👋 Welkom terug!',
+        returnUserDescription:
+            'Ons het jou e-pos adres herken. Teken vinnig in.',
+        verificationTitle: '📧 Kontroleer jou e-pos en verifieer',
+        verificationDescription:
+            'Kontroleer jou e-pos {email} en klik die magic skakel om opstelling te voltooi',
+        verifyingTitle: '🔗 Magic Skakel Verifiseer...',
+        verifyingDescription:
+            'Wag asseblief terwyl ons jou rekening verifieer.',
+        verificationErrorTitle: '❌ Verifikasie het misluk',
+        verificationErrorDescription: "'n Fout het voorgekom.",
+
+        // Knoppies en aksies
+        buttons: {
+            createMagicLink: 'Skep Magic Skakel',
+            loginToAccount: 'Teken in by Rekening',
+            checkAccountExists: 'Kontroleer rekening...',
+            sendingMagicLink: 'Stuur Magic Skakel...',
+            accountExists: 'Rekening gevind - Teken in...',
+            accountNotFound: 'Rekening nie gevind nie - Skep...',
+            sessionExpired: 'Sessie verval - Teken weer in',
+            loginAgain: '🔐 Teken weer in',
+            createNewAccount: 'Skep nuwe rekening',
+            resendMagicLink: '🔄 Stuur Magic Skakel weer',
+            backToAccountOptions: '← Terug na Rekening Opsies',
+            addProfile: 'Voeg by',
+            hideProfile: 'Versteek',
+            profileData: 'Profiel Data',
+            showFullForm: 'Wys volledige vorm',
+            compactView: 'Kompakte aansig'
+        },
+
+        // Vorm etikette
+        emailLabel: 'E-pos',
+        nameLabel: 'Naam',
+
+        // Aksies
+        actions: {
+            saveSettings: '💾 Stoor Instellings',
+            backToHome: '🏠 Terug na Tuisblad',
+            skipAccount: '❌ Slaan {type} oor',
+            createAccount: '🚀 Skep {type} Rekening',
+            settingsSaved: 'Instellings suksesvol gestoor!'
+        },
+
+        // Statistieke
+        statistics: {
+            storiesGenerated: 'Gegenereerde Stories',
+            remainingGenerations: 'Oorblywende Generasies'
+        },
+
+        // Daaglikse generasies
+        dailyGenerations: 'Daaglikse Generasies',
+
+        // Vertoon oorblywende generasies
+        remainingDisplay: 'Oorblywend {remaining} / {limit}',
+
+        // Voordele
+        benefits: {
+            free: {
+                dailyGenerations: '5 daaglikse veilige generasies',
+                dailyGenerationsDesc: 'AI-weerstandige tegnologie',
+                decentralizedData: 'Gedesentraliseerde data verwerking',
+                decentralizedDataDesc: 'Jou data bly privaat',
+                webApp: 'Beskikbaar as web app',
+                webAppDesc: 'Veilige toegang van oral'
+            },
+            pro: {
+                unlimitedGenerations: 'Onbeperkte veilige generasies',
+                unlimitedGenerationsDesc: 'Geen daaglikse limiete',
+                aiThreatDetection: 'AI-aangedrewe bedreiging opsporing',
+                aiThreatDetectionDesc: 'Proaktiewe sekuriteit analise',
+                prioritySupport: 'Prioriteit ondersteuning',
+                prioritySupportDesc: 'Vinnige hulp met vrae',
+                browserExtension: 'Blaaier uitbreiding (Q4 2025)',
+                browserExtensionDesc: 'Sekuriteit oral op die web',
+                wordpressPlugin: 'WordPress plugin (Q4 2025)',
+                wordpressPluginDesc: 'Integreer sekuriteit in jou webwerf'
+            }
+        },
+
+        // Hulp afdeling
+        help: {
+            title: '💡 Benodig jy hulp?',
+            spamFolder:
+                '• Kontroleer jou spam gids as jy nie die e-pos sien nie',
+            magicLinkExpiry: '• Magic skakels verval na 15 minute',
+            requestNewLink: "• Jy kan enige tyd 'n nuwe skakel aanvra",
+            noPassword: '• Geen wagwoord benodig nie - klik net die skakel'
+        },
+
+        // Voetstuk
+        footer: {
+            magicLink: 'Magic skakel',
+            instantSetup: 'Oombliklike opstelling',
+            noSpam: 'Geen spam',
+            text: 'Magic skakels word per e-pos gestuur en is 15 minute geldig.',
+            privacy: 'Jou data word veilig verwerk.'
+        },
+
+        // Limiete en boodskappe
+        canStillGenerate: 'Jy kan steeds emojis genereer!',
+        limitReached:
+            'Daaglikse limiet bereik. Gradeer op na PRO vir onbeperkte generasies.',
+
+        // Rekening ouderdom
+        accountAge: {
+            today: 'Vandag geskep',
+            yesterday: 'Gister geskep',
+            days: 'Sedert {days} dae',
+            weeks: 'Sedert {weeks} weke{plural}',
+            months: 'Sedert {months} maande{plural}',
+            years: 'Sedert {years} jare{plural}',
+            accountSince: 'Rekening sedert {days} {unit}',
+            since: 'sedert {days} {unit}',
+            day: 'dag',
+            daysLabel: 'dae',
+            accountCreated: 'Rekening geskep'
+        },
+
+        // Validasie
+        validation: {
+            emailInvalid: "Voer asseblief 'n geldige e-pos adres in",
+            nameInvalid: 'Voer jou naam in (minimum 2 karakters)'
+        },
+
+        // Boodskappe
+        messages: {
+            settingsReset: 'Instellings herstel na verstek',
+            exportFailed: 'Eksport van instellings het misluk',
+            settingsExported: 'Instellings suksesvol geëksporteer',
+            freeAccountActivated: 'Gratis rekening geaktiveer!'
+        },
+
+        // Opgradering afdeling
+        upgrade: {
+            upgradeToPro: 'Gradeer op na Pro',
+            upgradeToProForFeatures:
+                'Gradeer op na Pro vir gevorderde funksies',
+            unlimitedGenerations:
+                'Onbeperkte generasies en gevorderde sekuriteit funksies'
+        },
+
+        // Konteks spyskaart
+        contextMenu: {
+            exportSettings: 'Eksporteer Instellings',
+            importSettings: 'Importeer Instellings',
+            resetToDefault: 'Herstel na Verstek',
+            logout: 'Teken uit',
+            settingsMenu: 'Instellings spyskaart'
+        },
+
+        // Funksies
+        features: {
+            proFeature: 'Pro Funksie'
+        },
+
+        // Pro Funksie Modal
+        proFeatureModal: {
+            title: 'Pro Funksie',
+            proBenefits: 'Pro Voordele:',
+            unlimitedGenerations: 'Onbeperkte emoji generasies',
+            advancedSecurity: 'Gevorderde sekuriteit funksies',
+            prioritySupport: 'Prioriteit ondersteuning',
+            earlyAccess: 'Vroeë toegang tot nuwe funksies',
+            maybeLater: 'Miskien later',
+            upgradeToPro: 'Gradeer op na Pro',
+            // Pro Opgradering spesifiek
+            proUpgrade: 'Pro Opgradering',
+            unlockAdvancedFeatures:
+                'Ontsluit alle gevorderde funksies en instellings',
+            upgradeProNow: '💎 Gradeer nou op na Pro'
+        },
+
+        // Rekening vlakke
+        tiers: {
+            free: 'GRATIS',
+            pro: 'PRO',
+            freeAccount: 'Gratis Rekening',
+            proAccount: 'Pro Rekening'
+        },
+
+        // Kentekens
+        freeBadge: '✨ GRATIS',
+        proBadge: '💎 PRO',
+
+        // Beskrywings
+        freeDescription: '✨ Gratis Sekuriteit',
+        proDescription: '💎 Besigheid Sekuriteit'
     },
 
     // Algemene UI tekste

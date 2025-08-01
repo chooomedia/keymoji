@@ -135,8 +135,8 @@ import ModalDebug from '../UI/ModalDebug.svelte';
         observer.observe(document.documentElement, {
             attributes: true,
             attributeFilter: ['lang']
-        });
-        
+    });
+    
         // Cleanup observer on component destroy
         return () => observer.disconnect();
     });

@@ -16,6 +16,9 @@
   
     // Import for isDebugMode
     import { isDebugMode } from '../../utils/environment.js';
+    
+    // Import translations
+    import { translations } from '../../stores/contentStore.js';
   
     // State management
     $: message = $modalMessage;
@@ -291,7 +294,7 @@
                     {#if messageType === 'pro-feature'}
                         <div class="mb-6">
                             <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                {$modalData?.featureName || 'Pro Feature'}
+                                {$modalData?.featureName || ($translations?.accountManager?.proFeatureModal?.title || 'Pro Feature')}
                             </h4>
                             <p class="text-gray-600 dark:text-gray-300 mb-4">
                                 {$modalData?.featureDescription || message}
@@ -300,24 +303,24 @@
                             <!-- Pro Benefits -->
                             <div class="bg-powder-500 dark:bg-aubergine-900 rounded-lg border border-purple-700 p-4 mb-4">
                                 <h5 class="font-semibold text-purple-700 dark:text-purple-100 mb-2">
-                                    Pro Benefits:
+                                    {$translations?.accountManager?.proFeatureModal?.proBenefits || 'Pro Benefits:'}
                                 </h5>
                                 <ul class="space-y-1 text-sm text-purple-800 dark:text-purple-200">
                                     <li class="flex items-center">
                                         <span class="mr-2">✓</span>
-                                        Unlimited emoji generations
+                                        {$translations?.accountManager?.proFeatureModal?.unlimitedGenerations || 'Unlimited emoji generations'}
                                     </li>
                                     <li class="flex items-center">
                                         <span class="mr-2">✓</span>
-                                        Advanced security features
+                                        {$translations?.accountManager?.proFeatureModal?.advancedSecurity || 'Advanced security features'}
                                     </li>
                                     <li class="flex items-center">
                                         <span class="mr-2">✓</span>
-                                        Priority support
+                                        {$translations?.accountManager?.proFeatureModal?.prioritySupport || 'Priority support'}
                                     </li>
                                     <li class="flex items-center">
                                         <span class="mr-2">✓</span>
-                                        Early access to new features
+                                        {$translations?.accountManager?.proFeatureModal?.earlyAccess || 'Early access to new features'}
                                     </li>
                                 </ul>
                             </div>
@@ -361,7 +364,7 @@
                                 fullWidth={true}
                                 on:click={handleCloseModal}
                             >
-                                Maybe Later
+                                {$translations?.accountManager?.proFeatureModal?.maybeLater || 'Maybe Later'}
                             </Button>
                             <Button
                                 variant="primary"
@@ -374,7 +377,7 @@
                                     handleCloseModal();
                                 }}
                             >
-                                Upgrade to Pro
+                                {$translations?.accountManager?.proFeatureModal?.upgradeToPro || 'Upgrade to Pro'}
                             </Button>
                         </div>
                     {:else if $modalData?.primaryButton || $modalData?.secondaryButton}

@@ -78,6 +78,7 @@ export default {
         privacyNotice:
             'Soyez assuré, vos données sont entre de bonnes mains 🤲. Vos détails ne seront pas transmis à des tiers 🔒.',
         newsletterLabel: "Oui, je souhaite m'abonner à la newsletter",
+        newsletterOptIn: "S'abonner à la newsletter",
         backToMainButton: 'Retour à la home',
         footerText: 'Développé avec amour',
         validationErrorMessage:
@@ -158,6 +159,11 @@ export default {
         invalidFormat: 'Format invalide',
         serverError: 'Erreur serveur, veuillez réessayer',
         networkError: 'Erreur réseau, veuillez vérifier votre connexion'
+    },
+    versions: {
+        pageTitle: 'Historique des versions',
+        pageDescription:
+            "Découvrez l'historique de développement et le changelog de Keymoji, le générateur de mots de passe emoji."
     },
 
     // Traductions UserSettings
@@ -420,33 +426,73 @@ export default {
 
     // Traductions AccountManager
     accountManager: {
-        // En-têtes et descriptions
-        pageTitle: 'Gestion de compte',
+        // Titres et descriptions de page
+        pageTitle: 'Gestionnaire de compte',
         pageDescription:
             'Gérez vos paramètres de sécurité et préférences de compte',
         welcomeBack: 'Bon retour, {name}! 👋',
         welcomeDescription:
             'Prêt à créer des mots de passe emoji incroyables ? Votre compte est sécurisé et prêt !',
+        returnUserTitle: '👋 Bon retour !',
+        returnUserDescription:
+            'Nous avons reconnu votre adresse e-mail. Connectez-vous rapidement.',
         verificationTitle: '📧 Vérifiez votre e-mail et confirmez',
         verificationDescription:
             'Vérifiez votre e-mail {email} et cliquez sur le lien magique pour terminer la configuration',
+        verifyingTitle: '🔗 Vérification du lien magique...',
+        verifyingDescription:
+            'Veuillez patienter pendant que nous vérifions votre compte.',
+        verificationErrorTitle: '❌ Échec de la vérification',
+        verificationErrorDescription: "Une erreur s'est produite.",
 
-        // Statut du compte
-        accountStatus: 'Statut du compte',
-        emailLabel: 'Adresse e-mail',
-        nameLabel: 'Votre nom',
-        profileDataLabel: 'Données de profil',
+        // Boutons et actions
+        buttons: {
+            createMagicLink: 'Créer un lien magique',
+            loginToAccount: 'Se connecter au compte',
+            checkAccountExists: 'Vérification du compte...',
+            sendingMagicLink: 'Envoi du lien magique...',
+            accountExists: 'Compte trouvé - Connexion...',
+            accountNotFound: 'Compte non trouvé - Création...',
+            sessionExpired: 'Session expirée - Reconnexion',
+            loginAgain: '🔐 Se reconnecter',
+            createNewAccount: 'Créer un nouveau compte',
+            resendMagicLink: '🔄 Renvoyer le lien magique',
+            backToAccountOptions: '← Retour aux options de compte',
+            addProfile: 'Ajouter',
+            hideProfile: 'Masquer',
+            profileData: 'Données de profil',
+            showFullForm: 'Afficher le formulaire complet',
+            compactView: 'Vue compacte'
+        },
 
-        // Niveaux de compte
-        freeBadge: '✨ GRATUIT',
-        proBadge: '💎 PRO',
-        freeDescription: '✨ Sécurité gratuite',
-        proDescription: '💎 Sécurité entreprise',
+        // Labels de formulaire
+        emailLabel: 'E-mail',
+        nameLabel: 'Nom',
+
+        // Actions
+        actions: {
+            saveSettings: '💾 Sauvegarder les paramètres',
+            backToHome: "🏠 Retour à l'accueil",
+            skipAccount: '❌ Passer {type}',
+            createAccount: '🚀 Créer un compte {type}',
+            settingsSaved: 'Paramètres sauvegardés avec succès !'
+        },
+
+        // Statistiques
+        statistics: {
+            storiesGenerated: 'Histoires générées',
+            remainingGenerations: 'Générations restantes'
+        },
+
+        // Générations quotidiennes
+        dailyGenerations: 'Générations quotidiennes',
+
+        // Affichage des générations restantes
+        remainingDisplay: '{remaining} / {limit} restant',
 
         // Avantages
         benefits: {
             free: {
-                title: 'Avantages GRATUITS',
                 dailyGenerations: '5 générations sécurisées quotidiennes',
                 dailyGenerationsDesc: "Technologie résistante à l'IA",
                 decentralizedData: 'Traitement de données décentralisé',
@@ -455,11 +501,12 @@ export default {
                 webAppDesc: 'Accès sécurisé de partout'
             },
             pro: {
-                title: 'Avantages PRO',
                 unlimitedGenerations: 'Générations sécurisées illimitées',
                 unlimitedGenerationsDesc: 'Aucune limite quotidienne',
                 aiThreatDetection: "Détection de menaces alimentée par l'IA",
                 aiThreatDetectionDesc: 'Analyse de sécurité proactive',
+                prioritySupport: 'Support prioritaire',
+                prioritySupportDesc: 'Aide rapide pour les questions',
                 browserExtension: 'Extension de navigateur (Q4 2025)',
                 browserExtensionDesc: 'Sécurité partout sur le web',
                 wordpressPlugin: 'Plugin WordPress (Q4 2025)',
@@ -467,46 +514,12 @@ export default {
             }
         },
 
-        // Limite quotidienne
-        dailyGenerations: 'Générations quotidiennes',
-        remainingGenerations: '{remaining} / {limit} restant',
-        canStillGenerate: 'Vous pouvez encore générer des emojis !',
-        limitReached:
-            'Limite quotidienne atteinte. Passez à PRO pour des générations illimitées.',
-
-        // Statistiques
-        statistics: {
-            storiesGenerated: 'Histoires générées',
-            remainingGenerations: 'Générations restantes'
-        },
-
-        // Actions
-        actions: {
-            saveSettings: '💾 Sauvegarder les paramètres',
-            backToHome: "🏠 Retour à l'accueil",
-            createAccount: '🚀 Créer un compte {type}',
-            skipAccount: 'Passer le compte {type}',
-            createMagicLink: '🔐 Créer un lien magique',
-            sendingMagicLink: '⏳ Envoi du lien magique...',
-            resendMagicLink: '🔄 Renvoyer le lien magique',
-            backToAccountOptions: '← Retour aux options de compte',
-            addProfileData: '👤 Ajouter des données de profil',
-            hideProfileData: '👤 Masquer les données de profil'
-        },
-
-        // Validation de formulaire
-        validation: {
-            invalidEmail: '⚠️ Veuillez entrer une adresse e-mail valide',
-            invalidName: '⚠️ Veuillez entrer votre nom (minimum 2 caractères)',
-            requiredField: 'Ce champ est requis'
-        },
-
         // Section d'aide
         help: {
             title: "💡 Besoin d'aide ?",
-            checkSpam:
+            spamFolder:
                 "• Vérifiez votre dossier spam si vous ne voyez pas l'e-mail",
-            linkExpires: '• Les liens magiques expirent après 15 minutes',
+            magicLinkExpiry: '• Les liens magiques expirent après 15 minutes',
             requestNewLink:
                 '• Vous pouvez demander un nouveau lien à tout moment',
             noPassword:
@@ -515,10 +528,102 @@ export default {
 
         // Pied de page
         footer: {
-            magicLink: '🔒 Lien magique',
-            instantSetup: '⚡ Configuration instantanée',
-            noSpam: '🎯 Pas de spam'
-        }
+            magicLink: 'Lien magique',
+            instantSetup: 'Configuration instantanée',
+            noSpam: 'Pas de spam',
+            text: 'Les liens magiques sont envoyés par e-mail et valides pendant 15 minutes.',
+            privacy: 'Vos données sont traitées en toute sécurité.'
+        },
+
+        // Limites et messages
+        canStillGenerate: 'Vous pouvez encore générer des emojis !',
+        limitReached:
+            'Limite quotidienne atteinte. Passez à PRO pour des générations illimitées.',
+
+        // Âge du compte
+        accountAge: {
+            today: "Créé aujourd'hui",
+            yesterday: 'Créé hier',
+            days: 'Depuis {days} jours',
+            weeks: 'Depuis {weeks} semaine{plural}',
+            months: 'Depuis {months} mois{plural}',
+            years: 'Depuis {years} an{plural}',
+            accountSince: 'Compte depuis {days} {unit}',
+            since: 'depuis {days} {unit}',
+            day: 'jour',
+            daysLabel: 'jours',
+            accountCreated: 'Compte créé'
+        },
+
+        // Validation
+        validation: {
+            emailInvalid: 'Veuillez entrer une adresse e-mail valide',
+            nameInvalid: 'Veuillez entrer votre nom (minimum 2 caractères)'
+        },
+
+        // Messages
+        messages: {
+            settingsReset: 'Paramètres réinitialisés par défaut',
+            exportFailed: "Échec de l'exportation des paramètres",
+            settingsExported: 'Paramètres exportés avec succès',
+            freeAccountActivated: 'Compte gratuit activé !'
+        },
+
+        // Section de mise à niveau
+        upgrade: {
+            upgradeToPro: 'Passer à Pro',
+            upgradeToProForFeatures:
+                'Passer à Pro pour des fonctionnalités avancées',
+            unlimitedGenerations:
+                'Générations illimitées et fonctionnalités de sécurité avancées'
+        },
+
+        // Menu contextuel
+        contextMenu: {
+            exportSettings: 'Exporter les paramètres',
+            importSettings: 'Importer les paramètres',
+            resetToDefault: 'Réinitialiser par défaut',
+            logout: 'Se déconnecter',
+            settingsMenu: 'Menu des paramètres'
+        },
+
+        // Fonctionnalités
+        features: {
+            proFeature: 'Fonctionnalité Pro'
+        },
+
+        // Modal Fonctionnalité Pro
+        proFeatureModal: {
+            title: 'Fonctionnalité Pro',
+            proBenefits: 'Avantages Pro :',
+            unlimitedGenerations: 'Générations emoji illimitées',
+            advancedSecurity: 'Fonctionnalités de sécurité avancées',
+            prioritySupport: 'Support prioritaire',
+            earlyAccess: 'Accès anticipé aux nouvelles fonctionnalités',
+            maybeLater: 'Peut-être plus tard',
+            upgradeToPro: 'Passer à Pro',
+            // Pro Upgrade spécifique
+            proUpgrade: 'Mise à niveau Pro',
+            unlockAdvancedFeatures:
+                'Débloquer toutes les fonctionnalités et paramètres avancés',
+            upgradeProNow: '💎 Passer à Pro maintenant'
+        },
+
+        // Niveaux de compte
+        tiers: {
+            free: 'GRATUIT',
+            pro: 'PRO',
+            freeAccount: 'Compte gratuit',
+            proAccount: 'Compte Pro'
+        },
+
+        // Badges
+        freeBadge: '✨ GRATUIT',
+        proBadge: '💎 PRO',
+
+        // Descriptions
+        freeDescription: '✨ Sécurité gratuite',
+        proDescription: '💎 Sécurité entreprise'
     },
 
     // Textes UI généraux

@@ -341,24 +341,24 @@
                         {#if isProUser}
                             Pro Account
                         {:else}
-                            Free Account
+                            {$translations?.accountManager?.tiers?.freeAccount || 'Free Account'}
                         {/if}
                     </h2>
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         {#if isProUser}
                             You have access to all features
                         {:else}
-                            Upgrade to Pro for advanced features
+                            {$translations?.accountManager?.upgrade?.upgradeToProForFeatures || 'Upgrade to Pro for advanced features'}
                         {/if}
                     </p>
                 </div>
             </div>
             {#if !isProUser}
                 <button
-                    on:click={() => handleProFeature('Pro Upgrade', 'Unlock all advanced features and settings')}
+                    on:click={() => handleProFeature($translations?.accountManager?.proFeatureModal?.proUpgrade || 'Pro Upgrade', $translations?.accountManager?.proFeatureModal?.unlockAdvancedFeatures || 'Unlock all advanced features and settings')}
                     class="w-full inline-flex justify-center items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 transition-colors"
                 >
-                💎 Upgrade Pro now
+                {$translations?.accountManager?.proFeatureModal?.upgradeProNow || '💎 Upgrade Pro now'}
                 </button>
             {/if}
         </div>
@@ -382,7 +382,7 @@
                                 </h3>
                                 {#if !isProUser && (section.id === 'security' || section.id === 'generation' || section.id === 'privacy' || section.id === 'pro')}
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                                        💎 Pro
+                                        {$translations?.accountManager?.tiers?.proAccount || '💎 Pro'}
                                     </span>
                                 {/if}
                             </div>

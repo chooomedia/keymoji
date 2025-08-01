@@ -14,169 +14,183 @@ export default {
     header: {
         pageTitle: 'Keymoji',
         pageVersion: formatVersion(),
-        openMainMenu: 'Agor menu',
-        closeMainMenu: 'Naw menu'
+        openMainMenu: 'QIn qun leQ yIpoSmoH',
+        closeMainMenu: 'QIn qun leQ yISoQmoH'
     },
     index: {
-        pageTitle: 'Emoji Password Generator',
+        pageTitle: "emoji mu'ghom chenwI'",
         pageDescription:
-            '🔑 Passwords reimagined. 🎯 Unbreakable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.',
+            "mu'ghommey chu'! emoji mu'ghommey Qaw'laHbe'. Hutlh Huch. Qan. chu'. QIn Qaw'laHbe'bogh De'. poSchoH 15 HolmeyDaq.",
         pageKeywords:
-            'Keymoji, emoji password, password generator, security, online security',
+            "Keymoji, emoji mu'ghom, mu'ghom chenwI', Qan, De' Qanbogh, De' Qan chu'", // Doppelte Anführungszeichen für gültige Syntax
         pageInstruction: [
-            'Click "📝 Story" for your AI emoji story 📖',
-            '"Random" speaks for itself 😜.',
-            'After generation it will be copied to your clipboard! 📋'
+            "📝 lut yI'ang, QIn SaghwI' emoji lutlIj HevmeH 📖",
+            "Random QIjbe'lu' – Qapchu' 😜.",
+            "DachenmoHDI', De' QInlIjDaq pollu'! 📋"
         ],
-        backToMainText: 'Click below 👇 to return',
-        backToMainButtonText: 'Back to home',
-        contactText: 'Do you have a question or cool suggestion?',
-        contactButtonText: 'Send me a message! 💌'
+        backToMainText: "bIruchqa'meH, bIngDaq yI'nga' 👇",
+        backToMainButtonText: 'juH wIchegh',
+        contactText: "Dap yIghaj'a'? pagh QIn QaQ Daghaj'a'?",
+        contactButtonText: 'QIn yIngeH! 💌'
     },
     emojiDisplay: {
         clickToCopy:
-            'Click or press Enter to copy the generated emoji password to clipboard',
-        successMessage: 'Success, copied to clipboard 💾',
-        errorMessage: 'Oops, something went wrong 🤖',
-        dailyLimitReachedMessage: 'Sorry, daily request limit reached 😔',
-        successStoryMessage: 'Success, emoji story generated 🤖',
-        errorStoryMessage: 'Error, no response from server 🌀',
-        emojiDisplayTitle: 'Emoji Password Generator',
+            "QIn yInga' pagh Enter yI'uy, emoji mu'ghom chenbogh QInlIjDaq yIlan",
+        successMessage: "Qapla'! QInlIjDaq lanlu' 💾",
+        errorMessage: "Qagh! vay' Qapbe' 🤖",
+        dailyLimitReachedMessage:
+            "bItlhutlhta'! jaj HochDaq poQ Qav chavlu' 😔",
+        successStoryMessage: "Qapla'! emoji lut chenmoHlu' 🤖",
+        errorStoryMessage: "Qagh! QIn QaywI' jangbe' 🌀",
+        emojiDisplayTitle: "emoji mu'ghom chenwI'",
         dataPrivacyProcessingInfo:
-            "🚀 Emoji magic via webhooks and AI! ✨ Data is like beach sand - it doesn't stay.",
-        clearButton: '✖️ Clear',
-        storyButton: '📝 Story',
-        storyButtonClicked: '📩 Send story',
-        randomButton: '🎲 Random',
-        placeholderText:
-            'Tell me a story and I will generate emoji passwords based on it...',
-        clipboardError: 'Error copying to clipboard'
+            "🚀 emoji 'IDnar QulwI' De' QaywI' je! ✨ De' rur puH nagh – ratlhbe'.",
+        clearButton: "✖️ QIjHa'",
+        storyButton: '📝 lut',
+        storyButtonClicked: '📩 lut yIngeH',
+        randomButton: "🎲 SuvwI'",
+        placeholderText: "lut yIja', vaj emoji mu'ghommey vIchenmoH",
+        clipboardError: "Qagh! QInlIjDaq lanlaHbe'"
     },
     donateButton: {
-        text: 'Buy me a coffee',
-        openText: 'Close this menu',
-        textMobile: '☕'
+        text: "HIq HIje'", // "Buy me a drink" (Klingonen trinken lieber Blutwein oder Schnaps)
+        openText: "meQwI' Qorwagh yISoQmoH", // "Schließe dieses Fenster" (wörtlich: Schließe das heiße Fenster)
+        textMobile: '🍶' // Sake-Flasche als Anspielung auf Alkohol
     },
     // Contact form (optimized for Klingon)
     contactForm: {
-        pageTitle: 'nuqneH, jIH Christopher',
+        pageTitle: 'nuqneH, jIH Christopher', // "Hallo, ich bin Christopher"
         pageDescription:
-            'Frontend developer and I love designing and coding user-friendly websites with JavaScript, PHP and HTML. Do not hesitate and send me a message if you want.',
-        nameLabel: "🧑🏻 lInganpu'",
+            "De'wI' QulwI' jIH 'ej jIQuch QIn QulwI' De' QulwI' je vIchenmoH. bIHeghbe'chugh QIn yIngeH.",
+        nameLabel: '🧑🏻 ponglIj',
         emailLabel: "📧 QI'yaH",
-        messageLabel: '✍🏻 lIj QIn',
+        messageLabel: '✍🏻 QInlIj',
         regenerateCaptchaButton: '🔄',
-        sendButton: '🚀 QIn',
-        sendingButton: '📨 QIn...',
-        successMessage: 'Success, message sent - Response: < 24 hours 🚀',
-        errorMessage: 'An unexpected error occurred 😟',
-        requestErrorMessage: 'Error sending message, please try again 🙁',
-        smirkingFaceImageAlt: 'keymoji emoji smirking face 1f60f',
-        introductionTitle: 'Do you have a question or cool suggestion?',
-        introductionText: 'Send me a message!',
+        sendButton: '🚀 QIn yIngeH',
+        sendingButton: "📨 QIn Qanglu'",
+        successMessage: "Qapla'! QIn Qanglu' - jang: < 24 rep 🚀",
+        errorMessage: "Qagh! vay' Qapbe' 😟",
+        requestErrorMessage: "Qagh! QIn QanglaHbe', yIqaSqa' 🙁",
+        smirkingFaceImageAlt: "keymoji emoji QuchHa' 1f60f",
+        introductionTitle: "Dap yIghaj'a'? pagh QIn QaQ Daghaj'a'?",
+        introductionText: 'QIn yIngeH!',
         privacyNotice:
-            'Be assured, your data is in good hands with us 🤲. Your details will not be passed on to third parties 🔒.',
-        newsletterLabel: 'Yes, I want to subscribe to the newsletter',
-        backToMainButton: 'Back to home',
-        footerText: 'Developed with love',
-        validationErrorMessage: 'Please fix the form errors before sending 🔍',
-        sendingMessage: 'Sending your message... 📨',
+            "yIvoqQo', De'lIj Qanlu'! De'lIj latlhpu'vaD Qangbe'lu'. 🔒",
+        newsletterLabel: "HIja', De' QIn vIHev vIneH",
+        newsletterOptIn: "De' QIn vIHev",
+        backToMainButton: 'juH wIchegh',
+        footerText: "parmaqmo' QulwI' Qun",
+        validationErrorMessage: "Qagh! QIn QulwI' Qaghmey yIbachqa' 🔍",
+        sendingMessage: "QInlIj Qanglu'... 📨",
         emailText: {
-            greeting: 'Welcome',
+            greeting: "yI'el",
             confirmationText:
-                'Please confirm your request so Christopher knows you are not an intelligent bot. You sent a message with the following data:',
-            doubleCheck: 'We received your message with the following details:',
-            button: 'Confirm your email'
+                "QInlIj yI'ach, vaj Christopher Sovbe' QInwI' SuvwI' SoHbe'. QInlIj De'vam DangeH:",
+            doubleCheck: "QInlIj De'vam wIHevpu':",
+            button: "QI'yaH yI'ach",
+            subject: "QInlIj Keymoji Hevpu'",
+            privacy: "De'lIj Qanlu'."
         },
         validation: {
-            nameRequired: "lInganpu' vIghajbe'",
-            nameLength: 'Minimum 2 characters',
-            emailRequired: "QI'yaH vIghajbe'",
+            nameRequired: "ponglIj poQlu'",
+            nameLength: "cha' DeghHomHom poQlu'",
+            emailRequired: "QI'yaH poQlu'",
             emailInvalid: "QI'yaH vItlhutlhbe'",
-            messageRequired: "QIn vIghajbe'",
-            messageLength: 'Minimum {min} characters'
-        }
+            messageRequired: "QIn poQlu'",
+            messageLength: "{min} DeghHomHom poQlu'"
+        },
+        autoFilledLabel: "QInlIj De' QulwI'vo'"
     },
     serviceWorker: {
-        updateAvailable: 'A new version is available!',
+        updateAvailable: "chu' De' QulwI' poQlu'!",
         manualRefreshNeeded:
-            'New version activated. Reload now for the latest features.',
-        updateSuccess: 'App successfully updated! 🎉'
+            "chu' De' QulwI' QulmoHlu'. chu' De' QulwI' HevmeH yI'uy.",
+        updateSuccess: "QulwI' QulmoHlu'! 🎉"
     },
     notFound: {
-        message: 'Oops! Page not found 🚫',
-        backButton: 'Back to home',
-        contactButton: 'Contact us'
+        pageTitle: "404 - De' QulwI' Qagh",
+        pageDescription: "De' QulwI' SoHvaD Qagh pagh QulwI' chu'lu'.",
+        message: "Qagh! De' QulwI' Qagh 🚫",
+        suggestion:
+            "De' QulwI' SoHvaD QulwI' chu'lu' pagh Qaghlu' pagh Qaghbe'lu'.",
+        backButton: 'juH wIchegh',
+        contactButton: 'QIn yIngeH',
+        navigationTitle: "De' QulwI' poQlu'",
+        recentEmojis: "emoji Qaghbe'"
     },
     blog: {
-        readMore: 'Read more',
-        backToBlog: 'Back to blog',
-        publishedOn: 'Published on',
-        author: 'Author',
-        tags: 'Tags',
-        readTime: 'min read time',
-        likes: 'likes',
-        share: 'Share'
+        readMore: 'vaj yIlan',
+        backToBlog: 'blog wIchegh',
+        publishedOn: "QulmoHlu'",
+        author: "QulwI'",
+        tags: 'Qagh',
+        readTime: 'rep lan',
+        likes: 'Quch',
+        share: 'Qang'
     },
     account: {
-        create: 'Create account',
-        manage: 'Manage account',
-        login: 'Login',
-        logout: 'Logout',
-        profile: 'Profile',
-        settings: 'Settings',
-        guest: 'Guest',
-        free: 'FREE',
+        create: 'Huch Qan chenmoH',
+        manage: "Huch Qan QulwI'",
+        login: "QIn yI'ang",
+        logout: "QIn yIchu'",
+        profile: "QulwI'",
+        settings: "QulwI'",
+        guest: "QInwI'",
+        free: 'HUTLH',
         pro: 'PRO'
     },
     accessibility: {
-        skipToMain: 'Skip to main content',
-        closeModal: 'Close modal',
-        openMenu: 'Open menu',
-        closeMenu: 'Close menu',
-        loading: 'Loading...',
-        error: 'Error occurred',
-        success: 'Success',
-        warning: 'Warning',
-        info: 'Information',
-        copyToClipboard: 'Copy to clipboard',
-        copiedToClipboard: 'Copied to clipboard',
-        generatePassword: 'Generate password',
-        clearForm: 'Clear form',
-        sendMessage: 'Send message',
-        toggleDarkMode: 'Toggle dark mode',
-        toggleLanguage: 'Toggle language'
+        skipToMain: "QIn QulwI' wIchegh",
+        closeModal: "meQwI' yISoQmoH",
+        openMenu: 'QIn qun yIpoSmoH',
+        closeMenu: 'QIn qun yISoQmoH',
+        loading: "Qanglu'...",
+        error: 'Qagh Qap',
+        success: "Qapla'",
+        warning: 'Qagh',
+        info: "De'",
+        copyToClipboard: 'QInlIjDaq yIlan',
+        copiedToClipboard: "QInlIjDaq lanlu'",
+        generatePassword: "mu'ghom yIchenmoH",
+        clearForm: "QIn QulwI' yIQIjHa'",
+        sendMessage: 'QIn yIngeH',
+        toggleDarkMode: "Qagh QulwI' yIpoSmoH",
+        toggleLanguage: 'Hol yIpoSmoH'
     },
     validation: {
-        required: 'This field is required',
-        email: 'Please enter a valid email address',
-        minLength: 'Must contain at least {min} characters',
-        maxLength: 'Cannot contain more than {max} characters',
-        invalidFormat: 'Invalid format',
-        serverError: 'Server error, please try again',
-        networkError: 'Network error, check your connection'
+        required: "De' QulwI' poQlu'",
+        email: "QI'yaH vItlhutlh yI'ang",
+        minLength: "{min} DeghHomHom poQlu'",
+        maxLength: "{max} DeghHomHom Qaw'laHbe'",
+        invalidFormat: "Qagh QulwI'",
+        serverError: "QaywI' Qagh, yIqaSqa'",
+        networkError: "De' Qagh, QInlIj yIlan"
+    },
+    versions: {
+        pageTitle: "De' QulwI' lut",
+        pageDescription:
+            "Keymoji De' QulwI' lut 'ej emoji mu'ghom chenwI' De' QulwI' lut."
     },
 
     // UserSettings translations
     userSettings: {
         // Basic settings
         basicSettings: {
-            title: 'Basic settings',
-            description: 'Language, theme and notifications',
+            title: "QulwI' QulwI'",
+            description: "Hol, QulwI' 'ej QIn",
             language: {
-                label: 'Language',
-                description: 'Choose your preferred language',
+                label: 'Hol',
+                description: "Hol SoHvaD QulwI' yI'ang",
                 options: {
                     en: '🇺🇸 English',
                     de: '🇩🇪 German',
                     fr: '🇫🇷 French',
-                    es: '🇪🇸 Spanish',
-                    tlh: '🖖 Klingon'
+                    es: '🇪🇸 Spanish'
                 }
             },
             theme: {
-                label: 'Theme',
-                description: 'Choose your visual theme',
+                label: "QulwI'",
+                description: "QulwI' SoHvaD QulwI' yI'ang",
                 options: {
                     auto: '🔄 Auto',
                     light: '☀️ Light',
@@ -184,147 +198,147 @@ export default {
                 }
             },
             notifications: {
-                label: 'Notifications',
-                description: 'Receive important updates'
+                label: 'QIn',
+                description: "QIn poQlu' Hev"
             }
         },
 
         // Security settings
         securitySettings: {
-            title: 'Security settings',
-            description: 'Password strength and character types',
+            title: "Qan QulwI'",
+            description: "mu'ghom Qan 'ej DeghHomHom QulwI'",
             passwordLength: {
-                label: 'Password length',
-                description: 'Choose password strength',
-                min: 'Weak (6)',
-                max: 'Strong (20)'
+                label: "mu'ghom DeghHomHom",
+                description: "mu'ghom Qan yI'ang",
+                min: 'Qagh (6)',
+                max: 'Qan (20)'
             },
             includeNumbers: {
-                label: 'Include numbers',
-                description: 'Add numeric characters (0-9)'
+                label: "mI' yIlan",
+                description: "mI' DeghHomHom yIlan (0-9)"
             },
             includeSymbols: {
-                label: 'Include symbols',
-                description: 'Add special characters (!@#$%^&*)'
+                label: 'Qagh yIlan',
+                description: 'Qagh DeghHomHom yIlan (!@#$%^&*)'
             },
             includeSpecialChars: {
-                label: 'Include special characters',
-                description: 'Add extended special characters'
+                label: 'Qagh DeghHomHom yIlan',
+                description: 'Qagh DeghHomHom yIlan'
             },
             excludeSimilarChars: {
-                label: 'Exclude similar characters',
-                description: 'Avoid confusing characters (l, 1, I)'
+                label: "Qagh Qagh yIlanbe'",
+                description: "Qagh Qagh yIlanbe' (l, 1, I)"
             },
             requireUniqueChars: {
-                label: 'Require unique characters',
-                description: 'No repeated characters in password'
+                label: 'Qagh Qagh yIlan',
+                description: "mu'ghomDaq Qagh Qagh yIlanbe'"
             }
         },
 
         // Emoji settings
         emojiSettings: {
-            title: 'Emoji settings',
-            description: 'Emoji count, categories and patterns',
+            title: "emoji QulwI'",
+            description: "emoji mI', QulwI' 'ej QulwI'",
             emojiCount: {
-                label: 'Emoji count',
-                description: 'Number of emojis in password',
-                min: 'Min (3)',
-                max: 'Max (10)'
+                label: "emoji mI'",
+                description: "emoji mI' mu'ghomDaq",
+                min: 'Qagh (3)',
+                max: 'Qan (10)'
             },
             emojiPattern: {
-                label: 'Emoji pattern',
-                description: 'Choose emoji arrangement',
+                label: "emoji QulwI'",
+                description: "emoji QulwI' yI'ang",
                 options: {
-                    random: 'Random',
-                    sequential: 'Sequential',
-                    alternating: 'Alternating'
+                    random: "SuvwI'",
+                    sequential: "QulwI'",
+                    alternating: "QulwI'"
                 }
             },
             emojiTheme: {
-                label: 'Emoji theme',
-                description: 'Choose emoji style',
+                label: "emoji QulwI'",
+                description: "emoji QulwI' yI'ang",
                 options: {
-                    mixed: 'Mixed',
-                    cute: 'Cute',
-                    professional: 'Professional',
-                    fantasy: 'Fantasy'
+                    mixed: 'Qagh',
+                    cute: 'Quch',
+                    professional: "QulwI'",
+                    fantasy: "QulwI'"
                 }
             }
         },
 
         // Generation settings
         generationSettings: {
-            title: 'Generation settings',
-            description: 'Auto-generation and clipboard options',
+            title: "chenmoH QulwI'",
+            description: "chenmoH QulwI' 'ej QIn QulwI'",
             autoGenerate: {
-                label: 'Auto-generation',
-                description: 'Automatically generate passwords'
+                label: 'chenmoH',
+                description: "mu'ghommey chenmoH"
             },
             copyToClipboard: {
-                label: 'Copy to clipboard',
-                description: 'Automatically copy generated passwords'
+                label: 'QInlIjDaq yIlan',
+                description: "mu'ghommey chenbogh QInlIjDaq yIlan"
             },
             showStrength: {
-                label: 'Show strength',
-                description: 'Show password strength meter'
+                label: 'Qan yIlan',
+                description: "mu'ghom Qan yIlan"
             },
             strengthThreshold: {
-                label: 'Strength threshold',
-                description: 'Minimum required password strength',
+                label: "Qan QulwI'",
+                description: "mu'ghom Qan poQlu'",
                 options: {
-                    low: 'Low',
-                    medium: 'Medium',
-                    high: 'High'
+                    low: 'Qagh',
+                    medium: "QulwI'",
+                    high: 'Qan'
                 }
             },
             autoRefresh: {
-                label: 'Auto-refresh',
-                description: 'Automatically regenerate weak passwords'
+                label: "QulwI'",
+                description: "mu'ghommey Qagh chenmoH"
             }
         },
 
         // Privacy settings
         privacySettings: {
-            title: 'Privacy settings',
-            description: 'Data collection and sharing preferences',
+            title: "Qan QulwI'",
+            description: "De' QulwI' 'ej Qang QulwI'",
             saveHistory: {
-                label: 'Save history',
-                description: 'Save generated passwords locally'
+                label: 'lut yIlan',
+                description: "mu'ghommey chenbogh lut yIlan"
             },
             analytics: {
-                label: 'Analytics',
-                description: 'Anonymous usage statistics'
+                label: "De'",
+                description: "De' QulwI'"
             },
             shareUsage: {
-                label: 'Share usage',
-                description: 'Share usage data for improvements'
+                label: 'Qang',
+                description: "De' QulwI' Qang"
             },
             exportHistory: {
-                label: 'Export history',
-                description: 'Export password history to file'
+                label: 'lut yIlan',
+                description: "mu'ghommey chenbogh lut yIlan"
             },
             backupSettings: {
-                label: 'Backup settings',
-                description: 'Automatically backup settings'
+                label: "QulwI' yIlan",
+                description: "QulwI' yIlan"
             }
         },
 
         // Pro features
         proFeatures: {
-            title: 'Pro features',
-            description: 'Advanced settings and premium features',
+            title: "PRO QulwI'",
+            description: "QulwI' QulwI' 'ej QulwI' QulwI'",
             securityAudit: {
-                label: 'Security audit',
-                description: 'Comprehensive security analysis',
-                buttonText: 'Run audit'
+                label: "Qan QulwI'",
+                description: "Qan QulwI'",
+                buttonText: "Qan QulwI' yI'ang"
             },
             breachCheck: {
-                label: 'Breach check',
-                description: 'Check passwords against known breaches'
+                label: "Qagh QulwI'",
+                description: "mu'ghommey Qagh QulwI'"
             },
             strengthAnalytics: {
-                label: 'Strength analytics',
-                description: 'Advanced password strength analysis'
+                label: "Qan De'",
+                description: "mu'ghom Qan De'"
             }
         }
     },
@@ -333,206 +347,297 @@ export default {
     accounting: {
         // Login and authentication
         login: {
-            title: 'Login',
-            emailPlaceholder: 'Enter your email address',
-            magicLinkSent: 'Magic link sent!',
-            magicLinkError: 'Error sending magic link',
-            verificationSuccess: 'Email successfully verified!',
-            verificationError: 'Email verification failed',
-            rateLimitExceeded: 'Too many login attempts. Please wait.',
-            sessionExpired: 'Session expired. Please login again.'
+            title: "QIn yI'ang",
+            emailPlaceholder: "QI'yaH yI'ang",
+            magicLinkSent: "maH 'IDnar Qanglu'!",
+            magicLinkError: "maH 'IDnar QanglaHbe'",
+            verificationSuccess: "QI'yaH QulmoHlu'!",
+            verificationError: "QI'yaH QulmoHlaHbe'",
+            rateLimitExceeded: "QIn QanglaHbe'. yIvoqQo'.",
+            sessionExpired: "QIn Qagh. yI'ang."
         },
 
         // Account management
         account: {
-            title: 'Account management',
-            profile: 'Profile',
-            settings: 'Settings',
-            logout: 'Logout',
-            logoutSuccess: 'Successfully logged out',
-            accountCreated: 'Account successfully created',
-            accountUpdated: 'Account successfully updated',
-            accountError: 'Account management error'
+            title: "Huch Qan QulwI'",
+            profile: "QulwI'",
+            settings: "QulwI'",
+            logout: "QIn yIchu'",
+            logoutSuccess: "QIn chu'lu'!",
+            accountCreated: "Huch Qan chenmoHlu'!",
+            accountUpdated: "Huch Qan QulmoHlu'!",
+            accountError: 'Huch Qan Qagh'
         },
 
         // Security events
         security: {
-            loginAttempt: 'Login attempt',
-            loginSuccess: 'Successful login',
-            loginFailed: 'Login failed',
-            logout: 'Logout',
-            sessionExpired: 'Session expired',
-            suspiciousActivity: 'Suspicious activity',
-            verificationSuccess: 'Verification successful',
-            verificationFailed: 'Verification failed',
-            accountCreated: 'Account created',
-            accountUpdated: 'Account updated',
-            securityAudit: 'Security audit performed'
+            loginAttempt: "QIn yI'ang",
+            loginSuccess: "QIn yI'anglu'",
+            loginFailed: "QIn yI'anglaHbe'",
+            logout: "QIn yIchu'",
+            sessionExpired: 'QIn Qagh',
+            suspiciousActivity: "Qagh QulwI'",
+            verificationSuccess: "QulmoHlu'",
+            verificationFailed: "QulmoHlaHbe'",
+            accountCreated: "Huch Qan chenmoHlu'",
+            accountUpdated: "Huch Qan QulmoHlu'",
+            securityAudit: "Qan QulwI' QulmoHlu'"
         },
 
         // Validation
         validation: {
-            required: 'This field is required',
-            emailInvalid: 'Please enter a valid email address',
-            urlInvalid: 'Please enter a valid URL',
-            phoneInvalid: 'Please enter a valid phone number',
-            passwordWeak:
-                'Password must contain at least 8 characters with uppercase, lowercase letters and numbers',
-            minLength: 'Minimum length is {min} characters',
-            maxLength: 'Maximum length is {max} characters',
-            minValue: 'Minimum value is {min}',
-            maxValue: 'Maximum value is {max}',
-            validInput: 'Valid input'
+            required: "De' QulwI' poQlu'",
+            emailInvalid: "QI'yaH vItlhutlh yI'ang",
+            urlInvalid: "URL vItlhutlh yI'ang",
+            phoneInvalid: "QIn QulwI' vItlhutlh yI'ang",
+            passwordWeak: "mu'ghom cha' DeghHomHom poQlu' mI' 'ej DeghHomHom",
+            minLength: "DeghHomHom poQlu' {min}",
+            maxLength: "DeghHomHom Qaw'laHbe' {max}",
+            minValue: "mI' poQlu' {min}",
+            maxValue: "mI' Qaw'laHbe' {max}",
+            validInput: "QulwI' QulwI'"
         },
 
         // Context menu
         contextMenu: {
-            exportSettings: 'Export settings',
-            importSettings: 'Import settings',
-            resetToDefault: 'Reset to default',
-            proMessage: '💎 Pro users can export and import their settings'
+            exportSettings: "QulwI' yIlan",
+            importSettings: "QulwI' yIlan",
+            resetToDefault: "QulwI' yIlan",
+            proMessage: "💎 PRO QInwI' QulwI' yIlan 'ej yIlan"
         }
     },
 
     // Modals and notifications
     modals: {
-        success: 'Success',
-        error: 'Error',
-        warning: 'Warning',
-        info: 'Information',
-        confirm: 'Confirm',
-        cancel: 'Cancel',
-        close: 'Close',
-        loading: 'Loading...',
-        saving: 'Saving...',
-        exporting: 'Exporting...',
-        importing: 'Importing...',
-        resetting: 'Resetting...'
+        success: "Qapla'",
+        error: 'Qagh',
+        warning: 'Qagh',
+        info: "De'",
+        confirm: "yI'ach",
+        cancel: "yIchu'",
+        close: 'yISoQmoH',
+        loading: "Qanglu'...",
+        saving: "lanlu'...",
+        exporting: "lanlu'...",
+        importing: "lanlu'...",
+        resetting: "lanlu'..."
     },
 
     // AccountManager translations
     accountManager: {
-        // Headers and descriptions
-        pageTitle: 'Account Management',
-        pageDescription:
-            'Manage your security settings and account preferences',
-        welcomeBack: 'Welcome back, {name}! 👋',
+        // Page titles and descriptions
+        pageTitle: "Huch Qan QulwI'",
+        pageDescription: "Huch Qan QulwI' 'ej QulwI' QulwI'",
+        welcomeBack: "yI'elqa', {name}! 👋",
         welcomeDescription:
-            'Ready to create some amazing emoji passwords? Your account is secure and ready to go!',
-        verificationTitle: '📧 Check Your Email and Verify',
+            "emoji mu'ghommey chenmoHmeH DujlIj SuvwI' SoH? HuchlIj Qanlu'pu', bIghoSlaH.",
+        returnUserTitle: "👋 yI'elqa'!",
+        returnUserDescription: "QI'yaHlIj wIlanpu'. QIn yI'ang.",
+        verificationTitle: "📧 QI'yaHlIj yIlan 'ej yI'ach",
         verificationDescription:
-            'Check your email {email} and click the magic link to complete setup',
+            "QI'yaHlIj {email} yIlan 'ej maH 'IDnar yI'ang",
+        verifyingTitle: "🔗 maH 'IDnar QulmoHlu'...",
+        verifyingDescription: "HuchlIj QulmoHmeH yIvoqQo'.",
+        verificationErrorTitle: "❌ QulmoHlaHbe'",
+        verificationErrorDescription: 'Qagh Qap.',
 
-        // Account Status
-        accountStatus: 'Account Status',
-        emailLabel: 'Email Address',
-        nameLabel: 'Your Name',
-        profileDataLabel: 'Profile Data',
+        // Buttons and actions
+        buttons: {
+            createMagicLink: "maH 'IDnar chenmoH",
+            loginToAccount: "Huch Qan yI'ang",
+            checkAccountExists: "Huch Qan Qanglu'...",
+            sendingMagicLink: "Qanglu'...",
+            accountExists: "Huch Qan lanpu' - QIn yI'anglu'...",
+            accountNotFound: "Huch Qan lanbe' - chenmoHlu'...",
+            sessionExpired: "QIn Qagh - yI'ang",
+            loginAgain: "🔐 yI'ang",
+            createNewAccount: "Huch Qan chu' chenmoH",
+            resendMagicLink: "🔄 maH 'IDnar yIngeH",
+            backToAccountOptions: "← Huch Qan QulwI' wIchegh",
+            addProfile: 'yIlan',
+            hideProfile: "yIlanbe'",
+            profileData: "QulwI' De'",
+            showFullForm: "QIn QulwI' Qan yIlan",
+            compactView: "QIn QulwI' Qagh"
+        },
 
-        // Account Tiers
-        freeBadge: '✨ FREE',
-        proBadge: '💎 PRO',
-        freeDescription: '✨ Free Security',
-        proDescription: '💎 Enterprise Security',
+        // Form labels
+        emailLabel: "QI'yaH",
+        nameLabel: 'ponglIj',
+
+        // Actions
+        actions: {
+            saveSettings: "💾 QulwI' yIlan",
+            backToHome: '🏠 juH wIchegh',
+            skipAccount: "❌ {type} yIlanbe'",
+            createAccount: '🚀 {type} Huch Qan chenmoH',
+            settingsSaved: "QulwI' lanlu'!"
+        },
+
+        // Statistics
+        statistics: {
+            storiesGenerated: "lut chenmoHlu'",
+            remainingGenerations: 'chenmoHlaH'
+        },
+
+        // Daily generations
+        dailyGenerations: 'jaj HochDaq chenmoH',
+
+        // Remaining generations display
+        remainingDisplay: '{remaining} / {limit} chenmoHlaH',
 
         // Benefits
         benefits: {
             free: {
-                title: 'FREE Benefits',
-                dailyGenerations: '5 daily secure generations',
-                dailyGenerationsDesc: 'AI-resistant technology',
-                decentralizedData: 'Decentralized data processing',
-                decentralizedDataDesc: 'Your data stays private',
-                webApp: 'Available as web app',
-                webAppDesc: 'Secure access from anywhere'
+                dailyGenerations: 'jaj HochDaq 5 chenmoH',
+                dailyGenerationsDesc: "QIn Qaw'laHbe'bogh De'",
+                decentralizedData: "De' QulwI'",
+                decentralizedDataDesc: "De'lIj Qanlu'",
+                webApp: "De' QulwI' poQlu'",
+                webAppDesc: "Qan QIn QulwI'"
             },
             pro: {
-                title: 'PRO Benefits',
-                unlimitedGenerations: 'Unlimited secure generations',
-                unlimitedGenerationsDesc: 'No daily limits',
-                aiThreatDetection: 'AI-powered threat detection',
-                aiThreatDetectionDesc: 'Proactive security analysis',
-                browserExtension: 'Browser Extension (Q4 2025)',
-                browserExtensionDesc: 'Security everywhere on the web',
-                wordpressPlugin: 'WordPress Plugin (Q4 2025)',
-                wordpressPluginDesc: 'Integrate security into your website'
+                unlimitedGenerations: "chenmoHlaHbe'",
+                unlimitedGenerationsDesc: "jaj HochDaq Qaw'laHbe'",
+                aiThreatDetection: "QIn Qaw'laHbe'bogh De'",
+                aiThreatDetectionDesc: "Qan QulwI'",
+                prioritySupport: "QIn QulwI'",
+                prioritySupportDesc: "QIn QulwI'",
+                browserExtension: "De' QulwI' (Q4 2025)",
+                browserExtensionDesc: "Qan QIn QulwI'",
+                wordpressPlugin: "WordPress QulwI' (Q4 2025)",
+                wordpressPluginDesc: "Qan QIn QulwI'"
             }
         },
 
-        // Daily Limit
-        dailyGenerations: 'Daily Generations',
-        remainingGenerations: '{remaining} / {limit} remaining',
-        canStillGenerate: 'You can still generate emojis!',
-        limitReached:
-            'Daily limit reached. Upgrade to PRO for unlimited generations.',
-
-        // Statistics
-        statistics: {
-            storiesGenerated: 'Stories Generated',
-            remainingGenerations: 'Remaining Generations'
-        },
-
-        // Actions
-        actions: {
-            saveSettings: '💾 Save Settings',
-            backToHome: '🏠 Back to Home',
-            createAccount: '🚀 Create {type} Account',
-            skipAccount: 'Skip {type} Account',
-            createMagicLink: '🔐 Create Magic-Link',
-            sendingMagicLink: '⏳ Sending Magic-Link...',
-            resendMagicLink: '🔄 Resend Magic Link',
-            backToAccountOptions: '← Back to Account Options',
-            addProfileData: '👤 Add Profile Data',
-            hideProfileData: '👤 Hide Profile Data'
-        },
-
-        // Form Validation
-        validation: {
-            invalidEmail: '⚠️ Please enter a valid email address',
-            invalidName: '⚠️ Please enter your name (minimum 2 characters)',
-            requiredField: 'This field is required'
-        },
-
-        // Help Section
+        // Help section
         help: {
-            title: '💡 Need Help?',
-            checkSpam: "• Check your spam folder if you don't see the email",
-            linkExpires: '• Magic links expire after 15 minutes',
-            requestNewLink: '• You can request a new link anytime',
-            noPassword: '• No password required - just click the link'
+            title: "💡 QIn yIghaj'a'?",
+            spamFolder: "• QIn QulwI' yIlan",
+            magicLinkExpiry: "• maH 'IDnar 15 rep Qaw'laH",
+            requestNewLink: "• maH 'IDnar chu' yIngeH",
+            noPassword: "• mu'ghom poQbe' - maH 'IDnar yI'ang"
         },
 
         // Footer
         footer: {
-            magicLink: '🔒 Magic link',
-            instantSetup: '⚡ Instant Setup',
-            noSpam: '🎯 No Spam'
-        }
+            magicLink: "maH 'IDnar",
+            instantSetup: "QulwI' QulwI'",
+            noSpam: "QIn QulwI' Qaw'laHbe'",
+            text: "maH 'IDnar QI'yaH Qanglu' 'ej 15 rep Qaw'laH.",
+            privacy: "De'lIj Qanlu'."
+        },
+
+        // Limits and messages
+        canStillGenerate: 'emoji DachenmoHlaHtaH!',
+        limitReached: "jaj HochDaq Qav. PRO Dalo'chugh, chenmoHlaHbe'.",
+
+        // Account age
+        accountAge: {
+            today: "chenmoHlu'",
+            yesterday: "chenmoHlu'",
+            days: 'jaj {days}',
+            weeks: 'jaj {weeks}',
+            months: 'jar {months}',
+            years: 'DIS {years}',
+            accountSince: 'Huch Qan {days} {unit}',
+            since: '{days} {unit}',
+            day: 'jaj',
+            daysLabel: 'jaj',
+            accountCreated: "Huch Qan chenmoHlu'"
+        },
+
+        // Validation
+        validation: {
+            emailInvalid: "QI'yaH vItlhutlh yI'ang",
+            nameInvalid: "ponglIj yI'ang (cha' DeghHomHom poQlu')"
+        },
+
+        // Messages
+        messages: {
+            settingsReset: "QulwI' lanlu'",
+            exportFailed: "QulwI' lanlaHbe'",
+            settingsExported: "QulwI' lanlu'!",
+            freeAccountActivated: "Hutlh Huch Qan QulmoHlu'!"
+        },
+
+        // Upgrade section
+        upgrade: {
+            upgradeToPro: "PRO Dalo'",
+            upgradeToProForFeatures: "PRO QulwI' HevmeH PRO Dalo'",
+            unlimitedGenerations: "chenmoHlaHbe' 'ej Qan QulwI'"
+        },
+
+        // Context menu
+        contextMenu: {
+            exportSettings: "QulwI' yIlan",
+            importSettings: "QulwI' yIlan",
+            resetToDefault: "QulwI' yIlan",
+            logout: "QIn yIchu'",
+            settingsMenu: "QulwI' qun"
+        },
+
+        // Features
+        features: {
+            proFeature: "PRO QulwI'"
+        },
+
+        // Pro Feature Modal
+        proFeatureModal: {
+            title: "PRO QulwI'",
+            proBenefits: "PRO QulwI':",
+            unlimitedGenerations: "emoji chenmoHlaHbe'",
+            advancedSecurity: "Qan QulwI'",
+            prioritySupport: "QIn QulwI'",
+            earlyAccess: "QulwI' QulwI'",
+            maybeLater: 'Qagh',
+            upgradeToPro: "PRO Dalo'",
+            // Pro Upgrade specific
+            proUpgrade: "PRO Dalo'",
+            unlockAdvancedFeatures: "QulwI' QulwI' 'ej QulwI' QulwI'",
+            upgradeProNow: "💎 PRO Dalo'"
+        },
+
+        // Account tiers
+        tiers: {
+            free: 'HUTLH',
+            pro: 'PRO',
+            freeAccount: 'Hutlh Huch Qan',
+            proAccount: 'PRO Huch Qan'
+        },
+
+        // Badges
+        freeBadge: '✨ HUTLH',
+        proBadge: '💎 PRO',
+
+        // Descriptions
+        freeDescription: '✨ Hutlh Qan',
+        proDescription: "💎 Qan QulwI'"
     },
 
     // General UI texts
     ui: {
-        save: 'Save',
-        cancel: 'Cancel',
-        reset: 'Reset',
-        export: 'Export',
-        import: 'Import',
-        delete: 'Delete',
-        edit: 'Edit',
-        add: 'Add',
-        remove: 'Remove',
-        search: 'Search',
-        filter: 'Filter',
-        sort: 'Sort',
-        refresh: 'Refresh',
-        back: 'Back',
-        next: 'Next',
-        previous: 'Previous',
-        submit: 'Submit',
-        loading: 'Loading...',
-        error: 'Error',
-        success: 'Success',
-        warning: 'Warning',
-        info: 'Info'
+        save: 'yIlan',
+        cancel: "yIchu'",
+        reset: 'yIlan',
+        export: 'yIlan',
+        import: 'yIlan',
+        delete: "yIQIjHa'",
+        edit: 'yIlan',
+        add: 'yIlan',
+        remove: "yIQIjHa'",
+        search: 'yIlan',
+        filter: 'yIlan',
+        sort: 'yIlan',
+        refresh: 'yIlan',
+        back: 'wIchegh',
+        next: 'yIlan',
+        previous: 'wIchegh',
+        submit: 'yIlan',
+        loading: "Qanglu'...",
+        error: 'Qagh',
+        success: "Qapla'",
+        warning: 'Qagh',
+        info: "De'"
     }
 };

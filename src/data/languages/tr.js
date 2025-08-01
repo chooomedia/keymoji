@@ -77,6 +77,7 @@ export default {
         privacyNotice:
             'Verileriniz bizde güvende 🤲. Bilgileriniz üçüncü kişilerle paylaşılmaz 🔒.',
         newsletterLabel: 'Evet, bültene abone olmak istiyorum',
+        newsletterOptIn: 'Bültene abone ol',
         backToMainButton: 'Ana sayfaya dön',
         footerText: 'Sevgiyle geliştirildi',
         validationErrorMessage:
@@ -410,6 +411,210 @@ export default {
         exporting: 'Dışa aktarılıyor...',
         importing: 'İçe aktarılıyor...',
         resetting: 'Sıfırlanıyor...'
+    },
+
+    versions: {
+        pageTitle: 'Sürüm Geçmişi',
+        pageDescription:
+            'Keymoji, emoji şifre üreticisinin geliştirme geçmişini ve değişiklik kayıtlarını inceleyin.'
+    },
+
+    // AccountManager çevirileri
+    accountManager: {
+        // Sayfa başlıkları ve açıklamaları
+        pageTitle: 'Hesap Yöneticisi',
+        pageDescription:
+            'Güvenlik ayarlarınızı ve hesap tercihlerinizi yönetin',
+        welcomeBack: 'Tekrar hoş geldiniz, {name}! 👋',
+        welcomeDescription:
+            'Harika emoji şifreleri oluşturmaya hazır mısınız? Hesabınız güvenli ve hazır!',
+        returnUserTitle: '👋 Tekrar hoş geldiniz!',
+        returnUserDescription:
+            'E-posta adresinizi tanıdık. Hızlıca giriş yapın.',
+        verificationTitle: '📧 E-postanızı kontrol edin ve doğrulayın',
+        verificationDescription:
+            'E-postanızı {email} kontrol edin ve kurulumu tamamlamak için sihirli bağlantıya tıklayın',
+        verifyingTitle: '🔗 Sihirli Bağlantı Doğrulanıyor...',
+        verifyingDescription: 'Hesabınızı doğrularken lütfen bekleyin.',
+        verificationErrorTitle: '❌ Doğrulama Başarısız',
+        verificationErrorDescription: 'Bir hata oluştu.',
+
+        // Düğmeler ve eylemler
+        buttons: {
+            createMagicLink: 'Sihirli Bağlantı Oluştur',
+            loginToAccount: 'Hesaba Giriş Yap',
+            checkAccountExists: 'Hesap kontrol ediliyor...',
+            sendingMagicLink: 'Gönderiliyor...',
+            accountExists: 'Hesap bulundu - Giriş yapılıyor...',
+            accountNotFound: 'Hesap bulunamadı - Oluşturuluyor...',
+            sessionExpired: 'Oturum süresi doldu - Tekrar giriş yapın',
+            loginAgain: '🔐 Tekrar giriş yapın',
+            createNewAccount: 'Yeni hesap oluştur',
+            resendMagicLink: '🔄 Sihirli Bağlantıyı Tekrar Gönder',
+            backToAccountOptions: '← Hesap Seçeneklerine Geri Dön',
+            addProfile: 'Ekle',
+            hideProfile: 'Gizle',
+            profileData: 'Profil Verileri',
+            showFullForm: 'Tam formu göster',
+            compactView: 'Kompakt görünüm'
+        },
+
+        // Form etiketleri
+        emailLabel: 'E-posta',
+        nameLabel: 'Ad',
+
+        // Eylemler
+        actions: {
+            saveSettings: '💾 Ayarları Kaydet',
+            backToHome: '🏠 Ana Sayfaya Dön',
+            skipAccount: '❌ {type} Atla',
+            createAccount: '🚀 {type} Hesabı Oluştur',
+            settingsSaved: 'Ayarlar başarıyla kaydedildi!'
+        },
+
+        // İstatistikler
+        statistics: {
+            storiesGenerated: 'Oluşturulan Hikayeler',
+            remainingGenerations: 'Kalan Üretimler'
+        },
+
+        // Günlük üretimler
+        dailyGenerations: 'Günlük Üretimler',
+
+        // Kalan üretim görüntüleme
+        remainingDisplay: 'Kalan {remaining} / {limit}',
+
+        // Faydalar
+        benefits: {
+            free: {
+                dailyGenerations: '5 günlük güvenli üretim',
+                dailyGenerationsDesc: 'AI dirençli teknoloji',
+                decentralizedData: 'Merkezi olmayan veri işleme',
+                decentralizedDataDesc: 'Verileriniz gizli kalır',
+                webApp: 'Web uygulaması olarak mevcut',
+                webAppDesc: 'Her yerden güvenli erişim'
+            },
+            pro: {
+                unlimitedGenerations: 'Sınırsız güvenli üretim',
+                unlimitedGenerationsDesc: 'Günlük limit yok',
+                aiThreatDetection: 'AI destekli tehdit algılama',
+                aiThreatDetectionDesc: 'Proaktif güvenlik analizi',
+                prioritySupport: 'Öncelikli destek',
+                prioritySupportDesc: 'Sorulara hızlı yardım',
+                browserExtension: 'Tarayıcı uzantısı (Q4 2025)',
+                browserExtensionDesc: 'Webde her yerde güvenlik',
+                wordpressPlugin: 'WordPress eklentisi (Q4 2025)',
+                wordpressPluginDesc: 'Güvenliği web sitenize entegre edin'
+            }
+        },
+
+        // Yardım bölümü
+        help: {
+            title: '💡 Yardıma mı ihtiyacınız var?',
+            spamFolder: '• E-postayı görmüyorsanız spam klasörünü kontrol edin',
+            magicLinkExpiry: '• Sihirli bağlantılar 15 dakika sonra sona erer',
+            requestNewLink:
+                '• İstediğiniz zaman yeni bir bağlantı isteyebilirsiniz',
+            noPassword: '• Şifre gerekmez - sadece bağlantıya tıklayın'
+        },
+
+        // Alt bilgi
+        footer: {
+            magicLink: 'Sihirli bağlantı',
+            instantSetup: 'Anında Kurulum',
+            noSpam: 'Spam Yok',
+            text: 'Sihirli bağlantılar e-posta ile gönderilir ve 15 dakika geçerlidir.',
+            privacy: 'Verileriniz güvenli bir şekilde işlenir.'
+        },
+
+        // Limitler ve mesajlar
+        canStillGenerate: 'Hala emoji üretebilirsiniz!',
+        limitReached:
+            "Günlük limite ulaşıldı. Sınırsız üretim için PRO'ya yükseltin.",
+
+        // Hesap yaşı
+        accountAge: {
+            today: 'Bugün oluşturuldu',
+            yesterday: 'Dün oluşturuldu',
+            days: '{days} gün öncesinden',
+            weeks: '{weeks} hafta{plural} öncesinden',
+            months: '{months} ay{plural} öncesinden',
+            years: '{years} yıl{plural} öncesinden',
+            accountSince: '{days} {unit} öncesinden hesap',
+            since: '{days} {unit} öncesinden',
+            day: 'gün',
+            daysLabel: 'gün',
+            accountCreated: 'Hesap oluşturuldu'
+        },
+
+        // Doğrulama
+        validation: {
+            emailInvalid: 'Geçerli bir e-posta adresi girin',
+            nameInvalid: 'Adınızı girin (en az 2 karakter)'
+        },
+
+        // Mesajlar
+        messages: {
+            settingsReset: 'Ayarlar varsayılana sıfırlandı',
+            exportFailed: 'Ayarları dışa aktarma başarısız',
+            settingsExported: 'Ayarlar başarıyla dışa aktarıldı',
+            freeAccountActivated: 'Ücretsiz hesap etkinleştirildi!'
+        },
+
+        // Yükseltme bölümü
+        upgrade: {
+            upgradeToPro: "Pro'ya Yükselt",
+            upgradeToProForFeatures:
+                "Gelişmiş özellikler için Pro'ya yükseltin",
+            unlimitedGenerations:
+                'Sınırsız üretim ve gelişmiş güvenlik özellikleri'
+        },
+
+        // Bağlam menüsü
+        contextMenu: {
+            exportSettings: 'Ayarları Dışa Aktar',
+            importSettings: 'Ayarları İçe Aktar',
+            resetToDefault: 'Varsayılana Sıfırla',
+            logout: 'Çıkış Yap',
+            settingsMenu: 'Ayarlar menüsü'
+        },
+
+        // Özellikler
+        features: {
+            proFeature: 'Pro Özelliği'
+        },
+
+        // Pro Özelliği Modal
+        proFeatureModal: {
+            title: 'Pro Özelliği',
+            proBenefits: 'Pro Faydaları:',
+            unlimitedGenerations: 'Sınırsız emoji üretimi',
+            advancedSecurity: 'Gelişmiş güvenlik özellikleri',
+            prioritySupport: 'Öncelikli destek',
+            earlyAccess: 'Yeni özelliklere erken erişim',
+            maybeLater: 'Belki Daha Sonra',
+            upgradeToPro: "Pro'ya Yükselt",
+            // Pro Yükseltme özel
+            proUpgrade: 'Pro Yükseltme',
+            unlockAdvancedFeatures: 'Tüm gelişmiş özellikleri ve ayarları açın',
+            upgradeProNow: "💎 Şimdi Pro'ya Yükselt"
+        },
+
+        // Hesap seviyeleri
+        tiers: {
+            free: 'ÜCRETSİZ',
+            pro: 'PRO',
+            freeAccount: 'Ücretsiz Hesap',
+            proAccount: 'Pro Hesap'
+        },
+
+        // Rozetler
+        freeBadge: '✨ ÜCRETSİZ',
+        proBadge: '💎 PRO',
+
+        // Açıklamalar
+        freeDescription: '✨ Ücretsiz Güvenlik',
+        proDescription: '💎 Kurumsal Güvenlik'
     },
 
     // Genel UI metinleri

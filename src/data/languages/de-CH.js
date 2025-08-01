@@ -79,6 +79,7 @@ export default {
         privacyNotice:
             'Si versichert, dini Date sind bi uns in guete Händ 🤲. Dini Details werde nöd a Dritti wiitergäh 🔒.',
         newsletterLabel: 'Ja, ich möcht de Newsletter abonniere',
+        newsletterOptIn: 'Newsletter abonniere',
         backToMainButton: 'Zrugg zu Home',
         footerText: 'Mit Liebi entwicklet',
         validationErrorMessage:
@@ -413,105 +414,209 @@ export default {
         importing: 'Importiere...',
         resetting: 'Zruggsetze...'
     },
+    versions: {
+        pageTitle: 'Versionsverlauf',
+        pageDescription:
+            'Überprüf d Entwickligsgschicht und de Changelog vo Keymoji, em Emoji-Passwort-Generator.'
+    },
 
     // AccountManager Übersetzungen
     accountManager: {
-        // Überschriften und Beschreibungen
-        pageTitle: 'Account Management',
+        // Seitentitel und Beschreibige
+        pageTitle: 'Account Verwaltig',
         pageDescription:
-            'Manage your security settings and account preferences',
-        welcomeBack: 'Welcome back, {name}! 👋',
+            'Verwalte dini Sicherheitsiistellige und Account-Präferenze',
+        welcomeBack: 'Willkomme zrugg, {name}! 👋',
         welcomeDescription:
-            'Ready to create some amazing emoji passwords? Your account is secure and ready to go!',
-        verificationTitle: '📧 Check Your Email and Verify',
+            'Bereit zum Erstelle vo tolli Emoji-Passwörter? Din Account isch sicher und bereit!',
+        returnUserTitle: '👋 Willkomme zrugg!',
+        returnUserDescription:
+            'Mir hei dini E-Mail-Adress erkennt. Logg dich schnell ih.',
+        verificationTitle: '📧 Überprüf dini E-Mail und bestätig',
         verificationDescription:
-            'Check your email {email} and click the magic link to complete setup',
+            'Überprüf dini E-Mail {email} und klick uf de Magic-Link zum Abschluss vo de Iistellig',
+        verifyingTitle: '🔗 Magic-Link wird überprüft...',
+        verifyingDescription: 'Bitte warte während mir din Account überprüfe.',
+        verificationErrorTitle: '❌ Überprüfig fehlgschlage',
+        verificationErrorDescription: 'E Fehler isch uftrete.',
 
-        // Account Status
-        accountStatus: 'Account Status',
-        emailLabel: 'Email Address',
-        nameLabel: 'Your Name',
-        profileDataLabel: 'Profile Data',
+        // Knöpfe und Aktione
+        buttons: {
+            createMagicLink: 'Magic-Link erstelle',
+            loginToAccount: 'I Account ihlogge',
+            checkAccountExists: 'Account wird überprüft...',
+            sendingMagicLink: 'Magic-Link wird gsendet...',
+            accountExists: 'Account gfunde - Logge ih...',
+            accountNotFound: 'Account nöd gfunde - Erstelle...',
+            sessionExpired: 'Session abgloffe - Nomol ihlogge',
+            loginAgain: '🔐 Nomol ihlogge',
+            createNewAccount: 'Neue Account erstelle',
+            resendMagicLink: '🔄 Magic-Link nomol sende',
+            backToAccountOptions: '← Zrugg zu Account-Optione',
+            addProfile: 'Hinzufüge',
+            hideProfile: 'Verstecke',
+            profileData: 'Profil-Date',
+            showFullForm: 'Vollständigs Formular zeige',
+            compactView: 'Kompakti Aasicht'
+        },
 
-        // Account Tiers
-        freeBadge: '✨ FREE',
-        proBadge: '💎 PRO',
-        freeDescription: '✨ Kostenlose Sicherheit',
-        proDescription: '💎 Enterprise Security',
+        // Formular-Labels
+        emailLabel: 'E-Mail',
+        nameLabel: 'Name',
 
-        // Benefits
+        // Aktione
+        actions: {
+            saveSettings: '💾 Iistellige speichere',
+            backToHome: '🏠 Zrugg zu Home',
+            skipAccount: '❌ {type} überspringe',
+            createAccount: '🚀 {type} Account erstelle',
+            settingsSaved: 'Iistellige erfolgreich gspeichert!'
+        },
+
+        // Statistike
+        statistics: {
+            storiesGenerated: 'Generierti Gschichte',
+            remainingGenerations: 'Verbleibendi Generierige'
+        },
+
+        // Tägligi Generierige
+        dailyGenerations: 'Tägligi Generierige',
+
+        // Aazeig vo verbleibende Generierige
+        remainingDisplay: 'Verbleibend {remaining} / {limit}',
+
+        // Vorteil
         benefits: {
             free: {
-                title: 'FREE Benefits',
-                dailyGenerations: '5 tägliche sichere Generierungen',
-                dailyGenerationsDesc: 'KI-resistente Technologie',
-                decentralizedData: 'Denzentrale Datenverabeitung',
-                decentralizedDataDesc: 'Deine Daten bleiben privat',
-                webApp: 'Als Webapp nutzbar',
-                webAppDesc: 'Sicherer Zugriff von überall'
+                dailyGenerations: '5 tägligi sicheri Generierige',
+                dailyGenerationsDesc: 'KI-resistenti Technologie',
+                decentralizedData: 'Dezentrali Dateverarbeitig',
+                decentralizedDataDesc: 'Dini Date bliibe privat',
+                webApp: 'Als Web-App verfüegbar',
+                webAppDesc: 'Sicherer Zugriff vo überall'
             },
             pro: {
-                title: 'PRO Benefits',
-                unlimitedGenerations: 'Unbegrenzte sichere Generierungen',
-                unlimitedGenerationsDesc: 'Keine täglichen Limits',
-                aiThreatDetection: 'KI-gestützte Bedrohungserkennung',
-                aiThreatDetectionDesc: 'Proaktive Sicherheitsanalyse',
-                browserExtension: 'Browser-Erweiterung (Q4 2025)',
+                unlimitedGenerations: 'Unbegrenzti sicheri Generierige',
+                unlimitedGenerationsDesc: 'Kei tägligi Limite',
+                aiThreatDetection: 'KI-gestützti Bedrohigserkennig',
+                aiThreatDetectionDesc: 'Proaktivi Sicherheitsanalys',
+                prioritySupport: 'Prioritäts-Support',
+                prioritySupportDesc: 'Schnelli Hilf bi Froge',
+                browserExtension: 'Browser-Erweiterig (Q4 2025)',
                 browserExtensionDesc: 'Sicherheit überall im Web',
                 wordpressPlugin: 'WordPress-Plugin (Q4 2025)',
-                wordpressPluginDesc: 'Sicherheit in deine Website integrieren'
+                wordpressPluginDesc: 'Sicherheit in dini Website integriere'
             }
         },
 
-        // Daily Limit
-        dailyGenerations: 'Daily Generations',
-        remainingGenerations: '{remaining} / {limit} remaining',
-        canStillGenerate: 'You can still generate emojis!',
-        limitReached:
-            'Daily limit reached. Upgrade to PRO for unlimited generations.',
-
-        // Statistics
-        statistics: {
-            storiesGenerated: 'Stories Generated',
-            remainingGenerations: 'Remaining Generations'
-        },
-
-        // Actions
-        actions: {
-            saveSettings: '💾 Save Settings',
-            backToHome: '🏠 Back to Home',
-            createAccount: '🚀 {type} Account anlegen',
-            skipAccount: '❌ Auf {type} verzichten',
-            createMagicLink: '🔐 Create Magic-Link',
-            sendingMagicLink: '⏳ Sending Magic-Link...',
-            resendMagicLink: '🔄 Resend Magic Link',
-            backToAccountOptions: '← Back to Account Options',
-            addProfileData: '👤 Add Profile Data',
-            hideProfileData: '👤 Hide Profile Data'
-        },
-
-        // Form Validation
-        validation: {
-            invalidEmail: '⚠️ Please enter a valid email address',
-            invalidName: '⚠️ Please enter your name (minimum 2 characters)',
-            requiredField: 'This field is required'
-        },
-
-        // Help Section
+        // Hilf-Sektion
         help: {
-            title: '💡 Need Help?',
-            checkSpam: "• Check your spam folder if you don't see the email",
-            linkExpires: '• Magic links expire after 15 minutes',
-            requestNewLink: '• You can request a new link anytime',
-            noPassword: '• No password required - just click the link'
+            title: '💡 Bruchsch Hilf?',
+            spamFolder:
+                '• Überprüf din Spam-Ordner falls du d E-Mail nöd gsehsch',
+            magicLinkExpiry: '• Magic-Links laufe nach 15 Minute ab',
+            requestNewLink: '• Du chasch jederziit e neue Link aafroge',
+            noPassword: '• Kei Passwort nötig - klick eifach uf de Link'
         },
 
         // Footer
         footer: {
-            magicLink: '🔒 Magic link',
-            instantSetup: '⚡ Instant Setup',
-            noSpam: '🎯 No Spam'
-        }
+            magicLink: 'Magic-Link',
+            instantSetup: 'Sofortigi Iistellig',
+            noSpam: 'Kei Spam',
+            text: 'Magic-Links werde per E-Mail gsendet und sin 15 Minute gültig.',
+            privacy: 'Dini Date werde sicher verarbeitet.'
+        },
+
+        // Limite und Nachrichte
+        canStillGenerate: 'Du chasch immerno Emojis generiere!',
+        limitReached:
+            'Tägligs Limit erreicht. Upgrade uf PRO für unbegrenzti Generierige.',
+
+        // Account-Alter
+        accountAge: {
+            today: 'Hüt erstellt',
+            yesterday: 'Gester erstellt',
+            days: 'Sit {days} Täg',
+            weeks: 'Sit {weeks} Wuche{plural}',
+            months: 'Sit {months} Mönet{plural}',
+            years: 'Sit {years} Jahr{plural}',
+            accountSince: 'Account sit {days} {unit}',
+            since: 'sit {days} {unit}',
+            day: 'Tag',
+            daysLabel: 'Täg',
+            accountCreated: 'Account erstellt'
+        },
+
+        // Validierig
+        validation: {
+            emailInvalid: 'Bitte gib e gültigi E-Mail-Adress ih',
+            nameInvalid: 'Bitte gib din Name ih (mindestens 2 Zeiche)'
+        },
+
+        // Nachrichte
+        messages: {
+            settingsReset: 'Iistellige uf Standard zrugggsetzt',
+            exportFailed: 'Export vo Iistellige fehlgschlage',
+            settingsExported: 'Iistellige erfolgreich exportiert',
+            freeAccountActivated: 'Gratis-Account aktiviert!'
+        },
+
+        // Upgrade-Sektion
+        upgrade: {
+            upgradeToPro: 'Uf Pro upgraden',
+            upgradeToProForFeatures:
+                'Uf Pro upgraden für erweitereti Funktione',
+            unlimitedGenerations:
+                'Unbegrenzti Generierige und erweitereti Sicherheitsfunktione'
+        },
+
+        // Kontext-Menü
+        contextMenu: {
+            exportSettings: 'Iistellige exportiere',
+            importSettings: 'Iistellige importiere',
+            resetToDefault: 'Uf Standard zruggsetze',
+            logout: 'Uslogge',
+            settingsMenu: 'Iistellige-Menü'
+        },
+
+        // Funktione
+        features: {
+            proFeature: 'Pro-Funktion'
+        },
+
+        // Pro-Funktion Modal
+        proFeatureModal: {
+            title: 'Pro-Funktion',
+            proBenefits: 'Pro-Vorteil:',
+            unlimitedGenerations: 'Unbegrenzti Emoji-Generierige',
+            advancedSecurity: 'Erweitereti Sicherheitsfunktione',
+            prioritySupport: 'Prioritäts-Support',
+            earlyAccess: 'Früeher Zugang zu neue Funktione',
+            maybeLater: 'Vielleicht spöter',
+            upgradeToPro: 'Uf Pro upgraden',
+            // Pro-Upgrade spezifisch
+            proUpgrade: 'Pro-Upgrade',
+            unlockAdvancedFeatures:
+                'Alli erweitereti Funktione und Iistellige freischalte',
+            upgradeProNow: '💎 Jetzt uf Pro upgraden'
+        },
+
+        // Account-Stufe
+        tiers: {
+            free: 'GRATIS',
+            pro: 'PRO',
+            freeAccount: 'Gratis-Account',
+            proAccount: 'Pro-Account'
+        },
+
+        // Badges
+        freeBadge: '✨ GRATIS',
+        proBadge: '💎 PRO',
+
+        // Beschreibige
+        freeDescription: '✨ Gratis-Sicherheit',
+        proDescription: '💎 Enterprise-Sicherheit'
     },
 
     // Allgemeini UI-Texte
