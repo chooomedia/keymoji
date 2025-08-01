@@ -77,8 +77,12 @@ export default {
         introductionText: "Stuur my 'n boodskap!",
         privacyNotice:
             'Wees verseker, jou data is in goeie hande by ons 🤲. Jou besonderhede sal nie aan derdes oorgedra word nie 🔒.',
-        newsletterLabel: 'Ja, ek wil inteken op die nuusbrief',
+        newsletterLabel: 'Ja, ek wil op die nuusbrief inteken',
         newsletterOptIn: 'Teken in op nuusbrief',
+        newsletterText:
+            'Bly op datum en teken met vertroue in op die nuusbrief. {privacyPolicy}',
+        privacyPolicyLink: 'Bekyk privaatheidsbeleid',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'Terug na tuisblad',
         footerText: 'Ontwikkel met liefde',
         validationErrorMessage:

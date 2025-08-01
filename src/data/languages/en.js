@@ -77,6 +77,10 @@ export default {
             'Rest assured, your data is in good hands with us 🤲. Your details will not be passed on to third parties 🔒.',
         newsletterLabel: 'Yes, I would like to subscribe to the newsletter',
         newsletterOptIn: 'Subscribe to newsletter',
+        newsletterText:
+            'Stay up to date and subscribe to the newsletter with confidence. {privacyPolicy}',
+        privacyPolicyLink: 'View privacy policy',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'Back to home',
         footerText: 'Developed with love',
         validationErrorMessage:

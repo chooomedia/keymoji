@@ -206,7 +206,7 @@
     
     // Get input classes based on validation state
     function getInputClasses() {
-        const baseClasses = 'w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border border-gray-light dark:border-aubergine-800 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light p-4 disabled:opacity-70 disabled:cursor-not-allowed';
+        const baseClasses = 'w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border border-gray-light dark:border-aubergine-700 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light p-4 disabled:opacity-70 disabled:cursor-not-allowed';
         const stateClasses = isValid 
             ? '' 
             : 'border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-100';

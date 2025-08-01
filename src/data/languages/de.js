@@ -79,6 +79,10 @@ export default {
             'Sei versichert, deine Daten sind bei uns in guten Händen 🤲. Deine Details werden nicht an Dritte weitergegeben 🔒.',
         newsletterLabel: 'Ja, ich möchte den Newsletter abonnieren',
         newsletterOptIn: 'Newsletter abonnieren',
+        newsletterText:
+            'Auf dem Laufenden bleiben und mit Sicherheit den Newsletter abonnieren. {privacyPolicy}',
+        privacyPolicyLink: 'Datenschutz anzeigen',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'Zurück zu Home',
         footerText: 'Mit Liebe entwickelt',
         validationErrorMessage:

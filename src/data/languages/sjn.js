@@ -76,8 +76,11 @@ export default {
         introductionText: 'Erio i peth!',
         privacyNotice:
             "yIvoqQo', De'lIj Qanlu'! De'lIj latlhpu'vaD Qangbe'lu'. 🔒",
-        newsletterLabel: "HIja', De' QIn vIHev vIneH",
-        newsletterOptIn: "De' QIn vIHev",
+        newsletterLabel: 'Aníron, nín gwedh i narn-lîn',
+        newsletterOptIn: 'Gwedh i narn-lîn',
+        newsletterText: 'No veren a tiro i narn-lîn lín. {privacyPolicy}',
+        privacyPolicyLink: 'Tiro i polith naid',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'Ad na bar',
         footerText: "parmaqmo' QulwI' Qun",
         validationErrorMessage: "Qagh! QIn QulwI' Qaghmey yIbachqa' 🔍",

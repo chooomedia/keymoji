@@ -77,8 +77,12 @@ export default {
         introductionText: '¡Envíame un mensaje!',
         privacyNotice:
             'Tus datos están en buenas manos 🤲. No compartimos tus detalles con terceros 🔒.',
-        newsletterLabel: 'Sí, quiero suscribirme al boletín',
+        newsletterLabel: 'Sí, me gustaría suscribirme al boletín',
         newsletterOptIn: 'Suscribirse al boletín',
+        newsletterText:
+            'Mantente al día y suscríbete al boletín con confianza. {privacyPolicy}',
+        privacyPolicyLink: 'Ver política de privacidad',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'Volver al inicio',
         footerText: 'Desarrollado con amor',
         validationErrorMessage:

@@ -78,8 +78,12 @@ export default {
         introductionText: 'Napisz do mnie!',
         privacyNotice:
             'Twoje dane są u nas bezpieczne 🤲. Nie udostępniamy ich osobom trzecim 🔒.',
-        newsletterLabel: 'Tak, chcę otrzymywać newsletter',
+        newsletterLabel: 'Tak, chcę zapisać się do newslettera',
         newsletterOptIn: 'Zapisz się do newslettera',
+        newsletterText:
+            'Bądź na bieżąco i zapisz się do newslettera z pewnością. {privacyPolicy}',
+        privacyPolicyLink: 'Zobacz politykę prywatności',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'Powrót do strony głównej',
         footerText: 'Stworzone z miłością',
         validationErrorMessage: 'Popraw błędy w formularzu przed wysłaniem 🔍',

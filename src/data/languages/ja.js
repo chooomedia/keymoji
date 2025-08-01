@@ -77,8 +77,12 @@ export default {
         introductionText: 'お気軽にメッセージしてください！',
         privacyNotice:
             'あなたのデータは大切に扱われます 🤲。第三者に提供されることはありません 🔒。',
-        newsletterLabel: 'はい、ニュースレターを購読したいです',
+        newsletterLabel: 'はい、ニュースレターを購読したい',
         newsletterOptIn: 'ニュースレターを購読',
+        newsletterText:
+            '最新情報を入手し、安心してニュースレターを購読してください。{privacyPolicy}',
+        privacyPolicyLink: 'プライバシーポリシーを表示',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'ホームに戻る',
         footerText: '愛を込めて開発',
         validationErrorMessage: '送信前にフォームのエラーを修正してください 🔍',

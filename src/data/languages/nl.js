@@ -77,8 +77,12 @@ export default {
         introductionText: 'Stuur gerust een berichtje!',
         privacyNotice:
             'Je gegevens zijn bij ons in goede handen 🤲. Je gegevens worden niet gedeeld met derden 🔒.',
-        newsletterLabel: 'Ja, ik wil de nieuwsbrief ontvangen',
-        newsletterOptIn: 'Inschrijven voor nieuwsbrief',
+        newsletterLabel: 'Ja, ik wil me abonneren op de nieuwsbrief',
+        newsletterOptIn: 'Abonneren op nieuwsbrief',
+        newsletterText:
+            'Blijf op de hoogte en abonneer je met vertrouwen op de nieuwsbrief. {privacyPolicy}',
+        privacyPolicyLink: 'Privacybeleid bekijken',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'Terug naar home',
         footerText: 'Met liefde ontwikkeld',
         validationErrorMessage:

@@ -80,6 +80,10 @@ export default {
             'Si versichert, dini Date sind bi uns in guete Händ 🤲. Dini Details werde nöd a Dritti wiitergäh 🔒.',
         newsletterLabel: 'Ja, ich möcht de Newsletter abonniere',
         newsletterOptIn: 'Newsletter abonniere',
+        newsletterText:
+            'Bliib uf em Laufende und abonnier de Newsletter mit Vertraue. {privacyPolicy}',
+        privacyPolicyLink: 'Datenschutz azeige',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'Zrugg zu Home',
         footerText: 'Mit Liebi entwicklet',
         validationErrorMessage:

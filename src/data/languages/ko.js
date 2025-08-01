@@ -76,8 +76,12 @@ export default {
         introductionText: '언제든지 메시지 보내주세요!',
         privacyNotice:
             '귀하의 데이터는 안전하게 처리됩니다 🤲. 제3자에게 제공되지 않습니다 🔒.',
-        newsletterLabel: '네, 뉴스레터를 구독하고 싶어요',
+        newsletterLabel: '네, 뉴스레터를 구독하고 싶습니다',
         newsletterOptIn: '뉴스레터 구독',
+        newsletterText:
+            '최신 정보를 받고 안심하고 뉴스레터를 구독하세요. {privacyPolicy}',
+        privacyPolicyLink: '개인정보처리방침 보기',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: '홈으로 돌아가기',
         footerText: '사랑을 담아 개발',
         validationErrorMessage: '제출 전에 양식 오류를 수정하세요 🔍',

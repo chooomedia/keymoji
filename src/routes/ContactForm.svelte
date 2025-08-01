@@ -22,6 +22,7 @@
     import { navigateToHome } from '../utils/navigation.js';
     import Input from '../components/UI/Input.svelte';
     import Button from '../components/UI/Button.svelte';
+    import Checkbox from '../components/UI/Checkbox.svelte';
     import { isTestMode } from '../utils/environment.js';
     import { initializeAccountFromCookies } from '../stores/accountStore.js';
     import FooterInfo from '../widgets/FooterInfo.svelte';
@@ -348,17 +349,28 @@
         </div>
 
         <!-- Newsletter Opt-in -->
-        <div class="flex items-start space-x-2">
-            <input
-                type="checkbox"
+        <div class="flex items-start">
+            <Checkbox
                 id="newsletter"
                 bind:checked={newsletterOptIn}
-                class="contact-checkbox"
                 disabled={isSubmitting}
+                variant="primary"
+                size="lg"
+                iconSize="lg"
+                labelHtml={$translations?.contactForm?.newsletterText ? 
+                    $translations.contactForm.newsletterText.replace('{privacyPolicy}', 
+                        `<a href="${$translations.contactForm.privacyPolicyUrl}" 
+                            class="text-yellow-500 dark:text-yellow-700 hover:text-yellow-600 dark:hover:text-yellow-600 underline transition-colors duration-200"
+                            aria-label="${$translations.contactForm.privacyPolicyLink}"
+                            itemscope itemtype="http://schema.org/WebPage"
+                            itemprop="url">
+                            ${$translations.contactForm.privacyPolicyLink}
+                        </a>`
+                    ) : 
+                    $translations?.contactForm?.newsletterOptIn || 'Subscribe to newsletter'
+                }
+                labelClass="text-sm text-gray-600 dark:text-gray-300 cursor-pointer"
             />
-            <label for="newsletter" class="text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
-                {$translations.contactForm.newsletterOptIn}
-            </label>
         </div>
 
         <!-- Test Buttons for Dynamic Modals (Development Only) -->

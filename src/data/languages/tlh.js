@@ -76,8 +76,11 @@ export default {
         introductionText: 'QIn yIngeH!',
         privacyNotice:
             "yIvoqQo', De'lIj Qanlu'! De'lIj latlhpu'vaD Qangbe'lu'. 🔒",
-        newsletterLabel: "HIja', De' QIn vIHev vIneH",
-        newsletterOptIn: "De' QIn vIHev",
+        newsletterLabel: "HIja', jIH nuqneH newsletter yIlan",
+        newsletterOptIn: 'Newsletter yIlan',
+        newsletterText: "Qanglu' 'ej newsletter yIlan. {privacyPolicy}",
+        privacyPolicyLink: "De' polchu'ghach yIlan",
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'juH wIchegh',
         footerText: "parmaqmo' QulwI' Qun",
         validationErrorMessage: "Qagh! QIn QulwI' Qaghmey yIbachqa' 🔍",

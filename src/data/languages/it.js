@@ -76,8 +76,12 @@ export default {
         introductionText: 'Scrivimi un messaggio!',
         privacyNotice:
             'I tuoi dati sono al sicuro con noi 🤲. I tuoi dettagli non saranno condivisi con terzi 🔒.',
-        newsletterLabel: 'Sì, voglio iscrivermi alla newsletter',
+        newsletterLabel: 'Sì, vorrei iscrivermi alla newsletter',
         newsletterOptIn: 'Iscriviti alla newsletter',
+        newsletterText:
+            'Rimani aggiornato e iscriviti alla newsletter con fiducia. {privacyPolicy}',
+        privacyPolicyLink: 'Visualizza politica sulla privacy',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'Torna alla home',
         footerText: 'Sviluppato con amore',
         validationErrorMessage:

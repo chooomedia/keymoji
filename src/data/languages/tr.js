@@ -76,8 +76,12 @@ export default {
         introductionText: 'Bana mesaj göndermekten çekinmeyin!',
         privacyNotice:
             'Verileriniz bizde güvende 🤲. Bilgileriniz üçüncü kişilerle paylaşılmaz 🔒.',
-        newsletterLabel: 'Evet, bültene abone olmak istiyorum',
+        newsletterLabel: 'Evet, bülteni abone olmak istiyorum',
         newsletterOptIn: 'Bültene abone ol',
+        newsletterText:
+            'Güncel kalın ve güvenle bültene abone olun. {privacyPolicy}',
+        privacyPolicyLink: 'Gizlilik politikasını görüntüle',
+        privacyPolicyUrl: '/privacy-policy',
         backToMainButton: 'Ana sayfaya dön',
         footerText: 'Sevgiyle geliştirildi',
         validationErrorMessage:

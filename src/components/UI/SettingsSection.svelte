@@ -79,7 +79,7 @@
 
 <div class="w-full text-left px-4 rounded-lg bg-gray-200 dark:bg-aubergine-950 transition-colors">
     <button 
-        class="w-full flex py-4 items-center justify-between transition-all duration-300 ease-out group hover:bg-gray-100 dark:hover:bg-gray-800"
+        class="w-full flex py-4 items-center justify-between transition-colors duration-200 ease-out group hover:bg-gray-100 dark:hover:bg-gray-800"
         on:click={handleSectionToggle}
     >
         <div class="flex items-center space-x-4">
@@ -95,7 +95,7 @@
         </div>
         <div class="flex items-center space-x-2">
             <svg 
-                class="w-5 h-5 text-gray-400 transition-all duration-300 ease-out {isActive ? 'rotate-180' : 'rotate-0'}" 
+                class="w-5 h-5 text-gray-400 transition-transform duration-200 ease-out {isActive ? 'transform rotate-180' : ''}" 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
