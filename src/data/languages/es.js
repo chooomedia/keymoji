@@ -543,18 +543,18 @@ export default {
         limitReached:
             'Límite diario alcanzado. Actualiza a PRO para generaciones ilimitadas.',
 
-        // Edad de la cuenta
+        // Account age labels
         accountAge: {
             today: 'Creado hoy',
             yesterday: 'Creado ayer',
-            days: 'Desde {days} días',
-            weeks: 'Desde {weeks} semana{plural}',
-            months: 'Desde {months} mes{plural}',
-            years: 'Desde {years} año{plural}',
+            days: '{days} días',
+            weeks: '{weeks} semana{plural}',
+            months: '{months} mes{plural}',
+            years: '{years} año{plural}',
             accountSince: 'Cuenta desde {days} {unit}',
             since: 'desde {days} {unit}',
             day: 'día',
-            daysLabel: 'días',
+            days: 'días',
             accountCreated: 'Cuenta creada'
         },
 

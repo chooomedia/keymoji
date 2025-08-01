@@ -49,6 +49,7 @@
     import { sendAnalyticsEvent } from '../stores/appStores.js';
     import Input from '../components/UI/Input.svelte';
     import Button from '../components/UI/Button.svelte';
+    import ContextBadge from '../components/UI/ContextBadge.svelte';
     import FooterInfo from '../widgets/FooterInfo.svelte';
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
@@ -321,20 +322,32 @@
     // Account age label for psychological effect
     $: accountAgeLabel = (() => {
         if (daysSinceCreation === 0) {
-            return 'Heute erstellt';
+            return $translations?.accountManager?.accountAge?.today || 'Created today';
         } else if (daysSinceCreation === 1) {
-            return 'Gestern erstellt';
+            return $translations?.accountManager?.accountAge?.yesterday || 'Created yesterday';
         } else if (daysSinceCreation < 7) {
-            return `Seit ${daysSinceCreation} Tagen`;
+            const daysText = daysSinceCreation === 1 
+                ? ($translations?.accountManager?.accountAge?.day || 'day')
+                : ($translations?.accountManager?.accountAge?.days || 'days');
+            return ($translations?.accountManager?.accountAge?.days || '{days} days').replace('{days}', daysSinceCreation);
         } else if (daysSinceCreation < 30) {
             const weeks = Math.floor(daysSinceCreation / 7);
-            return `Seit ${weeks} Woche${weeks > 1 ? 'n' : ''}`;
+            const weeksText = weeks === 1 
+                ? ($translations?.accountManager?.accountAge?.week || 'week')
+                : ($translations?.accountManager?.accountAge?.weeks || 'weeks');
+            return ($translations?.accountManager?.accountAge?.weeks || '{weeks} week{plural}').replace('{weeks}', weeks).replace('{plural}', weeks > 1 ? 's' : '');
         } else if (daysSinceCreation < 365) {
             const months = Math.floor(daysSinceCreation / 30);
-            return `Seit ${months} Monat${months > 1 ? 'en' : ''}`;
+            const monthsText = months === 1 
+                ? ($translations?.accountManager?.accountAge?.month || 'month')
+                : ($translations?.accountManager?.accountAge?.months || 'months');
+            return ($translations?.accountManager?.accountAge?.months || '{months} month{plural}').replace('{months}', months).replace('{plural}', months > 1 ? 's' : '');
         } else {
             const years = Math.floor(daysSinceCreation / 365);
-            return `Seit ${years} Jahr${years > 1 ? 'en' : ''}`;
+            const yearsText = years === 1 
+                ? ($translations?.accountManager?.accountAge?.year || 'year')
+                : ($translations?.accountManager?.accountAge?.years || 'years');
+            return ($translations?.accountManager?.accountAge?.years || '{years} year{plural}').replace('{years}', years).replace('{plural}', years > 1 ? 's' : '');
         }
     })();
     
@@ -820,15 +833,17 @@
 
                             <!-- PRO Badge and Context Menu -->
                             <div class="flex items-center gap-2">
-                                <!-- PRO Badge with Hover Info -->
-                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold text-creme-500 dark:text-white {$accountTier === 'pro' ? 'bg-purple-700' : 'bg-yellow-600'} cursor-pointer group relative" 
-                                      title="{daysSinceCreation > 0 ? ($translations?.accountManager?.accountAge?.accountSince || 'Account seit {days} {unit}').replace('{days}', daysSinceCreation).replace('{unit}', daysSinceCreation === 1 ? ($translations?.accountManager?.accountAge?.day || 'Tag') : ($translations?.accountManager?.accountAge?.days || 'Tagen')) : ($translations?.accountManager?.accountAge?.accountCreated || 'Account erstellt')}"
-                                      aria-label="Account Tier: {$accountTier === 'pro' ? 'PRO' : 'FREE'}, {daysSinceCreation > 0 ? ($translations?.accountManager?.accountAge?.since || 'seit {days} {unit}').replace('{days}', daysSinceCreation).replace('{unit}', daysSinceCreation === 1 ? ($translations?.accountManager?.accountAge?.day || 'Tag') : ($translations?.accountManager?.accountAge?.days || 'Tagen')) : ($translations?.accountManager?.accountAge?.accountCreated || 'Account erstellt')}">
-                                    {$accountTier === 'pro' ? ($translations?.accountManager?.proBadge || '💎 PRO') : ($translations?.accountManager?.freeBadge || '✨ FREE')}
-                                    <span class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-gray-700 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
-                                        {daysSinceCreation > 0 ? ($translations?.accountManager?.accountAge?.since || 'seit {days} {unit}').replace('{days}', daysSinceCreation).replace('{unit}', daysSinceCreation === 1 ? ($translations?.accountManager?.accountAge?.day || 'Tag') : ($translations?.accountManager?.accountAge?.days || 'Tagen')) : ($translations?.accountManager?.accountAge?.accountCreated || 'Account erstellt')}
-                                    </span>
-                                </span>
+                                <ContextBadge 
+                                    tier={$accountTier} 
+                                    accountAgeLabel={accountAgeLabel}
+                                    translations={$translations?.accountManager?.accountAge}
+                                    position="top"
+                                    variant="standard"
+                                    trigger="hover"
+                                    intro={true}
+                                    introDelay={2000}
+                                    introDuration={4000}
+                                />
 
                                 <div class="relative context-menu">
                                     <button

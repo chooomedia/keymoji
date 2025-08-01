@@ -446,3 +446,81 @@ A comprehensive demo component showcasing:
 ```
 
 **Access**: Navigate to `/demo` or include in any route to see the modular form system in action!
+
+# UI Components
+
+## ContextBadge
+
+Eine flexible Context-Badge-Komponente für Tooltips und Kontextinformationen.
+
+### Props
+
+| Prop            | Type                                        | Default | Description                  |
+| --------------- | ------------------------------------------- | ------- | ---------------------------- |
+| `text`          | string                                      | ''      | Text to display in the badge |
+| `position`      | 'top' \| 'bottom' \| 'left' \| 'right'      | 'top'   | Position relative to parent  |
+| `variant`       | 'info' \| 'warning' \| 'success' \| 'error' | 'info'  | Visual variant               |
+| `size`          | 'sm' \| 'md' \| 'lg'                        | 'md'    | Size of the badge            |
+| `trigger`       | 'hover' \| 'click' \| 'both'                | 'hover' | How to trigger the badge     |
+| `intro`         | boolean                                     | false   | Auto-show/hide animation     |
+| `introDelay`    | number                                      | 2000    | Delay before showing (ms)    |
+| `introDuration` | number                                      | 3000    | How long to show (ms)        |
+| `disabled`      | boolean                                     | false   | Disable the badge            |
+| `parentElement` | HTMLElement                                 | null    | Reference to parent element  |
+
+### Events
+
+| Event         | Payload | Description             |
+| ------------- | ------- | ----------------------- |
+| `show`        | -       | Badge is shown          |
+| `hide`        | -       | Badge is hidden         |
+| `intro:start` | -       | Intro animation started |
+| `intro:end`   | -       | Intro animation ended   |
+
+### Usage Examples
+
+```svelte
+<!-- Basic hover tooltip -->
+<ContextBadge text="This is a helpful tooltip" position="top">
+    <button>Hover me</button>
+</ContextBadge>
+
+<!-- Click to show -->
+<ContextBadge text="Click to see more info" trigger="click" variant="info">
+    <button>Click me</button>
+</ContextBadge>
+
+<!-- Auto-intro animation -->
+<ContextBadge
+    text="Welcome! Here's a tip"
+    intro={true}
+    introDelay={1000}
+    introDuration={5000}
+    variant="success"
+    position="bottom"
+>
+    <div>New feature</div>
+</ContextBadge>
+
+<!-- Warning variant -->
+<ContextBadge text="This action cannot be undone" variant="warning" position="left">
+    <button>Delete</button>
+</ContextBadge>
+
+<!-- Error variant -->
+<ContextBadge text="Connection failed" variant="error" position="right">
+    <div>Status: Offline</div>
+</ContextBadge>
+```
+
+### Features
+
+-   **🎯 Smart Positioning:** Automatically positions relative to parent
+-   **🎨 Multiple Variants:** Info, warning, success, error styles
+-   **📏 Flexible Sizing:** Small, medium, large options
+-   **⚡ Smooth Animations:** Fly-in/out transitions
+-   **♿ Accessibility:** Proper ARIA labels and roles
+-   **🎪 Intro Animation:** Auto-show/hide with configurable timing
+-   **🖱️ Multiple Triggers:** Hover, click, or both
+-   **🌙 Dark Mode:** Full dark mode support
+-   **📱 Responsive:** Works on all screen sizes

@@ -553,14 +553,14 @@ export default {
         accountAge: {
             today: 'Heute erstellt',
             yesterday: 'Gestern erstellt',
-            days: 'Seit {days} Tagen',
-            weeks: 'Seit {weeks} Woche{plural}',
-            months: 'Seit {months} Monat{plural}',
-            years: 'Seit {years} Jahr{plural}',
+            days: '{days} Tage',
+            weeks: '{weeks} Woche{plural}',
+            months: '{months} Monat{plural}',
+            years: '{years} Jahr{plural}',
             accountSince: 'Account seit {days} {unit}',
             since: 'seit {days} {unit}',
             day: 'Tag',
-            daysLabel: 'Tagen',
+            days: 'Tagen',
             accountCreated: 'Account erstellt'
         },
 

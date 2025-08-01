@@ -541,14 +541,14 @@ export default {
         accountAge: {
             today: 'Creato oggi',
             yesterday: 'Creato ieri',
-            days: 'Da {days} giorni',
-            weeks: 'Da {weeks} settimana{plural}',
-            months: 'Da {months} mese{plural}',
-            years: 'Da {years} anno{plural}',
+            days: '{days} giorni',
+            weeks: '{weeks} settimana{plural}',
+            months: '{months} mese{plural}',
+            years: '{years} anno{plural}',
             accountSince: 'Account da {days} {unit}',
             since: 'da {days} {unit}',
             day: 'giorno',
-            daysLabel: 'giorni',
+            days: 'giorni',
             accountCreated: 'Account creato'
         },
 
