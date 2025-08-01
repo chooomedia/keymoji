@@ -76,17 +76,36 @@ module.exports = merge(common, {
                     compress: {
                         drop_console: true,
                         drop_debugger: true,
-                        pure_funcs: ['console.log']
+                        pure_funcs: ['console.log', 'console.warn'],
+                        // SEO-optimierte Komprimierung
+                        passes: 2,
+                        unsafe: true,
+                        unsafe_comps: true
                     },
                     format: {
                         comments: false
                     },
-                    mangle: true
+                    mangle: {
+                        // Behalte wichtige Funktionen für SEO
+                        reserved: ['__PRELOADED_STATE__', 'window', 'document']
+                    }
                 },
                 extractComments: false,
                 parallel: true
             }),
-            new CssMinimizerPlugin()
+            new CssMinimizerPlugin({
+                minimizerOptions: {
+                    preset: [
+                        'default',
+                        {
+                            discardComments: { removeAll: true },
+                            normalizeWhitespace: true,
+                            colormin: true,
+                            minifyFontValues: true
+                        }
+                    ]
+                }
+            })
         ],
         splitChunks: {
             chunks: 'all',
@@ -116,6 +135,19 @@ module.exports = merge(common, {
                     chunks: 'all',
                     enforce: true,
                     priority: 20
+                },
+                // SEO-optimierte Chunks
+                seo: {
+                    name: 'seo',
+                    test: /[\\/]src[\\/]utils[\\/]seo\.js/,
+                    priority: 30,
+                    reuseExistingChunk: true
+                },
+                routing: {
+                    name: 'routing',
+                    test: /[\\/]src[\\/]routes[\\/]/,
+                    priority: 25,
+                    reuseExistingChunk: true
                 }
             }
         }
@@ -157,17 +189,34 @@ module.exports = merge(common, {
                 keepClosingSlash: true,
                 minifyJS: true,
                 minifyCSS: true,
-                minifyURLs: true
+                minifyURLs: true,
+                // SEO-optimierte HTML-Komprimierung
+                processConditionalComments: true,
+                quoteCharacter: '"'
             },
-            cache: true
+            cache: true,
+            // SEO-optimierte Meta-Tags
+            meta: {
+                viewport:
+                    'width=device-width, initial-scale=1.0, user-scalable=yes',
+                'theme-color': '#253852',
+                'apple-mobile-web-app-capable': 'yes',
+                'apple-mobile-web-app-status-bar-style': 'default'
+            }
         }),
         new webpack.DefinePlugin({
-            'process.env.BUILD_TIME': JSON.stringify(new Date().toISOString())
+            'process.env.BUILD_TIME': JSON.stringify(new Date().toISOString()),
+            'process.env.NODE_ENV': JSON.stringify('production'),
+            // SEO-optimierte globale Variablen
+            __SEO_ENABLED__: JSON.stringify(true),
+            __PRELOAD_ENABLED__: JSON.stringify(true)
         }),
         // Webpack 5 native optimizations
         new webpack.optimize.MinChunkSizePlugin({
             minChunkSize: 10000
-        })
+        }),
+        // SEO-optimierte Performance-Plugins
+        new webpack.optimize.ModuleConcatenationPlugin()
     ],
 
     cache: {
@@ -178,5 +227,15 @@ module.exports = merge(common, {
         compression: 'gzip',
         name: `production-cache`,
         version: `${Date.now()}`
-    }
+    },
+
+    // SEO-optimierte Performance-Einstellungen
+    performance: {
+        hints: 'warning',
+        maxEntrypointSize: 512000,
+        maxAssetSize: 512000
+    },
+
+    // SEO-optimierte Source Maps
+    devtool: 'source-map'
 });

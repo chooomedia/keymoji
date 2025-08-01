@@ -40,10 +40,7 @@ module.exports = {
 
     resolve: {
         alias: {
-            svelte: path.resolve('node_modules', 'svelte'),
-            // Add aliases for common paths to simplify imports
-            '@components': path.resolve(__dirname, '../src/components'),
-            '@utils': path.resolve(__dirname, '../src/utils')
+            svelte: path.resolve('node_modules', 'svelte')
         },
         conditionNames: ['svelte', 'browser', 'module', 'main'],
         extensions: ['.mjs', '.js', '.svelte'],

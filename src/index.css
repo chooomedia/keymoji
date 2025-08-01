@@ -3,23 +3,49 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-::-webkit-scrollbar {
-    display: none;
-}
-
+/* Enhanced Hieroglyphic Background Animation - Apple/Airbnb Performance Style */
 .hieroglyphemojis {
     animation: gradient 270s ease infinite;
-    background-size: 16%;
+    background-size: 16%, cover;
+    background-attachment: fixed;
     min-height: 100vh;
+    /* Performance-Optimierung */
+    will-change: background-position;
+    transform: translateZ(0);
+    /* GPU-Layer forcing */
+    backface-visibility: hidden;
 }
 
+.core-button {
+    @apply max-w-105 flex flex-row h-16 justify-center items-center scale-114 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-117 gap-2 md:px-0 border-4 z-10;
+}
+
+.bg-loading .hieroglyphemojis {
+    /* Smooth transition while loading */
+    background-size: 0%, cover;
+    transition: background-size 0.3s ease-out;
+}
+
+.bg-loaded .hieroglyphemojis {
+    background-size: 16%, cover;
+}
+
+/* Performance-optimierte Keyframes */
 @keyframes gradient {
     0% {
         background-position: 0% 50%;
     }
 
-    50% {
+    25% {
         background-position: 100% 50%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    75% {
+        background-position: 0% 100%;
     }
 
     100% {
@@ -27,27 +53,222 @@
     }
 }
 
+/* Reduced motion support (Apple Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+    .hieroglyphemojis {
+        animation: none;
+        background-position: 0% 50%;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .hieroglyphemojis {
+        background-blend-mode: normal !important;
+    }
+}
+
 :global(html) {
     height: 100%;
     box-sizing: border-box;
     scroll-behavior: smooth;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb-light) var(--scrollbar-track-light);
 }
 
 :global(body) {
     margin: 0;
     padding: 0;
     min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* Unsichtbare Scrollbar für Body */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+    /* Verhindert Scrollbar-Hüpfen bei Routenwechsel */
+    padding-right: 0px;
+}
+
+/* WebKit: Unsichtbare Scrollbar für Body */
+:global(body::-webkit-scrollbar) {
+    display: none !important;
+}
+
+/* Alle Scrollbars unsichtbar machen (außer Language Dialog) */
+:global(*) {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+:global(*::-webkit-scrollbar) {
+    display: none !important;
+}
+
+/* Ausnahme: Language Dialog behält sichtbare Scrollbar */
+:global(.language-dialog-scrollbar) {
+    scrollbar-width: thin !important;
+    -ms-overflow-style: auto !important;
+    scrollbar-color: theme('colors.purple.400') theme('colors.gray.200');
+}
+
+:global(.language-dialog-scrollbar::-webkit-scrollbar) {
+    display: block !important;
+    width: 8px;
+}
+
+:global(.language-dialog-scrollbar::-webkit-scrollbar-track) {
+    background: theme('colors.gray.200');
+    border-radius: 4px;
+}
+
+:global(.language-dialog-scrollbar::-webkit-scrollbar-thumb) {
+    background: theme('colors.purple.400');
+    border-radius: 4px;
+}
+
+/* Dark mode für Language Dialog */
+:global(.dark) .language-dialog-scrollbar {
+    scrollbar-color: theme('colors.purple.600') theme('colors.gray.800');
+}
+
+:global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-track {
+    background: theme('colors.gray.800');
+}
+
+:global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-thumb {
+    background: theme('colors.purple.600');
+}
+
+:global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-track {
+    background: theme('colors.gray.800');
+}
+
+:global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-thumb {
+    background: theme('colors.purple.600');
+}
+
+/* Smooth Route Transitions */
+:global(.route-transition) {
+    position: relative;
+}
+
+:global(.route-transition > *) {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Modal/Menu Status Management */
+:global(body.modal-open) {
+    overflow: hidden;
+    padding-right: 0px;
+}
+
+:global(body.menu-open) {
+    overflow: hidden;
+    padding-right: 0px;
 }
 
 :global(.dark) {
     color-scheme: dark;
 }
 
+/* Global fixed positioning for header and footer */
+.main-header {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    z-index: 50;
+}
+
+.main-footer {
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    z-index: 40;
+}
+
+/* Main content area - positioned between fixed header and footer */
 .main-content {
     width: 100%;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    gap: 2rem;
+    padding-top: 120px;
+    /* Space for fixed header */
+    padding-bottom: 120px;
+    /* Space for fixed footer */
+    box-sizing: border-box;
 }
+
+/* Mobile responsive padding and fixed positioning optimizations */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    /* Ensure proper fixed positioning on mobile */
+    .main-header {
+        position: fixed !important;
+        transform: translateZ(0);
+        /* Force hardware acceleration */
+        -webkit-transform: translateZ(0);
+    }
+
+    .main-footer {
+        position: fixed !important;
+        transform: translateZ(0);
+        /* Force hardware acceleration */
+        -webkit-transform: translateZ(0);
+    }
+
+    /* Mobile Safari viewport fixes */
+    .app-container {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+
+    .main-header,
+    .main-footer {
+        position: fixed !important;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+}
+
+/* Minimal spacing since header/footer are now in normal document flow */
+:root {
+    --content-gap: 2rem;
+}
+
+/* Remove pseudo-elements since we don't need header/footer spacing anymore */
+/* Content spacing is now handled by flexbox gap and natural document flow */
 
 @media (prefers-reduced-motion: reduce) {
     .hieroglyphemojis {
@@ -59,31 +280,10 @@
     }
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-* {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
-}
-
-/* Ensure content is always scrollable but scrollbar hidden */
-html,
-body {
-    overflow-y: auto;
-    overflow-x: hidden;
-    margin-right: 0 !important;
-    /* Prevent layout shift */
-    width: 100vw;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
 /* Container styles to ensure proper scrolling behavior */
 .scroll-container {
     height: 100vh;
     overflow-y: auto;
-    overflow-x: hidden;
     position: relative;
     -webkit-overflow-scrolling: touch;
     /* Smooth scrolling on iOS */
@@ -91,72 +291,152 @@ body {
 
 /* Prevent horizontal scrollbar */
 .wrapper {
-    overflow-x: clip;
     position: relative;
     width: 100%;
 }
 
+/* Global scrollbar styling - EINFACHE & EFFEKTIVE Lösung */
+@layer utilities {
+
+    /* CSS Variables mit Tailwind-Farben */
+    :root {
+        --scrollbar-track-light: theme('colors.gray.200');
+        --scrollbar-thumb-light: theme('colors.gray.400');
+        --scrollbar-track-dark: theme('colors.gray.800');
+        --scrollbar-thumb-dark: theme('colors.gray.600');
+    }
+
+    /* Scrollbar-Styling bereits in :global(html) oben definiert */
+
+    /* WebKit: Sichtbare Scrollbar */
+    :global(html::-webkit-scrollbar) {
+        width: 8px;
+    }
+
+    :global(html::-webkit-scrollbar-track) {
+        background: var(--scrollbar-track-light);
+        border-radius: 4px;
+    }
+
+    :global(html::-webkit-scrollbar-thumb) {
+        background: var(--scrollbar-thumb-light);
+        border-radius: 4px;
+    }
+
+    /* Dark mode scrollbar */
+    :global(.dark) :global(html::-webkit-scrollbar-track) {
+        background: var(--scrollbar-track-dark);
+    }
+
+    :global(.dark) :global(html::-webkit-scrollbar-thumb) {
+        background: var(--scrollbar-thumb-dark);
+    }
+
+    /* Custom scrollbar für alle scrollbaren Bereiche */
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar-thumb-light) var(--scrollbar-track-light);
+    }
+
+    /* Dark mode scrollbar */
+    .dark .scrollbar-thin {
+        scrollbar-color: var(--scrollbar-thumb-dark) var(--scrollbar-track-dark) !important;
+    }
+
+    /* WebKit scrollbar styling */
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: var(--scrollbar-track-light);
+        border-radius: 4px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb-light);
+        border-radius: 4px;
+    }
+
+    .dark .scrollbar-thin::-webkit-scrollbar-track {
+        background: var(--scrollbar-track-dark);
+    }
+
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb-dark);
+    }
+
+    /* Smooth scrolling für mobile Geräte */
+    .scroll-smooth {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Konsistente Scrollbar-Behandlung */
+    .scrollbar-consistent {
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar-thumb-light) var(--scrollbar-track-light);
+    }
+
+    .scrollbar-consistent::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .scrollbar-consistent::-webkit-scrollbar-track {
+        background: var(--scrollbar-track-light);
+        border-radius: 4px;
+    }
+
+    .scrollbar-consistent::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb-light);
+        border-radius: 4px;
+    }
+
+    .dark .scrollbar-consistent::-webkit-scrollbar-track {
+        background: var(--scrollbar-track-dark);
+    }
+
+    .dark .scrollbar-consistent::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb-dark);
+    }
+
+    /* Hide scrollbar für spezielle Bereiche */
+    .scrollbar-none {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+
+
+}
+
 @layer components {
 
-    .contact-input {
-        @apply w-full bg-white dark:bg-aubergine-dark dark:text-white rounded-xl p-4 border border-gray-light dark:border-aubergine focus:ring-1 focus:ring-yellow focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
+    /* Improve button styles for disabled state */
+    button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: scale(1) !important;
+    }
+
+    /* Form error styles */
+    .form-error {
+        color: #ef4444;
+        /* Red for error */
+        font-size: 0.875rem;
+        /* Smaller font size */
+        margin-top: 0.25rem;
+        /* Smaller top margin */
     }
 
     .contact-checkbox {
-        @apply bg-white dark:bg-aubergine-dark rounded-xl p-4 border border-gray-light dark:border-aubergine focus:ring-1 focus:ring-yellow focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
+        @apply bg-white dark:bg-aubergine-900 rounded-xl p-4 border dark:border-aubergine-800 border-creme-500 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500;
     }
 
-    .form-error {
-        @apply text-red-500 text-xs mt-1 pl-2;
-    }
-
-    .btn-primary {
-        @apply bg-yellow hover:bg-yellow text-black px-6 py-3 rounded-full font-medium transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow focus:ring-offset-2 w-full;
-    }
-
-    .btn-secondary {
-        @apply bg-powder dark:bg-aubergine-dark text-black dark:text-powder px-6 py-3 rounded-full border border-transparent hover:border-yellow transition-all duration-200 w-full;
-    }
-
-    .btn-primary:disabled {
-        @apply opacity-50 cursor-not-allowed hover:scale-100;
-    }
-
-    .btn {
-        @apply transition transform hover:scale-105 focus:outline-none rounded-full;
-    }
-
-    .btn-default {
-        @apply relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder;
-    }
-
-    .btn-fixed {
-        @apply fixed bg-powder text-black dark:bg-aubergine-dark dark:text-powder border-4 border-creme dark:border-aubergine;
-    }
-
-    .btn-yellow {
-        @apply bg-yellow text-black;
-    }
-
-    .btn-sm {
-        @apply px-3 py-2 text-sm;
-    }
-
-    .btn-md {
-        @apply px-4 text-xl;
-        padding-top: 14px;
-        padding-bottom: 14px;
-    }
-
-    .btn-menu {
-        @apply px-4 text-xl;
-        padding-top: 12px;
-        padding-bottom: 12px;
-    }
-
-    .btn-lg {
-        @apply px-6 py-4 text-3xl;
-    }
+    /* Button styles moved to Button.svelte component */
 
     .columns {
         columns: 3 300px;
@@ -176,11 +456,33 @@ body {
         display: flex;
         flex-direction: column;
         min-height: 100vh;
+        overflow-x: hidden;
+        overflow-y: auto;
+        width: 100%;
+        position: relative;
+        /* Hidden scrollbars but functional scrolling */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .app-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* EmojiDisplay spezielle Behandlung */
+    #emoji-password-generator {
+        overflow: visible;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #emoji-display {
+        overflow: visible;
     }
 
     /* Sicherstellen der Inhalts-Sichtbarkeit während Animationen */
     :global(body) {
-        overflow-x: hidden;
+        /* Keine overflow-x Beschränkung mehr */
     }
 
     /* Barrierefreiheitsverbesserungen */
@@ -258,10 +560,7 @@ body {
         box-shadow: 0 0 0 2px #000;
     }
 
-    /* Optional: Verhindert Scrolling wenn Overlay aktiv ist */
-    :global(body.menu-open) {
-        overflow: hidden;
-    }
+
 
     /* Optimierte Transitions */
     :global(.menu-transition) {
@@ -273,7 +572,7 @@ body {
 /* Elvish Font Definition */
 @font-face {
     font-family: 'Tengwar Annatar';
-    src: url('./tengwar_annatar.ttf') format('truetype');
+    src: url('../public/fonts/tengwar_annatar.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -296,4 +595,52 @@ body {
 .font-elvish #fixed-menu-nav button,
 .font-elvish #language-toggle-button {
     @apply font-sans;
+}
+
+/* Global Modal Styles - Ensure modals appear above everything */
+.modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(7px) !important;
+}
+
+.modal-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem !important;
+    pointer-events: none !important;
+    z-index: 10000 !important;
+}
+
+.modal-content {
+    @apply w-96 relative bg-white dark:bg-aubergine-900 text-gray-900 dark:text-powder-600 rounded-xl overflow-hidden pointer-events-auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    z-index: 10001 !important;
+}
+
+/* Ensure modals are always on top */
+[data-modal="true"] {
+    z-index: 9999 !important;
+    position: fixed !important;
+}
+
+/* Override any parent z-index issues */
+.modal-force-top {
+    z-index: 9999 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
 }

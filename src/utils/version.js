@@ -10,13 +10,13 @@
  */
 
 // Aktuelle Version der Anwendung
-export const appVersion = '0.4.3';
+export const appVersion = '0.5.0';
 
 // Versionsinformationen mit Datum der letzten Aktualisierung
 export const versionInfo = {
     version: appVersion,
-    updated: '2025-07-27',
-    codename: 'Favicon Fox'
+    updated: '2025-01-27',
+    codename: 'Debug Dragon'
 };
 
 // Diese Funktion formatiert die Versionsnummer für die Anzeige

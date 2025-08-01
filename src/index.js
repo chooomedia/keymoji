@@ -1,175 +1,177 @@
-// src/index.js - Optimierter Haupteinstiegspunkt
-import Root from './routes/LanguageRouter.svelte';
-import './index.css';
-import { appVersion, versionInfo } from './utils/version.js';
-import { showSuccess, showWarning } from './stores/modalStore.js';
-import content from './content.js';
+// src/index.js
+import './index.css'; // Essential: Import Tailwind CSS
+import LanguageRouter from './routes/LanguageRouter.svelte';
+import { isProduction } from './utils/environment.js';
+import { closeModal, isModalVisible } from './stores/modalStore.js';
 
-// Get the current URL
-const currentUrl = window.location.pathname;
+/**
+ * ASCII Art Logo Generator für Keymoji (Apple/Airbnb Style)
+ * Debug Devil - Interner Code-Name für diese Version
+ */
+function displayKeymojiConsoleArt() {
+    if (!isProduction()) return; // Nur im Build anzeigen
 
-// Umgebungsvariablen sicher abfragen
-const getEnvironment = () => {
-    try {
-        return typeof process !== 'undefined' &&
-            process.env &&
-            process.env.NODE_ENV
-            ? process.env.NODE_ENV
-            : 'production';
-    } catch (e) {
-        console.warn(
-            'Could not access environment variables, defaulting to production'
-        );
-        return 'production';
-    }
-};
+    const asciiArt = `
+    ╔══════════════════════════════════════════════════════════════════════╗
+    ║                                                                      ║
+    ║    ██   ██ ███████ ██    ██ ███    ███  ██████       ██ ██           ║
+    ║    ██  ██  ██       ██  ██  ████  ████ ██    ██      ██ ██           ║
+    ║    █████   █████     ████   ██ ████ ██ ██    ██      ██ ██           ║
+    ║    ██  ██  ██         ██    ██  ██  ██ ██    ██ ██   ██ ██           ║
+    ║    ██   ██ ███████    ██    ██      ██  ██████  ████████ ██           ║
+    ║                                                                      ║
+    ║                        🔑 KEYMOJI - Debug Devil 😈                   ║
+    ║                                                                      ║
+    ║              Emoji Shortcuts für Profis & Enthusiasten              ║
+    ║                                                                      ║
+    ╠══════════════════════════════════════════════════════════════════════╣
+    ║                                                                      ║
+    ║  💻 Entwickelt von: Chris Matt (C. Matt)                            ║
+    ║  🌐 Web: https://keymoji.wtf                                        ║
+    ║  📧 Kontakt: hello@keymoji.wtf                                      ║
+    ║  🎯 Version: Debug Devil - Brown to Greenfield Migration            ║
+    ║                                                                      ║
+    ║  🚀 Tech Stack:                                                      ║
+    ║     • Frontend: Svelte + Tailwind CSS + Webpack                     ║
+    ║     • Backend: Vercel Serverless + n8n Automation                   ║
+    ║     • Storage: Google Sheets + Brevo Email                          ║
+    ║     • Payment: Stripe Integration                                    ║
+    ║                                                                      ║
+    ║  ⚡ Features:                                                         ║
+    ║     • 15+ Sprachen Support (inkl. Klingonisch & Elbisch)           ║
+    ║     • Dark/Light Mode mit automatischer Erkennung                   ║
+    ║     • PWA-Ready mit Service Worker                                   ║
+    ║     • Responsive Design für alle Geräte                             ║
+    ║     • Premium Features mit Stripe Payment                           ║
+    ║                                                                      ║
+    ║  🎨 UX/UI inspiriert von Apple & Airbnb Design Language             ║
+    ║  🔐 Privacy-First mit GDPR-konformer Datenverarbeitung             ║
+    ║                                                                      ║
+    ║  📈 Stats: Über 1000+ Emoji-Kombinationen verfügbar                ║
+    ║  🌟 GitHub: https://github.com/chooomedia/keymoji                   ║
+    ║                                                                      ║
+    ╚══════════════════════════════════════════════════════════════════════╝
+    
+    🎉 Welcome to Keymoji - Debug Devil Edition! 
+    
+    Dieses Release fokussiert sich auf:
+    • 🧹 Code-Cleanup & Best Practices
+    • ⚡ Performance-Optimierungen  
+    • 🎨 Enhanced UX mit Apple/Airbnb Style
+    • 🔐 Security-Verbesserungen
+    • 📱 Mobile-First Responsive Design
+    
+    Happy Emoji Shortcuts! 🔥✨
+    `;
 
-// Überprüfe, ob die aktuelle URL den Sprachcode enthält
-// Falls nicht, sollte der Server-Redirect bereits stattgefunden haben
-const ensureLanguageInPath = () => {
-    const path = window.location.pathname;
-    const pathSegments = path.split('/').filter(segment => segment !== '');
+    // Style the console output
+    console.log(
+        '%c' + asciiArt,
+        'color: #9333ea; font-family: monospace; font-size: 11px; line-height: 1.2;'
+    );
 
-    // Wenn die Pfadsegmente leer sind (Wurzel-URL) oder das erste Segment
-    // nicht wie ein Sprachcode aussieht, logge eine Warnung
-    if (pathSegments.length === 0 || pathSegments[0].length !== 2) {
-        console.warn(
-            'URL does not contain language code, server-side redirect may have failed:',
-            path
-        );
-    }
-};
+    // Additional styled credits
+    console.log(
+        '%c🔑 KEYMOJI %c- Debug Devil',
+        'color: #fbbf24; font-weight: bold; font-size: 16px;',
+        'color: #ef4444; font-weight: bold; font-size: 14px;'
+    );
 
-const environment = getEnvironment();
-console.log(
-    'Starting app with URL:',
-    currentUrl,
-    'Version:',
-    appVersion,
-    'Environment:',
-    environment
-);
+    console.log(
+        '%cEntwickelt mit ❤️ von Chris Matt (C. Matt) in Deutschland 🇩🇪',
+        'color: #10b981; font-style: italic; font-size: 12px;'
+    );
 
-// Sprachcode-Prüfung im Development-Modus
-if (environment === 'development') {
-    ensureLanguageInPath();
+    console.log(
+        '%cTech-Stack: Svelte ⚡ Tailwind 🎨 Vercel 🚀 n8n 🤖',
+        'color: #6366f1; font-size: 11px;'
+    );
+
+    // Internal development info (only in production build)
+    console.log(
+        '%c[Debug Devil] - Internal Code Name für Brown-to-Greenfield Migration',
+        'color: #6b7280; font-size: 10px; font-style: italic;'
+    );
 }
 
-const app = new Root({
-    target: document.body,
-    props: {
-        url: currentUrl,
-        currentVersion: appVersion
+/**
+ * Enhanced Language Path Validation (Apple/Airbnb Style)
+ */
+function ensureLanguageInPath() {
+    const path = window.location.pathname;
+    const supportedLanguages = [
+        'en',
+        'de',
+        'fr',
+        'es',
+        'it',
+        'ja',
+        'ko',
+        'nl',
+        'pl',
+        'ru',
+        'tr',
+        'af',
+        'tlh',
+        'sjn'
+    ];
+
+    // Check if path starts with a supported language
+    const pathParts = path.split('/').filter(part => part.length > 0);
+    const firstPart = pathParts[0];
+
+    if (!supportedLanguages.includes(firstPart)) {
+        console.warn(
+            '🌐 Language code missing in URL path. Server-side redirects should handle this.'
+        );
     }
-});
+}
 
-// Enhanced Service Worker Registration with update handling
-if ('serviceWorker' in navigator && environment === 'production') {
-    window.addEventListener('load', async () => {
-        try {
-            const registration = await navigator.serviceWorker.register(
-                '/service-worker.js'
-            );
-            console.log(
-                'ServiceWorker registration successful with scope:',
-                registration.scope
-            );
+// Application Initialization mit enhanced UX
+function initializeApp() {
+    // Display console art on production build
+    displayKeymojiConsoleArt();
 
-            // Handle service worker updates
-            registration.addEventListener('updatefound', () => {
-                const newWorker = registration.installing;
+    // Validate language path
+    ensureLanguageInPath();
 
-                // Track state changes of the new service worker
-                newWorker.addEventListener('statechange', () => {
-                    if (
-                        newWorker.state === 'installed' &&
-                        navigator.serviceWorker.controller
-                    ) {
-                        // New version installed but waiting to activate
-                        console.log(
-                            'New version available! Ready when you are...'
-                        );
+    // Enhanced keyboard shortcuts (Apple Style)
+    document.addEventListener('keydown', event => {
+        // ESC to close modal
+        if (event.key === 'Escape' && isModalVisible.get()) {
+            event.preventDefault();
+            closeModal();
+        }
 
-                        // Store update availability in session storage
-                        sessionStorage.setItem('swUpdateAvailable', 'true');
-
-                        // Zeige Update-Meldung mit dem einheitlichen Modal-System
-                        const defaultMessage =
-                            'A new version is available. Refresh to update!';
-
-                        // Use the unified modal system
-                        showWarning(
-                            content.en?.serviceWorker?.updateAvailable ||
-                                defaultMessage,
-                            0, // Don't auto-close
-                            {
-                                buttonText: 'Refresh Now',
-                                buttonAction: () => {
-                                    newWorker.postMessage({
-                                        type: 'SKIP_WAITING'
-                                    });
-                                    window.location.reload();
-                                }
-                            }
-                        );
-                    }
-                });
-            });
-
-            // Handle messages from service worker
-            navigator.serviceWorker.addEventListener('message', event => {
-                if (event.data && event.data.type === 'SW_UPDATED') {
-                    console.log(
-                        `Service Worker updated to version ${event.data.version}`
-                    );
-                }
-            });
-
-            // Check for updates periodically (every 60 minutes)
-            setInterval(() => {
-                registration.update();
-            }, 60 * 60 * 1000);
-
-            // Set up periodic sync if supported
-            if ('periodicSync' in registration) {
-                try {
-                    await registration.periodicSync.register('update-cache', {
-                        minInterval: 24 * 60 * 60 * 1000 // Once a day
-                    });
-                } catch (error) {
-                    console.log(
-                        'Periodic Sync could not be registered:',
-                        error
-                    );
-                }
-            }
-
-            // Handle offline/online status changes
-            window.addEventListener('online', async () => {
-                try {
-                    const reg = await navigator.serviceWorker.ready;
-                    if ('sync' in reg) {
-                        await reg.sync.register('syncData');
-                    }
-                } catch (error) {
-                    console.error(
-                        'Background sync registration failed:',
-                        error
-                    );
-                }
-            });
-        } catch (error) {
-            console.error('ServiceWorker registration failed:', error);
+        // CMD/CTRL + K für Quick Actions (Apple/Airbnb Style)
+        if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+            event.preventDefault();
+            // Future: Quick Action Modal
+            console.log('🔥 Quick Actions - Coming Soon!');
         }
     });
-} else {
-    console.log(`Running in ${environment} mode - Service Worker disabled`);
+
+    // Enhanced click outside modal handler
+    document.addEventListener('click', event => {
+        const modalElement = document.querySelector('.modal-overlay');
+        if (
+            modalElement &&
+            event.target === modalElement &&
+            isModalVisible.get()
+        ) {
+            closeModal();
+        }
+    });
+
+    // Initialize Svelte App
+    const app = new LanguageRouter({
+        target: document.getElementById('app') || document.body
+    });
+
+    return app;
 }
 
-// Add version info to console
-console.info(
-    `%c Keymoji ${appVersion} (${versionInfo.codename}) `,
-    'background: #f4ab25; color: #000; padding: 4px; border-radius: 4px;'
-);
+// Initialize App with error handling
+const app = initializeApp();
 
 export default app;

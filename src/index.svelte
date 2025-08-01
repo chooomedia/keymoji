@@ -1,38 +1,47 @@
 <script>
-    import { fade, fly } from 'svelte/transition';
     import { onMount } from 'svelte';
-    import { currentLanguage, getText } from './stores/appStores.js'; // modalMessage darkMode
+    import { currentLanguage } from './stores/contentStore.js'; // modalMessage darkMode
     import { updateSeo } from './stores/seoStore.js';
-    import { linkedinIcon } from './shapes.js';
     import { navigate } from 'svelte-routing';
-    import Header from './Header.svelte';
-    import UserCounter from './UserCounter.svelte';
-    import EmojiDisplay from './EmojiDisplay.svelte';
-    //import ErrorModal from './ErrorModal.svelte';
-    import FixedMenu from './widgets/FixedMenu.svelte';
-    import content from './content.js';
+    import { closeModal, isModalVisible } from './stores/modalStore.js';
+    import PageLayout from './components/Layout/PageLayout.svelte';
+    import EmojiDisplay from './components/Core/EmojiDisplay.svelte';
+
+    import { translations } from './stores/contentStore.js';
+    import { isDebugMode } from './utils/environment.js';
+    import { initializeAccountFromCookies, setupMagicLinkListener } from './stores/accountStore.js';
+    import { initializeSettingsForUser } from './stores/userSettingsStore.js';
+    import { testLimitConfiguration, testLimitConsistency } from './utils/test-limits.js';
+    import { sendAnalyticsEvent } from './stores/appStores.js';
+    import FooterInfo from './widgets/FooterInfo.svelte';
   
     // Debug-Flag - für die Produktion entfernen
-    let showDebug = process.env.NODE_ENV === 'development' && (window.location.search.includes('debug=true'));
+    let showDebug = isDebugMode();
   
     // Prüfen, ob die Seite gerendert wurde
     let isRendered = false;
     
-    function navigateToVersion() {
-      navigate(`/${$currentLanguage}/versions`, { replace: false });
-    }
+
     
+    // Bereits weiter unten definiert - entfernt doppelte Deklaration
+
     onMount(() => {
-      // Update SEO settings for the index page
-      updateSeo({
-        title: content[$currentLanguage]?.index?.pageTitle || "Emoji Password Generator",
-        description: content[$currentLanguage]?.index?.pageDescription || "Generate secure emoji passwords for better online security.",
-        url: window.location.pathname,
-        pageType: "index"
-      });
-      
       // Als gerendert markieren
       isRendered = true;
+      
+      // Initialize account from cookies
+      initializeAccountFromCookies();
+      
+      // Initialize user settings
+      initializeSettingsForUser();
+      
+      // Setup cross-tab communication for magic links
+      setupMagicLinkListener();
+      
+      // Clean up any modals when arriving at home page
+      if ($isModalVisible) {
+        closeModal();
+      }
       
       // Bei initialem Laden, cleanup von Redirect-Flags durchführen
       if (sessionStorage.getItem('redirectInProgress')) {
@@ -40,7 +49,34 @@
           sessionStorage.removeItem('redirectInProgress');
         }, 200);
       }
+      
+      // Test Limit Configuration (nur in Development)
+      if (isDebugMode()) {
+        console.log('🧪 Running Limit Tests...');
+        testLimitConfiguration();
+        testLimitConsistency();
+      }
+      
+      // Send page view analytics
+      sendAnalyticsEvent('page_view', {
+        page: 'home',
+        language: $currentLanguage
+      });
     });
+
+    // Reaktive Übersetzungen für Home-Seite
+    $: pageTitle = $translations?.index?.pageTitle || 'Emoji Passwort Generator';
+    $: pageDescription = $translations?.index?.pageDescription || '🔑 Passwörter neu gedacht. 🎯 Unknackbare Emoji-Passwörter. 🌈 Kostenlos. Sicher. Innovativ.';
+    
+    // Reaktive SEO-Updates bei Sprachänderungen
+    $: if (isRendered) {
+      updateSeo({
+        title: pageTitle,
+        description: pageDescription,
+        url: window.location.pathname,
+        pageType: "index"
+      });
+    }
 </script>
   
 {#if showDebug}
@@ -49,61 +85,10 @@
 </div>
 {/if}
   
-<!-- App Container -->
-<main class="app-container" data-lang={$currentLanguage}>
-    <!-- Header -->
-    <Header />
+<PageLayout {pageTitle} {pageDescription}>
+    <!-- Emoji Display Component -->
+    <EmojiDisplay />
     
-    <!-- Main Content Container -->
-    <div class="min-h-screen" in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}>
-      <!-- Main Content -->
-        <section class="flex flex-col justify-center items-center min-h-screen py-5 overflow-auto touch-none z-10 gap-4">
-
-          <!-- Main Heading -->
-          <div class="w-11/12 md:w-26r flex flex-wrap justify-center" role="banner">
-            <h1 class="md:text-3xl text-2xl font-semibold dark:text-white mb-2 text-center w-full">
-              {content[$currentLanguage]?.index?.pageTitle || 'Emoji Password Generator'}
-            </h1>
-            <p class="dark:text-gray mb-3 text-center w-full leading-relaxed">
-              {content[$currentLanguage]?.index?.pageDescription || 'Generate secure emoji passwords for better online security.'}
-            </p>
-          </div>
-  
-          <!-- Emoji Display Component -->
-          <div class="content-wrapper pl-4 pr-4 pb-4 w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-80 dark:bg-aubergine-80 backdrop-opacity-60">
-            <EmojiDisplay />
-          </div>
-  
-          <!-- Footer -->
-          <footer>
-            <div class="flex items-center justify-center space-x-1 text-sm text-gray dark:text-gray">
-              <button class="hover:text-yellow transition-colors duration-200" 
-                on:click={navigateToVersion} 
-                type="button"
-                aria-label="View version history"
-              >
-                v{getText('header.pageVersion') || 'v0.4.3'}
-              </button>
-              <span class="px-2">·</span>
-              <span>Created by</span>
-              <a
-                href="https://www.linkedin.com/in/chooomedia/"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center gap-1 hover:text-yellow transition-colors duration-200"
-              >
-                Christopher Matt
-                <svg class="w-4 h-4 transform translate-y-[0.5px]" viewBox="0 0 24 24" fill="currentColor">
-                  {@html linkedinIcon}
-                </svg>
-              </a>
-              <span class="px-2">·</span>
-              <UserCounter /><span> Visits</span>
-            </div>
-          </footer>
-        </section>
-    </div>
-  
-    <!-- Fixed Menu -->
-    <FixedMenu align={'bottom'} />
-</main>
+    <!-- Footer Information Component -->
+    <FooterInfo slot="footer" />
+</PageLayout>

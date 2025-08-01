@@ -2,7 +2,7 @@
 // Validiert die Structured Data gegen Schema.org Standards
 
 const https = require('https');
-const { SEO_ENHANCEMENTS } = require('../src/utils/seo-enhancements.js');
+const { generateStructuredData } = require('../src/utils/seo.js');
 
 // ANSI color codes for terminal output
 const colors = {
@@ -18,13 +18,19 @@ async function validateStructuredData() {
         `${colors.blue}🔍 Validating Structured Data...${colors.reset}\n`
     );
 
-    const structuredData = SEO_ENHANCEMENTS.getStructuredData();
+    // Test data for validation
+    const testSeoData = {
+        pageType: 'home',
+        title: 'Keymoji - Emoji Password Generator',
+        description: 'Generate secure, AI-resistant emoji passwords.',
+        canonical: 'https://keymoji.wtf/',
+        image: '/images/keymoji-social-media-banner-10-2024-min.png'
+    };
+
+    const structuredData = generateStructuredData(testSeoData, 'en');
 
     // Check required fields for WebApplication
-    const webApp = structuredData['@graph'].find(
-        item => item['@type'] === 'WebApplication'
-    );
-    if (webApp) {
+    if (structuredData['@type'] === 'WebApplication') {
         console.log(
             `${colors.green}✅ WebApplication Schema found${colors.reset}`
         );
@@ -36,7 +42,9 @@ async function validateStructuredData() {
             'description',
             'applicationCategory'
         ];
-        const missingFields = requiredFields.filter(field => !webApp[field]);
+        const missingFields = requiredFields.filter(
+            field => !structuredData[field]
+        );
 
         if (missingFields.length > 0) {
             console.log(
@@ -50,10 +58,15 @@ async function validateStructuredData() {
             );
         }
 
-        // Check aggregateRating
-        if (webApp.aggregateRating) {
+        // Check offers
+        if (structuredData.offers) {
+            console.log(`${colors.green}✅ Offers present${colors.reset}`);
+        }
+
+        // Check featureList
+        if (structuredData.featureList) {
             console.log(
-                `${colors.yellow}⚠️  AggregateRating present (ensure you have actual reviews)${colors.reset}`
+                `${colors.green}✅ FeatureList present (${structuredData.featureList.length} features)${colors.reset}`
             );
         }
     }

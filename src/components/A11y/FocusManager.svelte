@@ -15,6 +15,19 @@
     let trapElement;
     let previouslyFocused = null;
     let focusableElements = [];
+
+    // Timeout-Tracking für Memory Leak Prevention
+    let activeTimeouts = new Set();
+    
+    // Helper-Funktion für sichere setTimeout mit Cleanup
+    function safeSetTimeout(callback, delay) {
+        const timeoutId = setTimeout(() => {
+            activeTimeouts.delete(timeoutId);
+            callback();
+        }, delay);
+        activeTimeouts.add(timeoutId);
+        return timeoutId;
+    }
     
     // Focus the first element when trap activates
     function focusInitialElement() {
@@ -132,7 +145,7 @@
       updateFocusableElements();
       
       if (active) {
-        window.setTimeout(() => {
+        safeSetTimeout(() => {
           focusInitialElement();
         }, 50); // Small delay to ensure DOM is settled
       }
@@ -142,6 +155,12 @@
     
     // Clean up when component is destroyed
     onDestroy(() => {
+      // Bereinige alle aktiven Timeouts
+      activeTimeouts.forEach(timeoutId => {
+        clearTimeout(timeoutId);
+      });
+      activeTimeouts.clear();
+      
       if (active && restoreFocus) {
         releaseFocus();
       }
@@ -151,7 +170,7 @@
     
     // Watch for active state changes
     $: if (active) {
-      window.setTimeout(() => {
+      safeSetTimeout(() => {
         updateFocusableElements();
         focusInitialElement();
       }, 50);
