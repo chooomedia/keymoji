@@ -2,6 +2,7 @@
 <script>
     import { onMount, onDestroy } from 'svelte';
     import { fade, fly, scale } from 'svelte/transition';
+    import { translations } from '../stores/contentStore.js';
     import PageLayout from '../components/Layout/PageLayout.svelte';
     import { STORAGE_KEYS, storageHelpers } from '../config/storage.js';
     import { navigateToRoute, navigateToHome } from '../utils/navigation.js';
