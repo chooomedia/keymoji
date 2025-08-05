@@ -1,6 +1,6 @@
 <!-- src/components/Layout/PageLayout.svelte -->
 <script>
-    import { fly, fade } from 'svelte/transition';
+    import { fade } from 'svelte/transition';
     import { currentLanguage, translations } from '../../stores/contentStore.js';
     import { darkMode } from '../../stores/appStores.js';
     import Header from './Header.svelte';
@@ -60,7 +60,7 @@
     data-lang={$currentLanguage}
 >
     <!-- Main Content Container -->
-    <div class="min-h-screen scroll-smooth overflow-x-hidden" in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}>
+    <div class="min-h-screen scroll-smooth overflow-x-hidden" in:fade={{duration: 300}} out:fade={{duration: 200}}>
         <!-- Main Content -->
         <section class="main-content flex flex-col justify-center items-center min-h-screen py-8 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
 

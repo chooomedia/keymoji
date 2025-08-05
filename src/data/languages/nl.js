@@ -538,17 +538,22 @@ export default {
 
         // Account leeftijd
         accountAge: {
-            today: 'Vandaag aangemaakt',
-            yesterday: 'Gisteren aangemaakt',
-            days: 'Sinds {days} dagen',
-            weeks: 'Sinds {weeks} week{plural}',
-            months: 'Sinds {months} maand{plural}',
-            years: 'Sinds {years} jaar{plural}',
+            today: '✨ FREE: Sinds vandaag!',
+            yesterday: '🚀 FREE: Sinds gisteren!',
+            days: '🔥 FREE: Sinds {days} dagen!',
+            weeks: '⚡ FREE: Sinds {weeks} week{plural}!',
+            months: '💪 FREE: Sinds {months} maand{plural}!',
+            years: '🏆 FREE: Sinds {years} jaar{plural}!',
             accountSince: 'Account sinds {days} {unit}',
             since: 'sinds {days} {unit}',
             day: 'dag',
             daysLabel: 'dagen',
-            accountCreated: 'Account aangemaakt'
+            accountCreated: 'Account aangemaakt',
+            // Sexy salesy account creation texts
+            createdTodayFree: '✨ Verse FREE account - net aangemaakt!',
+            createdTodayPro: '💎 Verse PRO account - net aangemaakt!',
+            createdRecentlyFree: '✨ FREE account {time} geleden aangemaakt',
+            createdRecentlyPro: '💎 PRO account {time} geleden aangemaakt'
         },
 
         // Validatie

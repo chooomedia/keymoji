@@ -506,7 +506,7 @@ export default {
                 aiThreatDetectionDesc: "thand QulwI'",
                 prioritySupport: "QIn QulwI'",
                 prioritySupportDesc: "QIn QulwI'",
-                browserExtension: "De' QulwI' (Q4 2025)",
+                browserExtension: "Browser QulwI' (Q4 2025)",
                 browserExtensionDesc: "thand QIn QulwI'",
                 wordpressPlugin: "WordPress QulwI' (Q4 2025)",
                 wordpressPluginDesc: "thand QIn QulwI'"
@@ -537,12 +537,12 @@ export default {
 
         // Account age
         accountAge: {
-            today: "chenmoHlu'",
-            yesterday: "chenmoHlu'",
-            days: 'jaj {days}',
-            weeks: 'jaj {weeks}',
-            months: 'jar {months}',
-            years: 'DIS {years}',
+            today: '✨ FREE: Síra!',
+            yesterday: '🚀 FREE: Nó!',
+            days: '🔥 FREE: {days} aur!',
+            weeks: '⚡ FREE: {weeks} enquië!',
+            months: '💪 FREE: {months} astar!',
+            years: '🏆 FREE: {years} loa!',
             accountSince: 'Huch Qan {days} {unit}',
             since: '{days} {unit}',
             day: 'jaj',

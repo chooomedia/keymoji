@@ -51,6 +51,7 @@
     import Button from '../components/UI/Button.svelte';
     import ContextBadge from '../components/UI/ContextBadge.svelte';
     import FooterInfo from '../widgets/FooterInfo.svelte';
+    import FeatureCard from '../components/Features/FeatureCard.svelte';
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
     $: pageTitle = (() => {
@@ -240,6 +241,17 @@
     $: isNameValid = name.trim().length >= 2;
     $: isFormValid = isEmailValid && (showProfileForm ? isNameValid : true);
     
+    // Email validation for Magic Link button - konsistent mit isEmailValid
+    $: isEmailValidForMagicLink = isEmailValid;
+    
+    // Magic Link button text with emoji
+    $: magicLinkButtonText = (() => {
+        if (hasValidSession) {
+            return $translations?.accountManager?.buttons?.loginToAccount || 'Login to Account';
+        }
+        return $translations?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
+    })();
+
     // Ensure we always have a valid name for the API
     function getValidName() {
         const trimmedName = name.trim();
@@ -316,38 +328,34 @@
         if (hasLoggedInBefore) {
             return $translations?.accountManager?.buttons?.loginAgain || '🔐 Login again';
         }
-        return $translations?.accountManager?.buttons?.createMagicLink || 'Create Magic Link';
+        return $translations?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
     })();
     
-    // Account age label for psychological effect
+    // Account age label for psychological effect - zeigt wie lange User im aktuellen Tier ist
     $: accountAgeLabel = (() => {
+        const isProAccount = $accountTier === 'pro';
+        
         if (daysSinceCreation === 0) {
-            return $translations?.accountManager?.accountAge?.today || 'Created today';
+            const baseText = $translations?.accountManager?.accountAge?.today || 'Created today';
+            return isProAccount ? '💎 PRO: Seit heute!' : baseText;
         } else if (daysSinceCreation === 1) {
-            return $translations?.accountManager?.accountAge?.yesterday || 'Created yesterday';
+            const baseText = $translations?.accountManager?.accountAge?.yesterday || 'Created yesterday';
+            return isProAccount ? '💎 PRO: Seit gestern!' : baseText;
         } else if (daysSinceCreation < 7) {
-            const daysText = daysSinceCreation === 1 
-                ? ($translations?.accountManager?.accountAge?.day || 'day')
-                : ($translations?.accountManager?.accountAge?.days || 'days');
-            return ($translations?.accountManager?.accountAge?.days || '{days} days').replace('{days}', daysSinceCreation);
+            const baseText = ($translations?.accountManager?.accountAge?.days || '{days} days').replace('{days}', daysSinceCreation);
+            return isProAccount ? `💎 PRO: Seit ${daysSinceCreation} Tagen!` : baseText;
         } else if (daysSinceCreation < 30) {
             const weeks = Math.floor(daysSinceCreation / 7);
-            const weeksText = weeks === 1 
-                ? ($translations?.accountManager?.accountAge?.week || 'week')
-                : ($translations?.accountManager?.accountAge?.weeks || 'weeks');
-            return ($translations?.accountManager?.accountAge?.weeks || '{weeks} week{plural}').replace('{weeks}', weeks).replace('{plural}', weeks > 1 ? 's' : '');
+            const baseText = ($translations?.accountManager?.accountAge?.weeks || '{weeks} week{plural}').replace('{weeks}', weeks).replace('{plural}', weeks > 1 ? 's' : '');
+            return isProAccount ? `💎 PRO: Seit ${weeks} Woche${weeks > 1 ? 'n' : ''}!` : baseText;
         } else if (daysSinceCreation < 365) {
             const months = Math.floor(daysSinceCreation / 30);
-            const monthsText = months === 1 
-                ? ($translations?.accountManager?.accountAge?.month || 'month')
-                : ($translations?.accountManager?.accountAge?.months || 'months');
-            return ($translations?.accountManager?.accountAge?.months || '{months} month{plural}').replace('{months}', months).replace('{plural}', months > 1 ? 's' : '');
+            const baseText = ($translations?.accountManager?.accountAge?.months || '{months} month{plural}').replace('{months}', months).replace('{plural}', months > 1 ? 's' : '');
+            return isProAccount ? `💎 PRO: Seit ${months} Monat${months > 1 ? 'en' : ''}!` : baseText;
         } else {
             const years = Math.floor(daysSinceCreation / 365);
-            const yearsText = years === 1 
-                ? ($translations?.accountManager?.accountAge?.year || 'year')
-                : ($translations?.accountManager?.accountAge?.years || 'years');
-            return ($translations?.accountManager?.accountAge?.years || '{years} year{plural}').replace('{years}', years).replace('{plural}', years > 1 ? 's' : '');
+            const baseText = ($translations?.accountManager?.accountAge?.years || '{years} year{plural}').replace('{years}', years).replace('{plural}', years > 1 ? 's' : '');
+            return isProAccount ? `💎 PRO: Seit ${years} Jahr${years > 1 ? 'en' : ''}!` : baseText;
         }
     })();
     
@@ -785,7 +793,7 @@
         if (hasValidSession) {
             return $translations?.accountManager?.buttons?.loginToAccount || 'Login to Account';
         }
-        return $translations?.accountManager?.buttons?.createMagicLink || 'Create Magic Link';
+        return $translations?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
     })();
 
     // Context menu actions
@@ -979,46 +987,45 @@
                     </div>
                 {:else if accountCreationStep === 'verification'}
                     <!-- Verification Step -->
-                    <div class="p-4 text-center">
-                        <div class="space-y-4">
-                            <Button
-                                variant="primary"
-                                size="md"
-                                fullWidth={true}
-                                on:click={resendMagicLink}
-                                disabled={isSubmitting}
-                            >
-                                {#if isSubmitting}
-                                    <span class="animate-spin mr-1">⏳</span>
-                                    {$translations?.accountManager?.buttons?.sendingMagicLink || 'Sending...'}
-                                {:else}
-                                    {$translations?.accountManager?.buttons?.resendMagicLink || '🔄 Resend Magic Link'}
-                                {/if}
-                            </Button>
-                            
-                            <Button
-                                variant="secondary"
-                                size="md"
-                                fullWidth={true}
-                                on:click={goBackToBenefits}
-                            >
-                                {$translations?.accountManager?.buttons?.backToAccountOptions || '← Back to Account Options'}
-                            </Button>
-                            
-                            <!-- Help Section -->
-                            <div class="mt-6 p-4 bg-creme-600 dark:bg-aubergine-900 rounded-xl">
-                                <h3 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                                    {$translations?.accountManager?.help?.title || '💡 Need Help?'}
-                                </h3>
-                                <ul class="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                                    <li>{$translations?.accountManager?.help?.spamFolder || "• Check your spam folder if you don't see the email"}</li>
-                                    <li>{$translations?.accountManager?.help?.magicLinkExpiry || '• Magic links expire after 15 minutes'}</li>
-                                    <li>{$translations?.accountManager?.help?.requestNewLink || '• You can request a new link anytime'}</li>
-                                    <li>{$translations?.accountManager?.help?.noPassword || '• No password required - just click the link'}</li>
-                                </ul>
-                            </div>
+                    <div class="space-y-4">
+                        <Button
+                            variant="primary"
+                            size="md"
+                            fullWidth={true}
+                            on:click={resendMagicLink}
+                            disabled={isSubmitting}
+                        >
+                            {#if isSubmitting}
+                                <span class="animate-spin mr-1">⏳</span>
+                                {$translations?.accountManager?.buttons?.sendingMagicLink || 'Sending...'}
+                            {:else}
+                                {$translations?.accountManager?.buttons?.resendMagicLink || '🔄 Resend Magic Link'}
+                            {/if}
+                        </Button>
+                        
+                        <Button
+                            variant="secondary"
+                            size="md"
+                            fullWidth={true}
+                            on:click={goBackToBenefits}
+                        >
+                            {$translations?.accountManager?.buttons?.backToAccountOptions || '← Back to Account Options'}
+                        </Button>
+                        
+                        <!-- Help Section -->
+                        <div class="mt-6 p-4 bg-creme-600 dark:bg-aubergine-900 rounded-xl">
+                            <h3 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                                {$translations?.accountManager?.help?.title || '💡 Need Help?'}
+                            </h3>
+                            <ul class="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                                <li>{$translations?.accountManager?.help?.spamFolder || "• Check your spam folder if you don't see the email"}</li>
+                                <li>{$translations?.accountManager?.help?.magicLinkExpiry || '• Magic links expire after 15 minutes'}</li>
+                                <li>{$translations?.accountManager?.help?.requestNewLink || '• You can request a new link anytime'}</li>
+                                <li>{$translations?.accountManager?.help?.noPassword || '• No password required - just click the link'}</li>
+                            </ul>
                         </div>
                     </div>
+
                 {:else if shouldShowSimplifiedView}
                     <!-- Return User Simplified Form -->
                     <!-- Pro upgrade hint -->
@@ -1099,9 +1106,9 @@
                             </div>
                         </div>
                         <!-- Benefits Content -->
-                        <div class="relative min-h-[400px] mb-5">
+                        <div class="relative min-h-[400px] mb-5 z-10">
                             <!-- FREE Benefits -->
-                            <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'free' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0'}">
+                            <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'free' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0 pointer-events-none'}">
                                 <div class="space-y-4">
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
                                         <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
@@ -1134,7 +1141,7 @@
                             </div>
 
                             <!-- PRO Benefits -->
-                            <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'pro' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0'}">
+                            <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'pro' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0 pointer-events-none'}">
                                 <div class="space-y-4">
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
                                         <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
@@ -1184,7 +1191,7 @@
                     </div>
                     
                     <!-- Login Form for Return Users -->
-                    <div class="bg-transparent mb-2">
+                    <div class="bg-transparent mb-2 relative z-20">
                         <form on:submit|preventDefault={handleLogin} class="space-y-4">
                             <div>
                                 <label for="email-expanded" class="sr-only">{$translations?.accountManager?.emailLabel || 'Email'}</label>
@@ -1229,7 +1236,7 @@
                                 variant="primary"
                                 size="md"
                                 fullWidth={true}
-                                disabled={isSubmitting || !isFormValid}
+                                disabled={!isFormValid || isSubmitting}
                             >
                                 {#if isSubmitting}
                                     <span class="flex items-center justify-center">
@@ -1240,7 +1247,7 @@
                                         {loginButtonText}
                                     </span>
                                 {:else}
-                                    {loginButtonText}
+                                    {magicLinkButtonText}
                                 {/if}
                             </Button>
                             
@@ -1252,7 +1259,7 @@
                                     fullWidth={true}
                                     on:click={() => showProfileForm = !showProfileForm}
                                 >
-                                    <span class="mr-1.5">👤</span>{showProfileForm ? ($translations?.accountManager?.buttons?.hideProfile || 'Hide') : ($translations?.accountManager?.buttons?.addProfile || 'Add')} {$translations?.accountManager?.buttons?.profileData || 'Profile Data'}
+                                    <span class="mr-1.5">👤</span>{showProfileForm ? ($translations?.accountManager?.buttons?.hideProfile || 'Hide') : ($translations?.accountManager?.buttons?.addProfile || 'Add')} {$translations?.accountManager?.buttons?.name || 'Name'}
                                 </Button>
                                 
                                 <!-- Only show if no login history -->
@@ -1269,7 +1276,7 @@
                             </div>
                         </form>
                     </div>
-                    </div>
+                </div> 
                 {:else}
                     <!-- Account Creation Flow - Styled like EmojiDisplay -->
                     <div class="transform -translate-y-3.5 scale-114">
@@ -1310,99 +1317,55 @@
                         <!-- FREE Benefits -->
                         <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'free' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0'}">
                             <div class="space-y-4">
-                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                        <span class="text-yellow-600 dark:text-yellow-400 text-2xl">✓</span>
+                                {#each Object.entries($translations?.accountManager?.benefits?.free || {}) as [key, value]}
+                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                            <span class="text-yellow-600 dark:text-yellow-400 text-2xl">
+                                                {key === 'dailyGenerations' ? '✓' : 
+                                                 key === 'decentralizedData' ? '🔒' : 
+                                                 key === 'webApp' ? '📱' : '✓'}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="text-md font-bold text-black dark:text-white">{value}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.[key + 'Desc'] || ''}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.dailyGenerations || '5 daily secure generations'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.dailyGenerationsDesc || 'AI-resistant technology'}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                        <span class="text-yellow-600 dark:text-yellow-400 text-2xl">🔒</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.decentralizedData || 'Decentralized data processing'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.decentralizedDataDesc || 'Your data stays private'}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                        <span class="text-yellow-600 dark:text-yellow-400 text-2xl">📱</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.webApp || 'Available as web app'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.webAppDesc || 'Secure access from anywhere'}</p>
-                                    </div>
-                                </div>
+                                {/each}
                             </div>
                         </div>
 
                         <!-- PRO Benefits -->
                         <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'pro' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0'}">
                             <div class="space-y-4">
-                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                        <span class="text-purple-600 dark:text-purple-400 text-2xl">∞</span>
+                                {#each Object.entries($translations?.accountManager?.benefits?.pro || {}) as [key, value]}
+                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-100 to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-200 dark:from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-800 dark:to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                            <span class="text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-600 dark:text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-400 text-2xl">
+                                                {key === 'unlimitedGenerations' ? '∞' : 
+                                                 key === 'aiThreatDetection' ? '🧠' : 
+                                                 key === 'prioritySupport' ? '⚡' : 
+                                                 key === 'browserExtension' ? '🌐' : 
+                                                 key === 'apiIntegration' ? '🔌' : 
+                                                 key === 'advancedAnalytics' ? '📊' : 
+                                                 key === 'wordpressPlugin' ? '📝' : '✓'}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="text-md font-bold text-black dark:text-white">{value}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.[key + 'Desc'] || ''}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerations || 'Unlimited secure generations'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerationsDesc || 'No daily limits'}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                        <span class="text-purple-600 dark:text-purple-400 text-2xl">🧠</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.aiThreatDetection || 'AI-powered threat detection'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.aiThreatDetectionDesc || 'Proactive security analysis'}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                        <span class="text-purple-600 dark:text-purple-400 text-2xl">🌐</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.browserExtension || 'Browser extension (Q4 2025)'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.browserExtensionDesc || 'Security everywhere on the web'}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                    <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                        <span class="text-purple-600 dark:text-purple-400 text-2xl">📝</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.wordpressPlugin || 'WordPress plugin (Q4 2025)'}</span>
-                                        <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.wordpressPluginDesc || 'Integrate security into your website'}</p>
-                                    </div>
-                                </div>
+                                {/each}
                             </div>
                         </div>
                     </div>
 
-                    <!-- Create Account Button - Hidden when expanded view is active -->
-                    {#if !showExpandedView}
-                        <div class="text-center mb-6">
-                            <Button
-                                variant="primary"
-                                size="md"
-                                fullWidth={true}
-                                on:click={startAccountCreation}
-                            >
-                                {#if accountCreationStep === 'form'}
-                                    {($translations?.accountManager?.actions?.skipAccount || '❌ Skip {type}').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
-                                {:else}
-                                    {($translations?.accountManager?.actions?.createAccount || '🚀 Create {type} Account').replace('{type}', selectedAccountType === 'pro' ? 'PRO' : 'FREE')}
-                                {/if}
-                            </Button>
-                        </div>
-                    {/if}
+                    <!-- Create Account Button - ENTFERNT -->
+                    <!-- Button wurde entfernt - Funktionalität wird über direkte Formular-Navigation abgedeckt -->
 
                     <!-- Login Form -->
-                    <div class="bg-transparent mb-2">      
+                    <div class="bg-transparent mb-2 relative z-20">      
                         <form on:submit|preventDefault={handleLogin} class="space-y-4">
                             <div>
                                 <label for="email" class="sr-only">{$translations?.accountManager?.emailLabel || 'Email'}</label>
@@ -1447,7 +1410,7 @@
                                 variant="primary"
                                 size="md"
                                 fullWidth={true}
-                                disabled={isSubmitting || !isFormValid}
+                                disabled={!isFormValid || isSubmitting}
                             >
                                 {#if isSubmitting}
                                     <span class="flex items-center justify-center">
@@ -1458,32 +1421,34 @@
                                         {loginButtonText}
                                     </span>
                                 {:else}
-                                    {loginButtonText}
+                                    {magicLinkButtonText}
                                 {/if}
                             </Button>
-                            
+
                             <Button
                                 variant="secondary"
                                 size="md"
                                 fullWidth={true}
                                 on:click={() => showProfileForm = !showProfileForm}
                                 >
-                                <span class="mr-1.5">👤</span>{showProfileForm ? ($translations?.accountManager?.buttons?.hideProfile || 'Hide') : ($translations?.accountManager?.buttons?.addProfile || 'Add')} {$translations?.accountManager?.buttons?.profileData || 'Profile Data'}
+                                <span class="mr-1.5">👤</span>{showProfileForm ? ($translations?.accountManager?.buttons?.hideProfile || 'Hide') : ($translations?.accountManager?.buttons?.addProfile || 'Add')} {$translations?.accountManager?.buttons?.name || 'Name'}
                             </Button>
                         </form>
                     </div>
+
+
 
                     <!-- Footer -->
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                             <span class="flex items-center">
-                                {$translations?.accountManager?.footer?.magicLink || 'Magic link'}
+                                🔗 {$translations?.accountManager?.footer?.magicLink || 'Magic link'}
                             </span>
                             <span class="flex items-center">
-                                {$translations?.accountManager?.footer?.instantSetup || 'Instant Setup'}
+                                ⚡ {$translations?.accountManager?.footer?.instantSetup || 'Instant Setup'}
                             </span>
                             <span class="flex items-center">
-                                {$translations?.accountManager?.footer?.noSpam || 'No Spam'}
+                                🛡️ {$translations?.accountManager?.footer?.noSpam || 'No Spam'}
                             </span>
                         </div>
                     </div>

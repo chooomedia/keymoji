@@ -506,7 +506,7 @@ export default {
                 aiThreatDetectionDesc: 'Proaktivi Sicherheitsanalys',
                 prioritySupport: 'Prioritäts-Support',
                 prioritySupportDesc: 'Schnelli Hilf bi Froge',
-                browserExtension: 'Browser-Erweiterig (Q4 2025)',
+                browserExtension: 'Browser-Erwiterig (Q4 2025)',
                 browserExtensionDesc: 'Sicherheit überall im Web',
                 wordpressPlugin: 'WordPress-Plugin (Q4 2025)',
                 wordpressPluginDesc: 'Sicherheit in dini Website integriere'
@@ -539,12 +539,12 @@ export default {
 
         // Account-Alter
         accountAge: {
-            today: 'Hüt erstellt',
-            yesterday: 'Gester erstellt',
-            days: 'Sit {days} Täg',
-            weeks: 'Sit {weeks} Wuche{plural}',
-            months: 'Sit {months} Mönet{plural}',
-            years: 'Sit {years} Jahr{plural}',
+            today: '✨ FREE: Sit hüt!',
+            yesterday: '🚀 FREE: Sit gester!',
+            days: '🔥 FREE: Sit {days} Täg!',
+            weeks: '⚡ FREE: Sit {weeks} Wuche{plural}!',
+            months: '💪 FREE: Sit {months} Mönet{plural}!',
+            years: '🏆 FREE: Sit {years} Jahr{plural}!',
             accountSince: 'Account sit {days} {unit}',
             since: 'sit {days} {unit}',
             day: 'Tag',

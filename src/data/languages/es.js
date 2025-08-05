@@ -464,7 +464,8 @@ export default {
             hideProfile: 'Ocultar',
             profileData: 'Datos de perfil',
             showFullForm: 'Mostrar formulario completo',
-            compactView: 'Vista compacta'
+            compactView: 'Vista compacta',
+            addName: '¡Agrega tu nombre!'
         },
 
         // Etiquetas de formulario
@@ -511,6 +512,11 @@ export default {
                 prioritySupportDesc: 'Ayuda rápida con preguntas',
                 browserExtension: 'Extensión de navegador (Q4 2025)',
                 browserExtensionDesc: 'Seguridad en todas partes en la web',
+                apiIntegration: 'Integración API (Q4 2025)',
+                apiIntegrationDesc: 'Integra seguridad en tus aplicaciones',
+                advancedAnalytics: 'Analytics avanzadas (Q4 2025)',
+                advancedAnalyticsDesc:
+                    'Información de seguridad detallada e informes',
                 wordpressPlugin: 'Plugin de WordPress (Q4 2025)',
                 wordpressPluginDesc: 'Integra seguridad en tu sitio web'
             }
@@ -545,17 +551,29 @@ export default {
 
         // Account age labels
         accountAge: {
-            today: 'Creado hoy',
-            yesterday: 'Creado ayer',
-            days: '{days} días',
-            weeks: '{weeks} semana{plural}',
-            months: '{months} mes{plural}',
-            years: '{years} año{plural}',
+            today: '✨ FREE: ¡Desde hoy!',
+            yesterday: '🚀 FREE: ¡Desde ayer!',
+            days: '🔥 FREE: ¡Desde {days} días!',
+            weeks: '⚡ FREE: ¡Desde {weeks} semana{plural}!',
+            months: '💪 FREE: ¡Desde {months} mes{plural}!',
+            years: '🏆 FREE: ¡Desde {years} año{plural}!',
             accountSince: 'Cuenta desde {days} {unit}',
             since: 'desde {days} {unit}',
             day: 'día',
             days: 'días',
-            accountCreated: 'Cuenta creada'
+            accountCreated: 'Cuenta creada',
+            // Sexy salesy account creation texts
+            createdTodayFree: '✨ ¡Tu cuenta FREE está lista para despegar!',
+            createdTodayPro:
+                '💎 ¡Bienvenido al club PRO – exclusivo desde hoy!',
+            createdRecentlyFree: '✨ Cuenta FREE – recién salida del horno!',
+            createdRecentlyPro: '💎 Cuenta PRO – exclusiva y nueva!',
+            // Sexy salesy account creation texts
+            createdTodayFree: '✨ ¡Tu cuenta FREE está lista para despegar!',
+            createdTodayPro:
+                '💎 ¡Bienvenido al club PRO – exclusivo desde hoy!',
+            createdRecentlyFree: '✨ Cuenta FREE – recién salida del horno!',
+            createdRecentlyPro: '💎 Cuenta PRO – exclusiva y nueva!'
         },
 
         // Validación

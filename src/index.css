@@ -71,14 +71,9 @@
 :global(html) {
     height: 100%;
     box-sizing: border-box;
-    scroll-behavior: smooth;
     width: 100%;
     margin: 0;
     padding: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb-light) var(--scrollbar-track-light);
 }
 
 :global(body) {
@@ -87,21 +82,10 @@
     min-height: 100vh;
     width: 100%;
     box-sizing: border-box;
-    overflow-x: hidden;
-    overflow-y: auto;
-    /* Unsichtbare Scrollbar für Body */
-    scrollbar-width: none;
-    /* Firefox */
-    -ms-overflow-style: none;
-    /* IE/Edge */
-    /* Verhindert Scrollbar-Hüpfen bei Routenwechsel */
-    padding-right: 0px;
+    /* Modal-Open Klasse wird von Modal.svelte verwaltet */
 }
 
-/* WebKit: Unsichtbare Scrollbar für Body */
-:global(body::-webkit-scrollbar) {
-    display: none !important;
-}
+
 
 /* Alle Scrollbars unsichtbar machen (außer Language Dialog) */
 :global(*) {
@@ -275,7 +259,7 @@
         animation: none;
     }
 
-    :global(html) {
+    .app-container {
         scroll-behavior: auto;
     }
 }
@@ -295,306 +279,30 @@
     width: 100%;
 }
 
-/* Global scrollbar styling - EINFACHE & EFFEKTIVE Lösung */
-@layer utilities {
-
-    /* CSS Variables mit Tailwind-Farben */
-    :root {
-        --scrollbar-track-light: theme('colors.gray.200');
-        --scrollbar-thumb-light: theme('colors.gray.400');
-        --scrollbar-track-dark: theme('colors.gray.800');
-        --scrollbar-thumb-dark: theme('colors.gray.600');
-    }
-
-    /* Scrollbar-Styling bereits in :global(html) oben definiert */
-
-    /* WebKit: Sichtbare Scrollbar */
-    :global(html::-webkit-scrollbar) {
-        width: 8px;
-    }
-
-    :global(html::-webkit-scrollbar-track) {
-        background: var(--scrollbar-track-light);
-        border-radius: 4px;
-    }
-
-    :global(html::-webkit-scrollbar-thumb) {
-        background: var(--scrollbar-thumb-light);
-        border-radius: 4px;
-    }
-
-    /* Dark mode scrollbar */
-    :global(.dark) :global(html::-webkit-scrollbar-track) {
-        background: var(--scrollbar-track-dark);
-    }
-
-    :global(.dark) :global(html::-webkit-scrollbar-thumb) {
-        background: var(--scrollbar-thumb-dark);
-    }
-
-    /* Custom scrollbar für alle scrollbaren Bereiche */
-    .scrollbar-thin {
-        scrollbar-width: thin;
-        scrollbar-color: var(--scrollbar-thumb-light) var(--scrollbar-track-light);
-    }
-
-    /* Dark mode scrollbar */
-    .dark .scrollbar-thin {
-        scrollbar-color: var(--scrollbar-thumb-dark) var(--scrollbar-track-dark) !important;
-    }
-
-    /* WebKit scrollbar styling */
-    .scrollbar-thin::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .scrollbar-thin::-webkit-scrollbar-track {
-        background: var(--scrollbar-track-light);
-        border-radius: 4px;
-    }
-
-    .scrollbar-thin::-webkit-scrollbar-thumb {
-        background: var(--scrollbar-thumb-light);
-        border-radius: 4px;
-    }
-
-    .dark .scrollbar-thin::-webkit-scrollbar-track {
-        background: var(--scrollbar-track-dark);
-    }
-
-    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-        background: var(--scrollbar-thumb-dark);
-    }
-
-    /* Smooth scrolling für mobile Geräte */
-    .scroll-smooth {
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* Konsistente Scrollbar-Behandlung */
-    .scrollbar-consistent {
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: var(--scrollbar-thumb-light) var(--scrollbar-track-light);
-    }
-
-    .scrollbar-consistent::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .scrollbar-consistent::-webkit-scrollbar-track {
-        background: var(--scrollbar-track-light);
-        border-radius: 4px;
-    }
-
-    .scrollbar-consistent::-webkit-scrollbar-thumb {
-        background: var(--scrollbar-thumb-light);
-        border-radius: 4px;
-    }
-
-    .dark .scrollbar-consistent::-webkit-scrollbar-track {
-        background: var(--scrollbar-track-dark);
-    }
-
-    .dark .scrollbar-consistent::-webkit-scrollbar-thumb {
-        background: var(--scrollbar-thumb-dark);
-    }
-
-    /* Hide scrollbar für spezielle Bereiche */
-    .scrollbar-none {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-
-    .scrollbar-none::-webkit-scrollbar {
-        display: none;
-    }
-
-
+/* Main Wrapper - Scrollbar-frei aber scrollbar */
+.app-container {
+    height: 100vh;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+    /* Verhindert Bounce-Effekte */
+    /* KEINE Scrollbar-Styles mehr - komplett unsichtbar */
 }
 
-@layer components {
-
-    /* Improve button styles for disabled state */
-    button:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-        transform: scale(1) !important;
-    }
-
-    /* Form error styles */
-    .form-error {
-        color: #ef4444;
-        /* Red for error */
-        font-size: 0.875rem;
-        /* Smaller font size */
-        margin-top: 0.25rem;
-        /* Smaller top margin */
-    }
-
-    .contact-checkbox {
-        @apply bg-white dark:bg-aubergine-900 rounded-xl p-4 border dark:border-aubergine-800 border-creme-500 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500;
-    }
-
-    /* Button styles moved to Button.svelte component */
-
-    .columns {
-        columns: 3 300px;
-        column-gap: 1.5rem;
-        width: 100%;
-    }
-
-    .content-wrapper {
-        box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
-    }
-
-    .dark .content-wrapper {
-        box-shadow: 20px 20px 60px #0c0d22, 10px 0 60px #7878784e;
-    }
-
-    .app-container {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        overflow-x: hidden;
-        overflow-y: auto;
-        width: 100%;
-        position: relative;
-        /* Hidden scrollbars but functional scrolling */
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-
-    .app-container::-webkit-scrollbar {
-        display: none;
-    }
-
-    /* EmojiDisplay spezielle Behandlung */
-    #emoji-password-generator {
-        overflow: visible;
-        width: 100%;
-        max-width: 100%;
-    }
-
-    #emoji-display {
-        overflow: visible;
-    }
-
-    /* Sicherstellen der Inhalts-Sichtbarkeit während Animationen */
-    :global(body) {
-        /* Keine overflow-x Beschränkung mehr */
-    }
-
-    /* Barrierefreiheitsverbesserungen */
-    :global(button:focus-visible),
-    :global(a:focus-visible) {
-        outline: 2px solid #f4ab25;
-        outline-offset: 2px;
-    }
-
-    /* Animationen reduzieren falls gewünscht */
-    @media (prefers-reduced-motion: reduce) {
-        :global(div[in], div[out]) {
-            transition: none !important;
-            animation: none !important;
-        }
-    }
-
-    .focus-trap {
-        width: 100%;
-        height: 100%;
-        display: contents;
-    }
-
-    /* Global styles for focus visibility - add to your global CSS */
-    :global(:focus-visible) {
-        outline: 2px solid #f4ab25;
-        outline-offset: 2px;
-    }
-
-
-    .language-switcher {
-        position: relative;
-        z-index: 50;
-    }
-
-    .language-dropdown {
-        position: absolute;
-        min-width: 12rem;
-        left: 0;
-    }
-
-    /* Focus styles for accessibility */
-    button:focus-visible {
-        outline: 2px solid #f4ab25;
-        outline-offset: 2px;
-    }
-
-    /* Special style for elvish language option */
-    .elvish-language-option {
-        position: relative;
-    }
-
-    .elvish-language-option:hover::after {
-        opacity: 1;
-    }
-
-    .skip-link {
-        position: absolute;
-        top: -40px;
-        left: 0;
-        padding: 8px 16px;
-        background-color: #f4ab25;
-        color: #000;
-        font-weight: bold;
-        text-decoration: none;
-        z-index: 9999;
-        transition: top 0.2s ease;
-        border-radius: 0 0 4px 0;
-        display: inline-block;
-    }
-
-    .skip-link:focus {
-        top: 0;
-        outline: none;
-        box-shadow: 0 0 0 2px #000;
-    }
-
-
-
-    /* Optimierte Transitions */
-    :global(.menu-transition) {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-            opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+/* Alle Scrollbars komplett unsichtbar machen */
+:global(*) {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
 
-/* Elvish Font Definition */
-@font-face {
-    font-family: 'Tengwar Annatar';
-    src: url('../public/fonts/tengwar_annatar.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+:global(*::-webkit-scrollbar) {
+    display: none !important;
 }
 
-/* Use the font-elvish class instead of directly modifying html[lang="qya"] */
-.font-elvish {
-    /* Fallback to standard fonts if Tengwar Annatar is not available */
-    font-family: 'Tengwar Annatar', 'Graphik', Arial, sans-serif;
-    line-height: 1.5;
-    letter-spacing: 0.05em;
-}
-
-/* Special adjustments for emoji display in Elvish mode */
-.font-elvish #emoji-display {
-    @apply pt-7;
-}
-
-/* Keep menu buttons in standard font even in Elvish mode */
-.font-elvish #fixed-menu-nav button,
-.font-elvish #language-toggle-button {
-    @apply font-sans;
+/* WebKit: Unsichtbare Scrollbar für Main Wrapper */
+.app-container::-webkit-scrollbar {
+    display: none !important;
 }
 
 /* Global Modal Styles - Ensure modals appear above everything */
@@ -643,4 +351,13 @@
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
+}
+
+/* Smooth Route Transitions */
+:global(.route-transition) {
+    position: relative;
+}
+
+:global(.route-transition > *) {
+    transition: opacity 0.3s ease-in-out;
 }

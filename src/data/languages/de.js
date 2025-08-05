@@ -473,7 +473,8 @@ export default {
             hideProfile: 'Profil ausblenden',
             profileData: 'Profildaten',
             showFullForm: 'Vollständiges Formular anzeigen',
-            compactView: 'Kompakte Ansicht'
+            compactView: 'Kompakte Ansicht',
+            addName: 'Name hinzufügen'
         },
 
         // Formular-Labels
@@ -520,6 +521,12 @@ export default {
                 prioritySupportDesc: 'Schnelle Hilfe bei Fragen',
                 browserExtension: 'Browser-Erweiterung (Q4 2025)',
                 browserExtensionDesc: 'Sicherheit überall im Web',
+                apiIntegration: 'API-Integration (Q4 2025)',
+                apiIntegrationDesc:
+                    'Sicherheit in deine Anwendungen integrieren',
+                advancedAnalytics: 'Erweiterte Analytics (Q4 2025)',
+                advancedAnalyticsDesc:
+                    'Detaillierte Sicherheits-Einblicke und Berichte',
                 wordpressPlugin: 'WordPress-Plugin (Q4 2025)',
                 wordpressPluginDesc: 'Sicherheit in deine Website integrieren'
             }
@@ -551,17 +558,21 @@ export default {
 
         // Account-Alter
         accountAge: {
-            today: 'Heute erstellt',
-            yesterday: 'Gestern erstellt',
-            days: '{days} Tage',
-            weeks: '{weeks} Woche{plural}',
-            months: '{months} Monat{plural}',
-            years: '{years} Jahr{plural}',
+            today: '✨ FREE: Seit heute!',
+            yesterday: '🚀 FREE: Seit gestern!',
+            days: '🔥 FREE: Seit {days} Tagen!',
+            weeks: '⚡ FREE: Seit {weeks} Woche{plural}!',
+            months: '💪 FREE: Seit {months} Monat{plural}!',
+            years: '🏆 FREE: Seit {years} Jahr{plural}!',
             accountSince: 'Account seit {days} {unit}',
             since: 'seit {days} {unit}',
             day: 'Tag',
-            days: 'Tagen',
-            accountCreated: 'Account erstellt'
+            days: 'Tage',
+            accountCreated: 'Account erstellt',
+            createdTodayFree: '✨ Dein brandneuer FREE Account ist startklar!',
+            createdTodayPro: '💎 Willkommen im PRO Club – exklusiv seit heute!',
+            createdRecentlyFree: '✨ FREE Account – frisch am Start!',
+            createdRecentlyPro: '💎 PRO Account – exklusiv und neu!'
         },
 
         // Validierung

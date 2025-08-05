@@ -541,12 +541,12 @@ export default {
 
         // Rekening ouderdom
         accountAge: {
-            today: 'Vandag geskep',
-            yesterday: 'Gister geskep',
-            days: 'Sedert {days} dae',
-            weeks: 'Sedert {weeks} weke{plural}',
-            months: 'Sedert {months} maande{plural}',
-            years: 'Sedert {years} jare{plural}',
+            today: '✨ FREE: Sedert vandag!',
+            yesterday: '🚀 FREE: Sedert gister!',
+            days: '🔥 FREE: Sedert {days} dae!',
+            weeks: '⚡ FREE: Sedert {weeks} weke{plural}!',
+            months: '💪 FREE: Sedert {months} maande{plural}!',
+            years: '🏆 FREE: Sedert {years} jare{plural}!',
             accountSince: 'Rekening sedert {days} {unit}',
             since: 'sedert {days} {unit}',
             day: 'dag',

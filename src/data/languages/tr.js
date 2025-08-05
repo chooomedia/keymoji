@@ -506,7 +506,7 @@ export default {
                 prioritySupport: 'Öncelikli destek',
                 prioritySupportDesc: 'Sorulara hızlı yardım',
                 browserExtension: 'Tarayıcı uzantısı (Q4 2025)',
-                browserExtensionDesc: 'Webde her yerde güvenlik',
+                browserExtensionDesc: "Web'de her yerde güvenlik",
                 wordpressPlugin: 'WordPress eklentisi (Q4 2025)',
                 wordpressPluginDesc: 'Güvenliği web sitenize entegre edin'
             }
@@ -538,12 +538,12 @@ export default {
 
         // Hesap yaşı
         accountAge: {
-            today: 'Bugün oluşturuldu',
-            yesterday: 'Dün oluşturuldu',
-            days: '{days} gün öncesinden',
-            weeks: '{weeks} hafta{plural} öncesinden',
-            months: '{months} ay{plural} öncesinden',
-            years: '{years} yıl{plural} öncesinden',
+            today: '✨ FREE: Bugünden itibaren!',
+            yesterday: '🚀 FREE: Dünden itibaren!',
+            days: '🔥 FREE: {days} gün öncesinden!',
+            weeks: '⚡ FREE: {weeks} hafta{plural} öncesinden!',
+            months: '💪 FREE: {months} ay{plural} öncesinden!',
+            years: '🏆 FREE: {years} yıl{plural} öncesinden!',
             accountSince: '{days} {unit} öncesinden hesap',
             since: '{days} {unit} öncesinden',
             day: 'gün',

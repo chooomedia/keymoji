@@ -466,7 +466,8 @@ export default {
             hideProfile: 'Masquer',
             profileData: 'Données de profil',
             showFullForm: 'Afficher le formulaire complet',
-            compactView: 'Vue compacte'
+            compactView: 'Vue compacte',
+            addName: 'Ajoute ton prénom'
         },
 
         // Labels de formulaire
@@ -511,8 +512,16 @@ export default {
                 aiThreatDetectionDesc: 'Analyse de sécurité proactive',
                 prioritySupport: 'Support prioritaire',
                 prioritySupportDesc: 'Aide rapide pour les questions',
-                browserExtension: 'Extension de navigateur (Q4 2025)',
+                browserExtension: 'Extension navigateur (Q4 2025)',
                 browserExtensionDesc: 'Sécurité partout sur le web',
+                browserExtension: 'Extension navigateur (Q4 2025)',
+                browserExtensionDesc: 'Sécurité partout sur le web',
+                apiIntegration: 'Intégration API (Q4 2025)',
+                apiIntegrationDesc:
+                    'Intégrez la sécurité dans vos applications',
+                advancedAnalytics: 'Analytics avancées (Q4 2025)',
+                advancedAnalyticsDesc:
+                    'Aperçus de sécurité détaillés et rapports',
                 wordpressPlugin: 'Plugin WordPress (Q4 2025)',
                 wordpressPluginDesc: 'Intégrez la sécurité dans votre site web'
             }
@@ -546,17 +555,23 @@ export default {
 
         // Account age labels
         accountAge: {
-            today: "Créé aujourd'hui",
-            yesterday: 'Créé hier',
-            days: '{days} jours',
-            weeks: '{weeks} semaine{plural}',
-            months: '{months} mois{plural}',
-            years: '{years} année{plural}',
+            today: "✨ FREE: Depuis aujourd'hui!",
+            yesterday: '🚀 FREE: Depuis hier!',
+            days: '🔥 FREE: Depuis {days} jours!',
+            weeks: '⚡ FREE: Depuis {weeks} semaine{plural}!',
+            months: '💪 FREE: Depuis {months} mois!',
+            years: '🏆 FREE: Depuis {years} an{plural}!',
             accountSince: 'Compte depuis {days} {unit}',
             since: 'depuis {days} {unit}',
             day: 'jour',
             days: 'jours',
-            accountCreated: 'Compte créé'
+            accountCreated: 'Compte créé',
+            // Sexy salesy account creation texts
+            createdTodayFree: '✨ Ton compte FREE tout neuf est prêt !',
+            createdTodayPro:
+                '💎 Bienvenue dans le club PRO – exclusif dès aujourd’hui !',
+            createdRecentlyFree: '✨ Compte FREE – tout frais !',
+            createdRecentlyPro: '💎 Compte PRO – exclusif et tout neuf !'
         },
 
         // Validation

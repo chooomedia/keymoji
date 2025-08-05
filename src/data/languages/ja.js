@@ -505,7 +505,7 @@ export default {
                 prioritySupport: '優先サポート',
                 prioritySupportDesc: '質問への迅速な対応',
                 browserExtension: 'ブラウザ拡張機能（2025年Q4）',
-                browserExtensionDesc: 'Webのどこでもセキュリティ',
+                browserExtensionDesc: 'ウェブ全体でセキュリティ',
                 wordpressPlugin: 'WordPressプラグイン（2025年Q4）',
                 wordpressPluginDesc: 'あなたのウェブサイトにセキュリティを統合'
             }
@@ -537,12 +537,12 @@ export default {
 
         // アカウント年齢
         accountAge: {
-            today: '今日作成',
-            yesterday: '昨日作成',
-            days: '{days}日前から',
-            weeks: '{weeks}週間{plural}前から',
-            months: '{months}ヶ月{plural}前から',
-            years: '{years}年{plural}前から',
+            today: '✨ FREE: 今日から！',
+            yesterday: '🚀 FREE: 昨日から！',
+            days: '🔥 FREE: {days}日前から！',
+            weeks: '⚡ FREE: {weeks}週間{plural}前から！',
+            months: '💪 FREE: {months}ヶ月{plural}前から！',
+            years: '🏆 FREE: {years}年{plural}前から！',
             accountSince: '{days} {unit}前のアカウント',
             since: '{days} {unit}前から',
             day: '日',

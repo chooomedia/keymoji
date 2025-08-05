@@ -503,7 +503,7 @@ export default {
                 prioritySupport: '우선 지원',
                 prioritySupportDesc: '질문에 대한 빠른 도움',
                 browserExtension: '브라우저 확장 프로그램 (2025년 Q4)',
-                browserExtensionDesc: '웹 어디서든 보안',
+                browserExtensionDesc: '웹 전체에서 보안',
                 wordpressPlugin: 'WordPress 플러그인 (2025년 Q4)',
                 wordpressPluginDesc: '웹사이트에 보안 통합'
             }
@@ -534,12 +534,12 @@ export default {
 
         // 계정 연령
         accountAge: {
-            today: '오늘 생성됨',
-            yesterday: '어제 생성됨',
-            days: '{days}일 전부터',
-            weeks: '{weeks}주{plural} 전부터',
-            months: '{months}개월{plural} 전부터',
-            years: '{years}년{plural} 전부터',
+            today: '✨ FREE: 오늘부터!',
+            yesterday: '🚀 FREE: 어제부터!',
+            days: '🔥 FREE: {days}일 전부터!',
+            weeks: '⚡ FREE: {weeks}주{plural} 전부터!',
+            months: '💪 FREE: {months}개월{plural} 전부터!',
+            years: '🏆 FREE: {years}년{plural} 전부터!',
             accountSince: '{days} {unit} 전 계정',
             since: '{days} {unit} 전부터',
             day: '일',

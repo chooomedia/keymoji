@@ -466,7 +466,8 @@ export default {
             hideProfile: 'Hide',
             profileData: 'Profile Data',
             showFullForm: 'Show full form',
-            compactView: 'Compact view'
+            compactView: 'Compact view',
+            addName: 'Add your name'
         },
 
         // Form labels
@@ -511,8 +512,12 @@ export default {
                 aiThreatDetectionDesc: 'Proactive security analysis',
                 prioritySupport: 'Priority support',
                 prioritySupportDesc: 'Quick help with questions',
-                browserExtension: 'Browser extension (Q4 2025)',
+                browserExtension: 'Browser Extension (Q4 2025)',
                 browserExtensionDesc: 'Security everywhere on the web',
+                apiIntegration: 'API Integration (Q4 2025)',
+                apiIntegrationDesc: 'Integrate security into your applications',
+                advancedAnalytics: 'Advanced Analytics (Q4 2025)',
+                advancedAnalyticsDesc: 'Detailed security insights and reports',
                 wordpressPlugin: 'WordPress plugin (Q4 2025)',
                 wordpressPluginDesc: 'Integrate security into your website'
             }
@@ -574,17 +579,23 @@ export default {
 
         // Account age labels
         accountAge: {
-            today: 'Created today',
-            yesterday: 'Created yesterday',
-            days: '{days} days',
-            weeks: '{weeks} week{plural}',
-            months: '{months} month{plural}',
-            years: '{years} year{plural}',
+            today: '✨ FREE: Since today!',
+            yesterday: '🚀 FREE: Since yesterday!',
+            days: '🔥 FREE: Since {days} days!',
+            weeks: '⚡ FREE: Since {weeks} week{plural}!',
+            months: '💪 FREE: Since {months} month{plural}!',
+            years: '🏆 FREE: Since {years} year{plural}!',
             accountSince: 'Account since {days} {unit}',
             since: 'since {days} {unit}',
             day: 'day',
             days: 'days',
-            accountCreated: 'Account created'
+            accountCreated: 'Account created',
+            // Sexy salesy account creation texts
+            createdTodayFree: '✨ Your brand new FREE account is ready!',
+            createdTodayPro:
+                '💎 Welcome to the PRO club – exclusive since today!',
+            createdRecentlyFree: '✨ FREE account – fresh and ready!',
+            createdRecentlyPro: '💎 PRO account – exclusive and new!'
         },
 
         // Features

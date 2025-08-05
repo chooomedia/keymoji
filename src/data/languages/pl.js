@@ -539,12 +539,12 @@ export default {
 
         // Wiek konta
         accountAge: {
-            today: 'Utworzone dzisiaj',
-            yesterday: 'Utworzone wczoraj',
-            days: 'Od {days} dni',
-            weeks: 'Od {weeks} tygodni{plural}',
-            months: 'Od {months} miesięcy{plural}',
-            years: 'Od {years} lat{plural}',
+            today: '✨ FREE: Od dziś!',
+            yesterday: '🚀 FREE: Od wczoraj!',
+            days: '🔥 FREE: Od {days} dni!',
+            weeks: '⚡ FREE: Od {weeks} tygodni{plural}!',
+            months: '💪 FREE: Od {months} miesięcy{plural}!',
+            years: '🏆 FREE: Od {years} lat{plural}!',
             accountSince: 'Konto od {days} {unit}',
             since: 'od {days} {unit}',
             day: 'dzień',

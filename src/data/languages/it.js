@@ -460,7 +460,8 @@ export default {
             hideProfile: 'Nascondi',
             profileData: 'Dati profilo',
             showFullForm: 'Mostra modulo completo',
-            compactView: 'Vista compatta'
+            compactView: 'Vista compatta',
+            addName: 'Aggiungi il tuo nome'
         },
 
         // Etichette modulo
@@ -539,17 +540,21 @@ export default {
 
         // Età account
         accountAge: {
-            today: 'Creato oggi',
-            yesterday: 'Creato ieri',
-            days: '{days} giorni',
-            weeks: '{weeks} settimana{plural}',
-            months: '{months} mese{plural}',
-            years: '{years} anno{plural}',
+            today: '✨ FREE: Da oggi!',
+            yesterday: '🚀 FREE: Da ieri!',
+            days: '🔥 FREE: Da {days} giorni!',
+            weeks: '⚡ FREE: Da {weeks} settimana{plural}!',
+            months: '💪 FREE: Da {months} mese{plural}!',
+            years: '🏆 FREE: Da {years} anno{plural}!',
             accountSince: 'Account da {days} {unit}',
             since: 'da {days} {unit}',
             day: 'giorno',
             days: 'giorni',
-            accountCreated: 'Account creato'
+            accountCreated: 'Account creato',
+            createdTodayFree: '✨ Il tuo nuovo account FREE è pronto!',
+            createdTodayPro: '💎 Benvenuto nel club PRO – esclusivo da oggi!',
+            createdRecentlyFree: '✨ Account FREE – fresco di giornata!',
+            createdRecentlyPro: '💎 Account PRO – esclusivo e nuovo!'
         },
 
         // Validazione

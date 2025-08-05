@@ -537,12 +537,12 @@ export default {
 
         // Возраст аккаунта
         accountAge: {
-            today: 'Создано сегодня',
-            yesterday: 'Создано вчера',
-            days: 'С {days} дней',
-            weeks: 'С {weeks} недель{plural}',
-            months: 'С {months} месяцев{plural}',
-            years: 'С {years} лет{plural}',
+            today: '✨ FREE: С сегодня!',
+            yesterday: '🚀 FREE: С вчера!',
+            days: '🔥 FREE: С {days} дней!',
+            weeks: '⚡ FREE: С {weeks} недель{plural}!',
+            months: '💪 FREE: С {months} месяцев{plural}!',
+            years: '🏆 FREE: С {years} лет{plural}!',
             accountSince: 'Аккаунт с {days} {unit}',
             since: 'с {days} {unit}',
             day: 'день',
