@@ -115,6 +115,12 @@ export default {
         pageTitle: '404 - Page Not Found',
         pageDescription:
             'The page you are looking for does not exist or has been moved.',
+        oopsTitle: 'Oops! Page not found',
+        oopsDescription:
+            'The page you are looking for might have been moved, deleted, or never existed.',
+        quickNavTitle: 'Quick Navigation',
+        recentEmojisTitle: 'Recent Keymojis',
+        backToHome: 'Back to Home',
         message: 'Oops! Page not found 🚫',
         suggestion:
             'The page you are looking for might have been moved, deleted, or never existed.',
@@ -502,19 +508,24 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '5 daily secure generations',
-                dailyGenerationsDesc: 'AI-resistant technology for maximum security',
+                dailyGenerationsDesc:
+                    'AI-resistant technology for maximum security',
                 decentralizedData: 'Decentralized data processing',
-                decentralizedDataDesc: 'Your data stays with you - never on foreign servers',
+                decentralizedDataDesc:
+                    'Your data stays with you - never on foreign servers',
                 webApp: 'Available as web app',
                 webAppDesc: 'Instantly available - no installation needed'
             },
             pro: {
                 unlimitedGenerations: 'Unlimited secure generations',
-                unlimitedGenerationsDesc: 'Create as many passwords as you need - without limits',
+                unlimitedGenerationsDesc:
+                    'Create as many passwords as you need - without limits',
                 browserExtension: 'Browser Extension (Q4 2025)',
-                browserExtensionDesc: 'Security directly in your browser - automatically and everywhere',
+                browserExtensionDesc:
+                    'Security directly in your browser - automatically and everywhere',
                 apiIntegration: 'API Integration (Q4 2025)',
-                apiIntegrationDesc: 'Integrate security seamlessly into your own applications'
+                apiIntegrationDesc:
+                    'Integrate security seamlessly into your own applications'
             }
         },
 

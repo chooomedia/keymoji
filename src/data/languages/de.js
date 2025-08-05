@@ -119,6 +119,12 @@ export default {
         pageTitle: '404 - Seite nicht gefunden',
         pageDescription:
             'Die gesuchte Seite existiert nicht oder wurde verschoben.',
+        oopsTitle: 'Hoppla! Seite nicht gefunden',
+        oopsDescription:
+            'Die Seite, die du suchst, wurde möglicherweise verschoben, gelöscht oder hat nie existiert.',
+        quickNavTitle: 'Schnelle Navigation',
+        recentEmojisTitle: 'Letzte Keymojis',
+        backToHome: 'Zurück zur Startseite',
         message: 'Hoppla! Seite nicht gefunden 🚫',
         suggestion:
             'Die Seite, die du suchst, wurde möglicherweise verschoben, gelöscht oder hat nie existiert.',

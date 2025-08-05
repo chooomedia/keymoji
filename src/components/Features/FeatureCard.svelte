@@ -47,7 +47,7 @@
     }
 </script>
 
-<div class="w-full max-w-md mx-auto mb-6">
+<div class="w-full max-w-md mx-auto mb-4">
     {#if href}
         <a 
             href={href}
