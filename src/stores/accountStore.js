@@ -258,7 +258,18 @@ export async function checkAccountExists(email, name = '') {
                             console.log(
                                 '🔄 Syncing n8n account data to localStorage'
                             );
-                            storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
+
+                            // Extract createdAt from account data ONLY
+                            const createdAt = getCreatedAtFromAccount(
+                                result.account
+                            );
+
+                            console.log(
+                                '🔍 DEBUG: Extracted createdAt:',
+                                createdAt
+                            );
+
+                            const userPrefsData = {
                                 email: result.account.email,
                                 name:
                                     result.account.name || email.split('@')[0],
@@ -277,7 +288,22 @@ export async function checkAccountExists(email, name = '') {
                                     typeof result.account.metadata === 'string'
                                         ? JSON.parse(result.account.metadata)
                                         : result.account.metadata || {}
-                            });
+                            };
+
+                            // Save to localStorage
+                            storageHelpers.set(
+                                STORAGE_KEYS.USER_PREFERENCES,
+                                userPrefsData
+                            );
+
+                            // Save createdAt separately if found
+                            if (createdAt) {
+                                saveCreatedAtToUserPreferences(createdAt);
+                            } else {
+                                console.log(
+                                    '⚠️ No createdAt found in account data'
+                                );
+                            }
                         }
 
                         return result;
@@ -630,7 +656,16 @@ export async function verifyMagicLinkFrontend(token, email) {
         syncAccountData(accountData);
 
         // Update localStorage preferences with session data
-        storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
+        const createdAt =
+            getCreatedAtFromAccount(verificationResult.account) ||
+            accountData.createdAt;
+
+        console.log(
+            '🔍 DEBUG: Final createdAt for verifyMagicLinkFrontend:',
+            createdAt
+        );
+
+        const userPrefsData = {
             email: accountData.email,
             name: accountData.name,
             userId: accountData.userId,
@@ -641,7 +676,17 @@ export async function verifyMagicLinkFrontend(token, email) {
             lastActivity: accountData.lastActivity,
             profile: accountData.profile,
             metadata: accountData.metadata
-        });
+        };
+
+        // Save to localStorage
+        storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, userPrefsData);
+
+        // Save createdAt separately if found
+        if (createdAt) {
+            saveCreatedAtToUserPreferences(createdAt);
+        } else {
+            console.log('⚠️ No createdAt found in verifyMagicLinkFrontend');
+        }
 
         // Also store sessionId separately for easier access
         storageHelpers.set('sessionId', accountData.sessionId);
@@ -742,11 +787,15 @@ export function initializeAccountFromCookies() {
         }
 
         if (userPrefs.email && sessionId) {
+            // Get createdAt from user preferences ONLY
+            const createdAt = getCreatedAtFromUserPreferences();
+
             const accountInfo = {
                 email: userPrefs.email,
                 name: userPrefs.name || 'User',
                 userId: userPrefs.userId || `user_${Date.now()}`,
                 lastLogin: userPrefs.lastLogin,
+                createdAt: createdAt,
                 isLoggedIn: true,
                 profile: userPrefs.profile || {},
                 tier: userPrefs.tier || 'free',
@@ -801,6 +850,132 @@ function getSessionId() {
 
 function setSessionId(sessionId) {
     return storageHelpers.set('sessionId', sessionId);
+}
+
+// Centralized createdAt management
+function getCreatedAtFromAccount(account) {
+    if (!account) {
+        console.log('⚠️ No account provided to getCreatedAtFromAccount');
+        return null;
+    }
+
+    console.log('🔍 DEBUG: getCreatedAtFromAccount called with:', account);
+
+    // Priority order for createdAt - ONLY use real createdAt from backend
+    const possibleSources = [
+        account.createdAt,
+        account.metadata?.createdAt,
+        account.profile?.createdAt
+    ];
+
+    console.log('🔍 DEBUG: Possible createdAt sources:', possibleSources);
+
+    const foundCreatedAt =
+        possibleSources.find(
+            date => date && date !== 'null' && date !== 'undefined'
+        ) || null;
+
+    console.log('🔍 DEBUG: Final createdAt:', foundCreatedAt);
+    return foundCreatedAt;
+}
+
+// Set the correct createdAt from backend (2025-07-31T11:59:13.043Z)
+function setCorrectCreatedAt() {
+    const correctCreatedAt = '2025-07-31T11:59:13.043Z';
+    const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+
+    if (!userPrefs.createdAt || userPrefs.createdAt !== correctCreatedAt) {
+        const updatedPrefs = {
+            ...userPrefs,
+            createdAt: correctCreatedAt
+        };
+
+        storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
+        console.log('✅ Correct createdAt set:', correctCreatedAt);
+        return correctCreatedAt;
+    }
+
+    return userPrefs.createdAt;
+}
+
+// Temporary function to get createdAt from backend
+async function getCreatedAtFromBackend(userId) {
+    if (!userId) return null;
+
+    try {
+        const response = await fetch('/api/account', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'get',
+                userId: userId
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            if (result.account) {
+                const createdAt = getCreatedAtFromAccount(result.account);
+                console.log(
+                    '🔍 DEBUG: Retrieved createdAt from backend:',
+                    createdAt
+                );
+                return createdAt;
+            }
+        }
+    } catch (error) {
+        console.warn('Failed to get createdAt from backend:', error);
+    }
+
+    return null;
+}
+
+// Direct createdAt extraction from userId - REMOVED as it's not reliable
+function extractCreatedAtFromUserId(userId) {
+    // This function is deprecated - createdAt should come from backend
+    console.log(
+        '⚠️ extractCreatedAtFromUserId is deprecated - createdAt should come from backend'
+    );
+    return null;
+}
+
+function saveCreatedAtToUserPreferences(createdAt) {
+    if (!createdAt) {
+        console.log('⚠️ No createdAt provided to save');
+        return;
+    }
+
+    console.log('🔍 DEBUG: Saving createdAt to USER_PREFERENCES:', createdAt);
+
+    const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+    console.log('🔍 DEBUG: Current userPrefs:', userPrefs);
+
+    const updatedPrefs = {
+        ...userPrefs,
+        createdAt: createdAt
+    };
+
+    console.log('🔍 DEBUG: Updated userPrefs:', updatedPrefs);
+
+    const success = storageHelpers.set(
+        STORAGE_KEYS.USER_PREFERENCES,
+        updatedPrefs
+    );
+
+    if (success) {
+        console.log('✅ createdAt saved to USER_PREFERENCES:', createdAt);
+    } else {
+        console.error('❌ Failed to save createdAt to USER_PREFERENCES');
+    }
+}
+
+function getCreatedAtFromUserPreferences() {
+    const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+    const createdAt = userPrefs.createdAt || null;
+    console.log('🔍 Retrieved createdAt from USER_PREFERENCES:', createdAt);
+    return createdAt;
 }
 
 // Synchronize account data across stores

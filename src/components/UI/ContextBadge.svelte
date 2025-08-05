@@ -10,7 +10,8 @@
     export let text = '';
     export let position = 'top'; // top, bottom, left, right
     export let variant = 'info'; // info, warning, success, error
-    export let size = 'md'; // sm, md, lg
+    export let size = 'md'; // sm, md, lg - beeinflusst sowohl Spacing als auch Text-Größe
+    export let width = null; // null, 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl', '7xl', 'full' - Tailwind width classes
     export let trigger = 'hover'; // hover, click, both
     export let intro = false; // Auto-show/hide animation
     export let introDelay = 2000; // Delay before showing (ms)
@@ -52,11 +53,36 @@
     $: standardArrowColor = variant === 'standard' ? 'bg-creme-500 dark:bg-aubergine-950' : arrowColor;
     $: standardArrowBorderColor = variant === 'standard' ? 'border-gray-200 dark:border-gray-600' : arrowBorderColor;
     
-    // Size classes
+    // Size classes - erweitert um Text-Größe und Spacing
     const sizeClasses = {
-        sm: 'text-xs px-2 py-1',
-        md: 'text-sm px-3 py-1.5',
-        lg: 'text-base px-4 py-2'
+        sm: {
+            spacing: 'px-2 py-1',
+            text: 'text-xs'
+        },
+        md: {
+            spacing: 'px-3 py-1.5',
+            text: 'text-sm'
+        },
+        lg: {
+            spacing: 'px-4 py-2',
+            text: 'text-base'
+        }
+    };
+    
+    // Width classes
+    const widthClasses = {
+        xs: 'w-16',
+        sm: 'w-24',
+        md: 'w-32',
+        lg: 'w-40',
+        xl: 'w-48',
+        '2xl': 'w-56',
+        '3xl': 'w-64',
+        '4xl': 'w-72',
+        '5xl': 'w-80',
+        '6xl': 'w-96',
+        '7xl': 'w-[28rem]',
+        full: 'w-full'
     };
     
     // Variant classes
@@ -185,7 +211,8 @@
     // Reactive classes
     $: badgeClasses = [
         'absolute z-50 rounded-xl border shadow-xl',
-        sizeClasses[size],
+        sizeClasses[size].spacing,
+        sizeClasses[size].text,
         variantClasses[variant].bg,
         variantClasses[variant].text,
         variantClasses[variant].border,
@@ -193,7 +220,7 @@
         'pointer-events-none',
         'transition-all duration-200 ease-out',
         'backdrop-blur-sm',
-        'max-w-xs'
+        width ? widthClasses[width] : 'max-w-xs'
     ].filter(Boolean).join(' ');
     
     $: arrowClassesFinal = [
@@ -247,9 +274,9 @@
         >
             <div class="flex items-center space-x-1 {variant === 'standard' ? '' : 'px-3 py-2'}">
                 {#if variantClasses[variant].icon}
-                    <span class="text-sm flex-shrink-0">{variantClasses[variant].icon}</span>
+                    <span class="flex-shrink-0 {sizeClasses[size].text}">{variantClasses[variant].icon}</span>
                 {/if}
-                <span class="font-medium text-sm leading-relaxed">{isTierBadge ? tierTooltipText : text}</span>
+                <span class="font-medium leading-relaxed {sizeClasses[size].text}">{isTierBadge ? tierTooltipText : text}</span>
             </div>
             
             <!-- Arrow pointing to parent -->

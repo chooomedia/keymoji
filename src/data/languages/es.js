@@ -63,7 +63,7 @@ export default {
         pageDescription:
             'Desarrollador frontend y me encanta crear sitios web fáciles de usar con JavaScript, PHP y HTML. ¡No dudes en enviarme un mensaje si quieres!',
         nameLabel: '🧑🏻 Tu nombre',
-        emailLabel: '📧 Tu correo electrónico',
+        emailLabel: 'Tu correo electrónico',
         messageLabel: '✍🏻 Tu mensaje',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Enviar',
@@ -497,28 +497,19 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '5 generaciones seguras diarias',
-                dailyGenerationsDesc: 'Tecnología resistente a IA',
+                dailyGenerationsDesc: 'Tecnología resistente a IA para máxima seguridad',
                 decentralizedData: 'Procesamiento de datos descentralizado',
-                decentralizedDataDesc: 'Tus datos permanecen privados',
+                decentralizedDataDesc: 'Tus datos permanecen siempre contigo - nunca en servidores extranjeros',
                 webApp: 'Disponible como aplicación web',
-                webAppDesc: 'Acceso seguro desde cualquier lugar'
+                webAppDesc: 'Disponible al instante - sin instalación necesaria'
             },
             pro: {
                 unlimitedGenerations: 'Generaciones seguras ilimitadas',
-                unlimitedGenerationsDesc: 'Sin límites diarios',
-                aiThreatDetection: 'Detección de amenazas impulsada por IA',
-                aiThreatDetectionDesc: 'Análisis de seguridad proactivo',
-                prioritySupport: 'Soporte prioritario',
-                prioritySupportDesc: 'Ayuda rápida con preguntas',
+                unlimitedGenerationsDesc: 'Crea tantas contraseñas como necesites - sin límites',
                 browserExtension: 'Extensión de navegador (Q4 2025)',
-                browserExtensionDesc: 'Seguridad en todas partes en la web',
+                browserExtensionDesc: 'Seguridad directamente en tu navegador - automáticamente y en todas partes',
                 apiIntegration: 'Integración API (Q4 2025)',
-                apiIntegrationDesc: 'Integra seguridad en tus aplicaciones',
-                advancedAnalytics: 'Analytics avanzadas (Q4 2025)',
-                advancedAnalyticsDesc:
-                    'Información de seguridad detallada e informes',
-                wordpressPlugin: 'Plugin de WordPress (Q4 2025)',
-                wordpressPluginDesc: 'Integra seguridad en tu sitio web'
+                apiIntegrationDesc: 'Integra seguridad de manera transparente en tus propias aplicaciones'
             }
         },
 

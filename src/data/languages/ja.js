@@ -63,7 +63,7 @@ export default {
         pageDescription:
             'フロントエンド開発者で、JavaScript、PHP、HTMLを使った使いやすいウェブサイトを作るのが大好きです。お気軽にメッセージしてください！',
         nameLabel: '🧑🏻 お名前',
-        emailLabel: '📧 メールアドレス',
+        emailLabel: 'メールアドレス',
         messageLabel: '✍🏻 メッセージ',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 送信',
@@ -490,24 +490,23 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '1日5回の安全な生成',
-                dailyGenerationsDesc: 'AI耐性技術',
+                dailyGenerationsDesc: '最大限のセキュリティのためのAI耐性技術',
                 decentralizedData: '分散データ処理',
                 decentralizedDataDesc:
-                    'あなたのデータはプライベートに保たれます',
+                    'あなたのデータは常にあなたと共に - 外部サーバーには決して保存されません',
                 webApp: 'Webアプリとして利用可能',
-                webAppDesc: 'どこからでも安全にアクセス'
+                webAppDesc: '即座に利用可能 - インストール不要'
             },
             pro: {
                 unlimitedGenerations: '無制限の安全な生成',
-                unlimitedGenerationsDesc: '1日の制限なし',
-                aiThreatDetection: 'AI駆動脅威検出',
-                aiThreatDetectionDesc: 'プロアクティブセキュリティ分析',
-                prioritySupport: '優先サポート',
-                prioritySupportDesc: '質問への迅速な対応',
+                unlimitedGenerationsDesc:
+                    '必要なだけパスワードを作成 - 制限なし',
                 browserExtension: 'ブラウザ拡張機能（2025年Q4）',
-                browserExtensionDesc: 'ウェブ全体でセキュリティ',
-                wordpressPlugin: 'WordPressプラグイン（2025年Q4）',
-                wordpressPluginDesc: 'あなたのウェブサイトにセキュリティを統合'
+                browserExtensionDesc:
+                    'ブラウザに直接セキュリティ - 自動的かつどこでも',
+                apiIntegration: 'API統合（2025年Q4）',
+                apiIntegrationDesc:
+                    'セキュリティをあなたのアプリケーションにシームレスに統合'
             }
         },
 

@@ -63,7 +63,7 @@ export default {
         pageDescription:
             "De'wI' QulwI' jIH 'ej jIQuch QIn QulwI' De' QulwI' je vIchenmoH. bIHeghbe'chugh QIn yIngeH.",
         nameLabel: '🧑🏻 ponglIj',
-        emailLabel: "📧 QI'yaH",
+        emailLabel: "QI'yaH",
         messageLabel: '✍🏻 QInlIj',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 QIn yIngeH',
@@ -493,23 +493,21 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: 'jaj HochDaq 5 chenmoH',
-                dailyGenerationsDesc: "QIn Qaw'laHbe'bogh De'",
+                dailyGenerationsDesc:
+                    "QIn Qaw'laHbe'bogh De' - Qan QulwI' HevmeH",
                 decentralizedData: "De' QulwI'",
-                decentralizedDataDesc: "De'lIj Qanlu'",
+                decentralizedDataDesc:
+                    "De'lIj reH SoHvaD - QIn QulwI' QulwI'vaD",
                 webApp: "De' QulwI' poQlu'",
-                webAppDesc: "Qan QIn QulwI'"
+                webAppDesc: "QulwI' QulwI' - QIn QulwI' poQlu'"
             },
             pro: {
                 unlimitedGenerations: "chenmoHlaHbe'",
-                unlimitedGenerationsDesc: "jaj HochDaq Qaw'laHbe'",
-                aiThreatDetection: "QIn Qaw'laHbe'bogh De'",
-                aiThreatDetectionDesc: "Qan QulwI'",
-                prioritySupport: "QIn QulwI'",
-                prioritySupportDesc: "QIn QulwI'",
+                unlimitedGenerationsDesc: "chenmoHlaHbe' - QIn Qaw'laHbe'",
                 browserExtension: "Browser QulwI' (Q4 2025)",
-                browserExtensionDesc: "Qan QIn QulwI'",
-                wordpressPlugin: "WordPress QulwI' (Q4 2025)",
-                wordpressPluginDesc: "Qan QIn QulwI'"
+                browserExtensionDesc: "Qan QIn QulwI' - QulwI' QulwI' 'ej Hoch",
+                apiIntegration: "API QulwI' (Q4 2025)",
+                apiIntegrationDesc: "Qan QIn QulwI' - QIn QulwI' QulwI'vaD"
             }
         },
 

@@ -64,7 +64,7 @@ export default {
         pageDescription:
             'Frontend-Entwickler und ich liebe es, benutzerfreundliche Websites mit JavaScript, PHP und HTML zu gestalten und zu programmieren. Zögere nicht und schick mir eine Nachricht wenn du möchtest.',
         nameLabel: '🧑🏻 Din Name',
-        emailLabel: '📧 Dini E-Mail',
+        emailLabel: 'Dini E-Mail',
         messageLabel: '✍🏻 Dini Nachricht',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Sende',
@@ -493,23 +493,24 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '5 tägligi sicheri Generierige',
-                dailyGenerationsDesc: 'KI-resistenti Technologie',
+                dailyGenerationsDesc:
+                    'KI-resistenti Technologie für maximali Sicherheit',
                 decentralizedData: 'Dezentrali Dateverarbeitig',
-                decentralizedDataDesc: 'Dini Date bliibe privat',
+                decentralizedDataDesc:
+                    'Dini Date bliibe immer bi dir - nie uf fremde Server',
                 webApp: 'Als Web-App verfüegbar',
-                webAppDesc: 'Sicherer Zugriff vo überall'
+                webAppDesc: 'Sofort verfüegbar - kei Installation nötig'
             },
             pro: {
                 unlimitedGenerations: 'Unbegrenzti sicheri Generierige',
-                unlimitedGenerationsDesc: 'Kei tägligi Limite',
-                aiThreatDetection: 'KI-gestützti Bedrohigserkennig',
-                aiThreatDetectionDesc: 'Proaktivi Sicherheitsanalys',
-                prioritySupport: 'Prioritäts-Support',
-                prioritySupportDesc: 'Schnelli Hilf bi Froge',
+                unlimitedGenerationsDesc:
+                    'Erstell so vieli Passwörter wie du bruchsch - ohni Limite',
                 browserExtension: 'Browser-Erwiterig (Q4 2025)',
-                browserExtensionDesc: 'Sicherheit überall im Web',
-                wordpressPlugin: 'WordPress-Plugin (Q4 2025)',
-                wordpressPluginDesc: 'Sicherheit in dini Website integriere'
+                browserExtensionDesc:
+                    'Sicherheit direkt in dinem Browser - automatisch und überall',
+                apiIntegration: 'API-Integration (Q4 2025)',
+                apiIntegrationDesc:
+                    'Integrier Sicherheit nahtlos in dini eigene Anwendige'
             }
         },
 

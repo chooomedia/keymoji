@@ -57,6 +57,30 @@
         return '';
     }
   }
+  
+  // Get emoji for input type
+  function getInputEmoji() {
+    switch (type) {
+      case 'email':
+        return '📧';
+      case 'password':
+        return '🔒';
+      case 'tel':
+      case 'phone':
+        return '📞';
+      case 'url':
+        return '🌐';
+      case 'search':
+        return '🔍';
+      default:
+        if (name.toLowerCase().includes('name') || name.toLowerCase().includes('fullname')) return '👤';
+        if (name.toLowerCase().includes('email')) return '📧';
+        if (name.toLowerCase().includes('phone') || name.toLowerCase().includes('tel')) return '📞';
+        if (name.toLowerCase().includes('url') || name.toLowerCase().includes('website')) return '🌐';
+        if (name.toLowerCase().includes('search')) return '🔍';
+        return '';
+    }
+  }
 </script>
 
 {#if type === 'textarea'}
@@ -88,47 +112,64 @@
     <slot />
   </select>
 {:else if type === 'email'}
-  <input 
-    type="email"
-    {id}
-    {name}
-    {placeholder}
-    {disabled}
-    {required}
-    bind:value
-    class={inputClass}
-    aria-invalid={invalid}
-    aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
-    autocomplete={getAutocompleteValue()}
-  />
+  <div class="relative">
+    <input 
+      type="email"
+      {id}
+      {name}
+      {placeholder}
+      {disabled}
+      {required}
+      bind:value
+      class="{inputClass} pl-12"
+      aria-invalid={invalid}
+      aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
+      autocomplete={getAutocompleteValue()}
+    />
+    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+      <span class="text-gray-400 dark:text-gray-500 text-lg">{getInputEmoji()}</span>
+    </div>
+  </div>
 {:else if type === 'password'}
-  <input 
-    type="password"
-    {id}
-    {name}
-    {placeholder}
-    {disabled}
-    {required}
-    bind:value
-    class={inputClass}
-    aria-invalid={invalid}
-    aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
-    autocomplete={getAutocompleteValue()}
-  />
+  <div class="relative">
+    <input 
+      type="password"
+      {id}
+      {name}
+      {placeholder}
+      {disabled}
+      {required}
+      bind:value
+      class="{inputClass} pl-12"
+      aria-invalid={invalid}
+      aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
+      autocomplete={getAutocompleteValue()}
+    />
+    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+      <span class="text-gray-400 dark:text-gray-500 text-lg">{getInputEmoji()}</span>
+    </div>
+  </div>
 {:else}
-  <input 
-    type="text"
-    {id}
-    {name}
-    {placeholder}
-    {disabled}
-    {required}
-    bind:value
-    class={inputClass}
-    aria-invalid={invalid}
-    aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
-    autocomplete={getAutocompleteValue()}
-  />
+  <div class="relative">
+    <input 
+      type="text"
+      {id}
+      {name}
+      {placeholder}
+      {disabled}
+      {required}
+      bind:value
+      class="{inputClass} {getInputEmoji() ? 'pl-12' : ''}"
+      aria-invalid={invalid}
+      aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
+      autocomplete={getAutocompleteValue()}
+    />
+    {#if getInputEmoji()}
+      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <span class="text-gray-400 dark:text-gray-500 text-lg">{getInputEmoji()}</span>
+      </div>
+    {/if}
+  </div>
 {/if}
 
 <style>

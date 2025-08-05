@@ -63,7 +63,7 @@ export default {
         pageDescription:
             'Frontend geliştiriciyim ve JavaScript, PHP, HTML ile kullanıcı dostu siteler yapmayı seviyorum. İstersen bana mesaj göndermekten çekinme!',
         nameLabel: '🧑🏻 Adınız',
-        emailLabel: '📧 E-posta adresiniz',
+        emailLabel: 'E-posta adresiniz',
         messageLabel: '✍🏻 Mesaj',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Gönder',
@@ -492,23 +492,24 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '5 günlük güvenli üretim',
-                dailyGenerationsDesc: 'AI dirençli teknoloji',
+                dailyGenerationsDesc:
+                    'Maksimum güvenlik için AI dirençli teknoloji',
                 decentralizedData: 'Merkezi olmayan veri işleme',
-                decentralizedDataDesc: 'Verileriniz gizli kalır',
+                decentralizedDataDesc:
+                    'Verileriniz her zaman sizinle kalır - asla yabancı sunucularda değil',
                 webApp: 'Web uygulaması olarak mevcut',
-                webAppDesc: 'Her yerden güvenli erişim'
+                webAppDesc: 'Anında mevcut - kurulum gerekmez'
             },
             pro: {
                 unlimitedGenerations: 'Sınırsız güvenli üretim',
-                unlimitedGenerationsDesc: 'Günlük limit yok',
-                aiThreatDetection: 'AI destekli tehdit algılama',
-                aiThreatDetectionDesc: 'Proaktif güvenlik analizi',
-                prioritySupport: 'Öncelikli destek',
-                prioritySupportDesc: 'Sorulara hızlı yardım',
+                unlimitedGenerationsDesc:
+                    'İhtiyacınız kadar şifre oluşturun - sınır yok',
                 browserExtension: 'Tarayıcı uzantısı (Q4 2025)',
-                browserExtensionDesc: "Web'de her yerde güvenlik",
-                wordpressPlugin: 'WordPress eklentisi (Q4 2025)',
-                wordpressPluginDesc: 'Güvenliği web sitenize entegre edin'
+                browserExtensionDesc:
+                    'Tarayıcınızda doğrudan güvenlik - otomatik olarak ve her yerde',
+                apiIntegration: 'API Entegrasyonu (Q4 2025)',
+                apiIntegrationDesc:
+                    'Güvenliği kendi uygulamalarınıza sorunsuz bir şekilde entegre edin'
             }
         },
 

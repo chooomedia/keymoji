@@ -63,7 +63,7 @@ export default {
         pageDescription:
             "Echad i De' QulwI' jIH 'ej jIQuch QIn QulwI' De' QulwI' je vIchenmoH. bIHeghbe'chugh QIn yIngeH.",
         nameLabel: '🧑🏻 i eneth lín',
-        emailLabel: '📧 i epist lín',
+        emailLabel: 'i epist lín',
         messageLabel: '✍🏻 i peth lín',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Erio',
@@ -493,23 +493,22 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: 'jaj HochDaq 5 chenmoH',
-                dailyGenerationsDesc: "QIn Qaw'laHbe'bogh De'",
+                dailyGenerationsDesc:
+                    "QIn Qaw'laHbe'bogh De' - thand QulwI' HevmeH",
                 decentralizedData: "De' QulwI'",
-                decentralizedDataDesc: "De'lIj thandlu'",
+                decentralizedDataDesc:
+                    "De'lIj reH SoHvaD - QIn QulwI' QulwI'vaD",
                 webApp: "De' QulwI' poQlu'",
-                webAppDesc: "thand QIn QulwI'"
+                webAppDesc: "QulwI' QulwI' - QIn QulwI' poQlu'"
             },
             pro: {
                 unlimitedGenerations: "chenmoHlaHbe'",
-                unlimitedGenerationsDesc: "jaj HochDaq Qaw'laHbe'",
-                aiThreatDetection: "QIn Qaw'laHbe'bogh De'",
-                aiThreatDetectionDesc: "thand QulwI'",
-                prioritySupport: "QIn QulwI'",
-                prioritySupportDesc: "QIn QulwI'",
+                unlimitedGenerationsDesc: "chenmoHlaHbe' - QIn Qaw'laHbe'",
                 browserExtension: "Browser QulwI' (Q4 2025)",
-                browserExtensionDesc: "thand QIn QulwI'",
-                wordpressPlugin: "WordPress QulwI' (Q4 2025)",
-                wordpressPluginDesc: "thand QIn QulwI'"
+                browserExtensionDesc:
+                    "thand QIn QulwI' - QulwI' QulwI' 'ej Hoch",
+                apiIntegration: "API QulwI' (Q4 2025)",
+                apiIntegrationDesc: "thand QIn QulwI' - QIn QulwI' QulwI'vaD"
             }
         },
 

@@ -63,7 +63,7 @@ export default {
         pageDescription:
             '프론트엔드 개발자이며 JavaScript, PHP, HTML로 사용자 친화적인 웹사이트를 만드는 것을 좋아합니다. 언제든지 메시지 보내주세요!',
         nameLabel: '🧑🏻 이름',
-        emailLabel: '📧 이메일',
+        emailLabel: '이메일',
         messageLabel: '✍🏻 메시지',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 보내기',
@@ -489,23 +489,22 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '하루 5회 안전한 생성',
-                dailyGenerationsDesc: 'AI 저항 기술',
+                dailyGenerationsDesc: '최대 보안을 위한 AI 저항 기술',
                 decentralizedData: '분산 데이터 처리',
-                decentralizedDataDesc: '귀하의 데이터는 비공개로 유지됩니다',
+                decentralizedDataDesc:
+                    '귀하의 데이터는 항상 귀하와 함께 - 외부 서버에는 절대 저장되지 않습니다',
                 webApp: '웹 앱으로 사용 가능',
-                webAppDesc: '어디서든 안전하게 접근'
+                webAppDesc: '즉시 사용 가능 - 설치 불필요'
             },
             pro: {
                 unlimitedGenerations: '무제한 안전한 생성',
-                unlimitedGenerationsDesc: '일일 제한 없음',
-                aiThreatDetection: 'AI 기반 위협 탐지',
-                aiThreatDetectionDesc: '사전 보안 분석',
-                prioritySupport: '우선 지원',
-                prioritySupportDesc: '질문에 대한 빠른 도움',
+                unlimitedGenerationsDesc:
+                    '필요한 만큼 비밀번호 생성 - 제한 없음',
                 browserExtension: '브라우저 확장 프로그램 (2025년 Q4)',
-                browserExtensionDesc: '웹 전체에서 보안',
-                wordpressPlugin: 'WordPress 플러그인 (2025년 Q4)',
-                wordpressPluginDesc: '웹사이트에 보안 통합'
+                browserExtensionDesc:
+                    '브라우저에 직접 보안 - 자동적이고 어디서나',
+                apiIntegration: 'API 통합 (2025년 Q4)',
+                apiIntegrationDesc: '보안을 귀하의 애플리케이션에 원활하게 통합'
             }
         },
 

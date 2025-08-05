@@ -63,7 +63,7 @@ export default {
         pageDescription:
             'Frontend-ontwikkelaar en ik hou ervan om gebruiksvriendelijke websites te bouwen met JavaScript, PHP en HTML. Stuur gerust een berichtje als je wilt!',
         nameLabel: '🧑🏻 Jouw naam',
-        emailLabel: '📧 Jouw e-mail',
+        emailLabel: 'Jouw e-mail',
         messageLabel: '✍🏻 Bericht',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Verzenden',
@@ -493,23 +493,24 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '5 dagelijkse veilige generaties',
-                dailyGenerationsDesc: 'AI-resistente technologie',
+                dailyGenerationsDesc:
+                    'AI-resistente technologie voor maximale veiligheid',
                 decentralizedData: 'Gedecentraliseerde gegevensverwerking',
-                decentralizedDataDesc: 'Je gegevens blijven privé',
+                decentralizedDataDesc:
+                    'Je gegevens blijven altijd bij jou - nooit op vreemde servers',
                 webApp: 'Beschikbaar als webapp',
-                webAppDesc: 'Veilige toegang overal vandaan'
+                webAppDesc: 'Direct beschikbaar - geen installatie nodig'
             },
             pro: {
                 unlimitedGenerations: 'Onbeperkte veilige generaties',
-                unlimitedGenerationsDesc: 'Geen dagelijkse limieten',
-                aiThreatDetection: 'AI-aangedreven bedreigingsdetectie',
-                aiThreatDetectionDesc: 'Proactieve beveiligingsanalyse',
-                prioritySupport: 'Prioriteit ondersteuning',
-                prioritySupportDesc: 'Snelle hulp bij vragen',
+                unlimitedGenerationsDesc:
+                    'Maak zoveel wachtwoorden als je nodig hebt - zonder limieten',
                 browserExtension: 'Browser-extensie (Q4 2025)',
-                browserExtensionDesc: 'Beveiliging overal op het web',
-                wordpressPlugin: 'WordPress-plugin (Q4 2025)',
-                wordpressPluginDesc: 'Integreer beveiliging in je website'
+                browserExtensionDesc:
+                    'Veiligheid direct in je browser - automatisch en overal',
+                apiIntegration: 'API-integratie (Q4 2025)',
+                apiIntegrationDesc:
+                    'Integreer veiligheid naadloos in je eigen applicaties'
             }
         },
 

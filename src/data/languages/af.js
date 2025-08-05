@@ -63,7 +63,7 @@ export default {
         pageDescription:
             "Frontend ontwikkelaar en ek hou daarvan om gebruikersvriendelike webwerwe te ontwerp en te kodeer met JavaScript, PHP en HTML. Moenie huiwer nie en stuur my 'n boodskap as jy wil.",
         nameLabel: '🧑🏻 Jou naam',
-        emailLabel: '📧 Jou e-pos',
+        emailLabel: 'Jou e-pos',
         messageLabel: '✍🏻 Jou boodskap',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Stuur',
@@ -495,23 +495,24 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '5 daaglikse veilige generasies',
-                dailyGenerationsDesc: 'AI-weerstandige tegnologie',
+                dailyGenerationsDesc:
+                    'AI-weerstandige tegnologie vir maksimum sekuriteit',
                 decentralizedData: 'Gedesentraliseerde data verwerking',
-                decentralizedDataDesc: 'Jou data bly privaat',
+                decentralizedDataDesc:
+                    'Jou data bly altyd by jou - nooit op vreemde bedieners nie',
                 webApp: 'Beskikbaar as web app',
-                webAppDesc: 'Veilige toegang van oral'
+                webAppDesc: 'Oombliklik beskikbaar - geen installasie nodig nie'
             },
             pro: {
                 unlimitedGenerations: 'Onbeperkte veilige generasies',
-                unlimitedGenerationsDesc: 'Geen daaglikse limiete',
-                aiThreatDetection: 'AI-aangedrewe bedreiging opsporing',
-                aiThreatDetectionDesc: 'Proaktiewe sekuriteit analise',
-                prioritySupport: 'Prioriteit ondersteuning',
-                prioritySupportDesc: 'Vinnige hulp met vrae',
+                unlimitedGenerationsDesc:
+                    'Skep soveel wagwoorde as wat jy nodig het - sonder limiete',
                 browserExtension: 'Blaaier uitbreiding (Q4 2025)',
-                browserExtensionDesc: 'Sekuriteit oral op die web',
-                wordpressPlugin: 'WordPress plugin (Q4 2025)',
-                wordpressPluginDesc: 'Integreer sekuriteit in jou webwerf'
+                browserExtensionDesc:
+                    'Sekuriteit direk in jou blaaier - outomaties en oral',
+                apiIntegration: 'API integrasie (Q4 2025)',
+                apiIntegrationDesc:
+                    'Integreer sekuriteit naadloos in jou eie toepassings'
             }
         },
 

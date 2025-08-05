@@ -132,10 +132,15 @@
             $currentAccount?.lastLogin
         ];
         
-        // Also try localStorage as fallback
+        // Spezifisch nach keymoji_user_preferences > createdAt im localStorage suchen
         const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
+        console.log('🔍 DEBUG: User preferences from localStorage:', userPrefs);
+        
+        if (userPrefs?.createdAt) {
+            possibleDates.unshift(userPrefs.createdAt); // Priorität geben
+        }
         if (userPrefs?.metadata?.createdAt) {
-            possibleDates.push(userPrefs.metadata.createdAt);
+            possibleDates.unshift(userPrefs.metadata.createdAt); // Höchste Priorität
         }
         if (userPrefs?.lastLogin) {
             possibleDates.push(userPrefs.lastLogin);
@@ -144,7 +149,7 @@
         const createdAtValue = possibleDates.find(date => date);
         
         if (!createdAtValue) {
-            console.warn('⚠️ No creation date found in account data');
+            console.warn('⚠️ No creation date found in account data or localStorage');
             return 0;
         }
         
@@ -157,7 +162,8 @@
             console.log('✅ Days since creation calculated:', {
                 createdAtValue,
                 createdAt,
-                diffDays
+                diffDays,
+                source: userPrefs?.createdAt ? 'localStorage' : 'account data'
             });
             
             return diffDays;
@@ -334,28 +340,29 @@
     // Account age label for psychological effect - zeigt wie lange User im aktuellen Tier ist
     $: accountAgeLabel = (() => {
         const isProAccount = $accountTier === 'pro';
+        const tierPrefix = isProAccount ? '💎 PRO' : '✨ FREE';
         
         if (daysSinceCreation === 0) {
             const baseText = $translations?.accountManager?.accountAge?.today || 'Created today';
-            return isProAccount ? '💎 PRO: Seit heute!' : baseText;
+            return `${tierPrefix}: Seit heute!`;
         } else if (daysSinceCreation === 1) {
             const baseText = $translations?.accountManager?.accountAge?.yesterday || 'Created yesterday';
-            return isProAccount ? '💎 PRO: Seit gestern!' : baseText;
+            return `${tierPrefix}: Seit gestern!`;
         } else if (daysSinceCreation < 7) {
             const baseText = ($translations?.accountManager?.accountAge?.days || '{days} days').replace('{days}', daysSinceCreation);
-            return isProAccount ? `💎 PRO: Seit ${daysSinceCreation} Tagen!` : baseText;
+            return `${tierPrefix}: Seit ${daysSinceCreation} Tagen!`;
         } else if (daysSinceCreation < 30) {
             const weeks = Math.floor(daysSinceCreation / 7);
             const baseText = ($translations?.accountManager?.accountAge?.weeks || '{weeks} week{plural}').replace('{weeks}', weeks).replace('{plural}', weeks > 1 ? 's' : '');
-            return isProAccount ? `💎 PRO: Seit ${weeks} Woche${weeks > 1 ? 'n' : ''}!` : baseText;
+            return `${tierPrefix}: Seit ${weeks} Woche${weeks > 1 ? 'n' : ''}!`;
         } else if (daysSinceCreation < 365) {
             const months = Math.floor(daysSinceCreation / 30);
             const baseText = ($translations?.accountManager?.accountAge?.months || '{months} month{plural}').replace('{months}', months).replace('{plural}', months > 1 ? 's' : '');
-            return isProAccount ? `💎 PRO: Seit ${months} Monat${months > 1 ? 'en' : ''}!` : baseText;
+            return `${tierPrefix}: Seit ${months} Monat${months > 1 ? 'en' : ''}!`;
         } else {
             const years = Math.floor(daysSinceCreation / 365);
             const baseText = ($translations?.accountManager?.accountAge?.years || '{years} year{plural}').replace('{years}', years).replace('{plural}', years > 1 ? 's' : '');
-            return isProAccount ? `💎 PRO: Seit ${years} Jahr${years > 1 ? 'en' : ''}!` : baseText;
+            return `${tierPrefix}: Seit ${years} Jahr${years > 1 ? 'en' : ''}!`;
         }
     })();
     
@@ -848,6 +855,8 @@
                                     position="top"
                                     variant="standard"
                                     trigger="hover"
+                                    size="sm"
+                                    width="lg"
                                     intro={true}
                                     introDelay={2000}
                                     introDuration={4000}

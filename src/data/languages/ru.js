@@ -63,7 +63,7 @@ export default {
         pageDescription:
             'Фронтенд-разработчик, люблю создавать удобные сайты на JavaScript, PHP и HTML. Не стесняйтесь написать мне сообщение!',
         nameLabel: '🧑🏻 Ваше имя',
-        emailLabel: '📧 Ваш e-mail',
+        emailLabel: 'Ваш e-mail',
         messageLabel: '✍🏻 Сообщение',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Отправить',
@@ -492,23 +492,24 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '5 ежедневных безопасных генераций',
-                dailyGenerationsDesc: 'Технология, устойчивая к ИИ',
+                dailyGenerationsDesc:
+                    'Технология, устойчивая к ИИ для максимальной безопасности',
                 decentralizedData: 'Децентрализованная обработка данных',
-                decentralizedDataDesc: 'Ваши данные остаются приватными',
+                decentralizedDataDesc:
+                    'Ваши данные всегда остаются с вами - никогда на чужих серверах',
                 webApp: 'Доступно как веб-приложение',
-                webAppDesc: 'Безопасный доступ откуда угодно'
+                webAppDesc: 'Доступно мгновенно - установка не требуется'
             },
             pro: {
                 unlimitedGenerations: 'Неограниченные безопасные генерации',
-                unlimitedGenerationsDesc: 'Без дневных лимитов',
-                aiThreatDetection: 'Обнаружение угроз на базе ИИ',
-                aiThreatDetectionDesc: 'Проактивный анализ безопасности',
-                prioritySupport: 'Приоритетная поддержка',
-                prioritySupportDesc: 'Быстрая помощь по вопросам',
+                unlimitedGenerationsDesc:
+                    'Создавайте столько паролей, сколько нужно - без ограничений',
                 browserExtension: 'Расширение браузера (Q4 2025)',
-                browserExtensionDesc: 'Безопасность везде в интернете',
-                wordpressPlugin: 'Плагин WordPress (Q4 2025)',
-                wordpressPluginDesc: 'Интегрируйте безопасность в ваш сайт'
+                browserExtensionDesc:
+                    'Безопасность прямо в вашем браузере - автоматически и везде',
+                apiIntegration: 'Интеграция API (Q4 2025)',
+                apiIntegrationDesc:
+                    'Интегрируйте безопасность бесшовно в ваши приложения'
             }
         },
 
@@ -651,7 +652,7 @@ export default {
         pageDescription:
             'Фронтенд-разработчик, люблю создавать удобные сайты на JavaScript, PHP и HTML. Не стесняйтесь написать мне сообщение!',
         nameLabel: '🧑🏻 Ваше имя',
-        emailLabel: '📧 Ваш e-mail',
+        emailLabel: 'Ваш e-mail',
         messageLabel: '✍🏻 Сообщение',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Отправить',

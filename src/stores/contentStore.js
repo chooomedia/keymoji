@@ -183,7 +183,7 @@ const fallbackContent = {
     },
     contactForm: {
         nameLabel: '🧑🏻 Your name',
-        emailLabel: '📧 Your email',
+        emailLabel: 'Your email',
         messageLabel: '✍🏻 Your message',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Send message',

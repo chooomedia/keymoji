@@ -64,7 +64,7 @@ export default {
         pageDescription:
             'Frontend developer i uwielbiam tworzyć przyjazne użytkownikom strony internetowe w JavaScript, PHP i HTML. Nie wahaj się napisać, jeśli chcesz!',
         nameLabel: '🧑🏻 Twoje imię',
-        emailLabel: '📧 Twój e-mail',
+        emailLabel: 'Twój e-mail',
         messageLabel: '✍🏻 Wiadomość',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Wyślij',
@@ -494,23 +494,24 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '5 dziennych bezpiecznych generacji',
-                dailyGenerationsDesc: 'Technologia odporna na AI',
+                dailyGenerationsDesc:
+                    'Technologia odporna na AI dla maksymalnego bezpieczeństwa',
                 decentralizedData: 'Zdecentralizowane przetwarzanie danych',
-                decentralizedDataDesc: 'Twoje dane pozostają prywatne',
+                decentralizedDataDesc:
+                    'Twoje dane pozostają zawsze z tobą - nigdy na obcych serwerach',
                 webApp: 'Dostępne jako aplikacja web',
-                webAppDesc: 'Bezpieczny dostęp zewsząd'
+                webAppDesc: 'Dostępne natychmiast - bez instalacji'
             },
             pro: {
                 unlimitedGenerations: 'Nieograniczone bezpieczne generacje',
-                unlimitedGenerationsDesc: 'Brak dziennych limitów',
-                aiThreatDetection: 'Wykrywanie zagrożeń napędzane AI',
-                aiThreatDetectionDesc: 'Proaktywna analiza bezpieczeństwa',
-                prioritySupport: 'Priorytetowe wsparcie',
-                prioritySupportDesc: 'Szybka pomoc w pytaniach',
+                unlimitedGenerationsDesc:
+                    'Twórz tyle haseł ile potrzebujesz - bez limitów',
                 browserExtension: 'Rozszerzenie przeglądarki (Q4 2025)',
-                browserExtensionDesc: 'Bezpieczeństwo wszędzie w sieci',
-                wordpressPlugin: 'Plugin WordPress (Q4 2025)',
-                wordpressPluginDesc: 'Zintegruj bezpieczeństwo w swojej stronie'
+                browserExtensionDesc:
+                    'Bezpieczeństwo bezpośrednio w przeglądarce - automatycznie i wszędzie',
+                apiIntegration: 'Integracja API (Q4 2025)',
+                apiIntegrationDesc:
+                    'Zintegruj bezpieczeństwo bezproblemowo w swoich aplikacjach'
             }
         },
 

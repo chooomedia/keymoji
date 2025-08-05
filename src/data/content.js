@@ -223,7 +223,7 @@ export const contentTemplate = {
     },
     contactForm: {
         nameLabel: '🧑🏻 Your Name',
-        emailLabel: '📧 Your Email',
+        emailLabel: 'Your Email',
         messageLabel: '✍🏻 Your Message',
         regenerateCaptchaButton: '🔄',
         sendButton: '🚀 Send',

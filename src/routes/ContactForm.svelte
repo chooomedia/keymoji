@@ -267,7 +267,7 @@
 
 <PageLayout {pageTitle} {pageDescription}>
     <!-- GIF Image in before-header slot -->
-    <div slot="before-header" class="flex justify-center mb-4">
+    <div slot="before-header" class="flex justify-center">
         <div 
             class="relative w-32 h-32 cursor-pointer rounded-full overflow-hidden border-4 border-yellow-200 dark:border-yellow-600 shadow-lg transform-gpu"
             on:mouseenter={() => {showRealImage = true; console.log('Mouse enter - showing real image');}}
@@ -296,14 +296,14 @@
     </div>
 
     <!-- Contact Form Content -->
-    <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+    <form on:submit|preventDefault={handleSubmit}>
         <!-- Honeypot Field -->
         <div class="hidden" aria-hidden="true">
             <input type="text" name="website" bind:value={honeypot} autocomplete="off" tabindex="-1" />
         </div>
 
         <!-- Name & Email Fields -->
-        <div class="grid md:grid-cols-2 gap-4">
+        <div class="grid md:grid-cols-2 gap-4 mb-4">
             <div>
                 <label for="name" class="sr-only">{$translations.contactForm.nameLabel}</label>
                 <Input
@@ -358,7 +358,7 @@
         </div>
 
         <!-- Newsletter Opt-in -->
-        <div class="flex items-start">
+        <div class="flex items-start mt-3 mb-4">
             <Checkbox
                 id="newsletter"
                 bind:checked={newsletterOptIn}
@@ -403,7 +403,7 @@
         {/if}
 
         <!-- Form Buttons -->
-        <div class="flex flex-col sm:flex-row gap-3 pt-4">
+        <div class="flex flex-col sm:flex-row gap-3">
             <Button
                 type="button"
                 variant="secondary" 

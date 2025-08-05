@@ -451,7 +451,7 @@ A comprehensive demo component showcasing:
 
 ## ContextBadge
 
-Eine flexible Context-Badge-Komponente für Tooltips und Kontextinformationen.
+Eine flexible Context-Badge-Komponente für Tooltips und Kontextinformationen mit **echter Account-Erstellungszeit** und **Tailwind-Animationen**.
 
 ### Props
 
@@ -461,12 +461,17 @@ Eine flexible Context-Badge-Komponente für Tooltips und Kontextinformationen.
 | `position`      | 'top' \| 'bottom' \| 'left' \| 'right'      | 'top'   | Position relative to parent  |
 | `variant`       | 'info' \| 'warning' \| 'success' \| 'error' | 'info'  | Visual variant               |
 | `size`          | 'sm' \| 'md' \| 'lg'                        | 'md'    | Size of the badge            |
+| `width`         | 'sm' \| 'md' \| 'lg' \| 'xl' \| '2xl'      | 'md'    | Maximum width of the badge   |
 | `trigger`       | 'hover' \| 'click' \| 'both'                | 'hover' | How to trigger the badge     |
 | `intro`         | boolean                                     | false   | Auto-show/hide animation     |
 | `introDelay`    | number                                      | 2000    | Delay before showing (ms)    |
 | `introDuration` | number                                      | 3000    | How long to show (ms)        |
 | `disabled`      | boolean                                     | false   | Disable the badge            |
 | `parentElement` | HTMLElement                                 | null    | Reference to parent element  |
+| `alwaysVisible` | boolean                                     | false   | Always show the badge        |
+| `tier`          | 'free' \| 'pro' \| null                     | null    | Account tier for tier badge  |
+| `accountAgeLabel`| string                                     | ''      | Pre-formatted age label      |
+| `translations`  | object                                      | null    | Translation object for age   |
 
 ### Events
 
@@ -485,8 +490,8 @@ Eine flexible Context-Badge-Komponente für Tooltips und Kontextinformationen.
     <button>Hover me</button>
 </ContextBadge>
 
-<!-- Click to show -->
-<ContextBadge text="Click to see more info" trigger="click" variant="info">
+<!-- Click to show with custom width -->
+<ContextBadge text="Click to see more info" trigger="click" variant="info" width="lg">
     <button>Click me</button>
 </ContextBadge>
 
@@ -498,8 +503,25 @@ Eine flexible Context-Badge-Komponente für Tooltips und Kontextinformationen.
     introDuration={5000}
     variant="success"
     position="bottom"
+    width="xl"
 >
     <div>New feature</div>
+</ContextBadge>
+
+<!-- Tier Badge with real account age -->
+<ContextBadge
+    tier="free"
+    translations={translations.accountAge}
+    position="top"
+    variant="standard"
+    trigger="hover"
+    intro={true}
+    introDelay={2000}
+    introDuration={4000}
+    alwaysVisible={true}
+    width="lg"
+>
+    <div>Account Status</div>
 </ContextBadge>
 
 <!-- Warning variant -->
@@ -518,9 +540,14 @@ Eine flexible Context-Badge-Komponente für Tooltips und Kontextinformationen.
 -   **🎯 Smart Positioning:** Automatically positions relative to parent
 -   **🎨 Multiple Variants:** Info, warning, success, error styles
 -   **📏 Flexible Sizing:** Small, medium, large options
--   **⚡ Smooth Animations:** Fly-in/out transitions
+-   **📐 Custom Widths:** sm, md, lg, xl, 2xl width options
+-   **⚡ Tailwind Animations:** Smooth fade-in/out with scale effects
 -   **♿ Accessibility:** Proper ARIA labels and roles
 -   **🎪 Intro Animation:** Auto-show/hide with configurable timing
 -   **🖱️ Multiple Triggers:** Hover, click, or both
 -   **🌙 Dark Mode:** Full dark mode support
 -   **📱 Responsive:** Works on all screen sizes
+-   **⏰ Real Account Age:** Displays actual days since account creation
+-   **🌍 Localized:** Supports multiple languages for account age
+-   **💎 Tier Badges:** Special styling for FREE/PRO accounts
+-   **🎭 Always Visible:** Option to always show the badge
