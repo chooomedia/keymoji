@@ -415,7 +415,10 @@ export default {
         saving: 'Salvataggio...',
         exporting: 'Esportazione...',
         importing: 'Importazione...',
-        resetting: 'Ripristino...'
+        resetting: 'Ripristino...',
+        closeModal: 'Chiudi modal',
+        modalClosesIn: 'Il modal si chiude in {seconds} secondi',
+        modalClosesInSingular: 'Il modal si chiude in {seconds} secondo'
     },
     versions: {
         pageTitle: 'Cronologia versioni',

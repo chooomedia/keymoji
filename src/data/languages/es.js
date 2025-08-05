@@ -418,7 +418,10 @@ export default {
         saving: 'Guardando...',
         exporting: 'Exportando...',
         importing: 'Importando...',
-        resetting: 'Restableciendo...'
+        resetting: 'Restableciendo...',
+        closeModal: 'Cerrar modal',
+        modalClosesIn: 'El modal se cierra en {seconds} segundos',
+        modalClosesInSingular: 'El modal se cierra en {seconds} segundo'
     },
     versions: {
         pageTitle: 'Historial de versiones',

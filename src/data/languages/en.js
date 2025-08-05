@@ -426,7 +426,10 @@ export default {
         saving: 'Saving...',
         exporting: 'Exporting...',
         importing: 'Importing...',
-        resetting: 'Resetting...'
+        resetting: 'Resetting...',
+        closeModal: 'Close modal',
+        modalClosesIn: 'Modal closes in {seconds} seconds',
+        modalClosesInSingular: 'Modal closes in {seconds} second'
     },
 
     // AccountManager translations

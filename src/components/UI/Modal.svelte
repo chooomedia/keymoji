@@ -280,7 +280,7 @@
                     <button
                         on:click={handleCloseModal}
                         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
-                        aria-label="Close modal"
+                        aria-label="{$translations?.modals?.closeModal || 'Close modal'}"
                     >
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -429,7 +429,10 @@
                             ></div>
                         </div>
                         <div class="text-xs text-gray-500 dark:text-gray-400 text-center p-4">
-                            Modal schließt in {remainingSeconds} Sekunden
+                            {remainingSeconds === 1 
+                                ? ($translations?.modals?.modalClosesInSingular || 'Modal closes in {seconds} second').replace('{seconds}', remainingSeconds)
+                                : ($translations?.modals?.modalClosesIn || 'Modal closes in {seconds} seconds').replace('{seconds}', remainingSeconds)
+                            }
                         </div>
                     {/if}
                 </div>

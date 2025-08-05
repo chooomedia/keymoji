@@ -414,7 +414,10 @@ export default {
         saving: 'Kaydediliyor...',
         exporting: 'Dışa aktarılıyor...',
         importing: 'İçe aktarılıyor...',
-        resetting: 'Sıfırlanıyor...'
+        resetting: 'Sıfırlanıyor...',
+        closeModal: 'Modalı kapat',
+        modalClosesIn: 'Modal {seconds} saniye sonra kapanacak',
+        modalClosesInSingular: 'Modal {seconds} saniye sonra kapanacak'
     },
 
     versions: {

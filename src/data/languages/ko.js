@@ -412,7 +412,10 @@ export default {
         saving: '저장 중...',
         exporting: '내보내는 중...',
         importing: '가져오는 중...',
-        resetting: '재설정 중...'
+        resetting: '재설정 중...',
+        closeModal: '모달 닫기',
+        modalClosesIn: '모달이 {seconds}초 후에 닫힙니다',
+        modalClosesInSingular: '모달이 {seconds}초 후에 닫힙니다'
     },
     versions: {
         pageTitle: '버전 기록',

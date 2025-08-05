@@ -418,7 +418,10 @@ export default {
         saving: "lanlu'...",
         exporting: "lanlu'...",
         importing: "lanlu'...",
-        resetting: "lanlu'..."
+        resetting: "lanlu'...",
+        closeModal: "meQwI' yISoQmoH",
+        modalClosesIn: "meQwI' {seconds} tlha' yISoQmoH",
+        modalClosesInSingular: "meQwI' {seconds} tlha' yISoQmoH"
     },
     versions: {
         pageTitle: "De' QulwI' lut",

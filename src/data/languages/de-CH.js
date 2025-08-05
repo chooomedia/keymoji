@@ -416,7 +416,10 @@ export default {
         saving: 'Speichere...',
         exporting: 'Exportiere...',
         importing: 'Importiere...',
-        resetting: 'Zruggsetze...'
+        resetting: 'Zruggsetze...',
+        closeModal: 'Modal schliesse',
+        modalClosesIn: 'Modal schliesst in {seconds} Sekunde',
+        modalClosesInSingular: 'Modal schliesst in {seconds} Sekund'
     },
     versions: {
         pageTitle: 'Versionsverlauf',

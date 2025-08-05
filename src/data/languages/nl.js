@@ -416,7 +416,10 @@ export default {
         saving: 'Opslaan...',
         exporting: 'Exporteren...',
         importing: 'Importeren...',
-        resetting: 'Terugzetten...'
+        resetting: 'Terugzetten...',
+        closeModal: 'Modal sluiten',
+        modalClosesIn: 'Modal sluit in {seconds} seconden',
+        modalClosesInSingular: 'Modal sluit in {seconds} seconde'
     },
     versions: {
         pageTitle: 'Versiegeschiedenis',

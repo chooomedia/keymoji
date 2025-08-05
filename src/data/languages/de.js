@@ -432,7 +432,10 @@ export default {
         saving: 'Speichern...',
         exporting: 'Exportieren...',
         importing: 'Importieren...',
-        resetting: 'Zurücksetzen...'
+        resetting: 'Zurücksetzen...',
+        closeModal: 'Modal schließen',
+        modalClosesIn: 'Modal schließt in {seconds} Sekunden',
+        modalClosesInSingular: 'Modal schließt in {seconds} Sekunde'
     },
 
     // AccountManager Übersetzungen

@@ -425,7 +425,10 @@ export default {
         saving: 'Sauvegarde...',
         exporting: 'Exportation...',
         importing: 'Importation...',
-        resetting: 'Réinitialisation...'
+        resetting: 'Réinitialisation...',
+        closeModal: 'Fermer la modal',
+        modalClosesIn: 'La modal se ferme dans {seconds} secondes',
+        modalClosesInSingular: 'La modal se ferme dans {seconds} seconde'
     },
 
     // Traductions AccountManager
@@ -499,19 +502,25 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '5 générations sécurisées quotidiennes',
-                dailyGenerationsDesc: 'Technologie résistante à l\'IA pour une sécurité maximale',
+                dailyGenerationsDesc:
+                    "Technologie résistante à l'IA pour une sécurité maximale",
                 decentralizedData: 'Traitement de données décentralisé',
-                decentralizedDataDesc: 'Vos données restent toujours avec vous - jamais sur des serveurs étrangers',
+                decentralizedDataDesc:
+                    'Vos données restent toujours avec vous - jamais sur des serveurs étrangers',
                 webApp: 'Disponible en application web',
-                webAppDesc: 'Disponible instantanément - aucune installation nécessaire'
+                webAppDesc:
+                    'Disponible instantanément - aucune installation nécessaire'
             },
             pro: {
                 unlimitedGenerations: 'Générations sécurisées illimitées',
-                unlimitedGenerationsDesc: 'Créez autant de mots de passe que vous voulez - sans limites',
+                unlimitedGenerationsDesc:
+                    'Créez autant de mots de passe que vous voulez - sans limites',
                 browserExtension: 'Extension navigateur (Q4 2025)',
-                browserExtensionDesc: 'Sécurité directement dans votre navigateur - automatiquement et partout',
+                browserExtensionDesc:
+                    'Sécurité directement dans votre navigateur - automatiquement et partout',
                 apiIntegration: 'Intégration API (Q4 2025)',
-                apiIntegrationDesc: 'Intégrez la sécurité de manière transparente dans vos propres applications'
+                apiIntegrationDesc:
+                    'Intégrez la sécurité de manière transparente dans vos propres applications'
             }
         },
 

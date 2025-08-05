@@ -413,7 +413,10 @@ export default {
         saving: '保存中...',
         exporting: 'エクスポート中...',
         importing: 'インポート中...',
-        resetting: 'リセット中...'
+        resetting: 'リセット中...',
+        closeModal: 'モーダルを閉じる',
+        modalClosesIn: 'モーダルは{seconds}秒後に閉じます',
+        modalClosesInSingular: 'モーダルは{seconds}秒後に閉じます'
     },
     versions: {
         pageTitle: 'バージョン履歴',

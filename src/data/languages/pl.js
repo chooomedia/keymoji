@@ -416,7 +416,10 @@ export default {
         saving: 'Zapisywanie...',
         exporting: 'Eksportowanie...',
         importing: 'Importowanie...',
-        resetting: 'Przywracanie...'
+        resetting: 'Przywracanie...',
+        closeModal: 'Zamknij modal',
+        modalClosesIn: 'Modal zamknie się za {seconds} sekund',
+        modalClosesInSingular: 'Modal zamknie się za {seconds} sekundę'
     },
     versions: {
         pageTitle: 'Historia wersji',

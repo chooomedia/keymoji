@@ -416,7 +416,10 @@ export default {
         saving: 'Stoor...',
         exporting: 'Eksporteer...',
         importing: 'Importeer...',
-        resetting: 'Herstel...'
+        resetting: 'Herstel...',
+        closeModal: 'Sluit modal',
+        modalClosesIn: 'Modal sluit in {seconds} sekondes',
+        modalClosesInSingular: 'Modal sluit in {seconds} sekonde'
     },
 
     versions: {

@@ -345,7 +345,7 @@ export default {
             magicLinkSent: 'Magic ссылка отправлена!',
             magicLinkError: 'Ошибка при отправке magic ссылки',
             verificationSuccess: 'Email успешно подтвержден!',
-            verificationError: 'Подтверждение email не удалось',
+            verificationError: 'Подверждение email не удалось',
             rateLimitExceeded: 'Слишком много попыток входа. Подождите.',
             sessionExpired: 'Сессия истекла. Войдите снова.'
         },
@@ -415,7 +415,10 @@ export default {
         saving: 'Сохранение...',
         exporting: 'Экспорт...',
         importing: 'Импорт...',
-        resetting: 'Сброс...'
+        resetting: 'Сброс...',
+        closeModal: 'Закрыть модальное окно',
+        modalClosesIn: 'Модальное окно закроется через {seconds} секунд',
+        modalClosesInSingular: 'Модальное окно закроется через {seconds} секунду'
     },
     versions: {
         pageTitle: 'История версий',
