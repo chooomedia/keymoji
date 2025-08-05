@@ -229,6 +229,42 @@
         isValid = validation.isValid;
         validationErrors = validation.errors;
     }
+
+    // Get appropriate autocomplete value based on type and name
+    function getAutocompleteValue() {
+        if (config.autocomplete) return config.autocomplete;
+        
+        // Only add autocomplete for relevant input types
+        const relevantTypes = ['text', 'email', 'password', 'tel', 'url', 'search'];
+        if (!relevantTypes.includes(config.type)) return '';
+        
+        // Auto-detect based on type and name
+        switch (config.type) {
+            case 'email':
+                return 'email';
+            case 'password':
+                return 'current-password';
+            default:
+                const name = config.id?.toLowerCase() || '';
+                if (name.includes('email')) return 'email';
+                if (name.includes('name') || name.includes('fullname')) return 'name';
+                if (name.includes('given') || name.includes('first')) return 'given-name';
+                if (name.includes('family') || name.includes('last')) return 'family-name';
+                if (name.includes('phone') || name.includes('tel')) return 'tel';
+                if (name.includes('url') || name.includes('website')) return 'url';
+                if (name.includes('organization') || name.includes('company')) return 'organization';
+                if (name.includes('street') || name.includes('address')) return 'street-address';
+                if (name.includes('city')) return 'address-level2';
+                if (name.includes('state') || name.includes('province')) return 'address-level1';
+                if (name.includes('zip') || name.includes('postal')) return 'postal-code';
+                if (name.includes('country')) return 'country';
+                if (name.includes('username') || name.includes('user')) return 'username';
+                if (name.includes('new-password')) return 'new-password';
+                if (name.includes('current-password')) return 'current-password';
+                if (name.includes('search')) return 'search';
+                return '';
+        }
+    }
 </script>
 
 <div class="space-y-3">
@@ -276,6 +312,7 @@
                 style="background-image: url('data:image/svg+xml,%3Csvg viewBox=\'0 0 20 20\' fill=\'none\' stroke=\'%23666\' stroke-width=\'2\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M6 8l4 4 4-4\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E'); background-position: right 1rem center; background-size: 1.25rem;"
                 aria-invalid={!isValid && validationErrors.length > 0}
                 aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                autocomplete={getAutocompleteValue()}
             >
                 {#each config.options || [] as option}
                     <option value={option.value}>
@@ -297,6 +334,7 @@
                 class={`${getInputClasses()} ${config.class}`}
                 aria-invalid={!isValid && validationErrors.length > 0}
                 aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                autocomplete={getAutocompleteValue()}
             ></textarea>
         {:else if config.type === 'checkbox'}
             <!-- Checkbox Input -->
@@ -397,6 +435,7 @@
                     class={`${getInputClasses()} ${config.class}`}
                     aria-invalid={!isValid && validationErrors.length > 0}
                     aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                    autocomplete={getAutocompleteValue()}
                 />
             {:else if config.type === 'password'}
                 <input
@@ -411,6 +450,7 @@
                     class={`${getInputClasses()} ${config.class}`}
                     aria-invalid={!isValid && validationErrors.length > 0}
                     aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                    autocomplete={getAutocompleteValue()}
                 />
             {:else if config.type === 'number'}
                 <input
@@ -427,6 +467,7 @@
                     class={`${getInputClasses()} ${config.class}`}
                     aria-invalid={!isValid && validationErrors.length > 0}
                     aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                    autocomplete={getAutocompleteValue()}
                 />
             {:else}
                 <input
@@ -441,6 +482,7 @@
                     class={`${getInputClasses()} ${config.class}`}
                     aria-invalid={!isValid && validationErrors.length > 0}
                     aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                    autocomplete={getAutocompleteValue()}
                 />
             {/if}
         {/if}

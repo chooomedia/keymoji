@@ -314,6 +314,7 @@
                     disabled={isSubmitting}
                     invalid={!!formErrors.name}
                     valid={!formErrors.name && name.trim().length >= 2}
+                    autocomplete="name"
                 />
                 {#if formErrors.name}
                     <p id="name-error" class="text-sm text-red-600 dark:text-red-400 mt-1">{formErrors.name}</p>
@@ -330,6 +331,7 @@
                     disabled={isSubmitting}
                     invalid={!!formErrors.email}
                     valid={!formErrors.email && email.trim() && EMAIL_REGEX.test(email)}
+                    autocomplete="email"
                 />
                 {#if formErrors.email}
                     <p id="email-error" class="text-sm text-red-600 dark:text-red-400 mt-1">{formErrors.email}</p>
@@ -348,6 +350,7 @@
                 disabled={isSubmitting}
                 invalid={!!formErrors.message}
                 valid={!formErrors.message && message.trim().length >= MIN_MESSAGE_LENGTH}
+                autocomplete="off"
             />
             {#if formErrors.message}
                 <p id="message-error" class="text-sm text-red-600 dark:text-red-400 mt-1">{formErrors.message}</p>

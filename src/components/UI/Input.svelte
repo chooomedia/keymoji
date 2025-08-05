@@ -8,6 +8,7 @@
   export let id = '';
   export let invalid = false;
   export let valid = false;
+  export let autocomplete = '';
   
   // Handle different input types with separate components
   const baseClasses = "w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light p-4";
@@ -21,6 +22,41 @@
   };
   
   $: inputClass = `${baseClasses} ${disabled ? stateClasses.disabled : invalid ? stateClasses.invalid : valid ? stateClasses.valid : stateClasses.default}`;
+  
+  // Get appropriate autocomplete value based on type and name
+  function getAutocompleteValue() {
+    if (autocomplete) return autocomplete;
+    
+    // Only add autocomplete for relevant input types
+    const relevantTypes = ['text', 'email', 'password', 'tel', 'url', 'search'];
+    if (!relevantTypes.includes(type)) return '';
+    
+    // Auto-detect based on type and name
+    switch (type) {
+      case 'email':
+        return 'email';
+      case 'password':
+        return 'current-password';
+      default:
+        if (name.toLowerCase().includes('email')) return 'email';
+        if (name.toLowerCase().includes('name') || name.toLowerCase().includes('fullname')) return 'name';
+        if (name.toLowerCase().includes('given') || name.toLowerCase().includes('first')) return 'given-name';
+        if (name.toLowerCase().includes('family') || name.toLowerCase().includes('last')) return 'family-name';
+        if (name.toLowerCase().includes('phone') || name.toLowerCase().includes('tel')) return 'tel';
+        if (name.toLowerCase().includes('url') || name.toLowerCase().includes('website')) return 'url';
+        if (name.toLowerCase().includes('organization') || name.toLowerCase().includes('company')) return 'organization';
+        if (name.toLowerCase().includes('street') || name.toLowerCase().includes('address')) return 'street-address';
+        if (name.toLowerCase().includes('city')) return 'address-level2';
+        if (name.toLowerCase().includes('state') || name.toLowerCase().includes('province')) return 'address-level1';
+        if (name.toLowerCase().includes('zip') || name.toLowerCase().includes('postal')) return 'postal-code';
+        if (name.toLowerCase().includes('country')) return 'country';
+        if (name.toLowerCase().includes('username') || name.toLowerCase().includes('user')) return 'username';
+        if (name.toLowerCase().includes('new-password')) return 'new-password';
+        if (name.toLowerCase().includes('current-password')) return 'current-password';
+        if (name.toLowerCase().includes('search')) return 'search';
+        return '';
+    }
+  }
 </script>
 
 {#if type === 'textarea'}
@@ -34,6 +70,7 @@
     class={inputClass}
     aria-invalid={invalid}
     aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
+    autocomplete={getAutocompleteValue()}
   ></textarea>
 {:else if type === 'select'}
   <select 
@@ -46,6 +83,7 @@
     style="background-image: url('data:image/svg+xml,%3Csvg viewBox=\'0 0 20 20\' fill=\'none\' stroke=\'%23666\' stroke-width=\'2\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M6 8l4 4 4-4\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E'); background-position: right 1rem center; background-size: 1.25rem;"
     aria-invalid={invalid}
     aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
+    autocomplete={getAutocompleteValue()}
   >
     <slot />
   </select>
@@ -61,6 +99,7 @@
     class={inputClass}
     aria-invalid={invalid}
     aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
+    autocomplete={getAutocompleteValue()}
   />
 {:else if type === 'password'}
   <input 
@@ -74,6 +113,7 @@
     class={inputClass}
     aria-invalid={invalid}
     aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
+    autocomplete={getAutocompleteValue()}
   />
 {:else}
   <input 
@@ -87,6 +127,7 @@
     class={inputClass}
     aria-invalid={invalid}
     aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
+    autocomplete={getAutocompleteValue()}
   />
 {/if}
 

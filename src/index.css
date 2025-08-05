@@ -20,6 +20,10 @@
     @apply max-w-105 flex flex-row h-16 justify-center items-center scale-114 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-117 gap-2 md:px-0 border-4 z-10;
 }
 
+button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+}
+
 .bg-loading .hieroglyphemojis {
     /* Smooth transition while loading */
     background-size: 0%, cover;
@@ -84,8 +88,6 @@
     box-sizing: border-box;
     /* Modal-Open Klasse wird von Modal.svelte verwaltet */
 }
-
-
 
 /* Alle Scrollbars unsichtbar machen (außer Language Dialog) */
 :global(*) {

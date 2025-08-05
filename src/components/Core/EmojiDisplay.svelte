@@ -428,6 +428,7 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
         on:keydown={handleTextareaKeydown} 
         minlength="40"
         disabled={$isDisabled}
+        autocomplete="off"
       />
       <p class="text-sm text-gray text-left py-3" aria-label="information">
         {$translations.emojiDisplay.dataPrivacyProcessingInfo}

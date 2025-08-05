@@ -1204,6 +1204,7 @@
                                     disabled={isSubmitting}
                                     invalid={!isEmailValid && email.trim()}
                                     valid={isEmailValid && email.trim()}
+                                    autocomplete="email"
                                 />
                             </div>
 
@@ -1219,6 +1220,7 @@
                                         disabled={isSubmitting}
                                         invalid={!isNameValid && name.trim()}
                                         valid={isNameValid && name.trim()}
+                                        autocomplete="name"
                                     />
                                 </div>
                             {/if}
