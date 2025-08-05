@@ -1194,14 +1194,16 @@
                     <div class="bg-transparent mb-2 relative z-20">
                         <form on:submit|preventDefault={handleLogin} class="space-y-4">
                             <div>
-                                <label for="email-expanded" class="sr-only">{$translations?.accountManager?.emailLabel || 'Email'}</label>
+                                <label for="email" class="sr-only">{$translations?.accountManager?.emailLabel || 'Email'}</label>
                                 <Input
-                                    id="email-expanded"
+                                    id="email"
                                     type="email"
                                     bind:value={email}
                                     placeholder={$translations?.accountManager?.emailLabel || 'Email'}
                                     required={true}
                                     disabled={isSubmitting}
+                                    invalid={!isEmailValid && email.trim()}
+                                    valid={isEmailValid && email.trim()}
                                 />
                             </div>
 
@@ -1215,6 +1217,8 @@
                                         placeholder={$translations?.accountManager?.nameLabel || 'Name'}
                                         required={true}
                                         disabled={isSubmitting}
+                                        invalid={!isNameValid && name.trim()}
+                                        valid={isNameValid && name.trim()}
                                     />
                                 </div>
                             {/if}
@@ -1223,10 +1227,10 @@
                             {#if !isFormValid && email}
                                 <div class="text-sm text-red-600 dark:text-red-400 text-center mt-1">
                                     {#if !isEmailValid}
-                                        <p>⚠️ {$translations?.accountManager?.validation?.emailInvalid || 'Please enter a valid email address'}</p>
+                                        <p id="email-error">⚠️ {$translations?.accountManager?.validation?.emailInvalid || 'Please enter a valid email address'}</p>
                                     {/if}
                                     {#if showProfileForm && !isNameValid}
-                                        <p>⚠️ {$translations?.accountManager?.validation?.nameInvalid || 'Please enter your name (minimum 2 characters)'}</p>
+                                        <p id="name-error">⚠️ {$translations?.accountManager?.validation?.nameInvalid || 'Please enter your name (minimum 2 characters)'}</p>
                                     {/if}
                                 </div>
                             {/if}
@@ -1376,6 +1380,8 @@
                                     placeholder={$translations?.accountManager?.emailLabel || 'Email'}
                                     required={true}
                                     disabled={isSubmitting}
+                                    invalid={!isEmailValid && email.trim()}
+                                    valid={isEmailValid && email.trim()}
                                 />
                             </div>
 
@@ -1389,6 +1395,8 @@
                                         placeholder={$translations?.accountManager?.nameLabel || 'Name'}
                                         required={true}
                                         disabled={isSubmitting}
+                                        invalid={!isNameValid && name.trim()}
+                                        valid={isNameValid && name.trim()}
                                     />
                                 </div>
                             {/if}
@@ -1397,10 +1405,10 @@
                             {#if !isFormValid && email}
                                 <div class="text-sm text-red-600 dark:text-red-400 text-center">
                                     {#if !isEmailValid}
-                                        <p>⚠️ {$translations?.accountManager?.validation?.emailInvalid || 'Please enter a valid email address'}</p>
+                                        <p id="email-error">⚠️ {$translations?.accountManager?.validation?.emailInvalid || 'Please enter a valid email address'}</p>
                                     {/if}
                                     {#if showProfileForm && !isNameValid}
-                                        <p>⚠️ {$translations?.accountManager?.validation?.nameInvalid || 'Please enter your name (minimum 2 characters)'}</p>
+                                        <p id="name-error">⚠️ {$translations?.accountManager?.validation?.nameInvalid || 'Please enter your name (minimum 2 characters)'}</p>
                                     {/if}
                                 </div>
                             {/if}

@@ -58,9 +58,9 @@
     $: checkboxClasses = [
         sizeClasses[size],
         'rounded border transition-colors duration-200 appearance-none cursor-pointer',
-        disabled ? 'opacity-50 cursor-not-allowed' : '',
+        disabled ? 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600' : '',
         checked ? variantClasses[variant].checked : variantClasses[variant].unchecked,
-        variantClasses[variant].focus
+        disabled ? '' : variantClasses[variant].focus
     ].filter(Boolean).join(' ');
     
     $: iconSize = {

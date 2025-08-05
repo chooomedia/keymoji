@@ -206,11 +206,21 @@
     
     // Get input classes based on validation state
     function getInputClasses() {
-        const baseClasses = 'w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border border-gray-light dark:border-aubergine-700 focus:ring-1 focus:ring-yellow-50 focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light p-4 disabled:opacity-70 disabled:cursor-not-allowed';
-        const stateClasses = isValid 
-            ? '' 
-            : 'border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-100';
-        return `${baseClasses} ${stateClasses}`;
+        const baseClasses = 'w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light p-4';
+        
+        if (config.disabled) {
+            return `${baseClasses} opacity-70 cursor-not-allowed bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600`;
+        }
+        
+        if (!isValid && validationErrors.length > 0) {
+            return `${baseClasses} border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-100 focus:ring-1 focus:ring-red-500 focus:border-red-500`;
+        }
+        
+        if (isValid && currentValue && config.validation) {
+            return `${baseClasses} border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-900/20 text-green-900 dark:text-green-100 focus:ring-1 focus:ring-green-500 focus:border-green-500`;
+        }
+        
+        return `${baseClasses} border-gray-light dark:border-aubergine-700 focus:ring-1 focus:ring-yellow-50 focus:border-transparent`;
     }
     
     // Initialize validation on mount
@@ -264,6 +274,8 @@
                 disabled={config.disabled}
                 class={`${getInputClasses()} ${config.class} appearance-none bg-no-repeat pr-12`}
                 style="background-image: url('data:image/svg+xml,%3Csvg viewBox=\'0 0 20 20\' fill=\'none\' stroke=\'%23666\' stroke-width=\'2\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M6 8l4 4 4-4\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E'); background-position: right 1rem center; background-size: 1.25rem;"
+                aria-invalid={!isValid && validationErrors.length > 0}
+                aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
             >
                 {#each config.options || [] as option}
                     <option value={option.value}>
@@ -283,6 +295,8 @@
                 cols={config.cols}
                 maxlength={config.maxLength}
                 class={`${getInputClasses()} ${config.class}`}
+                aria-invalid={!isValid && validationErrors.length > 0}
+                aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
             ></textarea>
         {:else if config.type === 'checkbox'}
             <!-- Checkbox Input -->
@@ -293,7 +307,9 @@
                     bind:checked={currentValue}
                     on:change={handleValueChange}
                     disabled={config.disabled}
-                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-invalid={!isValid && validationErrors.length > 0}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
                 />
                 <label for={config.id} class="text-sm text-gray-900 dark:text-white">
                     {getLocalizedText(config.label)}
@@ -312,7 +328,9 @@
                             bind:group={currentValue}
                             on:change={handleValueChange}
                             disabled={config.disabled}
-                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                            aria-invalid={!isValid && validationErrors.length > 0}
+                            aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
                         />
                         <label for="{config.id}_{option.value}" class="text-sm text-gray-900 dark:text-white">
                             {getLocalizedText(option.label)}
@@ -332,7 +350,9 @@
                     max={config.max || 100}
                     step={config.step || 1}
                     disabled={config.disabled}
-                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-invalid={!isValid && validationErrors.length > 0}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
                 />
                 <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400">
                     <span>{config.min || 0}</span>
@@ -375,6 +395,8 @@
                     required={config.required}
                     maxlength={config.maxLength}
                     class={`${getInputClasses()} ${config.class}`}
+                    aria-invalid={!isValid && validationErrors.length > 0}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
                 />
             {:else if config.type === 'password'}
                 <input
@@ -387,6 +409,8 @@
                     required={config.required}
                     maxlength={config.maxLength}
                     class={`${getInputClasses()} ${config.class}`}
+                    aria-invalid={!isValid && validationErrors.length > 0}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
                 />
             {:else if config.type === 'number'}
                 <input
@@ -401,6 +425,8 @@
                     max={config.max}
                     step={config.step}
                     class={`${getInputClasses()} ${config.class}`}
+                    aria-invalid={!isValid && validationErrors.length > 0}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
                 />
             {:else}
                 <input
@@ -413,6 +439,8 @@
                     required={config.required}
                     maxlength={config.maxLength}
                     class={`${getInputClasses()} ${config.class}`}
+                    aria-invalid={!isValid && validationErrors.length > 0}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
                 />
             {/if}
         {/if}
@@ -420,18 +448,18 @@
 
     <!-- Validation Errors -->
     {#if !isValid && validationErrors.length > 0}
-        <div class="space-y-1">
+        <div id={`${config.id}-error`} class="text-sm text-red-600 dark:text-red-400">
             {#each validationErrors as error}
-                <p class="text-sm text-red-600 dark:text-red-400">{error}</p>
+                <p>{error}</p>
             {/each}
         </div>
     {/if}
 
     <!-- Validation Success -->
     {#if isValid && currentValue && config.validation}
-        <p class="text-sm text-green-600 dark:text-green-400">
+        <div id={`${config.id}-success`} class="text-sm text-green-600 dark:text-green-400">
             ✓ {getLocalizedText({ en: 'Valid input', de: 'Gültige Eingabe' })}
-        </p>
+        </div>
     {/if}
 </div>
 

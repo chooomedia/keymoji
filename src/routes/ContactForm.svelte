@@ -312,9 +312,11 @@
                     bind:value={name}
                     placeholder={$translations.contactForm.nameLabel}
                     disabled={isSubmitting}
+                    invalid={!!formErrors.name}
+                    valid={!formErrors.name && name.trim().length >= 2}
                 />
                 {#if formErrors.name}
-                    <p id="name-error" class="form-error">{formErrors.name}</p>
+                    <p id="name-error" class="text-sm text-red-600 dark:text-red-400 mt-1">{formErrors.name}</p>
                 {/if}
             </div>
 
@@ -326,9 +328,11 @@
                     bind:value={email}
                     placeholder={$translations.contactForm.emailLabel}
                     disabled={isSubmitting}
+                    invalid={!!formErrors.email}
+                    valid={!formErrors.email && email.trim() && EMAIL_REGEX.test(email)}
                 />
                 {#if formErrors.email}
-                    <p id="email-error" class="form-error">{formErrors.email}</p>
+                    <p id="email-error" class="text-sm text-red-600 dark:text-red-400 mt-1">{formErrors.email}</p>
                 {/if}
             </div>
         </div>
@@ -342,9 +346,11 @@
                 bind:value={message}
                 placeholder={$translations.contactForm.messageLabel}
                 disabled={isSubmitting}
+                invalid={!!formErrors.message}
+                valid={!formErrors.message && message.trim().length >= MIN_MESSAGE_LENGTH}
             />
             {#if formErrors.message}
-                <p id="message-error" class="form-error">{formErrors.message}</p>
+                <p id="message-error" class="text-sm text-red-600 dark:text-red-400 mt-1">{formErrors.message}</p>
             {/if}
         </div>
 

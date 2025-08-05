@@ -45,7 +45,7 @@
 <div class="ml-6 mr-2">
     <label
         for={id}
-        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out {checked ? getColorClasses() : 'bg-gray-200 dark:bg-gray-700'} {disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}"
+        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out {checked ? getColorClasses() : 'bg-gray-200 dark:bg-gray-700'} {disabled ? 'opacity-50 cursor-not-allowed bg-gray-300 dark:bg-gray-600' : 'cursor-pointer'}"
         aria-checked={checked}
         aria-labelledby="{id}-label"
     >
@@ -58,14 +58,15 @@
             {disabled}
             role="switch"
             aria-checked={checked}
+            aria-disabled={disabled}
         />
 
         <!-- Toggle Track -->
-        <div class="absolute inset-0 rounded-full border border-gray-light dark:border-aubergine-800 transition-colors duration-300 ease-in-out {checked ? getColorClasses() : 'bg-gray-200 dark:bg-gray-700'}"></div>
+        <div class="absolute inset-0 rounded-full border border-gray-light dark:border-aubergine-800 transition-colors duration-300 ease-in-out {checked ? getColorClasses() : 'bg-gray-200 dark:bg-gray-700'} {disabled ? 'bg-gray-300 dark:bg-gray-600' : ''}"></div>
         
         <!-- Toggle Thumb -->
         <div
-            class="relative h-5 w-5 rounded-full bg-white dark:bg-aubergine-900 shadow-sm transition-all duration-300 ease-in-out transform {checked ? 'translate-x-5' : 'translate-x-0'}"
+            class="relative h-5 w-5 rounded-full bg-white dark:bg-aubergine-900 shadow-sm transition-all duration-300 ease-in-out transform {checked ? 'translate-x-5' : 'translate-x-0'} {disabled ? 'opacity-50' : ''}"
             style="left: 0.125rem;"
         >
             <!-- Check Icon (checked) -->

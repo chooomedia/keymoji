@@ -413,7 +413,8 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
         min="4" 
         max="9" 
         bind:value={emojiCount} 
-        class="md:w-100 w-full mt-3 appearance-none rounded-full bg-gray-600 h-2 transition-all" 
+        class="md:w-100 w-full mt-3 appearance-none rounded-full bg-gray-600 h-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+        disabled={$isDisabled}
       />
       <span>{emojiCount}</span>
     </div>
@@ -423,16 +424,18 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
       <textarea 
         bind:value={storyInput} 
         placeholder={$translations.emojiDisplay.placeholderText} 
-        class="appearance-none block w-full text-gray rounded-2xl py-3 px-4 md:mb-3 leading-tight transition duration-300 ease-in-out transform dark:bg-aubergine-900 dark:text-white  focus:bg-white" 
+        class="appearance-none block w-full text-gray rounded-2xl py-3 px-4 md:mb-3 leading-tight transition duration-300 ease-in-out transform dark:bg-aubergine-900 dark:text-white focus:bg-white focus:ring-1 focus:ring-yellow-50 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed" 
         on:keydown={handleTextareaKeydown} 
         minlength="40"
+        disabled={$isDisabled}
       />
       <p class="text-sm text-gray text-left py-3" aria-label="information">
         {$translations.emojiDisplay.dataPrivacyProcessingInfo}
       </p>
       <button aria-label="Clear the form inputs" 
         on:click={clearInput} 
-        class="bg-white dark:bg-aubergine-900 text-gray transition duration-300 ease-in-out transform hover:scale-105 px-3 py-3 rounded-full"
+        class="bg-white dark:bg-aubergine-900 text-gray transition duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 px-3 py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
+        disabled={$isDisabled}
       >
         {$translations.emojiDisplay.clearButton}
       </button>
@@ -441,20 +444,21 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
     <!-- Action Buttons -->
     <div 
       role="main"
-              aria-label={$translations.emojiDisplay.emojiDisplayTitle} 
+      aria-label={$translations.emojiDisplay.emojiDisplayTitle} 
       class="flex space-x-4 mt-3 mb-2"
     >
       {#if isStoryMode}
         <button aria-label="Generate your writte Story into fitting emojis" 
           on:click={generateEmojis} 
-          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-4 rounded-full"
+          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 w-1/2 py-4 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
+          disabled={$isDisabled}
         >
           {$translations.emojiDisplay.storyButtonClicked}
         </button>
       {:else}
         <button aria-label="Toggle Story Form" 
           on:click={toggleStoryMode} 
-          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-4 rounded-full opacity-50 cursor-not-allowed" 
+          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 w-1/2 py-4 rounded-full opacity-50 cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100" 
           disabled
         >
           🔜 {$translations.emojiDisplay.storyButton}
@@ -465,9 +469,7 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
         aria-label={$translations.emojiDisplay.randomButton}
         on:click={() => generateRandomEmojis(true)} 
         on:keydown={handleKeyPress} 
-        class="bg-yellow-500 text-black shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-1/2 py-3 rounded-full"
-        class:opacity-50={$isDisabled}
-        class:cursor-not-allowed={$isDisabled}
+        class="bg-yellow-500 text-black shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 w-1/2 py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
         disabled={$isDisabled}
       >
         {$translations.emojiDisplay.randomButton}
