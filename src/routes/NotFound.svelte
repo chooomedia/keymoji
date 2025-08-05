@@ -67,7 +67,7 @@
         <section class="flex flex-col justify-center items-center min-h-screen py-32 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
             
             <!-- 404 Content Box -->
-            <div class="content-wrapper w-11/12 md:w-26r rounded-xl bg-creme-500 dark:bg-aubergine-800 p-6">
+            <div class="content-wrapper">
                 <!-- 404 Error Display -->
                 <div class="text-center mb-8">
                     <div class="text-8xl mb-4 animate-bounce">😵‍💫</div>

@@ -112,50 +112,47 @@
 
     // Calculate days since account creation
     function getDaysSinceAccountCreation() {
-        // Debug: Log the current account structure
-        console.log('🔍 DEBUG: Current account structure:', $currentAccount);
-        console.log('🔍 DEBUG: metadata:', $currentAccount?.metadata);
-        console.log('🔍 DEBUG: createdAt paths:', {
-            'metadata.createdAt': $currentAccount?.metadata?.createdAt,
-            'createdAt': $currentAccount?.createdAt,
-            'profile.createdAt': $currentAccount?.profile?.createdAt,
-            'lastLogin': $currentAccount?.lastLogin,
-            'timestamp': $currentAccount?.timestamp
-        });
-        
-        // Try different possible paths for creation date
-        const possibleDates = [
-            $currentAccount?.metadata?.createdAt,
-            $currentAccount?.createdAt,
-            $currentAccount?.profile?.createdAt,
-            $currentAccount?.timestamp,
-            $currentAccount?.lastLogin
-        ];
-        
-        // Spezifisch nach keymoji_user_preferences > createdAt im localStorage suchen
+        // Direkt nach keymoji_user_preferences > createdAt im localStorage suchen
         const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
         console.log('🔍 DEBUG: User preferences from localStorage:', userPrefs);
         
-        if (userPrefs?.createdAt) {
-            possibleDates.unshift(userPrefs.createdAt); // Priorität geben
-        }
-        if (userPrefs?.metadata?.createdAt) {
-            possibleDates.unshift(userPrefs.metadata.createdAt); // Höchste Priorität
-        }
-        if (userPrefs?.lastLogin) {
-            possibleDates.push(userPrefs.lastLogin);
-        }
-        
-        const createdAtValue = possibleDates.find(date => date);
+        // Priorität 1: localStorage USER_PREFERENCES.createdAt
+        let createdAtValue = userPrefs?.createdAt;
         
         if (!createdAtValue) {
-            console.warn('⚠️ No creation date found in account data or localStorage');
-            return 0;
+            console.log('⚠️ No creation date found - setting to current date');
+            createdAtValue = new Date().toISOString();
+            
+            // Speichere es sofort im localStorage
+            const updatedPrefs = {
+                ...userPrefs,
+                createdAt: createdAtValue
+            };
+            storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
+            console.log('✅ CreatedAt set to current date and saved:', createdAtValue);
         }
         
         try {
             const createdAt = new Date(createdAtValue);
             const now = new Date();
+            
+            // Check if the date is valid
+            if (isNaN(createdAt.getTime())) {
+                console.warn('⚠️ Invalid date format:', createdAtValue);
+                return 0;
+            }
+            
+            // Check if the date is in the future (which would be invalid)
+            if (createdAt > now) {
+                console.warn('⚠️ CreatedAt date is in the future:', createdAtValue);
+                // Use a reasonable fallback date (e.g., 1 day ago)
+                const fallbackDate = new Date(now.getTime() - (24 * 60 * 60 * 1000)); // 1 day ago
+                const diffTime = Math.abs(now - fallbackDate);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                console.log('🔧 Using fallback date (1 day ago):', diffDays);
+                return diffDays;
+            }
+            
             const diffTime = Math.abs(now - createdAt);
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             
@@ -163,7 +160,7 @@
                 createdAtValue,
                 createdAt,
                 diffDays,
-                source: userPrefs?.createdAt ? 'localStorage' : 'account data'
+                source: 'localStorage'
             });
             
             return diffDays;
@@ -171,6 +168,40 @@
             console.warn('Error calculating days since account creation:', error);
             return 0;
         }
+    }
+    
+    // Test function to manually set createdAt for debugging
+    function testSetCreatedAt() {
+        const testDate = new Date().toISOString();
+        const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+        const updatedPrefs = {
+            ...userPrefs,
+            createdAt: testDate
+        };
+        storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
+        console.log('🔧 Test createdAt set:', testDate);
+        console.log('🔧 Updated userPrefs:', updatedPrefs);
+    }
+    
+    // Test function to manually set a specific createdAt for debugging
+    function testSetSpecificCreatedAt() {
+        // Set a specific date for testing (e.g., 30 days ago)
+        const testDate = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000)).toISOString();
+        const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+        const updatedPrefs = {
+            ...userPrefs,
+            createdAt: testDate
+        };
+        storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
+        console.log('🔧 Test createdAt set to 30 days ago:', testDate);
+        console.log('🔧 Updated userPrefs:', updatedPrefs);
+    }
+    
+    // Test function to check what's in localStorage
+    function checkLocalStorage() {
+        const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
+        console.log('🔍 Current userPrefs in localStorage:', userPrefs);
+        return userPrefs;
     }
     
     // Reactive calculation for days since account creation
@@ -340,29 +371,32 @@
     // Account age label for psychological effect - zeigt wie lange User im aktuellen Tier ist
     $: accountAgeLabel = (() => {
         const isProAccount = $accountTier === 'pro';
-        const tierPrefix = isProAccount ? '💎 PRO' : '✨ FREE';
         
         if (daysSinceCreation === 0) {
-            const baseText = $translations?.accountManager?.accountAge?.today || 'Created today';
-            return `${tierPrefix}: Seit heute!`;
+            const baseText = $translations?.accountManager?.accountAge?.today || '✨ FREE: Seit heute!';
+            return isProAccount ? baseText.replace('✨ FREE', '💎 PRO') : baseText;
         } else if (daysSinceCreation === 1) {
-            const baseText = $translations?.accountManager?.accountAge?.yesterday || 'Created yesterday';
-            return `${tierPrefix}: Seit gestern!`;
+            const baseText = $translations?.accountManager?.accountAge?.yesterday || '🚀 FREE: Seit gestern!';
+            return isProAccount ? baseText.replace('🚀 FREE', '💎 PRO') : baseText;
         } else if (daysSinceCreation < 7) {
-            const baseText = ($translations?.accountManager?.accountAge?.days || '{days} days').replace('{days}', daysSinceCreation);
-            return `${tierPrefix}: Seit ${daysSinceCreation} Tagen!`;
+            const baseText = $translations?.accountManager?.accountAge?.days || '🔥 FREE: Seit {days} Tagen!';
+            const formattedText = baseText.replace('{days}', daysSinceCreation);
+            return isProAccount ? formattedText.replace('🔥 FREE', '💎 PRO') : formattedText;
         } else if (daysSinceCreation < 30) {
             const weeks = Math.floor(daysSinceCreation / 7);
-            const baseText = ($translations?.accountManager?.accountAge?.weeks || '{weeks} week{plural}').replace('{weeks}', weeks).replace('{plural}', weeks > 1 ? 's' : '');
-            return `${tierPrefix}: Seit ${weeks} Woche${weeks > 1 ? 'n' : ''}!`;
+            const baseText = $translations?.accountManager?.accountAge?.weeks || '⚡ FREE: Seit {weeks} Woche{plural}!';
+            const formattedText = baseText.replace('{weeks}', weeks).replace('{plural}', weeks > 1 ? 'n' : '');
+            return isProAccount ? formattedText.replace('⚡ FREE', '💎 PRO') : formattedText;
         } else if (daysSinceCreation < 365) {
             const months = Math.floor(daysSinceCreation / 30);
-            const baseText = ($translations?.accountManager?.accountAge?.months || '{months} month{plural}').replace('{months}', months).replace('{plural}', months > 1 ? 's' : '');
-            return `${tierPrefix}: Seit ${months} Monat${months > 1 ? 'en' : ''}!`;
+            const baseText = $translations?.accountManager?.accountAge?.months || '💪 FREE: Seit {months} Monat{plural}!';
+            const formattedText = baseText.replace('{months}', months).replace('{plural}', months > 1 ? 'en' : '');
+            return isProAccount ? formattedText.replace('💪 FREE', '💎 PRO') : formattedText;
         } else {
             const years = Math.floor(daysSinceCreation / 365);
-            const baseText = ($translations?.accountManager?.accountAge?.years || '{years} year{plural}').replace('{years}', years).replace('{plural}', years > 1 ? 's' : '');
-            return `${tierPrefix}: Seit ${years} Jahr${years > 1 ? 'en' : ''}!`;
+            const baseText = $translations?.accountManager?.accountAge?.years || '🏆 FREE: Seit {years} Jahr{plural}!';
+            const formattedText = baseText.replace('{years}', years).replace('{plural}', years > 1 ? 'en' : '');
+            return isProAccount ? formattedText.replace('🏆 FREE', '💎 PRO') : formattedText;
         }
     })();
     
@@ -1333,19 +1367,21 @@
                         <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'free' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0'}">
                             <div class="space-y-4">
                                 {#each Object.entries($translations?.accountManager?.benefits?.free || {}) as [key, value]}
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-yellow-600 dark:text-yellow-400 text-2xl">
-                                                {key === 'dailyGenerations' ? '✓' : 
-                                                 key === 'decentralizedData' ? '🔒' : 
-                                                 key === 'webApp' ? '📱' : '✓'}
-                                            </span>
+                                    {#if !key.endsWith('Desc')}
+                                        <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                            <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                                <span class="text-yellow-600 dark:text-yellow-400 text-2xl">
+                                                    {key === 'dailyGenerations' ? '✓' : 
+                                                     key === 'decentralizedData' ? '🔒' : 
+                                                     key === 'webApp' ? '📱' : '✓'}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span class="text-md font-bold text-black dark:text-white">{value}</span>
+                                                <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.[key + 'Desc'] || ''}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{value}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.[key + 'Desc'] || ''}</p>
-                                        </div>
-                                    </div>
+                                    {/if}
                                 {/each}
                             </div>
                         </div>
@@ -1354,23 +1390,25 @@
                         <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'pro' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0'}">
                             <div class="space-y-4">
                                 {#each Object.entries($translations?.accountManager?.benefits?.pro || {}) as [key, value]}
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-100 to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-200 dark:from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-800 dark:to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-600 dark:text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-400 text-2xl">
-                                                {key === 'unlimitedGenerations' ? '∞' : 
-                                                 key === 'aiThreatDetection' ? '🧠' : 
-                                                 key === 'prioritySupport' ? '⚡' : 
-                                                 key === 'browserExtension' ? '🌐' : 
-                                                 key === 'apiIntegration' ? '🔌' : 
-                                                 key === 'advancedAnalytics' ? '📊' : 
-                                                 key === 'wordpressPlugin' ? '📝' : '✓'}
-                                            </span>
+                                    {#if !key.endsWith('Desc')}
+                                        <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                            <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-100 to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-200 dark:from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-800 dark:to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                                <span class="text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-600 dark:text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-400 text-2xl">
+                                                    {key === 'unlimitedGenerations' ? '∞' : 
+                                                     key === 'aiThreatDetection' ? '🧠' : 
+                                                     key === 'prioritySupport' ? '⚡' : 
+                                                     key === 'browserExtension' ? '🌐' : 
+                                                     key === 'apiIntegration' ? '🔌' : 
+                                                     key === 'advancedAnalytics' ? '📊' : 
+                                                     key === 'wordpressPlugin' ? '📝' : '✓'}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span class="text-md font-bold text-black dark:text-white">{value}</span>
+                                                <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.[key + 'Desc'] || ''}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{value}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.[key + 'Desc'] || ''}</p>
-                                        </div>
-                                    </div>
+                                    {/if}
                                 {/each}
                             </div>
                         </div>

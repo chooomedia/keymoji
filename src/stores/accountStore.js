@@ -259,7 +259,7 @@ export async function checkAccountExists(email, name = '') {
                                 '🔄 Syncing n8n account data to localStorage'
                             );
 
-                            // Extract createdAt from account data ONLY
+                            // Extract createdAt from account data
                             const createdAt = getCreatedAtFromAccount(
                                 result.account
                             );
@@ -287,7 +287,8 @@ export async function checkAccountExists(email, name = '') {
                                 metadata:
                                     typeof result.account.metadata === 'string'
                                         ? JSON.parse(result.account.metadata)
-                                        : result.account.metadata || {}
+                                        : result.account.metadata || {},
+                                createdAt: createdAt // Add createdAt directly to userPrefsData
                             };
 
                             // Save to localStorage
@@ -675,13 +676,14 @@ export async function verifyMagicLinkFrontend(token, email) {
             sessionExpires: accountData.sessionExpires,
             lastActivity: accountData.lastActivity,
             profile: accountData.profile,
-            metadata: accountData.metadata
+            metadata: accountData.metadata,
+            createdAt: createdAt // Add createdAt directly to userPrefsData
         };
 
         // Save to localStorage
         storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, userPrefsData);
 
-        // Save createdAt separately if found
+        // Save createdAt separately if found (for backward compatibility)
         if (createdAt) {
             saveCreatedAtToUserPreferences(createdAt);
         } else {
@@ -879,68 +881,7 @@ function getCreatedAtFromAccount(account) {
     return foundCreatedAt;
 }
 
-// Set the correct createdAt from backend (2025-07-31T11:59:13.043Z)
-function setCorrectCreatedAt() {
-    const correctCreatedAt = '2025-07-31T11:59:13.043Z';
-    const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
-
-    if (!userPrefs.createdAt || userPrefs.createdAt !== correctCreatedAt) {
-        const updatedPrefs = {
-            ...userPrefs,
-            createdAt: correctCreatedAt
-        };
-
-        storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
-        console.log('✅ Correct createdAt set:', correctCreatedAt);
-        return correctCreatedAt;
-    }
-
-    return userPrefs.createdAt;
-}
-
-// Temporary function to get createdAt from backend
-async function getCreatedAtFromBackend(userId) {
-    if (!userId) return null;
-
-    try {
-        const response = await fetch('/api/account', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                action: 'get',
-                userId: userId
-            })
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            if (result.account) {
-                const createdAt = getCreatedAtFromAccount(result.account);
-                console.log(
-                    '🔍 DEBUG: Retrieved createdAt from backend:',
-                    createdAt
-                );
-                return createdAt;
-            }
-        }
-    } catch (error) {
-        console.warn('Failed to get createdAt from backend:', error);
-    }
-
-    return null;
-}
-
-// Direct createdAt extraction from userId - REMOVED as it's not reliable
-function extractCreatedAtFromUserId(userId) {
-    // This function is deprecated - createdAt should come from backend
-    console.log(
-        '⚠️ extractCreatedAtFromUserId is deprecated - createdAt should come from backend'
-    );
-    return null;
-}
-
+// Centralized function to save createdAt to user preferences
 function saveCreatedAtToUserPreferences(createdAt) {
     if (!createdAt) {
         console.log('⚠️ No createdAt provided to save');
@@ -971,6 +912,7 @@ function saveCreatedAtToUserPreferences(createdAt) {
     }
 }
 
+// Centralized function to get createdAt from user preferences
 function getCreatedAtFromUserPreferences() {
     const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
     const createdAt = userPrefs.createdAt || null;
