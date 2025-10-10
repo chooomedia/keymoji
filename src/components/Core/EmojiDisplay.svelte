@@ -30,7 +30,7 @@
     // State
     let storyInput = '';
     let randomEmojis = [];
-    let emojiCount = 5;
+    let emojiCount = 9; // Updated: Default 9 emojis for FREE users
     let showTextArea = false;
     let shouldAnimateEmojis = false;
     let isStoryMode = false;

@@ -903,7 +903,7 @@
                     },
                     "min": 3,
                     "max": 10,
-                    "defaultValue": 5,
+                    "defaultValue": 9,
                     "labels": {
                         "min": {
                             "en": "Min (3)",
