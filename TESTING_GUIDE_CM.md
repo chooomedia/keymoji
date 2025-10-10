@@ -7,8 +7,9 @@
 ## 📋 **STEP 1: Update Google Sheets**
 
 ### **Find the row for cm@chooo.de:**
-- UserId: `user_1753963152928`
-- Email: `cm@chooo.de`
+
+-   UserId: `user_1753963152928`
+-   Email: `cm@chooo.de`
 
 ### **Update Spalte G (metadata):**
 
@@ -148,7 +149,7 @@ Wait for: `Server running at http://localhost:8080`
 ### **Run Full Diagnosis:**
 
 ```javascript
-window.chartDebugger.fullDiagnosis()
+window.chartDebugger.fullDiagnosis();
 ```
 
 This will tell you EXACTLY what's wrong and how to fix it!
@@ -156,17 +157,20 @@ This will tell you EXACTLY what's wrong and how to fix it!
 ### **Common Issues:**
 
 #### **Issue 1: Metadata is STRING**
+
 ```
 ❌ PROBLEM: Metadata is still a STRING (not parsed)!
 ```
 
 **Fix:**
+
 ```javascript
-window.chartDebugger.forceParseMetadata()
+window.chartDebugger.forceParseMetadata();
 // Then reload: location.reload()
 ```
 
 #### **Issue 2: No usageHistory**
+
 ```
 ❌ PROBLEM: No usageHistory field in metadata!
 Available metadata fields: ["settings", "dailyUsage"]
@@ -175,14 +179,16 @@ Available metadata fields: ["settings", "dailyUsage"]
 **Fix:** Google Sheets metadata doesn't have `usageHistory`. Update it with the complete string above!
 
 #### **Issue 3: Empty array**
+
 ```
 ❌ PROBLEM: usageHistory is empty array!
 ```
 
 **Quick Test Fix:**
+
 ```javascript
-window.chartDebugger.injectTestData()
-location.reload()
+window.chartDebugger.injectTestData();
+location.reload();
 ```
 
 **Permanent Fix:** Update Google Sheets
@@ -215,11 +221,12 @@ After successful load, you should see:
 ```
 
 **Features:**
-- ✅ 28 data points visible (when "4w" selected)
-- ✅ Yellow line (FREE tier)
-- ✅ Smooth animation on load
-- ✅ Interactive tooltips on hover
-- ✅ Time period selector works
+
+-   ✅ 28 data points visible (when "4w" selected)
+-   ✅ Yellow line (FREE tier)
+-   ✅ Smooth animation on load
+-   ✅ Interactive tooltips on hover
+-   ✅ Time period selector works
 
 ---
 
@@ -229,7 +236,7 @@ After successful load, you should see:
 
 ```javascript
 // 1. Quick validation
-window.chartDebugger.quickCheck()
+window.chartDebugger.quickCheck();
 // Expected: "✅ All checks passed!"
 
 // 2. Check account data
@@ -239,7 +246,7 @@ console.log('UsageHistory length:', account?.metadata?.usageHistory?.length);
 // Expected: "object" and 28
 
 // 3. Full diagnosis
-window.chartDebugger.fullDiagnosis()
+window.chartDebugger.fullDiagnosis();
 // Expected: Complete flow analysis with all ✅
 ```
 
@@ -275,34 +282,39 @@ window.chartDebugger.fullDiagnosis()
 ## 📊 **What Each Debug Tool Does:**
 
 ### **1. fullDiagnosis()**
-- Checks account store
-- Validates metadata parsing
-- Inspects usageHistory structure
-- Simulates chart data generation
-- Identifies exact problem location
-- Suggests specific solutions
+
+-   Checks account store
+-   Validates metadata parsing
+-   Inspects usageHistory structure
+-   Simulates chart data generation
+-   Identifies exact problem location
+-   Suggests specific solutions
 
 ### **2. quickCheck()**
-- Fast yes/no validation
-- Returns true if everything OK
-- Shows which checks failed
+
+-   Fast yes/no validation
+-   Returns true if everything OK
+-   Shows which checks failed
 
 ### **3. forceParseMetadata()**
-- Manually parses metadata if it's a string
-- Updates currentAccount store
-- Fixes most common parsing issues
+
+-   Manually parses metadata if it's a string
+-   Updates currentAccount store
+-   Fixes most common parsing issues
 
 ### **4. injectTestData()**
-- Creates 28 days of realistic test data
-- Injects into currentAccount store
-- Useful for immediate chart testing
-- Does NOT save to database (temporary)
+
+-   Creates 28 days of realistic test data
+-   Injects into currentAccount store
+-   Useful for immediate chart testing
+-   Does NOT save to database (temporary)
 
 ---
 
 ## ✅ **Success Indicators:**
 
 ### **Console Logs (all ✅):**
+
 ```
 ✅ [ACCOUNT DEBUG] Parsed data
 ✅ [ACCOUNT DEBUG] UsageHistory entries: 28
@@ -311,20 +323,22 @@ window.chartDebugger.fullDiagnosis()
 ```
 
 ### **Visual (all ✅):**
-- ✅ Loading skeleton appears briefly (300-600ms)
-- ✅ Chart fades in smoothly
-- ✅ Yellow line visible
-- ✅ 28 data points (circles) visible
-- ✅ X-axis shows dates (13.9 - 10.10)
-- ✅ Y-axis shows values (0 - 9)
-- ✅ Hover shows tooltips
-- ✅ Time period buttons work
+
+-   ✅ Loading skeleton appears briefly (300-600ms)
+-   ✅ Chart fades in smoothly
+-   ✅ Yellow line visible
+-   ✅ 28 data points (circles) visible
+-   ✅ X-axis shows dates (13.9 - 10.10)
+-   ✅ Y-axis shows values (0 - 9)
+-   ✅ Hover shows tooltips
+-   ✅ Time period buttons work
 
 ### **Store Data (all ✅):**
+
 ```javascript
-window.$currentAccount.metadata.usageHistory.length === 28
-Array.isArray(window.$currentAccount.metadata.usageHistory) === true
-typeof window.$currentAccount.metadata === "object"
+window.$currentAccount.metadata.usageHistory.length === 28;
+Array.isArray(window.$currentAccount.metadata.usageHistory) === true;
+typeof window.$currentAccount.metadata === 'object';
 ```
 
 ---
@@ -332,6 +346,7 @@ typeof window.$currentAccount.metadata === "object"
 ## 🚨 **Red Flags (Something Wrong):**
 
 ### **Console Logs (any ❌):**
+
 ```
 ❌ usageHistoryType: "string"
 ❌ usageHistoryIsArray: false
@@ -341,38 +356,42 @@ typeof window.$currentAccount.metadata === "object"
 ```
 
 ### **Visual (any ❌):**
-- ❌ Chart shows "No data available"
-- ❌ Error message with retry button
-- ❌ Loading skeleton stuck
-- ❌ No animation
-- ❌ Flat line at 0
+
+-   ❌ Chart shows "No data available"
+-   ❌ Error message with retry button
+-   ❌ Loading skeleton stuck
+-   ❌ No animation
+-   ❌ Flat line at 0
 
 ---
 
 ## 💡 **Quick Fixes for Common Issues:**
 
 ### **Fix 1: Metadata Not Parsed**
+
 ```javascript
 // Check
-typeof window.$currentAccount?.metadata
+typeof window.$currentAccount?.metadata;
 // If returns "string":
 
 // Fix
-window.chartDebugger.forceParseMetadata()
-location.reload()
+window.chartDebugger.forceParseMetadata();
+location.reload();
 ```
 
 ### **Fix 2: No Data in Google Sheets**
+
 ```javascript
 // Quick test with fake data
-window.chartDebugger.injectTestData()
-location.reload()
+window.chartDebugger.injectTestData();
+location.reload();
 
 // If chart shows up: Google Sheets needs updating
 // If chart still empty: Different problem
 ```
 
 ### **Fix 3: API Not Returning Data**
+
 ```javascript
 // Check network tab (F12 → Network)
 // Look for: POST /api/account or n8n webhook
@@ -396,8 +415,14 @@ console.log('');
 console.log('Account State:');
 console.log('  Has account:', !!window.$currentAccount);
 console.log('  Metadata type:', typeof window.$currentAccount?.metadata);
-console.log('  UsageHistory type:', typeof window.$currentAccount?.metadata?.usageHistory);
-console.log('  UsageHistory length:', window.$currentAccount?.metadata?.usageHistory?.length);
+console.log(
+    '  UsageHistory type:',
+    typeof window.$currentAccount?.metadata?.usageHistory
+);
+console.log(
+    '  UsageHistory length:',
+    window.$currentAccount?.metadata?.usageHistory?.length
+);
 console.log('');
 
 console.log('Full Diagnosis:');
@@ -408,18 +433,18 @@ window.chartDebugger.fullDiagnosis();
 
 ## 🎯 **Testing Checklist:**
 
-- [ ] Google Sheets updated with complete metadata
-- [ ] Metadata is single line (no line breaks)
-- [ ] Dev server running (`npm run dev`)
-- [ ] Logged in as cm@chooo.de
-- [ ] Browser console open (F12)
-- [ ] Run `window.chartDebugger.fullDiagnosis()`
-- [ ] All diagnosis steps show ✅
-- [ ] Chart visible on /account page
-- [ ] Chart shows 28 data points
-- [ ] Chart animates smoothly
-- [ ] Time period selector works
-- [ ] No console errors
+-   [ ] Google Sheets updated with complete metadata
+-   [ ] Metadata is single line (no line breaks)
+-   [ ] Dev server running (`npm run dev`)
+-   [ ] Logged in as cm@chooo.de
+-   [ ] Browser console open (F12)
+-   [ ] Run `window.chartDebugger.fullDiagnosis()`
+-   [ ] All diagnosis steps show ✅
+-   [ ] Chart visible on /account page
+-   [ ] Chart shows 28 data points
+-   [ ] Chart animates smoothly
+-   [ ] Time period selector works
+-   [ ] No console errors
 
 ---
 
@@ -445,23 +470,27 @@ window.chartDebugger.fullDiagnosis();
 ## 📦 **Files to Check:**
 
 ### **Frontend:**
-- `src/stores/accountStore.js` - safeJSONParse()
-- `src/routes/AccountManager.svelte` - loadChartDataAsync()
-- `src/utils/chartDebugger.js` - Debug tools
-- `src/utils/usageHistoryHelpers.js` - getUsageHistory()
+
+-   `src/stores/accountStore.js` - safeJSONParse()
+-   `src/routes/AccountManager.svelte` - loadChartDataAsync()
+-   `src/utils/chartDebugger.js` - Debug tools
+-   `src/utils/usageHistoryHelpers.js` - getUsageHistory()
 
 ### **Backend:**
-- `keymoji-backend/api/account.js` - API endpoint
-- `n8n-workflows/02-account-management-COMPLETE-v2.json` - Workflow
+
+-   `keymoji-backend/api/account.js` - API endpoint
+-   `n8n-workflows/02-account-management-COMPLETE-v2.json` - Workflow
 
 ### **Database:**
-- Google Sheets: "accounts" sheet
-- Row for user_1753963152928
-- Column G (metadata)
+
+-   Google Sheets: "accounts" sheet
+-   Row for user_1753963152928
+-   Column G (metadata)
 
 ---
 
 **TL;DR:**
+
 1. Update Google Sheets metadata (copy string above)
 2. Start dev server (`npm run dev`)
 3. Login as cm@chooo.de
@@ -469,4 +498,3 @@ window.chartDebugger.fullDiagnosis();
 5. Run: `window.chartDebugger.fullDiagnosis()`
 6. Follow any suggestions if errors
 7. Chart should show 28 days! 🎉
-

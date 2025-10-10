@@ -157,6 +157,11 @@ function initializeApp() {
             console.log('🔧 Chart Debugger loaded');
             console.log('⚡ Quick: window.chartDebugger.fullDiagnosis()');
         });
+
+        import('./utils/instantChartTest.js').then(module => {
+            console.log('⚡ Instant Chart Test loaded');
+            console.log('⚡ Quick: window.instantChartTest()');
+        });
     }
 
     // Validate language path

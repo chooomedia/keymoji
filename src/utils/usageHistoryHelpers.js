@@ -6,16 +6,56 @@
  */
 export function getUsageHistory(account) {
     try {
-        const history = account?.metadata?.usageHistory || [];
+        console.log('📊 [USAGE HISTORY] getUsageHistory() called');
+        console.log('📊 [USAGE HISTORY] Account input:', {
+            hasAccount: !!account,
+            hasMetadata: !!account?.metadata,
+            metadataType: typeof account?.metadata,
+            metadataKeys: account?.metadata ? Object.keys(account.metadata) : []
+        });
+
+        // Check if metadata exists and is object
+        if (!account || !account.metadata) {
+            console.warn('⚠️ [USAGE HISTORY] No account or metadata');
+            return [];
+        }
+
+        if (typeof account.metadata === 'string') {
+            console.error('❌ [USAGE HISTORY] Metadata is still a STRING! Need to parse first!');
+            console.log('💡 [USAGE HISTORY] Try: window.chartDebugger.forceParseMetadata()');
+            return [];
+        }
+
+        const history = account.metadata.usageHistory || [];
+
+        console.log('📊 [USAGE HISTORY] UsageHistory extracted:', {
+            hasUsageHistory: !!account.metadata.usageHistory,
+            type: typeof account.metadata.usageHistory,
+            isArray: Array.isArray(history),
+            length: history.length,
+            firstEntry: history[0],
+            lastEntry: history[history.length - 1]
+        });
 
         if (!Array.isArray(history)) {
-            console.warn('⚠️ Usage history is not an array:', history);
+            console.error('❌ [USAGE HISTORY] UsageHistory is not an array!', {
+                type: typeof history,
+                value: history
+            });
             return [];
+        }
+
+        if (history.length === 0) {
+            console.warn('⚠️ [USAGE HISTORY] UsageHistory is empty array');
+            console.log('💡 [USAGE HISTORY] Check Google Sheets metadata column');
+        } else {
+            console.log('✅ [USAGE HISTORY] Returning', history.length, 'entries');
         }
 
         return history;
     } catch (error) {
-        console.warn('⚠️ Failed to get usage history:', error);
+        console.error('❌ [USAGE HISTORY] Failed to get usage history:', error);
+        console.error('❌ [USAGE HISTORY] Error stack:', error.stack);
         return [];
     }
 }
