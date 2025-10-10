@@ -152,6 +152,11 @@ function initializeApp() {
             console.log('🎨 Chart Test Tools loaded');
             console.log('⚡ Quick: window.keymojiChartTest.pro4w() for instant animation');
         });
+
+        import('./utils/chartDebugger.js').then(module => {
+            console.log('🔧 Chart Debugger loaded');
+            console.log('⚡ Quick: window.chartDebugger.fullDiagnosis()');
+        });
     }
 
     // Validate language path

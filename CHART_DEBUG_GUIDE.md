@@ -116,6 +116,7 @@ Step 3: Generate Chart Data (AccountManager.svelte)
 **Cause:** Google Sheets `metadata` column doesn't contain `usageHistory`
 
 **Solution:**
+
 1. Check Google Sheets `metadata` column
 2. Ensure it contains the complete JSON string
 3. Verify `usageHistory` array is present
@@ -137,6 +138,7 @@ Step 3: Generate Chart Data (AccountManager.svelte)
 **Cause:** Double-encoded JSON or n8n workflow not parsing
 
 **Solution:**
+
 1. Check `safeJSONParse()` in `accountStore.js`
 2. Verify n8n workflow has "Parse Response" Code Node
 3. Check if metadata is being parsed twice
@@ -158,6 +160,7 @@ Step 3: Generate Chart Data (AccountManager.svelte)
 **Cause:** Data not saved to Google Sheets
 
 **Solution:**
+
 1. Manually update Google Sheets with complete metadata
 2. Use the string from `GOOGLE_SHEETS_COMPLETE_ROW_CM.md`
 3. Verify save was successful
@@ -177,6 +180,7 @@ Step 3: Generate Chart Data (AccountManager.svelte)
 **Cause:** Date mismatch between history and generated data
 
 **Solution:**
+
 1. Check date format in `usageHistory` (should be "YYYY-MM-DD")
 2. Verify dates are in correct range
 3. Check timezone issues
@@ -198,13 +202,22 @@ console.log('Has metadata:', !!account?.metadata);
 console.log('Metadata type:', typeof account?.metadata);
 console.log('Has usageHistory:', !!account?.metadata?.usageHistory);
 console.log('UsageHistory type:', typeof account?.metadata?.usageHistory);
-console.log('UsageHistory is array:', Array.isArray(account?.metadata?.usageHistory));
+console.log(
+    'UsageHistory is array:',
+    Array.isArray(account?.metadata?.usageHistory)
+);
 console.log('UsageHistory length:', account?.metadata?.usageHistory?.length);
 console.log('First entry:', account?.metadata?.usageHistory?.[0]);
-console.log('Last entry:', account?.metadata?.usageHistory?.[account?.metadata?.usageHistory?.length - 1]);
+console.log(
+    'Last entry:',
+    account?.metadata?.usageHistory?.[
+        account?.metadata?.usageHistory?.length - 1
+    ]
+);
 ```
 
 **Expected Output:**
+
 ```
 === ACCOUNT DEBUG ===
 Has account: true
@@ -241,13 +254,16 @@ window.location.href = '/de/';
 ```javascript
 // Intercept API call
 const originalFetch = window.fetch;
-window.fetch = function(...args) {
+window.fetch = function (...args) {
     console.log('API CALL:', args[0]);
     return originalFetch.apply(this, args).then(response => {
-        return response.clone().json().then(data => {
-            console.log('API RESPONSE:', data);
-            return response;
-        });
+        return response
+            .clone()
+            .json()
+            .then(data => {
+                console.log('API RESPONSE:', data);
+                return response;
+            });
     });
 };
 ```
@@ -281,9 +297,9 @@ For testing, you can manually inject data:
 ```javascript
 // Inject test data
 window.$currentAccount.metadata.usageHistory = [
-    {date: "2025-10-10", used: 5, limit: 9},
-    {date: "2025-10-09", used: 7, limit: 9},
-    {date: "2025-10-08", used: 4, limit: 9},
+    { date: '2025-10-10', used: 5, limit: 9 },
+    { date: '2025-10-09', used: 7, limit: 9 },
+    { date: '2025-10-08', used: 4, limit: 9 }
     // ... add all 28 entries
 ];
 
@@ -298,24 +314,27 @@ console.log('✅ Test data injected');
 ### **After Successful Load:**
 
 1. **Loading Skeleton (0-600ms)**
-   - Gray pulsing lines
-   - Loading spinner
-   - Text: "📊 Loading chart data..."
+
+    - Gray pulsing lines
+    - Loading spinner
+    - Text: "📊 Loading chart data..."
 
 2. **Chart Appears (600-1000ms)**
-   - Smooth fade-in transition
-   - Yellow line (FREE tier) or Purple line (PRO tier)
-   - 28 data points visible
+
+    - Smooth fade-in transition
+    - Yellow line (FREE tier) or Purple line (PRO tier)
+    - 28 data points visible
 
 3. **Animation (800-2550ms)**
-   - Line draws from left to right
-   - Data points appear one by one (staggered)
-   - Each point +50ms delay
+
+    - Line draws from left to right
+    - Data points appear one by one (staggered)
+    - Each point +50ms delay
 
 4. **Interactive (2550ms+)**
-   - Hover shows tooltips
-   - Time period selector works (7d, 14d, 4w, 1y)
-   - Chart responds to clicks
+    - Hover shows tooltips
+    - Time period selector works (7d, 14d, 4w, 1y)
+    - Chart responds to clicks
 
 ---
 
@@ -347,18 +366,18 @@ console.log('✅ Test data injected');
 
 ## 🔍 Checklist for Debugging
 
-- [ ] **Google Sheets:** metadata column contains complete JSON string
-- [ ] **Google Sheets:** usageHistory has 28 entries
-- [ ] **n8n Workflow:** "Parse Response" Code Node exists
-- [ ] **n8n Workflow:** Returns parsed objects (not strings)
-- [ ] **accountStore.js:** safeJSONParse() is working
-- [ ] **accountStore.js:** Logs show "usageHistoryLength: 28"
-- [ ] **AccountManager:** Logs show "Chart data loaded: 28 entries"
-- [ ] **AccountManager:** Logs show "Generated chart data: 28 points"
-- [ ] **LineChart:** Component receives data prop with 28 items
-- [ ] **Browser:** No console errors
-- [ ] **Network Tab:** API request succeeded (200 OK)
-- [ ] **Network Tab:** Response contains usageHistory array
+-   [ ] **Google Sheets:** metadata column contains complete JSON string
+-   [ ] **Google Sheets:** usageHistory has 28 entries
+-   [ ] **n8n Workflow:** "Parse Response" Code Node exists
+-   [ ] **n8n Workflow:** Returns parsed objects (not strings)
+-   [ ] **accountStore.js:** safeJSONParse() is working
+-   [ ] **accountStore.js:** Logs show "usageHistoryLength: 28"
+-   [ ] **AccountManager:** Logs show "Chart data loaded: 28 entries"
+-   [ ] **AccountManager:** Logs show "Generated chart data: 28 points"
+-   [ ] **LineChart:** Component receives data prop with 28 items
+-   [ ] **Browser:** No console errors
+-   [ ] **Network Tab:** API request succeeded (200 OK)
+-   [ ] **Network Tab:** Response contains usageHistory array
 
 ---
 
@@ -398,4 +417,3 @@ Environment: [localhost/production]
 ---
 
 **Use this guide to systematically debug chart data loading issues! 🔍**
-
