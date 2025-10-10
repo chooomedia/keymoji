@@ -562,7 +562,9 @@ export default {
             instantSetup: 'Sofort-Setup',
             noSpam: 'Kein Spam',
             text: 'Magic Links werden per E-Mail gesendet und sind 15 Minuten gültig.',
-            privacy: 'Deine Daten werden sicher behandelt.'
+            privacy: 'Datenschutz',
+            legal: 'Impressum',
+            versionHistory: 'Versionshistorie'
         },
 
         // Limits und Hinweise
