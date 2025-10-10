@@ -323,7 +323,20 @@
   
     function isDailyLimitReached() {
       // Use reactive dailyLimit store (updated by dailyUsageStore.js)
-      return $dailyLimit.used >= $dailyLimit.limit;
+      const used = $dailyLimit?.used || 0;
+      const limit = $dailyLimit?.limit || 5;
+      const isReached = used >= limit;
+      
+      console.log('🔍 isDailyLimitReached check:', {
+        used,
+        limit,
+        isReached,
+        isLoggedIn: $isLoggedIn,
+        accountTier: $accountTier,
+        dailyLimit: $dailyLimit
+      });
+      
+      return isReached;
     }
   
     function handleKeyPress(event) {
