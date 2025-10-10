@@ -147,25 +147,27 @@
                             {:else}
                                 <!-- Full changelog version -->
                                 {#each Object.entries(details) as [category, content]}
-                                    {#if category !== 'date'}
+                                    {#if category !== 'date' && category !== 'note'}
                                         {#each Object.entries(content) as [subcategory, data]}
-                                            <div class="mb-6 bg-creme-200 dark:bg-aubergine-900 rounded-xl p-4 {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-lesson' : ''}">
-                                                <h3 class="text-lg font-semibold text-black dark:text-white mb-3 {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-title' : ''}">
-                                                    {data.title}
-                                                </h3>
-                                                {#if data.improvements && data.improvements.length > 0}
-                                                    <ul class="space-y-2">
-                                                        {#each data.improvements as improvement}
-                                                            <li class="flex items-start {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-item' : ''}">
-                                                                <span class="mr-2 dark:text-creme-500">•</span>
-                                                                <span class="text-gray dark:text-gray-400">
-                                                                    {improvement}
-                                                                </span>
-                                                            </li>
-                                                        {/each}
-                                                    </ul>
-                                                {/if}
-                                            </div>
+                                            {#if data && data.title}
+                                                <div class="mb-6 bg-creme-200 dark:bg-aubergine-900 rounded-xl p-4 {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-lesson' : ''}">
+                                                    <h3 class="text-lg font-semibold text-black dark:text-white mb-3 {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-title' : ''}">
+                                                        {data.title}
+                                                    </h3>
+                                                    {#if data.improvements && data.improvements.length > 0}
+                                                        <ul class="space-y-2">
+                                                            {#each data.improvements as improvement}
+                                                                <li class="flex items-start {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-item' : ''}">
+                                                                    <span class="mr-2 dark:text-creme-500">•</span>
+                                                                    <span class="text-gray dark:text-gray-400">
+                                                                        {improvement}
+                                                                    </span>
+                                                                </li>
+                                                            {/each}
+                                                        </ul>
+                                                    {/if}
+                                                </div>
+                                            {/if}
                                         {/each}
                                     {/if}
                                 {/each}
