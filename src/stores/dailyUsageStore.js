@@ -51,10 +51,15 @@ function getUsageFromLocalStorage() {
             // date might be formatted differently than lastReset
             const resetDate = stored.lastReset || stored.date;
             if (shouldResetUsage(resetDate)) {
-                console.log('📅 Daily usage data expired (new day detected), returning null to trigger reset...');
+                console.log(
+                    '📅 Daily usage data expired (new day detected), returning null to trigger reset...'
+                );
                 return null;
             }
-            console.log('📦 Loaded daily usage from localStorage (same day):', stored);
+            console.log(
+                '📦 Loaded daily usage from localStorage (same day):',
+                stored
+            );
             return stored;
         }
     } catch (error) {
@@ -87,11 +92,11 @@ export async function initializeDailyUsage() {
         const tier = get(accountTier) || 'free'; // Default to 'free' if not set
         const loggedIn = get(isLoggedIn) || false; // Default to false if not set
 
-        console.log('🔄 Initializing daily usage for ALL users...', { 
-            loggedIn, 
+        console.log('🔄 Initializing daily usage for ALL users...', {
+            loggedIn,
             tier,
             hasAccount: !!account,
-            userId: account?.userId 
+            userId: account?.userId
         });
 
         let usageData = null;
@@ -124,24 +129,32 @@ export async function initializeDailyUsage() {
                 limit: limit,
                 lastReset: getTodayDateString()
             };
-            console.log('✅ Daily usage initialized with defaults (first time):', usageData);
-            
+            console.log(
+                '✅ Daily usage initialized with defaults (first time):',
+                usageData
+            );
+
             // Save to localStorage immediately
             saveUsageToLocalStorage(usageData);
-            
+
             // Save to API if logged in
             if (loggedIn && account?.userId) {
                 await saveUsageToAPI(account, usageData).catch(error => {
-                    console.warn('⚠️ Failed to save initial usage to API:', error);
+                    console.warn(
+                        '⚠️ Failed to save initial usage to API:',
+                        error
+                    );
                 });
             }
         }
-        
+
         // CRITICAL: Always check if limit needs updating based on current tier
         // This handles tier changes (guest → free → pro)
         const correctLimit = getDailyLimitForUser(loggedIn, tier);
         if (usageData.limit !== correctLimit) {
-            console.log(`🔄 Updating limit for tier change: ${usageData.limit} → ${correctLimit}`);
+            console.log(
+                `🔄 Updating limit for tier change: ${usageData.limit} → ${correctLimit}`
+            );
             usageData.limit = correctLimit;
             saveUsageToLocalStorage(usageData);
         }
@@ -204,7 +217,10 @@ export async function incrementDailyUsage() {
 
         // CRITICAL: Validate we're not exceeding limit
         if (currentLimit.used >= currentLimit.limit) {
-            console.error('❌ Cannot increment: Daily limit already reached!', currentLimit);
+            console.error(
+                '❌ Cannot increment: Daily limit already reached!',
+                currentLimit
+            );
             usageStatus.update(s => ({ ...s, isSaving: false }));
             throw new Error('Daily limit reached');
         }
@@ -236,14 +252,20 @@ export async function incrementDailyUsage() {
         // 3. Verify localStorage write succeeded
         const verification = storageHelpers.get(STORAGE_KEYS.DAILY_USAGE);
         if (!verification || verification.used !== newUsed) {
-            console.error('❌ CRITICAL: localStorage write failed! Attempting retry...');
+            console.error(
+                '❌ CRITICAL: localStorage write failed! Attempting retry...'
+            );
             saveUsageToLocalStorage(usageData);
-            
+
             // Verify retry
-            const retryVerification = storageHelpers.get(STORAGE_KEYS.DAILY_USAGE);
+            const retryVerification = storageHelpers.get(
+                STORAGE_KEYS.DAILY_USAGE
+            );
             if (!retryVerification || retryVerification.used !== newUsed) {
                 console.error('❌ CRITICAL: localStorage retry also failed!');
-                throw new Error('Failed to persist usage increment to localStorage');
+                throw new Error(
+                    'Failed to persist usage increment to localStorage'
+                );
             }
         } else {
             console.log('✅ localStorage write verified:', verification);
@@ -253,7 +275,10 @@ export async function incrementDailyUsage() {
         if (loggedIn && account?.userId) {
             // Fire and forget - API is secondary to localStorage
             saveUsageToAPI(account, usageData).catch(error => {
-                console.warn('⚠️ API save failed (non-critical, localStorage is up-to-date):', error);
+                console.warn(
+                    '⚠️ API save failed (non-critical, localStorage is up-to-date):',
+                    error
+                );
             });
         }
 
@@ -263,7 +288,10 @@ export async function incrementDailyUsage() {
             lastSync: new Date().toISOString()
         }));
 
-        console.log('✅ Daily usage incremented and persisted successfully:', usageData);
+        console.log(
+            '✅ Daily usage incremented and persisted successfully:',
+            usageData
+        );
         return usageData;
     } catch (error) {
         console.error('❌ Failed to increment daily usage:', error);

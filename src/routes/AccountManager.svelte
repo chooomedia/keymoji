@@ -625,11 +625,17 @@
     }
     
     // Reactive statement to update daily limits when user state changes
+    // REMOVED: This reactive block was overwriting dailyLimit with old localStorage data
+    // dailyLimit is now ONLY managed by dailyUsageStore.js - DO NOT SET IT HERE!
+    // Old code read from STORAGE_KEYS.DAILY_REQUEST_COUNT which is deprecated
+    
+    // For debugging, just log when user state changes
     $: if ($isLoggedIn !== undefined && $accountTier !== undefined) {
-        const currentUsed = storageHelpers.get(STORAGE_KEYS.DAILY_REQUEST_COUNT, 0);
-        const userLimits = validateUserLimits($isLoggedIn, $accountTier, currentUsed);
-        dailyLimit.set({ limit: userLimits.limit, used: currentUsed });
-        console.log('🔄 Daily limits updated due to user state change:', userLimits);
+        console.log('🔄 AccountManager: User state changed:', {
+            isLoggedIn: $isLoggedIn,
+            accountTier: $accountTier,
+            dailyLimit: $dailyLimit
+        });
     }
 
     // Check if user has a valid session

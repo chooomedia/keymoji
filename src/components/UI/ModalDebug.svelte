@@ -59,8 +59,8 @@
     }
 
     function testDailyLimit() {
-        dailyLimit.set({ limit: 5, used: 3 });
-        showInfo('Daily limit set to 3/5', 2000);
+        dailyLimit.set({ limit: 9, used: 3 });
+        showInfo('Daily limit set to 3/9 (FREE tier)', 2000);
     }
 
     function testProAccount() {
@@ -89,13 +89,13 @@
         isLoggedIn.set(false);
         currentAccount.set(null);
         accountTier.set('free');
-        dailyLimit.set({ limit: 5, used: 0 });
+        dailyLimit.set({ limit: 3, used: 0 });
         showInfo('Guest account activated!', 2000);
     }
 
     function testDailyLimitExceeded() {
-        dailyLimit.set({ limit: 5, used: 5 });
-        showWarning('Daily limit exceeded!', 3000);
+        dailyLimit.set({ limit: 9, used: 9 });
+        showWarning('Daily limit exceeded (FREE: 9/9)!', 3000);
     }
 
     function testStoryGeneration() {
@@ -169,7 +169,7 @@
         isLoggedIn.set(false);
         currentAccount.set(null);
         accountTier.set('free');
-        dailyLimit.set({ limit: 5, used: 0 });
+        dailyLimit.set({ limit: 3, used: 0 });
         successfulStoryRequests.set(0);
         loginError.set(null);
         isLoggingIn.set(false);
