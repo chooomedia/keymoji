@@ -506,9 +506,10 @@ export default {
 
         // Demo Chart (when no real data)
         demoChart: {
-            title: 'Demo Preview',
-            description: 'This is a sample view. Generate emojis to collect your real usage data and display it here.',
-            cta: 'Generate Emojis Now'
+            title: 'No Data',
+            description:
+                'Generate emojis to collect your real usage data and display it here.',
+            cta: 'Get Keyoji now'
         },
 
         // Benefits

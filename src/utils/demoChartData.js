@@ -52,11 +52,11 @@ export function isDemoData(history) {
     if (!history || !Array.isArray(history) || history.length === 0) {
         return false;
     }
-    
+
     // Check if first entry matches demo data
     const firstEntry = history[0];
     const firstDemo = DEMO_USAGE_HISTORY[0];
-    
+
     return (
         firstEntry.date === firstDemo.date &&
         firstEntry.used === firstDemo.used &&
@@ -80,4 +80,3 @@ export function getDemoDataForPeriod(period = '7d') {
             return DEMO_USAGE_HISTORY;
     }
 }
-
