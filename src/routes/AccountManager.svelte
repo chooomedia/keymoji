@@ -1076,10 +1076,10 @@
                                     >
                                         <div class="text-4xl mb-3">📊</div>
                                         <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                                            Noch keine Daten
+                                            Sorry, no data
                                         </h4>
                                         <p class="text-sm text-gray-600 dark:text-gray-400 text-center">
-                                            Generiere Emojis, um deine Statistiken zu sehen!
+                                            Generate Emojis to see your statistics!
                                         </p>
                                     </div>
                                 {:else}
