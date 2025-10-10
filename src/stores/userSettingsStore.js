@@ -44,10 +44,10 @@ export const settingsStatus = writable({
 const DEFAULT_FREE_SETTINGS = getDefaultSettings('free');
 const DEFAULT_PRO_SETTINGS = getDefaultSettings('pro');
 
-// Create the main settings store
+// Legacy: Keep writable for backwards compatibility (TODO: Remove after migration)
 export const userSettings = writable(DEFAULT_FREE_SETTINGS);
 
-// Derived store for current tier settings
+// Derived store for current tier settings (legacy)
 export const currentSettings = derived(
     [userSettings, accountTier],
     ([$userSettings, $accountTier]) => {
@@ -56,6 +56,76 @@ export const currentSettings = derived(
                 ? DEFAULT_PRO_SETTINGS
                 : DEFAULT_FREE_SETTINGS;
         return { ...baseSettings, ...$userSettings };
+    }
+);
+
+// ============================================
+// NEW: Single Source of Truth Pattern
+// ============================================
+
+/**
+ * Extract settings from currentAccount (backend data)
+ * This is the SINGLE SOURCE OF TRUTH for user settings!
+ */
+function extractSettingsFromAccount(account) {
+    if (!account) return {};
+    
+    // Settings priority:
+    // 1. account.metadata.settings (from backend/Google Sheets)
+    // 2. account.profile (user profile data)
+    // 3. Empty object (will use tier defaults)
+    
+    const metadata = account.metadata || {};
+    const settings = metadata.settings || {};
+    const profile = account.profile || {};
+    
+    return {
+        // User profile
+        name: account.name || profile.name || '',
+        email: account.email || '',
+        
+        // Settings from metadata
+        language: settings.language || 'de',
+        theme: settings.theme || 'light',
+        fontSize: settings.fontSize || 'medium',
+        animations: settings.animations !== undefined ? settings.animations : true,
+        soundEffects: settings.soundEffects !== undefined ? settings.soundEffects : false,
+        
+        // UI state
+        expandedSections: settings.expandedSections || ['basic'],
+        
+        // Other metadata
+        ...settings
+    };
+}
+
+/**
+ * EFFECTIVE SETTINGS: Derived from currentAccount (Single Source of Truth!)
+ * This replaces userSettings for READ operations.
+ * Combines: backend data + tier defaults + reactive updates
+ */
+export const effectiveSettings = derived(
+    [currentAccount, accountTier],
+    ([$currentAccount, $accountTier]) => {
+        // Get tier defaults
+        const tierDefaults = $accountTier === 'pro' 
+            ? DEFAULT_PRO_SETTINGS 
+            : DEFAULT_FREE_SETTINGS;
+        
+        // Extract settings from currentAccount (backend)
+        const accountSettings = extractSettingsFromAccount($currentAccount);
+        
+        // Merge: tier defaults + account settings
+        const merged = { ...tierDefaults, ...accountSettings };
+        
+        console.log('📊 [effectiveSettings] Computed:', {
+            tier: $accountTier,
+            hasAccount: !!$currentAccount,
+            accountSettings: Object.keys(accountSettings).length,
+            result: merged
+        });
+        
+        return merged;
     }
 );
 
