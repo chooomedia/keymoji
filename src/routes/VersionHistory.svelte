@@ -137,27 +137,39 @@
                             </div>
 
                             <!-- Version details -->
-                            {#each Object.entries(details) as [category, content]}
-                                {#if category !== 'date'}
-                                    {#each Object.entries(content) as [subcategory, data]}
-                                        <div class="mb-6 bg-creme-200 dark:bg-aubergine-900 rounded-xl p-4 {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-lesson' : ''}">
-                                            <h3 class="text-lg font-semibold text-black dark:text-white mb-3 {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-title' : ''}">
-                                                {data.title}
-                                            </h3>
-                                            <ul class="space-y-2">
-                                                {#each data.improvements as improvement}
-                                                    <li class="flex items-start {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-item' : ''}">
-                                                        <span class="mr-2 dark:text-creme-500">•</span>
-                                                        <span class="text-gray dark:text-gray-400">
-                                                            {improvement}
-                                                        </span>
-                                                    </li>
-                                                {/each}
-                                            </ul>
-                                        </div>
-                                    {/each}
-                                {/if}
-                            {/each}
+                            {#if details.note}
+                                <!-- Simple note version (for minor iterations) -->
+                                <div class="mb-6 bg-creme-200 dark:bg-aubergine-900 rounded-xl p-4">
+                                    <p class="text-gray dark:text-gray-400 italic">
+                                        {details.note}
+                                    </p>
+                                </div>
+                            {:else}
+                                <!-- Full changelog version -->
+                                {#each Object.entries(details) as [category, content]}
+                                    {#if category !== 'date'}
+                                        {#each Object.entries(content) as [subcategory, data]}
+                                            <div class="mb-6 bg-creme-200 dark:bg-aubergine-900 rounded-xl p-4 {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-lesson' : ''}">
+                                                <h3 class="text-lg font-semibold text-black dark:text-white mb-3 {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-title' : ''}">
+                                                    {data.title}
+                                                </h3>
+                                                {#if data.improvements && data.improvements.length > 0}
+                                                    <ul class="space-y-2">
+                                                        {#each data.improvements as improvement}
+                                                            <li class="flex items-start {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-item' : ''}">
+                                                                <span class="mr-2 dark:text-creme-500">•</span>
+                                                                <span class="text-gray dark:text-gray-400">
+                                                                    {improvement}
+                                                                </span>
+                                                            </li>
+                                                        {/each}
+                                                    </ul>
+                                                {/if}
+                                            </div>
+                                        {/each}
+                                    {/if}
+                                {/each}
+                            {/if}
                         </div>
                     {/each}
                 </div>
