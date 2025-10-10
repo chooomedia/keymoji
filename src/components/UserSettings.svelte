@@ -143,9 +143,9 @@
 
     // Get available sections based on user tier
     $: availableSections = Object.values(settingsConfig.sections || {}).filter(section => {
-        // Free users: only basic and emoji sections
+        // Free users: basic, emoji, and story sections
         if (!isProUser) {
-            return section.id === 'basic' || section.id === 'emoji';
+            return section.id === 'basic' || section.id === 'emoji' || section.id === 'story';
         }
         // Pro users: all sections
         return true;
