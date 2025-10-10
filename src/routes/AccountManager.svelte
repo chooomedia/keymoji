@@ -65,6 +65,7 @@
     import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers.js';
     import { getUsageHistory, calculateUsageStats } from '../utils/usageHistoryHelpers.js';
     import { loadUsageHistoryWithRetry, refreshUsageHistory, shouldRefreshHistory } from '../utils/usageHistoryLoader.js';
+    import { DEMO_USAGE_HISTORY_4W, getDemoDataForPeriod, isDemoData } from '../utils/demoChartData.js';
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
     $: pageTitle = (() => {
@@ -184,6 +185,7 @@
     let isLoadingChartData = false;
     let chartDataError = null;
     let usageHistory = [];
+    let isDemoDataShown = false; // Track if showing demo data (not real from backend)
     let chartDataLoaded = false; // Guard to prevent multiple loads
     let lastLoadedUserId = null; // Track which user's data is loaded
     
@@ -284,49 +286,23 @@
                 dateRange: usageHistory.length > 0 ? `${usageHistory[usageHistory.length - 1]?.date} to ${usageHistory[0]?.date}` : 'empty'
             });
             
-            // 🔧 AUTO-GENERATE MOCK DATA IN DEVELOPMENT (wenn leer!)
-            if (isDevelopment() && usageHistory.length === 0 && $isLoggedIn) {
-                console.log('🔧 [DEV MODE] Auto-generating mock usage history (empty in database)...');
+            // 🎨 FALLBACK: Static Demo Dataset (wenn keine Backend-Daten!)
+            // Backend-First: Immer erst versuchen echte Daten zu laden
+            // Nur wenn WIRKLICH keine Daten: Zeige statischen Demo-Datensatz
+            if (usageHistory.length === 0 && $isLoggedIn) {
+                console.log('📊 No backend data available, using static demo dataset...');
                 
-                // Generate 28 days of realistic FREE user pattern
-                const mockHistory = [];
-                const today = new Date();
-                const tier = $accountTier || 'free';
-                const limit = tier === 'pro' ? 35 : 9;
+                // Use FIXED demo data (not random!) for consistent UX
+                usageHistory = DEMO_USAGE_HISTORY_4W;
+                isDemoDataShown = true;
                 
-                for (let i = 0; i < 28; i++) {
-                    const date = new Date(today);
-                    date.setDate(date.getDate() - i);
-                    const dateStr = date.toISOString().split('T')[0];
-                    
-                    // Realistic usage pattern (60-90% of limit)
-                    const baseUsage = Math.floor(limit * (0.6 + Math.random() * 0.3));
-                    const used = Math.min(limit, Math.max(0, baseUsage));
-                    
-                    mockHistory.push({
-                        date: dateStr,
-                        used: used,
-                        limit: limit,
-                        timestamp: date.toISOString()
-                    });
-                }
-                
-                // Sort newest first
-                mockHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                // Update currentAccount with mock data (in-memory only, not persisted)
-                const currentAcct = $currentAccount;
-                if (currentAcct) {
-                    currentAcct.metadata = currentAcct.metadata || {};
-                    currentAcct.metadata.usageHistory = mockHistory;
-                    currentAccount.set(currentAcct);
-                    
-                    console.log('✅ [DEV MODE] Mock usage history generated:', mockHistory.length, 'entries');
-                    console.log('✅ [DEV MODE] Updated currentAccount.metadata.usageHistory');
-                }
-                
-                usageHistory = mockHistory;
-                console.log('📊 [DEV MODE] Chart will now show 28 days of mock data!');
+                console.log('✅ Static demo dataset loaded:', usageHistory.length, 'entries');
+                console.log('🎨 Chart will show in GRAY (demo mode)');
+                console.log('💡 Overlay will explain: "Start generating to see your real data"');
+            } else if (usageHistory.length > 0) {
+                // Real data from backend!
+                isDemoDataShown = false;
+                console.log('✅ Real usage data from backend:', usageHistory.length, 'entries');
             }
             
         } catch (error) {
@@ -1209,14 +1185,40 @@
                                     </div>
                                 {:else}
                                     <!-- Chart (Data Loaded) -->
-                                    <div in:fade={{ duration: 400 }}>
+                                    <div in:fade={{ duration: 400 }} class="relative">
                                         <LineChart 
                                             data={usageChartData}
                                             maxValue={$accountTier === 'pro' ? 35 : 9}
                                             height={200}
-                                            color={$accountTier === 'pro' ? '#a855f7' : '#eab308'}
-                                            animate={true}
+                                            color={isDemoDataShown ? '#9ca3af' : ($accountTier === 'pro' ? '#a855f7' : '#eab308')}
+                                            animate={!isDemoDataShown}
                                         />
+                                        
+                                        {#if isDemoDataShown}
+                                            <!-- Demo Data Overlay -->
+                                            <div 
+                                                class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg"
+                                                transition:fade={{ duration: 300 }}
+                                            >
+                                                <div class="text-center p-6 max-w-md">
+                                                    <div class="text-4xl mb-3">📊</div>
+                                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                                                        {$translations?.accountManager?.demoChart?.title || 'Demo Vorschau'}
+                                                    </h3>
+                                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                                        {$translations?.accountManager?.demoChart?.description || 'Dies ist eine Beispiel-Ansicht. Generiere Emojis um deine echten Nutzungsdaten zu sammeln und hier anzuzeigen.'}
+                                                    </p>
+                                                    <button
+                                                        on:click={() => navigate('/')}
+                                                        class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600 focus:from-yellow-600 focus:to-orange-600 active:from-yellow-700 active:to-orange-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2 shadow-md"
+                                                        aria-label={$translations?.accountManager?.demoChart?.cta || 'Jetzt Emojis generieren'}
+                                                    >
+                                                        <span class="mr-2">🎲</span>
+                                                        {$translations?.accountManager?.demoChart?.cta || 'Jetzt Emojis generieren'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        {/if}
                                     </div>
                                 {/if}
                             </div>

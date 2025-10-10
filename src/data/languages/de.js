@@ -511,6 +511,13 @@ export default {
         // Remaining generations display
         remainingDisplay: '{remaining} / {limit}',
 
+        // Demo Chart (when no real data)
+        demoChart: {
+            title: 'Demo Vorschau',
+            description: 'Dies ist eine Beispiel-Ansicht. Generiere Emojis um deine echten Nutzungsdaten zu sammeln und hier anzuzeigen.',
+            cta: 'Jetzt Emojis generieren'
+        },
+
         // Vorteile
         benefits: {
             free: {
