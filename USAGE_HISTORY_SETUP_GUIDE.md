@@ -23,7 +23,8 @@ await window.keymojiUsageGenerator.generate4Weeks();
 
 ```javascript
 // Check generated data
-const account = window.$currentAccount || document.querySelector('[data-account]');
+const account =
+    window.$currentAccount || document.querySelector('[data-account]');
 console.log('History entries:', account?.metadata?.usageHistory?.length);
 
 // Should show 28 entries
@@ -57,10 +58,26 @@ const history = window.keymojiUsageGenerator.generateRealistic(14, 'free');
 // Returns: Array of 14 entries
 
 // Generate with specific pattern
-const increasing = window.keymojiUsageGenerator.generatePattern('increasing', 28, 'free');
-const decreasing = window.keymojiUsageGenerator.generatePattern('decreasing', 28, 'free');
-const stable = window.keymojiUsageGenerator.generatePattern('stable', 28, 'free');
-const random = window.keymojiUsageGenerator.generatePattern('random', 28, 'free');
+const increasing = window.keymojiUsageGenerator.generatePattern(
+    'increasing',
+    28,
+    'free'
+);
+const decreasing = window.keymojiUsageGenerator.generatePattern(
+    'decreasing',
+    28,
+    'free'
+);
+const stable = window.keymojiUsageGenerator.generatePattern(
+    'stable',
+    28,
+    'free'
+);
+const random = window.keymojiUsageGenerator.generatePattern(
+    'random',
+    28,
+    'free'
+);
 
 // Save custom history
 await window.keymojiUsageGenerator.save(history);
@@ -116,15 +133,27 @@ await window.keymojiUsageGenerator.save(history);
 
 ```javascript
 // Increasing trend (user getting more active)
-const increasing = window.keymojiUsageGenerator.generatePattern('increasing', 14, 'free');
+const increasing = window.keymojiUsageGenerator.generatePattern(
+    'increasing',
+    14,
+    'free'
+);
 await window.keymojiUsageGenerator.save(increasing);
 
 // Decreasing trend (user getting less active)
-const decreasing = window.keymojiUsageGenerator.generatePattern('decreasing', 14, 'free');
+const decreasing = window.keymojiUsageGenerator.generatePattern(
+    'decreasing',
+    14,
+    'free'
+);
 await window.keymojiUsageGenerator.save(decreasing);
 
 // Stable usage
-const stable = window.keymojiUsageGenerator.generatePattern('stable', 14, 'free');
+const stable = window.keymojiUsageGenerator.generatePattern(
+    'stable',
+    14,
+    'free'
+);
 await window.keymojiUsageGenerator.save(stable);
 ```
 
@@ -270,7 +299,7 @@ const customHistory = [];
 for (let i = 0; i < 28; i++) {
     const date = new Date();
     date.setDate(date.getDate() - i);
-    
+
     customHistory.push({
         date: date.toISOString().split('T')[0],
         used: Math.floor(Math.random() * 9), // Random 0-9
@@ -289,15 +318,15 @@ await window.keymojiUsageGenerator.save(customHistory);
 
 ### After Data Generation
 
-- [ ] **Chart Visible**: LineChart rendert ohne Fehler
-- [ ] **Data Points**: Alle Tage haben Datenpunkte
-- [ ] **Colors Correct**: Yellow für FREE, Purple für PRO
-- [ ] **Animations Work**: Line zeichnet sich smooth ein
-- [ ] **Tooltips Work**: Hover über Punkte zeigt Datum + Wert
-- [ ] **Period Selector**: Alle Buttons (7d, 14d, 4w, 1y) funktionieren
-- [ ] **Responsive**: Chart passt sich an Breite an
-- [ ] **Dark Mode**: Chart ändert Farben korrekt
-- [ ] **Empty State**: "Keine Daten verfügbar" bei leerem Array
+-   [ ] **Chart Visible**: LineChart rendert ohne Fehler
+-   [ ] **Data Points**: Alle Tage haben Datenpunkte
+-   [ ] **Colors Correct**: Yellow für FREE, Purple für PRO
+-   [ ] **Animations Work**: Line zeichnet sich smooth ein
+-   [ ] **Tooltips Work**: Hover über Punkte zeigt Datum + Wert
+-   [ ] **Period Selector**: Alle Buttons (7d, 14d, 4w, 1y) funktionieren
+-   [ ] **Responsive**: Chart passt sich an Breite an
+-   [ ] **Dark Mode**: Chart ändert Farben korrekt
+-   [ ] **Empty State**: "Keine Daten verfügbar" bei leerem Array
 
 ### Test Different Time Periods
 
@@ -426,4 +455,3 @@ return {
 **Status:** ✅ Ready for Testing  
 **Account:** cm@chooo.de  
 **Command:** `await window.keymojiUsageGenerator.generate4Weeks()`
-

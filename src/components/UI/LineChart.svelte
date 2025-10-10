@@ -9,21 +9,25 @@
     export let label = 'Daily Generations';
     export let maxValue = 9; // FREE tier default
     export let height = 200;
-    export let width = 400;
     export let color = '#eab308'; // yellow-500
     export let gridColor = '#e5e7eb'; // gray-200
     export let darkGridColor = '#374151'; // gray-700
+    export let labelColor = '#6b7280'; // gray-500 (light mode)
+    export let darkLabelColor = '#9ca3af'; // gray-400 (dark mode)
     export let showGrid = true;
     export let showPoints = true;
     export let showLabels = true;
     export let animate = true;
     
-    // Calculated values
-    let svgWidth = width;
-    let svgHeight = height;
-    let padding = { top: 20, right: 20, bottom: 40, left: 40 };
-    let chartWidth = svgWidth - padding.left - padding.right;
-    let chartHeight = svgHeight - padding.top - padding.bottom;
+    // Responsive width (100% of container)
+    let containerWidth = 0;
+    
+    // Calculated values (responsive)
+    $: svgWidth = containerWidth || 400;
+    $: svgHeight = height;
+    $: padding = { top: 20, right: 20, bottom: 40, left: 50 };
+    $: chartWidth = svgWidth - padding.left - padding.right;
+    $: chartHeight = svgHeight - padding.top - padding.bottom;
     
     // Theme awareness
     let isDarkMode = false;
@@ -46,7 +50,24 @@
             attributeFilter: ['class']
         });
         
-        return () => observer.disconnect();
+        // Measure container width for responsive chart
+        const updateWidth = () => {
+            const container = document.querySelector('.line-chart-container');
+            if (container) {
+                containerWidth = container.clientWidth;
+            }
+        };
+        
+        // Initial measurement
+        updateWidth();
+        
+        // Update on window resize
+        window.addEventListener('resize', updateWidth);
+        
+        return () => {
+            observer.disconnect();
+            window.removeEventListener('resize', updateWidth);
+        };
     });
     
     // Reactive calculations
@@ -127,9 +148,10 @@
 <div class="line-chart-container w-full" in:fade={{ duration: 300 }}>
     {#if hasData}
         <svg 
-            {width} 
+            width="100%"
             {height} 
             viewBox="0 0 {svgWidth} {svgHeight}"
+            preserveAspectRatio="xMidYMid meet"
             class="w-full h-auto"
             role="img"
             aria-label={label}
@@ -172,8 +194,9 @@
                                 x="-10"
                                 y={line.y + 4}
                                 text-anchor="end"
-                                class="text-xs fill-gray-500 dark:fill-gray-400"
                                 font-family="system-ui"
+                                font-size="12"
+                                fill={isDarkMode ? darkLabelColor : labelColor}
                             >
                                 {line.label}
                             </text>
@@ -249,19 +272,23 @@
                     {/each}
                 {/if}
                 
-                <!-- X-axis labels -->
+                <!-- X-axis labels (show every Nth label to avoid crowding) -->
                 {#if showLabels}
                     {#each validData as point, i}
                         {@const x = xScale(i)}
-                        <text
-                            x={x}
-                            y={chartHeight + 20}
-                            text-anchor="middle"
-                            class="text-xs fill-gray-600 dark:fill-gray-400"
-                            font-family="system-ui"
-                        >
-                            {formatDate(point.date)}
-                        </text>
+                        {@const showLabel = dataPoints <= 14 || i % Math.ceil(dataPoints / 10) === 0}
+                        {#if showLabel}
+                            <text
+                                x={x}
+                                y={chartHeight + 20}
+                                text-anchor="middle"
+                                font-family="system-ui"
+                                font-size="11"
+                                fill={isDarkMode ? darkLabelColor : labelColor}
+                            >
+                                {formatDate(point.date)}
+                            </text>
+                        {/if}
                     {/each}
                 {/if}
                 

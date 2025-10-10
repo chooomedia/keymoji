@@ -910,12 +910,12 @@
                                 </div>
                             </div>
                             
-                            <!-- Line Chart -->
-                            <div class="mb-3">
+                            <!-- Line Chart (Full Width) -->
+                            <div class="mb-3 -mx-2">
                                 <LineChart 
                                     data={usageChartData}
                                     maxValue={$accountTier === 'pro' ? 25 : 9}
-                                    height={180}
+                                    height={200}
                                     color={$accountTier === 'pro' ? '#a855f7' : '#eab308'}
                                     animate={true}
                                 />
