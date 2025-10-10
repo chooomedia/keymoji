@@ -921,25 +921,20 @@ export async function initializeAccountFromCookies() {
                     fullAccountResult.success &&
                     fullAccountResult.account
                 ) {
-                        // Use FULL account data from database
-                        accountInfo = {
-                            ...fullAccountResult.account,
-                            // Preserve session data from cookies
-                            sessionId: userPrefs.sessionId,
-                            sessionExpires: userPrefs.sessionExpires,
-                            lastActivity: new Date().toISOString(),
-                            isFirstLogin: false
-                        };
-                        console.log(
-                            '✅ [SESSION RESTORE] Using full database data with usageHistory'
-                        );
-                    } else {
-                        throw new Error('No account data in response');
-                    }
-                } else {
-                    throw new Error(
-                        `API returned ${fullAccountResponse.status}`
+                    // Use FULL account data from database
+                    accountInfo = {
+                        ...fullAccountResult.account,
+                        // Preserve session data from cookies
+                        sessionId: userPrefs.sessionId,
+                        sessionExpires: userPrefs.sessionExpires,
+                        lastActivity: new Date().toISOString(),
+                        isFirstLogin: false
+                    };
+                    console.log(
+                        '✅ [SESSION RESTORE] Using full database data with usageHistory'
                     );
+                } else {
+                    throw new Error('No account data in response');
                 }
             } catch (error) {
                 console.warn(
