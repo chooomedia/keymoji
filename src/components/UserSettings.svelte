@@ -28,13 +28,21 @@
 
     // Check if user is pro - optimiert mit $: um zu viele Aufrufe zu vermeiden
     $: isProUser = $accountTier === 'pro';
+    
+    // REACTIVE: Force re-evaluation when these stores change
+    $: reactivityTrigger = {
+        account: $currentAccount,
+        settings: $userSettings,
+        pending: $pendingChanges,
+        language: $currentLanguage
+    };
 
     // Helper function to get localized text
     function getLocalizedText(textObj, fallback = '') {
         return textObj?.[$currentLanguage] || textObj?.en || fallback;
     }
 
-    // Get effective value for a setting (includes pending changes) - ROBUST
+    // Get effective value for a setting (includes pending changes) - ROBUST & REACTIVE
     function getCurrentValue(item) {
         const itemId = item.id;
         
@@ -46,20 +54,40 @@
             console.log(`🔍 getCurrentValue(${itemId}):`, {
                 effectiveValue,
                 userSettings: get(userSettings)[itemId],
-                pending: get(pendingChanges)[itemId]
+                pending: get(pendingChanges)[itemId],
+                currentAccount: get(currentAccount)
             });
         }
         
         // Special handling for critical fields that sync with other stores
         
-        // Name: Always prefer currentAccount
+        // Name: REACTIVE - prefer currentAccount, then pending, then userSettings
         if (itemId === 'name') {
-            const account = get(currentAccount);
-            const accountName = account?.name || account?.profile?.name;
+            // Priority 1: Pending changes (user is typing)
+            const pending = get(pendingChanges)[itemId];
+            if (pending) {
+                console.log(`👤 getCurrentValue(name): Using pending:`, pending);
+                return pending;
+            }
             
-            // Use account name if available, otherwise use effective value
-            const finalName = accountName || effectiveValue || item.defaultValue || '';
-            console.log(`👤 getCurrentValue(name): Final value:`, finalName);
+            // Priority 2: currentAccount store (after successful save)
+            const account = $currentAccount; // REACTIVE!
+            const accountName = account?.name || account?.profile?.name;
+            if (accountName) {
+                console.log(`👤 getCurrentValue(name): Using currentAccount:`, accountName);
+                return accountName;
+            }
+            
+            // Priority 3: userSettings
+            const settingsName = $userSettings?.name; // REACTIVE!
+            if (settingsName) {
+                console.log(`👤 getCurrentValue(name): Using userSettings:`, settingsName);
+                return settingsName;
+            }
+            
+            // Priority 4: Default value
+            const finalName = item.defaultValue || '';
+            console.log(`👤 getCurrentValue(name): Using default:`, finalName);
             return finalName;
         }
         
@@ -498,6 +526,7 @@
                     <div class="p-4" transition:slide={{ duration: 300 }}>
                         <!-- Regular Items -->
                         {#each section.items as item}
+                            {#key reactivityTrigger}
                             <div class="mb-4 last:mb-0">
                                 <ModularInput
                                     config={{
@@ -523,11 +552,13 @@
                                     onValueChange={(value) => handleSettingUpdate(item.id, value)}
                                 />
                             </div>
+                            {/key}
                         {/each}
 
                         <!-- Pro Items (now functional for all users) -->
                         {#if section.proItems}
                                 {#each section.proItems as item}
+                                    {#key reactivityTrigger}
                                     <div class="mb-4 last:mb-0">
                                         <ModularInput
                                             config={{
@@ -553,6 +584,7 @@
                                             onValueChange={(value) => handleSettingUpdate(item.id, value)}
                                         />
                                     </div>
+                                    {/key}
                                 {/each}
                         {/if}
                     </div>
