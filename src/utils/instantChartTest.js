@@ -38,7 +38,9 @@ export function instantChartTest() {
         console.error('❌ FAIL: Metadata is not an object!');
         console.log('   Current type:', typeof account.metadata);
         if (typeof account.metadata === 'string') {
-            console.log('💡 Solution: Run window.chartDebugger.forceParseMetadata()');
+            console.log(
+                '💡 Solution: Run window.chartDebugger.forceParseMetadata()'
+            );
         }
         return false;
     }
@@ -92,11 +94,11 @@ export function instantChartTest() {
     console.log('─────────────────────────');
     console.log('   First entry:', history[0]);
     console.log('   Last entry:', history[history.length - 1]);
-    
-    const hasValidStructure = history.every(e => 
-        e.date && typeof e.used === 'number' && typeof e.limit === 'number'
+
+    const hasValidStructure = history.every(
+        e => e.date && typeof e.used === 'number' && typeof e.limit === 'number'
     );
-    
+
     if (!hasValidStructure) {
         console.error('❌ FAIL: Some entries have invalid structure!');
         return false;
@@ -110,10 +112,10 @@ export function instantChartTest() {
     const firstDate = history[0]?.date;
     const lastDate = history[history.length - 1]?.date;
     console.log('   Range:', lastDate, 'to', firstDate);
-    
+
     const today = new Date().toISOString().split('T')[0];
     const isToday = history.some(e => e.date === today);
-    
+
     if (!isToday) {
         console.warn('⚠️ WARNING: No entry for today!');
         console.log('   Today:', today);
@@ -129,7 +131,7 @@ export function instantChartTest() {
     const nonZeroEntries = history.filter(e => e.used > 0);
     console.log('   Entries with used > 0:', nonZeroEntries.length);
     console.log('   Total entries:', history.length);
-    
+
     if (nonZeroEntries.length === 0) {
         console.warn('⚠️ WARNING: All values are 0 (chart will be flat)');
     } else {
@@ -146,7 +148,12 @@ export function instantChartTest() {
     console.log('   • Total entries:', history.length);
     console.log('   • Date range:', lastDate, 'to', firstDate);
     console.log('   • Non-zero values:', nonZeroEntries.length);
-    console.log('   • Average used:', Math.round(history.reduce((sum, e) => sum + e.used, 0) / history.length * 10) / 10);
+    console.log(
+        '   • Average used:',
+        Math.round(
+            (history.reduce((sum, e) => sum + e.used, 0) / history.length) * 10
+        ) / 10
+    );
     console.log('');
     console.log('🎯 Expected Chart:');
     console.log('   • Should show', history.length, 'data points');
@@ -169,10 +176,10 @@ export function instantChartTest() {
 export function showChartData() {
     const account = get(currentAccount);
     const history = account?.metadata?.usageHistory || [];
-    
+
     console.log('📊 Current Chart Data:');
     console.table(history);
-    
+
     return history;
 }
 
@@ -182,21 +189,21 @@ export function showChartData() {
 export function verifyChartGeneration() {
     const account = get(currentAccount);
     const history = account?.metadata?.usageHistory || [];
-    
+
     if (history.length === 0) {
         console.error('❌ No data to generate chart');
         return [];
     }
-    
+
     // Simulate chart data generation for 4w
     const today = new Date();
     const chartData = [];
-    
+
     for (let i = 27; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
-        
+
         const entry = history.find(h => h.date === dateStr);
         chartData.push({
             date: dateStr,
@@ -205,14 +212,20 @@ export function verifyChartGeneration() {
             source: entry ? 'history' : 'generated'
         });
     }
-    
+
     console.log('📊 Chart Generation Test (4w):');
     console.log('   Total points:', chartData.length);
-    console.log('   Points from history:', chartData.filter(d => d.found).length);
-    console.log('   Points with value > 0:', chartData.filter(d => d.value > 0).length);
+    console.log(
+        '   Points from history:',
+        chartData.filter(d => d.found).length
+    );
+    console.log(
+        '   Points with value > 0:',
+        chartData.filter(d => d.value > 0).length
+    );
     console.log('');
     console.table(chartData);
-    
+
     return chartData;
 }
 
@@ -221,10 +234,9 @@ if (typeof window !== 'undefined') {
     window.instantChartTest = instantChartTest;
     window.showChartData = showChartData;
     window.verifyChartGeneration = verifyChartGeneration;
-    
+
     console.log('⚡ Instant Chart Test loaded!');
     console.log('   Quick test: window.instantChartTest()');
     console.log('   Show data: window.showChartData()');
     console.log('   Verify gen: window.verifyChartGeneration()');
 }
-

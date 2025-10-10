@@ -21,8 +21,12 @@ export function getUsageHistory(account) {
         }
 
         if (typeof account.metadata === 'string') {
-            console.error('❌ [USAGE HISTORY] Metadata is still a STRING! Need to parse first!');
-            console.log('💡 [USAGE HISTORY] Try: window.chartDebugger.forceParseMetadata()');
+            console.error(
+                '❌ [USAGE HISTORY] Metadata is still a STRING! Need to parse first!'
+            );
+            console.log(
+                '💡 [USAGE HISTORY] Try: window.chartDebugger.forceParseMetadata()'
+            );
             return [];
         }
 
@@ -47,9 +51,15 @@ export function getUsageHistory(account) {
 
         if (history.length === 0) {
             console.warn('⚠️ [USAGE HISTORY] UsageHistory is empty array');
-            console.log('💡 [USAGE HISTORY] Check Google Sheets metadata column');
+            console.log(
+                '💡 [USAGE HISTORY] Check Google Sheets metadata column'
+            );
         } else {
-            console.log('✅ [USAGE HISTORY] Returning', history.length, 'entries');
+            console.log(
+                '✅ [USAGE HISTORY] Returning',
+                history.length,
+                'entries'
+            );
         }
 
         return history;
