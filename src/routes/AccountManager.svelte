@@ -188,14 +188,14 @@
     let lastLoadedUserId = null; // Track which user's data is loaded
     
     // Load usage history from current account (reactive with guard)
-    $: if ($currentAccount && $isLoggedIn && !chartDataLoaded) {
+    $: if ($currentAccount && $isLoggedIn) {
         const currentUserId = $currentAccount.userId;
         
         // Only load if we haven't loaded for this user yet, or if user changed
-        if (currentUserId && currentUserId !== lastLoadedUserId) {
+        if (currentUserId && currentUserId !== lastLoadedUserId && !chartDataLoaded) {
             console.log('📊 [CHART] Triggering load for user:', currentUserId);
             lastLoadedUserId = currentUserId;
-            chartDataLoaded = false; // Reset for this user
+            // DON'T set chartDataLoaded = false here! It will be set to true in finally block
             loadChartDataAsync();
         }
     }
