@@ -196,15 +196,21 @@ export async function initializeDailyUsage() {
             }
         }
 
-        // CRITICAL: Always check if limit needs updating based on current tier
-        // This handles tier changes (guest → free → pro)
-        const correctLimit = getDailyLimitForUser(loggedIn, tier);
-        if (usageData.limit !== correctLimit) {
+        // CRITICAL: Only update limit if user is actually logged in!
+        // Don't change limit during initial load before login is confirmed
+        if (loggedIn && account?.userId) {
+            const correctLimit = getDailyLimitForUser(loggedIn, tier);
+            if (usageData.limit !== correctLimit) {
+                console.log(
+                    `🔄 Updating limit for tier change: ${usageData.limit} → ${correctLimit} (logged in as ${tier})`
+                );
+                usageData.limit = correctLimit;
+                saveUsageToLocalStorage(usageData);
+            }
+        } else {
             console.log(
-                `🔄 Updating limit for tier change: ${usageData.limit} → ${correctLimit}`
+                `⏸️ Skipping limit update (not logged in yet): current=${usageData.limit}, would be=${getDailyLimitForUser(loggedIn, tier)}`
             );
-            usageData.limit = correctLimit;
-            saveUsageToLocalStorage(usageData);
         }
 
         // Check if reset is needed (new day detected)
