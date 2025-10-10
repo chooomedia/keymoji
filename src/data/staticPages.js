@@ -5,7 +5,8 @@
 export const privacyContent = {
     de: {
         title: 'Datenschutzerklärung',
-        description: 'Informationen zum Datenschutz und zur Verarbeitung personenbezogener Daten',
+        description:
+            'Informationen zum Datenschutz und zur Verarbeitung personenbezogener Daten',
         lastUpdated: '2025-10-10',
         content: `
             <section class="mb-12">
@@ -137,7 +138,8 @@ export const privacyContent = {
     },
     en: {
         title: 'Privacy Policy',
-        description: 'Information about data protection and processing of personal data',
+        description:
+            'Information about data protection and processing of personal data',
         lastUpdated: '2025-10-10',
         content: `
             <section class="mb-12">
@@ -395,4 +397,3 @@ export const legalContent = {
         `
     }
 };
-
