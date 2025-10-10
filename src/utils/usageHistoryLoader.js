@@ -7,6 +7,36 @@ import { isDevelopment } from './environment.js';
 import { cachedFetchUsageHistory } from './apiCache.js';
 
 /**
+ * Safe JSON parse helper (supports double-escaped JSON from Google Sheets)
+ * CRITICAL: Same logic as in usageHistoryHelpers.js and accountStore.js
+ */
+function safeJSONParse(data, fallback = {}) {
+    if (!data) return fallback;
+    if (typeof data === 'object' && data !== null) return data;
+    if (typeof data === 'string') {
+        try {
+            let parsed = JSON.parse(data);
+            // Handle double-escaped JSON from Google Sheets
+            if (typeof parsed === 'string') {
+                console.log('⚠️ [USAGE LOADER] Double-escaped JSON detected, parsing again...');
+                try {
+                    parsed = JSON.parse(parsed);
+                    console.log('✅ [USAGE LOADER] Successfully parsed double-escaped JSON');
+                } catch (secondError) {
+                    console.warn('⚠️ [USAGE LOADER] Failed second parse:', secondError.message);
+                    return fallback;
+                }
+            }
+            return parsed;
+        } catch (error) {
+            console.warn('⚠️ [USAGE LOADER] Failed to parse JSON:', error.message);
+            return fallback;
+        }
+    }
+    return fallback;
+}
+
+/**
  * Async loader for usage history data
  * Implements UX best practices: Loading states, error handling, retries
  */
@@ -45,7 +75,19 @@ export async function loadUsageHistory(userId = null, email = null) {
             console.warn(
                 '⚠️ Skipping API call on localhost (CORS), using currentAccount data'
             );
-            return account?.metadata?.usageHistory || [];
+            
+            // CRITICAL: Parse metadata if it's a JSON string!
+            const parsedMetadata = safeJSONParse(account?.metadata, {});
+            const history = parsedMetadata.usageHistory || [];
+            
+            console.log('📊 [LOCALHOST] Parsed metadata:', {
+                hadMetadata: !!account?.metadata,
+                wasString: typeof account?.metadata === 'string',
+                hasUsageHistory: !!parsedMetadata.usageHistory,
+                historyLength: history.length
+            });
+            
+            return history;
         }
 
         console.log('📡 Fetching usage history (cached):', targetUserId);
@@ -64,10 +106,13 @@ export async function loadUsageHistory(userId = null, email = null) {
             throw new Error('Invalid API response structure');
         }
 
-        // Extract usage history from response
-        const history = result.account?.metadata?.usageHistory || [];
+        // CRITICAL: Parse metadata from API response (could be JSON string!)
+        const parsedMetadata = safeJSONParse(result.account?.metadata, {});
+        const history = parsedMetadata.usageHistory || [];
 
-        console.log('📊 Usage history loaded:', {
+        console.log('📊 Usage history loaded from API:', {
+            hadMetadata: !!result.account?.metadata,
+            wasString: typeof result.account?.metadata === 'string',
             entries: history.length,
             firstEntry: history[0],
             lastEntry: history[history.length - 1]
