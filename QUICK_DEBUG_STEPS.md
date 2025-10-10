@@ -11,7 +11,7 @@
 ### **Step 2: Run Full Diagnosis**
 
 ```javascript
-window.chartDebugger.fullDiagnosis()
+window.chartDebugger.fullDiagnosis();
 ```
 
 This will show you EXACTLY where the problem is!
@@ -27,14 +27,16 @@ The diagnosis will tell you what to do.
 ### **Problem A: Metadata is still a STRING**
 
 **Console shows:**
+
 ```
 ❌ PROBLEM: Metadata is still a STRING (not parsed)!
 Raw metadata preview: {"settings":{...
 ```
 
 **Instant Fix:**
+
 ```javascript
-window.chartDebugger.forceParseMetadata()
+window.chartDebugger.forceParseMetadata();
 ```
 
 Then reload page (F5).
@@ -44,6 +46,7 @@ Then reload page (F5).
 ### **Problem B: No usageHistory field**
 
 **Console shows:**
+
 ```
 ❌ PROBLEM: No usageHistory field in metadata!
 Available metadata fields: ["settings", "dailyUsage"]
@@ -56,13 +59,15 @@ Available metadata fields: ["settings", "dailyUsage"]
 ### **Problem C: usageHistory is empty**
 
 **Console shows:**
+
 ```
 ❌ PROBLEM: usageHistory is empty array!
 ```
 
 **Instant Fix (for testing):**
+
 ```javascript
-window.chartDebugger.injectTestData()
+window.chartDebugger.injectTestData();
 ```
 
 Then reload page (F5).
@@ -74,6 +79,7 @@ Then reload page (F5).
 ### **Problem D: Date mismatch**
 
 **Console shows:**
+
 ```
 ❌ PROBLEM: No data points match current date range!
 History date range: 2025-09-13 to 2025-10-10
@@ -89,10 +95,11 @@ Chart expecting: 2025-10-12 to 2025-11-08
 After applying any fix, run:
 
 ```javascript
-window.chartDebugger.quickCheck()
+window.chartDebugger.quickCheck();
 ```
 
 **Expected:**
+
 ```
 ✅ All checks passed!
 ✅ hasAccount: true
@@ -140,10 +147,10 @@ If nothing works, inject data directly for testing:
 
 ```javascript
 // This injects 28 days of test data
-window.chartDebugger.injectTestData()
+window.chartDebugger.injectTestData();
 
 // Then reload page
-location.reload()
+location.reload();
 
 // Chart should now show data!
 ```
@@ -159,8 +166,14 @@ If issues persist, copy console output and share:
 console.log('=== DEBUG REPORT ===');
 console.log('User:', window.$currentAccount?.email);
 console.log('Metadata type:', typeof window.$currentAccount?.metadata);
-console.log('UsageHistory type:', typeof window.$currentAccount?.metadata?.usageHistory);
-console.log('UsageHistory length:', window.$currentAccount?.metadata?.usageHistory?.length);
+console.log(
+    'UsageHistory type:',
+    typeof window.$currentAccount?.metadata?.usageHistory
+);
+console.log(
+    'UsageHistory length:',
+    window.$currentAccount?.metadata?.usageHistory?.length
+);
 console.log('Has data:', !!window.$currentAccount?.metadata?.usageHistory);
 console.log('=== RUN FULL DIAGNOSIS ===');
 window.chartDebugger.fullDiagnosis();
@@ -192,8 +205,8 @@ And chart should display 28 data points with animation!
 ---
 
 **TL;DR:**
+
 1. Open Console (F12)
 2. Run: `window.chartDebugger.fullDiagnosis()`
 3. Follow the solution it provides
 4. If desperate: `window.chartDebugger.injectTestData()` + reload
-
