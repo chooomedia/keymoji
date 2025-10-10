@@ -1096,11 +1096,11 @@
                                 {/if}
                             </div>
                             
-                            <!-- Progress Bar (more usage = more orange fill) -->
+                            <!-- Progress Bar (shows remaining capacity - more remaining = fuller bar) -->
                             <div class="w-full bg-gray-300 dark:bg-aubergine-600 rounded-full h-3 mb-2">
                                 <div 
-                                    class="bg-gradient-to-r from-orange-500 to-yellow-500 h-3 rounded-full transition-all duration-500"
-                                    style="width: {Math.min(100, (($dailyLimit?.used || 0) / currentUserLimits.limit) * 100)}%"
+                                    class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500"
+                                    style="width: {Math.min(100, (remainingGenerations / currentUserLimits.limit) * 100)}%"
                                 ></div>
                             </div>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
