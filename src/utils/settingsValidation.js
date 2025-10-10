@@ -76,9 +76,9 @@ export function validateSettings(settings, tier = 'free') {
             errors.push('emojiCount must be at least 3');
         } else if (settings.emojiCount > 20) {
             errors.push('emojiCount must be less than 20');
-        } else if (tier === 'free' && settings.emojiCount > 5) {
+        } else if (tier === 'free' && settings.emojiCount > 9) {
             errors.push(
-                'emojiCount limited to 5 for free tier (upgrade to Pro)'
+                'emojiCount limited to 9 for free tier (upgrade to Pro)'
             );
         }
     }
@@ -184,8 +184,8 @@ export function sanitizeSettings(settings, tier = 'free') {
         if (sanitized.passwordLength && sanitized.passwordLength > 12) {
             sanitized.passwordLength = 12;
         }
-        if (sanitized.emojiCount && sanitized.emojiCount > 5) {
-            sanitized.emojiCount = 5;
+        if (sanitized.emojiCount && sanitized.emojiCount > 9) {
+            sanitized.emojiCount = 9;
         }
     }
 
@@ -210,7 +210,7 @@ export function getDefaultSettings(tier = 'free') {
         includeLowercase: true,
 
         // Emoji
-        emojiCount: 5,
+        emojiCount: 9,
         emojiCategories: ['faces', 'animals', 'food'],
         excludeEmojis: [],
 
