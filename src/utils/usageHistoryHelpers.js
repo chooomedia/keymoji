@@ -2,7 +2,36 @@
 // Helper functions for usage history management
 
 /**
+ * Safe JSON parse helper (supports double-escaped JSON from Google Sheets)
+ */
+function safeJSONParse(data, fallback = {}) {
+    if (!data) return fallback;
+    if (typeof data === 'object' && data !== null) return data;
+    if (typeof data === 'string') {
+        try {
+            let parsed = JSON.parse(data);
+            if (typeof parsed === 'string') {
+                console.log('⚠️ [USAGE HISTORY] Double-escaped JSON detected, parsing again...');
+                try {
+                    parsed = JSON.parse(parsed);
+                    console.log('✅ [USAGE HISTORY] Successfully parsed double-escaped JSON');
+                } catch (secondError) {
+                    console.warn('⚠️ [USAGE HISTORY] Failed second parse:', secondError.message);
+                    return fallback;
+                }
+            }
+            return parsed;
+        } catch (error) {
+            console.warn('⚠️ [USAGE HISTORY] Failed to parse JSON:', error.message);
+            return fallback;
+        }
+    }
+    return fallback;
+}
+
+/**
  * Load usage history from account metadata
+ * CRITICAL: Now PARSES JSON strings automatically!
  */
 export function getUsageHistory(account) {
     try {
@@ -14,27 +43,28 @@ export function getUsageHistory(account) {
             metadataKeys: account?.metadata ? Object.keys(account.metadata) : []
         });
 
-        // Check if metadata exists and is object
+        // Check if account exists
         if (!account || !account.metadata) {
             console.warn('⚠️ [USAGE HISTORY] No account or metadata');
             return [];
         }
 
-        if (typeof account.metadata === 'string') {
-            console.error(
-                '❌ [USAGE HISTORY] Metadata is still a STRING! Need to parse first!'
-            );
-            console.log(
-                '💡 [USAGE HISTORY] Try: window.chartDebugger.forceParseMetadata()'
-            );
-            return [];
-        }
+        // CRITICAL: Parse metadata if it's a JSON string!
+        const parsedMetadata = safeJSONParse(account.metadata, {});
+        
+        console.log('📊 [USAGE HISTORY] Parsed metadata:', {
+            wasString: typeof account.metadata === 'string',
+            hasUsageHistory: !!parsedMetadata.usageHistory,
+            usageHistoryType: typeof parsedMetadata.usageHistory,
+            isArray: Array.isArray(parsedMetadata.usageHistory)
+        });
 
-        const history = account.metadata.usageHistory || [];
+        // Get usageHistory from PARSED metadata
+        const history = parsedMetadata.usageHistory || [];
 
         console.log('📊 [USAGE HISTORY] UsageHistory extracted:', {
-            hasUsageHistory: !!account.metadata.usageHistory,
-            type: typeof account.metadata.usageHistory,
+            hasUsageHistory: !!parsedMetadata.usageHistory,
+            type: typeof parsedMetadata.usageHistory,
             isArray: Array.isArray(history),
             length: history.length,
             firstEntry: history[0],
