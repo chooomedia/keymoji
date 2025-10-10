@@ -1,9 +1,11 @@
 <script>
     import { onMount } from 'svelte';
+    import { get } from 'svelte/store';
     import { currentLanguage } from './stores/contentStore.js'; // modalMessage darkMode
     import { updateSeo } from './stores/seoStore.js';
     import { navigate } from 'svelte-routing';
     import { closeModal, isModalVisible } from './stores/modalStore.js';
+    import { isLoggedIn, currentAccount } from './stores/appStores.js';
     import PageLayout from './components/Layout/PageLayout.svelte';
     import EmojiDisplay from './components/Core/EmojiDisplay.svelte';
 
