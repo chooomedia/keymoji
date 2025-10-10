@@ -97,9 +97,25 @@
             <button
                 on:click={() => {
                     console.log('🔝 Scrolling to top...');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    document.documentElement.scrollTop = 0; // Fallback
-                    document.body.scrollTop = 0; // Fallback für ältere Browser
+                    // Try multiple methods for maximum compatibility
+                    const scrollOptions = { top: 0, left: 0, behavior: 'smooth' };
+                    
+                    // Method 1: Modern smooth scroll
+                    window.scrollTo(scrollOptions);
+                    
+                    // Method 2: Direct assignment (instant fallback)
+                    setTimeout(() => {
+                        if (window.pageYOffset > 0) {
+                            document.documentElement.scrollTop = 0;
+                            document.body.scrollTop = 0;
+                        }
+                    }, 100);
+                    
+                    // Method 3: Force scroll on main container
+                    const mainContent = document.querySelector('.main-content');
+                    if (mainContent) {
+                        mainContent.scrollTop = 0;
+                    }
                 }}
                 class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-yellow-500 text-black dark:bg-aubergine-900 dark:text-white rounded-full font-medium shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                 aria-label="Back to top"
