@@ -3,6 +3,7 @@
 ## 🎯 **DAS PROBLEM:**
 
 Console zeigt:
+
 ```
 usageHistory: 0 entries
 Chart lädt: ✓
@@ -18,19 +19,20 @@ Aber: Keine Daten! ❌
 
 ```javascript
 // Schritt 1: Inject Test-Daten
-window.chartDebugger.injectTestData()
+window.chartDebugger.injectTestData();
 
 // Schritt 2: Reload
-location.reload()
+location.reload();
 ```
 
 **→ Chart zeigt SOFORT 28 Tage Daten!** 📊
 
 **Das beweist:**
-- ✅ Chart Component funktioniert
-- ✅ SVG rendering funktioniert
-- ✅ Code ist korrekt
-- ✅ Nur Daten fehlen!
+
+-   ✅ Chart Component funktioniert
+-   ✅ SVG rendering funktioniert
+-   ✅ Code ist korrekt
+-   ✅ Nur Daten fehlen!
 
 ---
 
@@ -42,12 +44,13 @@ location.reload()
 
 ```javascript
 // Browser Console (F12):
-await forceLoadFromSheets()
+await forceLoadFromSheets();
 ```
 
 **Was du siehst:**
 
 **SZENARIO A: Daten sind da** ✅
+
 ```
 ✅ API Response: status 200
 ✅ Metadata: object
@@ -57,6 +60,7 @@ await forceLoadFromSheets()
 ```
 
 **SZENARIO B: Daten fehlen** ❌
+
 ```
 ❌ UsageHistory is EMPTY!
 Google Sheets metadata Column G does NOT contain usageHistory!
@@ -76,10 +80,10 @@ FIX: Update Google Sheets with PASTE_IN_GOOGLE_SHEETS.txt
 3. **Google Sheets öffnen**
 4. **Find Row:** `cm@chooo.de` (dein User)
 5. **Column G** (metadata):
-   - Click in die Zelle
-   - **Cmd+A** (Select alter Inhalt)
-   - **Delete** (alter Inhalt weg)
-   - **Cmd+V** (neuer String rein)
+    - Click in die Zelle
+    - **Cmd+A** (Select alter Inhalt)
+    - **Delete** (alter Inhalt weg)
+    - **Cmd+V** (neuer String rein)
 6. **Cmd+S** (Save)
 7. **Browser Reload**
 8. **Login**
@@ -99,25 +103,28 @@ console.log('UsageHistory:', window.$currentAccount?.metadata?.usageHistory);
 ```
 
 **Expected:**
-- `currentAccount`: object ✓
-- `metadata`: object ✓
-- `usageHistory`: array mit entries ✓ (ODER undefined ❌)
+
+-   `currentAccount`: object ✓
+-   `metadata`: object ✓
+-   `usageHistory`: array mit entries ✓ (ODER undefined ❌)
 
 ---
 
 ### **Step 2: Force API Call**
 
 ```javascript
-await forceLoadFromSheets()
+await forceLoadFromSheets();
 ```
 
 **Wenn 429 (Rate Limit):**
+
 ```
 ❌ API Error: 429 Too Many Requests
 FIX: Backend deployen ODER warten (Rate Limit reset)
 ```
 
 **Wenn 200 (OK) aber empty:**
+
 ```
 ✅ API Status: 200
 ❌ UsageHistory: 0 entries
@@ -125,6 +132,7 @@ FIX: Google Sheets updaten (PASTE_IN_GOOGLE_SHEETS.txt)
 ```
 
 **Wenn 200 (OK) und data:**
+
 ```
 ✅ API Status: 200
 ✅ UsageHistory: 28 entries
@@ -138,18 +146,19 @@ FIX: Google Sheets updaten (PASTE_IN_GOOGLE_SHEETS.txt)
 ### **Step 3: Inject Test-Daten (Quick Win!)**
 
 ```javascript
-window.chartDebugger.injectTestData()
-location.reload()
+window.chartDebugger.injectTestData();
+location.reload();
 ```
 
 **→ Chart zeigt SOFORT Daten!**
 
 **Dann weißt du:**
-- ✅ Chart Component: OK!
-- ✅ SVG Rendering: OK!
-- ✅ Animations: OK!
-- ✅ Filter Buttons: OK!
-- ✅ Refresh Button: OK!
+
+-   ✅ Chart Component: OK!
+-   ✅ SVG Rendering: OK!
+-   ✅ Animations: OK!
+-   ✅ Filter Buttons: OK!
+-   ✅ Refresh Button: OK!
 
 **Problem ist nur:** Echte Daten aus Google Sheets!
 
@@ -177,10 +186,11 @@ location.reload()
 ```
 
 **Wichtig:**
-- ✅ `usageHistory` muss ein **Array** sein
-- ✅ Jedes entry braucht: `date`, `used`, `limit`
-- ✅ Mindestens 1 entry für Chart
-- ✅ 28 entries für 4-Wochen-View
+
+-   ✅ `usageHistory` muss ein **Array** sein
+-   ✅ Jedes entry braucht: `date`, `used`, `limit`
+-   ✅ Mindestens 1 entry für Chart
+-   ✅ 28 entries für 4-Wochen-View
 
 ---
 
@@ -189,8 +199,8 @@ location.reload()
 ### **Schritt 1: JETZT SOFORT (Chart sehen!)** ⚡
 
 ```javascript
-window.chartDebugger.injectTestData()
-location.reload()
+window.chartDebugger.injectTestData();
+location.reload();
 ```
 
 **→ Du siehst den Chart!**
@@ -202,12 +212,14 @@ location.reload()
 ### **Schritt 2: Echte Daten (wenn du möchtest)**
 
 **Option A: Google Sheets hat schon Daten**
+
 ```javascript
-await forceLoadFromSheets()
-location.reload()
+await forceLoadFromSheets();
+location.reload();
 ```
 
 **Option B: Google Sheets ist leer**
+
 ```
 1. PASTE_IN_GOOGLE_SHEETS.txt → Copy
 2. Google Sheets → Paste in Column G
@@ -228,4 +240,3 @@ location.reload()
 **C)** Ich helfe dir Google Sheets zu updaten? 📝
 
 **Sage mir einfach was du bevorzugst!** 🙏
-

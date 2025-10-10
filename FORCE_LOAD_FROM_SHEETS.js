@@ -4,7 +4,7 @@
 async function forceLoadFromSheets() {
     console.log('🔄 FORCE LOADING FROM GOOGLE SHEETS...');
     console.log('');
-    
+
     // Step 1: Get current account info
     const currentAccount = window.$currentAccount;
     console.log('📊 Step 1: Current Account:', {
@@ -13,15 +13,15 @@ async function forceLoadFromSheets() {
         hasMetadata: !!currentAccount?.metadata,
         hasUsageHistory: !!currentAccount?.metadata?.usageHistory
     });
-    
+
     if (!currentAccount?.userId) {
         console.error('❌ No user logged in!');
         return;
     }
-    
+
     // Step 2: Force API call to backend
     console.log('📡 Step 2: Calling backend API...');
-    
+
     try {
         const response = await fetch('https://its.keymoji.wtf/api/account', {
             method: 'POST',
@@ -32,31 +32,33 @@ async function forceLoadFromSheets() {
                 email: currentAccount.email
             })
         });
-        
+
         console.log('📡 API Response:', {
             status: response.status,
             ok: response.ok,
             statusText: response.statusText
         });
-        
+
         if (!response.ok) {
             const errorText = await response.text();
             console.error('❌ API Error:', errorText);
             return;
         }
-        
+
         const data = await response.json();
         console.log('✅ Step 3: API Data received:', data);
-        
+
         // Step 3: Check metadata structure
         console.log('📦 Step 4: Metadata structure:', {
             hasMetadata: !!data.account?.metadata,
             metadataType: typeof data.account?.metadata,
-            metadataKeys: data.account?.metadata ? Object.keys(data.account.metadata) : [],
+            metadataKeys: data.account?.metadata
+                ? Object.keys(data.account.metadata)
+                : [],
             hasUsageHistory: !!data.account?.metadata?.usageHistory,
             usageHistoryLength: data.account?.metadata?.usageHistory?.length
         });
-        
+
         // Step 4: Parse metadata if it's a string
         let metadata = data.account?.metadata;
         if (typeof metadata === 'string') {
@@ -69,7 +71,7 @@ async function forceLoadFromSheets() {
                 return;
             }
         }
-        
+
         // Step 5: Extract usageHistory
         const usageHistory = metadata?.usageHistory || [];
         console.log('📊 Step 5: UsageHistory:', {
@@ -78,19 +80,25 @@ async function forceLoadFromSheets() {
             first3: usageHistory.slice(0, 3),
             last3: usageHistory.slice(-3)
         });
-        
+
         if (usageHistory.length === 0) {
             console.error('❌ UsageHistory is EMPTY!');
-            console.error('Google Sheets metadata Column G does NOT contain usageHistory!');
+            console.error(
+                'Google Sheets metadata Column G does NOT contain usageHistory!'
+            );
             console.error('');
-            console.error('FIX: Update Google Sheets with PASTE_IN_GOOGLE_SHEETS.txt content!');
+            console.error(
+                'FIX: Update Google Sheets with PASTE_IN_GOOGLE_SHEETS.txt content!'
+            );
             return;
         }
-        
+
         // Step 6: Update currentAccount store
         console.log('💾 Step 6: Updating currentAccount store...');
-        
-        const { currentAccount: accountStore } = await import('./src/stores/accountStore.js');
+
+        const { currentAccount: accountStore } = await import(
+            './src/stores/accountStore.js'
+        );
         accountStore.update(acc => ({
             ...acc,
             metadata: {
@@ -98,13 +106,12 @@ async function forceLoadFromSheets() {
                 ...metadata
             }
         }));
-        
+
         console.log('✅ Step 7: Store updated! Reload page to see chart!');
         console.log('');
         console.log('🎯 Run: location.reload()');
-        
+
         return usageHistory;
-        
     } catch (error) {
         console.error('❌ Error loading from sheets:', error);
         console.error('Stack:', error.stack);
@@ -131,4 +138,3 @@ console.log('══════════════════════�
 console.log('');
 
 window.forceLoadFromSheets = forceLoadFromSheets;
-
