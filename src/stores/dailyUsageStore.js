@@ -16,6 +16,7 @@ import {
     getRemainingGenerations
 } from '../config/limits.js';
 import { isDevelopment } from '../utils/environment.js';
+import { cachedFetchAccount, invalidateCachePattern } from '../utils/apiCache.js';
 
 // === STORES ===
 
@@ -435,26 +436,14 @@ async function loadUsageFromAPI(account) {
             return null;
         }
 
-        console.log('📡 Loading daily usage from API for:', account.userId);
+        console.log('📡 Loading daily usage from API (cached):', account.userId);
 
-        const response = await fetch(WEBHOOKS.ACCOUNT.READ, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({
-                action: 'read',
-                userId: account.userId,
-                email: account.email
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`API returned ${response.status}`);
-        }
-
-        const result = await response.json();
+        // Use cached fetch - prevents 429 errors!
+        const result = await cachedFetchAccount(
+            account.userId,
+            account.email,
+            'read'
+        );
 
         if (result.success && result.account) {
             // Extract usage from profile.dailyUsage (primary) or metadata.dailyUsage (fallback)
@@ -463,7 +452,7 @@ async function loadUsageFromAPI(account) {
                 result.account.metadata?.dailyUsage;
 
             if (dailyUsage && typeof dailyUsage === 'object') {
-                console.log('✅ Daily usage from API:', dailyUsage);
+                console.log('✅ Daily usage from API (cached):', dailyUsage);
                 return dailyUsage;
             }
         }
