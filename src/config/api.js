@@ -15,6 +15,7 @@ export const WEBHOOKS = {
     // Account Management
     ACCOUNT: {
         CRUD: `${API_URL}/account`,
+        READ: `${API_URL}/account`, // READ account data from Google Sheets
         UPDATE: `${API_URL}/account/update`,
         MAGIC_LINK_SEND: `${API_URL}/magic-link/send`,
         MAGIC_LINK_VERIFY: `${API_URL}/magic-link/verify`,

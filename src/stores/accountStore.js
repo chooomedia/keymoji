@@ -653,6 +653,51 @@ export async function verifyMagicLinkFrontend(token, email) {
 
         console.log('🔗 Setting account data:', accountData);
 
+        // CRITICAL: Load FULL account data from Google Sheets (including usageHistory!)
+        console.log('📡 [LOGIN] Loading full account data from database...');
+        try {
+            const fullAccountResponse = await fetch(WEBHOOKS.ACCOUNT.READ, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    action: 'read',
+                    userId: accountData.userId,
+                    email: accountData.email
+                })
+            });
+
+            if (fullAccountResponse.ok) {
+                const fullAccountResult = await fullAccountResponse.json();
+                console.log('✅ [LOGIN] Full account data loaded:', {
+                    success: fullAccountResult.success,
+                    hasAccount: !!fullAccountResult.account,
+                    hasMetadata: !!fullAccountResult.account?.metadata,
+                    hasUsageHistory: !!fullAccountResult.account?.metadata?.usageHistory
+                });
+
+                if (fullAccountResult.success && fullAccountResult.account) {
+                    // Use FULL account data with usageHistory
+                    accountData = {
+                        ...accountData,
+                        ...fullAccountResult.account,
+                        // Preserve session data from verification
+                        sessionId: accountData.sessionId,
+                        sessionExpires: accountData.sessionExpires
+                    };
+                    console.log('✅ [LOGIN] Account data merged with full database data');
+                    console.log('✅ [LOGIN] UsageHistory entries:', fullAccountResult.account?.metadata?.usageHistory?.length || 0);
+                }
+            } else {
+                console.warn('⚠️ [LOGIN] Failed to load full account data, using verification data only');
+            }
+        } catch (error) {
+            console.error('❌ [LOGIN] Error loading full account data:', error);
+            console.log('💡 [LOGIN] Continuing with verification data only');
+        }
+
         // Use syncAccountData to properly update all stores
         syncAccountData(accountData);
 
@@ -838,20 +883,71 @@ export function initializeAccountFromCookies() {
             // Get createdAt from user preferences ONLY
             const createdAt = getCreatedAtFromUserPreferences();
 
-            const accountInfo = {
-                email: userPrefs.email,
-                name: userPrefs.name || 'User',
-                userId: userPrefs.userId || `user_${Date.now()}`,
-                lastLogin: userPrefs.lastLogin,
-                createdAt: createdAt,
-                isLoggedIn: true,
-                profile: userPrefs.profile || {},
-                tier: userPrefs.tier || 'free',
-                usedGenerations: userPrefs.usedGenerations || 0,
-                sessionId: userPrefs.sessionId,
-                lastActivity: new Date().toISOString(),
-                isFirstLogin: false // Session restoration, not first login
-            };
+            // CRITICAL: Load FULL account data from database (not just from cookies!)
+            console.log('📡 [SESSION RESTORE] Loading full account data from database...');
+            let accountInfo = null;
+            
+            try {
+                const fullAccountResponse = await fetch(WEBHOOKS.ACCOUNT.READ, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        action: 'read',
+                        userId: userPrefs.userId,
+                        email: userPrefs.email
+                    })
+                });
+
+                if (fullAccountResponse.ok) {
+                    const fullAccountResult = await fullAccountResponse.json();
+                    console.log('✅ [SESSION RESTORE] Full account data loaded from database:', {
+                        success: fullAccountResult.success,
+                        hasAccount: !!fullAccountResult.account,
+                        hasMetadata: !!fullAccountResult.account?.metadata,
+                        hasUsageHistory: !!fullAccountResult.account?.metadata?.usageHistory,
+                        usageHistoryLength: fullAccountResult.account?.metadata?.usageHistory?.length || 0
+                    });
+
+                    if (fullAccountResult.success && fullAccountResult.account) {
+                        // Use FULL account data from database
+                        accountInfo = {
+                            ...fullAccountResult.account,
+                            // Preserve session data from cookies
+                            sessionId: userPrefs.sessionId,
+                            sessionExpires: userPrefs.sessionExpires,
+                            lastActivity: new Date().toISOString(),
+                            isFirstLogin: false
+                        };
+                        console.log('✅ [SESSION RESTORE] Using full database data with usageHistory');
+                    } else {
+                        throw new Error('No account data in response');
+                    }
+                } else {
+                    throw new Error(`API returned ${fullAccountResponse.status}`);
+                }
+            } catch (error) {
+                console.warn('⚠️ [SESSION RESTORE] Failed to load from database, using cookies fallback:', error);
+                // Fallback: Use data from cookies (without usageHistory)
+                accountInfo = {
+                    email: userPrefs.email,
+                    name: userPrefs.name || 'User',
+                    userId: userPrefs.userId || `user_${Date.now()}`,
+                    lastLogin: userPrefs.lastLogin,
+                    createdAt: createdAt,
+                    isLoggedIn: true,
+                    profile: userPrefs.profile || {},
+                    metadata: userPrefs.metadata || {},
+                    tier: userPrefs.tier || 'free',
+                    usedGenerations: userPrefs.usedGenerations || 0,
+                    sessionId: userPrefs.sessionId,
+                    lastActivity: new Date().toISOString(),
+                    isFirstLogin: false // Session restoration, not first login
+                };
+                console.log('💡 [SESSION RESTORE] Using cookies fallback (usageHistory may be missing)');
+            }
 
             // Update the main accountData store
             syncAccountData(accountInfo);

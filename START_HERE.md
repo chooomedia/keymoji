@@ -7,8 +7,9 @@
 ## ⚡ **STEP 1: Update Google Sheets**
 
 ### **Find Row:**
-- Email: `cm@chooo.de`
-- UserId: `user_1753963152928`
+
+-   Email: `cm@chooo.de`
+-   UserId: `user_1753963152928`
 
 ### **Update Column G (metadata):**
 
@@ -25,11 +26,13 @@
 ## ⚡ **STEP 2: Login & Test**
 
 ### **Start Dev Server:**
+
 ```bash
 npm run dev
 ```
 
 ### **Login:**
+
 1. Open: `http://localhost:8080/de/account`
 2. Email: `cm@chooo.de`
 3. Send Magic Link
@@ -44,20 +47,22 @@ npm run dev
 In browser console, run:
 
 ```javascript
-window.instantChartTest()
+window.instantChartTest();
 ```
 
 **This will:**
-- ✅ Run 8 automated tests
-- ✅ Show what works
-- ✅ Show what's broken
-- ✅ Provide instant fix commands
+
+-   ✅ Run 8 automated tests
+-   ✅ Show what works
+-   ✅ Show what's broken
+-   ✅ Provide instant fix commands
 
 ---
 
 ## ✅ **If All Tests Pass:**
 
 You'll see:
+
 ```
 ═══════════════════════════════════════════════════════
 ✅ ALL TESTS PASSED!
@@ -85,6 +90,7 @@ You'll see:
 The test will tell you EXACTLY what to do!
 
 ### **Example: Metadata is STRING**
+
 ```
 ❌ FAIL: Metadata is not an object!
 💡 Solution: Run window.chartDebugger.forceParseMetadata()
@@ -97,18 +103,21 @@ The test will tell you EXACTLY what to do!
 ## 🔧 **Emergency Quick Fixes:**
 
 ### **Fix 1: Force Parse Metadata**
+
 ```javascript
 window.chartDebugger.forceParseMetadata();
 location.reload();
 ```
 
 ### **Fix 2: Inject Test Data (temporary)**
+
 ```javascript
 window.chartDebugger.injectTestData();
 location.reload();
 ```
 
 ### **Fix 3: Check Store Directly**
+
 ```javascript
 // See if data is there
 console.log(window.$currentAccount?.metadata?.usageHistory);
@@ -124,16 +133,16 @@ console.log(window.$currentAccount?.metadata?.usageHistory);
 
 ```javascript
 // Full diagnosis (detailed)
-window.chartDebugger.fullDiagnosis()
+window.chartDebugger.fullDiagnosis();
 
 // Quick check (fast yes/no)
-window.chartDebugger.quickCheck()
+window.chartDebugger.quickCheck();
 
 // Show data in table
-window.showChartData()
+window.showChartData();
 
 // Verify chart generation
-window.verifyChartGeneration()
+window.verifyChartGeneration();
 ```
 
 ---
@@ -175,37 +184,39 @@ window.verifyChartGeneration()
 
 ```javascript
 // This will analyze EVERYTHING
-window.chartDebugger.fullDiagnosis()
+window.chartDebugger.fullDiagnosis();
 ```
 
 ### **Share Console Output:**
 
 Copy the COMPLETE console output including:
-- All [ACCOUNT DEBUG] logs
-- All [CHART DEBUG] logs
-- All [USAGE HISTORY] logs
-- Any error messages
+
+-   All [ACCOUNT DEBUG] logs
+-   All [CHART DEBUG] logs
+-   All [USAGE HISTORY] logs
+-   Any error messages
 
 ---
 
 ## 📋 **Checklist:**
 
-- [ ] Google Sheets metadata updated (single line, no breaks)
-- [ ] Dev server running (`npm run dev`)
-- [ ] Logged in as cm@chooo.de
-- [ ] Console open (F12)
-- [ ] Run `window.instantChartTest()`
-- [ ] All 8 tests pass
-- [ ] Navigate to `/account`
-- [ ] Chart visible
-- [ ] Click "4w" button
-- [ ] 28 data points visible
+-   [ ] Google Sheets metadata updated (single line, no breaks)
+-   [ ] Dev server running (`npm run dev`)
+-   [ ] Logged in as cm@chooo.de
+-   [ ] Console open (F12)
+-   [ ] Run `window.instantChartTest()`
+-   [ ] All 8 tests pass
+-   [ ] Navigate to `/account`
+-   [ ] Chart visible
+-   [ ] Click "4w" button
+-   [ ] 28 data points visible
 
 ---
 
 ## 🎉 **Success Indicators:**
 
 ### **Console:**
+
 ```
 ✅ PASS: Account exists
 ✅ PASS: Metadata is object
@@ -219,19 +230,20 @@ Copy the COMPLETE console output including:
 ```
 
 ### **Visual:**
-- Yellow line chart visible
-- 28 data points (circles)
-- Smooth animation
-- Interactive tooltips
-- Time period selector works
+
+-   Yellow line chart visible
+-   28 data points (circles)
+-   Smooth animation
+-   Interactive tooltips
+-   Time period selector works
 
 ---
 
 **TL;DR:**
+
 1. Update Google Sheets metadata (copy string above)
 2. Login to app
 3. Open Console (F12)
 4. Run: `window.instantChartTest()`
 5. Follow any error suggestions
 6. Chart should show 28 days! 🎉
-

@@ -5,11 +5,13 @@
 Your metadata string in Google Sheets is **CUT OFF** at the end!
 
 ### **Current (BROKEN):**
+
 ```
 ...,"tier":"free",	← STOPS HERE!
 ```
 
 ### **Should be (COMPLETE):**
+
 ```
 ...,"tier":"free","updatedAt":"2025-10-10T14:00:00.000Z","updatedVia":"manual-google-sheets-update"}
                    ↑ MISSING THIS PART!
@@ -66,15 +68,17 @@ Your metadata string in Google Sheets is **CUT OFF** at the end!
 The complete metadata string should be approximately **2,847 characters** long.
 
 In Google Sheets, after pasting, check:
-- The cell shows the complete JSON
-- Ends with `...manual-google-sheets-update"}`
-- No "..." truncation indicator
+
+-   The cell shows the complete JSON
+-   Ends with `...manual-google-sheets-update"}`
+-   No "..." truncation indicator
 
 ---
 
 ## 🧪 **After Updating Google Sheets:**
 
 ### **1. Logout from app:**
+
 ```javascript
 // In browser console
 window.location.href = '/';
@@ -82,17 +86,20 @@ localStorage.clear();
 ```
 
 ### **2. Login again:**
-- Navigate to `/de/account`
-- Enter email: `cm@chooo.de`
-- Send Magic Link
-- Click link in email
+
+-   Navigate to `/de/account`
+-   Enter email: `cm@chooo.de`
+-   Send Magic Link
+-   Click link in email
 
 ### **3. Run instant test:**
+
 ```javascript
-window.instantChartTest()
+window.instantChartTest();
 ```
 
 **Expected output:**
+
 ```
 ✅ PASS: Account exists
 ✅ PASS: Metadata is object
@@ -121,9 +128,10 @@ Google Sheets metadata (TRUNCATED):
 ```
 
 **Result:**
-- ✅ `dailyUsage` is complete → Counter works
-- ❌ `usageHistory` is cut off or invalid → Chart fails
-- ❌ JSON is malformed (missing closing brace) → Parse may fail
+
+-   ✅ `dailyUsage` is complete → Counter works
+-   ❌ `usageHistory` is cut off or invalid → Chart fails
+-   ❌ JSON is malformed (missing closing brace) → Parse may fail
 
 ---
 
@@ -134,9 +142,10 @@ Google Sheets metadata (TRUNCATED):
 Your metadata is ~2,847 characters, which is well below the limit, so it should work!
 
 **But:** If you copy-pasted and it was truncated:
-- Make sure you copied the ENTIRE string
-- Check there are no line breaks
-- Verify the closing `}` is there
+
+-   Make sure you copied the ENTIRE string
+-   Check there are no line breaks
+-   Verify the closing `}` is there
 
 ---
 
@@ -147,19 +156,21 @@ Your metadata is ~2,847 characters, which is well below the limit, so it should 
 After pasting, double-click the metadata cell and check:
 
 1. **Starts with:**
-   ```
-   {"settings":{"name":"chooo123456",...
-   ```
+
+    ```
+    {"settings":{"name":"chooo123456",...
+    ```
 
 2. **Ends with:**
-   ```
-   ..."updatedAt":"2025-10-10T14:00:00.000Z","updatedVia":"manual-google-sheets-update"}
-   ```
+
+    ```
+    ..."updatedAt":"2025-10-10T14:00:00.000Z","updatedVia":"manual-google-sheets-update"}
+    ```
 
 3. **Contains** (search with Ctrl+F in cell):
-   - `"dailyUsage"`  ← Should find it
-   - `"usageHistory"` ← Should find it
-   - `"updatedVia"` ← Should find it
+    - `"dailyUsage"` ← Should find it
+    - `"usageHistory"` ← Should find it
+    - `"updatedVia"` ← Should find it
 
 ---
 
@@ -169,22 +180,22 @@ After pasting, double-click the metadata cell and check:
 
 ```javascript
 // 1. Quick test
-window.instantChartTest()
+window.instantChartTest();
 
 // 2. Check data
-window.showChartData()
+window.showChartData();
 
 // 3. Verify generation
-window.verifyChartGeneration()
+window.verifyChartGeneration();
 ```
 
 **Expected:**
-- ✅ All 8 tests pass
-- ✅ Table shows 28 entries
-- ✅ Chart generates 28 points
-- ✅ Chart is visible on /account page
+
+-   ✅ All 8 tests pass
+-   ✅ Table shows 28 entries
+-   ✅ Chart generates 28 points
+-   ✅ Chart is visible on /account page
 
 ---
 
 **TL;DR:** Your Google Sheets metadata is cut off! Use the COMPLETE string from `COMPLETE_METADATA_STRING.txt` and make sure it ends with `..."updatedVia":"manual-google-sheets-update"}`!
-
