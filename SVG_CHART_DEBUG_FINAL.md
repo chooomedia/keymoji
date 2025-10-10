@@ -39,10 +39,11 @@ POST https://its.keymoji.wtf/api/account 429 (Too Many Requests)
 ```
 
 **Das Problem ist NICHT im Code!**
-- ✅ Chart Component funktioniert
-- ✅ Data Loading funktioniert
-- ✅ SVG Rendering funktioniert
-- ❌ **ABER: Keine Daten in der Quelle!**
+
+-   ✅ Chart Component funktioniert
+-   ✅ Data Loading funktioniert
+-   ✅ SVG Rendering funktioniert
+-   ❌ **ABER: Keine Daten in der Quelle!**
 
 ---
 
@@ -53,24 +54,26 @@ POST https://its.keymoji.wtf/api/account 429 (Too Many Requests)
 **Du hast bereits die Datei offen:** `PASTE_IN_GOOGLE_SHEETS.txt`
 
 **Steps:**
+
 1. **Select ALL** (Cmd+A)
-2. **Copy** (Cmd+C) 
+2. **Copy** (Cmd+C)
 3. **Google Sheets öffnen**
 4. **Find Row:** `cm@chooo.de` (oder neuerer User)
 5. **Column G** (metadata):
-   - Click in cell
-   - **DELETE** alter Inhalt (Cmd+A, Delete)
-   - **PASTE** neuer String (Cmd+V)
+    - Click in cell
+    - **DELETE** alter Inhalt (Cmd+A, Delete)
+    - **PASTE** neuer String (Cmd+V)
 6. **Save** (Cmd+S)
 7. **Browser Reload**
 8. **Login**
 9. **Chart zeigt 28 Tage Daten!** 📊
 
 **String enthält:**
-- ✅ `usageHistory`: 28 entries (2025-09-13 bis 2025-10-10)
-- ✅ `dailyUsage`: 5/9
-- ✅ `settings`: complete
-- ✅ Length: 2,949 chars
+
+-   ✅ `usageHistory`: 28 entries (2025-09-13 bis 2025-10-10)
+-   ✅ `dailyUsage`: 5/9
+-   ✅ `settings`: complete
+-   ✅ Length: 2,949 chars
 
 ---
 
@@ -79,15 +82,16 @@ POST https://its.keymoji.wtf/api/account 429 (Too Many Requests)
 **Browser Console (F12):**
 
 ```javascript
-window.chartDebugger.injectTestData()
-location.reload()
+window.chartDebugger.injectTestData();
+location.reload();
 ```
 
 **Result:**
-- ✅ Chart zeigt SOFORT 28 Tage Test-Daten
-- ✅ Beweist: Component funktioniert perfekt!
-- ✅ Kannst du UI/UX testen
-- ⚠️ Temporär (nach Reload weg)
+
+-   ✅ Chart zeigt SOFORT 28 Tage Test-Daten
+-   ✅ Beweist: Component funktioniert perfekt!
+-   ✅ Kannst du UI/UX testen
+-   ⚠️ Temporär (nach Reload weg)
 
 ---
 
@@ -159,9 +163,10 @@ Der Code ist **PERFEKT**! Die Logs beweisen es:
 ```
 
 **Fazit:**
-- Der **Code ist 100% korrekt!**
-- Der **Chart funktioniert!**
-- Es **fehlen nur Daten in Google Sheets!**
+
+-   Der **Code ist 100% korrekt!**
+-   Der **Chart funktioniert!**
+-   Es **fehlen nur Daten in Google Sheets!**
 
 ---
 

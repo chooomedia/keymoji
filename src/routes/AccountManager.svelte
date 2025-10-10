@@ -175,7 +175,7 @@
     // Reactive daily limit calculation
     $: currentUserLimits = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
     $: remainingGenerations = currentUserLimits.remaining;
-    $: dailyLimitDisplay = ($translations?.accountManager?.remainingDisplay || '{remaining} / {limit} remaining')
+    $: dailyLimitDisplay = ($translations?.accountManager?.remainingDisplay || '{remaining} / {limit}')
         .replace('{remaining}', remainingGenerations)
         .replace('{limit}', currentUserLimits.limit);
     
