@@ -36,6 +36,10 @@
     let shouldAnimateEmojis = false;
     let isStoryMode = false;
     let initialRenderComplete = false;
+    
+    // Story Mode Settings (reactive)
+    let storyModeEnabled = false;
+    let storyModeConfigured = false; // Has API key
 
     // Timeout-Tracking für Memory Leak Prevention
     let activeTimeouts = new Set();
@@ -68,11 +72,17 @@
       await new Promise(resolve => setTimeout(resolve, 100));
       console.log('📊 Daily limits after wait:', $dailyLimit);
 
-      // Check autoGenerate setting (FREE & PRO feature)
+      // Check user settings for Story Mode and Auto-Generate
       const userSettings = getCurrentUserSettings();
       const autoGenerateEnabled = userSettings?.autoGenerate ?? false;
       
+      // Story Mode Configuration
+      storyModeEnabled = userSettings?.storyMode?.enabled ?? false;
+      storyModeConfigured = !!(userSettings?.storyMode?.apiKey && userSettings?.storyMode?.apiKey.length > 10);
+      
       console.log('🎯 Auto-generate setting:', autoGenerateEnabled);
+      console.log('🤖 Story Mode enabled:', storyModeEnabled);
+      console.log('🔑 Story Mode configured (has API key):', storyModeConfigured);
 
       if (!initialRenderComplete && autoGenerateEnabled) {
         console.log('🤖 Auto-generating emojis on page load');
@@ -408,8 +418,12 @@
     <div class="flex flex-wrap justify-center items-center">
       <h2 class="mt-1 text-xs text-center dark:text-white z-10">
         {#each $translations.index.pageInstruction as instruction, i}
-          {#if i === 0}
+          {#if i === 0 && !storyModeEnabled}
+            <!-- Show "Coming soon" only if Story Mode is NOT enabled -->
             <p><u>Story Mode coming soon</u></p>
+          {:else if i === 0 && storyModeEnabled && !storyModeConfigured}
+            <!-- Show "Configure API" if enabled but no API key -->
+            <p><u>Story Mode: Configure API Key in Settings</u></p>
           {:else}
             <p>{instruction}</p>
           {/if}
@@ -475,13 +489,30 @@
         </button>
       {:else}
         <button 
-          aria-label={$translations.emojiDisplay.storyButton || 'Story mode coming soon'}
-          on:click={toggleStoryMode} 
-          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 w-1/2 py-4 rounded-full opacity-50 cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2" 
-          disabled
-          title="Story mode coming soon"
+          aria-label={storyModeEnabled && storyModeConfigured 
+            ? ($translations.emojiDisplay.storyButton || 'Story mode')
+            : (!storyModeEnabled 
+              ? 'Story mode - Enable in settings'
+              : 'Story mode - Configure API key in settings')}
+          on:click={storyModeEnabled && storyModeConfigured ? toggleStoryMode : null} 
+          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition-all duration-300 ease-in-out transform w-1/2 py-4 rounded-full focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2
+            {storyModeEnabled && storyModeConfigured 
+              ? 'hover:scale-105 focus:scale-105 active:scale-95 cursor-pointer' 
+              : 'opacity-50 cursor-not-allowed'}"
+          disabled={!storyModeEnabled || !storyModeConfigured || $isDisabled}
+          title={storyModeEnabled && storyModeConfigured 
+            ? ($translations.emojiDisplay.storyButton || 'Story mode')
+            : (!storyModeEnabled 
+              ? 'Enable Story Mode in settings'
+              : 'Configure API key in settings')}
         >
-          🔜 {$translations.emojiDisplay.storyButton}
+          {#if storyModeEnabled && storyModeConfigured}
+            📝 {$translations.emojiDisplay.storyButton}
+          {:else if !storyModeEnabled}
+            🔒 {$translations.emojiDisplay.storyButton}
+          {:else}
+            🔑 {$translations.emojiDisplay.storyButton}
+          {/if}
         </button>
       {/if}
 
