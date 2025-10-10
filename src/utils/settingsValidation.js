@@ -222,7 +222,12 @@ export function getDefaultSettings(tier = 'free') {
         // Privacy
         saveHistory: false,
         analytics: true,
-        shareUsage: false
+        shareUsage: false,
+        
+        // UI State (which sections are expanded)
+        uiState: {
+            expandedSections: ['basic']
+        }
     };
 
     if (tier === 'pro') {

@@ -203,6 +203,50 @@ export async function initializeDailyUsage() {
 }
 
 /**
+ * Save usage to history (for charts)
+ * Keeps last 365 days in metadata.usageHistory
+ */
+async function saveToUsageHistory(account, usageData) {
+    try {
+        // Get existing history from account
+        const existingHistory = account?.metadata?.usageHistory || [];
+        
+        // Add or update today's entry
+        const today = getTodayDateString();
+        const existingIndex = existingHistory.findIndex(entry => entry.date === today);
+        
+        const newEntry = {
+            date: today,
+            used: usageData.used,
+            limit: usageData.limit,
+            timestamp: new Date().toISOString()
+        };
+        
+        let updatedHistory;
+        if (existingIndex >= 0) {
+            // Update existing entry
+            updatedHistory = [...existingHistory];
+            updatedHistory[existingIndex] = newEntry;
+        } else {
+            // Add new entry
+            updatedHistory = [...existingHistory, newEntry];
+        }
+        
+        // Keep only last 365 days
+        updatedHistory = updatedHistory
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 365);
+        
+        console.log('📊 Updated usage history:', updatedHistory.length, 'entries');
+        
+        return updatedHistory;
+    } catch (error) {
+        console.warn('⚠️ Failed to update usage history:', error);
+        return account?.metadata?.usageHistory || [];
+    }
+}
+
+/**
  * Increment usage counter (called after successful generation)
  * CRITICAL: This MUST persist the increment to survive page reloads
  */

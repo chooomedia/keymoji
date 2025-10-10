@@ -17,9 +17,10 @@ $: showBadge = $isLoggedIn;
 ```
 
 **Badge Display:**
-- **PRO**: `∞` (purple)
-- **FREE/GUEST with generations**: `9, 8, 7... 1` (yellow)
-- **FREE/GUEST at limit**: `💎` (yellow, pulsing)
+
+-   **PRO**: `∞` (purple)
+-   **FREE/GUEST with generations**: `9, 8, 7... 1` (yellow)
+-   **FREE/GUEST at limit**: `💎` (yellow, pulsing)
 
 ---
 
@@ -63,7 +64,7 @@ await incrementDailyUsage();  // Updates $dailyLimit store
 ```svelte
 ✅ REACTIVE
 - Used: {$dailyLimit?.used || 0}
-- Limit: {$dailyLimit?.limit || 5}  
+- Limit: {$dailyLimit?.limit || 5}
 - Remaining: {Math.max(0, ($dailyLimit?.limit || 5) - ($dailyLimit?.used || 0))}
 ```
 
@@ -123,41 +124,46 @@ await incrementDailyUsage();  // Updates $dailyLimit store
 ### dailyLimit Store Changes When:
 
 1. **App Start** (`LanguageRouter.onMount`)
-   ```javascript
-   await initializeDailyUsage();  
-   // → dailyLimit.set({ limit: 9, used: 0 })
-   ```
+
+    ```javascript
+    await initializeDailyUsage();
+    // → dailyLimit.set({ limit: 9, used: 0 })
+    ```
 
 2. **After Login** (`accountStore.syncAccountData`)
-   ```javascript
-   await initializeDailyUsage();  
-   // → dailyLimit.set({ limit: 9, used: 3 })  // From API/localStorage
-   ```
+
+    ```javascript
+    await initializeDailyUsage();
+    // → dailyLimit.set({ limit: 9, used: 3 })  // From API/localStorage
+    ```
 
 3. **After Generation** (`EmojiDisplay.handleSuccessfulGeneration`)
-   ```javascript
-   await incrementDailyUsage();
-   // → dailyLimit.set({ limit: 9, used: 4 })
-   ```
+
+    ```javascript
+    await incrementDailyUsage();
+    // → dailyLimit.set({ limit: 9, used: 4 })
+    ```
 
 4. **After Logout** (`accountStore.logout`)
-   ```javascript
-   updateDailyLimit(false, 'free', 0);
-   // → dailyLimit.set({ limit: 3, used: 0 })  // Reset to guest
-   ```
+
+    ```javascript
+    updateDailyLimit(false, 'free', 0);
+    // → dailyLimit.set({ limit: 3, used: 0 })  // Reset to guest
+    ```
 
 5. **Page Reload**
-   ```javascript
-   await initializeDailyUsage();
-   // → Load from localStorage → dailyLimit.set({ limit: 9, used: 4 })
-   ```
+
+    ```javascript
+    await initializeDailyUsage();
+    // → Load from localStorage → dailyLimit.set({ limit: 9, used: 4 })
+    ```
 
 6. **New Day (Auto-Reset)**
-   ```javascript
-   if (shouldResetUsage(lastReset)) {
-       dailyLimit.set({ limit: 9, used: 0 });
-   }
-   ```
+    ```javascript
+    if (shouldResetUsage(lastReset)) {
+        dailyLimit.set({ limit: 9, used: 0 });
+    }
+    ```
 
 ---
 
@@ -193,58 +199,63 @@ await window.keymojiDailyUsageDebug.testReset();
 ### localStorage Write Order:
 
 1. **Increment → Store → localStorage → Verify → API**
-   - Store update: Immediate (UX)
-   - localStorage: Verified write
-   - API: Background (non-blocking)
+
+    - Store update: Immediate (UX)
+    - localStorage: Verified write
+    - API: Background (non-blocking)
 
 2. **Verification Step:**
-   ```javascript
-   const verification = storageHelpers.get(STORAGE_KEYS.DAILY_USAGE);
-   if (verification.used !== newUsed) {
-       // RETRY
-       saveUsageToLocalStorage(usageData);
-   }
-   ```
+
+    ```javascript
+    const verification = storageHelpers.get(STORAGE_KEYS.DAILY_USAGE);
+    if (verification.used !== newUsed) {
+        // RETRY
+        saveUsageToLocalStorage(usageData);
+    }
+    ```
 
 3. **Reload Behavior:**
-   ```javascript
-   // Load from localStorage FIRST
-   const stored = storageHelpers.get(STORAGE_KEYS.DAILY_USAGE);
-   if (stored && stored.date === today) {
-       dailyLimit.set({ limit: stored.limit, used: stored.used });
-   }
-   ```
+    ```javascript
+    // Load from localStorage FIRST
+    const stored = storageHelpers.get(STORAGE_KEYS.DAILY_USAGE);
+    if (stored && stored.date === today) {
+        dailyLimit.set({ limit: stored.limit, used: stored.used });
+    }
+    ```
 
 ---
 
 ## 🎨 UI Updates (Reactive)
 
-| Component | Reactivity | What Updates |
-|-----------|-----------|--------------|
-| **Header Badge** | `$: remaining = $dailyLimit.limit - $dailyLimit.used` | Number display (9→8→7) |
-| **AccountManager Progress** | `$: currentUserLimits = validateUserLimits(...)` | Progress bar % |
-| **AccountManager Stats** | `$: remainingGenerations = currentUserLimits.remaining` | "X remaining" |
-| **EmojiDisplay Validation** | `$dailyLimit.used >= $dailyLimit.limit` | Enable/disable buttons |
-| **ModalDebug** | `{$dailyLimit?.used}` | Debug display |
+| Component                   | Reactivity                                              | What Updates           |
+| --------------------------- | ------------------------------------------------------- | ---------------------- |
+| **Header Badge**            | `$: remaining = $dailyLimit.limit - $dailyLimit.used`   | Number display (9→8→7) |
+| **AccountManager Progress** | `$: currentUserLimits = validateUserLimits(...)`        | Progress bar %         |
+| **AccountManager Stats**    | `$: remainingGenerations = currentUserLimits.remaining` | "X remaining"          |
+| **EmojiDisplay Validation** | `$dailyLimit.used >= $dailyLimit.limit`                 | Enable/disable buttons |
+| **ModalDebug**              | `{$dailyLimit?.used}`                                   | Debug display          |
 
 ---
 
 ## ⚡ Performance Optimizations
 
 ### 1. **Single Initialization**
-- ✅ Only in `LanguageRouter.onMount`
-- ❌ Removed from `EmojiDisplay.onMount`
-- ❌ Removed from `AccountManager.onMount`
+
+-   ✅ Only in `LanguageRouter.onMount`
+-   ❌ Removed from `EmojiDisplay.onMount`
+-   ❌ Removed from `AccountManager.onMount`
 
 ### 2. **Optimistic Updates**
-- Store updates immediately (no async wait)
-- UI reflects change instantly
-- API sync happens in background
+
+-   Store updates immediately (no async wait)
+-   UI reflects change instantly
+-   API sync happens in background
 
 ### 3. **Cached Promises**
-- `initializeDailyUsage` can be called multiple times
-- Returns cached promise if already initializing
-- Prevents duplicate API calls
+
+-   `initializeDailyUsage` can be called multiple times
+-   Returns cached promise if already initializing
+-   Prevents duplicate API calls
 
 ---
 
@@ -253,21 +264,23 @@ await window.keymojiDailyUsageDebug.testReset();
 ### Issue: Badge shows wrong number after reload
 
 **Check:**
+
 ```javascript
 // 1. localStorage
-localStorage.getItem('keymoji_daily_usage')
+localStorage.getItem('keymoji_daily_usage');
 // Should show: {"date":"2025-10-10","used":3,"limit":9,...}
 
 // 2. Store
-window.keymojiDailyUsageDebug.debug()
+window.keymojiDailyUsageDebug.debug();
 // Should match localStorage
 
 // 3. Consistency
-window.keymojiDailyUsageDebug.checkConsistency()
+window.keymojiDailyUsageDebug.checkConsistency();
 // Should show: ✅ All data sources are consistent
 ```
 
 **Fix:**
+
 ```javascript
 // Clear and reinitialize
 localStorage.removeItem('keymoji_daily_usage');
@@ -279,32 +292,35 @@ await window.keymojiDailyUsageDebug.testReInit();
 ### Issue: Badge doesn't update after generation
 
 **Check:**
+
 ```javascript
 // 1. Verify increment was called
 // Look for console log: "➕ Incrementing daily usage"
 
 // 2. Verify localStorage was updated
-localStorage.getItem('keymoji_daily_usage')
+localStorage.getItem('keymoji_daily_usage');
 // used should have incremented
 
 // 3. Verify store was updated
-console.log($dailyLimit)
+console.log($dailyLimit);
 // used should match localStorage
 ```
 
 **Fix:**
-- Check for errors in console
-- Run `window.keymojiDailyUsageDebug.checkConsistency()`
-- If inconsistent, run `testReset()` then reload
+
+-   Check for errors in console
+-   Run `window.keymojiDailyUsageDebug.checkConsistency()`
+-   If inconsistent, run `testReset()` then reload
 
 ---
 
 ### Issue: Can still generate after limit reached
 
 **Check:**
+
 ```javascript
 // 1. Current limits
-window.keymojiDailyUsageDebug.debug()
+window.keymojiDailyUsageDebug.debug();
 
 // 2. Check validation
 const limit = window.$dailyLimit;
@@ -312,9 +328,10 @@ console.log('Reached?', limit.used >= limit.limit);
 ```
 
 **Fix:**
-- Ensure `isDailyLimitReached()` uses `$dailyLimit` (reactive)
-- Ensure `checkLimits()` is called BEFORE generation
-- Verify localStorage has correct `used` value
+
+-   Ensure `isDailyLimitReached()` uses `$dailyLimit` (reactive)
+-   Ensure `checkLimits()` is called BEFORE generation
+-   Verify localStorage has correct `used` value
 
 ---
 
@@ -336,4 +353,3 @@ console.log('Reached?', limit.used >= limit.limit);
 **Version:** 0.5.7  
 **Last Updated:** 2025-10-10  
 **Status:** ✅ Production Ready
-

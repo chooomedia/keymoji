@@ -58,9 +58,11 @@
     import Input from '../components/UI/Input.svelte';
     import Button from '../components/UI/Button.svelte';
     import ContextBadge from '../components/UI/ContextBadge.svelte';
+    import LineChart from '../components/UI/LineChart.svelte';
     import FooterInfo from '../widgets/FooterInfo.svelte';
     import FeatureCard from '../components/Features/FeatureCard.svelte';
     import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers.js';
+    import { getUsageHistory, calculateUsageStats } from '../utils/usageHistoryHelpers.js';
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
     $: pageTitle = (() => {
@@ -174,6 +176,45 @@
     $: dailyLimitDisplay = ($translations?.accountManager?.remainingDisplay || '{remaining} / {limit} remaining')
         .replace('{remaining}', remainingGenerations)
         .replace('{limit}', currentUserLimits.limit);
+    
+    // Usage Chart State
+    let selectedTimePeriod = '7d';
+    
+    // Load usage history from current account (reactive)
+    $: usageHistory = getUsageHistory($currentAccount);
+    $: usageStats = calculateUsageStats(usageHistory);
+    
+    // Generate chart data based on selected period (reactive)
+    $: usageChartData = generateChartData(selectedTimePeriod, usageHistory);
+    
+    function generateChartData(period, history) {
+        const today = new Date();
+        const data = [];
+        
+        // Determine number of days to show
+        let days = 7;
+        if (period === '14d') days = 14;
+        if (period === '4w') days = 28;
+        if (period === '1y') days = 365;
+        
+        // Generate data points for each day (reverse order for chart)
+        for (let i = days - 1; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            
+            // Find usage for this date in history
+            const historyEntry = history.find(h => h.date === dateStr);
+            const value = historyEntry?.used || 0;
+            
+            data.push({
+                date: dateStr,
+                value: value
+            });
+        }
+        
+        return data;
+    }
 
     // Magic Link verification state
     let isVerifyingMagicLink = false;
@@ -839,16 +880,48 @@
                             </div>
                         </div>
 
-                        <!-- Daily Limit Status -->
+                        <!-- Daily Limit Status with Chart -->
                         <div class="bg-powder-300 dark:bg-aubergine-900 rounded-xl p-4 mb-5">
+                            <!-- Header with Time Period Selector -->
                             <div class="flex justify-between items-center mb-3">
                                 <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">
                                     {$translations?.accountManager?.dailyGenerations || 'Daily Generations'}
                                 </span>
-                                <span class="text-lg font-bold text-yellow-600 dark:text-yellow-400">
-                                    {dailyLimitDisplay}
-                                </span>
+                                <div class="flex items-center space-x-2">
+                                    <!-- Time Period Buttons -->
+                                    <div class="inline-flex rounded-lg bg-white dark:bg-aubergine-800 p-0.5 shadow-inner">
+                                        {#each ['7d', '14d', '4w', '1y'] as period}
+                                            <button
+                                                on:click={() => selectedTimePeriod = period}
+                                                class="px-2 py-1 text-xs font-medium rounded-md transition-all {
+                                                    selectedTimePeriod === period 
+                                                        ? 'bg-yellow-500 text-white shadow' 
+                                                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                                                }"
+                                                aria-label="Show {period === '7d' ? '7 days' : period === '14d' ? '14 days' : period === '4w' ? '4 weeks' : '1 year'}"
+                                            >
+                                                {period}
+                                            </button>
+                                        {/each}
+                                    </div>
+                                    <span class="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+                                        {dailyLimitDisplay}
+                                    </span>
+                                </div>
                             </div>
+                            
+                            <!-- Line Chart -->
+                            <div class="mb-3">
+                                <LineChart 
+                                    data={usageChartData}
+                                    maxValue={$accountTier === 'pro' ? 25 : 9}
+                                    height={180}
+                                    color={$accountTier === 'pro' ? '#a855f7' : '#eab308'}
+                                    animate={true}
+                                />
+                            </div>
+                            
+                            <!-- Progress Bar -->
                             <div class="w-full bg-gray-300 dark:bg-aubergine-600 rounded-full h-3 mb-2">
                                 <div 
                                     class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500"

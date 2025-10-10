@@ -25,6 +25,11 @@
     let showProModal = false;
     let proFeatureName = '';
     let proFeatureDescription = '';
+    
+    // UI State (which sections are expanded/collapsed)
+    let uiState = {
+        expandedSections: ['basic'] // Default: basic section open
+    };
 
     // Check if user is pro - optimiert mit $: um zu viele Aufrufe zu vermeiden
     $: isProUser = $accountTier === 'pro';
@@ -381,6 +386,22 @@
 
     function toggleSection(sectionId) {
         activeSection = activeSection === sectionId ? null : sectionId;
+        
+        // Update uiState for persistence
+        if (activeSection === sectionId) {
+            // Section opened - add to expanded list
+            if (!uiState.expandedSections.includes(sectionId)) {
+                uiState.expandedSections = [...uiState.expandedSections, sectionId];
+            }
+        } else {
+            // Section closed - remove from expanded list
+            uiState.expandedSections = uiState.expandedSections.filter(id => id !== sectionId);
+        }
+        
+        console.log('🎨 UI State updated:', uiState);
+        
+        // Mark as pending change (will be saved with "Save Settings" button)
+        updateSetting('uiState', uiState);
     }
 
     onMount(async () => {
@@ -392,6 +413,17 @@
         const { initializeSettingsForUser } = await import('../stores/userSettingsStore.js');
         await initializeSettingsForUser();
         console.log('✅ UserSettings: Settings initialized for user');
+        
+        // Load UI state from userSettings
+        const loadedUiState = getEffectiveValue('uiState');
+        if (loadedUiState && loadedUiState.expandedSections) {
+            uiState = loadedUiState;
+            // Set activeSection to first expanded section
+            if (uiState.expandedSections.length > 0) {
+                activeSection = uiState.expandedSections[0];
+            }
+            console.log('✅ UI State loaded from settings:', uiState);
+        }
 
         // Add beforeunload event listener for page leave confirmation
         const handleBeforeUnload = (event) => {
