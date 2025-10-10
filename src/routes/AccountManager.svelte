@@ -65,6 +65,7 @@
     import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers.js';
     import { getUsageHistory, calculateUsageStats } from '../utils/usageHistoryHelpers.js';
     import { loadUsageHistoryWithRetry, refreshUsageHistory, shouldRefreshHistory } from '../utils/usageHistoryLoader.js';
+    import { isDevelopment } from '../utils/environment.js';
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
     $: pageTitle = (() => {
@@ -283,6 +284,51 @@
                 length: usageHistory.length,
                 dateRange: usageHistory.length > 0 ? `${usageHistory[usageHistory.length - 1]?.date} to ${usageHistory[0]?.date}` : 'empty'
             });
+            
+            // 🔧 AUTO-GENERATE MOCK DATA IN DEVELOPMENT (wenn leer!)
+            if (isDevelopment() && usageHistory.length === 0 && $isLoggedIn) {
+                console.log('🔧 [DEV MODE] Auto-generating mock usage history (empty in database)...');
+                
+                // Generate 28 days of realistic FREE user pattern
+                const mockHistory = [];
+                const today = new Date();
+                const tier = $accountTier || 'free';
+                const limit = tier === 'pro' ? 35 : 9;
+                
+                for (let i = 0; i < 28; i++) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    
+                    // Realistic usage pattern (60-90% of limit)
+                    const baseUsage = Math.floor(limit * (0.6 + Math.random() * 0.3));
+                    const used = Math.min(limit, Math.max(0, baseUsage));
+                    
+                    mockHistory.push({
+                        date: dateStr,
+                        used: used,
+                        limit: limit,
+                        timestamp: date.toISOString()
+                    });
+                }
+                
+                // Sort newest first
+                mockHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // Update currentAccount with mock data (in-memory only, not persisted)
+                const currentAcct = $currentAccount;
+                if (currentAcct) {
+                    currentAcct.metadata = currentAcct.metadata || {};
+                    currentAcct.metadata.usageHistory = mockHistory;
+                    currentAccount.set(currentAcct);
+                    
+                    console.log('✅ [DEV MODE] Mock usage history generated:', mockHistory.length, 'entries');
+                    console.log('✅ [DEV MODE] Updated currentAccount.metadata.usageHistory');
+                }
+                
+                usageHistory = mockHistory;
+                console.log('📊 [DEV MODE] Chart will now show 28 days of mock data!');
+            }
             
         } catch (error) {
             console.error('❌ [CHART DEBUG] Failed to load chart data:', error);
