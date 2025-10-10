@@ -162,7 +162,10 @@ export async function initializeDailyUsage() {
         if (loggedIn && account?.userId) {
             const apiUsageData = await loadUsageFromAPI(account);
             if (apiUsageData) {
-                console.log('✅ Daily usage loaded from API (merging with localStorage):', apiUsageData);
+                console.log(
+                    '✅ Daily usage loaded from API (merging with localStorage):',
+                    apiUsageData
+                );
                 // API data overrides localStorage
                 usageData = apiUsageData;
             }
@@ -209,7 +212,9 @@ export async function initializeDailyUsage() {
             }
         } else {
             console.log(
-                `⏸️ Skipping limit update (not logged in yet): current=${usageData.limit}, would be=${getDailyLimitForUser(loggedIn, tier)}`
+                `⏸️ Skipping limit update (not logged in yet): current=${
+                    usageData.limit
+                }, would be=${getDailyLimitForUser(loggedIn, tier)}`
             );
         }
 
@@ -226,7 +231,7 @@ export async function initializeDailyUsage() {
 
             // Update store IMMEDIATELY
             updateDailyLimitStore(usageData);
-            
+
             // Save reset to localStorage AND API (async, non-blocking)
             saveUsageToLocalStorage(usageData);
             if (loggedIn && account?.userId) {
