@@ -3,7 +3,7 @@
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { hamburger, logo } from "../../assets/shapes.js";
-    import { isDisabled, showDonateMenu, isLoggedIn, currentAccount } from '../../stores/appStores.js';
+    import { isDisabled, showDonateMenu, isLoggedIn, currentAccount, dailyLimit, accountTier } from '../../stores/appStores.js';
     import { currentLanguage, t, showLanguageMenu, changeLanguage } from '../../stores/contentStore.js';
     import GitButton from '../../widgets/GitButton.svelte';
     import { createEventDispatcher } from 'svelte';
@@ -13,8 +13,14 @@
     import { translations } from '../../stores/contentStore.js';
     import { navigateToBlog } from '../../utils/navigation.js';
     import Button from '../UI/Button.svelte';
+    import { showModal } from '../../stores/modalStore.js';
 
     const dispatch = createEventDispatcher();
+    
+    // Calculate remaining generations
+    $: remaining = $dailyLimit.limit - $dailyLimit.used;
+    $: isProUser = $accountTier === 'pro';
+    $: showBadge = $isLoggedIn; // Only show badge when logged in
 
     // Reaktive Übersetzungen mit robuster Fehlerbehandlung
     $: headerTitle = $translations && $translations.header && $translations.header.pageTitle 
@@ -26,6 +32,24 @@
     }
 
     function navigateToAccount() {
+        navigate('/account', { replace: true });
+    }
+    
+    function handleBadgeClick(event) {
+        event.stopPropagation(); // Prevent navigating to account page
+        
+        if (!isProUser && remaining <= 0) {
+            // Show PRO upgrade modal
+            showModal('Pro Feature', 'pro-feature', null, {
+                featureName: $translations?.accountManager?.proFeatureModal?.unlimitedGenerations || 'Unlimited Story Generations',
+                featureDescription: $translations?.accountManager?.proFeatureModal?.unlimitedGenerationsDesc || 'Upgrade to Pro for unlimited daily story generations and access to all premium features.',
+                onUpgrade: handleProUpgrade
+            });
+        }
+    }
+    
+    function handleProUpgrade() {
+        // Navigate to account page for upgrade
         navigate('/account', { replace: true });
     }
 
@@ -83,16 +107,43 @@
                     <LanguageSwitcher position="bottom" display="full" showLabels={true} />
                 </div>
                 
-                <!-- Account Button -->
-                <button
-                    type="button"
-                    class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center"
-                    on:click={navigateToAccount}
-                    aria-label={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
-                    title={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
-                >
-                    <span class="text-xl">{#if $isLoggedIn}👤{:else}🔐{/if}</span>
-                </button>
+                <!-- Account Button with Badge -->
+                <div class="relative">
+                    <button
+                        type="button"
+                        class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center"
+                        on:click={navigateToAccount}
+                        aria-label={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
+                        title={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
+                    >
+                        <span class="text-xl">{#if $isLoggedIn}👤{:else}🔐{/if}</span>
+                    </button>
+                    
+                    <!-- Badge für verbleibende Generierungen -->
+                    {#if showBadge}
+                        <button
+                            type="button"
+                            on:click={handleBadgeClick}
+                            class="absolute -top-1 -right-1 min-w-[1.5rem] h-6 px-1.5 flex items-center justify-center rounded-full text-xs font-bold shadow-lg transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 {
+                                remaining > 0 
+                                    ? 'bg-green-500 dark:bg-green-600 text-white focus:ring-green-300' 
+                                    : isProUser 
+                                        ? 'bg-purple-500 dark:bg-purple-600 text-white focus:ring-purple-300'
+                                        : 'bg-red-500 dark:bg-red-600 text-white focus:ring-red-300 animate-pulse'
+                            }"
+                            aria-label={remaining > 0 ? `${remaining} generations remaining` : isProUser ? 'Unlimited generations' : 'Upgrade to Pro for more'}
+                            title={remaining > 0 ? `${remaining} Story-Generierungen verbleibend` : isProUser ? '∞ Unlimited' : '💎 Upgrade zu Pro'}
+                        >
+                            {#if isProUser}
+                                ∞
+                            {:else if remaining > 0}
+                                {remaining}
+                            {:else}
+                                💎
+                            {/if}
+                        </button>
+                    {/if}
+                </div>
                 
                 <!-- GitHub Button (mobile und desktop) -->
                 <a 
