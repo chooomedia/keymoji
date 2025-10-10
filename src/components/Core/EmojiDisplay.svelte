@@ -18,10 +18,11 @@
         isModalVisible
     } from '../../stores/modalStore.js';
     import { translations } from '../../stores/contentStore.js';
-import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
+    import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
     import emojisData from '../../../public/emojisArray.json';
     import { WEBHOOKS } from '../../../src/config/api.js';
-import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js';
+    import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js';
+    import { incrementDailyUsage, initializeDailyUsage } from '../../stores/dailyUsageStore.js';
 
     // Props
     export let showEmojiCodes = false;
@@ -55,8 +56,11 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
     }
     
     // Lifecycle
-    onMount(() => {
-      checkAndResetDailyLimit();
+    onMount(async () => {
+      // Initialize daily usage from API + localStorage
+      await initializeDailyUsage().catch(error => {
+        console.warn('⚠️ Failed to initialize daily usage:', error);
+      });
 
       if (!initialRenderComplete) {
         generateRandomEmojis(true); // count initial load towards daily limit
@@ -147,7 +151,10 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
       
       // Only increment counter if this is a user-initiated action
       if (countTowardsLimit) {
-        incrementDailyRequestCount();
+        // Use new centralized daily usage tracking (API + localStorage)
+        await incrementDailyUsage().catch(error => {
+          console.warn('⚠️ Failed to increment daily usage:', error);
+        });
       }
     }
   
@@ -156,7 +163,10 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
       await copyToClipboard(randomEmojis.join(' '));
               showSuccessMessage($translations.emojiDisplay.successStoryMessage);
       shouldAnimateEmojis = true;
-      incrementDailyRequestCount();
+      // Use new centralized daily usage tracking (API + localStorage)
+      await incrementDailyUsage().catch(error => {
+        console.warn('⚠️ Failed to increment daily usage:', error);
+      });
     }
   
     async function fetchEmojiStory() {
@@ -282,32 +292,9 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
       showSuccess(message);
     }
   
-    // Local Storage Functions
-    function getDailyRequestCount() {
-      return parseInt(storageHelpers.get(STORAGE_KEYS.DAILY_REQUEST_COUNT, '0'), 10);
-    }
-  
-    function setDailyRequestCount(count) {
-      storageHelpers.set(STORAGE_KEYS.DAILY_REQUEST_COUNT, count);
-    }
-  
-    function incrementDailyRequestCount() {
-      setDailyRequestCount(getDailyRequestCount() + 1);
-    }
-  
-    function resetDailyRequestCount() {
-      setDailyRequestCount(0);
-    }
-  
-    function checkAndResetDailyLimit() {
-      const storedDate = storageHelpers.get(STORAGE_KEYS.STORED_DATE);
-      const currentDate = new Date().toDateString();
-  
-      if (storedDate !== currentDate) {
-        resetDailyRequestCount();
-        storageHelpers.set(STORAGE_KEYS.STORED_DATE, currentDate);
-      }
-    }
+    // DEPRECATED: Old localStorage functions (kept for migration/fallback)
+    // These are now handled by dailyUsageStore.js
+    // TODO: Remove these functions in next release after migration period
     
     // Recent Emojis Management
     function saveToRecentEmojis(emojiString) {
@@ -327,8 +314,8 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
     }
   
     function isDailyLimitReached() {
-      const userLimits = validateUserLimits($isLoggedIn, $accountTier, getDailyRequestCount());
-      return userLimits.isReached;
+      // Use reactive dailyLimit store (updated by dailyUsageStore.js)
+      return $dailyLimit.used >= $dailyLimit.limit;
     }
   
     function handleKeyPress(event) {

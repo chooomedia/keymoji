@@ -124,12 +124,12 @@
                         <button
                             type="button"
                             on:click={handleBadgeClick}
-                            class="absolute -top-1 -right-1 min-w-[1.5rem] h-6 px-1.5 flex items-center justify-center rounded-full text-xs font-bold shadow-lg transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 {
+                            class="absolute -top-1 -right-1 w-4 h-4 px-1.5 flex items-center justify-center rounded-full text-xs font-bold shadow-lg transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 {
                                 remaining > 0 
-                                    ? 'bg-green-500 dark:bg-green-600 text-white focus:ring-green-300' 
+                                    ? 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-500' 
                                     : isProUser 
-                                        ? 'bg-purple-500 dark:bg-purple-600 text-white focus:ring-purple-300'
-                                        : 'bg-red-500 dark:bg-red-600 text-white focus:ring-red-300 animate-pulse'
+                                        ? 'bg-purple-500 dark:bg-purple-600 text-aubergine-900 focus:ring-purple-300'
+                                        : 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-500 animate-pulse'
                             }"
                             aria-label={remaining > 0 ? `${remaining} generations remaining` : isProUser ? 'Unlimited generations' : 'Upgrade to Pro for more'}
                             title={remaining > 0 ? `${remaining} Story-Generierungen verbleibend` : isProUser ? '∞ Unlimited' : '💎 Upgrade zu Pro'}

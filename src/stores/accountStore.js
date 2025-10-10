@@ -1021,7 +1021,7 @@ function getCreatedAtFromUserPreferences() {
 }
 
 // Synchronize account data across stores
-function syncAccountData(accountData) {
+async function syncAccountData(accountData) {
     if (accountData) {
         // Ensure createdAt is present - get from localStorage if not in accountData
         if (!accountData.createdAt) {
@@ -1044,12 +1044,20 @@ function syncAccountData(accountData) {
         userProfile.set(accountData.profile || {});
         accountTier.set(accountData.tier || 'free');
 
-        // Set daily limit based on tier using central configuration
-        updateDailyLimit(
-            true,
-            accountData.tier,
-            accountData.usedGenerations || 0
-        );
+        // Initialize daily usage from API + localStorage
+        try {
+            const { initializeDailyUsage } = await import('./dailyUsageStore.js');
+            await initializeDailyUsage();
+            console.log('✅ Daily usage initialized from API/localStorage');
+        } catch (error) {
+            console.warn('⚠️ Failed to initialize daily usage, using fallback:', error);
+            // Fallback to old method
+            updateDailyLimit(
+                true,
+                accountData.tier,
+                accountData.metadata?.dailyUsage?.used || accountData.usedGenerations || 0
+            );
+        }
 
         console.log(
             '✅ syncAccountData: Account synced with createdAt:',

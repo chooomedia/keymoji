@@ -10,14 +10,16 @@ export const STORAGE_KEYS = {
     // App-spezifische Daten
     COUNTER_CACHE: 'keymoji_counter_cache',
     COUNTER_TIMESTAMP: 'keymoji_counter_timestamp',
-    DAILY_REQUEST_COUNT: 'keymoji_daily_request_count',
-    STORED_DATE: 'keymoji_stored_date',
+    DAILY_REQUEST_COUNT: 'keymoji_daily_request_count', // DEPRECATED - use DAILY_USAGE
+    STORED_DATE: 'keymoji_stored_date', // DEPRECATED - use DAILY_USAGE
+    DAILY_USAGE: 'keymoji_daily_usage', // NEW: Centralized daily usage tracking
 
     // Blog-Daten
     BLOG_POSTS: 'keymoji_blog_posts',
 
     // User-Präferenzen
     USER_PREFERENCES: 'keymoji_user_preferences',
+    USER_SETTINGS: 'keymoji_user_settings',
     RECENT_EMOJIS: 'keymoji_recent_emojis',
     LOGIN_HISTORY: 'keymoji_login_history',
 
