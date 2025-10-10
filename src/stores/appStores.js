@@ -508,8 +508,9 @@ export const dailyLimit = writable({
     used: 0
 });
 
-export const accountSettings = writable({});
-export const currentSettings = writable({}); // Alias for accountSettings for modular components
+// REMOVED: accountSettings and currentSettings (use userSettingsStore instead!)
+// These were duplicates causing data inconsistencies.
+// Single source of truth: userSettings (derived from currentAccount)
 export const isGuestUser = writable(true);
 export const isProUser = writable(false);
 export const currentAccount = writable(null);
