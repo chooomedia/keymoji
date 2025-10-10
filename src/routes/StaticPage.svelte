@@ -1,10 +1,12 @@
 <!-- src/routes/StaticPage.svelte -->
 <!-- Generische Komponente für statische Seiten mit Slug-Support -->
+<!-- Data-Driven Architecture: Content (JSON) + Presentation (Component) -->
 <script>
     import { onMount } from 'svelte';
     import { currentLanguage, translations } from '../stores/contentStore.js';
     import PageLayout from '../components/Layout/PageLayout.svelte';
-    import { privacyContent, legalContent } from '../data/staticPages.js';
+    import StaticSection from '../components/StaticContent/StaticSection.svelte';
+    import { staticPagesData } from '../data/staticPages.json.js';
     import { navigateToHome } from '../utils/navigation.js';
     import { appVersion } from '../utils/version.js';
     import FooterInfo from '../widgets/FooterInfo.svelte';
@@ -12,31 +14,24 @@
     // Props
     export let slug = 'privacy'; // 'privacy' | 'legal'
     
-    let content = null;
     let loading = true;
     
-    // Get content based on slug
-    $: {
+    // Get content based on slug and language (reactive)
+    $: pageData = (() => {
         loading = true;
-        switch (slug) {
-            case 'privacy':
-                content = privacyContent;
-                break;
-            case 'legal':
-                content = legalContent;
-                break;
-            default:
-                content = null;
-        }
+        const content = staticPagesData[slug];
+        if (!content) return null;
+        
+        // Language fallback: current → en
+        const data = content[$currentLanguage] || content['en'];
         loading = false;
-    }
-    
-    // Get translated content
-    $: pageData = content ? content[$currentLanguage] || content['en'] : null;
+        return data;
+    })();
     
     // Reactive Props für PageLayout
     $: pageTitle = pageData?.title || '';
     $: pageDescription = pageData?.description || '';
+    $: sections = pageData?.sections || [];
     
     // Format last updated date
     $: formattedDate = pageData?.lastUpdated 
@@ -89,9 +84,11 @@
             </div>
         {/if}
 
-        <!-- Main Content -->
-        <div class="prose prose-lg dark:prose-invert max-w-none">
-            {@html pageData.content}
+        <!-- Main Content: Sections -->
+        <div class="w-full space-y-8">
+            {#each sections as section (section.title)}
+                <StaticSection {section} />
+            {/each}
         </div>
 
         <!-- Back to Top Button -->
