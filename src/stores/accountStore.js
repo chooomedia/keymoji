@@ -14,7 +14,12 @@ import { showExistingAccountFound } from './modalStore.js';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 import { WEBHOOKS } from '../config/api.js';
 import { isDevelopment } from '../utils/environment.js';
-import { cachedFetchAccount, invalidateCachePattern, initializeCache, clearAllCache } from '../utils/apiCache.js';
+import {
+    cachedFetchAccount,
+    invalidateCachePattern,
+    initializeCache,
+    clearAllCache
+} from '../utils/apiCache.js';
 
 // Security constants
 const SESSION_TIMEOUT = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -656,7 +661,9 @@ export async function verifyMagicLinkFrontend(token, email) {
 
         // CRITICAL: Load FULL account data from Google Sheets (including usageHistory!)
         // Use cached fetch to prevent 429 errors!
-        console.log('📡 [LOGIN] Loading full account data from database (cached)...');
+        console.log(
+            '📡 [LOGIN] Loading full account data from database (cached)...'
+        );
         try {
             const fullAccountResult = await cachedFetchAccount(
                 accountData.userId,
@@ -686,8 +693,8 @@ export async function verifyMagicLinkFrontend(token, email) {
                 );
                 console.log(
                     '✅ [LOGIN] UsageHistory entries:',
-                    fullAccountResult.account?.metadata?.usageHistory
-                        ?.length || 0
+                    fullAccountResult.account?.metadata?.usageHistory?.length ||
+                        0
                 );
             } else {
                 console.warn(
@@ -909,18 +916,14 @@ export async function initializeAccountFromCookies() {
                         hasAccount: !!fullAccountResult.account,
                         hasMetadata: !!fullAccountResult.account?.metadata,
                         hasUsageHistory:
-                            !!fullAccountResult.account?.metadata
-                                ?.usageHistory,
+                            !!fullAccountResult.account?.metadata?.usageHistory,
                         usageHistoryLength:
-                            fullAccountResult.account?.metadata
-                                ?.usageHistory?.length || 0
+                            fullAccountResult.account?.metadata?.usageHistory
+                                ?.length || 0
                     }
                 );
 
-                if (
-                    fullAccountResult.success &&
-                    fullAccountResult.account
-                ) {
+                if (fullAccountResult.success && fullAccountResult.account) {
                     // Use FULL account data from database
                     accountInfo = {
                         ...fullAccountResult.account,

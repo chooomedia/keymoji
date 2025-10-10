@@ -3,6 +3,7 @@
 ## ✅ **CURRENT STATUS (119 Commits):**
 
 ### **Was funktioniert:**
+
 ```
 ✅ API cache initialized (prevents 429)
 ✅ Daily usage: localStorage FIRST (no flickering)
@@ -13,6 +14,7 @@
 ```
 
 ### **Was noch fehlt:**
+
 ```
 ❌ usageHistory: 0 entries (Google Sheets leer)
 ❌ SVG Chart zeigt keine Daten
@@ -25,6 +27,7 @@
 ### **SOLUTION 1: Instant Test Data (10 Sekunden)**
 
 **Browser Console (F12):**
+
 ```javascript
 // Inject 28 days FREE user data:
 window.chartTestData.free7d();
@@ -39,6 +42,7 @@ window.chartTestData.pro4w();
 ```
 
 **Console Output:**
+
 ```
 📊 Injecting test data: 28 days (PRO pattern)
 ✅ currentAccount updated with usageHistory
@@ -52,15 +56,16 @@ window.chartTestData.pro4w();
 **File:** `GOOGLE_SHEETS_METADATA_CM.txt`
 
 **Steps:**
+
 1. Open Google Sheets → `accounts` sheet
 2. Find row: `cm@chooo.de` (userId: `user_1760110735936`)
 3. Column `metadata` → Paste complete JSON string
 4. Save Google Sheets
 5. Browser:
-   ```javascript
-   localStorage.clear();
-   location.reload();
-   ```
+    ```javascript
+    localStorage.clear();
+    location.reload();
+    ```
 6. Login with magic link
 7. Navigate to `/account`
 8. **Result:** Chart shows 28 days from Google Sheets! ✓
@@ -70,6 +75,7 @@ window.chartTestData.pro4w();
 ## 📊 **HOW IT WORKS (Complete Flow):**
 
 ### **1. Page Load:**
+
 ```
 1. initializeAccountFromCookies()
    ├─ cachedFetchAccount() (cached!)
@@ -88,6 +94,7 @@ window.chartTestData.pro4w();
 ```
 
 ### **2. With Cache (After First Load):**
+
 ```
 1. Reload page
 2. cachedFetchAccount()
@@ -104,6 +111,7 @@ window.chartTestData.pro4w();
 ## 🔧 **CACHE INTEGRATION:**
 
 ### **Account Data Caching:**
+
 ```javascript
 // accountStore.js (line 904):
 const fullAccountResult = await cachedFetchAccount(
@@ -126,6 +134,7 @@ const fullAccountResult = await cachedFetchAccount(
 ```
 
 ### **Usage History Caching:**
+
 ```javascript
 // usageHistoryLoader.js (line 54):
 const result = await cachedFetchUsageHistory(userId, email);
@@ -147,6 +156,7 @@ const result = await cachedFetchUsageHistory(userId, email);
 ## 📋 **TESTING CHECKLIST:**
 
 ### **Test 1: Instant Chart (No API)**
+
 ```javascript
 // Browser Console:
 window.chartTestData.pro4w();
@@ -159,6 +169,7 @@ window.chartTestData.pro4w();
 ```
 
 ### **Test 2: Cache Hit (After First Load)**
+
 ```javascript
 // First load:
 ⚠️ Cache MISS: /api/account:read:user_123
@@ -171,6 +182,7 @@ window.chartTestData.pro4w();
 ```
 
 ### **Test 3: Cache Stats**
+
 ```javascript
 // Browser Console:
 window.apiCache.stats();
@@ -189,6 +201,7 @@ window.apiCache.stats();
 ```
 
 ### **Test 4: Background Refresh**
+
 ```javascript
 // After 5 minutes (cache stale):
 ✅ Cache HIT (returning stale data)
@@ -207,6 +220,7 @@ window.apiCache.stats();
 ## 🚀 **PRODUCTION BEHAVIOR:**
 
 ### **With Google Sheets Data:**
+
 ```
 1. User logs in
 2. cachedFetchAccount() → /api/account (Vercel)
@@ -218,6 +232,7 @@ window.apiCache.stats();
 ```
 
 ### **Without Google Sheets Data:**
+
 ```
 1. User logs in
 2. API returns: { metadata: {} } ← Leer!
@@ -233,6 +248,7 @@ window.apiCache.stats();
 ## 🔍 **DEBUG COMMANDS:**
 
 ### **Check Current Account:**
+
 ```javascript
 console.log('Account:', window.$currentAccount);
 console.log('Metadata:', window.$currentAccount?.metadata);
@@ -240,12 +256,14 @@ console.log('UsageHistory:', window.$currentAccount?.metadata?.usageHistory);
 ```
 
 ### **Check Cache:**
+
 ```javascript
-window.apiCache.stats();  // Statistics
-window.apiCache.debug();  // All entries
+window.apiCache.stats(); // Statistics
+window.apiCache.debug(); // All entries
 ```
 
 ### **Inject Test Data:**
+
 ```javascript
 // 7 days FREE:
 window.chartTestData.free7d();
@@ -261,6 +279,7 @@ window.chartTestData.clear();
 ```
 
 ### **Force Refresh:**
+
 ```javascript
 // Invalidate cache:
 window.apiCache.invalidate('/api/account:read:user_1760110735936');
@@ -307,19 +326,22 @@ location.reload();
 ## 🎯 **INSTANT TESTING (JETZT!):**
 
 ### **1. Test Chart Component:**
+
 ```javascript
 // Browser Console (F12):
 window.chartTestData.pro4w();
 ```
 
 **Expected:**
-- ✅ Console: "📊 Injecting test data: 28 days"
-- ✅ Console: "✅ currentAccount updated"
-- ✅ SVG Chart shows 28 days!
-- ✅ Animations run!
-- ✅ Time period selector works!
+
+-   ✅ Console: "📊 Injecting test data: 28 days"
+-   ✅ Console: "✅ currentAccount updated"
+-   ✅ SVG Chart shows 28 days!
+-   ✅ Animations run!
+-   ✅ Time period selector works!
 
 ### **2. Test Cache:**
+
 ```javascript
 // Check stats:
 window.apiCache.stats();
@@ -333,6 +355,7 @@ window.apiCache.stats();
 ```
 
 ### **3. Test Navigation:**
+
 ```javascript
 // Navigate: / → /account → /
 // Chart should persist! ✓
@@ -343,42 +366,49 @@ window.apiCache.stats();
 ## 📦 **FILES READY:**
 
 1. `apiCache.js` (620 lines) ✓
-   - Intelligent caching
-   - Deduplication
-   - Throttling
-   - Stale-while-revalidate
+
+    - Intelligent caching
+    - Deduplication
+    - Throttling
+    - Stale-while-revalidate
 
 2. `accountStore.js` ✓
-   - Uses cachedFetchAccount()
-   - Cache invalidation on logout
+
+    - Uses cachedFetchAccount()
+    - Cache invalidation on logout
 
 3. `dailyUsageStore.js` ✓
-   - Uses cachedFetchAccount()
-   - Cache invalidation on increment
+
+    - Uses cachedFetchAccount()
+    - Cache invalidation on increment
 
 4. `usageHistoryLoader.js` ✓
-   - Uses cachedFetchUsageHistory()
-   - 1 hour TTL
+
+    - Uses cachedFetchUsageHistory()
+    - 1 hour TTL
 
 5. `usageHistoryHelpers.js` ✓
-   - safeJSONParse()
-   - Auto-parse metadata
+
+    - safeJSONParse()
+    - Auto-parse metadata
 
 6. `AccountManager.svelte` ✓
-   - Reactive chart data
-   - Loading states
-   - Error handling
+
+    - Reactive chart data
+    - Loading states
+    - Error handling
 
 7. `LineChart.svelte` ✓
-   - SVG rendering
-   - Animations
-   - Dark mode
+    - SVG rendering
+    - Animations
+    - Dark mode
 
 ---
 
 ## 🚀 **NEXT STEPS:**
 
 ### **For Development (JETZT):**
+
 ```javascript
 1. F5 Reload
 2. window.chartTestData.pro4w()
@@ -386,6 +416,7 @@ window.apiCache.stats();
 ```
 
 ### **For Production (Später):**
+
 ```bash
 1. Deploy frontend: vercel --prod
 2. Deploy backend: cd keymoji-backend && vercel --prod
@@ -415,7 +446,6 @@ window.apiCache.stats();
 
 **Total:** 119 Commits  
 **Quality:** Senior Dev Level 🏆  
-**Status:** PRODUCTION READY 🚀  
+**Status:** PRODUCTION READY 🚀
 
 **TESTE JETZT:** `window.chartTestData.pro4w()` 🎯
-

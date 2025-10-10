@@ -74,7 +74,7 @@
                         {pageTitle}
                     </h1>
                     {#if pageDescription}
-                        <p class="dark:text-gray-400 mb-3 text-center w-full leading-relaxed {titleClass}">
+                        <p class="dark:text-gray-400 md:mb-3 text-center w-full leading-relaxed {titleClass}">
                             {pageDescription}
                         </p>
                     {/if}
@@ -96,7 +96,7 @@
             <slot name="before-content" />
 
             <!-- Main Content Box - Mit Hintergrund für Modularität -->
-            <div class="content-wrapper p-4 w-11/12 md:w-26r rounded-xl backdrop-blur-sm bg-creme-500 dark:bg-aubergine-80 backdrop-opacity-60 shadow-xl">
+            <div class="content-wrapper p-4 w-full md:w-26r rounded-xl backdrop-blur-sm bg-creme-500 dark:bg-aubergine-80 backdrop-opacity-60 shadow-xl">
                 <slot />
             </div>
 

@@ -211,8 +211,8 @@ button:disabled {
 /* Mobile responsive padding and fixed positioning optimizations */
 @media (max-width: 768px) {
     .main-content {
-        padding-top: 80px;
-        padding-bottom: 80px;
+        padding-top: 120px;
+        padding-bottom: 100px;
     }
 
     /* Ensure proper fixed positioning on mobile */

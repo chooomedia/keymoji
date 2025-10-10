@@ -5,18 +5,18 @@ import { storageHelpers } from '../config/storage.js';
 
 // Cache TTL (Time To Live) - Different for different data types
 const CACHE_TTL = {
-    ACCOUNT_PROFILE: 5 * 60 * 1000,     // 5 minutes (rarely changes)
-    DAILY_USAGE: 30 * 1000,             // 30 seconds (changes frequently)
-    USAGE_HISTORY: 60 * 60 * 1000,      // 1 hour (changes once per day)
-    SESSION_CHECK: 2 * 60 * 1000,       // 2 minutes (session validation)
-    USER_SETTINGS: 10 * 60 * 1000,      // 10 minutes (changes occasionally)
-    DEFAULT: 60 * 1000                  // 1 minute (fallback)
+    ACCOUNT_PROFILE: 5 * 60 * 1000, // 5 minutes (rarely changes)
+    DAILY_USAGE: 30 * 1000, // 30 seconds (changes frequently)
+    USAGE_HISTORY: 60 * 60 * 1000, // 1 hour (changes once per day)
+    SESSION_CHECK: 2 * 60 * 1000, // 2 minutes (session validation)
+    USER_SETTINGS: 10 * 60 * 1000, // 10 minutes (changes occasionally)
+    DEFAULT: 60 * 1000 // 1 minute (fallback)
 };
 
 // Request throttling - Max requests per endpoint
 const REQUEST_THROTTLE = {
-    MIN_INTERVAL: 1000,                 // Min 1 second between requests
-    MAX_PARALLEL: 3                     // Max 3 parallel requests total
+    MIN_INTERVAL: 1000, // Min 1 second between requests
+    MAX_PARALLEL: 3 // Max 3 parallel requests total
 };
 
 // In-flight requests (prevent duplicate parallel calls)
@@ -43,7 +43,7 @@ function getCacheKey(url, options = {}) {
         const body = options?.body ? JSON.parse(options.body) : {};
         const action = body.action || 'get';
         const userId = body.userId || body.email || 'anonymous';
-        
+
         // Create deterministic key
         return `${url}:${action}:${userId}`;
     } catch (error) {
@@ -83,14 +83,14 @@ function getCache() {
 function saveCache(cache) {
     try {
         const cacheString = JSON.stringify(cache);
-        
+
         // Check size limit
         if (cacheString.length > MAX_CACHE_SIZE) {
             console.warn('⚠️ Cache size limit exceeded, cleaning up...');
             cleanupCache(cache);
             return;
         }
-        
+
         localStorage.setItem(CACHE_STORAGE_KEY, cacheString);
     } catch (error) {
         console.warn('⚠️ Failed to save cache:', error);
@@ -108,20 +108,20 @@ function getFromCache(key) {
     try {
         const cache = getCache();
         const entry = cache[key];
-        
+
         if (!entry) {
             return null;
         }
-        
+
         // Check if expired
         if (isExpired(entry)) {
             console.log('⏰ Cache entry expired:', key);
             return null;
         }
-        
+
         const age = Date.now() - entry.cachedAt;
         console.log(`✅ Cache HIT: ${key} (age: ${Math.round(age / 1000)}s)`);
-        
+
         return entry;
     } catch (error) {
         console.warn('⚠️ Failed to get from cache:', error);
@@ -135,16 +135,16 @@ function getFromCache(key) {
 function saveToCache(key, data, ttl = CACHE_TTL.DEFAULT) {
     try {
         const cache = getCache();
-        
+
         const entry = {
             data: data,
             cachedAt: Date.now(),
             expiresAt: Date.now() + ttl,
             ttl: ttl
         };
-        
+
         cache[key] = entry;
-        
+
         // Cleanup if needed
         const entries = Object.keys(cache);
         if (entries.length > MAX_CACHE_ENTRIES) {
@@ -152,7 +152,7 @@ function saveToCache(key, data, ttl = CACHE_TTL.DEFAULT) {
         } else {
             saveCache(cache);
         }
-        
+
         console.log(`💾 Cached: ${key} (TTL: ${ttl / 1000}s)`);
     } catch (error) {
         console.warn('⚠️ Failed to save to cache:', error);
@@ -186,26 +186,32 @@ function cleanupCache(cacheData = null) {
     try {
         const cache = cacheData || getCache();
         const entries = Object.entries(cache);
-        
+
         console.log(`🧹 Cleaning up cache (${entries.length} entries)...`);
-        
+
         // Remove expired entries
-        const activeEntries = entries.filter(([key, value]) => !isExpired(value));
-        
-        console.log(`🧹 Removed ${entries.length - activeEntries.length} expired entries`);
-        
+        const activeEntries = entries.filter(
+            ([key, value]) => !isExpired(value)
+        );
+
+        console.log(
+            `🧹 Removed ${
+                entries.length - activeEntries.length
+            } expired entries`
+        );
+
         // Sort by age, keep newest
         if (activeEntries.length > MAX_CACHE_ENTRIES) {
             activeEntries.sort((a, b) => b[1].cachedAt - a[1].cachedAt);
             const kept = activeEntries.slice(0, MAX_CACHE_ENTRIES);
-            
+
             console.log(`🧹 Kept ${kept.length} newest entries`);
-            
+
             saveCache(Object.fromEntries(kept));
         } else {
             saveCache(Object.fromEntries(activeEntries));
         }
-        
+
         console.log(`✅ Cache cleanup complete`);
     } catch (error) {
         console.error('❌ Cache cleanup failed:', error);
@@ -236,11 +242,13 @@ export function invalidateCachePattern(pattern) {
         const cache = getCache();
         const keys = Object.keys(cache);
         const matching = keys.filter(key => key.includes(pattern));
-        
+
         matching.forEach(key => delete cache[key]);
         saveCache(cache);
-        
-        console.log(`🗑️ Invalidated ${matching.length} cache entries matching: ${pattern}`);
+
+        console.log(
+            `🗑️ Invalidated ${matching.length} cache entries matching: ${pattern}`
+        );
     } catch (error) {
         console.warn('⚠️ Failed to invalidate cache pattern:', error);
     }
@@ -266,7 +274,7 @@ function shouldThrottle(url) {
     const lastTime = lastRequestTimes.get(key) || 0;
     const now = Date.now();
     const timeSinceLast = now - lastTime;
-    
+
     return timeSinceLast < REQUEST_THROTTLE.MIN_INTERVAL;
 }
 
@@ -279,12 +287,16 @@ function waitForThrottle(url) {
     const now = Date.now();
     const timeSinceLast = now - lastTime;
     const waitTime = Math.max(0, REQUEST_THROTTLE.MIN_INTERVAL - timeSinceLast);
-    
+
     if (waitTime > 0) {
-        console.log(`⏸️ Throttling request to ${getEndpointKey(url)} (wait ${waitTime}ms)`);
+        console.log(
+            `⏸️ Throttling request to ${getEndpointKey(
+                url
+            )} (wait ${waitTime}ms)`
+        );
         return new Promise(resolve => setTimeout(resolve, waitTime));
     }
-    
+
     return Promise.resolve();
 }
 
@@ -295,63 +307,75 @@ function waitForThrottle(url) {
  * @param {number} ttl - Cache TTL in milliseconds
  * @param {boolean} useStaleWhileRevalidate - Return stale data immediately, refresh in background
  */
-export async function cachedFetch(url, options = {}, ttl = CACHE_TTL.DEFAULT, useStaleWhileRevalidate = false) {
+export async function cachedFetch(
+    url,
+    options = {},
+    ttl = CACHE_TTL.DEFAULT,
+    useStaleWhileRevalidate = false
+) {
     const cacheKey = getCacheKey(url, options);
-    
+
     try {
         // === PHASE 1: Check for in-flight request (deduplication) ===
         if (pendingRequests.has(cacheKey)) {
             console.log('🔄 Reusing in-flight request:', cacheKey);
             return await pendingRequests.get(cacheKey);
         }
-        
+
         // === PHASE 2: Check cache ===
         const cached = getFromCache(cacheKey);
-        
+
         if (cached) {
             if (!isExpired(cached)) {
                 // Fresh cache hit!
                 return cached.data;
             } else if (useStaleWhileRevalidate) {
                 // Stale data: return immediately, refresh in background
-                console.log(`📦 Returning STALE data (age: ${Math.round(getAge(cached) / 1000)}s), refreshing...`);
-                
+                console.log(
+                    `📦 Returning STALE data (age: ${Math.round(
+                        getAge(cached) / 1000
+                    )}s), refreshing...`
+                );
+
                 // Background refresh (non-blocking!)
-                performBackgroundRefresh(url, options, cacheKey, ttl).catch(err => {
-                    console.warn('⚠️ Background refresh failed:', err);
-                });
-                
+                performBackgroundRefresh(url, options, cacheKey, ttl).catch(
+                    err => {
+                        console.warn('⚠️ Background refresh failed:', err);
+                    }
+                );
+
                 return cached.data;
             }
         }
-        
+
         // === PHASE 3: Cache miss - fetch from API ===
         console.log('⚠️ Cache MISS:', cacheKey);
-        
+
         // Check parallel request limit
         if (activeRequestCount >= REQUEST_THROTTLE.MAX_PARALLEL) {
-            console.warn(`⚠️ Too many parallel requests (${activeRequestCount}), queuing...`);
+            console.warn(
+                `⚠️ Too many parallel requests (${activeRequestCount}), queuing...`
+            );
             await waitForParallelSlot();
         }
-        
+
         // Check throttling
         await waitForThrottle(url);
-        
+
         // Mark request time
         lastRequestTimes.set(getEndpointKey(url), Date.now());
-        
+
         // Execute fetch
         activeRequestCount++;
         const promise = executeFetch(url, options, cacheKey, ttl);
         pendingRequests.set(cacheKey, promise);
-        
+
         const result = await promise;
-        
+
         return result;
-        
     } catch (error) {
         console.error('❌ cachedFetch error:', error);
-        
+
         // Try to return stale cache as fallback
         const cache = getCache();
         const staleEntry = cache[cacheKey];
@@ -359,7 +383,7 @@ export async function cachedFetch(url, options = {}, ttl = CACHE_TTL.DEFAULT, us
             console.warn('⚠️ Returning STALE cache due to error');
             return staleEntry.data;
         }
-        
+
         throw error;
     }
 }
@@ -370,18 +394,19 @@ export async function cachedFetch(url, options = {}, ttl = CACHE_TTL.DEFAULT, us
 async function executeFetch(url, options, cacheKey, ttl) {
     try {
         const response = await fetch(url, options);
-        
+
         if (!response.ok) {
-            throw new Error(`API returned ${response.status}: ${response.statusText}`);
+            throw new Error(
+                `API returned ${response.status}: ${response.statusText}`
+            );
         }
-        
+
         const data = await response.json();
-        
+
         // Save to cache
         saveToCache(cacheKey, data, ttl);
-        
+
         return data;
-        
     } finally {
         activeRequestCount--;
         pendingRequests.delete(cacheKey);
@@ -394,12 +419,12 @@ async function executeFetch(url, options, cacheKey, ttl) {
 async function performBackgroundRefresh(url, options, cacheKey, ttl) {
     try {
         console.log('🔄 Background refresh starting:', cacheKey);
-        
+
         await waitForThrottle(url);
         lastRequestTimes.set(getEndpointKey(url), Date.now());
-        
+
         const response = await fetch(url, options);
-        
+
         if (response.ok) {
             const data = await response.json();
             saveToCache(cacheKey, data, ttl);
@@ -448,7 +473,7 @@ export async function cachedFetchAccount(userId, email, action = 'read') {
             email
         })
     };
-    
+
     return cachedFetch(url, options, CACHE_TTL.ACCOUNT_PROFILE, true); // Use stale-while-revalidate
 }
 
@@ -469,7 +494,7 @@ export async function cachedFetchDailyUsage(userId, email) {
             email
         })
     };
-    
+
     return cachedFetch(url, options, CACHE_TTL.DAILY_USAGE, false); // Fresh data preferred
 }
 
@@ -490,7 +515,7 @@ export async function cachedFetchUsageHistory(userId, email) {
             email
         })
     };
-    
+
     return cachedFetch(url, options, CACHE_TTL.USAGE_HISTORY, true); // Use stale-while-revalidate
 }
 
@@ -501,7 +526,7 @@ export function getCacheStats() {
     try {
         const cache = getCache();
         const entries = Object.entries(cache);
-        
+
         const stats = {
             totalEntries: entries.length,
             fresh: 0,
@@ -510,7 +535,7 @@ export function getCacheStats() {
             oldestEntry: null,
             newestEntry: null
         };
-        
+
         entries.forEach(([key, value]) => {
             if (isExpired(value)) {
                 stats.stale++;
@@ -518,9 +543,11 @@ export function getCacheStats() {
                 stats.fresh++;
             }
         });
-        
+
         if (entries.length > 0) {
-            const sorted = entries.sort((a, b) => a[1].cachedAt - b[1].cachedAt);
+            const sorted = entries.sort(
+                (a, b) => a[1].cachedAt - b[1].cachedAt
+            );
             stats.oldestEntry = {
                 key: sorted[0][0],
                 age: Math.round(getAge(sorted[0][1]) / 1000)
@@ -530,7 +557,7 @@ export function getCacheStats() {
                 age: Math.round(getAge(sorted[sorted.length - 1][1]) / 1000)
             };
         }
-        
+
         return stats;
     } catch (error) {
         console.error('❌ Failed to get cache stats:', error);
@@ -544,7 +571,7 @@ export function getCacheStats() {
 export function debugCache() {
     const cache = getCache();
     const stats = getCacheStats();
-    
+
     console.log('═══════════════════════════════════════════');
     console.log('📊 API CACHE DEBUG');
     console.log('═══════════════════════════════════════════');
@@ -554,14 +581,18 @@ export function debugCache() {
     console.log('Entries:');
     Object.entries(cache).forEach(([key, value]) => {
         console.log(`  ${isExpired(value) ? '⏰ STALE' : '✅ FRESH'}: ${key}`);
-        console.log(`     Age: ${Math.round(getAge(value) / 1000)}s, TTL: ${value.ttl / 1000}s`);
+        console.log(
+            `     Age: ${Math.round(getAge(value) / 1000)}s, TTL: ${
+                value.ttl / 1000
+            }s`
+        );
     });
     console.log('');
     console.log('Active Requests:', activeRequestCount);
     console.log('Pending Requests:', pendingRequests.size);
     console.log('');
     console.log('═══════════════════════════════════════════');
-    
+
     return { cache, stats };
 }
 
@@ -574,7 +605,7 @@ export function initializeCache() {
     try {
         console.log('🔄 Initializing API cache...');
         cleanupCache();
-        
+
         const stats = getCacheStats();
         console.log('✅ API cache initialized:', stats);
     } catch (error) {
@@ -593,4 +624,3 @@ if (typeof window !== 'undefined') {
         invalidatePattern: invalidateCachePattern
     };
 }
-
