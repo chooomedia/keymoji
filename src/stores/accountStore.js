@@ -1101,10 +1101,25 @@ function safeJSONParse(data, fallback = {}) {
         return data;
     }
     
-    // String? Try to parse
+    // String? Try to parse (supports double-escaped JSON!)
     if (typeof data === 'string') {
         try {
-            return JSON.parse(data);
+            let parsed = JSON.parse(data);
+            
+            // Check if result is STILL a string (double-escaped JSON from Google Sheets!)
+            // Example: "{""settings"":{...}}" → needs second parse!
+            if (typeof parsed === 'string') {
+                console.log('⚠️ Double-escaped JSON detected, parsing again...');
+                try {
+                    parsed = JSON.parse(parsed);
+                    console.log('✅ Successfully parsed double-escaped JSON');
+                } catch (secondError) {
+                    console.warn('⚠️ Failed second parse:', secondError.message);
+                    return fallback;
+                }
+            }
+            
+            return parsed;
         } catch (error) {
             console.warn('⚠️ Failed to parse JSON:', error.message);
             return fallback;
