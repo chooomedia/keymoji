@@ -31,6 +31,11 @@
         expandedSections: ['basic'] // Default: basic section open
     };
 
+    // PRO Banner State (dismissable for 3 days)
+    let showProBanner = true;
+    const PRO_BANNER_KEY = 'keymoji_pro_banner_dismissed';
+    const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+
     // Check if user is pro - optimiert mit $: um zu viele Aufrufe zu vermeiden
     $: isProUser = $accountTier === 'pro';
     
@@ -404,10 +409,68 @@
         updateSetting('uiState', uiState);
     }
 
+    // Check if PRO banner was dismissed recently (< 3 days)
+    function checkProBannerDismissed() {
+        try {
+            const dismissed = localStorage.getItem(PRO_BANNER_KEY);
+            if (dismissed) {
+                const dismissedData = JSON.parse(dismissed);
+                const now = Date.now();
+                const timeSinceDismiss = now - dismissedData.dismissedAt;
+                
+                if (timeSinceDismiss < THREE_DAYS_MS) {
+                    console.log('🚫 PRO banner dismissed:', {
+                        daysAgo: Math.floor(timeSinceDismiss / (24 * 60 * 60 * 1000)),
+                        remainingDays: Math.ceil((THREE_DAYS_MS - timeSinceDismiss) / (24 * 60 * 60 * 1000))
+                    });
+                    return true; // Still dismissed
+                } else {
+                    console.log('✅ PRO banner: 3 days passed, showing again');
+                    localStorage.removeItem(PRO_BANNER_KEY);
+                    return false; // Show again
+                }
+            }
+            return false; // Not dismissed yet
+        } catch (error) {
+            console.warn('⚠️ Error checking PRO banner state:', error);
+            return false; // Show by default
+        }
+    }
+
+    // Dismiss PRO banner (for 3 days)
+    function dismissProBanner() {
+        try {
+            const dismissData = {
+                dismissed: true,
+                dismissedAt: Date.now()
+            };
+            localStorage.setItem(PRO_BANNER_KEY, JSON.stringify(dismissData));
+            showProBanner = false;
+            console.log('✅ PRO banner dismissed for 3 days');
+        } catch (error) {
+            console.error('❌ Failed to dismiss PRO banner:', error);
+        }
+    }
+
+    // Reset PRO banner (force show again) - called from Header badge
+    export function resetProBanner() {
+        try {
+            localStorage.removeItem(PRO_BANNER_KEY);
+            showProBanner = true;
+            console.log('🔄 PRO banner reset and shown again');
+        } catch (error) {
+            console.error('❌ Failed to reset PRO banner:', error);
+        }
+    }
+
     onMount(async () => {
         console.log('🔄 UserSettings: Component mounting...');
         await loadSettingsConfig();
         console.log('✅ UserSettings: Component mounted with config:', settingsConfig);
+
+        // Check PRO banner dismissed state
+        const isDismissed = checkProBannerDismissed();
+        showProBanner = !isDismissed;
 
         // Initialize settings from account and API
         const { initializeSettingsForUser } = await import('../stores/userSettingsStore.js');
@@ -462,46 +525,65 @@
         {getLocalizedText($translations?.userSettings?.title, 'User Settings')}
     </p>
 
-    <!-- Account Tier Info -->
-    <div class="mb-6 p-4 bg-powder-300 dark:bg-aubergine-700 rounded-lg border border-purple-700">
-        <div class="flex items-start flex-col justify-center space-y-3">
-            <div class="flex items-start space-x-3">
-                <span class="text-2xl">
-                    {#if isProUser}
-                        💎
-                    {:else}
-                        🆓
-                    {/if}
-                </span>
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {#if isProUser}
-                            Pro Account
-                        {:else}
-                            {$translations?.accountManager?.tiers?.freeAccount || 'Free Account'}
-                        {/if}
-                    </h2>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        {#if isProUser}
-                            You have access to all features
-                        {:else}
-                            {$translations?.accountManager?.upgrade?.upgradeToProForFeatures || 'Upgrade to Pro for advanced features'}
-                        {/if}
-                    </p>
+    <!-- Account Tier Info (Dismissable for FREE users) -->
+    {#if !isProUser && showProBanner}
+        <div 
+            class="mb-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+            transition:slide="{{ duration: 300 }}"
+        >
+            <div class="relative p-4">
+                <!-- Close Button (X) -->
+                <button
+                    on:click={dismissProBanner}
+                    class="absolute top-2 right-2 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-all focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+                    aria-label="Dismiss upgrade banner for 3 days"
+                    title="Hide for 3 days"
+                >
+                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+
+                <div class="flex items-start flex-col justify-center space-y-3 pr-8">
+                    <div class="flex items-start space-x-3">
+                        <span class="text-2xl">🆓</span>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                {$translations?.accountManager?.tiers?.freeAccount || 'Kostenloser Account'}
+                            </h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                {$translations?.accountManager?.upgrade?.upgradeToProForFeatures || 'Upgrade auf Pro für erweiterte Features'}
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        on:click={handleUpgrade}
+                        class="w-full inline-flex justify-center items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-800 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
+                        aria-label="{$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}"
+                        title="{$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}"
+                    >
+                        {$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}
+                    </button>
                 </div>
             </div>
-            {#if !isProUser}
-                <button
-                    on:click={() => handleProFeature($translations?.accountManager?.proFeatureModal?.proUpgrade || 'Pro Upgrade', $translations?.accountManager?.proFeatureModal?.unlockAdvancedFeatures || 'Unlock all advanced features and settings')}
-                    class="w-full inline-flex justify-center items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-800 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
-                    aria-label={$translations?.accountManager?.proFeatureModal?.upgradeProNow || 'Upgrade to Pro'}
-                    title={$translations?.accountManager?.proFeatureModal?.upgradeProNow || 'Upgrade to Pro'}
-                >
-                {$translations?.accountManager?.proFeatureModal?.upgradeProNow || '💎 Upgrade Pro now'}
-                </button>
-            {/if}
         </div>
-    </div>
+    {:else if isProUser}
+        <div class="mb-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="p-4">
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl">💎</span>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            Pro Account
+                        </h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            You have access to all features
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {/if}
 
     <!-- Settings Sections -->
     <div class="space-y-4">

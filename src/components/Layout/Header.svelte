@@ -51,6 +51,14 @@
         event.stopPropagation(); // Prevent navigating to account page
         
         if (!isProUser && remaining <= 0) {
+            // Reset PRO banner in UserSettings (force show again)
+            try {
+                localStorage.removeItem('keymoji_pro_banner_dismissed');
+                console.log('🔄 PRO banner reset (from header badge)');
+            } catch (error) {
+                console.warn('⚠️ Failed to reset PRO banner:', error);
+            }
+            
             // Show PRO upgrade modal
             showModal('Pro Feature', 'pro-feature', null, {
                 featureName: $translations?.accountManager?.proFeatureModal?.unlimitedGenerations || 'Unlimited Story Generations',
