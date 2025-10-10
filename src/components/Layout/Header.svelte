@@ -136,22 +136,22 @@
                         <button
                             type="button"
                             on:click={handleBadgeClick}
-                            class="absolute -top-1 -right-1 w-4 h-4 px-1.5 flex items-center justify-center rounded-full text-xs font-bold shadow-lg transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 {
+                            class="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center rounded-full text-[0.65rem] font-bold shadow-lg border border-white dark:border-aubergine-900 transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 focus:outline-none {
                                 remaining > 0 
-                                    ? 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-500' 
+                                    ? 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-300' 
                                     : isProUser 
-                                        ? 'bg-purple-500 dark:bg-purple-600 text-aubergine-900 focus:ring-purple-300'
-                                        : 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-500 animate-pulse'
+                                        ? 'bg-purple-500 dark:bg-purple-600 text-white focus:ring-purple-300'
+                                        : 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-300 animate-pulse'
                             }"
                             aria-label={remaining > 0 ? `${remaining} generations remaining` : isProUser ? 'Unlimited generations' : 'Upgrade to Pro for more'}
-                            title={remaining > 0 ? `${remaining} Story-Generierungen verbleibend` : isProUser ? '∞ Unlimited' : '💎 Upgrade zu Pro'}
+                            title={remaining > 0 ? `${remaining} Story-Generierungen verbleibend heute` : isProUser ? '∞ Unlimited Pro' : '💎 Upgrade zu Pro für mehr'}
                         >
                             {#if isProUser}
-                                ∞
+                                <span class="text-[0.7rem]">∞</span>
                             {:else if remaining > 0}
-                                {remaining}
+                                <span class="tabular-nums">{remaining}</span>
                             {:else}
-                                💎
+                                <span class="text-[0.65rem]">💎</span>
                             {/if}
                         </button>
                     {/if}
