@@ -19,21 +19,22 @@ curl -X POST https://its.keymoji.wtf/api/account \
 
 ```json
 {
-  "success": true,
-  "account": {
-    "userId": "user_1753963152928",
-    "email": "cm@chooo.de",
-    "tier": "free",
-    "metadata": "{\"usageHistory\":[...]}"  // JSON string
-  }
+    "success": true,
+    "account": {
+        "userId": "user_1753963152928",
+        "email": "cm@chooo.de",
+        "tier": "free",
+        "metadata": "{\"usageHistory\":[...]}" // JSON string
+    }
 }
 ```
 
 ### **Check:**
-- ✅ Status 200 OK
-- ✅ success: true
-- ✅ account object present
-- ✅ metadata field present
+
+-   ✅ Status 200 OK
+-   ✅ success: true
+-   ✅ account object present
+-   ✅ metadata field present
 
 ---
 
@@ -45,15 +46,15 @@ curl -X POST https://its.keymoji.wtf/api/account \
 2. Find Workflow: `02-account-management-COMPLETE-v2`
 3. Click "Execute Workflow"
 4. Set Test Data:
-   ```json
-   {
-     "body": {
-       "action": "read",
-       "userId": "user_1753963152928",
-       "email": "cm@chooo.de"
-     }
-   }
-   ```
+    ```json
+    {
+        "body": {
+            "action": "read",
+            "userId": "user_1753963152928",
+            "email": "cm@chooo.de"
+        }
+    }
+    ```
 5. Execute
 
 ### **Expected Output:**
@@ -70,10 +71,11 @@ curl -X POST https://its.keymoji.wtf/api/account \
 ```
 
 ### **Check:**
-- ✅ Workflow executes successfully
-- ✅ Google Sheets Lookup finds user
-- ✅ Code Node parses metadata
-- ✅ usageHistory is array (not string)
+
+-   ✅ Workflow executes successfully
+-   ✅ Google Sheets Lookup finds user
+-   ✅ Code Node parses metadata
+-   ✅ usageHistory is array (not string)
 
 ---
 
@@ -103,6 +105,7 @@ console.log('UsageHistory:', data.account?.metadata?.usageHistory);
 ```
 
 ### **Expected:**
+
 ```
 Status: 200
 Data: {success: true, account: {...}}
@@ -110,10 +113,11 @@ UsageHistory: "[{...},{...},...]" or [{...},{...},...]
 ```
 
 ### **Check:**
-- ✅ No CORS errors
-- ✅ Status 200 (not 429 Rate Limit)
-- ✅ Response has account.metadata
-- ✅ metadata has usageHistory field
+
+-   ✅ No CORS errors
+-   ✅ Status 200 (not 429 Rate Limit)
+-   ✅ Response has account.metadata
+-   ✅ metadata has usageHistory field
 
 ---
 
@@ -147,6 +151,7 @@ console.log('Is array:', Array.isArray(parsed.usageHistory));
 ```
 
 ### **Expected:**
+
 ```
 Parsed: {usageHistory: Array(1)}
 UsageHistory type: "object"
@@ -173,6 +178,7 @@ console.log('Length:', account?.metadata?.usageHistory?.length);
 ```
 
 ### **Expected:**
+
 ```
 Has account: true
 Has metadata: true
@@ -201,6 +207,7 @@ console.log('Last:', history[history.length - 1]);
 ```
 
 ### **Expected:**
+
 ```
 History: Array(28) [{...}, {...}, ...]
 Length: 28
@@ -224,7 +231,7 @@ for (let i = 27; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
     const dateStr = date.toISOString().split('T')[0];
-    
+
     const entry = history.find(h => h.date === dateStr);
     chartData.push({
         date: dateStr,
@@ -235,11 +242,15 @@ for (let i = 27; i >= 0; i--) {
 
 console.log('Chart data points:', chartData.length);
 console.log('Points from history:', chartData.filter(d => d.found).length);
-console.log('Points with value > 0:', chartData.filter(d => d.value > 0).length);
+console.log(
+    'Points with value > 0:',
+    chartData.filter(d => d.value > 0).length
+);
 console.table(chartData);
 ```
 
 ### **Expected:**
+
 ```
 Chart data points: 28
 Points from history: 28
@@ -255,21 +266,21 @@ Points with value > 0: 28
 
 Navigate to `/account` page and verify:
 
-- ✅ Chart container visible
-- ✅ SVG element present
-- ✅ Path element (line) drawn
-- ✅ 28 circle elements (data points)
-- ✅ Tooltips on hover
-- ✅ Animation plays
+-   ✅ Chart container visible
+-   ✅ SVG element present
+-   ✅ Path element (line) drawn
+-   ✅ 28 circle elements (data points)
+-   ✅ Tooltips on hover
+-   ✅ Animation plays
 
 ### **DOM Inspection (F12 → Elements):**
 
 ```html
 <svg width="100%" height="200">
-  <path d="M 0 120 L 27 100 L ..." stroke="#eab308" />
-  <circle cx="0" cy="120" r="4" />
-  <circle cx="27" cy="100" r="4" />
-  ... (28 circles total)
+    <path d="M 0 120 L 27 100 L ..." stroke="#eab308" />
+    <circle cx="0" cy="120" r="4" />
+    <circle cx="27" cy="100" r="4" />
+    ... (28 circles total)
 </svg>
 ```
 
@@ -279,22 +290,23 @@ Navigate to `/account` page and verify:
 
 Run through each test and note results:
 
-| Test | Status | Notes |
-|------|--------|-------|
-| 1. Backend Endpoint | ⏳ | curl test result |
-| 2. n8n Workflow | ⏳ | Manual execution result |
-| 3. Frontend API Call | ⏳ | Browser fetch result |
-| 4. JSON Parsing | ⏳ | safeJSONParse test |
-| 5. Store Update | ⏳ | currentAccount check |
-| 6. Data Extraction | ⏳ | getUsageHistory result |
-| 7. Data Generation | ⏳ | generateChartData result |
-| 8. Chart Rendering | ⏳ | Visual verification |
+| Test                 | Status | Notes                    |
+| -------------------- | ------ | ------------------------ |
+| 1. Backend Endpoint  | ⏳     | curl test result         |
+| 2. n8n Workflow      | ⏳     | Manual execution result  |
+| 3. Frontend API Call | ⏳     | Browser fetch result     |
+| 4. JSON Parsing      | ⏳     | safeJSONParse test       |
+| 5. Store Update      | ⏳     | currentAccount check     |
+| 6. Data Extraction   | ⏳     | getUsageHistory result   |
+| 7. Data Generation   | ⏳     | generateChartData result |
+| 8. Chart Rendering   | ⏳     | Visual verification      |
 
 ---
 
 ## 🚨 **Common Issues:**
 
 ### **Issue 1: Status 429 (Rate Limit)**
+
 ```
 ❌ Failed to load resource: 429
 ```
@@ -302,6 +314,7 @@ Run through each test and note results:
 **Solution:** Wait 15 minutes for rate limit to reset, OR use production URL.
 
 ### **Issue 2: CORS Error**
+
 ```
 ❌ CORS policy blocked
 ```
@@ -309,6 +322,7 @@ Run through each test and note results:
 **Solution:** Test on https://keymoji.wtf instead of localhost.
 
 ### **Issue 3: metadata is string**
+
 ```
 ❌ metadata type: "string"
 ```
@@ -316,6 +330,7 @@ Run through each test and note results:
 **Solution:** n8n workflow needs Code Node to parse, OR frontend safeJSONParse() should handle it.
 
 ### **Issue 4: No usageHistory in response**
+
 ```
 ❌ metadata: {} (empty)
 ```
@@ -329,15 +344,16 @@ Run through each test and note results:
 If ANY test fails, use this to verify chart component works:
 
 ```javascript
-window.chartDebugger.injectTestData()
-location.reload()
+window.chartDebugger.injectTestData();
+location.reload();
 ```
 
 **This proves:**
-- ✅ Chart component works
-- ✅ SVG rendering works
-- ✅ Animations work
-- Problem is only in data loading, not rendering!
+
+-   ✅ Chart component works
+-   ✅ SVG rendering works
+-   ✅ Animations work
+-   Problem is only in data loading, not rendering!
 
 ---
 
@@ -349,4 +365,3 @@ location.reload()
 4. **If FAIL:** Share error, I'll fix
 
 Share the output of each test and we'll debug step-by-step! 🔍
-

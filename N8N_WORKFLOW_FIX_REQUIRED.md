@@ -4,8 +4,8 @@
 
 ```json
 {
-  "error": "Account operation failed. Please try again later.",
-  "timestamp": "2025-10-10T13:00:52.814Z"
+    "error": "Account operation failed. Please try again later.",
+    "timestamp": "2025-10-10T13:00:52.814Z"
 }
 ```
 
@@ -42,6 +42,7 @@ In n8n Workflow `02-account-management-COMPLETE-v2`:
 **Node: IF (Check Action)**
 
 Füge hinzu:
+
 ```
 Condition 3:
   {{ $json.body.action }}
@@ -56,6 +57,7 @@ Condition 3:
 ### **Option 2: 'get' und 'read' zusammenfassen**
 
 **IF Node Condition:**
+
 ```
 {{ $json.body.action }}
 is in
@@ -146,11 +148,13 @@ Beide Aktionen führen zum gleichen Google Sheets Lookup!
 ## 🔧 **Schnelle n8n Fix Anleitung:**
 
 ### **1. Login zu n8n:**
+
 ```
 https://n8n.chooomedia.com
 ```
 
 ### **2. Workflow öffnen:**
+
 ```
 02-account-management-COMPLETE-v2
 ```
@@ -183,8 +187,8 @@ Während n8n Workflow gefixt wird, kannst du testen:
 
 ```javascript
 // Inject test data
-window.chartDebugger.injectTestData()
-location.reload()
+window.chartDebugger.injectTestData();
+location.reload();
 
 // Chart sollte funktionieren!
 ```
@@ -195,19 +199,19 @@ Das beweist dass Chart Component funktioniert, nur die Daten fehlen!
 
 ## 📋 **Checklist:**
 
-- [x] Backend deployed (action: 'read' support)
-- [ ] n8n Workflow erweitert (action: 'read' condition)
-- [ ] Google Sheets updated (metadata mit usageHistory)
-- [ ] Test: curl returns full account data
-- [ ] Test: Browser shows chart
+-   [x] Backend deployed (action: 'read' support)
+-   [ ] n8n Workflow erweitert (action: 'read' condition)
+-   [ ] Google Sheets updated (metadata mit usageHistory)
+-   [ ] Test: curl returns full account data
+-   [ ] Test: Browser shows chart
 
 ---
 
 ## 🎯 **Next Step:**
 
 **Entweder:**
+
 1. N8n Workflow erweitern (IF Node + read condition)
 2. Test mit injected Data (Quick Win!)
 
 **Welcher Weg?** 🤔
-
