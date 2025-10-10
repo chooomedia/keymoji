@@ -95,13 +95,18 @@
         <!-- Back to Top Button -->
         <div class="w-full mt-12 text-center">
             <button
-                on:click={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                class="inline-flex items-center gap-2 text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 rounded-lg px-3 py-2"
+                on:click={() => {
+                    console.log('🔝 Scrolling to top...');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    document.documentElement.scrollTop = 0; // Fallback
+                    document.body.scrollTop = 0; // Fallback für ältere Browser
+                }}
+                class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-yellow-500 text-black dark:bg-aubergine-900 dark:text-white rounded-full font-medium shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                 aria-label="Back to top"
                 title="Back to top"
             >
-                <span class="text-lg">↑</span>
-                Back to top
+                <span class="text-xl">↑</span>
+                <span>Back to top</span>
             </button>
         </div>
 
