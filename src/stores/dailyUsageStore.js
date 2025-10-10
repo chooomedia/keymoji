@@ -210,18 +210,20 @@ async function saveToUsageHistory(account, usageData) {
     try {
         // Get existing history from account
         const existingHistory = account?.metadata?.usageHistory || [];
-        
+
         // Add or update today's entry
         const today = getTodayDateString();
-        const existingIndex = existingHistory.findIndex(entry => entry.date === today);
-        
+        const existingIndex = existingHistory.findIndex(
+            entry => entry.date === today
+        );
+
         const newEntry = {
             date: today,
             used: usageData.used,
             limit: usageData.limit,
             timestamp: new Date().toISOString()
         };
-        
+
         let updatedHistory;
         if (existingIndex >= 0) {
             // Update existing entry
@@ -231,14 +233,18 @@ async function saveToUsageHistory(account, usageData) {
             // Add new entry
             updatedHistory = [...existingHistory, newEntry];
         }
-        
+
         // Keep only last 365 days
         updatedHistory = updatedHistory
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .slice(0, 365);
-        
-        console.log('📊 Updated usage history:', updatedHistory.length, 'entries');
-        
+
+        console.log(
+            '📊 Updated usage history:',
+            updatedHistory.length,
+            'entries'
+        );
+
         return updatedHistory;
     } catch (error) {
         console.warn('⚠️ Failed to update usage history:', error);
@@ -413,6 +419,9 @@ async function saveUsageToAPI(account, usageData) {
 
         console.log('📡 Saving daily usage to API:', usageData);
 
+        // Update usage history
+        const updatedHistory = await saveToUsageHistory(account, usageData);
+
         const response = await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
             method: 'POST',
             headers: {
@@ -429,6 +438,7 @@ async function saveUsageToAPI(account, usageData) {
                 metadata: {
                     ...(account.metadata || {}),
                     dailyUsage: usageData, // Keep in metadata for backward compatibility
+                    usageHistory: updatedHistory, // History for charts (last 365 days)
                     lastActivity: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
                     updatedVia: 'daily-usage-tracking'

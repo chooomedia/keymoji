@@ -14,7 +14,7 @@
 ### Usage
 
 ```svelte
-<LineChart 
+<LineChart
     data={usageChartData}
     maxValue={9}
     height={180}
@@ -25,30 +25,30 @@
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `data` | Array | `[]` | Data points: `[{ date, value }]` |
-| `maxValue` | Number | `9` | Y-axis maximum (tier limit) |
-| `height` | Number | `200` | Chart height in pixels |
-| `width` | Number | `400` | Chart width in pixels |
-| `color` | String | `#eab308` | Line color (yellow/purple) |
-| `showGrid` | Boolean | `true` | Show grid lines |
-| `showPoints` | Boolean | `true` | Show data points |
-| `showLabels` | Boolean | `true` | Show axis labels |
-| `animate` | Boolean | `true` | Enable animations |
+| Prop         | Type    | Default   | Description                      |
+| ------------ | ------- | --------- | -------------------------------- |
+| `data`       | Array   | `[]`      | Data points: `[{ date, value }]` |
+| `maxValue`   | Number  | `9`       | Y-axis maximum (tier limit)      |
+| `height`     | Number  | `200`     | Chart height in pixels           |
+| `width`      | Number  | `400`     | Chart width in pixels            |
+| `color`      | String  | `#eab308` | Line color (yellow/purple)       |
+| `showGrid`   | Boolean | `true`    | Show grid lines                  |
+| `showPoints` | Boolean | `true`    | Show data points                 |
+| `showLabels` | Boolean | `true`    | Show axis labels                 |
+| `animate`    | Boolean | `true`    | Enable animations                |
 
 ### Color Coding
 
-| User Tier | Chart Color | Hex |
-|-----------|-------------|-----|
-| **FREE** | Yellow | `#eab308` |
-| **PRO** | Purple | `#a855f7` |
+| User Tier | Chart Color | Hex       |
+| --------- | ----------- | --------- |
+| **FREE**  | Yellow      | `#eab308` |
+| **PRO**   | Purple      | `#a855f7` |
 
 ### Point Colors (Dynamic)
 
-- **Green** (`#22c55e`): High usage (≥70% of limit)
-- **Yellow** (`#eab308`): Medium usage (40-69% of limit)
-- **Red** (`#ef4444`): Low usage (<40% of limit)
+-   **Green** (`#22c55e`): High usage (≥70% of limit)
+-   **Yellow** (`#eab308`): Medium usage (40-69% of limit)
+-   **Red** (`#ef4444`): Low usage (<40% of limit)
 
 ---
 
@@ -80,20 +80,20 @@
 
 ### Data Management
 
-- **Auto-Updated**: Every generation increments today's entry
-- **Max Entries**: 365 days (1 year)
-- **Sorted**: Newest first
-- **Deduplicated**: One entry per day
-- **Persistent**: Saved to Google Sheets
+-   **Auto-Updated**: Every generation increments today's entry
+-   **Max Entries**: 365 days (1 year)
+-   **Sorted**: Newest first
+-   **Deduplicated**: One entry per day
+-   **Persistent**: Saved to Google Sheets
 
 ### Time Periods
 
-| Period | Days | Use Case |
-|--------|------|----------|
-| **7d** | 7 | Week overview |
-| **14d** | 14 | Two weeks trend |
-| **4w** | 28 | Monthly pattern |
-| **1y** | 365 | Yearly insights |
+| Period  | Days | Use Case        |
+| ------- | ---- | --------------- |
+| **7d**  | 7    | Week overview   |
+| **14d** | 14   | Two weeks trend |
+| **4w**  | 28   | Monthly pattern |
+| **1y**  | 365  | Yearly insights |
 
 ---
 
@@ -124,12 +124,12 @@ User-Einstellungen merken sich, welche Settings-Sections geöffnet/geschlossen s
 
 ### Available Sections
 
-- `basic` - Language, Theme, Notifications
-- `security` - Password Settings
-- `emoji` - Emoji Count, Categories
-- `generation` - Auto-Generate, Clipboard
-- `privacy` - Analytics, History
-- `pro` - Pro Features
+-   `basic` - Language, Theme, Notifications
+-   `security` - Password Settings
+-   `emoji` - Emoji Count, Categories
+-   `generation` - Auto-Generate, Clipboard
+-   `privacy` - Analytics, History
+-   `pro` - Pro Features
 
 ### Benefits
 
@@ -162,14 +162,14 @@ User-Einstellungen merken sich, welche Settings-Sections geöffnet/geschlossen s
         </div>
         <span>{dailyLimitDisplay}</span>
     </div>
-    
+
     <!-- Line Chart -->
-    <LineChart 
+    <LineChart
         data={usageChartData}
         maxValue={$accountTier === 'pro' ? 25 : 9}
         color={$accountTier === 'pro' ? '#a855f7' : '#eab308'}
     />
-    
+
     <!-- Progress Bar -->
     <div class="progress-bar">...</div>
 </div>
@@ -196,20 +196,20 @@ $: usageChartData = generateChartData(selectedTimePeriod, usageHistory);
 
 ```javascript
 // Get usage history from account
-getUsageHistory(account)
+getUsageHistory(account);
 // Returns: [{ date, used, limit, timestamp }]
 
 // Get history for specific period
-getUsageHistoryForPeriod(account, '7d')
+getUsageHistoryForPeriod(account, '7d');
 // Returns: Filtered array for period
 
 // Calculate statistics
-calculateUsageStats(history)
+calculateUsageStats(history);
 // Returns: { total, average, max, min, trend }
 
 // Format period labels
-formatPeriodLabel('7d') // → "Last 7 Days"
-formatPeriodLabelDE('7d') // → "Letzte 7 Tage"
+formatPeriodLabel('7d'); // → "Last 7 Days"
+formatPeriodLabelDE('7d'); // → "Letzte 7 Tage"
 ```
 
 ---
@@ -296,31 +296,36 @@ console.log('Fake history:', fakeHistory);
 ## 🎨 UX/UI Best Practices
 
 ### 1. **Progressive Enhancement**
-- Chart gracefully falls back to "No data" state
-- Works without JavaScript (shows static values)
-- Accessible aria-labels
+
+-   Chart gracefully falls back to "No data" state
+-   Works without JavaScript (shows static values)
+-   Accessible aria-labels
 
 ### 2. **Performance**
-- SVG rendering (hardware accelerated)
-- Cached calculations with reactive $:
-- Smooth 60fps animations
+
+-   SVG rendering (hardware accelerated)
+-   Cached calculations with reactive $:
+-   Smooth 60fps animations
 
 ### 3. **Accessibility**
-- `role="img"` on SVG
-- `aria-label` on chart
-- Keyboard navigation for period selector
-- `title` tooltips on data points
+
+-   `role="img"` on SVG
+-   `aria-label` on chart
+-   Keyboard navigation for period selector
+-   `title` tooltips on data points
 
 ### 4. **Responsive**
-- `viewBox` maintains aspect ratio
-- `width="100%"` adapts to container
-- Mobile-friendly touch targets
+
+-   `viewBox` maintains aspect ratio
+-   `width="100%"` adapts to container
+-   Mobile-friendly touch targets
 
 ### 5. **Visual Hierarchy**
-- Chart above progress bar (primary info)
-- Grid lines subtle (not distracting)
-- Data points highlighted on hover
-- Clear time period selector
+
+-   Chart above progress bar (primary info)
+-   Grid lines subtle (not distracting)
+-   Data points highlighted on hover
+-   Clear time period selector
 
 ---
 
@@ -374,28 +379,27 @@ console.log('Fake history:', fakeHistory);
 
 ## ✅ Implementation Checklist
 
-- [x] Create LineChart.svelte component
-- [x] Add SVG rendering with animations
-- [x] Add light/dark mode support
-- [x] Add interactive tooltips
-- [x] Add time period selector (7d, 14d, 4w, 1y)
-- [x] Create usageHistory data structure
-- [x] Save usageHistory to metadata on each generation
-- [x] Load usageHistory from API on init
-- [x] Create usageHistoryHelpers.js utilities
-- [x] Integrate chart in AccountManager
-- [x] Add reactive data binding
-- [x] Add UI state tracking (expanded sections)
-- [x] Save UI state to userSettings
-- [x] Persist UI state to Google Sheets
-- [x] Restore UI state on page load
-- [x] Add uiState to default settings
-- [x] Test all reactivity
-- [x] Update documentation
+-   [x] Create LineChart.svelte component
+-   [x] Add SVG rendering with animations
+-   [x] Add light/dark mode support
+-   [x] Add interactive tooltips
+-   [x] Add time period selector (7d, 14d, 4w, 1y)
+-   [x] Create usageHistory data structure
+-   [x] Save usageHistory to metadata on each generation
+-   [x] Load usageHistory from API on init
+-   [x] Create usageHistoryHelpers.js utilities
+-   [x] Integrate chart in AccountManager
+-   [x] Add reactive data binding
+-   [x] Add UI state tracking (expanded sections)
+-   [x] Save UI state to userSettings
+-   [x] Persist UI state to Google Sheets
+-   [x] Restore UI state on page load
+-   [x] Add uiState to default settings
+-   [x] Test all reactivity
+-   [x] Update documentation
 
 ---
 
 **Version:** 0.5.7  
 **Feature:** Usage Charts + UI State Persistence  
 **Status:** ✅ Complete & Production Ready
-

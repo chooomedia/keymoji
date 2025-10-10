@@ -223,7 +223,7 @@ export function getDefaultSettings(tier = 'free') {
         saveHistory: false,
         analytics: true,
         shareUsage: false,
-        
+
         // UI State (which sections are expanded)
         uiState: {
             expandedSections: ['basic']

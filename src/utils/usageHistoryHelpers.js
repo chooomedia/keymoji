@@ -7,12 +7,12 @@
 export function getUsageHistory(account) {
     try {
         const history = account?.metadata?.usageHistory || [];
-        
+
         if (!Array.isArray(history)) {
             console.warn('⚠️ Usage history is not an array:', history);
             return [];
         }
-        
+
         return history;
     } catch (error) {
         console.warn('⚠️ Failed to get usage history:', error);
@@ -26,16 +26,16 @@ export function getUsageHistory(account) {
 export function getUsageHistoryForPeriod(account, period = '7d') {
     const history = getUsageHistory(account);
     const today = new Date();
-    
+
     let days = 7;
     if (period === '14d') days = 14;
     if (period === '4w') days = 28;
     if (period === '1y') days = 365;
-    
+
     // Filter history for the period
     const cutoffDate = new Date(today);
     cutoffDate.setDate(cutoffDate.getDate() - days);
-    
+
     return history.filter(entry => {
         try {
             const entryDate = new Date(entry.date);
@@ -59,26 +59,28 @@ export function calculateUsageStats(history) {
             trend: 'stable'
         };
     }
-    
+
     const values = history.map(h => h.used || 0);
     const total = values.reduce((sum, val) => sum + val, 0);
     const average = total / values.length;
     const max = Math.max(...values);
     const min = Math.min(...values);
-    
+
     // Calculate trend (last 3 days vs previous 3 days)
     let trend = 'stable';
     if (history.length >= 6) {
         const recent = history.slice(-3).map(h => h.used || 0);
         const previous = history.slice(-6, -3).map(h => h.used || 0);
-        
-        const recentAvg = recent.reduce((sum, val) => sum + val, 0) / recent.length;
-        const previousAvg = previous.reduce((sum, val) => sum + val, 0) / previous.length;
-        
+
+        const recentAvg =
+            recent.reduce((sum, val) => sum + val, 0) / recent.length;
+        const previousAvg =
+            previous.reduce((sum, val) => sum + val, 0) / previous.length;
+
         if (recentAvg > previousAvg * 1.2) trend = 'up';
         if (recentAvg < previousAvg * 0.8) trend = 'down';
     }
-    
+
     return {
         total,
         average: Math.round(average * 10) / 10,
@@ -113,4 +115,3 @@ export function formatPeriodLabelDE(period) {
     };
     return labels[period] || period;
 }
-
