@@ -514,7 +514,7 @@ export default {
         // Vorteile
         benefits: {
             free: {
-                dailyGenerations: '5 tägliche sichere Generierungen',
+                dailyGenerations: '9 tägliche sichere Generierungen',
                 dailyGenerationsDesc:
                     'KI-resistente Technologie für maximale Sicherheit',
                 decentralizedData: 'Dezentrale Datenverarbeitung',

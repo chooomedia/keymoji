@@ -1264,23 +1264,30 @@ async function syncAccountData(accountData) {
         // Only reset stores if we're truly not logged in (check cookies first!)
         const hasSession = hasValidUserSession();
         const hasPrefs = hasExistingUserPreferences();
-        
-        console.log('⚠️ [ACCOUNT DEBUG] No account data received, checking session validity:', {
-            hasSession,
-            hasPrefs,
-            shouldReset: !hasSession && !hasPrefs
-        });
-        
+
+        console.log(
+            '⚠️ [ACCOUNT DEBUG] No account data received, checking session validity:',
+            {
+                hasSession,
+                hasPrefs,
+                shouldReset: !hasSession && !hasPrefs
+            }
+        );
+
         // Only reset if there's truly no valid session
         if (!hasSession && !hasPrefs) {
-            console.log('🔄 [ACCOUNT DEBUG] No valid session, resetting stores');
+            console.log(
+                '🔄 [ACCOUNT DEBUG] No valid session, resetting stores'
+            );
             isLoggedIn.set(false);
             currentAccount.set(null);
             userProfile.set(null);
             accountTier.set('free');
             updateDailyLimit(false, 'free', 0); // Reset to guest limits
         } else {
-            console.log('✅ [ACCOUNT DEBUG] Valid session exists, keeping stores intact');
+            console.log(
+                '✅ [ACCOUNT DEBUG] Valid session exists, keeping stores intact'
+            );
             // Keep current state, don't reset!
         }
     }

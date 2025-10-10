@@ -31,8 +31,9 @@ console.log('dailyLimit:', window.$dailyLimit);
 ```
 
 **Was du sehen solltest:**
-- ✅ **Stores sollten GLEICH bleiben!**
-- ❌ Wenn `null` oder `undefined` → PROBLEM GEFUNDEN!
+
+-   ✅ **Stores sollten GLEICH bleiben!**
+-   ❌ Wenn `null` oder `undefined` → PROBLEM GEFUNDEN!
 
 ---
 
@@ -46,8 +47,9 @@ console.log('Daily Usage:', localStorage.getItem('keymoji_daily_usage'));
 ```
 
 **Was du sehen solltest:**
-- ✅ **localStorage sollte IMMER da sein!**
-- ❌ Wenn `null` → Wurde gelöscht! PROBLEM!
+
+-   ✅ **localStorage sollte IMMER da sein!**
+-   ❌ Wenn `null` → Wurde gelöscht! PROBLEM!
 
 ---
 
@@ -71,10 +73,11 @@ Stores: Should persist! (nicht reset!)
 ### **Problem 1: Stores werden auf null gesetzt**
 
 **Checke in Code:**
+
 ```javascript
 // src/stores/accountStore.js
-currentAccount.set(null);  // ← Wird das irgendwo aufgerufen?
-isLoggedIn.set(false);     // ← Wird das irgendwo aufgerufen?
+currentAccount.set(null); // ← Wird das irgendwo aufgerufen?
+isLoggedIn.set(false); // ← Wird das irgendwo aufgerufen?
 ```
 
 **Sollte NUR beim Logout passieren!**
@@ -85,9 +88,10 @@ isLoggedIn.set(false);     // ← Wird das irgendwo aufgerufen?
 ### **Problem 2: localStorage wird gelöscht**
 
 **Checke in Code:**
+
 ```javascript
-localStorage.removeItem('keymoji_user_preferences');  // ← Wird das aufgerufen?
-localStorage.clear();                                  // ← Wird das aufgerufen?
+localStorage.removeItem('keymoji_user_preferences'); // ← Wird das aufgerufen?
+localStorage.clear(); // ← Wird das aufgerufen?
 ```
 
 **Sollte NUR beim Logout passieren!**
@@ -98,13 +102,15 @@ localStorage.clear();                                  // ← Wird das aufgerufe
 ### **Problem 3: Component remount triggert Reset**
 
 **Checke:**
-- `onMount()` in Index.svelte
-- `onMount()` in LanguageRouter.svelte
-- Reactive blocks die Stores updaten
+
+-   `onMount()` in Index.svelte
+-   `onMount()` in LanguageRouter.svelte
+-   Reactive blocks die Stores updaten
 
 **Sollte:**
-- Stores lesen ✓
-- Stores NICHT resetten! ❌
+
+-   Stores lesen ✓
+-   Stores NICHT resetten! ❌
 
 ---
 
@@ -126,7 +132,7 @@ localStorage.clear();                                  // ← Wird das aufgerufe
 ```javascript
 // Watch for resets:
 const originalSet = window.$currentAccount.set;
-window.$currentAccount.set = function(value) {
+window.$currentAccount.set = function (value) {
     console.trace('🔍 currentAccount.set() called with:', value);
     return originalSet.call(this, value);
 };
@@ -188,7 +194,7 @@ Data: Lost ❌
 ```javascript
 // BAD:
 onMount(() => {
-    initializeAccountFromCookies();  // Might reset if API fails!
+    initializeAccountFromCookies(); // Might reset if API fails!
 });
 
 // GOOD:
@@ -221,4 +227,3 @@ $: if (!$currentAccount && !hasValidSession()) {
 **Created:** 2025-10-10  
 **Priority:** HIGH  
 **Status:** Need debug info from browser
-

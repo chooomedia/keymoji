@@ -23,9 +23,9 @@ export function testLimitConfiguration() {
 
     // Test Limit Reached
     console.log('🚫 Test Limit Reached:');
-    console.log('- Guest at limit:', validateUserLimits(false, 'free', 3));
-    console.log('- Free at limit:', validateUserLimits(true, 'free', 9));
-    console.log('- Pro at limit:', validateUserLimits(true, 'pro', 25));
+    console.log('- Guest at limit:', validateUserLimits(false, 'free', 5)); // GUEST: 5
+    console.log('- Free at limit:', validateUserLimits(true, 'free', 9)); // FREE: 9
+    console.log('- Pro at limit:', validateUserLimits(true, 'pro', 35)); // PRO: 35
 
     console.log('✅ Limit Configuration Test Complete');
 }

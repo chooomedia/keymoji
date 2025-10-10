@@ -507,7 +507,7 @@ export default {
         // Benefits
         benefits: {
             free: {
-                dailyGenerations: '5 daily secure generations',
+                dailyGenerations: '9 daily secure generations',
                 dailyGenerationsDesc:
                     'AI-resistant technology for maximum security',
                 decentralizedData: 'Decentralized data processing',

@@ -10,7 +10,7 @@ import { currentAccount } from '../stores/appStores.js';
 export function generateProMockData(days = 28) {
     const history = [];
     const today = new Date();
-    const limit = 25; // PRO limit
+    const limit = 35; // PRO limit (updated to 35)
 
     for (let i = 0; i < days; i++) {
         const date = new Date(today);

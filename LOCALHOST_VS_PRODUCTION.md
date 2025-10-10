@@ -23,13 +23,15 @@ POST /api/account → 429 (Too Many Requests)
 ```
 
 **Grund:**
-- Zu viele Test-Requests auf localhost
-- Backend Rate Limit erreicht
-- API gibt keine Daten zurück
+
+-   Zu viele Test-Requests auf localhost
+-   Backend Rate Limit erreicht
+-   API gibt keine Daten zurück
 
 **Lösung:**
-- Backend deployen (Production hat separate Limits!)
-- ODER warten bis Rate Limit reset
+
+-   Backend deployen (Production hat separate Limits!)
+-   ODER warten bis Rate Limit reset
 
 ---
 
@@ -40,15 +42,17 @@ POST /api/account → 429 (Too Many Requests)
 ```
 
 **Grund:**
-- `localhost:8080` ist nicht in `ALLOWED_ORIGINS`
-- Sicherheitsfeature gegen Cross-Origin Requests
-- API Calls werden im Code übersprungen
+
+-   `localhost:8080` ist nicht in `ALLOWED_ORIGINS`
+-   Sicherheitsfeature gegen Cross-Origin Requests
+-   API Calls werden im Code übersprungen
 
 **Lösung:**
-- Code hat bereits Fallback (Cookies)
-- ABER Cookies haben keine `usageHistory`!
-- Nur Google Sheets haben die Daten
-- Nur Backend kann Google Sheets lesen
+
+-   Code hat bereits Fallback (Cookies)
+-   ABER Cookies haben keine `usageHistory`!
+-   Nur Google Sheets haben die Daten
+-   Nur Backend kann Google Sheets lesen
 
 ---
 
@@ -60,14 +64,16 @@ POST /api/account → 429 (Too Many Requests)
 ```
 
 **Grund:**
-- Cookies speichern NUR: `userId`, `email`, `name`, `tier`
-- Cookies speichern NICHT: `usageHistory`!
-- `usageHistory` ist nur in Google Sheets
+
+-   Cookies speichern NUR: `userId`, `email`, `name`, `tier`
+-   Cookies speichern NICHT: `usageHistory`!
+-   `usageHistory` ist nur in Google Sheets
 
 **Result:**
-- `currentAccount.metadata.usageHistory = undefined`
-- Chart lädt mit 0 entries
-- Leerer Chart
+
+-   `currentAccount.metadata.usageHistory = undefined`
+-   Chart lädt mit 0 entries
+-   Leerer Chart
 
 ---
 
@@ -81,6 +87,7 @@ vercel --prod
 ```
 
 **Expected:**
+
 ```
 ✅ Production: https://xn--moji-pb73c.com [2s]
 ```
@@ -94,6 +101,7 @@ vercel --prod
 ```
 
 **Expected:**
+
 ```
 ✅ Production: https://keymoji.wtf [15s]
 ```
@@ -117,8 +125,8 @@ vercel --prod
 **Browser Console (F12):**
 
 ```javascript
-window.chartDebugger.injectTestData()
-location.reload()
+window.chartDebugger.injectTestData();
+location.reload();
 ```
 
 ### **Was passiert:**
@@ -195,18 +203,19 @@ ABER:
 ### **JETZT SOFORT (um Chart zu sehen):**
 
 ```javascript
-window.chartDebugger.injectTestData()
-location.reload()
+window.chartDebugger.injectTestData();
+location.reload();
 ```
 
 **→ Chart in 10 Sekunden sichtbar!**
 
 **Dann kannst du:**
-- ✅ UI/UX testen
-- ✅ Filter Buttons testen
-- ✅ Refresh Button testen
-- ✅ Dark/Light Mode testen
-- ✅ Alle Features validieren
+
+-   ✅ UI/UX testen
+-   ✅ Filter Buttons testen
+-   ✅ Refresh Button testen
+-   ✅ Dark/Light Mode testen
+-   ✅ Alle Features validieren
 
 ---
 
@@ -250,4 +259,3 @@ vercel --prod
 **Created:** 2025-10-10  
 **Status:** Ready for Testing & Deployment  
 **Recommendation:** injectTestData() JETZT, deployen DANN! 🚀
-

@@ -37,8 +37,9 @@
 ```
 
 **Root Cause:**
-- n8n Code Node macht `JSON.stringify()` ZU VIEL!
-- ODER Google Sheets escaped nochmal beim Schreiben!
+
+-   n8n Code Node macht `JSON.stringify()` ZU VIEL!
+-   ODER Google Sheets escaped nochmal beim Schreiben!
 
 ---
 
@@ -57,12 +58,13 @@
 5. **Find Row:** `user_1753963152928` (cm@chooo.de)
 
 6. **Column G** (metadata):
-   - Click in die Zelle
-   - **DELETE ALLES** (Cmd+A, Delete)
-   - **PASTE** (Cmd+V)
-   - **WICHTIG:** Der String ist OHNE äußere Anführungszeichen!
-   - Er startet mit `{` und endet mit `}`
-   - NICHT `"{...}"`!
+
+    - Click in die Zelle
+    - **DELETE ALLES** (Cmd+A, Delete)
+    - **PASTE** (Cmd+V)
+    - **WICHTIG:** Der String ist OHNE äußere Anführungszeichen!
+    - Er startet mit `{` und endet mit `}`
+    - NICHT `"{...}"`!
 
 7. **Save** (Cmd+S)
 
@@ -82,7 +84,7 @@
 function safeJSONParse(value, fallback = {}) {
     if (typeof value !== 'string') return value;
     try {
-        return JSON.parse(value);  // Parsed nur 1x!
+        return JSON.parse(value); // Parsed nur 1x!
     } catch (error) {
         return fallback;
     }
@@ -94,17 +96,17 @@ function safeJSONParse(value, fallback = {}) {
 ```javascript
 function safeJSONParse(value, fallback = {}) {
     if (typeof value !== 'string') return value;
-    
+
     try {
         // First parse
         let parsed = JSON.parse(value);
-        
+
         // If still string after first parse, parse again (double escaped!)
         if (typeof parsed === 'string') {
             console.log('⚠️ Double-escaped JSON detected, parsing again...');
             parsed = JSON.parse(parsed);
         }
-        
+
         return parsed;
     } catch (error) {
         console.warn('⚠️ Failed to parse JSON:', error.message);
@@ -124,13 +126,13 @@ function safeJSONParse(value, fallback = {}) {
 ```javascript
 // ❌ FALSCH (double stringify):
 const output = {
-  metadata: JSON.stringify(updatedMetadata)  // Stringify einmal
+    metadata: JSON.stringify(updatedMetadata) // Stringify einmal
 };
 // Google Sheets stringified nochmal beim Schreiben!
 
 // ✅ RICHTIG (kein stringify):
 const output = {
-  metadata: updatedMetadata  // Als Object!
+    metadata: updatedMetadata // Als Object!
 };
 // Google Sheets stringified automatisch beim Schreiben
 ```
@@ -140,7 +142,7 @@ const output = {
 ```javascript
 // ✅ RICHTIG (explizit als string markieren):
 const output = {
-  metadata: JSON.stringify(updatedMetadata)  // Stringify
+    metadata: JSON.stringify(updatedMetadata) // Stringify
 };
 // Aber Google Sheets Column als "Plain text" nicht "Automatic"
 ```
@@ -159,9 +161,10 @@ const output = {
 ```
 
 **WICHTIG beim Pasten:**
-- Der String startet mit `{` (keine Anführungszeichen!)
-- Der String endet mit `}`
-- Es ist **RAW JSON**, nicht ein JSON-String!
+
+-   Der String startet mit `{` (keine Anführungszeichen!)
+-   Der String endet mit `}`
+-   Es ist **RAW JSON**, nicht ein JSON-String!
 
 ---
 
@@ -169,10 +172,11 @@ const output = {
 
 ```javascript
 // Browser Console (F12):
-await forceLoadFromSheets()
+await forceLoadFromSheets();
 ```
 
 **Expected:**
+
 ```
 ✅ API Status: 200
 ✅ Metadata: object
@@ -186,8 +190,8 @@ await forceLoadFromSheets()
 
 ```javascript
 // Browser Console (F12):
-window.chartDebugger.injectTestData()
-location.reload()
+window.chartDebugger.injectTestData();
+location.reload();
 ```
 
 **→ Chart zeigt SOFORT Daten (temporär)!**
@@ -211,4 +215,3 @@ Soll ich `safeJSONParse()` verbessern damit es **double-escaped JSON** automatis
 **C)** Wir fixen n8n Workflow → Root cause fix ✅
 
 **Sage mir was du bevorzugst!** 🙏
-

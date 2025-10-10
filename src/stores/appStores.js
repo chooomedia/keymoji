@@ -503,9 +503,9 @@ export const isLoggedIn = writable(false);
 // IMPORTANT: dailyLimit is managed by dailyUsageStore.js (v0.5.7+)
 // This store is updated by initializeDailyUsage() on app start
 // Initial values: GUEST: 3, FREE: 9, PRO: 25
-export const dailyLimit = writable({ 
-    limit: 3,  // Default for guest (updated by initializeDailyUsage)
-    used: 0 
+export const dailyLimit = writable({
+    limit: 5,  // Default for guest (GUEST: 5 generations) - updated by initializeDailyUsage
+    used: 0
 });
 
 export const accountSettings = writable({});

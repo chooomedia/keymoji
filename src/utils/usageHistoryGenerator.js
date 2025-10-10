@@ -13,7 +13,7 @@ export function generateTestUsageHistory(days = 28, tier = 'free') {
     const today = new Date();
 
     // Determine limits based on tier
-    const limit = tier === 'pro' ? 25 : 9;
+    const limit = tier === 'pro' ? 35 : 9; // PRO: 35, FREE: 9
 
     for (let i = 0; i < days; i++) {
         const date = new Date(today);
@@ -61,7 +61,7 @@ export function generatePatternHistory(
 ) {
     const history = [];
     const today = new Date();
-    const limit = tier === 'pro' ? 25 : 9;
+    const limit = tier === 'pro' ? 35 : 9; // PRO: 35, FREE: 9
 
     for (let i = 0; i < days; i++) {
         const date = new Date(today);

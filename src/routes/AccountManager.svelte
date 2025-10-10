@@ -1167,7 +1167,7 @@
                                     <div in:fade={{ duration: 400 }}>
                                         <LineChart 
                                             data={usageChartData}
-                                            maxValue={$accountTier === 'pro' ? 25 : 9}
+                                            maxValue={$accountTier === 'pro' ? 35 : 9}
                                             height={200}
                                             color={$accountTier === 'pro' ? '#a855f7' : '#eab308'}
                                             animate={true}

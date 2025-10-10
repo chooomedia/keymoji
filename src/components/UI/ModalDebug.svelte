@@ -89,7 +89,7 @@
         isLoggedIn.set(false);
         currentAccount.set(null);
         accountTier.set('free');
-        dailyLimit.set({ limit: 3, used: 0 });
+        dailyLimit.set({ limit: 5, used: 0 }); // GUEST: 5 generations
         showInfo('Guest account activated!', 2000);
     }
 

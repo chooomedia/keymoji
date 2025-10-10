@@ -4,13 +4,13 @@
 
 export const DAILY_LIMITS = {
     // Guest User (nicht eingeloggt)
-    GUEST: 3,
+    GUEST: 5, // 5 generations per day for guests
 
     // Free User (eingeloggt, kostenlos)
-    FREE: 9, // Updated: 9 generations per day for FREE users
+    FREE: 9, // 9 generations per day for FREE users
 
     // Pro User (eingeloggt, bezahlt)
-    PRO: 25,
+    PRO: 35, // 35 generations per day for PRO users
 
     // Unlimited für Pro (theoretisch unbegrenzt, aber mit Sicherheitslimit)
     UNLIMITED: 999999
