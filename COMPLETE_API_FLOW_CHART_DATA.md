@@ -250,7 +250,7 @@ fetch('https://its.keymoji.wtf/api/account', {
         userId: 'user_1753963152928',
         email: 'cm@chooo.de'
     })
-})
+});
 ```
 
 ### **Vercel → n8n:**
@@ -266,7 +266,7 @@ fetch('https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account', {
         userId: 'user_1753963152928',
         email: 'cm@chooo.de'
     })
-})
+});
 ```
 
 ### **n8n → Google Sheets:**
@@ -310,7 +310,7 @@ return {
     json: {
         userId: lookupData.userId,
         email: lookupData.email,
-        metadata: metadata,  // ← Object with usageHistory array!
+        metadata: metadata // ← Object with usageHistory array!
         // ...
     }
 };
@@ -354,7 +354,7 @@ $: usageChartData = generateChartData('4w', usageHistory);
 // Returns: Filtered array for last 28 days
 
 // src/components/UI/LineChart.svelte
-<LineChart data={usageChartData} />
+<LineChart data={usageChartData} />;
 // Renders: SVG with 28 data points!
 ```
 
@@ -364,22 +364,23 @@ $: usageChartData = generateChartData('4w', usageHistory);
 
 ### **Sheet: "accounts"**
 
-| Column | Field | Content |
-|--------|-------|---------|
-| A | userId | user_1753963152928 |
-| B | email | cm@chooo.de |
-| C | tier | free |
-| D | createdAt | 2025-07-31T23:19:26.866Z |
-| E | lastLogin | 2025-10-10T14:00:00.000Z |
-| F | profile | `{"name":"chooo123456"}` |
-| G | **metadata** | `{"settings":{...},"usageHistory":[28 entries]}` |
-| H | status | active |
+| Column | Field        | Content                                          |
+| ------ | ------------ | ------------------------------------------------ |
+| A      | userId       | user_1753963152928                               |
+| B      | email        | cm@chooo.de                                      |
+| C      | tier         | free                                             |
+| D      | createdAt    | 2025-07-31T23:19:26.866Z                         |
+| E      | lastLogin    | 2025-10-10T14:00:00.000Z                         |
+| F      | profile      | `{"name":"chooo123456"}`                         |
+| G      | **metadata** | `{"settings":{...},"usageHistory":[28 entries]}` |
+| H      | status       | active                                           |
 
 **Column G (metadata) contains:**
-- ✅ `settings` - User preferences
-- ✅ `dailyUsage` - Today's usage (for counter)
-- ✅ `usageHistory` - **28 days for chart!** ← THIS!
-- ✅ `source`, `tier`, `updatedAt`, `updatedVia`
+
+-   ✅ `settings` - User preferences
+-   ✅ `dailyUsage` - Today's usage (for counter)
+-   ✅ `usageHistory` - **28 days for chart!** ← THIS!
+-   ✅ `source`, `tier`, `updatedAt`, `updatedVia`
 
 ---
 
@@ -419,14 +420,16 @@ metadata =             ↓                  ↓                   ↓           
 ### **Warum funktioniert es jetzt?**
 
 **Vorher:**
-- Kein API Call nach Login → usageHistory nie geladen
-- Chart hatte keine Daten
+
+-   Kein API Call nach Login → usageHistory nie geladen
+-   Chart hatte keine Daten
 
 **Jetzt:**
-- ✅ API Call nach Login: `POST /api/account (action: read)`
-- ✅ Vercel → n8n → Google Sheets Lookup
-- ✅ usageHistory wird geladen
-- ✅ Chart bekommt 28 Einträge
+
+-   ✅ API Call nach Login: `POST /api/account (action: read)`
+-   ✅ Vercel → n8n → Google Sheets Lookup
+-   ✅ usageHistory wird geladen
+-   ✅ Chart bekommt 28 Einträge
 
 ---
 

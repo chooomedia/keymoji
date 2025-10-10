@@ -162,6 +162,11 @@ function initializeApp() {
             console.log('⚡ Instant Chart Test loaded');
             console.log('⚡ Quick: window.instantChartTest()');
         });
+
+        import('./utils/testAPIDirectly.js').then(module => {
+            console.log('🧪 Direct API Test loaded');
+            console.log('⚡ Quick: await window.testAPIDirectly()');
+        });
     }
 
     // Validate language path
