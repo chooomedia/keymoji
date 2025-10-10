@@ -565,31 +565,7 @@ export function debugCache() {
     return { cache, stats };
 }
 
-/**
- * Cleanup expired and old entries
- */
-function cleanupCache(cacheData = null) {
-    try {
-        const cache = cacheData || getCache();
-        const entries = Object.entries(cache);
-        
-        // Remove expired
-        let active = entries.filter(([key, value]) => !isExpired(value));
-        
-        // If still too many, keep newest
-        if (active.length > MAX_CACHE_ENTRIES) {
-            active.sort((a, b) => b[1].cachedAt - a[1].cachedAt);
-            active = active.slice(0, MAX_CACHE_ENTRIES);
-        }
-        
-        const cleaned = Object.fromEntries(active);
-        saveCache(cleaned);
-        
-        console.log(`🧹 Cache cleaned: ${entries.length} → ${active.length} entries`);
-    } catch (error) {
-        console.error('❌ Cache cleanup failed:', error);
-    }
-}
+// cleanupCache already defined above at line 185
 
 /**
  * Auto-cleanup on app start (remove expired entries)
