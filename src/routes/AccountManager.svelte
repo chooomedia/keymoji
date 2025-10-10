@@ -184,11 +184,20 @@
     let isLoadingChartData = false;
     let chartDataError = null;
     let usageHistory = [];
+    let chartDataLoaded = false; // Guard to prevent multiple loads
+    let lastLoadedUserId = null; // Track which user's data is loaded
     
-    // Load usage history from current account (reactive)
-    $: if ($currentAccount && $isLoggedIn) {
-        // Automatic load when account becomes available
-        loadChartDataAsync();
+    // Load usage history from current account (reactive with guard)
+    $: if ($currentAccount && $isLoggedIn && !chartDataLoaded) {
+        const currentUserId = $currentAccount.userId;
+        
+        // Only load if we haven't loaded for this user yet, or if user changed
+        if (currentUserId && currentUserId !== lastLoadedUserId) {
+            console.log('📊 [CHART] Triggering load for user:', currentUserId);
+            lastLoadedUserId = currentUserId;
+            chartDataLoaded = false; // Reset for this user
+            loadChartDataAsync();
+        }
     }
     
     // Calculate stats (reactive)
@@ -280,12 +289,14 @@
             // Smooth transition: Wait a bit to avoid flash
             await new Promise(resolve => setTimeout(resolve, 300));
             isLoadingChartData = false;
+            chartDataLoaded = true; // Mark as loaded to prevent re-triggering
             
             console.log('📊 [CHART DEBUG] Step 5: Loading complete. Final state:', {
                 isLoading: false,
                 hasError: !!chartDataError,
                 dataLength: usageHistory.length,
-                chartDataPoints: usageChartData.length
+                chartDataPoints: usageChartData.length,
+                chartDataLoaded: true
             });
         }
     }
@@ -555,6 +566,11 @@
         accountExists = false;
         // Reset return user view state
         hasLoggedInBefore = false;
+        
+        // Reset chart state on logout
+        chartDataLoaded = false;
+        lastLoadedUserId = null;
+        usageHistory = [];
         
         // Keep login history for return user functionality
         console.log('🔐 Login history preserved for return user functionality');
