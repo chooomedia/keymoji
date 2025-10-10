@@ -56,14 +56,17 @@ function getUsageFromLocalStorage() {
                 );
                 return null;
             }
-            
+
             // 🔧 MIGRATION: Auto-fix old limit values (v0.5.7+)
             // Old limits: GUEST: 3, PRO: 25
             // New limits: GUEST: 5, PRO: 35
             const OLD_LIMITS = [3, 25]; // Old incorrect values
             if (OLD_LIMITS.includes(stored.limit)) {
-                console.log('🔄 MIGRATION: Detected old limit value:', stored.limit);
-                
+                console.log(
+                    '🔄 MIGRATION: Detected old limit value:',
+                    stored.limit
+                );
+
                 // Determine correct new limit based on user state
                 // We can't access stores here, so we estimate from the old limit
                 let newLimit;
@@ -74,22 +77,29 @@ function getUsageFromLocalStorage() {
                     // Was PRO (25) → now PRO (35)
                     newLimit = 35;
                 }
-                
+
                 // Update stored data
                 const migratedData = {
                     ...stored,
                     limit: newLimit
                 };
-                
+
                 // Save migrated data back to localStorage
                 storageHelpers.set(STORAGE_KEYS.DAILY_USAGE, migratedData);
-                
-                console.log('✅ MIGRATION: Limit updated:', stored.limit, '→', newLimit);
-                console.log('✅ MIGRATION: Migrated data saved to localStorage');
-                
+
+                console.log(
+                    '✅ MIGRATION: Limit updated:',
+                    stored.limit,
+                    '→',
+                    newLimit
+                );
+                console.log(
+                    '✅ MIGRATION: Migrated data saved to localStorage'
+                );
+
                 return migratedData;
             }
-            
+
             console.log(
                 '📦 Loaded daily usage from localStorage (same day):',
                 stored
@@ -135,22 +145,26 @@ export async function initializeDailyUsage() {
 
         let usageData = null;
 
-        // Priority 1: Load from API (if logged in)
-        if (loggedIn && account?.userId) {
-            usageData = await loadUsageFromAPI(account);
-            if (usageData) {
-                console.log('✅ Daily usage loaded from API:', usageData);
-            }
+        // Priority 1: ALWAYS load from localStorage FIRST (immediate, no async delay!)
+        // This prevents race conditions and gives us instant data
+        usageData = getUsageFromLocalStorage();
+        if (usageData) {
+            console.log(
+                '✅ Daily usage loaded from localStorage (priority 1):',
+                usageData
+            );
+            // Update store IMMEDIATELY for instant UI update
+            updateDailyLimitStore(usageData);
         }
 
-        // Priority 2: Load from localStorage (fallback)
-        if (!usageData) {
-            usageData = getUsageFromLocalStorage();
-            if (usageData) {
-                console.log(
-                    '✅ Daily usage loaded from localStorage:',
-                    usageData
-                );
+        // Priority 2: Load from API (if logged in) and MERGE/UPDATE
+        // This updates the localStorage data with server truth
+        if (loggedIn && account?.userId) {
+            const apiUsageData = await loadUsageFromAPI(account);
+            if (apiUsageData) {
+                console.log('✅ Daily usage loaded from API (merging with localStorage):', apiUsageData);
+                // API data overrides localStorage
+                usageData = apiUsageData;
             }
         }
 
@@ -204,18 +218,28 @@ export async function initializeDailyUsage() {
             };
             console.log('🔄 Daily usage reset for new day:', usageData);
 
-            // Save reset to localStorage AND API
+            // Update store IMMEDIATELY
+            updateDailyLimitStore(usageData);
+            
+            // Save reset to localStorage AND API (async, non-blocking)
             saveUsageToLocalStorage(usageData);
             if (loggedIn && account?.userId) {
-                await saveUsageToAPI(account, usageData).catch(error => {
+                saveUsageToAPI(account, usageData).catch(error => {
                     console.warn('⚠️ Failed to save reset to API:', error);
                 });
             }
+        } else {
+            // Update store with current data
+            updateDailyLimitStore(usageData);
+            saveUsageToLocalStorage(usageData);
         }
 
-        // Update stores
-        updateDailyLimitStore(usageData);
-        saveUsageToLocalStorage(usageData);
+        console.log('🎯 FINAL daily usage state:', {
+            used: usageData.used,
+            limit: usageData.limit,
+            remaining: usageData.limit - usageData.used,
+            date: usageData.date
+        });
 
         usageStatus.update(s => ({
             ...s,
