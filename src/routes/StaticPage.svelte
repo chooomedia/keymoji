@@ -52,14 +52,15 @@
 {:else if pageData}
     <PageLayout {pageTitle} {pageDescription}>
         <!-- Back Button (zentriert wie VersionHistory) -->
-        <div slot="before-content" class="w-full text-center">
+        <div slot="before-content" class="w-full text-center mb-6">
             <button 
                 on:click={navigateToHome}
                 class="inline-flex items-center gap-2 text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 rounded-lg px-3 py-2"
-                aria-label={$translations?.common?.backToHome || 'Zurück zur Startseite'}
+                aria-label={$translations?.index?.backToMainButtonText || 'Back to home'}
+                title={$translations?.index?.backToMainButtonText || 'Back to home'}
             >
                 <span class="text-lg">←</span>
-                {$translations?.common?.backToHome || 'Zurück zur Startseite'}
+                {$translations?.index?.backToMainButtonText || 'Go back home'}
             </button>
         </div>
 
