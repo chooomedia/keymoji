@@ -1105,7 +1105,7 @@
                         <!-- Daily Limit Status with Chart -->
                         <div class="bg-powder-300 dark:bg-aubergine-900 rounded-xl p-4 mb-5">
                             <!-- Header with Time Period Selector & Refresh Button -->
-                            <div class="flex justify-between items-center mb-3">
+                            <div class="flex justify-between items-center mb-3 z-10">
                                 <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
                                     {$translations?.accountManager?.dailyGenerations || 'Daily Generations'}
                                 </span>
@@ -1200,7 +1200,7 @@
                                                 class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg"
                                                 transition:fade={{ duration: 300 }}
                                             >
-                                                <div class="bg-creme-500 dark:bg-aubergine-900 bg-opacity-90 rounded-xl backdrop-blur-sm text-center p-6 max-w-md">
+                                                <div class="bg-creme-500/80 dark:bg-aubergine-900/80 rounded-xl backdrop-blur-md text-center p-6 max-w-md shadow-lg">
                                                     <div class="text-4xl mb-3">📊</div>
                                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                                         {$translations?.accountManager?.demoChart?.title || 'Demo Vorschau'}
