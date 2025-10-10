@@ -1200,7 +1200,7 @@
                                                 class="absolute inset-0 flex items-center justify-center backdrop-blur-xl rounded-lg"
                                                 transition:fade={{ duration: 300 }}
                                             >
-                                                <div class="w-80 bg-creme-80 dark:bg-aubergine-80 rounded-2xl text-center p-6 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),0_2px_8px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.1)]">
+                                                <div class="w-80 bg-creme-80 dark:bg-aubergine-80 rounded-2xl text-center p-6 shadow-[0_8px_32px_rgba(0,0,0,0.52),0_2px_8px_rgba(0,0,0,0.18)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.75),0_2px_8px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.1)]">
                                                     <div class="text-4xl mb-3">📊</div>
                                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                                         {$translations?.accountManager?.demoChart?.title || 'Demo Vorschau'}
