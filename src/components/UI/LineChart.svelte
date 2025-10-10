@@ -25,7 +25,7 @@
     // Calculated values (responsive)
     $: svgWidth = containerWidth || 400;
     $: svgHeight = height;
-    $: padding = { top: 20, right: 20, bottom: 40, left: 35 }; // Optimized: left tight, right has space for last point
+    $: padding = { top: 20, right: 15, bottom: 40, left: 35 }; // Optimized: minimal side padding for maximum chart width
     $: chartWidth = svgWidth - padding.left - padding.right;
     $: chartHeight = svgHeight - padding.top - padding.bottom;
     
@@ -145,7 +145,7 @@
     }
 </script>
 
-<div class="line-chart-container w-full" in:fade={{ duration: 300 }}>
+<div class="line-chart-container" in:fade={{ duration: 300 }}>
     {#if hasData}
         <svg 
             width="100%"

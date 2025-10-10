@@ -121,6 +121,8 @@ export default {
         quickNavTitle: 'Quick Navigation',
         recentEmojisTitle: 'Recent Keymojis',
         backToHome: 'Back to Home',
+        prevEmoji: 'Previous emoji',
+        nextEmoji: 'Next emoji',
         message: 'Oops! Page not found 🚫',
         suggestion:
             'The page you are looking for might have been moved, deleted, or never existed.',

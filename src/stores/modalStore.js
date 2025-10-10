@@ -437,13 +437,16 @@ export function showMagicLinkVerifying(email) {
  * Magic Link Verifikation erfolgreich
  */
 export function showMagicLinkVerified(email, name) {
+    // Smart name fallback
+    const displayName = name || (email ? email.split('@')[0] : 'there');
+
     return showModal(
-        `Welcome back, ${name}! Your account has been verified successfully.`,
+        `Welcome back, ${displayName}! Your account has been verified successfully.`,
         'success',
         5000,
         {
             email,
-            name,
+            name: displayName,
             showSpinner: false,
             progress: 100
         }
@@ -469,13 +472,16 @@ export function showMagicLinkVerificationFailed(error) {
 /**
  * Account Login erfolgreich
  */
-export function showAccountLoginSuccess(name) {
+export function showAccountLoginSuccess(name, email = null) {
+    // Smart name fallback
+    const displayName = name || (email ? email.split('@')[0] : 'there');
+
     return showModal(
-        `Welcome back, ${name}! You're now logged in.`,
+        `Welcome back, ${displayName}! You're now logged in.`,
         'success',
         4000,
         {
-            name,
+            name: displayName,
             showSpinner: false,
             progress: 100
         }
@@ -506,13 +512,20 @@ export function showExistingAccountFound(email, name) {
         primaryButton: {
             text: 'Zum Account',
             action: () => {
-                // Navigate to account page using Svelte routing
-                import('svelte-routing').then(({ navigate }) => {
-                    closeModal();
-                    // Small delay to ensure modal is closed before navigation
-                    setTimeout(() => {
-                        navigate('/account', { replace: true });
-                    }, 100);
+                // Navigate to account page using Svelte routing (language-aware!)
+                Promise.all([
+                    import('svelte-routing'),
+                    import('./contentStore.js')
+                ]).then(([{ navigate }, { currentLanguage }]) => {
+                    import('svelte/store').then(({ get }) => {
+                        const lang = get(currentLanguage) || 'en';
+                        const accountPath =
+                            lang === 'en' ? '/account' : `/${lang}/account`;
+                        closeModal();
+                        setTimeout(() => {
+                            navigate(accountPath, { replace: true });
+                        }, 100);
+                    });
                 });
             }
         },

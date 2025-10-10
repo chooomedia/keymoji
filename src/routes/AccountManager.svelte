@@ -39,7 +39,7 @@
     } from '../stores/accountStore.js';
     import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore.js';
     import { 
-        currentSettings, 
+        currentSettings,
         resetSettings, 
         exportSettings, 
         importSettings,
@@ -64,7 +64,6 @@
     import FeatureCard from '../components/Features/FeatureCard.svelte';
     import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers.js';
     import { getUsageHistory, calculateUsageStats } from '../utils/usageHistoryHelpers.js';
-    import { loadUsageHistoryWithRetry, refreshUsageHistory, shouldRefreshHistory } from '../utils/usageHistoryLoader.js';
     import { DEMO_USAGE_HISTORY_4W, getDemoDataForPeriod, isDemoData } from '../utils/demoChartData.js';
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
@@ -76,7 +75,16 @@
             return $translations?.accountManager?.verificationErrorTitle || '❌ Verifikation Fehlgeschlagen';
         }
         if ($isLoggedIn) {
-            return ($translations?.accountManager?.welcomeBack || 'Welcome back, {name}! 👋').replace('{name}', $userProfile?.name || $currentAccount?.name || 'User');
+            // Get user name from multiple sources with smart fallback (Priority Order!)
+            const userName = 
+                $currentSettings?.name ||        // 1. Current settings (from input, highest priority!)
+                $userProfile?.name ||            // 2. User profile store
+                $currentAccount?.name ||         // 3. Current account
+                $currentAccount?.profile?.name || // 4. Account profile
+                ($currentAccount?.email ? $currentAccount.email.split('@')[0] : null) || // 5. Email prefix
+                'there'; // 6. Friendly fallback instead of "User"
+            
+            return ($translations?.accountManager?.welcomeBack || 'Welcome back, {name}! 👋').replace('{name}', userName);
         }
         if (accountCreationStep === 'verification') {
             return $translations?.accountManager?.verificationTitle || '📧 Check Your Email and Verify';
@@ -182,184 +190,110 @@
     
     // Usage Chart State
     let selectedTimePeriod = '7d';
-    let isLoadingChartData = false;
-    let chartDataError = null;
-    let usageHistory = [];
     let isDemoDataShown = false; // Track if showing demo data (not real from backend)
-    let chartDataLoaded = false; // Guard to prevent multiple loads
-    let lastLoadedUserId = null; // Track which user's data is loaded
-    let accountUnsubscribe = null; // Store unsubscribe function
+    
+    // NEW: Import userDataStore for robust chart data handling
+    import { 
+        usageHistory as usageHistoryStore, 
+        refreshUsageHistory 
+    } from '../stores/userDataStore.js';
+    
+    // Reactive: Use store data (auto-updates!)
+    $: chartUsageHistory = $usageHistoryStore.data || [];
+    $: isLoadingChartData = $usageHistoryStore.isLoading;
+    $: chartDataError = $usageHistoryStore.errorMessage;
+    $: usageStats = $usageHistoryStore.stats;
     
     // ROBUST: Watch currentAccount changes and trigger load
     // This works for BOTH soft reload AND hard reload!
     function watchAccountChanges() {
         console.log('👀 [CHART] Setting up currentAccount watcher...');
         
-        accountUnsubscribe = currentAccount.subscribe((account) => {
+        currentAccount.subscribe(async (account) => {
             // Only proceed if logged in and account exists
             if (!account || !$isLoggedIn) {
                 console.log('👀 [CHART WATCH] No account or not logged in, skipping');
                 return;
             }
             
-            const currentUserId = account.userId;
+            console.log('👀 [CHART WATCH] Account changed, refreshing usage history...');
             
-            // Check if we need to load for this user
-            if (currentUserId && currentUserId !== lastLoadedUserId) {
-                console.log('👀 [CHART WATCH] New user detected, triggering load:', currentUserId);
-                lastLoadedUserId = currentUserId;
-                chartDataLoaded = false; // Reset flag for new user
-                
-                // Small delay to ensure session restore is fully complete
-                setTimeout(() => {
-                    loadChartDataAsync();
-                }, 100);
-            } else if (currentUserId === lastLoadedUserId && !chartDataLoaded) {
-                // Same user but data not loaded yet (race condition recovery)
-                console.log('👀 [CHART WATCH] Same user, data not loaded, retrying...');
-                setTimeout(() => {
-                    loadChartDataAsync();
-                }, 200);
-            } else {
-                console.log('👀 [CHART WATCH] Already loaded for this user:', {
-                    currentUserId,
-                    lastLoadedUserId,
-                    chartDataLoaded
-                });
-            }
+            // Use new robust pattern (like userCounter!)
+            await refreshUsageHistory();
         });
     }
     
     // CRITICAL: Setup watcher on mount, cleanup on destroy
-    onMount(() => {
+    onMount(async () => {
         console.log('🔄 [CHART] Component mounted, setting up watchers...');
         watchAccountChanges();
         
-        return () => {
-            console.log('🔄 [CHART] Component unmounting, cleaning up...');
-            if (accountUnsubscribe) {
-                accountUnsubscribe();
-            }
-        };
+        // Initial load (uses cache if valid!)
+        if ($isLoggedIn) {
+            console.log('🔄 [CHART] Initial data load on mount...');
+            await refreshUsageHistory();
+        }
     });
     
-    // Calculate stats (reactive)
-    $: usageStats = calculateUsageStats(usageHistory);
+    // Reactive: Determine final usage history to display (real or demo)
+    $: finalUsageHistory = (() => {
+        // If we have real data, use it!
+        if (chartUsageHistory.length > 0) {
+            isDemoDataShown = false;
+            console.log('✅ Using real usage data:', chartUsageHistory.length, 'entries');
+            return chartUsageHistory;
+        }
+        
+        // If logged in but no data, show demo
+        if ($isLoggedIn && chartUsageHistory.length === 0) {
+            isDemoDataShown = true;
+            console.log('📊 No backend data, using demo dataset');
+            return DEMO_USAGE_HISTORY_4W;
+        }
+        
+        // Not logged in - empty
+        isDemoDataShown = false;
+        console.log('📊 Not logged in, no chart data');
+        return [];
+    })();
     
-    // Generate chart data based on selected period (reactive)
-    $: usageChartData = generateChartData(selectedTimePeriod, usageHistory);
+    // Reactive: Generate chart data from final history
+    $: finalChartData = generateChartData(selectedTimePeriod, finalUsageHistory);
+    
+    // Debug: Log final state
+    $: {
+        console.log('📊 [CHART STATE]', {
+            isLoggedIn: $isLoggedIn,
+            chartUsageHistoryLength: chartUsageHistory.length,
+            finalUsageHistoryLength: finalUsageHistory.length,
+            isDemoDataShown,
+            finalChartDataLength: finalChartData?.length || 0,
+            isLoadingChartData,
+            chartDataError
+        });
+    }
     
     /**
-     * Async function to load chart data with UX best practices
-     * - Shows loading skeleton
-     * - Handles errors gracefully
-     * - Supports retry
+     * Handle manual refresh of chart data from backend
+     * NEW: Uses robust userDataStore pattern (like userCounter!)
      */
-    async function loadChartDataAsync() {
+    async function handleRefreshChartData() {
+        console.log('🔄 [CHART REFRESH] Manual refresh triggered by user');
+        
         try {
-            isLoadingChartData = true;
-            chartDataError = null;
+            // Force refresh (bypass cache!)
+            await refreshUsageHistory(true);
             
-            console.log('📊 [CHART DEBUG] Step 1: Starting chart data load...');
-            console.log('📊 [CHART DEBUG] Current account state:', {
-                hasAccount: !!$currentAccount,
-                userId: $currentAccount?.userId,
-                hasMetadata: !!$currentAccount?.metadata,
-                metadataType: typeof $currentAccount?.metadata,
-                hasUsageHistory: !!$currentAccount?.metadata?.usageHistory,
-                usageHistoryType: typeof $currentAccount?.metadata?.usageHistory,
-                usageHistoryLength: $currentAccount?.metadata?.usageHistory?.length
-            });
-            
-            // Option 1: Load from currentAccount (already loaded)
-            const accountHistory = getUsageHistory($currentAccount);
-            
-            console.log('📊 [CHART DEBUG] Step 2: getUsageHistory() returned:', {
-                isArray: Array.isArray(accountHistory),
-                length: accountHistory?.length,
-                firstEntry: accountHistory?.[0],
-                lastEntry: accountHistory?.[accountHistory?.length - 1]
-            });
-            
-            if (accountHistory && accountHistory.length > 0) {
-                // Data already available in currentAccount
-                usageHistory = accountHistory;
-                console.log('✅ [CHART DEBUG] Step 3: Chart data loaded from currentAccount:', usageHistory.length, 'entries');
-                console.log('✅ [CHART DEBUG] First 3 entries:', usageHistory.slice(0, 3));
+            if (chartUsageHistory.length > 0) {
+                console.log('✅ [CHART REFRESH] Loaded fresh data:', chartUsageHistory.length, 'entries');
+                showSuccess($translations?.accountManager?.messages?.chartDataRefreshed || 'Chart data refreshed!', 2000);
             } else {
-                // Option 2: Fetch from API (if currentAccount has no history)
-                console.warn('⚠️ [CHART DEBUG] No history in currentAccount, fetching from API...');
-                console.log('📡 [CHART DEBUG] API call parameters:', {
-                    userId: $currentAccount?.userId,
-                    email: $currentAccount?.email
-                });
-                
-                usageHistory = await loadUsageHistoryWithRetry(
-                    $currentAccount?.userId,
-                    $currentAccount?.email
-                );
-                
-                console.log('✅ [CHART DEBUG] Step 3: Chart data loaded from API:', usageHistory.length, 'entries');
+                console.warn('⚠️ [CHART REFRESH] No new data available');
+                showInfo($translations?.accountManager?.messages?.noNewData || 'No new data available', 2000);
             }
-            
-            // Check if we need to refresh (stale data)
-            if (shouldRefreshHistory(usageHistory)) {
-                console.log('🔄 [CHART DEBUG] History is stale, refreshing...');
-                const refreshed = await refreshUsageHistory();
-                if (refreshed && refreshed.length > 0) {
-                    usageHistory = refreshed;
-                    console.log('✅ [CHART DEBUG] Chart data refreshed:', usageHistory.length, 'entries');
-                }
-            } else {
-                console.log('✅ [CHART DEBUG] History is current (no refresh needed)');
-            }
-            
-            console.log('📊 [CHART DEBUG] Step 4: Final usageHistory:', {
-                length: usageHistory.length,
-                dateRange: usageHistory.length > 0 ? `${usageHistory[usageHistory.length - 1]?.date} to ${usageHistory[0]?.date}` : 'empty'
-            });
-            
-            // 🎨 FALLBACK: Static Demo Dataset (wenn keine Backend-Daten!)
-            // Backend-First: Immer erst versuchen echte Daten zu laden
-            // Nur wenn WIRKLICH keine Daten: Zeige statischen Demo-Datensatz
-            if (usageHistory.length === 0 && $isLoggedIn) {
-                console.log('📊 No backend data available, using static demo dataset...');
-                
-                // Use FIXED demo data (not random!) for consistent UX
-                usageHistory = DEMO_USAGE_HISTORY_4W;
-                isDemoDataShown = true;
-                
-                console.log('✅ Static demo dataset loaded:', usageHistory.length, 'entries');
-                console.log('🎨 Chart will show in GRAY (demo mode)');
-                console.log('💡 Overlay will explain: "Start generating to see your real data"');
-            } else if (usageHistory.length > 0) {
-                // Real data from backend!
-                isDemoDataShown = false;
-                console.log('✅ Real usage data from backend:', usageHistory.length, 'entries');
-            }
-            
         } catch (error) {
-            console.error('❌ [CHART DEBUG] Failed to load chart data:', error);
-            console.error('❌ [CHART DEBUG] Error stack:', error.stack);
-            chartDataError = error.message || 'Failed to load chart data';
-            showError($translations?.accountManager?.messages?.chartLoadFailed || 'Failed to load chart data', 3000);
-            
-            // Fallback: Try to use any existing data
-            usageHistory = getUsageHistory($currentAccount) || [];
-            console.log('⚠️ [CHART DEBUG] Fallback usageHistory:', usageHistory.length, 'entries');
-        } finally {
-            // Smooth transition: Wait a bit to avoid flash
-            await new Promise(resolve => setTimeout(resolve, 300));
-            isLoadingChartData = false;
-            chartDataLoaded = true; // Mark as loaded to prevent re-triggering
-            
-            console.log('📊 [CHART DEBUG] Step 5: Loading complete. Final state:', {
-                isLoading: false,
-                hasError: !!chartDataError,
-                dataLength: usageHistory.length,
-                chartDataPoints: usageChartData.length,
-                chartDataLoaded: true
-            });
+            console.error('❌ [CHART REFRESH] Failed to refresh:', error);
+            showError($translations?.accountManager?.messages?.refreshFailed || 'Failed to refresh data', 2000);
         }
     }
     
@@ -368,43 +302,7 @@
      */
     async function retryLoadChartData() {
         console.log('🔄 Retrying chart data load...');
-        await loadChartDataAsync();
-    }
-    
-    /**
-     * Handle manual refresh of chart data from backend
-     * Best practice: Force fresh data load from API
-     */
-    async function handleRefreshChartData() {
-        console.log('🔄 [CHART REFRESH] Manual refresh triggered by user');
-        
-        try {
-            // Reset guards to allow fresh load
-            chartDataLoaded = false;
-            isLoadingChartData = true;
-            chartDataError = null;
-            
-            console.log('🔄 [CHART REFRESH] Forcing fresh API load...');
-            
-            // Try to load from API (even if we have cached data)
-            const { loadUsageHistoryWithRetry } = await import('../utils/usageHistoryLoader.js');
-            const freshHistory = await loadUsageHistoryWithRetry($currentAccount?.userId, $currentAccount?.email);
-            
-            if (freshHistory && freshHistory.length > 0) {
-                usageHistory = freshHistory;
-                console.log('✅ [CHART REFRESH] Loaded fresh data from API:', freshHistory.length, 'entries');
-                showSuccess($translations?.accountManager?.messages?.chartDataRefreshed || 'Chart data refreshed!', 2000);
-            } else {
-                console.warn('⚠️ [CHART REFRESH] No new data available, keeping existing');
-                showInfo($translations?.accountManager?.messages?.noNewData || 'No new data available', 2000);
-            }
-        } catch (error) {
-            console.error('❌ [CHART REFRESH] Failed to refresh:', error);
-            showError($translations?.accountManager?.messages?.refreshFailed || 'Failed to refresh data', 2000);
-        } finally {
-            isLoadingChartData = false;
-            chartDataLoaded = true;
-        }
+        await refreshUsageHistory(true);
     }
     
     /**
@@ -665,10 +563,7 @@
         // Reset return user view state
         hasLoggedInBefore = false;
         
-        // Reset chart state on logout
-        chartDataLoaded = false;
-        lastLoadedUserId = null;
-        usageHistory = [];
+        // Chart state is handled by userDataStore (no manual reset needed)
         
         // Keep login history for return user functionality
         console.log('🔐 Login history preserved for return user functionality');
@@ -764,12 +659,8 @@
             console.log('✅ AccountManager: Using centralized daily usage tracking');
             console.log('📊 Current daily limits:', $dailyLimit);
             
-            // CRITICAL: Force chart load after mount if logged in
-            // This ensures chart loads even if reactive block doesn't trigger
-            if ($isLoggedIn && $currentAccount && !chartDataLoaded) {
-                console.log('🔄 AccountManager: Forcing chart load after mount');
-                await loadChartDataAsync();
-            }
+            // Chart loading is handled by watchAccountChanges() and onMount refreshUsageHistory()
+            // No manual forcing needed with new robust pattern!
             
             // Check for magic link verification - this works for both direct URL access and new tabs
             const urlParams = new URLSearchParams(window.location.search);
@@ -1136,9 +1027,9 @@
                         </div>
 
                         <!-- Daily Limit Status with Chart -->
-                        <div class="bg-powder-300 dark:bg-aubergine-900 rounded-xl p-4 mb-5">
+                        <div class="bg-powder-300 dark:bg-aubergine-900 rounded-xl p-4 mb-6">
                             <!-- Header with Time Period Selector & Refresh Button -->
-                            <div class="flex justify-between items-center mb-3 z-10">
+                            <div class="flex justify-between items-center mb-6 z-10">
                                 <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
                                     {$translations?.accountManager?.dailyGenerations || 'Daily Generations'}
                                 </span>
@@ -1171,13 +1062,13 @@
                                     >
                                         <span class="{isLoadingChartData ? 'animate-spin' : ''}" style="display: inline-block;">
                                             🔄
-                                        </span>
+                                </span>
                                     </button>
-                                </div>
+                            </div>
                             </div>
                             
-                            <!-- Line Chart (Full Width, Edge-to-Edge) -->
-                            <div class="mb-3 -mx-4">
+                            <!-- Line Chart Container -->
+                            <div class="w-full">
                                 {#if isLoadingChartData}
                                     <!-- Loading Skeleton -->
                                     <ChartSkeleton height={200} />
@@ -1202,48 +1093,57 @@
                                             🔄 Erneut versuchen
                                         </Button>
                                     </div>
-                                {:else if usageHistory.length === 0}
-                                    <!-- No Data State -->
+                                {:else if finalUsageHistory.length === 0}
+                                    <!-- No Data State (nur wenn wirklich KEINE Daten!) -->
                                     <div 
-                                        class="flex flex-col items-center justify-center h-48 bg-gray-100 dark:bg-aubergine-900 rounded-lg border border-gray-200 dark:border-aubergine-700 p-6"
+                                        class="flex flex-col items-center justify-center h-64 bg-gray-100 dark:bg-aubergine-900 rounded-lg border border-gray-200 dark:border-aubergine-700 p-8"
                                         in:fade={{ duration: 300 }}
                                     >
-                                        <div class="text-4xl mb-3">📊</div>
-                                        <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                                            Sorry, no data
+                                        <div class="text-6xl mb-4">📊</div>
+                                        <h4 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                                            No Data
                                         </h4>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 text-center">
-                                            Generate Emojis to see your statistics!
+                                        <p class="text-base text-gray-600 dark:text-gray-400 text-center max-w-md">
+                                            Generate emojis to collect your real usage data and display it here.
                                         </p>
                                     </div>
                                 {:else}
-                                    <!-- Chart (Data Loaded) -->
-                                    <div in:fade={{ duration: 400 }} class="relative">
+                                    <!-- Chart Container (Relative positioning for overlay) -->
+                                    <div class="relative min-h-[280px] flex items-center justify-center -mx-4" in:fade={{ duration: 400 }}>
+                                        <!-- Background Chart -->
                                         <LineChart 
-                                            data={usageChartData}
+                                            data={finalChartData}
                                             maxValue={$accountTier === 'pro' ? 35 : 9}
-                                            height={200}
-                                            color={$accountTier === 'pro' ? '#a855f7' : '#eab308'}
+                                            height={240}
+                                            color={isDemoDataShown ? '#f97316' : ($accountTier === 'pro' ? '#a855f7' : '#eab308')}
                                             animate={true}
                                         />
                                         
                                         {#if isDemoDataShown}
-                                            <!-- Demo Data Overlay -->
+                                            <!-- Demo Data Overlay - Full Height Centered -->
                                             <div 
-                                                class="absolute inset-0 flex items-center justify-center backdrop-blur-xl rounded-lg"
+                                                class="absolute inset-0 flex items-center justify-center backdrop-blur-2xl rounded-lg bg-white/5 dark:bg-aubergine-900/10"
                                                 transition:fade={{ duration: 300 }}
                                             >
-                                                <div class="w-80 bg-creme-80 dark:bg-aubergine-80 rounded-2xl text-center p-6 shadow-[0_8px_32px_rgba(0,0,0,0.52),0_2px_8px_rgba(0,0,0,0.18)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.75),0_2px_8px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.1)]">
-                                                    <div class="text-4xl mb-3">📊</div>
-                                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                                                <!-- Centered Content Card with Strong Shadows -->
+                                                <div class="bg-creme-80 dark:bg-aubergine-80 backdrop-filter backdrop-blur-md rounded-lg text-center px-8 py-9 mt-6 shadow-[0_20px_60px_rgba(0,0,0,0.85),0_8px_24px_rgba(0,0,0,0.45),0_4px_12px_rgba(0,0,0,0.3)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.95),0_10px_30px_rgba(0,0,0,0.65),0_4px_15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]">
+                                                    <!-- Icon -->
+                                                    <div class="text-6xl mb-5">📊</div>
+                                                    
+                                                    <!-- Title -->
+                                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                                                         {$translations?.accountManager?.demoChart?.title || 'Demo Vorschau'}
                                                     </h3>
-                                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                                    
+                                                    <!-- Description -->
+                                                    <p class="text-base text-gray-600 dark:text-gray-400 mb-8 leading-relaxed max-w-sm mx-auto">
                                                         {$translations?.accountManager?.demoChart?.description || 'Dies ist eine Beispiel-Ansicht. Generiere Emojis um deine echten Nutzungsdaten zu sammeln und hier anzuzeigen.'}
                                                     </p>
+                                                    
+                                                    <!-- CTA Button -->
                                                     <button
                                                         on:click={() => navigate('/')}
-                                                        class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600 focus:from-yellow-600 focus:to-orange-600 active:from-yellow-700 active:to-orange-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2 shadow-md"
+                                                        class="inline-flex items-center px-6 py-3 rounded-full text-sm font-bold bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600 focus:from-yellow-600 focus:to-orange-600 active:from-yellow-700 active:to-orange-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-yellow-300/50 dark:focus:ring-yellow-500/50 shadow-lg hover:shadow-xl"
                                                         aria-label={$translations?.accountManager?.demoChart?.cta || 'Jetzt Emojis generieren'}
                                                     >
                                                         <span class="mr-2">🎲</span>
@@ -1257,13 +1157,13 @@
                             </div>
                             
                             <!-- Progress Bar with Inline Counter (UX Best Practice) -->
-                            <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center justify-between mb-3">
                                 <div class="flex-1 mr-3">
                                     <div class="w-full bg-gray-300 dark:bg-aubergine-600 rounded-full h-3">
-                                        <div 
-                                            class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500"
+                                <div 
+                                    class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500"
                                             style="width: {Math.min(100, (remainingGenerations / currentUserLimits.limit) * 100)}%"
-                                        ></div>
+                                ></div>
                                     </div>
                                 </div>
                                 <span class="text-sm font-bold text-yellow-600 dark:text-yellow-400 tabular-nums">
@@ -1328,7 +1228,7 @@
                                         {$translations?.accountManager?.actions?.saving || 'Saving...'}
                                     </span>
                                 {:else}
-                                    {$translations?.accountManager?.actions?.saveSettings || '💾 Save Settings'}
+                                {$translations?.accountManager?.actions?.saveSettings || '💾 Save Settings'}
                                 {/if}
                             </Button>
                             
@@ -1439,17 +1339,17 @@
                                     class="absolute inset-y-1 bg-powder-300 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
                                     style="width: calc(48% - 2px); left: 4px; transform: translateX({showBenefitsToggle === 'pro' ? 'calc(100% + 11px)' : '0'})"
                                 ></div>
-                            <div class="w-full h-full relative flex justify-around">
-                                <button
+                                <div class="w-full h-full relative flex justify-around">
+                                    <button
                                     class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10 hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-                                    on:click={() => selectAccountType('free')}
+                                        on:click={() => selectAccountType('free')}
                                     aria-label={$translations?.accountManager?.tiers?.free || 'Select Free account'}
                                     title={$translations?.accountManager?.freeDescription || 'Free account'}
-                                >
-                                    <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                        {$translations?.accountManager?.tiers?.free || 'FREE'}
-                                    </span>
-                                    <span class="text-xs transition-colors duration-300 text-yellow-600">
+                                    >
+                                        <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
+                                            {$translations?.accountManager?.tiers?.free || 'FREE'}
+                                        </span>
+                                                                            <span class="text-xs transition-colors duration-300 text-yellow-600">
                                         {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
                                     </span>
                                 </button>
@@ -1465,8 +1365,8 @@
                                     <span class="text-xs transition-colors duration-300 text-purple-600">
                                         {$translations?.accountManager?.proDescription || '💎 Enterprise Security'}
                                     </span>
-                                </button>
-                            </div>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <!-- Benefits Content -->
@@ -1689,19 +1589,19 @@
                             <div class="space-y-4">
                                 {#each Object.entries($translations?.accountManager?.benefits?.free || {}) as [key, value]}
                                     {#if !key.endsWith('Desc')}
-                                        <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                            <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                                <span class="text-yellow-600 dark:text-yellow-400 text-2xl">
-                                                    {key === 'dailyGenerations' ? '✓' : 
-                                                     key === 'decentralizedData' ? '🔒' : 
-                                                     key === 'webApp' ? '📱' : '✓'}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <span class="text-md font-bold text-black dark:text-white">{value}</span>
-                                                <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.[key + 'Desc'] || ''}</p>
-                                            </div>
+                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                            <span class="text-yellow-600 dark:text-yellow-400 text-2xl">
+                                                {key === 'dailyGenerations' ? '✓' : 
+                                                 key === 'decentralizedData' ? '🔒' : 
+                                                 key === 'webApp' ? '📱' : '✓'}
+                                            </span>
                                         </div>
+                                        <div>
+                                            <span class="text-md font-bold text-black dark:text-white">{value}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.[key + 'Desc'] || ''}</p>
+                                        </div>
+                                    </div>
                                     {/if}
                                 {/each}
                             </div>
@@ -1712,23 +1612,23 @@
                             <div class="space-y-4">
                                 {#each Object.entries($translations?.accountManager?.benefits?.pro || {}) as [key, value]}
                                     {#if !key.endsWith('Desc')}
-                                        <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                            <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-100 to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-200 dark:from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-800 dark:to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                                <span class="text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-600 dark:text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-400 text-2xl">
-                                                    {key === 'unlimitedGenerations' ? '∞' : 
-                                                     key === 'aiThreatDetection' ? '🧠' : 
-                                                     key === 'prioritySupport' ? '⚡' : 
-                                                     key === 'browserExtension' ? '🌐' : 
-                                                     key === 'apiIntegration' ? '🔌' : 
-                                                     key === 'advancedAnalytics' ? '📊' : 
-                                                     key === 'wordpressPlugin' ? '📝' : '✓'}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <span class="text-md font-bold text-black dark:text-white">{value}</span>
-                                                <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.[key + 'Desc'] || ''}</p>
-                                            </div>
+                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
+                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-100 to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-200 dark:from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-800 dark:to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
+                                            <span class="text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-600 dark:text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-400 text-2xl">
+                                                {key === 'unlimitedGenerations' ? '∞' : 
+                                                 key === 'aiThreatDetection' ? '🧠' : 
+                                                 key === 'prioritySupport' ? '⚡' : 
+                                                 key === 'browserExtension' ? '🌐' : 
+                                                 key === 'apiIntegration' ? '🔌' : 
+                                                 key === 'advancedAnalytics' ? '📊' : 
+                                                 key === 'wordpressPlugin' ? '📝' : '✓'}
+                                            </span>
                                         </div>
+                                        <div>
+                                            <span class="text-md font-bold text-black dark:text-white">{value}</span>
+                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.[key + 'Desc'] || ''}</p>
+                                        </div>
+                                    </div>
                                     {/if}
                                 {/each}
                             </div>

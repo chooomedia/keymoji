@@ -125,6 +125,8 @@ export default {
         quickNavTitle: 'Schnelle Navigation',
         recentEmojisTitle: 'Letzte Keymojis',
         backToHome: 'Zurück zur Startseite',
+        prevEmoji: 'Vorheriges Emoji',
+        nextEmoji: 'Nächstes Emoji',
         message: 'Hoppla! Seite nicht gefunden 🚫',
         suggestion:
             'Die Seite, die du suchst, wurde möglicherweise verschoben, gelöscht oder hat nie existiert.',

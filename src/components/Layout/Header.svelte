@@ -44,7 +44,10 @@
     }
 
     function navigateToAccount() {
-        navigate('/account', { replace: true });
+        // Use language-aware navigation
+        const lang = $currentLanguage || 'en';
+        const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
+        navigate(accountPath, { replace: true });
     }
     
     function handleBadgeClick(event) {
@@ -69,8 +72,10 @@
     }
     
     function handleProUpgrade() {
-        // Navigate to account page for upgrade
-        navigate('/account', { replace: true });
+        // Navigate to account page for upgrade (language-aware)
+        const lang = $currentLanguage || 'en';
+        const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
+        navigate(accountPath, { replace: true });
     }
 
     async function handleLanguageChange(langCode) {

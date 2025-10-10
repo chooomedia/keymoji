@@ -504,7 +504,7 @@ export const isLoggedIn = writable(false);
 // This store is updated by initializeDailyUsage() on app start
 // Initial values: GUEST: 3, FREE: 9, PRO: 25
 export const dailyLimit = writable({
-    limit: 5,  // Default for guest (GUEST: 5 generations) - updated by initializeDailyUsage
+    limit: 5, // Default for guest (GUEST: 5 generations) - updated by initializeDailyUsage
     used: 0
 });
 
@@ -522,7 +522,11 @@ export const accountTier = writable('free');
 export function updateDailyLimit(isLoggedIn, accountTier, usedCount = 0) {
     const limit = getDailyLimitForUser(isLoggedIn, accountTier);
     dailyLimit.set({ limit, used: usedCount });
-    console.log(`📊 updateDailyLimit (legacy): ${isLoggedIn ? accountTier.toUpperCase() : 'GUEST'} → limit: ${limit}, used: ${usedCount}`);
+    console.log(
+        `📊 updateDailyLimit (legacy): ${
+            isLoggedIn ? accountTier.toUpperCase() : 'GUEST'
+        } → limit: ${limit}, used: ${usedCount}`
+    );
     return { limit, used: usedCount };
 }
 

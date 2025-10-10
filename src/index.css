@@ -5,7 +5,7 @@
 
 /* Enhanced Hieroglyphic Background Animation - Apple/Airbnb Performance Style */
 .hieroglyphemojis {
-    animation: gradient 270s ease infinite;
+    animation: hieroglyphic-gradient 270s ease infinite;
     background-size: 16%, cover;
     background-attachment: fixed;
     min-height: 100vh;
@@ -34,8 +34,40 @@ button:disabled {
     background-size: 16%, cover;
 }
 
-/* Performance-optimierte Keyframes */
+/* Fancy Gradient Animation for Demo Overlay Button */
 @keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 3s ease infinite;
+}
+
+.bg-size-200 {
+    background-size: 200% 200%;
+}
+
+.bg-pos-0 {
+    background-position: 0% 50%;
+}
+
+.hover\:bg-pos-100:hover {
+    background-position: 100% 50%;
+}
+
+/* Performance-optimierte Keyframes für Hieroglyphic Background */
+@keyframes hieroglyphic-gradient {
     0% {
         background-position: 0% 50%;
     }

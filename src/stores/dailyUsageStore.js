@@ -16,7 +16,10 @@ import {
     getRemainingGenerations
 } from '../config/limits.js';
 import { isDevelopment } from '../utils/environment.js';
-import { cachedFetchAccount, invalidateCachePattern } from '../utils/apiCache.js';
+import {
+    cachedFetchAccount,
+    invalidateCachePattern
+} from '../utils/apiCache.js';
 
 // === STORES ===
 
@@ -430,20 +433,53 @@ export async function incrementDailyUsage() {
  */
 async function loadUsageFromAPI(account) {
     try {
-        // Skip API calls on localhost for now (CORS)
-        if (isDevelopment() && window.location.hostname === 'localhost') {
-            console.log('⚠️ Skipping API call on localhost (CORS)');
-            return null;
-        }
-
-        console.log('📡 Loading daily usage from API (cached):', account.userId);
-
-        // Use cached fetch - prevents 429 errors!
-        const result = await cachedFetchAccount(
-            account.userId,
-            account.email,
-            'read'
+        console.log(
+            '📡 Loading daily usage from API (cached):',
+            account.userId
         );
+
+        // LOCALHOST FIX: Try direct n8n if Vercel not available
+        const isLocalhost =
+            isDevelopment() &&
+            (window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1');
+
+        let result;
+
+        if (isLocalhost) {
+            console.log('💡 [LOCALHOST] Fetching from n8n directly...');
+            try {
+                const n8nResponse = await fetch(
+                    'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account',
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'get',
+                            userId: account.userId,
+                            email: account.email
+                        })
+                    }
+                );
+
+                if (n8nResponse.ok) {
+                    result = await n8nResponse.json();
+                    console.log('✅ [LOCALHOST] Loaded from n8n');
+                } else {
+                    return null;
+                }
+            } catch (error) {
+                console.warn('⚠️ [LOCALHOST] n8n fetch failed:', error);
+                return null;
+            }
+        } else {
+            // Use cached fetch - prevents 429 errors!
+            result = await cachedFetchAccount(
+                account.userId,
+                account.email,
+                'read'
+            );
+        }
 
         if (result.success && result.account) {
             // Extract usage from profile.dailyUsage (primary) or metadata.dailyUsage (fallback)
@@ -469,24 +505,52 @@ async function loadUsageFromAPI(account) {
  */
 async function saveUsageToAPI(account, usageData) {
     try {
-        // Skip API calls on localhost for now (CORS)
-        if (isDevelopment() && window.location.hostname === 'localhost') {
-            console.log('⚠️ Skipping API call on localhost (CORS)');
-            return;
-        }
-
         console.log('📡 Saving daily usage to API:', usageData);
 
-        // Update usage history
-        const updatedHistory = await saveToUsageHistory(account, usageData);
+        // CRITICAL: Get FRESH metadata from localStorage (not from account store!)
+        const currentPrefs = storageHelpers.get(
+            STORAGE_KEYS.USER_PREFERENCES,
+            {}
+        );
+        const freshMetadata = currentPrefs.metadata || account?.metadata || {};
 
-        const response = await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
+        // Update account with fresh metadata
+        const freshAccount = {
+            ...account,
+            metadata: freshMetadata
+        };
+
+        // Update usage history with FRESH data
+        const updatedHistory = await saveToUsageHistory(
+            freshAccount,
+            usageData
+        );
+
+        // LOCALHOST FIX: Use direct n8n call if Vercel API not available
+        const isLocalhost =
+            isDevelopment() &&
+            (window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1');
+
+        // CRITICAL: Use SAME webhook URL for consistency!
+        let apiUrl = isLocalhost
+            ? 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account' // Direct n8n for localhost
+            : WEBHOOKS.ACCOUNT.UPDATE; // Vercel proxy for production
+
+        if (isLocalhost) {
+            console.log(
+                '💡 [LOCALHOST] Using direct n8n webhook for usage tracking'
+            );
+        }
+
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
+                action: 'update', // Required for n8n
                 userId: account.userId,
                 email: account.email,
                 profile: {
@@ -494,7 +558,7 @@ async function saveUsageToAPI(account, usageData) {
                     dailyUsage: usageData // ALSO save in profile for easy access
                 },
                 metadata: {
-                    ...(account.metadata || {}),
+                    ...freshMetadata, // ← Use FRESH metadata from localStorage!
                     dailyUsage: usageData, // Keep in metadata for backward compatibility
                     usageHistory: updatedHistory, // History for charts (last 365 days)
                     lastActivity: new Date().toISOString(),
@@ -511,6 +575,71 @@ async function saveUsageToAPI(account, usageData) {
 
         const result = await response.json();
         console.log('✅ Daily usage saved to API:', result);
+
+        // MODERN SYNC PATTERN: Sync backend response back to local stores!
+        if (result.success && result.account) {
+            console.log(
+                '🔄 [SYNC] Syncing backend response to local stores...'
+            );
+
+            try {
+                // Parse response (might be strings from n8n!)
+                const parsedAccount =
+                    typeof result.account === 'string'
+                        ? JSON.parse(result.account)
+                        : result.account;
+
+                const parsedMetadata =
+                    typeof parsedAccount.metadata === 'string'
+                        ? JSON.parse(parsedAccount.metadata)
+                        : parsedAccount.metadata || {};
+
+                console.log(
+                    '📊 [SYNC] Backend returned usageHistory:',
+                    parsedMetadata.usageHistory?.length || 0,
+                    'entries'
+                );
+
+                // Update localStorage
+                const updatedPrefs = {
+                    ...currentPrefs,
+                    metadata: parsedMetadata,
+                    lastActivity: new Date().toISOString()
+                };
+                storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
+                console.log('✅ [SYNC] localStorage updated');
+
+                // Update usageHistory store
+                const { usageHistory: usageHistoryStore } = await import(
+                    './userDataStore.js'
+                );
+                if (
+                    parsedMetadata.usageHistory &&
+                    Array.isArray(parsedMetadata.usageHistory)
+                ) {
+                    usageHistoryStore.update(state => ({
+                        ...state,
+                        data: parsedMetadata.usageHistory,
+                        lastUpdate: Date.now(),
+                        isCached: false
+                    }));
+                    console.log('✅ [SYNC] usageHistory store updated');
+                }
+
+                // Update currentAccount store
+                const { syncAccountData } = await import('./accountStore.js');
+                syncAccountData({
+                    ...account,
+                    metadata: parsedMetadata
+                });
+                console.log('✅ [SYNC] currentAccount store updated');
+            } catch (syncError) {
+                console.warn(
+                    '⚠️ [SYNC] Failed to sync backend response (non-critical):',
+                    syncError
+                );
+            }
+        }
 
         return result;
     } catch (error) {

@@ -1,4 +1,144 @@
 export const versions = {
+    '0.5.8': {
+        date: 'October 10, 2025',
+        core: {
+            dataFlow: {
+                title: '🔄 Complete Data Flow Refactor',
+                improvements: [
+                    'Implemented bi-directional sync: Frontend ↔ Backend ↔ Google Sheets',
+                    'Fixed usageHistory preservation during settings updates',
+                    'Added fresh metadata loading from localStorage (never stale)',
+                    'Backend response now syncs back to all stores automatically',
+                    'Smart merge in n8n: preserves usageHistory (never deletes)',
+                    'Multi-store sync: localStorage + currentAccount + usageHistory stores'
+                ]
+            },
+            generation: {
+                title: '🎯 Unified Generation System',
+                improvements: [
+                    'Removed duplicate limit checks (checkLimits, isDailyLimitReached)',
+                    'Single source of truth: validateUserLimits() for all checks',
+                    'Consistent flow: generateRandomEmojis() and generateEmojis() use same logic',
+                    'Removed hard redirects on limit (Modal instead for better UX)',
+                    'Clean success handlers with proper error handling',
+                    'Optimistic updates with localStorage verification'
+                ]
+            },
+            navigation: {
+                title: '🧭 Language-Aware Navigation',
+                improvements: [
+                    'Fixed all account redirects to include language prefix',
+                    'Header.svelte: Language-aware account navigation',
+                    'modalStore.js: Dynamic language-based redirects',
+                    'EmojiDisplay.svelte: Removed hard redirect on limit',
+                    'Consistent routing across all components'
+                ]
+            },
+            charts: {
+                title: '📊 SVG Charts & UsageHistory',
+                improvements: [
+                    'Larger charts (200px → 240px height)',
+                    'Edge-to-edge rendering with -mx-4 negative margins',
+                    'Optimized chart padding (minimal side space)',
+                    'Demo overlay with strong shadows and glassmorphism',
+                    'Orange color for demo charts (#f97316)',
+                    'Automatic data loading from n8n on localhost',
+                    'UsageHistory auto-increments with each emoji generation'
+                ]
+            },
+            account: {
+                title: '👤 Account System Improvements',
+                improvements: [
+                    'Smart username fallback: settings > profile > email prefix > "there"',
+                    'Fixed "User" placeholder - now shows actual names',
+                    'Complete logout cleanup: all stores + storage + session flags',
+                    'Account creation initializes empty usageHistory array',
+                    'Session restore loads full data from n8n (even on localhost)',
+                    'Localhost development: direct n8n calls bypass Vercel 404s'
+                ]
+            }
+        },
+        backend: {
+            n8n: {
+                title: '⚡ n8n Workflow Optimization',
+                improvements: [
+                    'Robust Process Update node with smart merge logic',
+                    'UsageHistory preservation: incoming vs existing comparison',
+                    'Safe JSON parsing with fallbacks',
+                    'Always outputs JSON strings for Google Sheets compatibility',
+                    'Extensive logging for debugging',
+                    'Handles both string and object metadata formats'
+                ]
+            },
+            api: {
+                title: '🔧 Backend API Consistency',
+                improvements: [
+                    'Consistent webhook URLs across all operations',
+                    'Localhost support with direct n8n calls',
+                    'Action field required for all n8n requests',
+                    'Fresh metadata always sent to backend',
+                    'Response parsing handles double-escaped JSON'
+                ]
+            }
+        },
+        ui: {
+            components: {
+                title: '🎨 UI Component Polish',
+                improvements: [
+                    'LineChart: Optimized padding (right: 15px)',
+                    'Demo overlay: Stronger shadows with multiple layers',
+                    'NotFound slider: Smooth momentum scrolling',
+                    'Emoji spacing: Consistent gap-2 (8px)',
+                    'Modal translations: closeModal, modalClosesIn',
+                    'ContextBadge: Size affects spacing + text, width property added'
+                ]
+            },
+            spacing: {
+                title: '📐 Spacing Optimization',
+                improvements: [
+                    'Chart container: p-6 mb-6 (unified 8-point grid)',
+                    'Demo card: px-8 py-10 (asymmetric, optimized)',
+                    'Progress bar: mb-3 (better visual rhythm)',
+                    'Header: mb-6 (more breathing room)',
+                    'Consistent Tailwind spacing throughout'
+                ]
+            }
+        },
+        technical: {
+            dataIntegrity: {
+                title: '🔐 Data Integrity & Consistency',
+                improvements: [
+                    'UsageHistory never lost during any update operation',
+                    'Settings update preserves all metadata fields',
+                    'Daily usage increment extends usageHistory correctly',
+                    'Google Sheets: 4-week test data format provided',
+                    'Verification steps after every localStorage write',
+                    'Multi-layer fallbacks for all data operations'
+                ]
+            },
+            architecture: {
+                title: '🏗️ Clean Architecture',
+                improvements: [
+                    'Single source of truth for limits (limits.js)',
+                    'Centralized daily usage (dailyUsageStore.js)',
+                    'Unified user data (userDataStore.js)',
+                    'Removed all redundant functions',
+                    'Clear separation of concerns',
+                    'Consistent patterns across all stores'
+                ]
+            }
+        },
+        documentation: {
+            title: '📝 Comprehensive Documentation',
+            improvements: [
+                'N8N_WORKFLOW_UPDATE_GUIDE.md - Step-by-step n8n setup',
+                'DEBUG_DATA_FLOW.md - Complete flow analysis',
+                'GENERATION_SYSTEM_REFACTOR.md - Architecture overview',
+                'CLEANUP_SUMMARY.md - All fixes documented',
+                'process-update-node-FIXED.js - Production-ready n8n code'
+            ]
+        }
+    },
     '0.5.7': {
         date: 'October 10, 2025',
         core: {

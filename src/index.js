@@ -131,7 +131,7 @@ function ensureLanguageInPath() {
 function initializeApp() {
     // Display console art on production build
     displayKeymojiConsoleArt();
-    
+
     // Initialize API cache (cleanup expired entries, load debug tools)
     import('./utils/apiCache.js').then(module => {
         module.initializeCache();
@@ -140,26 +140,34 @@ function initializeApp() {
             console.log('🔧 apiCache debug: window.apiCache.stats()');
         }
     });
-    
+
     // Import debug tools in development
     if (!isProduction()) {
+        import('./utils/loadRealDataHelper.js').then(module => {
+            console.log('🔧 Real Data Loader available: window.loadRealData()');
+        });
+
         import('./utils/settingsDebug.js').then(module => {
             console.log('🔧 Settings Debug Tools loaded');
             window.keymojiDebug = module;
         });
-        
+
         import('./utils/dailyUsageDebug.js').then(module => {
             console.log('🔧 Daily Usage Debug Tools loaded');
         });
-        
+
         import('./utils/usageHistoryGenerator.js').then(module => {
             console.log('🔧 Usage History Generator loaded');
-            console.log('📊 Quick: await window.keymojiUsageGenerator.generate4Weeks()');
+            console.log(
+                '📊 Quick: await window.keymojiUsageGenerator.generate4Weeks()'
+            );
         });
-        
+
         import('./utils/chartTestData.js').then(module => {
             console.log('🎨 Chart Test Tools loaded');
-            console.log('⚡ Quick: window.keymojiChartTest.pro4w() for instant animation');
+            console.log(
+                '⚡ Quick: window.keymojiChartTest.pro4w() for instant animation'
+            );
         });
 
         import('./utils/chartDebugger.js').then(module => {
@@ -208,6 +216,16 @@ function initializeApp() {
             closeModal();
         }
     });
+
+    // NEW: Initialize user data stores (robust pattern like userCounter!)
+    import('./stores/userDataStore.js')
+        .then(module => {
+            module.initializeUserData();
+            console.log('✅ User data stores initialized');
+        })
+        .catch(error => {
+            console.warn('⚠️ Failed to initialize user data stores:', error);
+        });
 
     // Initialize Svelte App
     const app = new LanguageRouter({

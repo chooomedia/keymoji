@@ -69,31 +69,33 @@ export const currentSettings = derived(
  */
 function extractSettingsFromAccount(account) {
     if (!account) return {};
-    
+
     // Settings priority:
     // 1. account.metadata.settings (from backend/Google Sheets)
     // 2. account.profile (user profile data)
     // 3. Empty object (will use tier defaults)
-    
+
     const metadata = account.metadata || {};
     const settings = metadata.settings || {};
     const profile = account.profile || {};
-    
+
     return {
         // User profile
         name: account.name || profile.name || '',
         email: account.email || '',
-        
+
         // Settings from metadata
         language: settings.language || 'de',
         theme: settings.theme || 'light',
         fontSize: settings.fontSize || 'medium',
-        animations: settings.animations !== undefined ? settings.animations : true,
-        soundEffects: settings.soundEffects !== undefined ? settings.soundEffects : false,
-        
+        animations:
+            settings.animations !== undefined ? settings.animations : true,
+        soundEffects:
+            settings.soundEffects !== undefined ? settings.soundEffects : false,
+
         // UI state
         expandedSections: settings.expandedSections || ['basic'],
-        
+
         // Other metadata
         ...settings
     };
@@ -108,23 +110,24 @@ export const effectiveSettings = derived(
     [currentAccount, accountTier],
     ([$currentAccount, $accountTier]) => {
         // Get tier defaults
-        const tierDefaults = $accountTier === 'pro' 
-            ? DEFAULT_PRO_SETTINGS 
-            : DEFAULT_FREE_SETTINGS;
-        
+        const tierDefaults =
+            $accountTier === 'pro'
+                ? DEFAULT_PRO_SETTINGS
+                : DEFAULT_FREE_SETTINGS;
+
         // Extract settings from currentAccount (backend)
         const accountSettings = extractSettingsFromAccount($currentAccount);
-        
+
         // Merge: tier defaults + account settings
         const merged = { ...tierDefaults, ...accountSettings };
-        
+
         console.log('📊 [effectiveSettings] Computed:', {
             tier: $accountTier,
             hasAccount: !!$currentAccount,
             accountSettings: Object.keys(accountSettings).length,
             result: merged
         });
-        
+
         return merged;
     }
 );
@@ -837,6 +840,49 @@ export async function saveSettingsToAPI(settings) {
             throw new Error('No user account found');
         }
 
+        // CRITICAL: Get LATEST usageHistory from localStorage/store
+        const currentPrefs = storageHelpers.get(
+            STORAGE_KEYS.USER_PREFERENCES,
+            {}
+        );
+        const currentMetadata =
+            currentPrefs.metadata || account?.metadata || {};
+
+        // Also check usageHistory store (might be more recent!)
+        let latestUsageHistory = currentMetadata.usageHistory || [];
+        try {
+            const { usageHistory: usageHistoryStore } = await import(
+                './userDataStore.js'
+            );
+            const storeData = get(usageHistoryStore);
+            if (
+                storeData?.data &&
+                Array.isArray(storeData.data) &&
+                storeData.data.length > 0
+            ) {
+                // Use store data if it has more entries
+                if (storeData.data.length > latestUsageHistory.length) {
+                    latestUsageHistory = storeData.data;
+                    console.log(
+                        '📊 Using usageHistory from store:',
+                        latestUsageHistory.length,
+                        'entries'
+                    );
+                }
+            }
+        } catch (error) {
+            console.warn(
+                '⚠️ Could not load usageHistory from store, using localStorage:',
+                error
+            );
+        }
+
+        console.log(
+            '💾 [SETTINGS SAVE] Preserving usageHistory:',
+            latestUsageHistory.length,
+            'entries'
+        );
+
         const response = await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
             method: 'POST',
             headers: {
@@ -844,6 +890,7 @@ export async function saveSettingsToAPI(settings) {
                 'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
+                action: 'update', // Required for n8n
                 userId: account.userId,
                 email: account.email || '',
                 profile: {
@@ -852,6 +899,8 @@ export async function saveSettingsToAPI(settings) {
                 },
                 lastLogin: new Date().toISOString(), // Update lastLogin on settings save
                 metadata: {
+                    ...currentMetadata, // Use current metadata from localStorage
+                    usageHistory: latestUsageHistory, // CRITICAL: Include latest usageHistory!
                     settings: settings, // UserSettings → Google Sheets metadata column
                     updatedAt: new Date().toISOString(),
                     updatedVia: 'settings-ui',
@@ -869,6 +918,93 @@ export async function saveSettingsToAPI(settings) {
 
         const result = await response.json();
         console.log('✅ Settings saved to API:', result);
+
+        // MODERN BEST PRACTICE: Sync response data back to stores & localStorage!
+        if (result.success && result.account) {
+            console.log(
+                '🔄 [SYNC] Syncing backend response to local stores...'
+            );
+
+            // Parse response data (might be strings from n8n!)
+            const parsedAccount =
+                typeof result.account === 'string'
+                    ? JSON.parse(result.account)
+                    : result.account;
+
+            const parsedMetadata =
+                typeof parsedAccount.metadata === 'string'
+                    ? JSON.parse(parsedAccount.metadata)
+                    : parsedAccount.metadata || {};
+
+            const parsedProfile =
+                typeof parsedAccount.profile === 'string'
+                    ? JSON.parse(parsedAccount.profile)
+                    : parsedAccount.profile || {};
+
+            console.log(
+                '📊 [SYNC] Backend returned usageHistory:',
+                parsedMetadata.usageHistory?.length || 0,
+                'entries'
+            );
+
+            // Update localStorage with backend truth
+            const updatedPrefs = {
+                ...currentPrefs,
+                metadata: parsedMetadata,
+                profile: parsedProfile,
+                tier: parsedAccount.tier || currentPrefs.tier,
+                lastLogin: parsedAccount.lastLogin || currentPrefs.lastLogin
+            };
+
+            storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
+            console.log('✅ [SYNC] localStorage updated with backend data');
+
+            // Update currentAccount store
+            try {
+                const { syncAccountData } = await import('./accountStore.js');
+                syncAccountData({
+                    ...account,
+                    metadata: parsedMetadata,
+                    profile: parsedProfile,
+                    tier: parsedAccount.tier || account.tier
+                });
+                console.log('✅ [SYNC] currentAccount store updated');
+            } catch (error) {
+                console.warn(
+                    '⚠️ [SYNC] Failed to update currentAccount store:',
+                    error
+                );
+            }
+
+            // Update userDataStore (usageHistory)
+            try {
+                const { usageHistory: usageHistoryStore } = await import(
+                    './userDataStore.js'
+                );
+                if (
+                    parsedMetadata.usageHistory &&
+                    Array.isArray(parsedMetadata.usageHistory)
+                ) {
+                    usageHistoryStore.update(state => ({
+                        ...state,
+                        data: parsedMetadata.usageHistory,
+                        lastUpdate: Date.now(),
+                        isCached: false
+                    }));
+                    console.log(
+                        '✅ [SYNC] usageHistory store updated with',
+                        parsedMetadata.usageHistory.length,
+                        'entries'
+                    );
+                }
+            } catch (error) {
+                console.warn(
+                    '⚠️ [SYNC] Failed to update usageHistory store:',
+                    error
+                );
+            }
+        }
+
         return result;
     } catch (error) {
         console.error('❌ Failed to save settings to API:', error);
@@ -916,46 +1052,116 @@ export async function loadSettingsFromAPI() {
         }
 
         const result = await response.json();
-        console.log('🔍 API response:', result);
-
-        // Extract settings from metadata or directly from account
-        let loadedSettings = null;
+        console.log('🔍 [LOAD] API response:', result);
 
         if (result.success && result.account) {
-            // Settings might be in metadata.settings or directly in account
-            loadedSettings =
-                result.account.metadata?.settings || result.account.settings;
+            console.log('🔄 [SYNC] Syncing backend data to local stores...');
 
-            // Also load name from profile or account
-            const accountName =
-                result.account.profile?.name ||
-                result.account.name ||
-                account.name;
+            // Parse response data (might be strings from n8n!)
+            const parsedAccount =
+                typeof result.account === 'string'
+                    ? JSON.parse(result.account)
+                    : result.account;
 
-            if (loadedSettings) {
-                loadedSettings.name = accountName;
-            } else {
-                // Create settings object with at least the name
-                loadedSettings = {
-                    ...DEFAULT_FREE_SETTINGS,
-                    name: accountName
-                };
-            }
+            const parsedMetadata =
+                typeof parsedAccount.metadata === 'string'
+                    ? JSON.parse(parsedAccount.metadata)
+                    : parsedAccount.metadata || {};
 
-            // Update local storage with API settings
-            setUserPreferences({
-                ...getUserPreferences(),
-                settings: loadedSettings,
-                name: accountName,
-                lastSettingsLoad: new Date().toISOString()
+            const parsedProfile =
+                typeof parsedAccount.profile === 'string'
+                    ? JSON.parse(parsedAccount.profile)
+                    : parsedAccount.profile || {};
+
+            console.log('📊 [SYNC] Backend data:', {
+                hasSettings: !!parsedMetadata.settings,
+                hasUsageHistory: !!parsedMetadata.usageHistory,
+                usageHistoryLength: parsedMetadata.usageHistory?.length || 0,
+                profileName: parsedProfile.name
             });
 
-            // Update user settings store
-            userSettings.set(loadedSettings);
+            // Extract settings
+            const loadedSettings = parsedMetadata.settings || {};
+            const accountName =
+                parsedProfile.name || parsedAccount.name || account.name;
 
-            console.log('✅ Settings loaded from API:', loadedSettings);
+            // Merge with defaults
+            const finalSettings = {
+                ...DEFAULT_FREE_SETTINGS,
+                ...loadedSettings,
+                name: accountName
+            };
 
-            return loadedSettings;
+            // MODERN SYNC PATTERN: Update ALL stores & storage
+
+            // 1. Update localStorage (single source of truth)
+            const currentPrefs = storageHelpers.get(
+                STORAGE_KEYS.USER_PREFERENCES,
+                {}
+            );
+            const updatedPrefs = {
+                ...currentPrefs,
+                metadata: parsedMetadata, // ← Complete metadata (incl. usageHistory!)
+                profile: parsedProfile, // ← Complete profile
+                tier: parsedAccount.tier || currentPrefs.tier,
+                lastLogin: parsedAccount.lastLogin || currentPrefs.lastLogin,
+                lastSettingsLoad: new Date().toISOString()
+            };
+
+            storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
+            console.log('✅ [SYNC] localStorage updated');
+
+            // 2. Update userSettings store
+            userSettings.set(finalSettings);
+            console.log('✅ [SYNC] userSettings store updated');
+
+            // 3. Update currentAccount store
+            try {
+                const { syncAccountData } = await import('./accountStore.js');
+                syncAccountData({
+                    ...account,
+                    metadata: parsedMetadata,
+                    profile: parsedProfile,
+                    tier: parsedAccount.tier || account.tier
+                });
+                console.log('✅ [SYNC] currentAccount store updated');
+            } catch (error) {
+                console.warn(
+                    '⚠️ [SYNC] Failed to update currentAccount:',
+                    error
+                );
+            }
+
+            // 4. Update usageHistory store
+            try {
+                const { usageHistory: usageHistoryStore } = await import(
+                    './userDataStore.js'
+                );
+                if (
+                    parsedMetadata.usageHistory &&
+                    Array.isArray(parsedMetadata.usageHistory)
+                ) {
+                    usageHistoryStore.update(state => ({
+                        ...state,
+                        data: parsedMetadata.usageHistory,
+                        lastUpdate: Date.now(),
+                        isCached: false
+                    }));
+                    console.log(
+                        '✅ [SYNC] usageHistory store updated with',
+                        parsedMetadata.usageHistory.length,
+                        'entries'
+                    );
+                }
+            } catch (error) {
+                console.warn(
+                    '⚠️ [SYNC] Failed to update usageHistory store:',
+                    error
+                );
+            }
+
+            console.log('✅ [LOAD] Settings loaded and synced successfully');
+            return finalSettings;
         }
 
         return null;

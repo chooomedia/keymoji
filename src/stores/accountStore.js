@@ -265,10 +265,47 @@ export async function checkAccountExists(email, name = '') {
                                 '🔄 Syncing n8n account data to localStorage'
                             );
 
-                            // Extract createdAt from account data
-                            const createdAt = getCreatedAtFromAccount(
-                                result.account
+                            // Parse account data if it's a string (n8n returns double-escaped JSON!)
+                            const parsedAccount = safeJSONParse(
+                                result.account,
+                                {}
                             );
+                            console.log(
+                                '🔍 DEBUG: Parsed account data:',
+                                parsedAccount
+                            );
+
+                            // Parse nested JSON fields (profile and metadata might be strings!)
+                            const parsedProfile = safeJSONParse(
+                                parsedAccount.profile,
+                                {}
+                            );
+                            const parsedMetadata = safeJSONParse(
+                                parsedAccount.metadata,
+                                {}
+                            );
+
+                            console.log('🔍 DEBUG: Parsed nested fields:', {
+                                profileType: typeof parsedAccount.profile,
+                                metadataType: typeof parsedAccount.metadata,
+                                hasCreatedAtInAccount:
+                                    !!parsedAccount.createdAt,
+                                hasCreatedAtInProfile:
+                                    !!parsedProfile.createdAt,
+                                hasCreatedAtInMetadata:
+                                    !!parsedMetadata.createdAt
+                            });
+
+                            // Extract createdAt from all possible locations
+                            const createdAt =
+                                parsedAccount.createdAt ||
+                                parsedProfile.createdAt ||
+                                parsedMetadata.createdAt ||
+                                parsedAccount.created_at || // Alternative naming
+                                parsedProfile.created_at ||
+                                parsedMetadata.created_at ||
+                                getCreatedAtFromAccount(parsedAccount) ||
+                                null;
 
                             console.log(
                                 '🔍 DEBUG: Extracted createdAt:',
@@ -276,25 +313,21 @@ export async function checkAccountExists(email, name = '') {
                             );
 
                             const userPrefsData = {
-                                email: result.account.email,
+                                email: parsedAccount.email || email,
                                 name:
-                                    result.account.name || email.split('@')[0],
+                                    parsedAccount.name ||
+                                    parsedProfile.name ||
+                                    email.split('@')[0],
                                 userId:
-                                    result.account.userId ||
+                                    parsedAccount.userId ||
                                     `user_${Date.now()}`,
-                                tier: result.account.tier || 'free',
+                                tier: parsedAccount.tier || 'free',
                                 lastLogin:
-                                    result.account.lastLogin ||
+                                    parsedAccount.lastLogin ||
                                     new Date().toISOString(),
-                                profile:
-                                    typeof result.account.profile === 'string'
-                                        ? JSON.parse(result.account.profile)
-                                        : result.account.profile || {},
-                                metadata:
-                                    typeof result.account.metadata === 'string'
-                                        ? JSON.parse(result.account.metadata)
-                                        : result.account.metadata || {},
-                                createdAt: createdAt // Add createdAt directly to userPrefsData
+                                profile: parsedProfile,
+                                metadata: parsedMetadata,
+                                createdAt: createdAt || new Date().toISOString() // Add createdAt directly to userPrefsData
                             };
 
                             // Save to localStorage
@@ -526,10 +559,17 @@ export async function verifyMagicLinkFrontend(token, email) {
 
         if (accountCheck.exists) {
             console.log('✅ Account already exists, using existing account');
+            // Parse account data if it's a string
+            const parsedAccount = safeJSONParse(
+                accountCheck.account,
+                accountCheck.account
+            );
+            console.log('🔍 DEBUG: Parsed existing account:', parsedAccount);
+
             // Use existing account data from n8n or localStorage
             verificationResult = {
                 success: true,
-                account: accountCheck.account,
+                account: parsedAccount,
                 message: 'Account already exists'
             };
         } else {
@@ -665,6 +705,19 @@ export async function verifyMagicLinkFrontend(token, email) {
             '📡 [LOGIN] Loading full account data from database (cached)...'
         );
         try {
+            // Skip API call on localhost (Vercel functions don't run locally!)
+            const isLocalhost =
+                typeof window !== 'undefined' &&
+                (window.location.hostname === 'localhost' ||
+                    window.location.hostname === '127.0.0.1');
+
+            if (isLocalhost) {
+                console.log(
+                    '⚠️ [LOGIN] Localhost detected - skipping API call, using verification data only'
+                );
+                throw new Error('Localhost: API not available');
+            }
+
             const fullAccountResult = await cachedFetchAccount(
                 accountData.userId,
                 accountData.email,
@@ -680,21 +733,37 @@ export async function verifyMagicLinkFrontend(token, email) {
             });
 
             if (fullAccountResult.success && fullAccountResult.account) {
+                // Parse the full account data from backend
+                const parsedFullAccount = safeJSONParse(
+                    fullAccountResult.account,
+                    fullAccountResult.account
+                );
+                console.log('🔍 DEBUG: Parsed full account from backend:', {
+                    hasCreatedAt: !!parsedFullAccount.createdAt,
+                    createdAt: parsedFullAccount.createdAt,
+                    hasMetadata: !!parsedFullAccount.metadata,
+                    hasProfile: !!parsedFullAccount.profile
+                });
+
                 // Use FULL account data with usageHistory
                 accountData = {
                     ...accountData,
-                    ...fullAccountResult.account,
+                    ...parsedFullAccount,
                     // Preserve session data from verification
                     sessionId: accountData.sessionId,
-                    sessionExpires: accountData.sessionExpires
+                    sessionExpires: accountData.sessionExpires,
+                    lastActivity: accountData.lastActivity
                 };
                 console.log(
                     '✅ [LOGIN] Account data merged with full database data'
                 );
                 console.log(
                     '✅ [LOGIN] UsageHistory entries:',
-                    fullAccountResult.account?.metadata?.usageHistory?.length ||
-                        0
+                    parsedFullAccount?.metadata?.usageHistory?.length || 0
+                );
+                console.log(
+                    '✅ [LOGIN] CreatedAt from backend:',
+                    parsedFullAccount.createdAt
                 );
             } else {
                 console.warn(
@@ -702,23 +771,115 @@ export async function verifyMagicLinkFrontend(token, email) {
                 );
             }
         } catch (error) {
-            console.error('❌ [LOGIN] Error loading full account data:', error);
-            console.log('💡 [LOGIN] Continuing with verification data only');
+            const isLocalhost =
+                typeof window !== 'undefined' &&
+                (window.location.hostname === 'localhost' ||
+                    window.location.hostname === '127.0.0.1');
+
+            if (isLocalhost) {
+                console.log(
+                    '💡 [LOGIN - LOCALHOST] Vercel API not available, trying direct n8n connection...'
+                );
+
+                // LOCALHOST FIX: Direct n8n call to get full account data
+                try {
+                    console.log(
+                        '📡 [LOCALHOST] Fetching data directly from n8n...'
+                    );
+                    const n8nResponse = await fetch(
+                        'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                action: 'get',
+                                userId: accountData.userId,
+                                email: accountData.email
+                            })
+                        }
+                    );
+
+                    if (n8nResponse.ok) {
+                        const n8nResult = await n8nResponse.json();
+                        console.log('✅ [LOCALHOST] n8n response:', {
+                            success: n8nResult.success,
+                            hasAccount: !!n8nResult.account,
+                            hasMetadata: !!n8nResult.account?.metadata,
+                            hasUsageHistory:
+                                !!n8nResult.account?.metadata?.usageHistory
+                        });
+
+                        if (n8nResult.success && n8nResult.account) {
+                            // Parse metadata if it's a string
+                            let metadata = n8nResult.account.metadata;
+                            if (typeof metadata === 'string') {
+                                try {
+                                    metadata = JSON.parse(metadata);
+                                } catch (e) {
+                                    console.warn(
+                                        '⚠️ Failed to parse metadata:',
+                                        e
+                                    );
+                                }
+                            }
+
+                            // Merge with accountData
+                            accountData = {
+                                ...accountData,
+                                metadata: metadata,
+                                profile: n8nResult.account.profile,
+                                createdAt:
+                                    n8nResult.account.createdAt ||
+                                    accountData.createdAt,
+                                tier: n8nResult.account.tier || accountData.tier
+                            };
+
+                            console.log(
+                                '✅ [LOCALHOST] Account data merged with n8n data!'
+                            );
+                            console.log(
+                                '✅ [LOCALHOST] UsageHistory entries:',
+                                metadata?.usageHistory?.length || 0
+                            );
+                        }
+                    } else {
+                        console.warn(
+                            '⚠️ [LOCALHOST] n8n returned error:',
+                            n8nResponse.status
+                        );
+                    }
+                } catch (n8nError) {
+                    console.warn(
+                        '⚠️ [LOCALHOST] Direct n8n call failed:',
+                        n8nError.message
+                    );
+                }
+            } else {
+                console.error(
+                    '❌ [LOGIN] Error loading full account data:',
+                    error.message
+                );
+            }
+            console.log('💡 [LOGIN] Continuing with available data');
         }
 
         // Use syncAccountData to properly update all stores
         syncAccountData(accountData);
 
-        // Update localStorage preferences with session data
+        // Extract createdAt from the MERGED accountData (not from verificationResult!)
         const createdAt =
-            getCreatedAtFromAccount(verificationResult.account) ||
-            accountData.createdAt;
+            accountData.createdAt || // First: from merged backend data
+            getCreatedAtFromAccount(accountData) || // Second: extract from account structure
+            new Date().toISOString(); // Fallback: current date
 
         console.log(
             '🔍 DEBUG: Final createdAt for verifyMagicLinkFrontend:',
             createdAt
         );
 
+        // Build userPrefsData from the MERGED accountData
         const userPrefsData = {
             email: accountData.email,
             name: accountData.name,
@@ -730,8 +891,16 @@ export async function verifyMagicLinkFrontend(token, email) {
             lastActivity: accountData.lastActivity,
             profile: accountData.profile,
             metadata: accountData.metadata,
-            createdAt: createdAt // Add createdAt directly to userPrefsData
+            createdAt: createdAt // Extracted createdAt
         };
+
+        console.log('💾 [LOGIN] Saving userPrefsData to localStorage:', {
+            hasCreatedAt: !!userPrefsData.createdAt,
+            createdAt: userPrefsData.createdAt,
+            hasMetadata: !!userPrefsData.metadata,
+            hasProfile: !!userPrefsData.profile,
+            tier: userPrefsData.tier
+        });
 
         // Save to localStorage
         storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, userPrefsData);
@@ -764,11 +933,21 @@ export async function verifyMagicLinkFrontend(token, email) {
             // Non-critical error, continue with login
         }
 
+        // Verify that userPrefsData was saved correctly
+        const savedPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
+        console.log('✅ [LOGIN] Verified localStorage save:', {
+            saved: !!savedPrefs,
+            hasCreatedAt: !!savedPrefs?.createdAt,
+            createdAt: savedPrefs?.createdAt,
+            hasMetadata: !!savedPrefs?.metadata,
+            hasProfile: !!savedPrefs?.profile
+        });
+
         // Save createdAt separately if found (for backward compatibility)
         if (createdAt) {
             saveCreatedAtToUserPreferences(createdAt);
         } else {
-            console.log('⚠️ No createdAt found in verifyMagicLinkFrontend');
+            console.warn('⚠️ No createdAt found in verifyMagicLinkFrontend');
         }
 
         // Also store sessionId separately for easier access
@@ -804,6 +983,25 @@ export async function verifyMagicLinkFrontend(token, email) {
             history
         );
 
+        // NEW: Refresh user data after successful login (robust pattern!)
+        console.log('🔄 Refreshing user data after login...');
+        try {
+            const { refreshUserSettings, refreshUsageHistory } = await import(
+                './userDataStore.js'
+            );
+            await Promise.all([
+                refreshUserSettings(true), // Force refresh
+                refreshUsageHistory(true) // Force refresh
+            ]);
+            console.log('✅ User data refreshed successfully');
+        } catch (error) {
+            console.warn(
+                '⚠️ Failed to refresh user data (non-critical):',
+                error
+            );
+            // Non-critical - user can still use the app
+        }
+
         console.log('🔗 Magic link verification completed successfully');
 
         return verificationResult;
@@ -819,33 +1017,114 @@ export async function verifyMagicLinkFrontend(token, email) {
 }
 
 // Enhanced Logout with Security
-export function logout() {
+export async function logout() {
+    console.log('👋 [LOGOUT] Starting logout process...');
+
     logSecurityEvent('LOGOUT', {
         userId: get(currentAccount)?.userId,
         email: get(currentAccount)?.email
     });
 
-    // Clear ALL API cache on logout
+    // Step 1: Clear ALL API cache
     clearAllCache();
-    console.log('🗑️ All API cache cleared on logout');
+    console.log('✅ [LOGOUT] API cache cleared');
 
-    syncAccountData(null);
-
-    // Nur Session-Daten löschen, localStorage beibehalten
+    // Step 2: Reset ALL stores
     try {
-        sessionStorage.clear();
-        // Nur spezifische Session-Daten aus localStorage entfernen
-        localStorage.removeItem('sessionId');
-        localStorage.removeItem('csrf_token');
-        localStorage.removeItem(STORAGE_KEYS.USER_PREFERENCES);
+        // Reset account store
+        syncAccountData(null);
+        isLoggedIn.set(false);
+        accountTier.set('free');
+        console.log('✅ [LOGOUT] Account stores reset');
+
+        // Reset user data stores
+        const { userSettings, usageHistory } = await import(
+            './userDataStore.js'
+        );
+
+        userSettings.set({
+            data: null,
+            isLoading: false,
+            hasError: false,
+            isCached: false,
+            lastUpdate: null,
+            errorMessage: null
+        });
+
+        usageHistory.set({
+            data: [],
+            isLoading: false,
+            hasError: false,
+            isCached: false,
+            lastUpdate: null,
+            errorMessage: null,
+            stats: { total: 0, average: 0, max: 0, min: 0, trend: 'stable' }
+        });
+
+        console.log('✅ [LOGOUT] User data stores reset');
+
+        // Reset daily usage store
+        const { resetDailyUsage } = await import('./dailyUsageStore.js');
+        resetDailyUsage();
+        console.log('✅ [LOGOUT] Daily usage reset');
     } catch (error) {
-        console.warn('Failed to clear session data during logout:', error);
+        console.warn('⚠️ [LOGOUT] Error resetting stores:', error);
     }
 
-    // Clear rate limiting for this user
+    // Step 3: Clear ALL storage (session + specific localStorage items)
+    try {
+        // Clear sessionStorage completely
+        sessionStorage.clear();
+
+        // Clear ALL user-specific localStorage items
+        const itemsToRemove = [
+            'sessionId',
+            'csrf_token',
+            STORAGE_KEYS.USER_PREFERENCES,
+            STORAGE_KEYS.USAGE_HISTORY,
+            STORAGE_KEYS.USAGE_HISTORY_TIMESTAMP,
+            STORAGE_KEYS.USER_SETTINGS,
+            STORAGE_KEYS.USER_SETTINGS_TIMESTAMP,
+            STORAGE_KEYS.DAILY_USAGE,
+            'keymoji_session',
+            'keymoji_lastActivity'
+        ];
+
+        itemsToRemove.forEach(key => {
+            try {
+                localStorage.removeItem(key);
+            } catch (e) {
+                console.warn(`⚠️ Failed to remove ${key}:`, e);
+            }
+        });
+
+        console.log('✅ [LOGOUT] All storage cleared');
+    } catch (error) {
+        console.warn('⚠️ [LOGOUT] Failed to clear storage:', error);
+    }
+
+    // Step 4: Clear rate limiting
     if (get(currentAccount)?.email) {
         LOGIN_ATTEMPTS.delete(get(currentAccount).email);
     }
+
+    // Step 5: Reset session flags
+    sessionRestored = false;
+    isRestoringSession = false;
+    console.log('✅ [LOGOUT] Session flags reset');
+
+    // Step 6: Smooth redirect to home with clean state
+    console.log('🔄 [LOGOUT] Redirecting to home...');
+
+    // Use window.location for full page reload (clears ALL state!)
+    if (typeof window !== 'undefined') {
+        // Small delay for smooth UX
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 100);
+    }
+
+    console.log('✅ [LOGOUT] Logout complete!');
 }
 
 // Get current account data
@@ -900,30 +1179,126 @@ export async function initializeAccountFromCookies() {
                 '📡 [SESSION RESTORE] Loading full account data from database...'
             );
             let accountInfo = null;
+            let fullAccountResult = null;
 
             try {
-                // Use cached fetch to prevent 429 errors!
-                const fullAccountResult = await cachedFetchAccount(
-                    userPrefs.userId,
-                    userPrefs.email,
-                    'read'
-                );
+                // Skip API call on localhost (Vercel functions don't run locally!)
+                const isLocalhost =
+                    typeof window !== 'undefined' &&
+                    (window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1');
 
-                console.log(
-                    '✅ [SESSION RESTORE] Full account data loaded from database (cached):',
-                    {
-                        success: fullAccountResult.success,
-                        hasAccount: !!fullAccountResult.account,
-                        hasMetadata: !!fullAccountResult.account?.metadata,
-                        hasUsageHistory:
-                            !!fullAccountResult.account?.metadata?.usageHistory,
-                        usageHistoryLength:
-                            fullAccountResult.account?.metadata?.usageHistory
-                                ?.length || 0
+                if (isLocalhost) {
+                    console.log(
+                        '⚠️ [SESSION RESTORE] Localhost detected - Vercel API not available, trying direct n8n...'
+                    );
+
+                    // LOCALHOST FIX: Try direct n8n connection
+                    try {
+                        console.log(
+                            '📡 [SESSION RESTORE - LOCALHOST] Fetching from n8n...'
+                        );
+                        const n8nResponse = await fetch(
+                            'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account',
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    action: 'get',
+                                    userId: userPrefs.userId,
+                                    email: userPrefs.email
+                                })
+                            }
+                        );
+
+                        if (n8nResponse.ok) {
+                            const n8nResult = await n8nResponse.json();
+                            console.log(
+                                '✅ [SESSION RESTORE - LOCALHOST] n8n data loaded:',
+                                {
+                                    success: n8nResult.success,
+                                    hasMetadata: !!n8nResult.account?.metadata,
+                                    hasUsageHistory:
+                                        !!n8nResult.account?.metadata
+                                            ?.usageHistory,
+                                    usageHistoryLength:
+                                        n8nResult.account?.metadata
+                                            ?.usageHistory?.length || 0
+                                }
+                            );
+
+                            if (n8nResult.success && n8nResult.account) {
+                                // Parse metadata if string
+                                let metadata = n8nResult.account.metadata;
+                                if (typeof metadata === 'string') {
+                                    try {
+                                        metadata = JSON.parse(metadata);
+                                    } catch (e) {
+                                        console.warn(
+                                            '⚠️ Failed to parse metadata:',
+                                            e
+                                        );
+                                    }
+                                }
+
+                                // Create fullAccountResult format
+                                fullAccountResult = {
+                                    success: true,
+                                    account: {
+                                        ...n8nResult.account,
+                                        metadata: metadata
+                                    }
+                                };
+
+                                console.log(
+                                    '✅ [SESSION RESTORE - LOCALHOST] Using n8n data!'
+                                );
+                            } else {
+                                throw new Error('n8n returned no account data');
+                            }
+                        } else {
+                            throw new Error(
+                                `n8n returned ${n8nResponse.status}`
+                            );
+                        }
+                    } catch (n8nError) {
+                        console.warn(
+                            '⚠️ [SESSION RESTORE - LOCALHOST] n8n failed:',
+                            n8nError.message
+                        );
+                        throw new Error('Localhost: API not available');
                     }
-                );
+                }
 
-                if (fullAccountResult.success && fullAccountResult.account) {
+                // Use cached fetch to prevent 429 errors! (only if not localhost)
+                if (!isLocalhost) {
+                    fullAccountResult = await cachedFetchAccount(
+                        userPrefs.userId,
+                        userPrefs.email,
+                        'read'
+                    );
+                }
+
+                if (fullAccountResult) {
+                    console.log(
+                        '✅ [SESSION RESTORE] Full account data loaded from database (cached):',
+                        {
+                            success: fullAccountResult.success,
+                            hasAccount: !!fullAccountResult.account,
+                            hasMetadata: !!fullAccountResult.account?.metadata,
+                            hasUsageHistory:
+                                !!fullAccountResult.account?.metadata
+                                    ?.usageHistory,
+                            usageHistoryLength:
+                                fullAccountResult.account?.metadata
+                                    ?.usageHistory?.length || 0
+                        }
+                    );
+                }
+
+                if (fullAccountResult?.success && fullAccountResult.account) {
                     // Use FULL account data from database
                     accountInfo = {
                         ...fullAccountResult.account,
@@ -940,11 +1315,23 @@ export async function initializeAccountFromCookies() {
                     throw new Error('No account data in response');
                 }
             } catch (error) {
-                console.warn(
-                    '⚠️ [SESSION RESTORE] Failed to load from database, using cookies fallback:',
-                    error
-                );
-                // Fallback: Use data from cookies (without usageHistory)
+                const isLocalhost =
+                    typeof window !== 'undefined' &&
+                    (window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1');
+
+                if (isLocalhost) {
+                    console.log(
+                        '💡 [SESSION RESTORE - LOCALHOST] Using localStorage data (API not available locally)'
+                    );
+                } else {
+                    console.warn(
+                        '⚠️ [SESSION RESTORE] Failed to load from database, using cookies fallback:',
+                        error.message
+                    );
+                }
+
+                // Fallback: Use data from cookies/localStorage (without usageHistory)
                 accountInfo = {
                     email: userPrefs.email,
                     name: userPrefs.name || 'User',
@@ -961,7 +1348,7 @@ export async function initializeAccountFromCookies() {
                     isFirstLogin: false // Session restoration, not first login
                 };
                 console.log(
-                    '💡 [SESSION RESTORE] Using cookies fallback (usageHistory may be missing)'
+                    '💡 [SESSION RESTORE] Using cookies/localStorage fallback (usageHistory may be missing)'
                 );
             }
 
@@ -1287,6 +1674,20 @@ export async function createAccount(
     metadata = {}
 ) {
     try {
+        // CRITICAL: Initialize usageHistory if not provided
+        const initialMetadata = {
+            ...metadata,
+            usageHistory: metadata.usageHistory || [], // Empty array for new accounts
+            createdAt: metadata.createdAt || new Date().toISOString(),
+            tier: metadata.tier || 'free'
+        };
+
+        console.log('🆕 Creating account with initial metadata:', {
+            hasUsageHistory: !!initialMetadata.usageHistory,
+            usageHistoryLength: initialMetadata.usageHistory?.length || 0,
+            tier: initialMetadata.tier
+        });
+
         const response = await fetch(WEBHOOKS.ACCOUNT.CRUD, {
             method: 'POST',
             headers: {
@@ -1298,7 +1699,7 @@ export async function createAccount(
                 userId,
                 email,
                 profile,
-                metadata,
+                metadata: initialMetadata,
                 timestamp: new Date().toISOString(),
                 clientFingerprint: generateClientFingerprint()
             })

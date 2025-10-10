@@ -99,18 +99,22 @@
     // Main Functions
     async function generateRandomEmojis(countTowardsLimit = true) {
       try {
-        if (checkLimits()) return;
+        // UNIFIED Limit Check (single source of truth!)
+        const limitCheck = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
+        
+        if (limitCheck.isReached) {
+            console.log('⚠️ Daily limit reached:', limitCheck);
+            isDisabled.set(true);
+            showDailyLimitModal($translations?.emojiDisplay?.dailyLimitReachedMessage || 'Daily limit reached');
+            return;
+        }
 
-        // Check daily limit using central configuration
-        const userLimits = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
-        if (userLimits.isReached) {
-            // Redirect to account page for upsell
-            window.location.href = '/account';
+        if ($isDisabled) {
+            console.log('⚠️ Button is disabled, skipping generation');
             return;
         }
   
         randomEmojis = getRandomEmojis(emojiCount);
-        // Fokussiere das Dokument vor dem Kopieren
         window.focus();
         await handleSuccessfulGeneration(countTowardsLimit);
       } catch (error) {
@@ -121,7 +125,21 @@
 
     async function generateEmojis() {
       try {
-        if (checkLimits()) return;
+        // UNIFIED Limit Check (same as generateRandomEmojis!)
+        const limitCheck = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
+        
+        if (limitCheck.isReached) {
+            console.log('⚠️ Daily limit reached:', limitCheck);
+            isDisabled.set(true);
+            showDailyLimitModal($translations?.emojiDisplay?.dailyLimitReachedMessage || 'Daily limit reached');
+            return;
+        }
+
+        if ($isDisabled) {
+            console.log('⚠️ Button is disabled, skipping generation');
+            return;
+        }
+
         if (!storyInput.trim()) {
           showTextArea = true;
           return;
@@ -131,7 +149,7 @@
         if (response?.length > 0) {
           await handleSuccessfulStoryGeneration(response);
         } else {
-          showErrorMessage($translations.emojiDisplay.errorMessage);
+          showErrorMessage($translations?.emojiDisplay?.errorMessage || 'Generation failed');
         }
       } catch (error) {
         handleError('Story Generation Error', error);
@@ -139,15 +157,6 @@
     }
   
     // Helper Functions
-    function checkLimits() {
-      if ($isDisabled || isDailyLimitReached()) {
-        isDisabled.set(true);
-        showDailyLimitModal($translations.emojiDisplay.dailyLimitReachedMessage);
-        return true;
-      }
-      return false;
-    }
-  
     async function handleSuccessfulGeneration(countTowardsLimit = true) {
       await copyToClipboard(randomEmojis.join(' '));
       showSuccessMessage($translations.emojiDisplay.successMessage);
@@ -321,23 +330,6 @@
       }
     }
   
-    function isDailyLimitReached() {
-      // Use reactive dailyLimit store (updated by dailyUsageStore.js)
-      const used = $dailyLimit?.used || 0;
-      const limit = $dailyLimit?.limit || 5;
-      const isReached = used >= limit;
-      
-      console.log('🔍 isDailyLimitReached check:', {
-        used,
-        limit,
-        isReached,
-        isLoggedIn: $isLoggedIn,
-        accountTier: $accountTier,
-        dailyLimit: $dailyLimit
-      });
-      
-      return isReached;
-    }
   
     function handleKeyPress(event) {
       if (event.key === 'Enter' || event.key === ' ') {
