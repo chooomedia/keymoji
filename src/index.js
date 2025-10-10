@@ -147,6 +147,11 @@ function initializeApp() {
             console.log('🔧 Usage History Generator loaded');
             console.log('📊 Quick: await window.keymojiUsageGenerator.generate4Weeks()');
         });
+        
+        import('./utils/chartTestData.js').then(module => {
+            console.log('🎨 Chart Test Tools loaded');
+            console.log('⚡ Quick: window.keymojiChartTest.pro4w() for instant animation');
+        });
     }
 
     // Validate language path

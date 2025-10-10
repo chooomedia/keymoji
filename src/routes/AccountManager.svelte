@@ -884,7 +884,7 @@
                         <div class="bg-powder-300 dark:bg-aubergine-900 rounded-xl p-4 mb-5">
                             <!-- Header with Time Period Selector -->
                             <div class="flex justify-between items-center mb-3">
-                                <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                <span class="text-md font-semibold text-gray-800 dark:text-gray-200">
                                     {$translations?.accountManager?.dailyGenerations || 'Daily Generations'}
                                 </span>
                                 <div class="flex items-center space-x-2">
@@ -910,8 +910,8 @@
                                 </div>
                             </div>
                             
-                            <!-- Line Chart (Full Width) -->
-                            <div class="mb-3 -mx-2">
+                            <!-- Line Chart (Full Width, Edge-to-Edge) -->
+                            <div class="mb-3 -mx-4">
                                 <LineChart 
                                     data={usageChartData}
                                     maxValue={$accountTier === 'pro' ? 25 : 9}

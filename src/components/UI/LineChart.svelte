@@ -25,7 +25,7 @@
     // Calculated values (responsive)
     $: svgWidth = containerWidth || 400;
     $: svgHeight = height;
-    $: padding = { top: 20, right: 20, bottom: 40, left: 50 };
+    $: padding = { top: 20, right: 10, bottom: 40, left: 35 }; // Optimized for tight layout
     $: chartWidth = svgWidth - padding.left - padding.right;
     $: chartHeight = svgHeight - padding.top - padding.bottom;
     
