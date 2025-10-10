@@ -568,9 +568,11 @@ export default {
             freeAccountActivated: 'Free account activated!',
             chartLoadFailed: 'Failed to load chart data',
             logoutSuccess: 'Successfully logged out',
-            accountFoundSendingLink: 'Account found! Sending magic link to existing account.',
+            accountFoundSendingLink:
+                'Account found! Sending magic link to existing account.',
             creatingNewAccount: 'Creating new account and sending magic link.',
-            magicLinkSent: 'Magic link sent! Check your email to complete login.',
+            magicLinkSent:
+                'Magic link sent! Check your email to complete login.',
             magicLinkSendFailed: 'Failed to send magic link. Please try again.',
             magicLinkVerified: 'Magic link verified successfully!',
             magicLinkVerificationFailed: 'Magic link verification failed'

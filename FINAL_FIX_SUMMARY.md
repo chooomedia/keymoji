@@ -23,6 +23,7 @@ n8n validActions: ['create', 'update', 'get', 'delete']
 ## ✅ **Die Lösung:**
 
 ### **File:** `keymoji-backend/api/account.js`
+
 ### **Line:** 445
 
 ```diff
@@ -46,28 +47,28 @@ async function handleAccountRetrieval(userId, email) {
 1. Frontend (accountStore.js)
    ↓
    Sendet: { action: 'read', userId, email }
-   
+
 2. Backend (api/account.js)
    ↓
    Akzeptiert: 'read' ODER 'get'
    Routes to: handleAccountRetrieval()
-   
+
 3. handleAccountRetrieval()
    ↓
    Sendet zu n8n: { action: 'get', userId, email }  ← FIX!
-   
+
 4. n8n Workflow
    ↓
    Validiert: ✓ 'get' in ['create', 'update', 'get', 'delete']
-   
+
 5. Google Sheets Lookup
    ↓
    Findet User: user_1760100551768
-   
+
 6. Code Node: Parse JSON
    ↓
    Parsed: profile & metadata (from JSON strings to objects)
-   
+
 7. n8n Response
    ↓
    Returns: {
@@ -81,17 +82,17 @@ async function handleAccountRetrieval(userId, email) {
        }
      }
    }
-   
+
 8. Backend (accountStore.js)
    ↓
    safeJSONParse(): Parses metadata if still string
    syncAccountData(): Updates $currentAccount
-   
+
 9. Frontend (AccountManager.svelte)
    ↓
    loadChartDataAsync(): Extracts usageHistory
    generateChartData(): Prepares chart data
-   
+
 10. LineChart Component
     ↓
     ✅ SVG Chart angezeigt mit echten Daten!
@@ -109,6 +110,7 @@ vercel --prod
 ```
 
 **Expected Output:**
+
 ```
 ✅ Production: https://xn--moji-pb73c.com [1s]
 ```
@@ -119,9 +121,10 @@ vercel --prod
 **Column G (metadata):** Paste from `CORRECTED_METADATA_STRING.txt`
 
 **WICHTIG:**
-- Alten korrupten String LÖSCHEN
-- Neuen String PASTEN
-- Speichern (Ctrl+S)
+
+-   Alten korrupten String LÖSCHEN
+-   Neuen String PASTEN
+-   Speichern (Ctrl+S)
 
 ---
 
@@ -132,13 +135,13 @@ vercel --prod
 ```javascript
 // Test the backend API directly
 const response = await fetch('https://xn--moji-pb73c.com/api/account', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    action: 'read',
-    userId: 'user_1760100551768',
-    email: 'cm@chooo.de'
-  })
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        action: 'read',
+        userId: 'user_1760100551768',
+        email: 'cm@chooo.de'
+    })
 });
 
 const data = await response.json();
@@ -155,7 +158,7 @@ console.log('API Response:', data);
 
 ```javascript
 // Run complete test suite
-window.instantChartTest()
+window.instantChartTest();
 
 // Expected:
 // ✅ PASS: Account exists
@@ -172,14 +175,14 @@ window.instantChartTest()
 2. Login with: `cm@chooo.de`
 3. Scroll to: "Daily Generations" section
 4. Check:
-   - ✅ Chart container visible
-   - ✅ SVG element rendered
-   - ✅ Line path drawn (yellow to orange gradient)
-   - ✅ 28 data points (circles)
-   - ✅ X-axis labels (dates)
-   - ✅ Y-axis labels (0-9)
-   - ✅ Tooltips on hover
-   - ✅ Smooth animation
+    - ✅ Chart container visible
+    - ✅ SVG element rendered
+    - ✅ Line path drawn (yellow to orange gradient)
+    - ✅ 28 data points (circles)
+    - ✅ X-axis labels (dates)
+    - ✅ Y-axis labels (0-9)
+    - ✅ Tooltips on hover
+    - ✅ Smooth animation
 
 ---
 
@@ -187,23 +190,23 @@ window.instantChartTest()
 
 ### **Completed ✅**
 
-- [x] Root cause identified: 'read' vs 'get'
-- [x] Backend fixed: action 'get' to n8n
-- [x] Submodule committed
-- [x] Documentation created
-- [x] All changes committed
-- [x] Google Sheets metadata corrected
-- [x] Test utilities ready
+-   [x] Root cause identified: 'read' vs 'get'
+-   [x] Backend fixed: action 'get' to n8n
+-   [x] Submodule committed
+-   [x] Documentation created
+-   [x] All changes committed
+-   [x] Google Sheets metadata corrected
+-   [x] Test utilities ready
 
 ### **Next Steps ⏳**
 
-- [ ] Deploy backend to production
-- [ ] Test API call (200 OK + data)
-- [ ] Test chart rendering (visual)
-- [ ] Verify 4-week data display
-- [ ] Test time period selector (7d, 14d, 4w, 1y)
-- [ ] Verify dark mode compatibility
-- [ ] Test PRO user limits (unlimited)
+-   [ ] Deploy backend to production
+-   [ ] Test API call (200 OK + data)
+-   [ ] Test chart rendering (visual)
+-   [ ] Verify 4-week data display
+-   [ ] Test time period selector (7d, 14d, 4w, 1y)
+-   [ ] Verify dark mode compatibility
+-   [ ] Test PRO user limits (unlimited)
 
 ---
 
@@ -236,8 +239,8 @@ keymoji: 61 commits ahead of origin/staging
 ```
 Daily Generations (last 4 weeks)
 
-    9  •     
-    6      •  •     
+    9  •
+    6      •  •
     3  •  •      •
     0  ________________
        13  20  27  3
@@ -249,24 +252,27 @@ Daily Generations (last 4 weeks)
 ## 🏆 **Was wir gelernt haben:**
 
 1. **Root Cause Analysis ist Gold wert!**
-   - 30+ Minuten analysiert
-   - 1 Zeichen geändert
-   - Problem gelöst!
+
+    - 30+ Minuten analysiert
+    - 1 Zeichen geändert
+    - Problem gelöst!
 
 2. **Logs sind dein bester Freund!**
-   - Ohne n8n Error Log: unmöglich zu finden
-   - Mit Error Log: sofort klar
+
+    - Ohne n8n Error Log: unmöglich zu finden
+    - Mit Error Log: sofort klar
 
 3. **Action Names müssen synchronisiert sein!**
-   - Frontend: 'read'
-   - Backend: akzeptiert 'read' UND 'get'
-   - n8n: akzeptiert nur 'get'
-   - Lösung: Backend normalisiert!
+
+    - Frontend: 'read'
+    - Backend: akzeptiert 'read' UND 'get'
+    - n8n: akzeptiert nur 'get'
+    - Lösung: Backend normalisiert!
 
 4. **Test-Daten sind unverzichtbar!**
-   - `injectTestData()` beweist: Chart OK!
-   - Problem war nur Data Loading
-   - Nicht Component Rendering
+    - `injectTestData()` beweist: Chart OK!
+    - Problem war nur Data Loading
+    - Nicht Component Rendering
 
 ---
 
@@ -290,16 +296,16 @@ Wenn Chart nach Deployment nicht funktioniert:
 
 ```javascript
 // 1. Check API Response
-window.testAPIDirectly()
+window.testAPIDirectly();
 
 // 2. Check Data Parsing
-window.chartDebugger.fullDiagnosis()
+window.chartDebugger.fullDiagnosis();
 
 // 3. Inject Test Data
-window.chartDebugger.injectTestData()
+window.chartDebugger.injectTestData();
 
 // 4. Force Reload
-location.reload()
+location.reload();
 ```
 
 ---
@@ -307,4 +313,3 @@ location.reload()
 **Erstellt:** 2025-10-10  
 **Version:** Final  
 **Status:** Ready for Deployment 🚀
-

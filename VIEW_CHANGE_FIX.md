@@ -17,16 +17,18 @@ User navigiert: / → /account → / → /account
 ## 🔍 **Root Cause:**
 
 ### **File:** `src/routes/AccountManager.svelte`
+
 ### **Lines:** 189-192
 
 ```javascript
 // ❌ PROBLEM: Reactive Block ohne Guard
 $: if ($currentAccount && $isLoggedIn) {
-    loadChartDataAsync();  // Triggert bei JEDEM View-Wechsel!
+    loadChartDataAsync(); // Triggert bei JEDEM View-Wechsel!
 }
 ```
 
 **Was passiert:**
+
 1. User öffnet `/account` → Component mounted → Reactive block runs
 2. `loadChartDataAsync()` starts → `isLoadingChartData = true` → Chart skeleton shown
 3. Data loads → `isLoadingChartData = false` → Chart visible ✓
@@ -42,8 +44,8 @@ $: if ($currentAccount && $isLoggedIn) {
 ### **Guard Flags hinzugefügt:**
 
 ```javascript
-let chartDataLoaded = false;      // Guard: Prevent multiple loads
-let lastLoadedUserId = null;      // Track: Which user's data is loaded
+let chartDataLoaded = false; // Guard: Prevent multiple loads
+let lastLoadedUserId = null; // Track: Which user's data is loaded
 ```
 
 ### **Reactive Block verbessert:**
@@ -55,7 +57,7 @@ let lastLoadedUserId = null;      // Track: Which user's data is loaded
 
 + $: if ($currentAccount && $isLoggedIn && !chartDataLoaded) {
 +     const currentUserId = $currentAccount.userId;
-+     
++
 +     // Only load if we haven't loaded for this user yet, or if user changed
 +     if (currentUserId && currentUserId !== lastLoadedUserId) {
 +         console.log('📊 [CHART] Triggering load for user:', currentUserId);
@@ -74,7 +76,7 @@ finally {
     await new Promise(resolve => setTimeout(resolve, 300));
     isLoadingChartData = false;
 +   chartDataLoaded = true; // ← Mark as loaded!
-    
+
     console.log('📊 [CHART DEBUG] Step 5: Loading complete. Final state:', {
         isLoading: false,
         hasError: !!chartDataError,
@@ -94,12 +96,12 @@ function handleLogout() {
     hasValidSession = false;
     accountExists = false;
     hasLoggedInBefore = false;
-    
+
 +   // Reset chart state on logout
 +   chartDataLoaded = false;
 +   lastLoadedUserId = null;
 +   usageHistory = [];
-    
+
     // ... rest of logout logic
 }
 ```
@@ -158,20 +160,21 @@ function handleLogout() {
 1. npm run dev
 2. Login with cm@chooo.de
 3. Navigate to /account → Chart loads
-4. F12 Console: 
+4. F12 Console:
    "📊 [CHART] Triggering load for user: user_1760100551768"
 5. Navigate to / (home)
 6. Navigate back to /account
-7. F12 Console: 
+7. F12 Console:
    NO "Triggering load" message! ✓
 8. Chart: Still visible! ✓
 ```
 
 **Expected:**
-- Chart loads ONCE
-- Chart stays visible during navigation
-- No flickering
-- No unnecessary API calls
+
+-   Chart loads ONCE
+-   Chart stays visible during navigation
+-   No flickering
+-   No unnecessary API calls
 
 ### **Test 2: User Change**
 
@@ -186,9 +189,10 @@ function handleLogout() {
 ```
 
 **Expected:**
-- Chart re-loads for new user
-- Old data cleared
-- New data shown
+
+-   Chart re-loads for new user
+-   Old data cleared
+-   New data shown
 
 ### **Test 3: Console Logs**
 
@@ -210,36 +214,39 @@ function handleLogout() {
 
 ## 📦 **Files Changed:**
 
-- `src/routes/AccountManager.svelte`
-  - Added `chartDataLoaded` flag
-  - Added `lastLoadedUserId` tracker
-  - Updated reactive block with guard
-  - Set `chartDataLoaded = true` in finally
-  - Reset flags on logout
+-   `src/routes/AccountManager.svelte`
+    -   Added `chartDataLoaded` flag
+    -   Added `lastLoadedUserId` tracker
+    -   Updated reactive block with guard
+    -   Set `chartDataLoaded = true` in finally
+    -   Reset flags on logout
 
 ---
 
 ## 🎯 **Benefits:**
 
-1. **Performance:** 
-   - No unnecessary API calls
-   - No re-rendering of chart component
-   - Faster navigation
+1. **Performance:**
+
+    - No unnecessary API calls
+    - No re-rendering of chart component
+    - Faster navigation
 
 2. **UX:**
-   - No flickering
-   - Chart stays visible
-   - Smooth transitions
+
+    - No flickering
+    - Chart stays visible
+    - Smooth transitions
 
 3. **Data Persistence:**
-   - Data survives route changes
-   - Only re-loads on user change
-   - Consistent state
+
+    - Data survives route changes
+    - Only re-loads on user change
+    - Consistent state
 
 4. **Resource Savings:**
-   - Fewer n8n webhook calls
-   - Fewer Google Sheets reads
-   - Lower Vercel costs
+    - Fewer n8n webhook calls
+    - Fewer Google Sheets reads
+    - Lower Vercel costs
 
 ---
 
@@ -273,16 +280,15 @@ lastLoadedId = null;
 
 ## ✅ **Status:**
 
-- [x] Problem identified (reactive block ohne guard)
-- [x] Solution implemented (guard flags)
-- [x] Code committed
-- [ ] Frontend rebuilt (npm run build)
-- [ ] Deployed to production
-- [ ] Tested in production
+-   [x] Problem identified (reactive block ohne guard)
+-   [x] Solution implemented (guard flags)
+-   [x] Code committed
+-   [ ] Frontend rebuilt (npm run build)
+-   [ ] Deployed to production
+-   [ ] Tested in production
 
 ---
 
 **Created:** 2025-10-10  
 **Fixed in:** Commit dd76b72  
 **Status:** Ready for Testing 🧪
-

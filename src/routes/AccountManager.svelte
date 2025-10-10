@@ -318,6 +318,42 @@
     }
     
     /**
+     * Handle manual refresh of chart data from backend
+     * Best practice: Force fresh data load from API
+     */
+    async function handleRefreshChartData() {
+        console.log('🔄 [CHART REFRESH] Manual refresh triggered by user');
+        
+        try {
+            // Reset guards to allow fresh load
+            chartDataLoaded = false;
+            isLoadingChartData = true;
+            chartDataError = null;
+            
+            console.log('🔄 [CHART REFRESH] Forcing fresh API load...');
+            
+            // Try to load from API (even if we have cached data)
+            const { loadUsageHistoryWithRetry } = await import('../utils/usageHistoryLoader.js');
+            const freshHistory = await loadUsageHistoryWithRetry($currentAccount?.userId, $currentAccount?.email);
+            
+            if (freshHistory && freshHistory.length > 0) {
+                usageHistory = freshHistory;
+                console.log('✅ [CHART REFRESH] Loaded fresh data from API:', freshHistory.length, 'entries');
+                showSuccess($translations?.accountManager?.messages?.chartDataRefreshed || 'Chart data refreshed!', 2000);
+            } else {
+                console.warn('⚠️ [CHART REFRESH] No new data available, keeping existing');
+                showInfo($translations?.accountManager?.messages?.noNewData || 'No new data available', 2000);
+            }
+        } catch (error) {
+            console.error('❌ [CHART REFRESH] Failed to refresh:', error);
+            showError($translations?.accountManager?.messages?.refreshFailed || 'Failed to refresh data', 2000);
+        } finally {
+            isLoadingChartData = false;
+            chartDataLoaded = true;
+        }
+    }
+    
+    /**
      * Generate chart data for selected time period
      * @param {string} period - '7d', '14d', '4w', '3m'
      * @param {Array} history - Usage history array
@@ -1047,28 +1083,43 @@
 
                         <!-- Daily Limit Status with Chart -->
                         <div class="bg-powder-300 dark:bg-aubergine-900 rounded-xl p-4 mb-5">
-                            <!-- Header with Time Period Selector -->
+                            <!-- Header with Time Period Selector & Refresh Button -->
                             <div class="flex justify-between items-center mb-3">
                                 <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
                                     {$translations?.accountManager?.dailyGenerations || 'Daily Generations'}
                                 </span>
                                 <div class="flex items-center space-x-2">
-                                    <!-- Time Period Buttons -->
-                                    <div class="inline-flex rounded-lg bg-white dark:bg-aubergine-800 p-0.5 shadow-inner">
+                                    <!-- Time Period Buttons (rounded-full, optimized colors) -->
+                                    <div class="inline-flex gap-1">
                                         {#each ['7d', '14d', '4w', '3m'] as period}
                                             <button
                                                 on:click={() => selectedTimePeriod = period}
-                                                class="px-2 py-1 text-xs font-medium rounded-md transition-all {
+                                                class="px-3 py-1 text-xs font-semibold rounded-full transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-aubergine-900 {
                                                     selectedTimePeriod === period 
-                                                        ? 'bg-yellow-500 text-white shadow' 
-                                                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                                                        ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-aubergine-900 shadow-md' 
+                                                        : 'bg-white/50 dark:bg-aubergine-800/50 text-gray-700 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-aubergine-800/80 shadow-sm'
                                                 }"
                                                 aria-label="Show {period === '7d' ? '7 days' : period === '14d' ? '14 days' : period === '4w' ? '4 weeks' : '3 months'}"
+                                                title="{period === '7d' ? 'Last 7 Days' : period === '14d' ? 'Last 14 Days' : period === '4w' ? 'Last 4 Weeks' : 'Last 3 Months'}"
                                             >
-                                                {period === '3m' ? '3M' : period}
+                                                {period === '3m' ? '3M' : period.toUpperCase()}
                                             </button>
                                         {/each}
                                     </div>
+                                    
+                                    <!-- Refresh Button (like FREE badge, small, semi-transparent) -->
+                                    <button
+                                        on:click={handleRefreshChartData}
+                                        disabled={isLoadingChartData}
+                                        class="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-bold bg-yellow-600/20 dark:bg-yellow-600/30 text-yellow-700 dark:text-yellow-400 border border-yellow-600/30 dark:border-yellow-600/40 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-aubergine-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                                        aria-label="Refresh chart data from backend"
+                                        title="Refresh chart data"
+                                    >
+                                        <span class="{isLoadingChartData ? 'animate-spin' : ''}" style="display: inline-block;">
+                                            🔄
+                                        </span>
+                                    </button>
+                                    
                                     <span class="text-sm font-semibold text-yellow-600 dark:text-yellow-400">
                                         {dailyLimitDisplay}
                                     </span>

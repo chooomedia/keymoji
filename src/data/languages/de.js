@@ -595,12 +595,16 @@ export default {
             freeAccountActivated: 'Kostenloser Account aktiviert!',
             chartLoadFailed: 'Chart-Daten konnten nicht geladen werden',
             logoutSuccess: 'Erfolgreich abgemeldet',
-            accountFoundSendingLink: 'Account gefunden! Sende Magic Link an bestehendes Konto.',
+            accountFoundSendingLink:
+                'Account gefunden! Sende Magic Link an bestehendes Konto.',
             creatingNewAccount: 'Erstelle neues Konto und sende Magic Link.',
-            magicLinkSent: 'Magic Link gesendet! Überprüfe deine E-Mails um den Login abzuschließen.',
-            magicLinkSendFailed: 'Magic Link konnte nicht gesendet werden. Bitte versuche es erneut.',
+            magicLinkSent:
+                'Magic Link gesendet! Überprüfe deine E-Mails um den Login abzuschließen.',
+            magicLinkSendFailed:
+                'Magic Link konnte nicht gesendet werden. Bitte versuche es erneut.',
             magicLinkVerified: 'Magic Link erfolgreich verifiziert!',
-            magicLinkVerificationFailed: 'Magic Link Verifizierung fehlgeschlagen'
+            magicLinkVerificationFailed:
+                'Magic Link Verifizierung fehlgeschlagen'
         },
 
         // Upgrade-Bereich

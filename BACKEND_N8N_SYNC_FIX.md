@@ -14,6 +14,7 @@ const validActions = ['create', 'update', 'get', 'delete'];
 **Problem:** `'read'` ist NICHT in der n8n `validActions` Liste!
 
 **n8n Error:**
+
 ```
 Error: Invalid action: read. Must be one of: create, update, get, delete
 ```
@@ -27,31 +28,36 @@ Error: Invalid action: read. Must be one of: create, update, get, delete
 **Änderungen:**
 
 1. **Action Normalisierung hinzugefügt:**
-   ```javascript
-   // Normalize 'read' to 'get' for n8n compatibility
-   if (action === 'read') {
-     action = 'get';
-     console.log('📝 [ACCOUNT API] Normalized action from "read" to "get" for n8n');
-   }
-   ```
+
+    ```javascript
+    // Normalize 'read' to 'get' for n8n compatibility
+    if (action === 'read') {
+        action = 'get';
+        console.log(
+            '📝 [ACCOUNT API] Normalized action from "read" to "get" for n8n'
+        );
+    }
+    ```
 
 2. **Switch Case angepasst:**
-   ```javascript
-   // Vorher:
-   case 'read':
-   
-   // Nachher:
-   case 'get':
-   ```
+
+    ```javascript
+    // Vorher:
+    case 'read':
+
+    // Nachher:
+    case 'get':
+    ```
 
 3. **n8n Request geändert:**
-   ```javascript
-   // Vorher:
-   action: 'read'
-   
-   // Nachher:
-   action: 'get'
-   ```
+
+    ```javascript
+    // Vorher:
+    action: 'read';
+
+    // Nachher:
+    action: 'get';
+    ```
 
 ---
 
@@ -96,12 +102,14 @@ Frontend Chart
 ## 🚀 **Next Steps:**
 
 ### **1. Deploy Backend:**
+
 ```bash
 cd keymoji-backend
 vercel --prod
 ```
 
 ### **2. Test API:**
+
 ```bash
 curl -X POST https://xn--moji-pb73c.com/api/account \
   -H "Content-Type: application/json" \
@@ -113,6 +121,7 @@ curl -X POST https://xn--moji-pb73c.com/api/account \
 ```
 
 **Expected:**
+
 ```json
 {
   "success": true,
@@ -128,12 +137,14 @@ curl -X POST https://xn--moji-pb73c.com/api/account \
 ```
 
 ### **3. Test Frontend:**
+
 ```javascript
 // Browser Console (F12):
-window.instantChartTest()
+window.instantChartTest();
 ```
 
 **Expected:**
+
 ```
 ✅ PASS: Account exists
 ✅ PASS: Metadata is object
@@ -148,16 +159,17 @@ window.instantChartTest()
 ## 🎉 **Problem gelöst!**
 
 **Ein Zeichen-Unterschied war der Fehler:**
-- `'read'` vs `'get'`
+
+-   `'read'` vs `'get'`
 
 **Jetzt synchronisiert:**
-- ✅ Backend normalisiert `'read'` → `'get'`
-- ✅ n8n akzeptiert `'get'`
-- ✅ Google Sheets liefert Daten
-- ✅ Frontend zeigt Chart
+
+-   ✅ Backend normalisiert `'read'` → `'get'`
+-   ✅ n8n akzeptiert `'get'`
+-   ✅ Google Sheets liefert Daten
+-   ✅ Frontend zeigt Chart
 
 **Total Fix Time:** 2 Minuten  
-**Root Cause Analysis Time:** 30+ Minuten  
+**Root Cause Analysis Time:** 30+ Minuten
 
 Wichtigste Lektion: Logs sind Gold! 🏆
-
