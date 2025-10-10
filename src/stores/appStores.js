@@ -499,7 +499,15 @@ export function setLanguage(lang) {
 
 // === ACCOUNT STORES ===
 export const isLoggedIn = writable(false);
-export const dailyLimit = writable({ limit: 3, used: 0 }); // Default to guest limit
+
+// IMPORTANT: dailyLimit is managed by dailyUsageStore.js (v0.5.7+)
+// This store is updated by initializeDailyUsage() on app start
+// Initial values: GUEST: 3, FREE: 9, PRO: 25
+export const dailyLimit = writable({ 
+    limit: 3,  // Default for guest (updated by initializeDailyUsage)
+    used: 0 
+});
+
 export const accountSettings = writable({});
 export const currentSettings = writable({}); // Alias for accountSettings for modular components
 export const isGuestUser = writable(true);
@@ -508,10 +516,12 @@ export const currentAccount = writable(null);
 export const userProfile = writable(null);
 export const accountTier = writable('free');
 
-// Sichere Limit-Update-Funktion
+// LEGACY: Kept for backward compatibility and fallback
+// Primary limit management is now in dailyUsageStore.js
 export function updateDailyLimit(isLoggedIn, accountTier, usedCount = 0) {
     const limit = getDailyLimitForUser(isLoggedIn, accountTier);
     dailyLimit.set({ limit, used: usedCount });
+    console.log(`📊 updateDailyLimit (legacy): ${isLoggedIn ? accountTier.toUpperCase() : 'GUEST'} → limit: ${limit}, used: ${usedCount}`);
     return { limit, used: usedCount };
 }
 
