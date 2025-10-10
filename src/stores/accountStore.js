@@ -675,7 +675,8 @@ export async function verifyMagicLinkFrontend(token, email) {
                     success: fullAccountResult.success,
                     hasAccount: !!fullAccountResult.account,
                     hasMetadata: !!fullAccountResult.account?.metadata,
-                    hasUsageHistory: !!fullAccountResult.account?.metadata?.usageHistory
+                    hasUsageHistory:
+                        !!fullAccountResult.account?.metadata?.usageHistory
                 });
 
                 if (fullAccountResult.success && fullAccountResult.account) {
@@ -687,11 +688,19 @@ export async function verifyMagicLinkFrontend(token, email) {
                         sessionId: accountData.sessionId,
                         sessionExpires: accountData.sessionExpires
                     };
-                    console.log('✅ [LOGIN] Account data merged with full database data');
-                    console.log('✅ [LOGIN] UsageHistory entries:', fullAccountResult.account?.metadata?.usageHistory?.length || 0);
+                    console.log(
+                        '✅ [LOGIN] Account data merged with full database data'
+                    );
+                    console.log(
+                        '✅ [LOGIN] UsageHistory entries:',
+                        fullAccountResult.account?.metadata?.usageHistory
+                            ?.length || 0
+                    );
                 }
             } else {
-                console.warn('⚠️ [LOGIN] Failed to load full account data, using verification data only');
+                console.warn(
+                    '⚠️ [LOGIN] Failed to load full account data, using verification data only'
+                );
             }
         } catch (error) {
             console.error('❌ [LOGIN] Error loading full account data:', error);
@@ -884,9 +893,11 @@ export async function initializeAccountFromCookies() {
             const createdAt = getCreatedAtFromUserPreferences();
 
             // CRITICAL: Load FULL account data from database (not just from cookies!)
-            console.log('📡 [SESSION RESTORE] Loading full account data from database...');
+            console.log(
+                '📡 [SESSION RESTORE] Loading full account data from database...'
+            );
             let accountInfo = null;
-            
+
             try {
                 const fullAccountResponse = await fetch(WEBHOOKS.ACCOUNT.READ, {
                     method: 'POST',
@@ -903,15 +914,25 @@ export async function initializeAccountFromCookies() {
 
                 if (fullAccountResponse.ok) {
                     const fullAccountResult = await fullAccountResponse.json();
-                    console.log('✅ [SESSION RESTORE] Full account data loaded from database:', {
-                        success: fullAccountResult.success,
-                        hasAccount: !!fullAccountResult.account,
-                        hasMetadata: !!fullAccountResult.account?.metadata,
-                        hasUsageHistory: !!fullAccountResult.account?.metadata?.usageHistory,
-                        usageHistoryLength: fullAccountResult.account?.metadata?.usageHistory?.length || 0
-                    });
+                    console.log(
+                        '✅ [SESSION RESTORE] Full account data loaded from database:',
+                        {
+                            success: fullAccountResult.success,
+                            hasAccount: !!fullAccountResult.account,
+                            hasMetadata: !!fullAccountResult.account?.metadata,
+                            hasUsageHistory:
+                                !!fullAccountResult.account?.metadata
+                                    ?.usageHistory,
+                            usageHistoryLength:
+                                fullAccountResult.account?.metadata
+                                    ?.usageHistory?.length || 0
+                        }
+                    );
 
-                    if (fullAccountResult.success && fullAccountResult.account) {
+                    if (
+                        fullAccountResult.success &&
+                        fullAccountResult.account
+                    ) {
                         // Use FULL account data from database
                         accountInfo = {
                             ...fullAccountResult.account,
@@ -921,15 +942,22 @@ export async function initializeAccountFromCookies() {
                             lastActivity: new Date().toISOString(),
                             isFirstLogin: false
                         };
-                        console.log('✅ [SESSION RESTORE] Using full database data with usageHistory');
+                        console.log(
+                            '✅ [SESSION RESTORE] Using full database data with usageHistory'
+                        );
                     } else {
                         throw new Error('No account data in response');
                     }
                 } else {
-                    throw new Error(`API returned ${fullAccountResponse.status}`);
+                    throw new Error(
+                        `API returned ${fullAccountResponse.status}`
+                    );
                 }
             } catch (error) {
-                console.warn('⚠️ [SESSION RESTORE] Failed to load from database, using cookies fallback:', error);
+                console.warn(
+                    '⚠️ [SESSION RESTORE] Failed to load from database, using cookies fallback:',
+                    error
+                );
                 // Fallback: Use data from cookies (without usageHistory)
                 accountInfo = {
                     email: userPrefs.email,
@@ -946,7 +974,9 @@ export async function initializeAccountFromCookies() {
                     lastActivity: new Date().toISOString(),
                     isFirstLogin: false // Session restoration, not first login
                 };
-                console.log('💡 [SESSION RESTORE] Using cookies fallback (usageHistory may be missing)');
+                console.log(
+                    '💡 [SESSION RESTORE] Using cookies fallback (usageHistory may be missing)'
+                );
             }
 
             // Update the main accountData store
@@ -967,14 +997,11 @@ export async function initializeAccountFromCookies() {
 
             // CRITICAL FIX: Session restore should ONLY READ from database, NEVER WRITE!
             // This prevents overwriting user settings/metadata on page refresh
-            console.log(
-                '✅ Session restored (READ-ONLY, no database write):',
-                {
-                    userId: accountInfo.userId,
-                    email: accountInfo.email,
-                    action: 'READ_ONLY'
-                }
-            );
+            console.log('✅ Session restored (READ-ONLY, no database write):', {
+                userId: accountInfo.userId,
+                email: accountInfo.email,
+                action: 'READ_ONLY'
+            });
 
             // DO NOT send any updates to database on session restore!
             // User settings, dailyUsage, usageHistory must stay intact!
@@ -1095,37 +1122,42 @@ function getCreatedAtFromUserPreferences() {
  */
 function safeJSONParse(data, fallback = {}) {
     if (!data) return fallback;
-    
+
     // Already an object? Return as-is
     if (typeof data === 'object' && data !== null) {
         return data;
     }
-    
+
     // String? Try to parse (supports double-escaped JSON!)
     if (typeof data === 'string') {
         try {
             let parsed = JSON.parse(data);
-            
+
             // Check if result is STILL a string (double-escaped JSON from Google Sheets!)
             // Example: "{""settings"":{...}}" → needs second parse!
             if (typeof parsed === 'string') {
-                console.log('⚠️ Double-escaped JSON detected, parsing again...');
+                console.log(
+                    '⚠️ Double-escaped JSON detected, parsing again...'
+                );
                 try {
                     parsed = JSON.parse(parsed);
                     console.log('✅ Successfully parsed double-escaped JSON');
                 } catch (secondError) {
-                    console.warn('⚠️ Failed second parse:', secondError.message);
+                    console.warn(
+                        '⚠️ Failed second parse:',
+                        secondError.message
+                    );
                     return fallback;
                 }
             }
-            
+
             return parsed;
         } catch (error) {
             console.warn('⚠️ Failed to parse JSON:', error.message);
             return fallback;
         }
     }
-    
+
     return fallback;
 }
 
@@ -1143,7 +1175,7 @@ async function syncAccountData(accountData) {
         // CRITICAL: Parse JSON strings from n8n/Google Sheets
         const parsedProfile = safeJSONParse(accountData.profile, {});
         const parsedMetadata = safeJSONParse(accountData.metadata, {});
-        
+
         console.log('✅ [ACCOUNT DEBUG] Parsed data:', {
             profile: parsedProfile,
             metadata: {
@@ -1154,7 +1186,10 @@ async function syncAccountData(accountData) {
                 usageHistoryIsArray: Array.isArray(parsedMetadata.usageHistory),
                 usageHistoryLength: parsedMetadata.usageHistory?.length || 0,
                 firstEntry: parsedMetadata.usageHistory?.[0],
-                lastEntry: parsedMetadata.usageHistory?.[parsedMetadata.usageHistory?.length - 1]
+                lastEntry:
+                    parsedMetadata.usageHistory?.[
+                        parsedMetadata.usageHistory?.length - 1
+                    ]
             }
         });
 
@@ -1188,16 +1223,23 @@ async function syncAccountData(accountData) {
 
         // Initialize daily usage from API + localStorage
         try {
-            const { initializeDailyUsage } = await import('./dailyUsageStore.js');
+            const { initializeDailyUsage } = await import(
+                './dailyUsageStore.js'
+            );
             await initializeDailyUsage();
             console.log('✅ Daily usage initialized from API/localStorage');
         } catch (error) {
-            console.warn('⚠️ Failed to initialize daily usage, using fallback:', error);
+            console.warn(
+                '⚠️ Failed to initialize daily usage, using fallback:',
+                error
+            );
             // Fallback to old method (use parsedMetadata)
             updateDailyLimit(
                 true,
                 cleanAccountData.tier,
-                parsedMetadata?.dailyUsage?.used || cleanAccountData.usedGenerations || 0
+                parsedMetadata?.dailyUsage?.used ||
+                    cleanAccountData.usedGenerations ||
+                    0
             );
         }
 
@@ -1219,12 +1261,28 @@ async function syncAccountData(accountData) {
             }
         );
     } else {
-        // Reset all stores when no account data
-        isLoggedIn.set(false);
-        currentAccount.set(null);
-        userProfile.set(null);
-        accountTier.set('free');
-        updateDailyLimit(false, 'free', 0); // Reset to guest limits
+        // Only reset stores if we're truly not logged in (check cookies first!)
+        const hasSession = hasValidUserSession();
+        const hasPrefs = hasExistingUserPreferences();
+        
+        console.log('⚠️ [ACCOUNT DEBUG] No account data received, checking session validity:', {
+            hasSession,
+            hasPrefs,
+            shouldReset: !hasSession && !hasPrefs
+        });
+        
+        // Only reset if there's truly no valid session
+        if (!hasSession && !hasPrefs) {
+            console.log('🔄 [ACCOUNT DEBUG] No valid session, resetting stores');
+            isLoggedIn.set(false);
+            currentAccount.set(null);
+            userProfile.set(null);
+            accountTier.set('free');
+            updateDailyLimit(false, 'free', 0); // Reset to guest limits
+        } else {
+            console.log('✅ [ACCOUNT DEBUG] Valid session exists, keeping stores intact');
+            // Keep current state, don't reset!
+        }
     }
 }
 

@@ -29,11 +29,25 @@
       // Als gerendert markieren
       isRendered = true;
       
-      // Initialize account from cookies
-      initializeAccountFromCookies();
+      // Only initialize if not already logged in (prevent reset on navigation!)
+      const alreadyLoggedIn = get(isLoggedIn);
+      const hasAccount = get(currentAccount);
       
-      // Initialize user settings
-      initializeSettingsForUser();
+      console.log('🏠 Index: onMount check:', {
+          alreadyLoggedIn,
+          hasAccount: !!hasAccount
+      });
+      
+      if (!alreadyLoggedIn || !hasAccount) {
+          console.log('🔄 Index: Initializing account (not logged in yet)');
+          // Initialize account from cookies
+          initializeAccountFromCookies();
+          
+          // Initialize user settings
+          initializeSettingsForUser();
+      } else {
+          console.log('✅ Index: Already logged in, keeping current state');
+      }
       
       // Setup cross-tab communication for magic links
       setupMagicLinkListener();
