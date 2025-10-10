@@ -494,7 +494,7 @@ export default {
         // Преимущества
         benefits: {
             free: {
-                dailyGenerations: '5 ежедневных безопасных генераций',
+                dailyGenerations: '9 ежедневных безопасных генераций',
                 dailyGenerationsDesc:
                     'Технология, устойчивая к ИИ для максимальной безопасности',
                 decentralizedData: 'Децентрализованная обработка данных',

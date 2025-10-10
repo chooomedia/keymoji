@@ -495,7 +495,7 @@ export default {
         // Voordelen
         benefits: {
             free: {
-                dailyGenerations: '5 dagelijkse veilige generaties',
+                dailyGenerations: '9 dagelijkse veilige generaties',
                 dailyGenerationsDesc:
                     'AI-resistente technologie voor maximale veiligheid',
                 decentralizedData: 'Gedecentraliseerde gegevensverwerking',

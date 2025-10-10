@@ -495,7 +495,7 @@ export default {
         // Vantaggi
         benefits: {
             free: {
-                dailyGenerations: '5 generazioni sicure giornaliere',
+                dailyGenerations: '9 generazioni sicure giornaliere',
                 dailyGenerationsDesc:
                     "Tecnologia resistente all'IA per la massima sicurezza",
                 decentralizedData: 'Elaborazione dati decentralizzata',

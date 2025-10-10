@@ -6,26 +6,28 @@
 
 ```javascript
 // src/config/limits.js (SINGLE SOURCE OF TRUTH)
-GUEST: 5   // +2 (was 3)
-FREE: 9    // unchanged
-PRO: 35    // +10 (was 25)
+GUEST: 5; // +2 (was 3)
+FREE: 9; // unchanged
+PRO: 35; // +10 (was 25)
 ```
 
 **Updated in 13 Files:**
-- ✅ `limits.js` (central config)
-- ✅ `appStores.js` (default store)
-- ✅ `AccountManager.svelte` (chart maxValue)
-- ✅ `chartTestData.js` (mock data)
-- ✅ `usageHistoryGenerator.js` (generator)
-- ✅ `test-limits.js` (tests)
-- ✅ `ModalDebug.svelte` (debug tools)
-- ✅ All 15 language files (translations)
+
+-   ✅ `limits.js` (central config)
+-   ✅ `appStores.js` (default store)
+-   ✅ `AccountManager.svelte` (chart maxValue)
+-   ✅ `chartTestData.js` (mock data)
+-   ✅ `usageHistoryGenerator.js` (generator)
+-   ✅ `test-limits.js` (tests)
+-   ✅ `ModalDebug.svelte` (debug tools)
+-   ✅ All 15 language files (translations)
 
 ---
 
 ### **2. DOUBLETTEN ENTFERNT ✅**
 
 **Before:**
+
 ```javascript
 // Different places, different values:
 limits.js: 3, 9, 25
@@ -36,6 +38,7 @@ chartTestData.js: 25
 ```
 
 **After:**
+
 ```javascript
 // Single source:
 import { DAILY_LIMITS } from '../config/limits.js';
@@ -47,12 +50,14 @@ const limit = DAILY_LIMITS.PRO; // Always 35! ✓
 ### **3. BEST PRACTICES ✅**
 
 #### **Single Source of Truth:**
-- ✅ Only `limits.js` defines values
-- ✅ All files import from `limits.js`
-- ✅ No hardcoded magic numbers
-- ✅ Easy to change (one place!)
+
+-   ✅ Only `limits.js` defines values
+-   ✅ All files import from `limits.js`
+-   ✅ No hardcoded magic numbers
+-   ✅ Easy to change (one place!)
 
 #### **Named Constants:**
+
 ```javascript
 ✅ DAILY_LIMITS.GUEST (not 5)
 ✅ DAILY_LIMITS.FREE (not 9)
@@ -60,6 +65,7 @@ const limit = DAILY_LIMITS.PRO; // Always 35! ✓
 ```
 
 #### **Helper Functions:**
+
 ```javascript
 ✅ getDailyLimitForUser(isLoggedIn, tier)
 ✅ validateUserLimits(isLoggedIn, tier, used)
@@ -67,6 +73,7 @@ const limit = DAILY_LIMITS.PRO; // Always 35! ✓
 ```
 
 #### **Complete Documentation:**
+
 ```javascript
 // Guest User (nicht eingeloggt)
 GUEST: 5, // 5 generations per day for guests
@@ -77,6 +84,7 @@ GUEST: 5, // 5 generations per day for guests
 ### **4. NAVIGATION FIX ✅**
 
 #### **Problem:**
+
 ```javascript
 // Before:
 Navigate: /account → /
@@ -89,6 +97,7 @@ Navigate: /account → /
 ```
 
 #### **Solution:**
+
 ```javascript
 // After:
 Navigate: /account → /
@@ -110,6 +119,7 @@ if (!hasSession && !hasPrefs) {
 ### **5. AUTO-MIGRATION ✅**
 
 #### **Problem:**
+
 ```javascript
 // Old localStorage data:
 {
@@ -125,59 +135,63 @@ if (!hasSession && !hasPrefs) {
 ```
 
 #### **Solution (Automatic!):**
+
 ```javascript
 // getUsageFromLocalStorage():
 const OLD_LIMITS = [3, 25];
 if (OLD_LIMITS.includes(stored.limit)) {
-  console.log('🔄 MIGRATION: Detected old limit:', stored.limit);
-  
-  // Auto-update
-  let newLimit;
-  if (stored.limit === 3) newLimit = 5;  // GUEST
-  if (stored.limit === 25) newLimit = 35; // PRO
-  
-  // Save back
-  storageHelpers.set(STORAGE_KEYS.DAILY_USAGE, {
-    ...stored,
-    limit: newLimit
-  });
-  
-  console.log('✅ MIGRATION: Limit updated:', stored.limit, '→', newLimit);
+    console.log('🔄 MIGRATION: Detected old limit:', stored.limit);
+
+    // Auto-update
+    let newLimit;
+    if (stored.limit === 3) newLimit = 5; // GUEST
+    if (stored.limit === 25) newLimit = 35; // PRO
+
+    // Save back
+    storageHelpers.set(STORAGE_KEYS.DAILY_USAGE, {
+        ...stored,
+        limit: newLimit
+    });
+
+    console.log('✅ MIGRATION: Limit updated:', stored.limit, '→', newLimit);
 }
 ```
 
 **User Experience:**
-- ✅ No manual action needed!
-- ✅ Used count preserved (2 used remains)
-- ✅ Limit auto-corrected (3 → 5)
-- ✅ Works on next page load
-- ✅ One-time migration per device
+
+-   ✅ No manual action needed!
+-   ✅ Used count preserved (2 used remains)
+-   ✅ Limit auto-corrected (3 → 5)
+-   ✅ Works on next page load
+-   ✅ One-time migration per device
 
 ---
 
 ### **6. ENHANCED DEBUG LOGS ✅**
 
 #### **EmojiDisplay.svelte:**
+
 ```javascript
 function isDailyLimitReached() {
-  const used = $dailyLimit?.used || 0;
-  const limit = $dailyLimit?.limit || 5;
-  const isReached = used >= limit;
-  
-  console.log('🔍 isDailyLimitReached check:', {
-    used,           // e.g., 2
-    limit,          // e.g., 5
-    isReached,      // false
-    isLoggedIn: $isLoggedIn,
-    accountTier: $accountTier,
-    dailyLimit: $dailyLimit
-  });
-  
-  return isReached;
+    const used = $dailyLimit?.used || 0;
+    const limit = $dailyLimit?.limit || 5;
+    const isReached = used >= limit;
+
+    console.log('🔍 isDailyLimitReached check:', {
+        used, // e.g., 2
+        limit, // e.g., 5
+        isReached, // false
+        isLoggedIn: $isLoggedIn,
+        accountTier: $accountTier,
+        dailyLimit: $dailyLimit
+    });
+
+    return isReached;
 }
 ```
 
 **Output Example:**
+
 ```javascript
 🔍 isDailyLimitReached check: {
   used: 2,
@@ -247,42 +261,47 @@ Debug: Complete visibility
 ## 🎯 **PRODUCTION CHECKLIST:**
 
 ### **Code Quality:**
-- [x] Single source of truth (limits.js)
-- [x] No duplicates
-- [x] No hardcoded values
-- [x] Named constants
-- [x] Helper functions
-- [x] Complete documentation
-- [x] Consistent naming
-- [x] Type-safe (where possible)
+
+-   [x] Single source of truth (limits.js)
+-   [x] No duplicates
+-   [x] No hardcoded values
+-   [x] Named constants
+-   [x] Helper functions
+-   [x] Complete documentation
+-   [x] Consistent naming
+-   [x] Type-safe (where possible)
 
 ### **User Experience:**
-- [x] Consistent limits across app
-- [x] Auto-migration for old data
-- [x] No false "limit reached" errors
-- [x] Data persists on navigation
-- [x] Seamless upgrades (5 → 9 → 35)
+
+-   [x] Consistent limits across app
+-   [x] Auto-migration for old data
+-   [x] No false "limit reached" errors
+-   [x] Data persists on navigation
+-   [x] Seamless upgrades (5 → 9 → 35)
 
 ### **Maintainability:**
-- [x] Easy to update (one file)
-- [x] Clear code structure
-- [x] Comprehensive logging
-- [x] Test coverage
-- [x] Debug tools
+
+-   [x] Easy to update (one file)
+-   [x] Clear code structure
+-   [x] Comprehensive logging
+-   [x] Test coverage
+-   [x] Debug tools
 
 ### **Testing:**
-- [x] Guest: 5 generations ✓
-- [x] FREE: 9 generations ✓
-- [x] PRO: 35 generations ✓
-- [x] Migration: 3→5, 25→35 ✓
-- [x] Navigation: Stores persist ✓
-- [x] Charts: Correct maxValue ✓
+
+-   [x] Guest: 5 generations ✓
+-   [x] FREE: 9 generations ✓
+-   [x] PRO: 35 generations ✓
+-   [x] Migration: 3→5, 25→35 ✓
+-   [x] Navigation: Stores persist ✓
+-   [x] Charts: Correct maxValue ✓
 
 ---
 
 ## 🚀 **HOW TO USE (PRODUCTION):**
 
 ### **For Users:**
+
 1. Open app
 2. **Migration runs automatically** (if old data)
 3. Correct limits loaded (5, 9, or 35)
@@ -291,22 +310,25 @@ Debug: Complete visibility
 ### **For Developers:**
 
 #### **Change Limits (Future):**
+
 ```javascript
 // ONLY change in src/config/limits.js:
 export const DAILY_LIMITS = {
-    GUEST: 10,  // New value
-    FREE: 20,   // New value
-    PRO: 50,    // New value
+    GUEST: 10, // New value
+    FREE: 20, // New value
+    PRO: 50 // New value
 };
 ```
 
 **Everything updates automatically!**
-- ✅ UI displays correct limits
-- ✅ Charts scale correctly
-- ✅ Tests use new values
-- ✅ Debug tools reflect changes
+
+-   ✅ UI displays correct limits
+-   ✅ Charts scale correctly
+-   ✅ Tests use new values
+-   ✅ Debug tools reflect changes
 
 #### **Debug Current State:**
+
 ```javascript
 // Browser Console (F12):
 console.log('Current Limits:', window.$dailyLimit);
@@ -315,6 +337,7 @@ console.log('Tier:', window.$accountTier);
 ```
 
 #### **Force Reset (if needed):**
+
 ```javascript
 // Browser Console:
 localStorage.removeItem('keymoji_daily_usage');
@@ -364,4 +387,3 @@ Bugs Fixed:       3 major issues
 **Quality:** Senior Dev Level 🏆  
 **Status:** COMPLETE ✅  
 **Ready for:** Production Deployment 🚀
-

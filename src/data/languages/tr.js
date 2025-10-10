@@ -494,7 +494,7 @@ export default {
         // Faydalar
         benefits: {
             free: {
-                dailyGenerations: '5 günlük güvenli üretim',
+                dailyGenerations: '9 günlük güvenli üretim',
                 dailyGenerationsDesc:
                     'Maksimum güvenlik için AI dirençli teknoloji',
                 decentralizedData: 'Merkezi olmayan veri işleme',
