@@ -382,10 +382,14 @@ export async function generateStoryEmojis(text, emojiCount, storyModeConfig) {
         provider,
         apiKey,
         customApiUrl,
+        customEndpoint,
+        customFormat,
+        customModel,
         model,
         maxTokens,
         temperature,
-        cacheResults
+        cacheResults,
+        tier
     } = storyModeConfig;
     
     // Check cache first
@@ -403,9 +407,18 @@ export async function generateStoryEmojis(text, emojiCount, storyModeConfig) {
         let aiResponse = '';
         
         // Auto-select model if not provided (Best Practice)
-        const finalModel = model || getDefaultModel(provider, storyModeConfig.tier);
+        // Priority: customModel (for custom API) > model > auto-default
+        let finalModel = model;
         
-        console.log(`🎯 Using model: ${finalModel}`);
+        if (provider === 'custom' && customModel) {
+            finalModel = customModel;
+            console.log(`🎯 Using custom model: ${finalModel}`);
+        } else if (!finalModel) {
+            finalModel = getDefaultModel(provider, tier);
+            console.log(`🤖 Auto-selected model: ${finalModel}`);
+        } else {
+            console.log(`🎯 Using configured model: ${finalModel}`);
+        }
         
         // Call appropriate AI provider
         switch (provider) {
@@ -436,8 +449,8 @@ export async function generateStoryEmojis(text, emojiCount, storyModeConfig) {
                     model: finalModel,
                     maxTokens,
                     temperature,
-                    endpoint: storyModeConfig.customEndpoint || '/v1/chat/completions',
-                    format: storyModeConfig.customFormat || 'openai'
+                    endpoint: customEndpoint || '/v1/chat/completions',
+                    format: customFormat || 'openai'
                 });
                 break;
             
