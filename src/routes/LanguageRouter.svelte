@@ -13,8 +13,7 @@ import BlogPost from '../components/Features/BlogPost.svelte';
     import VersionHistory from './VersionHistory.svelte';
     import ContactForm from './ContactForm.svelte';
     import AccountManager from './AccountManager.svelte';
-    import PrivacyPolicy from './PrivacyPolicy.svelte';
-    import LegalNotice from './LegalNotice.svelte';
+    import StaticPage from './StaticPage.svelte';
 
     import NotFound from './NotFound.svelte';
     import SEO from '../components/SEO.svelte';
@@ -291,17 +290,17 @@ import BlogPost from '../components/Features/BlogPost.svelte';
     </Route>
     
     <Route path="/privacy" let:params>
-        <PrivacyPolicy />
+        <StaticPage slug="privacy" />
     </Route>
     <Route path="/:lang/privacy" let:params>
-        <PrivacyPolicy />
+        <StaticPage slug="privacy" />
     </Route>
     
     <Route path="/legal" let:params>
-        <LegalNotice />
+        <StaticPage slug="legal" />
     </Route>
     <Route path="/:lang/legal" let:params>
-        <LegalNotice />
+        <StaticPage slug="legal" />
     </Route>
     
     <Route component={NotFound} />
