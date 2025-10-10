@@ -24,7 +24,7 @@ export function testLimitConfiguration() {
     // Test Limit Reached
     console.log('🚫 Test Limit Reached:');
     console.log('- Guest at limit:', validateUserLimits(false, 'free', 3));
-    console.log('- Free at limit:', validateUserLimits(true, 'free', 5));
+    console.log('- Free at limit:', validateUserLimits(true, 'free', 9));
     console.log('- Pro at limit:', validateUserLimits(true, 'pro', 25));
 
     console.log('✅ Limit Configuration Test Complete');
@@ -36,8 +36,8 @@ export function testLimitConsistency() {
     const testCases = [
         { isLoggedIn: false, tier: 'free', used: 0, expectedLimit: 3 },
         { isLoggedIn: false, tier: 'free', used: 3, expectedLimit: 3 },
-        { isLoggedIn: true, tier: 'free', used: 0, expectedLimit: 5 },
-        { isLoggedIn: true, tier: 'free', used: 5, expectedLimit: 5 },
+        { isLoggedIn: true, tier: 'free', used: 0, expectedLimit: 9 },
+        { isLoggedIn: true, tier: 'free', used: 9, expectedLimit: 9 },
         { isLoggedIn: true, tier: 'pro', used: 0, expectedLimit: 25 },
         { isLoggedIn: true, tier: 'pro', used: 25, expectedLimit: 25 }
     ];

@@ -7,7 +7,7 @@ export const DAILY_LIMITS = {
     GUEST: 3,
 
     // Free User (eingeloggt, kostenlos)
-    FREE: 5,
+    FREE: 9, // Updated: 9 generations per day for FREE users
 
     // Pro User (eingeloggt, bezahlt)
     PRO: 25,

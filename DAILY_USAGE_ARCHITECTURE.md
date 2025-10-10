@@ -61,15 +61,15 @@ Das Daily Usage Tracking System verwaltet tägliche Generierungslimits mit **Dat
 
 ## 🗄️ Datenstruktur
 
-### Google Sheets (metadata.dailyUsage)
+### Google Sheets (profile.dailyUsage + metadata.dailyUsage)
 
 ```json
 {
-  "date": "2025-10-10",
-  "used": 3,
-  "limit": 5,
-  "lastReset": "2025-10-10",
-  "lastIncrement": "2025-10-10T12:34:56.789Z"
+    "date": "2025-10-10",
+    "used": 3,
+    "limit": 9,
+    "lastReset": "2025-10-10",
+    "lastIncrement": "2025-10-10T12:34:56.789Z"
 }
 ```
 
@@ -77,10 +77,10 @@ Das Daily Usage Tracking System verwaltet tägliche Generierungslimits mit **Dat
 
 ```json
 {
-  "date": "2025-10-10",
-  "used": 3,
-  "limit": 5,
-  "lastReset": "2025-10-10"
+    "date": "2025-10-10",
+    "used": 3,
+    "limit": 9,
+    "lastReset": "2025-10-10"
 }
 ```
 
@@ -99,22 +99,22 @@ const usageData = await loadUsageFromAPI(account);
 
 // Priority 2: Load from localStorage (fallback)
 if (!usageData) {
-  usageData = getUsageFromLocalStorage();
+    usageData = getUsageFromLocalStorage();
 }
 
 // Priority 3: Create default
 if (!usageData) {
-  usageData = {
-    date: getTodayDateString(),
-    used: 0,
-    limit: getDailyLimitForUser(loggedIn, tier)
-  };
+    usageData = {
+        date: getTodayDateString(),
+        used: 0,
+        limit: getDailyLimitForUser(loggedIn, tier) // 3 for guest, 9 for FREE, 25 for PRO
+    };
 }
 
 // Check if new day → Auto-reset
 if (shouldResetUsage(usageData.lastReset)) {
-  usageData = resetUsageData();
-  await saveUsageToAPI(account, usageData);
+    usageData = resetUsageData();
+    await saveUsageToAPI(account, usageData);
 }
 
 // Update stores
@@ -137,8 +137,8 @@ saveUsageToLocalStorage({ used: newUsed, limit });
 
 // 3. Background sync to API (fire-and-forget)
 saveUsageToAPI(account, usageData).catch(error => {
-  console.warn('⚠️ API save failed, localStorage is up-to-date');
-  // Rollback could be implemented here
+    console.warn('⚠️ API save failed, localStorage is up-to-date');
+    // Rollback could be implemented here
 });
 ```
 
@@ -147,17 +147,17 @@ saveUsageToAPI(account, usageData).catch(error => {
 ```javascript
 // Bei jedem Load
 if (shouldResetUsage(usageData.lastReset)) {
-  // New day detected
-  usageData = {
-    date: getTodayDateString(),
-    used: 0,
-    limit: getDailyLimitForUser(loggedIn, tier),
-    lastReset: getTodayDateString()
-  };
-  
-  // Save to API + localStorage
-  await saveUsageToAPI(account, usageData);
-  saveUsageToLocalStorage(usageData);
+    // New day detected
+    usageData = {
+        date: getTodayDateString(),
+        used: 0,
+        limit: getDailyLimitForUser(loggedIn, tier),
+        lastReset: getTodayDateString()
+    };
+
+    // Save to API + localStorage
+    await saveUsageToAPI(account, usageData);
+    saveUsageToLocalStorage(usageData);
 }
 ```
 
@@ -192,11 +192,21 @@ src/
 {
   "userId": "user_123",
   "email": "user@example.com",
+  "profile": {
+    "name": "John Doe",
+    "dailyUsage": {
+      "date": "2025-10-10",
+      "used": 3,
+      "limit": 9,
+      "lastReset": "2025-10-10",
+      "lastIncrement": "2025-10-10T12:34:56.789Z"
+    }
+  },
   "metadata": {
     "dailyUsage": {
       "date": "2025-10-10",
       "used": 3,
-      "limit": 5,
+      "limit": 9,
       "lastReset": "2025-10-10",
       "lastIncrement": "2025-10-10T12:34:56.789Z"
     },
@@ -225,11 +235,20 @@ src/
     "userId": "user_123",
     "email": "user@example.com",
     "tier": "free",
+    "profile": {
+      "name": "John Doe",
+      "dailyUsage": {
+        "date": "2025-10-10",
+        "used": 3,
+        "limit": 9,
+        "lastReset": "2025-10-10"
+      }
+    },
     "metadata": {
       "dailyUsage": {
         "date": "2025-10-10",
         "used": 3,
-        "limit": 5,
+        "limit": 9,
         "lastReset": "2025-10-10"
       }
     }
@@ -272,11 +291,11 @@ src/
 <!-- src/components/Core/EmojiDisplay.svelte -->
 <script>
   import { incrementDailyUsage, initializeDailyUsage } from '../../stores/dailyUsageStore.js';
-  
+
   onMount(async () => {
     await initializeDailyUsage();
   });
-  
+
   async function handleSuccessfulStoryGeneration(response) {
     randomEmojis = response;
     await incrementDailyUsage();
@@ -289,23 +308,27 @@ src/
 ## 🔒 Security & Best Practices
 
 ### 1. **Idempotency**
-- `initializeDailyUsage()` kann mehrfach aufgerufen werden ohne Nebenwirkungen
-- Race Conditions verhindert durch `isLoading` Status
+
+-   `initializeDailyUsage()` kann mehrfach aufgerufen werden ohne Nebenwirkungen
+-   Race Conditions verhindert durch `isLoading` Status
 
 ### 2. **Error Handling**
-- API-Fehler werden geloggt, aber nicht blockierend
-- localStorage als robuster Fallback
-- Optimistic Updates für bessere UX
+
+-   API-Fehler werden geloggt, aber nicht blockierend
+-   localStorage als robuster Fallback
+-   Optimistic Updates für bessere UX
 
 ### 3. **Data Validation**
-- Date-String-Validierung (YYYY-MM-DD)
-- Reset nur bei gültigem Datum
-- Limit nie negativ
+
+-   Date-String-Validierung (YYYY-MM-DD)
+-   Reset nur bei gültigem Datum
+-   Limit nie negativ
 
 ### 4. **Performance**
-- Background-Sync (non-blocking)
-- Cached Promises für initializeDailyUsage
-- Debouncing bei häufigen Aufrufen
+
+-   Background-Sync (non-blocking)
+-   Cached Promises für initializeDailyUsage
+-   Debouncing bei häufigen Aufrufen
 
 ---
 
@@ -313,7 +336,11 @@ src/
 
 ```javascript
 // Manual Testing
-import { resetDailyUsage, incrementDailyUsage, initializeDailyUsage } from './stores/dailyUsageStore.js';
+import {
+    resetDailyUsage,
+    incrementDailyUsage,
+    initializeDailyUsage
+} from './stores/dailyUsageStore.js';
 
 // Reset to 0
 await resetDailyUsage();
@@ -329,11 +356,11 @@ await initializeDailyUsage();
 
 ## 📈 Limits
 
-| User Type | Daily Limit | Badge Display |
-|-----------|-------------|---------------|
-| **Guest** | 3           | 3, 2, 1 (green) → 💎 (red, pulse) |
-| **FREE**  | 5           | 5, 4, 3, 2, 1 (yellow) → 💎 (yellow, pulse) |
-| **PRO**   | 25          | ∞ (purple) |
+| User Type | Daily Limit | Badge Display                                      |
+| --------- | ----------- | -------------------------------------------------- |
+| **Guest** | 3           | 3, 2, 1 (green) → 💎 (red, pulse)                  |
+| **FREE**  | 9           | 9, 8, 7... 2, 1 (yellow) → 💎 (yellow, pulse)      |
+| **PRO**   | 25          | ∞ (purple)                                         |
 
 ---
 
@@ -344,16 +371,16 @@ await initializeDailyUsage();
 ```javascript
 // OLD: localStorage only
 function incrementDailyRequestCount() {
-  const count = getDailyRequestCount() + 1;
-  storageHelpers.set(STORAGE_KEYS.DAILY_REQUEST_COUNT, count);
+    const count = getDailyRequestCount() + 1;
+    storageHelpers.set(STORAGE_KEYS.DAILY_REQUEST_COUNT, count);
 }
 
 function checkAndResetDailyLimit() {
-  const storedDate = storageHelpers.get(STORAGE_KEYS.STORED_DATE);
-  const currentDate = new Date().toDateString();
-  if (storedDate !== currentDate) {
-    resetDailyRequestCount();
-  }
+    const storedDate = storageHelpers.get(STORAGE_KEYS.STORED_DATE);
+    const currentDate = new Date().toDateString();
+    if (storedDate !== currentDate) {
+        resetDailyRequestCount();
+    }
 }
 ```
 
@@ -362,26 +389,26 @@ function checkAndResetDailyLimit() {
 ```javascript
 // NEW: API + localStorage
 export async function incrementDailyUsage() {
-  // 1. Update stores (optimistic)
-  updateDailyLimitStore({ used: newUsed, limit });
-  saveUsageToLocalStorage(usageData);
-  
-  // 2. Sync to API (background)
-  if (loggedIn) {
+// 1. Update stores (optimistic)
+updateDailyLimitStore({ used: newUsed, limit });
+saveUsageToLocalStorage(usageData);
+
+// 2. Sync to API (background) - saves to BOTH profile AND metadata
+if (loggedIn) {
     await saveUsageToAPI(account, usageData);
-  }
+}
 }
 
 export async function initializeDailyUsage() {
-  // Priority: API > localStorage > default
-  let usageData = await loadUsageFromAPI(account);
-  if (!usageData) usageData = getUsageFromLocalStorage();
-  if (!usageData) usageData = getDefaults();
-  
-  // Auto-reset for new day
-  if (shouldResetUsage(usageData.lastReset)) {
-    usageData = resetUsageData();
-  }
+    // Priority: API > localStorage > default
+    let usageData = await loadUsageFromAPI(account);
+    if (!usageData) usageData = getUsageFromLocalStorage();
+    if (!usageData) usageData = getDefaults();
+
+    // Auto-reset for new day
+    if (shouldResetUsage(usageData.lastReset)) {
+        usageData = resetUsageData();
+    }
 }
 ```
 
@@ -400,15 +427,14 @@ export async function initializeDailyUsage() {
 
 ## 🔮 Roadmap
 
-- [ ] Analytics Dashboard (Usage pro User)
-- [ ] Admin Panel (Reset User Limits)
-- [ ] Weekly/Monthly Limits
-- [ ] Feature-spezifische Limits (Random vs Story)
-- [ ] Rate Limiting (Spam-Prevention)
+-   [ ] Analytics Dashboard (Usage pro User)
+-   [ ] Admin Panel (Reset User Limits)
+-   [ ] Weekly/Monthly Limits
+-   [ ] Feature-spezifische Limits (Random vs Story)
+-   [ ] Rate Limiting (Spam-Prevention)
 
 ---
 
 **Version:** 0.5.7  
 **Last Updated:** 2025-10-10  
 **Author:** Chris Matt (C. Matt)
-
