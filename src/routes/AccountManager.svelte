@@ -188,41 +188,59 @@
     let isDemoDataShown = false; // Track if showing demo data (not real from backend)
     let chartDataLoaded = false; // Guard to prevent multiple loads
     let lastLoadedUserId = null; // Track which user's data is loaded
+    let accountUnsubscribe = null; // Store unsubscribe function
     
-    // Load usage history from current account (reactive with guard)
-    $: if ($currentAccount && $isLoggedIn) {
-        const currentUserId = $currentAccount.userId;
+    // ROBUST: Watch currentAccount changes and trigger load
+    // This works for BOTH soft reload AND hard reload!
+    function watchAccountChanges() {
+        console.log('👀 [CHART] Setting up currentAccount watcher...');
         
-        // Only load if we haven't loaded for this user yet, or if user changed
-        if (currentUserId && currentUserId !== lastLoadedUserId && !chartDataLoaded) {
-            console.log('📊 [CHART REACTIVE] Triggering load for user:', currentUserId);
-            lastLoadedUserId = currentUserId;
-            // DON'T set chartDataLoaded = false here! It will be set to true in finally block
-            loadChartDataAsync();
-        } else {
-            console.log('📊 [CHART REACTIVE] Skipping load:', {
-                hasAccount: !!$currentAccount,
-                currentUserId,
-                lastLoadedUserId,
-                chartDataLoaded,
-                reason: chartDataLoaded ? 'already loaded' : currentUserId === lastLoadedUserId ? 'same user' : 'unknown'
-            });
-        }
+        accountUnsubscribe = currentAccount.subscribe((account) => {
+            // Only proceed if logged in and account exists
+            if (!account || !$isLoggedIn) {
+                console.log('👀 [CHART WATCH] No account or not logged in, skipping');
+                return;
+            }
+            
+            const currentUserId = account.userId;
+            
+            // Check if we need to load for this user
+            if (currentUserId && currentUserId !== lastLoadedUserId) {
+                console.log('👀 [CHART WATCH] New user detected, triggering load:', currentUserId);
+                lastLoadedUserId = currentUserId;
+                chartDataLoaded = false; // Reset flag for new user
+                
+                // Small delay to ensure session restore is fully complete
+                setTimeout(() => {
+                    loadChartDataAsync();
+                }, 100);
+            } else if (currentUserId === lastLoadedUserId && !chartDataLoaded) {
+                // Same user but data not loaded yet (race condition recovery)
+                console.log('👀 [CHART WATCH] Same user, data not loaded, retrying...');
+                setTimeout(() => {
+                    loadChartDataAsync();
+                }, 200);
+            } else {
+                console.log('👀 [CHART WATCH] Already loaded for this user:', {
+                    currentUserId,
+                    lastLoadedUserId,
+                    chartDataLoaded
+                });
+            }
+        });
     }
     
-    // CRITICAL: Reset on component mount (hard reload support!)
+    // CRITICAL: Setup watcher on mount, cleanup on destroy
     onMount(() => {
-        console.log('🔄 [CHART] Component mounted, checking if load needed...');
+        console.log('🔄 [CHART] Component mounted, setting up watchers...');
+        watchAccountChanges();
         
-        // If user is logged in but chart not loaded, trigger load
-        if ($currentAccount && $isLoggedIn && !chartDataLoaded) {
-            const currentUserId = $currentAccount.userId;
-            if (currentUserId && currentUserId !== lastLoadedUserId) {
-                console.log('📊 [CHART MOUNT] Triggering load after mount:', currentUserId);
-                lastLoadedUserId = currentUserId;
-                loadChartDataAsync();
+        return () => {
+            console.log('🔄 [CHART] Component unmounting, cleaning up...');
+            if (accountUnsubscribe) {
+                accountUnsubscribe();
             }
-        }
+        };
     });
     
     // Calculate stats (reactive)
