@@ -56,6 +56,40 @@ function getUsageFromLocalStorage() {
                 );
                 return null;
             }
+            
+            // 🔧 MIGRATION: Auto-fix old limit values (v0.5.7+)
+            // Old limits: GUEST: 3, PRO: 25
+            // New limits: GUEST: 5, PRO: 35
+            const OLD_LIMITS = [3, 25]; // Old incorrect values
+            if (OLD_LIMITS.includes(stored.limit)) {
+                console.log('🔄 MIGRATION: Detected old limit value:', stored.limit);
+                
+                // Determine correct new limit based on user state
+                // We can't access stores here, so we estimate from the old limit
+                let newLimit;
+                if (stored.limit === 3) {
+                    // Was GUEST (3) → now GUEST (5)
+                    newLimit = 5;
+                } else if (stored.limit === 25) {
+                    // Was PRO (25) → now PRO (35)
+                    newLimit = 35;
+                }
+                
+                // Update stored data
+                const migratedData = {
+                    ...stored,
+                    limit: newLimit
+                };
+                
+                // Save migrated data back to localStorage
+                storageHelpers.set(STORAGE_KEYS.DAILY_USAGE, migratedData);
+                
+                console.log('✅ MIGRATION: Limit updated:', stored.limit, '→', newLimit);
+                console.log('✅ MIGRATION: Migrated data saved to localStorage');
+                
+                return migratedData;
+            }
+            
             console.log(
                 '📦 Loaded daily usage from localStorage (same day):',
                 stored
