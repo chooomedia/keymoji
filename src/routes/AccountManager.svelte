@@ -210,6 +210,21 @@
         }
     }
     
+    // CRITICAL: Reset on component mount (hard reload support!)
+    onMount(() => {
+        console.log('🔄 [CHART] Component mounted, checking if load needed...');
+        
+        // If user is logged in but chart not loaded, trigger load
+        if ($currentAccount && $isLoggedIn && !chartDataLoaded) {
+            const currentUserId = $currentAccount.userId;
+            if (currentUserId && currentUserId !== lastLoadedUserId) {
+                console.log('📊 [CHART MOUNT] Triggering load after mount:', currentUserId);
+                lastLoadedUserId = currentUserId;
+                loadChartDataAsync();
+            }
+        }
+    });
+    
     // Calculate stats (reactive)
     $: usageStats = calculateUsageStats(usageHistory);
     
