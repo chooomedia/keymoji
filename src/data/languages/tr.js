@@ -81,7 +81,7 @@ export default {
         newsletterText:
             'Güncel kalın ve güvenle bültene abone olun. {privacyPolicy}',
         privacyPolicyLink: 'Gizlilik politikasını görüntüle',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'Ana sayfaya dön',
         footerText: 'Sevgiyle geliştirildi',
         validationErrorMessage:

@@ -82,7 +82,7 @@ export default {
         newsletterText:
             'Blijf op de hoogte en abonneer je met vertrouwen op de nieuwsbrief. {privacyPolicy}',
         privacyPolicyLink: 'Privacybeleid bekijken',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'Terug naar home',
         footerText: 'Met liefde ontwikkeld',
         validationErrorMessage:

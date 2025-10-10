@@ -82,7 +82,7 @@ export default {
         newsletterText:
             '最新情報を入手し、安心してニュースレターを購読してください。{privacyPolicy}',
         privacyPolicyLink: 'プライバシーポリシーを表示',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'ホームに戻る',
         footerText: '愛を込めて開発',
         validationErrorMessage: '送信前にフォームのエラーを修正してください 🔍',

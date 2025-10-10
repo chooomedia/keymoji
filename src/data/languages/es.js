@@ -82,7 +82,7 @@ export default {
         newsletterText:
             'Mantente al día y suscríbete al boletín con confianza. {privacyPolicy}',
         privacyPolicyLink: 'Ver política de privacidad',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'Volver al inicio',
         footerText: 'Desarrollado con amor',
         validationErrorMessage:

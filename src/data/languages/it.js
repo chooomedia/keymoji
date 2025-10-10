@@ -81,7 +81,7 @@ export default {
         newsletterText:
             'Rimani aggiornato e iscriviti alla newsletter con fiducia. {privacyPolicy}',
         privacyPolicyLink: 'Visualizza politica sulla privacy',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'Torna alla home',
         footerText: 'Sviluppato con amore',
         validationErrorMessage:

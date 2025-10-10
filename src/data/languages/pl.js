@@ -83,7 +83,7 @@ export default {
         newsletterText:
             'Bądź na bieżąco i zapisz się do newslettera z pewnością. {privacyPolicy}',
         privacyPolicyLink: 'Zobacz politykę prywatności',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'Powrót do strony głównej',
         footerText: 'Stworzone z miłością',
         validationErrorMessage: 'Popraw błędy w formularzu przed wysłaniem 🔍',

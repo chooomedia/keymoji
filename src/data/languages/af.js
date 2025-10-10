@@ -82,7 +82,7 @@ export default {
         newsletterText:
             'Bly op datum en teken met vertroue in op die nuusbrief. {privacyPolicy}',
         privacyPolicyLink: 'Bekyk privaatheidsbeleid',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'Terug na tuisblad',
         footerText: 'Ontwikkel met liefde',
         validationErrorMessage:

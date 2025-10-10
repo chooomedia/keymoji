@@ -80,7 +80,7 @@ export default {
         newsletterOptIn: 'Newsletter yIlan',
         newsletterText: "Qanglu' 'ej newsletter yIlan. {privacyPolicy}",
         privacyPolicyLink: "De' polchu'ghach yIlan",
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'juH wIchegh',
         footerText: "parmaqmo' QulwI' Qun",
         validationErrorMessage: "Qagh! QIn QulwI' Qaghmey yIbachqa' 🔍",

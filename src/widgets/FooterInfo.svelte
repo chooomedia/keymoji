@@ -2,11 +2,24 @@
 <script>
     import { currentLanguage, translations } from '../stores/contentStore.js';
     import { navigateToVersions } from '../utils/navigation.js';
+    import { navigate } from 'svelte-routing';
     import UserCounter from '../components/Core/UserCounter.svelte';
     import { linkedinIcon } from '../assets/shapes.js';
 
     function navigateToVersion() {
         navigateToVersions(false);
+    }
+
+    function navigateToPrivacy() {
+        const lang = $currentLanguage || 'en';
+        const path = lang === 'en' ? '/privacy' : `/${lang}/privacy`;
+        navigate(path);
+    }
+
+    function navigateToLegal() {
+        const lang = $currentLanguage || 'en';
+        const path = lang === 'en' ? '/legal' : `/${lang}/legal`;
+        navigate(path);
     }
 </script>
 
@@ -62,6 +75,30 @@
         <UserCounter />
         <span class="ml-1">Visits</span>
     </div>
+    
+    <span class="px-2" aria-hidden="true">·</span>
+    
+    <!-- Privacy Link -->
+    <button 
+        on:click={navigateToPrivacy}
+        class="hover:text-yellow-500 focus:text-yellow-500 active:text-yellow-600 transition-all duration-200 transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1 rounded px-1"
+        type="button"
+        aria-label={$translations?.footer?.privacy || 'Privacy Policy'}
+        title={$translations?.footer?.privacy || 'Privacy Policy'}>
+        {$translations?.footer?.privacy || 'Privacy'}
+    </button>
+    
+    <span class="px-2" aria-hidden="true">·</span>
+    
+    <!-- Legal Link -->
+    <button 
+        on:click={navigateToLegal}
+        class="hover:text-yellow-500 focus:text-yellow-500 active:text-yellow-600 transition-all duration-200 transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1 rounded px-1"
+        type="button"
+        aria-label={$translations?.footer?.legal || 'Legal Notice'}
+        title={$translations?.footer?.legal || 'Legal Notice'}>
+        {$translations?.footer?.legal || 'Legal'}
+    </button>
 
     <!-- Hidden Schema Markup for Software/Website -->
     <div style="display: none;">

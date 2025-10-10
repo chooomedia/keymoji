@@ -83,7 +83,7 @@ export default {
         newsletterText:
             'Bliib uf em Laufende und abonnier de Newsletter mit Vertraue. {privacyPolicy}',
         privacyPolicyLink: 'Datenschutz azeige',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'Zrugg zu Home',
         footerText: 'Mit Liebi entwicklet',
         validationErrorMessage:

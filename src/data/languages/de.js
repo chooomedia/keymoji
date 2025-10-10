@@ -82,7 +82,7 @@ export default {
         newsletterText:
             'Auf dem Laufenden bleiben und mit Sicherheit den Newsletter abonnieren. {privacyPolicy}',
         privacyPolicyLink: 'Datenschutz anzeigen',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'Zurück zu Home',
         footerText: 'Mit Liebe entwickelt',
         validationErrorMessage:

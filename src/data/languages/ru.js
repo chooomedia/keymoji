@@ -82,7 +82,7 @@ export default {
         newsletterText:
             'Будьте в курсе и подпишитесь на рассылку с уверенностью. {privacyPolicy}',
         privacyPolicyLink: 'Посмотреть политику конфиденциальности',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'Назад на главную',
         footerText: 'Сделано с любовью',
         validationErrorMessage:

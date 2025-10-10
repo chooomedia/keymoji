@@ -80,7 +80,7 @@ export default {
         newsletterText:
             'Stay up to date and subscribe to the newsletter with confidence. {privacyPolicy}',
         privacyPolicyLink: 'View privacy policy',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'Back to home',
         footerText: 'Developed with love',
         validationErrorMessage:
@@ -554,7 +554,9 @@ export default {
             instantSetup: 'Instant Setup',
             noSpam: 'No Spam',
             text: 'Magic links are sent via email and valid for 15 minutes.',
-            privacy: 'Your data is handled securely.'
+            privacy: 'Privacy',
+            legal: 'Legal',
+            versionHistory: 'Version History'
         },
 
         // Limits and messages

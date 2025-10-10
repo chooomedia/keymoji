@@ -81,7 +81,7 @@ export default {
         newsletterText:
             '최신 정보를 받고 안심하고 뉴스레터를 구독하세요. {privacyPolicy}',
         privacyPolicyLink: '개인정보처리방침 보기',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: '홈으로 돌아가기',
         footerText: '사랑을 담아 개발',
         validationErrorMessage: '제출 전에 양식 오류를 수정하세요 🔍',

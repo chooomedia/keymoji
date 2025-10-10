@@ -80,7 +80,7 @@ export default {
         newsletterOptIn: 'Gwedh i narn-lîn',
         newsletterText: 'No veren a tiro i narn-lîn lín. {privacyPolicy}',
         privacyPolicyLink: 'Tiro i polith naid',
-        privacyPolicyUrl: '/privacy-policy',
+        privacyPolicyUrl: '/privacy',
         backToMainButton: 'Ad na bar',
         footerText: "parmaqmo' QulwI' Qun",
         validationErrorMessage: "Qagh! QIn QulwI' Qaghmey yIbachqa' 🔍",
