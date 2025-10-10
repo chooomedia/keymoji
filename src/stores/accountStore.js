@@ -14,6 +14,7 @@ import { showExistingAccountFound } from './modalStore.js';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 import { WEBHOOKS } from '../config/api.js';
 import { isDevelopment } from '../utils/environment.js';
+import { cachedFetchAccount, invalidateCachePattern, initializeCache } from '../utils/apiCache.js';
 
 // Security constants
 const SESSION_TIMEOUT = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -654,49 +655,40 @@ export async function verifyMagicLinkFrontend(token, email) {
         console.log('🔗 Setting account data:', accountData);
 
         // CRITICAL: Load FULL account data from Google Sheets (including usageHistory!)
-        console.log('📡 [LOGIN] Loading full account data from database...');
+        // Use cached fetch to prevent 429 errors!
+        console.log('📡 [LOGIN] Loading full account data from database (cached)...');
         try {
-            const fullAccountResponse = await fetch(WEBHOOKS.ACCOUNT.READ, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    action: 'read',
-                    userId: accountData.userId,
-                    email: accountData.email
-                })
+            const fullAccountResult = await cachedFetchAccount(
+                accountData.userId,
+                accountData.email,
+                'read'
+            );
+
+            console.log('✅ [LOGIN] Full account data loaded (cached):', {
+                success: fullAccountResult.success,
+                hasAccount: !!fullAccountResult.account,
+                hasMetadata: !!fullAccountResult.account?.metadata,
+                hasUsageHistory:
+                    !!fullAccountResult.account?.metadata?.usageHistory
             });
 
-            if (fullAccountResponse.ok) {
-                const fullAccountResult = await fullAccountResponse.json();
-                console.log('✅ [LOGIN] Full account data loaded:', {
-                    success: fullAccountResult.success,
-                    hasAccount: !!fullAccountResult.account,
-                    hasMetadata: !!fullAccountResult.account?.metadata,
-                    hasUsageHistory:
-                        !!fullAccountResult.account?.metadata?.usageHistory
-                });
-
-                if (fullAccountResult.success && fullAccountResult.account) {
-                    // Use FULL account data with usageHistory
-                    accountData = {
-                        ...accountData,
-                        ...fullAccountResult.account,
-                        // Preserve session data from verification
-                        sessionId: accountData.sessionId,
-                        sessionExpires: accountData.sessionExpires
-                    };
-                    console.log(
-                        '✅ [LOGIN] Account data merged with full database data'
-                    );
-                    console.log(
-                        '✅ [LOGIN] UsageHistory entries:',
-                        fullAccountResult.account?.metadata?.usageHistory
-                            ?.length || 0
-                    );
-                }
+            if (fullAccountResult.success && fullAccountResult.account) {
+                // Use FULL account data with usageHistory
+                accountData = {
+                    ...accountData,
+                    ...fullAccountResult.account,
+                    // Preserve session data from verification
+                    sessionId: accountData.sessionId,
+                    sessionExpires: accountData.sessionExpires
+                };
+                console.log(
+                    '✅ [LOGIN] Account data merged with full database data'
+                );
+                console.log(
+                    '✅ [LOGIN] UsageHistory entries:',
+                    fullAccountResult.account?.metadata?.usageHistory
+                        ?.length || 0
+                );
             } else {
                 console.warn(
                     '⚠️ [LOGIN] Failed to load full account data, using verification data only'
@@ -899,40 +891,32 @@ export async function initializeAccountFromCookies() {
             let accountInfo = null;
 
             try {
-                const fullAccountResponse = await fetch(WEBHOOKS.ACCOUNT.READ, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({
-                        action: 'read',
-                        userId: userPrefs.userId,
-                        email: userPrefs.email
-                    })
-                });
+                // Use cached fetch to prevent 429 errors!
+                const fullAccountResult = await cachedFetchAccount(
+                    userPrefs.userId,
+                    userPrefs.email,
+                    'read'
+                );
 
-                if (fullAccountResponse.ok) {
-                    const fullAccountResult = await fullAccountResponse.json();
-                    console.log(
-                        '✅ [SESSION RESTORE] Full account data loaded from database:',
-                        {
-                            success: fullAccountResult.success,
-                            hasAccount: !!fullAccountResult.account,
-                            hasMetadata: !!fullAccountResult.account?.metadata,
-                            hasUsageHistory:
-                                !!fullAccountResult.account?.metadata
-                                    ?.usageHistory,
-                            usageHistoryLength:
-                                fullAccountResult.account?.metadata
-                                    ?.usageHistory?.length || 0
-                        }
-                    );
+                console.log(
+                    '✅ [SESSION RESTORE] Full account data loaded from database (cached):',
+                    {
+                        success: fullAccountResult.success,
+                        hasAccount: !!fullAccountResult.account,
+                        hasMetadata: !!fullAccountResult.account?.metadata,
+                        hasUsageHistory:
+                            !!fullAccountResult.account?.metadata
+                                ?.usageHistory,
+                        usageHistoryLength:
+                            fullAccountResult.account?.metadata
+                                ?.usageHistory?.length || 0
+                    }
+                );
 
-                    if (
-                        fullAccountResult.success &&
-                        fullAccountResult.account
-                    ) {
+                if (
+                    fullAccountResult.success &&
+                    fullAccountResult.account
+                ) {
                         // Use FULL account data from database
                         accountInfo = {
                             ...fullAccountResult.account,
