@@ -131,6 +131,23 @@ function ensureLanguageInPath() {
 function initializeApp() {
     // Display console art on production build
     displayKeymojiConsoleArt();
+    
+    // Import debug tools in development
+    if (!isProduction()) {
+        import('./utils/settingsDebug.js').then(module => {
+            console.log('🔧 Settings Debug Tools loaded');
+            window.keymojiDebug = module;
+        });
+        
+        import('./utils/dailyUsageDebug.js').then(module => {
+            console.log('🔧 Daily Usage Debug Tools loaded');
+        });
+        
+        import('./utils/usageHistoryGenerator.js').then(module => {
+            console.log('🔧 Usage History Generator loaded');
+            console.log('📊 Quick: await window.keymojiUsageGenerator.generate4Weeks()');
+        });
+    }
 
     // Validate language path
     ensureLanguageInPath();
