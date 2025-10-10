@@ -7,6 +7,7 @@
 ## 📊 **SCHRITT 1: Google Sheets aktualisieren**
 
 ### **Warum:**
+
 Die usageHistory Daten für cm@chooo.de müssen in Google Sheets sein!
 
 ### **Wie:**
@@ -14,8 +15,9 @@ Die usageHistory Daten für cm@chooo.de müssen in Google Sheets sein!
 1. **Öffne** dein Google Sheet "accounts"
 
 2. **Finde** die Zeile für:
-   - Email: `cm@chooo.de`
-   - UserId: `user_1753963152928`
+
+    - Email: `cm@chooo.de`
+    - UserId: `user_1753963152928`
 
 3. **Update Spalte G (metadata):**
 
@@ -38,6 +40,7 @@ Die usageHistory Daten für cm@chooo.de müssen in Google Sheets sein!
 ### **A. Dev Server (sollte laufen):**
 
 Falls nicht:
+
 ```bash
 npm run dev
 ```
@@ -89,10 +92,11 @@ location.href = '/';
 
 ```javascript
 // In Console (F12):
-window.instantChartTest()
+window.instantChartTest();
 ```
 
 **Expected:**
+
 ```
 ✅ PASS: Account exists
 ✅ PASS: Metadata is object
@@ -108,12 +112,13 @@ window.instantChartTest()
 ### **F. Navigate zu /account:**
 
 Chart sollte jetzt sichtbar sein:
-- ✅ Loading skeleton (kurz)
-- ✅ Yellow line chart
-- ✅ 28 data points
-- ✅ Date range: 13.9 - 10.10
-- ✅ Smooth animation
-- ✅ Interactive tooltips
+
+-   ✅ Loading skeleton (kurz)
+-   ✅ Yellow line chart
+-   ✅ 28 data points
+-   ✅ Date range: 13.9 - 10.10
+-   ✅ Smooth animation
+-   ✅ Interactive tooltips
 
 ---
 
@@ -126,9 +131,10 @@ Vercel Deployment braucht manchmal etwas länger.
 ### **Option 2: Check Vercel Dashboard**
 
 Gehe zu: https://vercel.com/dashboard
-- Projekt: keymoji-backend
-- Latest Deployment: Should be "Ready"
-- Logs: Check for errors
+
+-   Projekt: keymoji-backend
+-   Latest Deployment: Should be "Ready"
+-   Logs: Check for errors
 
 ### **Option 3: Test auf Production statt localhost**
 
@@ -147,8 +153,8 @@ Falls du JETZT sofort testen willst ohne Google Sheets zu updaten:
 
 ```javascript
 // Browser Console (F12):
-window.chartDebugger.injectTestData()
-location.reload()
+window.chartDebugger.injectTestData();
+location.reload();
 ```
 
 Das injiziert 28 Tage Test-Daten direkt in den Store!
@@ -161,17 +167,17 @@ Das injiziert 28 Tage Test-Daten direkt in den Store!
 
 ## 📋 **Checklist:**
 
-- [ ] Backend deployed (Vercel zeigt "Ready")
-- [ ] Google Sheets updated mit kompletter metadata
-- [ ] Dev server läuft (`npm run dev`)
-- [ ] Ausgeloggt (`localStorage.clear()`)
-- [ ] Neu eingeloggt (cm@chooo.de Magic Link)
-- [ ] Console check: KEINE CORS Errors
-- [ ] Console check: `[ACCOUNT DEBUG] UsageHistory entries: 28`
-- [ ] Test: `window.instantChartTest()` → ALL PASSED
-- [ ] Visual: Chart zeigt 28 Tage
-- [ ] Visual: Yellow line animiert
-- [ ] Visual: Tooltips funktionieren
+-   [ ] Backend deployed (Vercel zeigt "Ready")
+-   [ ] Google Sheets updated mit kompletter metadata
+-   [ ] Dev server läuft (`npm run dev`)
+-   [ ] Ausgeloggt (`localStorage.clear()`)
+-   [ ] Neu eingeloggt (cm@chooo.de Magic Link)
+-   [ ] Console check: KEINE CORS Errors
+-   [ ] Console check: `[ACCOUNT DEBUG] UsageHistory entries: 28`
+-   [ ] Test: `window.instantChartTest()` → ALL PASSED
+-   [ ] Visual: Chart zeigt 28 Tage
+-   [ ] Visual: Yellow line animiert
+-   [ ] Visual: Tooltips funktionieren
 
 ---
 
@@ -183,9 +189,10 @@ Das injiziert 28 Tage Test-Daten direkt in den Store!
 4. **Chart:** Sollte 28 Tage zeigen! 🎉
 
 **ODER Quick Test:**
-```javascript
-window.chartDebugger.injectTestData()
-location.reload()
-```
-→ Chart sofort sichtbar (mit Test-Daten)!
 
+```javascript
+window.chartDebugger.injectTestData();
+location.reload();
+```
+
+→ Chart sofort sichtbar (mit Test-Daten)!
