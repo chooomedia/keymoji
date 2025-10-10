@@ -303,24 +303,24 @@ export function initializeAccountFromCookies() {
     try {
         // 1. Read cookies
         const accountInfo = getUserPreferences();
-        
+
         if (!accountInfo || !accountInfo.userId) {
             console.log('No account session found');
             return false;
         }
-        
+
         // 2. Validate session
         if (!hasValidUserSession()) {
             console.log('Session expired');
             return false;
         }
-        
+
         // 3. Restore account from API
         console.log('📡 Loading account from API:', accountInfo.userId);
-        
+
         // CRITICAL: This calls STEP 3
         fetchAccountFromAPI(accountInfo.userId, accountInfo.email);
-        
+
         return true;
     } catch (error) {
         console.error('Failed to restore session:', error);
@@ -337,21 +337,24 @@ export function initializeAccountFromCookies() {
 // src/stores/accountStore.js (implicit in verifyMagicLinkFrontend or similar)
 
 async function fetchAccountFromAPI(userId, email) {
-    const response = await fetch('https://keymoji-backend.vercel.app/api/account', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({
-            action: 'read',
-            userId: userId,
-            email: email
-        })
-    });
-    
+    const response = await fetch(
+        'https://keymoji-backend.vercel.app/api/account',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                action: 'read',
+                userId: userId,
+                email: email
+            })
+        }
+    );
+
     const result = await response.json();
-    
+
     if (result.success && result.account) {
         // STEP 10: Process response
         syncAccountData(result.account);
@@ -370,9 +373,9 @@ export default async function handler(req, res) {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    
+
     const { action, userId, email } = req.body;
-    
+
     if (action === 'read') {
         return handleAccountRead(userId, email, res);
     }
@@ -393,15 +396,15 @@ async function handleAccountRead(userId, email, res) {
                 })
             }
         );
-        
+
         const data = await n8nResponse.json();
-        
+
         // Return to frontend
         return res.status(200).json(data);
     } catch (error) {
-        return res.status(500).json({ 
-            success: false, 
-            error: error.message 
+        return res.status(500).json({
+            success: false,
+            error: error.message
         });
     }
 }
@@ -426,6 +429,7 @@ async function handleAccountRead(userId, email, res) {
 ```
 
 **Returns:**
+
 ```json
 {
     "userId": "user_1760079091439",
@@ -474,10 +478,11 @@ return {
         tier: lookupData.tier,
         createdAt: lookupData.createdAt,
         lastLogin: lookupData.lastLogin,
-        profile: profile,        // ← OBJECT
-        metadata: {              // ← OBJECT
+        profile: profile, // ← OBJECT
+        metadata: {
+            // ← OBJECT
             dailyUsage: metadata.dailyUsage,
-            usageHistory: usageHistory,  // ← ARRAY OF 28 OBJECTS!
+            usageHistory: usageHistory, // ← ARRAY OF 28 OBJECTS!
             settings: settings
         },
         status: lookupData.status
@@ -496,17 +501,17 @@ async function syncAccountData(accountData) {
     if (accountData) {
         // Set all stores
         isLoggedIn.set(true);
-        currentAccount.set(accountData);  // ← Hier kommt usageHistory rein!
+        currentAccount.set(accountData); // ← Hier kommt usageHistory rein!
         accountTier.set(accountData.tier || 'free');
         userProfile.set(accountData.profile || {});
-        
+
         console.log('✅ Account synced:', {
             userId: accountData.userId,
             tier: accountData.tier,
             usageHistory: accountData.metadata?.usageHistory?.length || 0,
             settings: accountData.metadata?.settings
         });
-        
+
         // Initialize daily usage from API data
         await initializeDailyUsage();
     }
@@ -540,20 +545,23 @@ $: usageChartData = generateChartData(selectedTimePeriod, usageHistory);
 ### ⚠️ JSON String vs Object
 
 **Google Sheets speichert metadata als STRING:**
+
 ```
 metadata: "{\"usageHistory\":[...]}"
          ↑ String mit escaped quotes
 ```
 
 **n8n MUSS parsen:**
+
 ```javascript
 const metadata = JSON.parse(lookupData.metadata);
 // Now: metadata.usageHistory is an ARRAY
 ```
 
 **Frontend empfängt als OBJECT:**
+
 ```javascript
-result.account.metadata.usageHistory
+result.account.metadata.usageHistory;
 // Already parsed by n8n!
 ```
 
@@ -593,22 +601,22 @@ console.log('Entries:', account?.metadata?.usageHistory?.length);
 ```
 1. Webhook Trigger
    ↓ (receives { action: "read", userId, email })
-   
+
 2. IF: Check Action
    ↓ (if action === "read")
-   
+
 3. Google Sheets: Lookup Account
    ↓ (finds row by userId)
    ↓ (returns raw data with JSON strings)
-   
+
 4. Code Node: Parse Response
    ↓ (JSON.parse metadata string)
    ↓ (JSON.parse profile string)
    ↓ (extracts usageHistory array)
-   
+
 5. Send Response
    ↓ (sends parsed objects back)
-   
+
 → Frontend receives clean objects!
 ```
 
@@ -620,13 +628,14 @@ console.log('Entries:', account?.metadata?.usageHistory?.length);
 
 ```javascript
 // Parse metadata string to object
-const metadata = typeof lookupData.metadata === 'string'
-    ? JSON.parse(lookupData.metadata || '{}')
-    : (lookupData.metadata || {});
+const metadata =
+    typeof lookupData.metadata === 'string'
+        ? JSON.parse(lookupData.metadata || '{}')
+        : lookupData.metadata || {};
 
 // Ensure usageHistory is array
-const usageHistory = Array.isArray(metadata.usageHistory) 
-    ? metadata.usageHistory 
+const usageHistory = Array.isArray(metadata.usageHistory)
+    ? metadata.usageHistory
     : [];
 
 // Return with parsed data
@@ -635,7 +644,7 @@ return {
         // ... other fields
         metadata: {
             dailyUsage: metadata.dailyUsage,
-            usageHistory: usageHistory,  // ← MUST be array!
+            usageHistory: usageHistory, // ← MUST be array!
             settings: metadata.settings
         }
     }
@@ -670,18 +679,19 @@ console.log('chartData generated:', usageChartData);
 
 ## 🚀 Production Checklist
 
-- [ ] **Google Sheets:** metadata enthält `usageHistory` array
-- [ ] **n8n Workflow:** Code Node parsed JSON strings korrekt
-- [ ] **n8n Workflow:** Response enthält `metadata.usageHistory` als array
-- [ ] **Vercel Backend:** Leitet requests korrekt weiter
-- [ ] **Frontend:** `currentAccount` store empfängt parsed data
-- [ ] **Frontend:** `getUsageHistory()` findet array
-- [ ] **Frontend:** `generateChartData()` filtered korrekt
-- [ ] **Frontend:** LineChart rendert 28 Punkte
+-   [ ] **Google Sheets:** metadata enthält `usageHistory` array
+-   [ ] **n8n Workflow:** Code Node parsed JSON strings korrekt
+-   [ ] **n8n Workflow:** Response enthält `metadata.usageHistory` als array
+-   [ ] **Vercel Backend:** Leitet requests korrekt weiter
+-   [ ] **Frontend:** `currentAccount` store empfängt parsed data
+-   [ ] **Frontend:** `getUsageHistory()` findet array
+-   [ ] **Frontend:** `generateChartData()` filtered korrekt
+-   [ ] **Frontend:** LineChart rendert 28 Punkte
 
 ---
 
 **TL;DR Flow:**
+
 ```
 Google Sheets (JSON-String)
     ↓
@@ -702,4 +712,3 @@ LineChart component (render 28 points)
 ```
 
 **Alles klar erklärt! 🎉**
-

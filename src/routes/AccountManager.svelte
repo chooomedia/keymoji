@@ -59,10 +59,12 @@
     import Button from '../components/UI/Button.svelte';
     import ContextBadge from '../components/UI/ContextBadge.svelte';
     import LineChart from '../components/UI/LineChart.svelte';
+    import ChartSkeleton from '../components/UI/ChartSkeleton.svelte';
     import FooterInfo from '../widgets/FooterInfo.svelte';
     import FeatureCard from '../components/Features/FeatureCard.svelte';
     import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers.js';
     import { getUsageHistory, calculateUsageStats } from '../utils/usageHistoryHelpers.js';
+    import { loadUsageHistoryWithRetry, refreshUsageHistory, shouldRefreshHistory } from '../utils/usageHistoryLoader.js';
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
     $: pageTitle = (() => {
@@ -179,40 +181,116 @@
     
     // Usage Chart State
     let selectedTimePeriod = '7d';
+    let isLoadingChartData = false;
+    let chartDataError = null;
+    let usageHistory = [];
     
     // Load usage history from current account (reactive)
-    $: usageHistory = getUsageHistory($currentAccount);
+    $: if ($currentAccount && $isLoggedIn) {
+        // Automatic load when account becomes available
+        loadChartDataAsync();
+    }
+    
+    // Calculate stats (reactive)
     $: usageStats = calculateUsageStats(usageHistory);
     
     // Generate chart data based on selected period (reactive)
     $: usageChartData = generateChartData(selectedTimePeriod, usageHistory);
     
+    /**
+     * Async function to load chart data with UX best practices
+     * - Shows loading skeleton
+     * - Handles errors gracefully
+     * - Supports retry
+     */
+    async function loadChartDataAsync() {
+        try {
+            isLoadingChartData = true;
+            chartDataError = null;
+            
+            console.log('📊 Loading chart data asynchronously...');
+            
+            // Option 1: Load from currentAccount (already loaded)
+            const accountHistory = getUsageHistory($currentAccount);
+            
+            if (accountHistory && accountHistory.length > 0) {
+                // Data already available in currentAccount
+                usageHistory = accountHistory;
+                console.log('✅ Chart data loaded from currentAccount:', usageHistory.length, 'entries');
+            } else {
+                // Option 2: Fetch from API (if currentAccount has no history)
+                console.log('📡 No history in currentAccount, fetching from API...');
+                usageHistory = await loadUsageHistoryWithRetry(
+                    $currentAccount?.userId,
+                    $currentAccount?.email
+                );
+                console.log('✅ Chart data loaded from API:', usageHistory.length, 'entries');
+            }
+            
+            // Check if we need to refresh (stale data)
+            if (shouldRefreshHistory(usageHistory)) {
+                console.log('🔄 History is stale, refreshing...');
+                const refreshed = await refreshUsageHistory();
+                if (refreshed && refreshed.length > 0) {
+                    usageHistory = refreshed;
+                    console.log('✅ Chart data refreshed:', usageHistory.length, 'entries');
+                }
+            }
+            
+        } catch (error) {
+            console.error('❌ Failed to load chart data:', error);
+            chartDataError = error.message || 'Failed to load chart data';
+            showError('Fehler beim Laden der Chart-Daten', 3000);
+            
+            // Fallback: Try to use any existing data
+            usageHistory = getUsageHistory($currentAccount) || [];
+        } finally {
+            // Smooth transition: Wait a bit to avoid flash
+            await new Promise(resolve => setTimeout(resolve, 300));
+            isLoadingChartData = false;
+        }
+    }
+    
+    /**
+     * Retry loading chart data
+     */
+    async function retryLoadChartData() {
+        console.log('🔄 Retrying chart data load...');
+        await loadChartDataAsync();
+    }
+    
+    /**
+     * Generate chart data for selected time period
+     * @param {string} period - '7d', '14d', '4w', '1y'
+     * @param {Array} history - Usage history array
+     * @returns {Array} Filtered data for chart
+     */
     function generateChartData(period, history) {
         const today = new Date();
         const data = [];
-        
+
         // Determine number of days to show
         let days = 7;
         if (period === '14d') days = 14;
         if (period === '4w') days = 28;
         if (period === '1y') days = 365;
-        
+
         // Generate data points for each day (reverse order for chart)
         for (let i = days - 1; i >= 0; i--) {
             const date = new Date(today);
             date.setDate(date.getDate() - i);
             const dateStr = date.toISOString().split('T')[0];
-            
+
             // Find usage for this date in history
             const historyEntry = history.find(h => h.date === dateStr);
             const value = historyEntry?.used || 0;
-            
+
             data.push({
                 date: dateStr,
                 value: value
             });
         }
-        
+
         return data;
     }
 
@@ -912,13 +990,56 @@
                             
                             <!-- Line Chart (Full Width, Edge-to-Edge) -->
                             <div class="mb-3 -mx-4">
-                                <LineChart 
-                                    data={usageChartData}
-                                    maxValue={$accountTier === 'pro' ? 25 : 9}
-                                    height={200}
-                                    color={$accountTier === 'pro' ? '#a855f7' : '#eab308'}
-                                    animate={true}
-                                />
+                                {#if isLoadingChartData}
+                                    <!-- Loading Skeleton -->
+                                    <ChartSkeleton height={200} />
+                                {:else if chartDataError}
+                                    <!-- Error State -->
+                                    <div 
+                                        class="flex flex-col items-center justify-center h-48 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 p-6"
+                                        in:fade={{ duration: 300 }}
+                                    >
+                                        <div class="text-4xl mb-3">❌</div>
+                                        <h4 class="text-lg font-semibold text-red-800 dark:text-red-300 mb-2">
+                                            Fehler beim Laden
+                                        </h4>
+                                        <p class="text-sm text-red-600 dark:text-red-400 mb-4 text-center">
+                                            {chartDataError}
+                                        </p>
+                                        <Button
+                                            on:click={retryLoadChartData}
+                                            variant="primary"
+                                            size="sm"
+                                        >
+                                            🔄 Erneut versuchen
+                                        </Button>
+                                    </div>
+                                {:else if usageHistory.length === 0}
+                                    <!-- No Data State -->
+                                    <div 
+                                        class="flex flex-col items-center justify-center h-48 bg-gray-100 dark:bg-aubergine-900 rounded-lg border border-gray-200 dark:border-aubergine-700 p-6"
+                                        in:fade={{ duration: 300 }}
+                                    >
+                                        <div class="text-4xl mb-3">📊</div>
+                                        <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                                            Noch keine Daten
+                                        </h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 text-center">
+                                            Generiere Emojis, um deine Statistiken zu sehen!
+                                        </p>
+                                    </div>
+                                {:else}
+                                    <!-- Chart (Data Loaded) -->
+                                    <div in:fade={{ duration: 400 }}>
+                                        <LineChart 
+                                            data={usageChartData}
+                                            maxValue={$accountTier === 'pro' ? 25 : 9}
+                                            height={200}
+                                            color={$accountTier === 'pro' ? '#a855f7' : '#eab308'}
+                                            animate={true}
+                                        />
+                                    </div>
+                                {/if}
                             </div>
                             
                             <!-- Progress Bar -->

@@ -9,10 +9,10 @@ Google Sheets                n8n                    Frontend Stores             
 ━━━━━━━━━━━━                ━━━                    ━━━━━━━━━━━━━━━              ━━━━━━━━━━━━━━━━━━━━        ━━━━━━━━━━━━━━━━
 usageHistory: [             Parse JSON             $currentAccount              getUsageHistory()            SVG Calculation
   {date, used}     →        to Array      →        .metadata        →           returns Array      →         & Rendering
-  ... 28 entries                                    .usageHistory                                             
+  ... 28 entries                                    .usageHistory
 ]                                                                                generateChartData()          Animated Path
                                                                                  filters by period   →        + Data Points
-                                                                                                              
+
                                                                                  usageChartData               <svg>
                                                                                  (7/14/28 points)    →        <path>
                                                                                                               <circle>s
@@ -37,7 +37,7 @@ usageHistory: [             Parse JSON             $currentAccount              
     // REACTIVE 1: Extract usageHistory from currentAccount
     // Triggers when $currentAccount changes (after login/API load)
     $: usageHistory = getUsageHistory($currentAccount);
-    
+
     // What happens:
     // $currentAccount = {
     //     userId: "user_1760079091439",
@@ -63,7 +63,7 @@ usageHistory: [             Parse JSON             $currentAccount              
     // REACTIVE 2: Generate chart data based on selected period
     // Triggers when usageHistory OR selectedTimePeriod changes
     $: usageChartData = generateChartData(selectedTimePeriod, usageHistory);
-    
+
     console.log('📊 STEP 2: usageChartData generated for', selectedTimePeriod);
 
     /**
@@ -150,7 +150,7 @@ usageHistory: [             Parse JSON             $currentAccount              
             color={$accountTier === 'pro' ? '#a855f7' : '#eab308'}
             animate={true}
         />
-        <!-- 
+        <!--
             What happens:
             1. LineChart receives usageChartData as prop
             2. If data changes, Svelte rerenders the component
@@ -275,13 +275,13 @@ export function getUsageHistory(account) {
     // ============================================================
     // REACTIVE CALCULATIONS - Scales (Data → Pixels)
     // ============================================================
-    
+
     // X-axis scale: Index → Pixel position
     $: xScale = (index) => {
         // Spread data points evenly across chartWidth
         return (index / Math.max(1, dataPoints - 1)) * chartWidth;
     };
-    
+
     // Y-axis scale: Value → Pixel position
     $: yScale = (value) => {
         // Invert: 0 is at bottom, maxValue is at top
@@ -293,9 +293,9 @@ export function getUsageHistory(account) {
         yScale: 'value → pixels',
         example: {
             point0: { x: xScale(0), y: yScale(validData[0]?.value || 0) },
-            pointLast: { 
-                x: xScale(dataPoints - 1), 
-                y: yScale(validData[dataPoints - 1]?.value || 0) 
+            pointLast: {
+                x: xScale(dataPoints - 1),
+                y: yScale(validData[dataPoints - 1]?.value || 0)
             }
         }
     });
@@ -305,18 +305,18 @@ export function getUsageHistory(account) {
     // ============================================================
     $: linePath = hasData ? (() => {
         let path = '';
-        
+
         validData.forEach((point, i) => {
             const x = xScale(i);
             const y = yScale(point.value);
-            
+
             if (i === 0) {
                 path += `M ${x} ${y}`; // Move to first point
             } else {
                 path += ` L ${x} ${y}`; // Line to next point
             }
         });
-        
+
         console.log('📈 Line path generated:', path.substring(0, 100) + '...');
         return path;
     })() : null;
@@ -333,12 +333,12 @@ export function getUsageHistory(account) {
     $: areaPath = hasData && linePath ? (() => {
         // Start with line path, then close to bottom
         let path = linePath;
-        
+
         // Close path at bottom
         path += ` L ${xScale(dataPoints - 1)} ${chartHeight}`; // Bottom right
         path += ` L ${xScale(0)} ${chartHeight}`;              // Bottom left
         path += ' Z';                                           // Close path
-        
+
         console.log('🎨 Area path generated (with fill)');
         return path;
     })() : null;
@@ -355,14 +355,14 @@ export function getUsageHistory(account) {
     $: gridLines = (() => {
         const lines = [];
         const step = Math.ceil(maxValue / 4); // 4 horizontal lines
-        
+
         for (let value = 0; value <= maxValue; value += step) {
             lines.push({
                 y: yScale(value),
                 label: value.toString()
             });
         }
-        
+
         console.log('📏 Grid lines:', lines.length, 'lines at', step, 'intervals');
         return lines;
     })();
@@ -378,7 +378,7 @@ export function getUsageHistory(account) {
     // ============================================================
     // HELPER FUNCTIONS
     // ============================================================
-    
+
     function formatDate(dateStr) {
         // "2025-10-10" → "10.10"
         const [year, month, day] = dateStr.split('-');
@@ -434,7 +434,7 @@ export function getUsageHistory(account) {
                     <stop offset="0%" style="stop-color:{color};stop-opacity:0.3" />
                     <stop offset="100%" style="stop-color:{color};stop-opacity:0.05" />
                 </linearGradient>
-                
+
                 <filter id="glow">
                     <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
                     <feMerge>
@@ -526,7 +526,7 @@ export function getUsageHistory(account) {
                             - Last point (28th): 800 + (27 * 50) = 2150ms delay
                             - Creates wave effect
                         -->
-                        
+
                         <!-- Point Glow -->
                         <circle
                             cx={x}
@@ -535,7 +535,7 @@ export function getUsageHistory(account) {
                             fill={pointColor}
                             opacity="0.3"
                         />
-                        
+
                         <!-- Point -->
                         <circle
                             cx={x}
@@ -620,17 +620,18 @@ Time    Event
 ## 📊 **Example: 28 Data Points → SVG Coordinates**
 
 ### Input Data (from Google Sheets):
+
 ```javascript
 usageHistory = [
-    { date: "2025-10-10", used: 5 },  // Index 0
-    { date: "2025-10-09", used: 7 },  // Index 1
-    { date: "2025-10-08", used: 4 },  // Index 2
-    ...
-    { date: "2025-09-13", used: 6 }   // Index 27
-]
+    { date: '2025-10-10', used: 5 }, // Index 0
+    { date: '2025-10-09', used: 7 }, // Index 1
+    { date: '2025-10-08', used: 4 }, // Index 2
+    ...{ date: '2025-09-13', used: 6 } // Index 27
+];
 ```
 
 ### SVG Calculations:
+
 ```javascript
 // Chart dimensions
 svgWidth = 800;      // From container measurement
@@ -666,23 +667,24 @@ linePath = "M 0 62.22 L 27.59 31.11 L 55.18 85.56 ... L 745 46.67"
 ```
 
 ### Final SVG Output:
+
 ```svg
 <svg width="100%" height="200" viewBox="0 0 800 200">
     <g transform="translate(35, 20)">
         <!-- Area -->
-        <path 
-            d="M 0 62.22 L 27.59 31.11 L ... L 745 46.67 L 745 140 L 0 140 Z" 
+        <path
+            d="M 0 62.22 L 27.59 31.11 L ... L 745 46.67 L 745 140 L 0 140 Z"
             fill="url(#areaGradient)"
         />
-        
+
         <!-- Line -->
-        <path 
-            d="M 0 62.22 L 27.59 31.11 L 55.18 85.56 ... L 745 46.67" 
-            stroke="#eab308" 
+        <path
+            d="M 0 62.22 L 27.59 31.11 L 55.18 85.56 ... L 745 46.67"
+            stroke="#eab308"
             stroke-width="3"
             fill="none"
         />
-        
+
         <!-- Points -->
         <circle cx="0" cy="62.22" r="4" fill="#10b981" />      <!-- 5/9 = green -->
         <circle cx="27.59" cy="31.11" r="4" fill="#ef4444" />  <!-- 7/9 = red -->
@@ -721,16 +723,16 @@ $: xScale = (index) => (index / 27) * chartWidth;
 $: yScale = (value) => chartHeight - (value / maxValue) * chartHeight;
 
 // 6. LineChart.svelte generates SVG paths
-$: linePath = validData.map((p, i) => 
+$: linePath = validData.map((p, i) =>
     `${i === 0 ? 'M' : 'L'} ${xScale(i)} ${yScale(p.value)}`
 ).join(' ');
 
 // 7. Svelte renders SVG with animations
 <path d={linePath} in:draw={{ duration: 1000 }} />
 {#each validData as point, i}
-    <circle 
-        cx={xScale(i)} 
-        cy={yScale(point.value)} 
+    <circle
+        cx={xScale(i)}
+        cy={yScale(point.value)}
         in:fade={{ delay: 800 + i * 50 }}
     />
 {/each}
@@ -743,27 +745,31 @@ $: linePath = validData.map((p, i) =>
 ## 🎯 **Key Takeaways**
 
 ### 1. **Data Flow is Completely Reactive**
-- Any change to `currentAccount` → triggers `getUsageHistory()`
-- Any change to `usageHistory` → triggers `generateChartData()`
-- Any change to `usageChartData` → triggers LineChart rerender
-- Svelte handles all the updates automatically!
+
+-   Any change to `currentAccount` → triggers `getUsageHistory()`
+-   Any change to `usageHistory` → triggers `generateChartData()`
+-   Any change to `usageChartData` → triggers LineChart rerender
+-   Svelte handles all the updates automatically!
 
 ### 2. **SVG is Generated from Pure JavaScript**
-- No libraries (Chart.js, D3, etc.)
-- Just math: `xScale()` and `yScale()`
-- Paths are strings: `"M x y L x y L x y"`
-- Svelte's reactivity recalculates everything
+
+-   No libraries (Chart.js, D3, etc.)
+-   Just math: `xScale()` and `yScale()`
+-   Paths are strings: `"M x y L x y L x y"`
+-   Svelte's reactivity recalculates everything
 
 ### 3. **Animations are Built-in Svelte Transitions**
-- `in:fade` for opacity
-- `in:draw` for path drawing
-- `delay` for staggered effects
-- No CSS animations needed!
+
+-   `in:fade` for opacity
+-   `in:draw` for path drawing
+-   `delay` for staggered effects
+-   No CSS animations needed!
 
 ### 4. **Responsive by Design**
-- Container width measured with `onMount()`
-- All calculations based on measured width
-- `viewBox` ensures scaling on any screen
+
+-   Container width measured with `onMount()`
+-   All calculations based on measured width
+-   `viewBox` ensures scaling on any screen
 
 ---
 
@@ -817,4 +823,3 @@ circles.forEach((c, i) => {
 ```
 
 **Alles klar erklärt vom Daten-Array bis zum finalen animierten SVG! 🚀**
-

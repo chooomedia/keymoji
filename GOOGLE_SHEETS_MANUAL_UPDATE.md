@@ -3,10 +3,11 @@
 ## 🎯 Ziel: Chart-Daten für cm@chooo.de hinzufügen
 
 ### Account Info:
-- **Email:** cm@chooo.de
-- **UserId:** user_1760079091439
-- **Tier:** free
-- **Limit:** 9 generations/day
+
+-   **Email:** cm@chooo.de
+-   **UserId:** user_1760079091439
+-   **Tier:** free
+-   **Limit:** 9 generations/day
 
 ---
 
@@ -23,35 +24,37 @@
 ### Schritt 2: Aktuelle metadata analysieren
 
 **AKTUELL:**
+
 ```json
 {
-  "name":"chooo12345",
-  "language":"en",
-  "theme":"dark",
-  "notifications":true,
-  "passwordLength":8,
-  "includeNumbers":true,
-  "includeSymbols":true,
-  "includeUppercase":true,
-  "includeLowercase":true,
-  "emojiCount":5,
-  "emojiCategories":["faces","animals","food"],
-  "excludeEmojis":[],
-  "autoGenerate":false,
-  "copyToClipboard":true,
-  "showStrength":true,
-  "saveHistory":false,
-  "analytics":true,
-  "shareUsage":false,
-  "uiState":{"expandedSections":[]}
+    "name": "chooo12345",
+    "language": "en",
+    "theme": "dark",
+    "notifications": true,
+    "passwordLength": 8,
+    "includeNumbers": true,
+    "includeSymbols": true,
+    "includeUppercase": true,
+    "includeLowercase": true,
+    "emojiCount": 5,
+    "emojiCategories": ["faces", "animals", "food"],
+    "excludeEmojis": [],
+    "autoGenerate": false,
+    "copyToClipboard": true,
+    "showStrength": true,
+    "saveHistory": false,
+    "analytics": true,
+    "shareUsage": false,
+    "uiState": { "expandedSections": [] }
 }
 ```
 
 **Problem:**
-- ❌ Alte Struktur (settings direkt im metadata)
-- ❌ `emojiCount: 5` (sollte 9 sein für FREE)
-- ❌ Kein `dailyUsage`
-- ❌ Kein `usageHistory` (Chart hat keine Daten!)
+
+-   ❌ Alte Struktur (settings direkt im metadata)
+-   ❌ `emojiCount: 5` (sollte 9 sein für FREE)
+-   ❌ Kein `dailyUsage`
+-   ❌ Kein `usageHistory` (Chart hat keine Daten!)
 
 ---
 
@@ -60,10 +63,11 @@
 **⚠️ WICHTIG:** Kopiere den KOMPLETTEN JSON-String aus `GOOGLE_SHEETS_UPDATE.json`
 
 Die neue Struktur hat:
-- ✅ `dailyUsage` - Heutiger Stand
-- ✅ `usageHistory` - Letzte 28 Tage für Chart
-- ✅ `settings` - User-Einstellungen (nested)
-- ✅ `emojiCount: 9` - Korrigiert für FREE
+
+-   ✅ `dailyUsage` - Heutiger Stand
+-   ✅ `usageHistory` - Letzte 28 Tage für Chart
+-   ✅ `settings` - User-Einstellungen (nested)
+-   ✅ `emojiCount: 9` - Korrigiert für FREE
 
 ---
 
@@ -84,6 +88,7 @@ Die neue Struktur hat:
 Wenn Google Sheets den JSON mit Zeilenumbrüchen nicht akzeptiert:
 
 **Tool verwenden:**
+
 1. Öffne: https://codebeautify.org/jsonminifier
 2. Paste den JSON aus `GOOGLE_SHEETS_UPDATE.json`
 3. Klick "Minify/Compress"
@@ -91,9 +96,10 @@ Wenn Google Sheets den JSON mit Zeilenumbrüchen nicht akzeptiert:
 5. Paste in Google Sheets
 
 **Oder manuell:**
-- Alle Zeilenumbrüche entfernen
-- Alle doppelten Leerzeichen entfernen
-- Als eine Zeile
+
+-   Alle Zeilenumbrüche entfernen
+-   Alle doppelten Leerzeichen entfernen
+-   Als eine Zeile
 
 ---
 
@@ -119,9 +125,9 @@ await window.logout();
 
 ### 2. Login neu als cm@chooo.de
 
-- Magic Link anfordern
-- Verifizieren
-- Account wird geladen
+-   Magic Link anfordern
+-   Verifizieren
+-   Account wird geladen
 
 ### 3. Zu /account navigieren
 
@@ -134,12 +140,13 @@ https://keymoji.wtf/account
 ### 4. Chart sollte jetzt Daten zeigen!
 
 **Erwartung:**
-- ✅ Chart zeigt 28 Datenpunkte
-- ✅ Gelbe Linie (FREE tier)
-- ✅ Y-Achse: 0-9
-- ✅ X-Achse: 13.9 bis 10.10
-- ✅ Smooth Animation beim Laden
-- ✅ Klick auf "4w" Button zeigt alle Daten
+
+-   ✅ Chart zeigt 28 Datenpunkte
+-   ✅ Gelbe Linie (FREE tier)
+-   ✅ Y-Achse: 0-9
+-   ✅ X-Achse: 13.9 bis 10.10
+-   ✅ Smooth Animation beim Laden
+-   ✅ Klick auf "4w" Button zeigt alle Daten
 
 ---
 
@@ -164,7 +171,8 @@ console.log('Usage History:', account?.metadata?.usageHistory);
 // Sollte 28 <circle> elements haben (data points)
 
 // 3. Check reactive binding:
-console.log('Chart gets data from:', 
+console.log(
+    'Chart gets data from:',
     'currentAccount.metadata.usageHistory →',
     'getUsageHistory() →',
     'generateChartData() →',
@@ -216,10 +224,10 @@ console.log('UsageHistory:', account?.metadata?.usageHistory);
 
 **Check 2: Google Sheets Syntax korrekt?**
 
-- JSON muss **valid** sein
-- Keine Syntax-Fehler
-- Einzeilig ohne Zeilenumbrüche
-- Alle Kommas, Klammern korrekt
+-   JSON muss **valid** sein
+-   Keine Syntax-Fehler
+-   Einzeilig ohne Zeilenumbrüche
+-   Alle Kommas, Klammern korrekt
 
 **Check 3: Page reloaded?**
 
@@ -254,24 +262,24 @@ location.reload();
 
 ## 📊 Wichtige Änderungen in der neuen Struktur
 
-| Alt | Neu | Grund |
-|-----|-----|-------|
-| `emojiCount: 5` | `emojiCount: 9` | FREE users haben jetzt 9 |
-| Settings direkt in metadata | `settings: {...}` | Bessere Struktur |
-| Kein `dailyUsage` | `dailyUsage: {...}` | Aktueller Stand heute |
-| Kein `usageHistory` | `usageHistory: [...]` | Für Chart (28 Tage) |
-| `expandedSections: []` | `expandedSections: ["basic"]` | Basic section default offen |
+| Alt                         | Neu                           | Grund                       |
+| --------------------------- | ----------------------------- | --------------------------- |
+| `emojiCount: 5`             | `emojiCount: 9`               | FREE users haben jetzt 9    |
+| Settings direkt in metadata | `settings: {...}`             | Bessere Struktur            |
+| Kein `dailyUsage`           | `dailyUsage: {...}`           | Aktueller Stand heute       |
+| Kein `usageHistory`         | `usageHistory: [...]`         | Für Chart (28 Tage)         |
+| `expandedSections: []`      | `expandedSections: ["basic"]` | Basic section default offen |
 
 ---
 
 ## ✅ Nach dem Update sollte cm@chooo.de haben:
 
-- ✅ **Chart mit 28 Tagen Daten**
-- ✅ **emojiCount: 9** (korrekt für FREE)
-- ✅ **dailyUsage** aktuell (heute)
-- ✅ **usageHistory** (Chart-Daten)
-- ✅ **settings** nested (neue Architektur)
-- ✅ **uiState** mit basic section offen
+-   ✅ **Chart mit 28 Tagen Daten**
+-   ✅ **emojiCount: 9** (korrekt für FREE)
+-   ✅ **dailyUsage** aktuell (heute)
+-   ✅ **usageHistory** (Chart-Daten)
+-   ✅ **settings** nested (neue Architektur)
+-   ✅ **uiState** mit basic section offen
 
 ---
 
@@ -336,13 +344,14 @@ await window.keymojiUsageGenerator.generate4Weeks();
 
 ### ⚠️ Manuelle Methode nur wenn:
 
-- API nicht verfügbar
-- Spezifische Daten gewünscht
-- Backend-Probleme
+-   API nicht verfügbar
+-   Spezifische Daten gewünscht
+-   Backend-Probleme
 
 ---
 
 **TL;DR:**
+
 1. **Einzeiligen JSON** aus diesem Guide kopieren
 2. **In Google Sheets** metadata Spalte pasten
 3. **Save**
@@ -350,4 +359,3 @@ await window.keymojiUsageGenerator.generate4Weeks();
 5. **Chart sollte 28 Tage zeigen!**
 
 Oder einfach: `await window.keymojiUsageGenerator.generate4Weeks()` ✨
-
