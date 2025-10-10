@@ -604,7 +604,10 @@ export default {
                 'Magic Link konnte nicht gesendet werden. Bitte versuche es erneut.',
             magicLinkVerified: 'Magic Link erfolgreich verifiziert!',
             magicLinkVerificationFailed:
-                'Magic Link Verifizierung fehlgeschlagen'
+                'Magic Link Verifizierung fehlgeschlagen',
+            chartDataRefreshed: 'Chart-Daten erfolgreich aktualisiert!',
+            refreshFailed: 'Aktualisierung fehlgeschlagen',
+            noNewData: 'Keine neuen Daten verfügbar'
         },
 
         // Upgrade-Bereich
