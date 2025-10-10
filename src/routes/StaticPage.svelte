@@ -52,7 +52,7 @@
 {:else if pageData}
     <PageLayout {pageTitle} {pageDescription}>
         <!-- Back Button (zentriert wie VersionHistory) -->
-        <div slot="before-content" class="w-full text-center mb-6">
+        <div slot="before-content" class="w-full text-center">
             <button 
                 on:click={navigateToHome}
                 class="inline-flex items-center gap-2 text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 rounded-lg px-3 py-2"
@@ -71,7 +71,7 @@
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        {$translations?.common?.lastUpdated || 'Letzte Aktualisierung'}: {formattedDate}
+                        Last updated: {formattedDate}
                     </span>
                     
                     <span class="flex items-center">
@@ -96,10 +96,11 @@
             <button
                 on:click={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 class="inline-flex items-center gap-2 text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 rounded-lg px-3 py-2"
-                aria-label={$translations?.common?.backToTop || 'Nach oben'}
+                aria-label="Back to top"
+                title="Back to top"
             >
                 <span class="text-lg">↑</span>
-                {$translations?.common?.backToTop || 'Nach oben'}
+                Back to top
             </button>
         </div>
 
@@ -109,19 +110,19 @@
         </div>
     </PageLayout>
 {:else}
-    <PageLayout pageTitle="404" pageDescription="Seite nicht gefunden">
+    <PageLayout pageTitle="404" pageDescription="Page not found">
         <div class="flex flex-col justify-center items-center py-12 px-4 text-center">
             <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                404 - {$translations?.common?.pageNotFound || 'Seite nicht gefunden'}
+                404 - Page not found
             </h1>
             <p class="text-gray-600 dark:text-gray-400 mb-8">
-                {$translations?.common?.pageNotFoundDescription || 'Die angeforderte Seite existiert nicht.'}
+                The requested page does not exist.
             </p>
             <button
                 on:click={navigateToHome}
                 class="inline-flex items-center px-6 py-3 bg-yellow-500 text-black rounded-full font-medium hover:bg-yellow-600 transition-colors transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
             >
-                {$translations?.common?.backToHome || 'Zurück zur Startseite'}
+                Go back home
             </button>
         </div>
     </PageLayout>
