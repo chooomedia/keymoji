@@ -3,10 +3,10 @@
 ## 📊 Current Limits (v0.5.7)
 
 | User Type | Daily Generations | Emoji Count (Default) | Emoji Count (Max) |
-|-----------|-------------------|----------------------|-------------------|
-| **GUEST** | 3/day             | 5                    | 5                 |
-| **FREE**  | 9/day             | 9                    | 9                 |
-| **PRO**   | 25/day            | 10                   | 10                |
+| --------- | ----------------- | --------------------- | ----------------- |
+| **GUEST** | 3/day             | 5                     | 5                 |
+| **FREE**  | 9/day             | 9                     | 9                 |
+| **PRO**   | 25/day            | 10                    | 10                |
 
 ---
 
@@ -17,9 +17,9 @@
 ```javascript
 // src/config/limits.js
 export const DAILY_LIMITS = {
-    GUEST: 3,   // Not logged in
-    FREE: 9,    // Logged in, free tier
-    PRO: 25,    // Logged in, pro tier
+    GUEST: 3, // Not logged in
+    FREE: 9, // Logged in, free tier
+    PRO: 25, // Logged in, pro tier
     UNLIMITED: 999999
 };
 ```
@@ -29,13 +29,13 @@ export const DAILY_LIMITS = {
 ```javascript
 // src/utils/settingsValidation.js - getDefaultSettings()
 const baseSettings = {
-    emojiCount: 9  // FREE users
+    emojiCount: 9 // FREE users
 };
 
 if (tier === 'pro') {
     return {
         ...baseSettings,
-        emojiCount: 10  // PRO users get max
+        emojiCount: 10 // PRO users get max
     };
 }
 ```
@@ -127,9 +127,10 @@ $: remaining = $dailyLimit.limit - $dailyLimit.used;
 ```
 
 **Badge Colors:**
-- **Yellow** (`bg-yellow-500`): FREE users (9 → 0)
-- **Purple** (`bg-purple-500`): PRO users (∞)
-- **Pulsing**: When limit reached (0 remaining)
+
+-   **Yellow** (`bg-yellow-500`): FREE users (9 → 0)
+-   **Purple** (`bg-purple-500`): PRO users (∞)
+-   **Pulsing**: When limit reached (0 remaining)
 
 ---
 
@@ -162,8 +163,9 @@ $: remaining = $dailyLimit.limit - $dailyLimit.used;
 ```
 
 **Why Both?**
-- `profile.dailyUsage`: Primary, easy n8n workflow access
-- `metadata.dailyUsage`: Backward compatibility
+
+-   `profile.dailyUsage`: Primary, easy n8n workflow access
+-   `metadata.dailyUsage`: Backward compatibility
 
 ---
 
@@ -180,13 +182,17 @@ if (tier === 'free' && settings.emojiCount > 9) {
 // Sanitization (FREE)
 if (tier === 'free') {
     if (sanitized.emojiCount && sanitized.emojiCount > 9) {
-        sanitized.emojiCount = 9;  // Auto-cap at 9
+        sanitized.emojiCount = 9; // Auto-cap at 9
     }
 }
 
 // Defaults
-FREE: { emojiCount: 9 }
-PRO:  { emojiCount: 10 }
+FREE: {
+    emojiCount: 9;
+}
+PRO: {
+    emojiCount: 10;
+}
 ```
 
 ---
@@ -217,21 +223,27 @@ await window.keymojiDailyUsageDebug.runAll();
 ## 🔍 Common Issues & Solutions
 
 ### Issue: Badge not showing
+
 **Solution:** Check `$isLoggedIn` store - badge only shows when logged in
 
 ### Issue: Wrong limit displayed (shows 5 instead of 9)
-**Solution:** 
+
+**Solution:**
+
 1. Clear localStorage: `localStorage.clear()`
 2. Reload page
 3. Check `getDailyLimitForUser()` return value
 
 ### Issue: Limit not persisting after reload
+
 **Solution:**
+
 1. Check API call in Network tab
 2. Verify Google Sheets has `dailyUsage` in profile
 3. Check localStorage has `keymoji_daily_usage`
 
 ### Issue: Guest shows wrong limit
+
 **Solution:** Guest should always show 3, regardless of localStorage
 
 ---
@@ -239,10 +251,11 @@ await window.keymojiDailyUsageDebug.runAll();
 ## 📈 Migration from Old System
 
 ### Before (v0.5.6)
+
 ```javascript
 // Hardcoded in multiple places
 const GUEST_LIMIT = 3;
-const FREE_LIMIT = 5;  // OLD
+const FREE_LIMIT = 5; // OLD
 const PRO_LIMIT = 25;
 
 // Only in localStorage
@@ -250,38 +263,39 @@ localStorage.setItem('keymoji_daily_request_count', count);
 ```
 
 ### After (v0.5.7)
+
 ```javascript
 // Single source in limits.js
 export const DAILY_LIMITS = {
     GUEST: 3,
-    FREE: 9,   // NEW
+    FREE: 9, // NEW
     PRO: 25
 };
 
 // Centralized store + API + localStorage
-await initializeDailyUsage();  // Priority: API > localStorage > defaults
-await incrementDailyUsage();   // Updates: store → localStorage → API
+await initializeDailyUsage(); // Priority: API > localStorage > defaults
+await incrementDailyUsage(); // Updates: store → localStorage → API
 ```
 
 ---
 
 ## ✅ Implementation Checklist
 
-- [x] Update DAILY_LIMITS.FREE to 9
-- [x] Update DEFAULT_FREE_SETTINGS.emojiCount to 9
-- [x] Update DEFAULT_PRO_SETTINGS.emojiCount to 10
-- [x] Update EmojiDisplay default emojiCount to 9
-- [x] Update userSettings.json defaultValue to 9
-- [x] Update settingsValidation.js (max 9 for FREE)
-- [x] Update test-limits.js test cases
-- [x] Create dailyUsageStore.js with API sync
-- [x] Integrate in LanguageRouter.svelte on mount
-- [x] Remove duplicate calls in EmojiDisplay
-- [x] Remove duplicate calls in AccountManager
-- [x] Add Header badge with reactive display
-- [x] Add debug tools (dailyUsageDebug.js)
-- [x] Update documentation (DAILY_USAGE_ARCHITECTURE.md)
-- [x] Test with different user tiers
+-   [x] Update DAILY_LIMITS.FREE to 9
+-   [x] Update DEFAULT_FREE_SETTINGS.emojiCount to 9
+-   [x] Update DEFAULT_PRO_SETTINGS.emojiCount to 10
+-   [x] Update EmojiDisplay default emojiCount to 9
+-   [x] Update userSettings.json defaultValue to 9
+-   [x] Update settingsValidation.js (max 9 for FREE)
+-   [x] Update test-limits.js test cases
+-   [x] Create dailyUsageStore.js with API sync
+-   [x] Integrate in LanguageRouter.svelte on mount
+-   [x] Remove duplicate calls in EmojiDisplay
+-   [x] Remove duplicate calls in AccountManager
+-   [x] Add Header badge with reactive display
+-   [x] Add debug tools (dailyUsageDebug.js)
+-   [x] Update documentation (DAILY_USAGE_ARCHITECTURE.md)
+-   [x] Test with different user tiers
 
 ---
 
@@ -290,23 +304,24 @@ await incrementDailyUsage();   // Updates: store → localStorage → API
 ### Pre-Deployment Checklist
 
 1. **Frontend:**
-   - ✅ Limits updated in all files
-   - ✅ Default values consistent
-   - ✅ Badge displays correctly
-   - ✅ Debug tools available in dev
+
+    - ✅ Limits updated in all files
+    - ✅ Default values consistent
+    - ✅ Badge displays correctly
+    - ✅ Debug tools available in dev
 
 2. **Backend:**
-   - ⚠️ Verify n8n workflow handles `profile.dailyUsage`
-   - ⚠️ Verify n8n workflow handles `metadata.dailyUsage`
-   - ⚠️ Test API endpoints return correct data
+
+    - ⚠️ Verify n8n workflow handles `profile.dailyUsage`
+    - ⚠️ Verify n8n workflow handles `metadata.dailyUsage`
+    - ⚠️ Test API endpoints return correct data
 
 3. **Database:**
-   - ⚠️ Google Sheets: Add `dailyUsage` to profile column (if not exists)
-   - ⚠️ Verify existing accounts have correct limits
+    - ⚠️ Google Sheets: Add `dailyUsage` to profile column (if not exists)
+    - ⚠️ Verify existing accounts have correct limits
 
 ---
 
 **Version:** 0.5.7  
 **Last Updated:** 2025-10-10  
 **Author:** Chris Matt (C. Matt)
-

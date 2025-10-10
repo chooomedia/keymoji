@@ -61,6 +61,11 @@
       // This prevents duplicate initialization and ensures single source of truth
       console.log('✅ EmojiDisplay: Using centralized daily usage tracking');
       console.log('📊 Current daily limits on mount:', $dailyLimit);
+      
+      // CRITICAL: Wait for dailyLimit to be initialized before first generation
+      // This prevents generating with default limit (3) before actual limit loads
+      await new Promise(resolve => setTimeout(resolve, 100));
+      console.log('📊 Daily limits after wait:', $dailyLimit);
 
       if (!initialRenderComplete) {
         generateRandomEmojis(true); // count initial load towards daily limit
@@ -151,10 +156,13 @@
       
       // Only increment counter if this is a user-initiated action
       if (countTowardsLimit) {
+        console.log('➕ Incrementing usage after successful generation');
         // Use new centralized daily usage tracking (API + localStorage)
         await incrementDailyUsage().catch(error => {
-          console.warn('⚠️ Failed to increment daily usage:', error);
+          console.error('❌ CRITICAL: Failed to increment daily usage:', error);
+          // Still show error to user but don't block UX
         });
+        console.log('📊 New daily limits after increment:', $dailyLimit);
       }
     }
   
