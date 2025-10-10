@@ -236,10 +236,13 @@ export function getDefaultSettings(tier = 'free') {
         // Story Mode AI Configuration (FREE & PRO)
         storyMode: {
             enabled: false, // Story mode available when API key configured
-            provider: 'openai', // 'openai' | 'gemini' | 'mistral' | 'custom'
+            provider: 'openai', // 'openai' | 'gemini' | 'mistral' | 'claude' | 'custom'
             apiKey: '', // User's own API key (encrypted in backend)
-            customApiUrl: '', // For custom provider (e.g., https://aimi.matt-interfaces.ch/)
-            model: 'gpt-3.5-turbo', // Default model per provider
+            customApiUrl: '', // For custom provider (e.g., https://aimi.matt-interfaces.ch)
+            customEndpoint: '/v1/chat/completions', // Custom API endpoint path
+            customFormat: 'openai', // 'openai' | 'claude' | 'raw'
+            customModel: '', // Custom model name
+            model: '', // Auto-selected if empty (Best Practice)
             cacheResults: true, // Cache story generations (7 days)
             maxTokens: 150, // Max tokens per request
             temperature: 0.7 // Creativity level (0.0 - 1.0)
@@ -289,7 +292,7 @@ export function getDefaultSettings(tier = 'free') {
             storyMode: {
                 ...baseSettings.storyMode,
                 enabled: false,
-                model: 'gpt-4o-mini', // PRO default: better model
+                model: '', // Auto-selected based on provider (Best Practice)
                 maxTokens: 300, // PRO: more tokens
                 cacheResults: true
             },
