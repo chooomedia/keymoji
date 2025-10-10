@@ -17,10 +17,22 @@
 
     const dispatch = createEventDispatcher();
     
-    // Calculate remaining generations
+    // Calculate remaining generations - REACTIVE
     $: remaining = $dailyLimit.limit - $dailyLimit.used;
     $: isProUser = $accountTier === 'pro';
     $: showBadge = $isLoggedIn; // Only show badge when logged in
+    
+    // DEBUG: Log badge state
+    $: if (typeof window !== 'undefined') {
+        console.log('🏷️ Header Badge State:', {
+            showBadge,
+            isLoggedIn: $isLoggedIn,
+            remaining,
+            dailyLimit: $dailyLimit,
+            isProUser,
+            accountTier: $accountTier
+        });
+    }
 
     // Reaktive Übersetzungen mit robuster Fehlerbehandlung
     $: headerTitle = $translations && $translations.header && $translations.header.pageTitle 

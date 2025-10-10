@@ -159,6 +159,15 @@ import BlogPost from '../components/Features/BlogPost.svelte';
         try {
             devLog('🚀 LanguageRouter: Component mounted');
             
+            // CRITICAL: Initialize daily usage for ALL users (logged in or guest)
+            try {
+                const { initializeDailyUsage } = await import('../stores/dailyUsageStore.js');
+                await initializeDailyUsage();
+                console.log('✅ LanguageRouter: Daily usage initialized on app start');
+            } catch (error) {
+                console.warn('⚠️ LanguageRouter: Failed to initialize daily usage:', error);
+            }
+            
             // Initialize account from cookies
             initializeAccountFromCookies();
             

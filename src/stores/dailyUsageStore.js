@@ -75,16 +75,22 @@ function saveUsageToLocalStorage(usageData) {
 
 /**
  * Initialize daily usage from multiple sources (Priority: API > localStorage > default)
+ * IMPORTANT: This runs for ALL users (logged in AND guests)
  */
 export async function initializeDailyUsage() {
     try {
         usageStatus.update(s => ({ ...s, isLoading: true }));
 
         const account = get(currentAccount);
-        const tier = get(accountTier);
-        const loggedIn = get(isLoggedIn);
+        const tier = get(accountTier) || 'free'; // Default to 'free' if not set
+        const loggedIn = get(isLoggedIn) || false; // Default to false if not set
 
-        console.log('🔄 Initializing daily usage...', { loggedIn, tier });
+        console.log('🔄 Initializing daily usage for ALL users...', { 
+            loggedIn, 
+            tier,
+            hasAccount: !!account,
+            userId: account?.userId 
+        });
 
         let usageData = null;
 

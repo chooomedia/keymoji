@@ -470,29 +470,10 @@
             const accountRestored = await initializeAccountFromCookies();
             console.log('🔐 AccountManager: Account restoration result:', accountRestored);
             
-            // Update daily limits based on current user state
-            let currentUsed = storageHelpers.get(STORAGE_KEYS.DAILY_REQUEST_COUNT, 0);
-            const userLimits = validateUserLimits($isLoggedIn, $accountTier, currentUsed);
-            
-            // Fix inconsistent localStorage values
-            if (currentUsed > userLimits.limit) {
-                console.log('⚠️ Fixing inconsistent localStorage: User has', currentUsed, 'generations but limit is', userLimits.limit);
-                console.log('🔧 Resetting to limit:', userLimits.limit);
-                storageHelpers.set(STORAGE_KEYS.DAILY_REQUEST_COUNT, userLimits.limit);
-                currentUsed = userLimits.limit; // Update for this session
-            }
-            
-            // Debug: Log current state
-            console.log('🔍 Current state:', {
-                isLoggedIn: $isLoggedIn,
-                accountTier: $accountTier,
-                localStorageCount: currentUsed,
-                calculatedLimit: userLimits.limit,
-                remaining: userLimits.remaining
-            });
-            
-            dailyLimit.set({ limit: userLimits.limit, used: Math.min(currentUsed, userLimits.limit) });
-            console.log('🔢 Updated daily limits:', userLimits);
+            // REMOVED: Daily limit initialization (now handled centrally by dailyUsageStore.js in LanguageRouter)
+            // The dailyLimit store is now managed by initializeDailyUsage() which runs on app start
+            console.log('✅ AccountManager: Using centralized daily usage tracking');
+            console.log('📊 Current daily limits:', $dailyLimit);
             
             // Check for magic link verification - this works for both direct URL access and new tabs
             const urlParams = new URLSearchParams(window.location.search);

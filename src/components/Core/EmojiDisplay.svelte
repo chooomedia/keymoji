@@ -57,10 +57,10 @@
     
     // Lifecycle
     onMount(async () => {
-      // Initialize daily usage from API + localStorage
-      await initializeDailyUsage().catch(error => {
-        console.warn('⚠️ Failed to initialize daily usage:', error);
-      });
+      // REMOVED: initializeDailyUsage() is now called centrally in LanguageRouter
+      // This prevents duplicate initialization and ensures single source of truth
+      console.log('✅ EmojiDisplay: Using centralized daily usage tracking');
+      console.log('📊 Current daily limits on mount:', $dailyLimit);
 
       if (!initialRenderComplete) {
         generateRandomEmojis(true); // count initial load towards daily limit
