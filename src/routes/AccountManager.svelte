@@ -311,7 +311,7 @@
     
     /**
      * Generate chart data for selected time period
-     * @param {string} period - '7d', '14d', '4w', '1y'
+     * @param {string} period - '7d', '14d', '4w', '3m'
      * @param {Array} history - Usage history array
      * @returns {Array} Filtered data for chart
      */
@@ -325,11 +325,11 @@
         const today = new Date();
         const data = [];
 
-        // Determine number of days to show
-        let days = 7;
-        if (period === '14d') days = 14;
-        if (period === '4w') days = 28;
-        if (period === '1y') days = 365;
+    // Determine number of days to show
+    let days = 7;
+    if (period === '14d') days = 14;
+    if (period === '4w') days = 28;
+    if (period === '3m') days = 90; // 3 months (~90 days)
 
         console.log('📊 [CHART DEBUG] Generating data for', days, 'days');
 
@@ -1038,7 +1038,7 @@
                                 <div class="flex items-center space-x-2">
                                     <!-- Time Period Buttons -->
                                     <div class="inline-flex rounded-lg bg-white dark:bg-aubergine-800 p-0.5 shadow-inner">
-                                        {#each ['7d', '14d', '4w', '1y'] as period}
+                                        {#each ['7d', '14d', '4w', '3m'] as period}
                                             <button
                                                 on:click={() => selectedTimePeriod = period}
                                                 class="px-2 py-1 text-xs font-medium rounded-md transition-all {
@@ -1046,9 +1046,9 @@
                                                         ? 'bg-yellow-500 text-white shadow' 
                                                         : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                                                 }"
-                                                aria-label="Show {period === '7d' ? '7 days' : period === '14d' ? '14 days' : period === '4w' ? '4 weeks' : '1 year'}"
+                                                aria-label="Show {period === '7d' ? '7 days' : period === '14d' ? '14 days' : period === '4w' ? '4 weeks' : '3 months'}"
                                             >
-                                                {period}
+                                                {period === '3m' ? '3M' : period}
                                             </button>
                                         {/each}
                                     </div>

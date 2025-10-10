@@ -80,7 +80,7 @@ export function getUsageHistoryForPeriod(account, period = '7d') {
     let days = 7;
     if (period === '14d') days = 14;
     if (period === '4w') days = 28;
-    if (period === '1y') days = 365;
+    if (period === '3m') days = 90; // 3 months (~90 days)
 
     // Filter history for the period
     const cutoffDate = new Date(today);
@@ -148,7 +148,7 @@ export function formatPeriodLabel(period) {
         '7d': 'Last 7 Days',
         '14d': 'Last 14 Days',
         '4w': 'Last 4 Weeks',
-        '1y': 'Last Year'
+        '3m': 'Last 3 Months'
     };
     return labels[period] || period;
 }
@@ -161,7 +161,7 @@ export function formatPeriodLabelDE(period) {
         '7d': 'Letzte 7 Tage',
         '14d': 'Letzte 14 Tage',
         '4w': 'Letzte 4 Wochen',
-        '1y': 'Letztes Jahr'
+        '3m': 'Letzte 3 Monate'
     };
     return labels[period] || period;
 }
