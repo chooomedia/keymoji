@@ -82,7 +82,10 @@ async function testAPICall() {
         console.log('─────────────────────────────────────────────────────');
         console.log('Type:', typeof account.profile);
         if (typeof account.profile === 'string') {
-            console.log('⚠️ Profile is STRING (needs parsing):', account.profile);
+            console.log(
+                '⚠️ Profile is STRING (needs parsing):',
+                account.profile
+            );
             try {
                 const parsed = JSON.parse(account.profile);
                 console.log('Parsed:', parsed);
@@ -97,61 +100,89 @@ async function testAPICall() {
         console.log('📦 Metadata:');
         console.log('─────────────────────────────────────────────────────');
         console.log('Type:', typeof account.metadata);
-        
+
         if (typeof account.metadata === 'string') {
             console.log('⚠️ Metadata is STRING (needs parsing)');
             console.log('Length:', account.metadata.length, 'characters');
             console.log('Preview:', account.metadata.substring(0, 200) + '...');
             console.log('');
-            
+
             try {
                 const parsed = JSON.parse(account.metadata);
                 console.log('✅ Metadata parsed successfully!');
                 console.log('');
-                
+
                 console.log('📊 Parsed Metadata Structure:');
                 console.log('  Has settings:', !!parsed.settings);
                 console.log('  Has dailyUsage:', !!parsed.dailyUsage);
                 console.log('  Has usageHistory:', !!parsed.usageHistory);
                 console.log('');
-                
+
                 if (parsed.usageHistory) {
                     console.log('📈 UsageHistory Details:');
                     console.log('  Type:', typeof parsed.usageHistory);
-                    console.log('  Is Array:', Array.isArray(parsed.usageHistory));
+                    console.log(
+                        '  Is Array:',
+                        Array.isArray(parsed.usageHistory)
+                    );
                     console.log('  Length:', parsed.usageHistory.length);
                     console.log('  First Entry:', parsed.usageHistory[0]);
-                    console.log('  Last Entry:', parsed.usageHistory[parsed.usageHistory.length - 1]);
+                    console.log(
+                        '  Last Entry:',
+                        parsed.usageHistory[parsed.usageHistory.length - 1]
+                    );
                     console.log('');
-                    
+
                     if (parsed.usageHistory.length > 0) {
                         const firstDate = parsed.usageHistory[0]?.date;
-                        const lastDate = parsed.usageHistory[parsed.usageHistory.length - 1]?.date;
+                        const lastDate =
+                            parsed.usageHistory[parsed.usageHistory.length - 1]
+                                ?.date;
                         console.log('  Date Range:', lastDate, 'to', firstDate);
-                        
-                        const nonZero = parsed.usageHistory.filter(e => e.used > 0);
+
+                        const nonZero = parsed.usageHistory.filter(
+                            e => e.used > 0
+                        );
                         console.log('  Non-zero entries:', nonZero.length);
-                        
-                        const totalUsed = parsed.usageHistory.reduce((sum, e) => sum + e.used, 0);
+
+                        const totalUsed = parsed.usageHistory.reduce(
+                            (sum, e) => sum + e.used,
+                            0
+                        );
                         const avgUsed = totalUsed / parsed.usageHistory.length;
                         console.log('  Total used:', totalUsed);
-                        console.log('  Average used:', Math.round(avgUsed * 10) / 10);
+                        console.log(
+                            '  Average used:',
+                            Math.round(avgUsed * 10) / 10
+                        );
                     }
                     console.log('');
-                    
-                    console.log('═══════════════════════════════════════════════════════');
+
+                    console.log(
+                        '═══════════════════════════════════════════════════════'
+                    );
                     console.log('✅ SUCCESS! Chart data is available!');
-                    console.log('═══════════════════════════════════════════════════════');
+                    console.log(
+                        '═══════════════════════════════════════════════════════'
+                    );
                     console.log('');
                     console.log('📊 Chart should display:');
                     console.log('  • Data points:', parsed.usageHistory.length);
-                    console.log('  • Date range:', lastDate || 'unknown', 'to', firstDate || 'unknown');
+                    console.log(
+                        '  • Date range:',
+                        lastDate || 'unknown',
+                        'to',
+                        firstDate || 'unknown'
+                    );
                     console.log('  • Color: Yellow (FREE tier)');
                     console.log('  • Max value: 9');
                     console.log('');
                 } else {
                     console.error('❌ No usageHistory in metadata!');
-                    console.log('Available metadata fields:', Object.keys(parsed));
+                    console.log(
+                        'Available metadata fields:',
+                        Object.keys(parsed)
+                    );
                 }
             } catch (error) {
                 console.error('❌ Failed to parse metadata:', error);
@@ -160,30 +191,44 @@ async function testAPICall() {
         } else if (typeof account.metadata === 'object') {
             console.log('✅ Metadata is already OBJECT!');
             console.log('');
-            
+
             console.log('📊 Metadata Structure:');
             console.log('  Has settings:', !!account.metadata.settings);
             console.log('  Has dailyUsage:', !!account.metadata.dailyUsage);
             console.log('  Has usageHistory:', !!account.metadata.usageHistory);
             console.log('');
-            
+
             if (account.metadata.usageHistory) {
                 console.log('📈 UsageHistory Details:');
-                console.log('  Is Array:', Array.isArray(account.metadata.usageHistory));
+                console.log(
+                    '  Is Array:',
+                    Array.isArray(account.metadata.usageHistory)
+                );
                 console.log('  Length:', account.metadata.usageHistory.length);
                 console.log('  First Entry:', account.metadata.usageHistory[0]);
-                console.log('  Last Entry:', account.metadata.usageHistory[account.metadata.usageHistory.length - 1]);
+                console.log(
+                    '  Last Entry:',
+                    account.metadata.usageHistory[
+                        account.metadata.usageHistory.length - 1
+                    ]
+                );
                 console.log('');
-                
-                console.log('═══════════════════════════════════════════════════════');
+
+                console.log(
+                    '═══════════════════════════════════════════════════════'
+                );
                 console.log('✅ SUCCESS! Chart data is available!');
-                console.log('═══════════════════════════════════════════════════════');
+                console.log(
+                    '═══════════════════════════════════════════════════════'
+                );
             } else {
                 console.error('❌ No usageHistory in metadata!');
-                console.log('Available metadata fields:', Object.keys(account.metadata));
+                console.log(
+                    'Available metadata fields:',
+                    Object.keys(account.metadata)
+                );
             }
         }
-
     } catch (error) {
         console.error('❌ API Call Failed:', error);
         console.error('Error details:', error.message);
@@ -193,4 +238,3 @@ async function testAPICall() {
 
 // Run the test
 testAPICall();
-

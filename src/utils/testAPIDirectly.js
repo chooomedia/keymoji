@@ -47,7 +47,10 @@ export async function testAPIDirectly() {
         console.log('📥 Step 2: Response received');
         console.log('  Status:', response.status, response.statusText);
         console.log('  OK:', response.ok);
-        console.log('  Headers:', Object.fromEntries(response.headers.entries()));
+        console.log(
+            '  Headers:',
+            Object.fromEntries(response.headers.entries())
+        );
         console.log('');
 
         if (!response.ok) {
@@ -97,7 +100,7 @@ export async function testAPIDirectly() {
 
         console.log('Metadata:');
         console.log('  Type:', typeof account.metadata);
-        
+
         // Parse metadata if it's a string
         let metadata = account.metadata;
         if (typeof metadata === 'string') {
@@ -126,7 +129,9 @@ export async function testAPIDirectly() {
             console.error('❌ PROBLEM: No usageHistory in metadata!');
             console.log('Available metadata fields:', Object.keys(metadata));
             console.log('');
-            console.log('💡 Solution: Update Google Sheets Column G with complete metadata');
+            console.log(
+                '💡 Solution: Update Google Sheets Column G with complete metadata'
+            );
             console.log('   File: COMPLETE_METADATA_STRING.txt');
             return null;
         }
@@ -147,17 +152,24 @@ export async function testAPIDirectly() {
         console.log('✅ UsageHistory is valid!');
         console.log('  Entries:', metadata.usageHistory.length);
         console.log('  First entry:', metadata.usageHistory[0]);
-        console.log('  Last entry:', metadata.usageHistory[metadata.usageHistory.length - 1]);
+        console.log(
+            '  Last entry:',
+            metadata.usageHistory[metadata.usageHistory.length - 1]
+        );
         console.log('');
 
         const firstDate = metadata.usageHistory[0]?.date;
-        const lastDate = metadata.usageHistory[metadata.usageHistory.length - 1]?.date;
+        const lastDate =
+            metadata.usageHistory[metadata.usageHistory.length - 1]?.date;
         console.log('  Date range:', lastDate, 'to', firstDate);
-        
+
         const nonZero = metadata.usageHistory.filter(e => e.used > 0);
         console.log('  Non-zero entries:', nonZero.length);
-        
-        const totalUsed = metadata.usageHistory.reduce((sum, e) => sum + e.used, 0);
+
+        const totalUsed = metadata.usageHistory.reduce(
+            (sum, e) => sum + e.used,
+            0
+        );
         const avgUsed = totalUsed / metadata.usageHistory.length;
         console.log('  Average used per day:', Math.round(avgUsed * 10) / 10);
         console.log('');
@@ -175,7 +187,11 @@ export async function testAPIDirectly() {
         console.log('🎯 Next Steps:');
         console.log('  1. Login to app as cm@chooo.de');
         console.log('  2. Navigate to /account');
-        console.log('  3. Chart should show', metadata.usageHistory.length, 'days');
+        console.log(
+            '  3. Chart should show',
+            metadata.usageHistory.length,
+            'days'
+        );
         console.log('  4. Run: window.instantChartTest()');
         console.log('');
 
@@ -185,12 +201,12 @@ export async function testAPIDirectly() {
             account: {
                 ...account,
                 metadata: metadata,
-                profile: typeof account.profile === 'string' 
-                    ? JSON.parse(account.profile) 
-                    : account.profile
+                profile:
+                    typeof account.profile === 'string'
+                        ? JSON.parse(account.profile)
+                        : account.profile
             }
         };
-
     } catch (error) {
         console.error('❌ API Test Failed!');
         console.error('Error:', error.message);
@@ -213,4 +229,3 @@ if (typeof window !== 'undefined') {
 }
 
 export default testAPIDirectly;
-
