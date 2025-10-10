@@ -6,7 +6,8 @@ export const staticPagesData = {
     privacy: {
         de: {
             title: 'Datenschutzerklärung',
-            description: 'Informationen zum Datenschutz und zur Verarbeitung personenbezogener Daten',
+            description:
+                'Informationen zum Datenschutz und zur Verarbeitung personenbezogener Daten',
             lastUpdated: '2025-10-10',
             sections: [
                 {
@@ -30,8 +31,16 @@ export const staticPagesData = {
                             items: [
                                 { label: 'Name', text: 'Christopher Matt' },
                                 { label: 'Firma', text: 'Chooomedia' },
-                                { label: 'Email', text: 'hello@keymoji.wtf', link: 'mailto:hello@keymoji.wtf' },
-                                { label: 'Website', text: 'keymoji.wtf', link: 'https://keymoji.wtf' }
+                                {
+                                    label: 'Email',
+                                    text: 'hello@keymoji.wtf',
+                                    link: 'mailto:hello@keymoji.wtf'
+                                },
+                                {
+                                    label: 'Website',
+                                    text: 'keymoji.wtf',
+                                    link: 'https://keymoji.wtf'
+                                }
                             ]
                         }
                     ]
@@ -50,10 +59,18 @@ export const staticPagesData = {
                         {
                             type: 'list',
                             items: [
-                                { text: 'Alle Passwort- und Emoji-Generierungen erfolgen lokal in Ihrem Browser' },
-                                { text: 'Wir sehen Ihre generierten Passwörter niemals (Zero-Knowledge)' },
-                                { text: 'Keine Übertragung von Passwörtern an unsere Server' },
-                                { text: 'Keine Speicherung von Passwörtern in unserer Datenbank' }
+                                {
+                                    text: 'Alle Passwort- und Emoji-Generierungen erfolgen lokal in Ihrem Browser'
+                                },
+                                {
+                                    text: 'Wir sehen Ihre generierten Passwörter niemals (Zero-Knowledge)'
+                                },
+                                {
+                                    text: 'Keine Übertragung von Passwörtern an unsere Server'
+                                },
+                                {
+                                    text: 'Keine Speicherung von Passwörtern in unserer Datenbank'
+                                }
                             ]
                         },
                         {
@@ -67,10 +84,22 @@ export const staticPagesData = {
                         {
                             type: 'list',
                             items: [
-                                { label: 'E-Mail-Adresse', text: 'Für Magic Link Login' },
-                                { label: 'Name (optional)', text: 'Zur Personalisierung' },
-                                { label: 'Nutzungsstatistiken', text: 'Anzahl täglicher Generierungen' },
-                                { label: 'Einstellungen', text: 'Sprache, Theme, Präferenzen' }
+                                {
+                                    label: 'E-Mail-Adresse',
+                                    text: 'Für Magic Link Login'
+                                },
+                                {
+                                    label: 'Name (optional)',
+                                    text: 'Zur Personalisierung'
+                                },
+                                {
+                                    label: 'Nutzungsstatistiken',
+                                    text: 'Anzahl täglicher Generierungen'
+                                },
+                                {
+                                    label: 'Einstellungen',
+                                    text: 'Sprache, Theme, Präferenzen'
+                                }
                             ]
                         },
                         {
@@ -88,10 +117,22 @@ export const staticPagesData = {
                         {
                             type: 'list',
                             items: [
-                                { label: 'API Keys', text: 'Werden verschlüsselt gespeichert' },
-                                { label: 'AI Provider', text: 'OpenAI, Google Gemini, Mistral, oder Custom' },
-                                { label: 'Story-Texte', text: 'Werden an gewählten AI Provider übermittelt' },
-                                { label: 'Generierte Emojis', text: 'Werden lokal gecacht (7 Tage)' }
+                                {
+                                    label: 'API Keys',
+                                    text: 'Werden verschlüsselt gespeichert'
+                                },
+                                {
+                                    label: 'AI Provider',
+                                    text: 'OpenAI, Google Gemini, Mistral, oder Custom'
+                                },
+                                {
+                                    label: 'Story-Texte',
+                                    text: 'Werden an gewählten AI Provider übermittelt'
+                                },
+                                {
+                                    label: 'Generierte Emojis',
+                                    text: 'Werden lokal gecacht (7 Tage)'
+                                }
                             ]
                         },
                         {
@@ -154,9 +195,18 @@ export const staticPagesData = {
                         {
                             type: 'list',
                             items: [
-                                { label: 'localStorage', text: 'Einstellungen, Sprache, Theme' },
-                                { label: 'Service Worker Cache', text: 'Offline-Funktionalität (PWA)' },
-                                { label: 'Cookies', text: 'Session-Management (Magic Link Login)' }
+                                {
+                                    label: 'localStorage',
+                                    text: 'Einstellungen, Sprache, Theme'
+                                },
+                                {
+                                    label: 'Service Worker Cache',
+                                    text: 'Offline-Funktionalität (PWA)'
+                                },
+                                {
+                                    label: 'Cookies',
+                                    text: 'Session-Management (Magic Link Login)'
+                                }
                             ]
                         }
                     ]
@@ -167,12 +217,30 @@ export const staticPagesData = {
                         {
                             type: 'list',
                             items: [
-                                { label: 'Auskunftsrecht (Art. 15 DSGVO)', text: 'Sie können Auskunft über Ihre gespeicherten Daten verlangen' },
-                                { label: 'Berichtigungsrecht (Art. 16 DSGVO)', text: 'Sie können die Korrektur falscher Daten verlangen' },
-                                { label: 'Löschungsrecht (Art. 17 DSGVO)', text: 'Sie können die Löschung Ihrer Daten verlangen' },
-                                { label: 'Einschränkung der Verarbeitung (Art. 18 DSGVO)', text: 'Sie können die Verarbeitung einschränken lassen' },
-                                { label: 'Datenübertragbarkeit (Art. 20 DSGVO)', text: 'Sie können Ihre Daten in strukturiertem Format erhalten' },
-                                { label: 'Widerspruchsrecht (Art. 21 DSGVO)', text: 'Sie können der Verarbeitung widersprechen' }
+                                {
+                                    label: 'Auskunftsrecht (Art. 15 DSGVO)',
+                                    text: 'Sie können Auskunft über Ihre gespeicherten Daten verlangen'
+                                },
+                                {
+                                    label: 'Berichtigungsrecht (Art. 16 DSGVO)',
+                                    text: 'Sie können die Korrektur falscher Daten verlangen'
+                                },
+                                {
+                                    label: 'Löschungsrecht (Art. 17 DSGVO)',
+                                    text: 'Sie können die Löschung Ihrer Daten verlangen'
+                                },
+                                {
+                                    label: 'Einschränkung der Verarbeitung (Art. 18 DSGVO)',
+                                    text: 'Sie können die Verarbeitung einschränken lassen'
+                                },
+                                {
+                                    label: 'Datenübertragbarkeit (Art. 20 DSGVO)',
+                                    text: 'Sie können Ihre Daten in strukturiertem Format erhalten'
+                                },
+                                {
+                                    label: 'Widerspruchsrecht (Art. 21 DSGVO)',
+                                    text: 'Sie können der Verarbeitung widersprechen'
+                                }
                             ]
                         },
                         {
@@ -187,8 +255,16 @@ export const staticPagesData = {
                         {
                             type: 'contact',
                             items: [
-                                { label: 'Email', text: 'hello@keymoji.wtf', link: 'mailto:hello@keymoji.wtf' },
-                                { label: 'Website', text: 'keymoji.wtf', link: 'https://keymoji.wtf' }
+                                {
+                                    label: 'Email',
+                                    text: 'hello@keymoji.wtf',
+                                    link: 'mailto:hello@keymoji.wtf'
+                                },
+                                {
+                                    label: 'Website',
+                                    text: 'keymoji.wtf',
+                                    link: 'https://keymoji.wtf'
+                                }
                             ]
                         }
                     ]
@@ -197,7 +273,8 @@ export const staticPagesData = {
         },
         en: {
             title: 'Privacy Policy',
-            description: 'Information about data protection and processing of personal data',
+            description:
+                'Information about data protection and processing of personal data',
             lastUpdated: '2025-10-10',
             sections: [
                 {
@@ -221,8 +298,16 @@ export const staticPagesData = {
                             items: [
                                 { label: 'Name', text: 'Christopher Matt' },
                                 { label: 'Company', text: 'Chooomedia' },
-                                { label: 'Email', text: 'hello@keymoji.wtf', link: 'mailto:hello@keymoji.wtf' },
-                                { label: 'Website', text: 'keymoji.wtf', link: 'https://keymoji.wtf' }
+                                {
+                                    label: 'Email',
+                                    text: 'hello@keymoji.wtf',
+                                    link: 'mailto:hello@keymoji.wtf'
+                                },
+                                {
+                                    label: 'Website',
+                                    text: 'keymoji.wtf',
+                                    link: 'https://keymoji.wtf'
+                                }
                             ]
                         }
                     ]
@@ -241,10 +326,18 @@ export const staticPagesData = {
                         {
                             type: 'list',
                             items: [
-                                { text: 'All password and emoji generations happen locally in your browser' },
-                                { text: 'We never see your generated passwords (Zero-Knowledge)' },
-                                { text: 'No transmission of passwords to our servers' },
-                                { text: 'No storage of passwords in our database' }
+                                {
+                                    text: 'All password and emoji generations happen locally in your browser'
+                                },
+                                {
+                                    text: 'We never see your generated passwords (Zero-Knowledge)'
+                                },
+                                {
+                                    text: 'No transmission of passwords to our servers'
+                                },
+                                {
+                                    text: 'No storage of passwords in our database'
+                                }
                             ]
                         },
                         {
@@ -258,10 +351,22 @@ export const staticPagesData = {
                         {
                             type: 'list',
                             items: [
-                                { label: 'Email address', text: 'For Magic Link login' },
-                                { label: 'Name (optional)', text: 'For personalization' },
-                                { label: 'Usage statistics', text: 'Number of daily generations' },
-                                { label: 'Settings', text: 'Language, theme, preferences' }
+                                {
+                                    label: 'Email address',
+                                    text: 'For Magic Link login'
+                                },
+                                {
+                                    label: 'Name (optional)',
+                                    text: 'For personalization'
+                                },
+                                {
+                                    label: 'Usage statistics',
+                                    text: 'Number of daily generations'
+                                },
+                                {
+                                    label: 'Settings',
+                                    text: 'Language, theme, preferences'
+                                }
                             ]
                         },
                         {
@@ -280,14 +385,23 @@ export const staticPagesData = {
                             type: 'list',
                             items: [
                                 { label: 'API Keys', text: 'Stored encrypted' },
-                                { label: 'AI Provider', text: 'OpenAI, Google Gemini, Mistral, or Custom' },
-                                { label: 'Story texts', text: 'Transmitted to selected AI provider' },
-                                { label: 'Generated emojis', text: 'Cached locally (7 days)' }
+                                {
+                                    label: 'AI Provider',
+                                    text: 'OpenAI, Google Gemini, Mistral, or Custom'
+                                },
+                                {
+                                    label: 'Story texts',
+                                    text: 'Transmitted to selected AI provider'
+                                },
+                                {
+                                    label: 'Generated emojis',
+                                    text: 'Cached locally (7 days)'
+                                }
                             ]
                         },
                         {
                             type: 'warning',
-                            text: 'Important: You use your own API key. Please review your provider\'s privacy policies.',
+                            text: "Important: You use your own API key. Please review your provider's privacy policies.",
                             items: [
                                 'OpenAI: openai.com/policies/privacy-policy',
                                 'Google Gemini: policies.google.com/privacy',
@@ -306,12 +420,30 @@ export const staticPagesData = {
                         {
                             type: 'list',
                             items: [
-                                { label: 'Right to access (Art. 15 GDPR)', text: 'You can request information about your stored data' },
-                                { label: 'Right to rectification (Art. 16 GDPR)', text: 'You can request correction of incorrect data' },
-                                { label: 'Right to erasure (Art. 17 GDPR)', text: 'You can request deletion of your data' },
-                                { label: 'Right to restriction (Art. 18 GDPR)', text: 'You can request restriction of processing' },
-                                { label: 'Right to data portability (Art. 20 GDPR)', text: 'You can receive your data in structured format' },
-                                { label: 'Right to object (Art. 21 GDPR)', text: 'You can object to processing' }
+                                {
+                                    label: 'Right to access (Art. 15 GDPR)',
+                                    text: 'You can request information about your stored data'
+                                },
+                                {
+                                    label: 'Right to rectification (Art. 16 GDPR)',
+                                    text: 'You can request correction of incorrect data'
+                                },
+                                {
+                                    label: 'Right to erasure (Art. 17 GDPR)',
+                                    text: 'You can request deletion of your data'
+                                },
+                                {
+                                    label: 'Right to restriction (Art. 18 GDPR)',
+                                    text: 'You can request restriction of processing'
+                                },
+                                {
+                                    label: 'Right to data portability (Art. 20 GDPR)',
+                                    text: 'You can receive your data in structured format'
+                                },
+                                {
+                                    label: 'Right to object (Art. 21 GDPR)',
+                                    text: 'You can object to processing'
+                                }
                             ]
                         },
                         {
@@ -326,8 +458,16 @@ export const staticPagesData = {
                         {
                             type: 'contact',
                             items: [
-                                { label: 'Email', text: 'hello@keymoji.wtf', link: 'mailto:hello@keymoji.wtf' },
-                                { label: 'Website', text: 'keymoji.wtf', link: 'https://keymoji.wtf' }
+                                {
+                                    label: 'Email',
+                                    text: 'hello@keymoji.wtf',
+                                    link: 'mailto:hello@keymoji.wtf'
+                                },
+                                {
+                                    label: 'Website',
+                                    text: 'keymoji.wtf',
+                                    link: 'https://keymoji.wtf'
+                                }
                             ]
                         }
                     ]
@@ -349,8 +489,16 @@ export const staticPagesData = {
                             items: [
                                 { label: 'Name', text: 'Christopher Matt' },
                                 { label: 'Firma', text: 'Chooomedia' },
-                                { label: 'Email', text: 'hello@keymoji.wtf', link: 'mailto:hello@keymoji.wtf' },
-                                { label: 'Website', text: 'keymoji.wtf', link: 'https://keymoji.wtf' }
+                                {
+                                    label: 'Email',
+                                    text: 'hello@keymoji.wtf',
+                                    link: 'mailto:hello@keymoji.wtf'
+                                },
+                                {
+                                    label: 'Website',
+                                    text: 'keymoji.wtf',
+                                    link: 'https://keymoji.wtf'
+                                }
                             ]
                         }
                     ]
@@ -361,9 +509,21 @@ export const staticPagesData = {
                         {
                             type: 'list',
                             items: [
-                                { label: '📧 Email', text: 'hello@keymoji.wtf', link: 'mailto:hello@keymoji.wtf' },
-                                { label: '🌐 Website', text: 'keymoji.wtf', link: 'https://keymoji.wtf' },
-                                { label: '🐛 GitHub', text: 'github.com/chooomedia/keymoji/issues', link: 'https://github.com/chooomedia/keymoji/issues' }
+                                {
+                                    label: '📧 Email',
+                                    text: 'hello@keymoji.wtf',
+                                    link: 'mailto:hello@keymoji.wtf'
+                                },
+                                {
+                                    label: '🌐 Website',
+                                    text: 'keymoji.wtf',
+                                    link: 'https://keymoji.wtf'
+                                },
+                                {
+                                    label: '🐛 GitHub',
+                                    text: 'github.com/chooomedia/keymoji/issues',
+                                    link: 'https://github.com/chooomedia/keymoji/issues'
+                                }
                             ]
                         }
                     ]
@@ -416,7 +576,11 @@ export const staticPagesData = {
                             title: 'Open Source',
                             items: [
                                 { label: 'Lizenz', text: 'MIT License' },
-                                { label: 'Source Code', text: 'github.com/chooomedia/keymoji', link: 'https://github.com/chooomedia/keymoji' }
+                                {
+                                    label: 'Source Code',
+                                    text: 'github.com/chooomedia/keymoji',
+                                    link: 'https://github.com/chooomedia/keymoji'
+                                }
                             ]
                         }
                     ]
@@ -428,11 +592,20 @@ export const staticPagesData = {
                             type: 'card',
                             text: 'Keymoji wird mit folgenden Technologien betrieben:',
                             items: [
-                                { label: 'Frontend', text: 'Svelte, Tailwind CSS, Webpack' },
-                                { label: 'Backend', text: 'Vercel Serverless, n8n Automation' },
+                                {
+                                    label: 'Frontend',
+                                    text: 'Svelte, Tailwind CSS, Webpack'
+                                },
+                                {
+                                    label: 'Backend',
+                                    text: 'Vercel Serverless, n8n Automation'
+                                },
                                 { label: 'Database', text: 'Google Sheets' },
                                 { label: 'Email', text: 'Brevo' },
-                                { label: 'AI', text: 'OpenAI, Google Gemini, Mistral AI' },
+                                {
+                                    label: 'AI',
+                                    text: 'OpenAI, Google Gemini, Mistral AI'
+                                },
                                 { label: 'Hosting', text: 'Vercel' }
                             ]
                         }
@@ -442,7 +615,8 @@ export const staticPagesData = {
         },
         en: {
             title: 'Legal Notice',
-            description: 'Legal information according to § 5 TMG / § 25 MedienG',
+            description:
+                'Legal information according to § 5 TMG / § 25 MedienG',
             lastUpdated: '2025-10-10',
             sections: [
                 {
@@ -453,8 +627,16 @@ export const staticPagesData = {
                             items: [
                                 { label: 'Name', text: 'Christopher Matt' },
                                 { label: 'Company', text: 'Chooomedia' },
-                                { label: 'Email', text: 'hello@keymoji.wtf', link: 'mailto:hello@keymoji.wtf' },
-                                { label: 'Website', text: 'keymoji.wtf', link: 'https://keymoji.wtf' }
+                                {
+                                    label: 'Email',
+                                    text: 'hello@keymoji.wtf',
+                                    link: 'mailto:hello@keymoji.wtf'
+                                },
+                                {
+                                    label: 'Website',
+                                    text: 'keymoji.wtf',
+                                    link: 'https://keymoji.wtf'
+                                }
                             ]
                         }
                     ]
@@ -465,9 +647,21 @@ export const staticPagesData = {
                         {
                             type: 'list',
                             items: [
-                                { label: '📧 Email', text: 'hello@keymoji.wtf', link: 'mailto:hello@keymoji.wtf' },
-                                { label: '🌐 Website', text: 'keymoji.wtf', link: 'https://keymoji.wtf' },
-                                { label: '🐛 GitHub', text: 'github.com/chooomedia/keymoji/issues', link: 'https://github.com/chooomedia/keymoji/issues' }
+                                {
+                                    label: '📧 Email',
+                                    text: 'hello@keymoji.wtf',
+                                    link: 'mailto:hello@keymoji.wtf'
+                                },
+                                {
+                                    label: '🌐 Website',
+                                    text: 'keymoji.wtf',
+                                    link: 'https://keymoji.wtf'
+                                },
+                                {
+                                    label: '🐛 GitHub',
+                                    text: 'github.com/chooomedia/keymoji/issues',
+                                    link: 'https://github.com/chooomedia/keymoji/issues'
+                                }
                             ]
                         }
                     ]
@@ -520,7 +714,11 @@ export const staticPagesData = {
                             title: 'Open Source',
                             items: [
                                 { label: 'License', text: 'MIT License' },
-                                { label: 'Source Code', text: 'github.com/chooomedia/keymoji', link: 'https://github.com/chooomedia/keymoji' }
+                                {
+                                    label: 'Source Code',
+                                    text: 'github.com/chooomedia/keymoji',
+                                    link: 'https://github.com/chooomedia/keymoji'
+                                }
                             ]
                         }
                     ]
@@ -532,11 +730,20 @@ export const staticPagesData = {
                             type: 'card',
                             text: 'Keymoji is powered by the following technologies:',
                             items: [
-                                { label: 'Frontend', text: 'Svelte, Tailwind CSS, Webpack' },
-                                { label: 'Backend', text: 'Vercel Serverless, n8n Automation' },
+                                {
+                                    label: 'Frontend',
+                                    text: 'Svelte, Tailwind CSS, Webpack'
+                                },
+                                {
+                                    label: 'Backend',
+                                    text: 'Vercel Serverless, n8n Automation'
+                                },
                                 { label: 'Database', text: 'Google Sheets' },
                                 { label: 'Email', text: 'Brevo' },
-                                { label: 'AI', text: 'OpenAI, Google Gemini, Mistral AI' },
+                                {
+                                    label: 'AI',
+                                    text: 'OpenAI, Google Gemini, Mistral AI'
+                                },
                                 { label: 'Hosting', text: 'Vercel' }
                             ]
                         }
@@ -552,4 +759,3 @@ export const privacyContent = staticPagesData.privacy;
 export const legalContent = staticPagesData.legal;
 
 export default staticPagesData;
-

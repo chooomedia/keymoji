@@ -51,36 +51,36 @@
     </PageLayout>
 {:else if pageData}
     <PageLayout {pageTitle} {pageDescription}>
-        <!-- Back Button -->
-        <div slot="before-content" class="w-full mb-4">
-            <button
+        <!-- Back Button (zentriert wie VersionHistory) -->
+        <div slot="before-content" class="w-full text-center mb-6">
+            <button 
                 on:click={navigateToHome}
-                class="inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 rounded-lg px-3 py-2"
+                class="inline-flex items-center gap-2 text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 rounded-lg px-3 py-2"
                 aria-label={$translations?.common?.backToHome || 'Zurück zur Startseite'}
             >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
+                <span class="text-lg">←</span>
                 {$translations?.common?.backToHome || 'Zurück zur Startseite'}
             </button>
         </div>
 
-        <!-- Meta Info -->
+        <!-- Meta Info (zentriert) -->
         {#if formattedDate}
-            <div class="w-full flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-6">
-                <span class="flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    {$translations?.common?.lastUpdated || 'Letzte Aktualisierung'}: {formattedDate}
-                </span>
-                
-                <span class="flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                    Version: {appVersion}
-                </span>
+            <div class="w-full text-center mb-6">
+                <div class="inline-flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        {$translations?.common?.lastUpdated || 'Letzte Aktualisierung'}: {formattedDate}
+                    </span>
+                    
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                        Version: {appVersion}
+                    </span>
+                </div>
             </div>
         {/if}
 
@@ -95,12 +95,10 @@
         <div class="w-full mt-12 text-center">
             <button
                 on:click={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                class="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg px-3 py-2"
+                class="inline-flex items-center gap-2 text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 rounded-lg px-3 py-2"
                 aria-label={$translations?.common?.backToTop || 'Nach oben'}
             >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                </svg>
+                <span class="text-lg">↑</span>
                 {$translations?.common?.backToTop || 'Nach oben'}
             </button>
         </div>

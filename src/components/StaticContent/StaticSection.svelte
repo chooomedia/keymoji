@@ -67,7 +67,7 @@
                                             href={cardItem.link} 
                                             target="_blank" 
                                             rel="noopener noreferrer"
-                                            class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline transition-colors"
+                                            class="text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 underline transition-colors"
                                         >
                                             {cardItem.text}
                                         </a>
@@ -127,7 +127,7 @@
                                             href={infoItem.link} 
                                             target="_blank" 
                                             rel="noopener noreferrer"
-                                            class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline transition-colors"
+                                            class="text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 underline transition-colors"
                                         >
                                             {infoItem.text}
                                         </a>
@@ -159,7 +159,7 @@
                                     href={gridItem.link} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    class="inline-block mt-3 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm underline transition-colors"
+                                    class="inline-block mt-3 text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 text-sm underline transition-colors"
                                 >
                                     {gridItem.linkText || 'Mehr erfahren →'}
                                 </a>
@@ -177,7 +177,7 @@
                                 {#if contactItem.link}
                                     <a 
                                         href={contactItem.link}
-                                        class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline transition-colors ml-2"
+                                        class="text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 underline transition-colors ml-2"
                                     >
                                         {contactItem.text}
                                     </a>
