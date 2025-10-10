@@ -1,0 +1,213 @@
+{
+  "dailyUsage": {
+    "date": "2025-10-10",
+    "used": 5,
+    "limit": 9,
+    "lastReset": "2025-10-10",
+    "lastIncrement": "2025-10-10T12:34:56.789Z"
+  },
+  "usageHistory": [
+    {
+      "date": "2025-10-10",
+      "used": 5,
+      "limit": 9,
+      "timestamp": "2025-10-10T12:00:00.000Z"
+    },
+    {
+      "date": "2025-10-09",
+      "used": 7,
+      "limit": 9,
+      "timestamp": "2025-10-09T12:00:00.000Z"
+    },
+    {
+      "date": "2025-10-08",
+      "used": 4,
+      "limit": 9,
+      "timestamp": "2025-10-08T12:00:00.000Z"
+    },
+    {
+      "date": "2025-10-07",
+      "used": 6,
+      "limit": 9,
+      "timestamp": "2025-10-07T12:00:00.000Z"
+    },
+    {
+      "date": "2025-10-06",
+      "used": 3,
+      "limit": 9,
+      "timestamp": "2025-10-06T12:00:00.000Z"
+    },
+    {
+      "date": "2025-10-05",
+      "used": 2,
+      "limit": 9,
+      "timestamp": "2025-10-05T12:00:00.000Z"
+    },
+    {
+      "date": "2025-10-04",
+      "used": 8,
+      "limit": 9,
+      "timestamp": "2025-10-04T12:00:00.000Z"
+    },
+    {
+      "date": "2025-10-03",
+      "used": 6,
+      "limit": 9,
+      "timestamp": "2025-10-03T12:00:00.000Z"
+    },
+    {
+      "date": "2025-10-02",
+      "used": 7,
+      "limit": 9,
+      "timestamp": "2025-10-02T12:00:00.000Z"
+    },
+    {
+      "date": "2025-10-01",
+      "used": 5,
+      "limit": 9,
+      "timestamp": "2025-10-01T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-30",
+      "used": 4,
+      "limit": 9,
+      "timestamp": "2025-09-30T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-29",
+      "used": 3,
+      "limit": 9,
+      "timestamp": "2025-09-29T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-28",
+      "used": 2,
+      "limit": 9,
+      "timestamp": "2025-09-28T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-27",
+      "used": 8,
+      "limit": 9,
+      "timestamp": "2025-09-27T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-26",
+      "used": 6,
+      "limit": 9,
+      "timestamp": "2025-09-26T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-25",
+      "used": 7,
+      "limit": 9,
+      "timestamp": "2025-09-25T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-24",
+      "used": 5,
+      "limit": 9,
+      "timestamp": "2025-09-24T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-23",
+      "used": 4,
+      "limit": 9,
+      "timestamp": "2025-09-23T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-22",
+      "used": 6,
+      "limit": 9,
+      "timestamp": "2025-09-22T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-21",
+      "used": 3,
+      "limit": 9,
+      "timestamp": "2025-09-21T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-20",
+      "used": 7,
+      "limit": 9,
+      "timestamp": "2025-09-20T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-19",
+      "used": 5,
+      "limit": 9,
+      "timestamp": "2025-09-19T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-18",
+      "used": 8,
+      "limit": 9,
+      "timestamp": "2025-09-18T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-17",
+      "used": 6,
+      "limit": 9,
+      "timestamp": "2025-09-17T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-16",
+      "used": 4,
+      "limit": 9,
+      "timestamp": "2025-09-16T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-15",
+      "used": 7,
+      "limit": 9,
+      "timestamp": "2025-09-15T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-14",
+      "used": 5,
+      "limit": 9,
+      "timestamp": "2025-09-14T12:00:00.000Z"
+    },
+    {
+      "date": "2025-09-13",
+      "used": 6,
+      "limit": 9,
+      "timestamp": "2025-09-13T12:00:00.000Z"
+    }
+  ],
+  "settings": {
+    "name": "chooo12345",
+    "language": "en",
+    "theme": "dark",
+    "notifications": true,
+    "passwordLength": 8,
+    "includeNumbers": true,
+    "includeSymbols": true,
+    "includeUppercase": true,
+    "includeLowercase": true,
+    "emojiCount": 9,
+    "emojiCategories": [
+      "faces",
+      "animals",
+      "food"
+    ],
+    "excludeEmojis": [],
+    "autoGenerate": false,
+    "copyToClipboard": true,
+    "showStrength": true,
+    "saveHistory": false,
+    "analytics": true,
+    "shareUsage": false,
+    "uiState": {
+      "expandedSections": [
+        "basic"
+      ]
+    }
+  },
+  "source": "magic_link_verification",
+  "tier": "free",
+  "updatedAt": "2025-10-10T12:00:00.000Z",
+  "updatedVia": "manual-google-sheets-update"
+}
+

@@ -884,7 +884,7 @@
                         <div class="bg-powder-300 dark:bg-aubergine-900 rounded-xl p-4 mb-5">
                             <!-- Header with Time Period Selector -->
                             <div class="flex justify-between items-center mb-3">
-                                <span class="text-md font-semibold text-gray-800 dark:text-gray-200">
+                                <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
                                     {$translations?.accountManager?.dailyGenerations || 'Daily Generations'}
                                 </span>
                                 <div class="flex items-center space-x-2">
@@ -904,7 +904,7 @@
                                             </button>
                                         {/each}
                                     </div>
-                                    <span class="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+                                    <span class="text-sm font-semibold text-yellow-600 dark:text-yellow-400">
                                         {dailyLimitDisplay}
                                     </span>
                                 </div>

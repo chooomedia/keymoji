@@ -11,15 +11,15 @@ export function generateProMockData(days = 28) {
     const history = [];
     const today = new Date();
     const limit = 25; // PRO limit
-    
+
     for (let i = 0; i < days; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
-        
+
         // PRO users: High usage (70-95% of limit)
         const used = Math.floor(limit * (0.7 + Math.random() * 0.25));
-        
+
         history.push({
             date: dateStr,
             used: used,
@@ -27,7 +27,7 @@ export function generateProMockData(days = 28) {
             timestamp: date.toISOString()
         });
     }
-    
+
     return history.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
@@ -38,15 +38,15 @@ export function generateFreeMockData(days = 28) {
     const history = [];
     const today = new Date();
     const limit = 9; // FREE limit
-    
+
     for (let i = 0; i < days; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
-        
+
         // FREE users: Medium usage (40-80% of limit)
         const used = Math.floor(limit * (0.4 + Math.random() * 0.4));
-        
+
         history.push({
             date: dateStr,
             used: used,
@@ -54,7 +54,7 @@ export function generateFreeMockData(days = 28) {
             timestamp: date.toISOString()
         });
     }
-    
+
     return history.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
@@ -65,17 +65,17 @@ export function generateDramaticPattern(days = 14, tier = 'pro') {
     const history = [];
     const today = new Date();
     const limit = tier === 'pro' ? 25 : 9;
-    
+
     for (let i = 0; i < days; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
-        
+
         // Create wave pattern (sine wave)
         const phase = (i / days) * Math.PI * 2;
         const wave = Math.sin(phase);
-        const used = Math.floor((wave + 1) / 2 * limit); // Normalize to 0-limit
-        
+        const used = Math.floor(((wave + 1) / 2) * limit); // Normalize to 0-limit
+
         history.push({
             date: dateStr,
             used: Math.max(0, used),
@@ -83,7 +83,7 @@ export function generateDramaticPattern(days = 14, tier = 'pro') {
             timestamp: date.toISOString()
         });
     }
-    
+
     return history.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
@@ -93,12 +93,12 @@ export function generateDramaticPattern(days = 14, tier = 'pro') {
 export function injectMockData(mockHistory) {
     try {
         const account = get(currentAccount);
-        
+
         if (!account) {
             console.error('❌ No account found. Please login first.');
             return false;
         }
-        
+
         // Update currentAccount with mock history
         currentAccount.update(acc => ({
             ...acc,
@@ -107,10 +107,14 @@ export function injectMockData(mockHistory) {
                 usageHistory: mockHistory
             }
         }));
-        
-        console.log('✅ Mock data injected into currentAccount:', mockHistory.length, 'entries');
+
+        console.log(
+            '✅ Mock data injected into currentAccount:',
+            mockHistory.length,
+            'entries'
+        );
         console.log('🔄 Chart should update immediately (reactive)');
-        
+
         return true;
     } catch (error) {
         console.error('❌ Failed to inject mock data:', error);
@@ -132,7 +136,7 @@ export function testProChart4Weeks() {
     console.log('Limit:', 25);
     console.log('Sample:', mockData.slice(0, 3));
     console.groupEnd();
-    
+
     injectMockData(mockData);
     console.log('✅ PRO chart data injected! Watch the animation!');
 }
@@ -147,7 +151,7 @@ export function testFreeChart7Days() {
     console.log('Limit:', 9);
     console.log('Sample:', mockData);
     console.groupEnd();
-    
+
     injectMockData(mockData);
     console.log('✅ FREE chart data injected! Watch the animation!');
 }
@@ -188,17 +192,17 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
         free7d: testFreeChart7Days,
         pro1y: testProChart1Year,
         wave: testDramaticPattern,
-        
+
         // Generators
         generatePro: generateProMockData,
         generateFree: generateFreeMockData,
         generateWave: generateDramaticPattern,
-        
+
         // Actions
         inject: injectMockData,
         clear: clearMockData
     };
-    
+
     console.log('🎨 Chart Test Tools available: window.keymojiChartTest');
     console.log('');
     console.log('⚡ Quick Tests:');
@@ -208,4 +212,3 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     console.log('  window.keymojiChartTest.pro1y()   // PRO: 1 year');
     console.log('  window.keymojiChartTest.clear()   // Clear data');
 }
-
