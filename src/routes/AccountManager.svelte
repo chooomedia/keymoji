@@ -288,7 +288,7 @@
             console.error('❌ [CHART DEBUG] Failed to load chart data:', error);
             console.error('❌ [CHART DEBUG] Error stack:', error.stack);
             chartDataError = error.message || 'Failed to load chart data';
-            showError('Failed to load chart data', 3000);
+            showError($translations?.accountManager?.messages?.chartLoadFailed || 'Failed to load chart data', 3000);
             
             // Fallback: Try to use any existing data
             usageHistory = getUsageHistory($currentAccount) || [];
@@ -552,10 +552,10 @@
         if (file) {
             importSettings(file)
                 .then(() => {
-                    showSuccess('Settings imported successfully', 3000);
+                    showSuccess($translations?.accountManager?.messages?.settingsImported || 'Settings imported successfully', 3000);
                 })
                 .catch((error) => {
-                    showError(`Import failed: ${error.message}`, 3000);
+                    showError(`${$translations?.accountManager?.messages?.importFailed || 'Import failed'}: ${error.message}`, 3000);
                 });
         }
         closeContextMenu();
@@ -584,7 +584,7 @@
         console.log('🔐 Login history preserved for return user functionality');
         
         // shouldShowSimplifiedView is now reactive, no need to set it manually
-        showSuccess('Successfully logged out', 3000);
+        showSuccess($translations?.accountManager?.messages?.logoutSuccess || 'Successfully logged out', 3000);
         closeContextMenu();
         
         // Route zur Startseite nach Logout
@@ -643,13 +643,13 @@
             });
             
             // Show success message
-            showSuccess('Magic link sent! Check your email to complete login.', 5000);
+            showSuccess($translations?.accountManager?.messages?.magicLinkSent || 'Magic link sent! Check your email to complete login.', 5000);
             
             // Move to verification step
             accountCreationStep = 'verification';
         } catch (error) {
             console.error('Login error:', error);
-            showError('Failed to send magic link. Please try again.', 5000);
+            showError($translations?.accountManager?.messages?.magicLinkSendFailed || 'Failed to send magic link. Please try again.', 5000);
         } finally {
             isSubmitting = false;
             checkingAccount = false;
@@ -743,7 +743,7 @@
                         console.log('🔒 Starting secure magic link verification...');
                         await secureVerifyMagicLink(token, magicLinkEmail);
                         magicLinkStatus = 'success';
-                        showSuccess('Magic Link erfolgreich verifiziert!', 3000);
+                        showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 3000);
                         
                         // Mark successful login for return user tracking (only on successful verification)
                         markSuccessfulLogin(magicLinkEmail);
@@ -759,8 +759,8 @@
                     } catch (error) {
                         console.error('❌ Magic link verification failed:', error);
                         magicLinkStatus = 'error';
-                        magicLinkError = error.message || 'Verifikation fehlgeschlagen';
-                        showError('Magic Link Verifikation fehlgeschlagen', 5000);
+                        magicLinkError = error.message || 'Verification failed';
+                        showError($translations?.accountManager?.messages?.magicLinkVerificationFailed || 'Magic link verification failed', 5000);
                     } finally {
                         isVerifyingMagicLink = false;
                     }

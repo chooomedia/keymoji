@@ -563,7 +563,17 @@ export default {
             settingsReset: 'Settings reset to default',
             exportFailed: 'Failed to export settings',
             settingsExported: 'Settings exported successfully',
-            freeAccountActivated: 'Free account activated!'
+            settingsImported: 'Settings imported successfully',
+            importFailed: 'Import failed',
+            freeAccountActivated: 'Free account activated!',
+            chartLoadFailed: 'Failed to load chart data',
+            logoutSuccess: 'Successfully logged out',
+            accountFoundSendingLink: 'Account found! Sending magic link to existing account.',
+            creatingNewAccount: 'Creating new account and sending magic link.',
+            magicLinkSent: 'Magic link sent! Check your email to complete login.',
+            magicLinkSendFailed: 'Failed to send magic link. Please try again.',
+            magicLinkVerified: 'Magic link verified successfully!',
+            magicLinkVerificationFailed: 'Magic link verification failed'
         },
 
         // Upgrade section
