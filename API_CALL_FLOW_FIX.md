@@ -3,6 +3,7 @@
 ## 🔴 **ROOT CAUSE FOUND!**
 
 ### **Problem:**
+
 After Magic Link verification and Session Restore, the app **NEVER loaded full account data from Google Sheets**!
 
 ```
@@ -56,11 +57,12 @@ const fullAccountResult = await fullAccountResponse.json();
 // Merge full data (including usageHistory!) with session data
 accountData = {
     ...accountData,
-    ...fullAccountResult.account,  // ← FULL DATA from Google Sheets!
+    ...fullAccountResult.account, // ← FULL DATA from Google Sheets!
     sessionId: accountData.sessionId
 };
 
-console.log('✅ [LOGIN] UsageHistory entries:', 
+console.log(
+    '✅ [LOGIN] UsageHistory entries:',
     fullAccountResult.account?.metadata?.usageHistory?.length || 0
 );
 
@@ -90,7 +92,7 @@ const fullAccountResult = await fullAccountResponse.json();
 
 // Use FULL database data (with usageHistory!)
 accountInfo = {
-    ...fullAccountResult.account,  // ← FULL DATA from Google Sheets!
+    ...fullAccountResult.account, // ← FULL DATA from Google Sheets!
     sessionId: userPrefs.sessionId,
     lastActivity: new Date().toISOString()
 };
@@ -148,11 +150,13 @@ SESSION RESTORE (Page Refresh):
 ## 📡 **API Call Details:**
 
 ### **Endpoint:**
+
 ```
 POST https://its.keymoji.wtf/api/account
 ```
 
 ### **Request Body:**
+
 ```json
 {
     "action": "read",
@@ -162,6 +166,7 @@ POST https://its.keymoji.wtf/api/account
 ```
 
 ### **Response (Expected):**
+
 ```json
 {
     "success": true,
@@ -200,11 +205,11 @@ POST https://its.keymoji.wtf/api/account
 export const WEBHOOKS = {
     ACCOUNT: {
         CRUD: `${API_URL}/account`,
-        READ: `${API_URL}/account`,  // ← ADDED!
-        UPDATE: `${API_URL}/account/update`,
+        READ: `${API_URL}/account`, // ← ADDED!
+        UPDATE: `${API_URL}/account/update`
         // ...
     }
-}
+};
 ```
 
 ### **2. Enhanced verifyMagicLinkFrontend():**
@@ -237,6 +242,7 @@ syncAccountData(accountInfo);  // ← Has usageHistory!
 ## 📊 **Expected Console Logs (After Fix):**
 
 ### **During Login:**
+
 ```
 🔗 Setting account data: {...}
 📡 [LOGIN] Loading full account data from database...
@@ -253,6 +259,7 @@ syncAccountData(accountInfo);  // ← Has usageHistory!
 ```
 
 ### **During Page Refresh:**
+
 ```
 📡 [SESSION RESTORE] Loading full account data from database...
 ✅ [SESSION RESTORE] Full account data loaded from database: {
@@ -284,6 +291,7 @@ location.href = '/';
 ### **3. Check Console:**
 
 **Expected NEW logs:**
+
 ```
 📡 [LOGIN] Loading full account data from database...
 ✅ [LOGIN] Full account data loaded
@@ -293,6 +301,7 @@ location.href = '/';
 ### **4. Refresh Page:**
 
 **Expected NEW logs:**
+
 ```
 📡 [SESSION RESTORE] Loading full account data from database...
 ✅ [SESSION RESTORE] Full account data loaded: {usageHistoryLength: 28}
@@ -301,10 +310,11 @@ location.href = '/';
 ### **5. Run Test:**
 
 ```javascript
-window.instantChartTest()
+window.instantChartTest();
 ```
 
 **Expected:**
+
 ```
 ✅ PASS: UsageHistory has 28 entries
 ✅ ALL TESTS PASSED!
@@ -349,26 +359,28 @@ Chart loads data: ✅ 28 points!
 ## 📋 **Files Changed:**
 
 1. `src/config/api.js`
-   - Added `READ: ${API_URL}/account`
+
+    - Added `READ: ${API_URL}/account`
 
 2. `src/stores/accountStore.js`
-   - Enhanced `verifyMagicLinkFrontend()` with full account load
-   - Enhanced `initializeAccountFromCookies()` with full account load
-   - Both now load usageHistory from Google Sheets
+    - Enhanced `verifyMagicLinkFrontend()` with full account load
+    - Enhanced `initializeAccountFromCookies()` with full account load
+    - Both now load usageHistory from Google Sheets
 
 ---
 
 ## ✅ **Why This Fixes The Chart:**
 
 **Before:**
-- Counter worked (dailyUsage from localStorage)
-- Chart didn't work (usageHistory never loaded)
+
+-   Counter worked (dailyUsage from localStorage)
+-   Chart didn't work (usageHistory never loaded)
 
 **After:**
-- Counter works (dailyUsage from database)
-- Chart works (usageHistory from database)  ✅
+
+-   Counter works (dailyUsage from database)
+-   Chart works (usageHistory from database) ✅
 
 ---
 
 **TL;DR:** Added explicit API call to load full account data (including usageHistory) after login and session restore! Chart should now get data from Google Sheets! 🚀
-

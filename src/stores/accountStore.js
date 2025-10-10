@@ -846,7 +846,7 @@ let isRestoringSession = false;
 let sessionRestored = false;
 
 // Initialize account from cookies on app start - Enhanced Security
-export function initializeAccountFromCookies() {
+export async function initializeAccountFromCookies() {
     try {
         // Prevent multiple simultaneous calls
         if (isRestoringSession) {
