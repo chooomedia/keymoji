@@ -2,10 +2,15 @@
 // Debug und Testing Tools für Daily Usage Tracking
 
 import { get } from 'svelte/store';
-import { dailyLimit, isLoggedIn, accountTier, currentAccount } from '../stores/appStores.js';
-import { 
-    initializeDailyUsage, 
-    incrementDailyUsage, 
+import {
+    dailyLimit,
+    isLoggedIn,
+    accountTier,
+    currentAccount
+} from '../stores/appStores.js';
+import {
+    initializeDailyUsage,
+    incrementDailyUsage,
     resetDailyUsage,
     usageStatus,
     isLimitReachedStore,
@@ -25,7 +30,7 @@ export function debugDailyUsage() {
     const status = get(usageStatus);
     const isReached = get(isLimitReachedStore);
     const remaining = get(remainingGenerations);
-    
+
     console.group('🔍 Daily Usage Debug Info');
     console.log('📊 Store State:', {
         dailyLimit: limit,
@@ -48,7 +53,7 @@ export function debugDailyUsage() {
     console.log('⚙️ Status:', status);
     console.log('📏 Expected Limit:', getDailyLimitForUser(logged, tier));
     console.groupEnd();
-    
+
     return {
         dailyLimit: limit,
         isLoggedIn: logged,
@@ -59,7 +64,8 @@ export function debugDailyUsage() {
         account: {
             userId: account?.userId,
             email: account?.email,
-            dailyUsage: account?.profile?.dailyUsage || account?.metadata?.dailyUsage
+            dailyUsage:
+                account?.profile?.dailyUsage || account?.metadata?.dailyUsage
         }
     };
 }
@@ -69,15 +75,15 @@ export function debugDailyUsage() {
  */
 export async function testIncrementUsage() {
     console.group('🧪 Testing Usage Increment');
-    
+
     const before = get(dailyLimit);
     console.log('Before increment:', before);
-    
+
     try {
         await incrementDailyUsage();
         const after = get(dailyLimit);
         console.log('After increment:', after);
-        
+
         if (after.used === before.used + 1) {
             console.log('✅ Test PASSED: Usage incremented correctly');
         } else {
@@ -86,7 +92,7 @@ export async function testIncrementUsage() {
     } catch (error) {
         console.error('❌ Test ERROR:', error);
     }
-    
+
     console.groupEnd();
 }
 
@@ -95,15 +101,15 @@ export async function testIncrementUsage() {
  */
 export async function testResetUsage() {
     console.group('🧪 Testing Usage Reset');
-    
+
     const before = get(dailyLimit);
     console.log('Before reset:', before);
-    
+
     try {
         await resetDailyUsage();
         const after = get(dailyLimit);
         console.log('After reset:', after);
-        
+
         if (after.used === 0) {
             console.log('✅ Test PASSED: Usage reset correctly');
         } else {
@@ -112,7 +118,7 @@ export async function testResetUsage() {
     } catch (error) {
         console.error('❌ Test ERROR:', error);
     }
-    
+
     console.groupEnd();
 }
 
@@ -121,20 +127,20 @@ export async function testResetUsage() {
  */
 export async function testReInitialize() {
     console.group('🧪 Testing Re-Initialization');
-    
+
     const before = get(dailyLimit);
     console.log('Before re-init:', before);
-    
+
     try {
         await initializeDailyUsage();
         const after = get(dailyLimit);
         console.log('After re-init:', after);
-        
+
         console.log('✅ Test PASSED: Re-initialization completed');
     } catch (error) {
         console.error('❌ Test ERROR:', error);
     }
-    
+
     console.groupEnd();
 }
 
@@ -143,14 +149,14 @@ export async function testReInitialize() {
  */
 export async function testReachLimit() {
     console.group('🧪 Testing Limit Reached');
-    
+
     const limit = get(dailyLimit);
     console.log('Current limit:', limit);
-    
+
     // Simulate increments until limit
     const increments = limit.limit - limit.used;
     console.log(`Simulating ${increments} increments...`);
-    
+
     for (let i = 0; i < increments; i++) {
         try {
             await incrementDailyUsage();
@@ -160,16 +166,16 @@ export async function testReachLimit() {
             break;
         }
     }
-    
+
     const final = get(dailyLimit);
     const isReached = get(isLimitReachedStore);
-    
+
     if (final.used >= final.limit && isReached) {
         console.log('✅ Test PASSED: Limit reached correctly');
     } else {
         console.error('❌ Test FAILED: Limit not reached');
     }
-    
+
     console.groupEnd();
 }
 
@@ -178,34 +184,40 @@ export async function testReachLimit() {
  */
 export function checkConsistency() {
     console.group('🔍 Checking Data Consistency');
-    
+
     const storeData = get(dailyLimit);
     const localData = storageHelpers.get(STORAGE_KEYS.DAILY_USAGE);
     const accountData = get(currentAccount);
-    
+
     console.log('Store (dailyLimit):', storeData);
     console.log('localStorage (DAILY_USAGE):', localData);
-    console.log('Account (profile.dailyUsage):', accountData?.profile?.dailyUsage);
-    console.log('Account (metadata.dailyUsage):', accountData?.metadata?.dailyUsage);
-    
+    console.log(
+        'Account (profile.dailyUsage):',
+        accountData?.profile?.dailyUsage
+    );
+    console.log(
+        'Account (metadata.dailyUsage):',
+        accountData?.metadata?.dailyUsage
+    );
+
     // Check consistency
     const issues = [];
-    
+
     if (localData && localData.used !== storeData.used) {
         issues.push('⚠️ localStorage.used !== store.used');
     }
     if (localData && localData.limit !== storeData.limit) {
         issues.push('⚠️ localStorage.limit !== store.limit');
     }
-    
+
     if (issues.length > 0) {
         console.warn('⚠️ Inconsistencies found:', issues);
     } else {
         console.log('✅ All data sources are consistent');
     }
-    
+
     console.groupEnd();
-    
+
     return issues;
 }
 
@@ -214,14 +226,14 @@ export function checkConsistency() {
  */
 export async function runAllTests() {
     console.group('🧪 Running All Daily Usage Tests');
-    
+
     debugDailyUsage();
     await testResetUsage();
     await testIncrementUsage();
     await testReInitialize();
     checkConsistency();
     // await testReachLimit(); // Commented: This modifies user data
-    
+
     console.log('✅ All tests completed');
     console.groupEnd();
 }
@@ -237,6 +249,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
         checkConsistency: checkConsistency,
         runAll: runAllTests
     };
-    console.log('🔧 Daily Usage Debug Tools available: window.keymojiDailyUsageDebug');
+    console.log(
+        '🔧 Daily Usage Debug Tools available: window.keymojiDailyUsageDebug'
+    );
 }
-

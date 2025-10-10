@@ -236,7 +236,7 @@ export function getDefaultSettings(tier = 'free') {
             requireUniqueChars: true,
 
             // Enhanced Emoji
-            emojiCount: 8,
+            emojiCount: 10, // PRO users get max emojiCount (range: 3-10)
             emojiCategories: [
                 'faces',
                 'animals',
