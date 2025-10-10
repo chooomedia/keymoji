@@ -1,5 +1,56 @@
 # Changelog
 
+## [0.5.8] - 2025-10-10
+
+### Added
+
+-   ✨ Bi-directional sync: Frontend ↔ Backend ↔ Google Sheets
+-   ✨ Unified generation system with single source of truth
+-   ✨ Language-aware navigation everywhere
+-   ✨ SVG Charts optimization (200px → 240px, edge-to-edge)
+-   ✨ Smart username fallback (no more "User" placeholder)
+-   ✨ n8n workflow with robust smart merge
+-   ✨ UsageHistory preservation guaranteed
+
+### Changed
+
+-   ♻️ Complete data flow refactor for better consistency
+-   ♻️ Charts now render larger with negative margins
+-   ♻️ Removed duplicate limit checks (single validateUserLimits)
+-   ♻️ All navigation includes language prefix
+-   ♻️ Fresh metadata loading from localStorage (never stale)
+
+### Fixed
+
+-   🐛 Fixed usageHistory deletion during settings update
+-   🐛 Fixed language-less redirects (all navigation language-aware)
+-   🐛 Fixed duplicate limit checks causing inconsistencies
+-   🐛 Fixed stale metadata usage in API calls
+-   🐛 Fixed charts showing "No Data" on localhost
+-   🐛 Fixed username displaying as "User" placeholder
+
+### Technical Improvements
+
+-   ⚡ Backend response syncs back to all stores automatically
+-   ⚡ Smart merge in n8n preserves usageHistory
+-   ⚡ Multi-store sync: localStorage + currentAccount + usageHistory
+-   ⚡ Single validation function for all limit checks
+-   ⚡ Optimistic updates with localStorage verification
+
+### Backend
+
+-   🔧 n8n "Process Update" node with smart merge logic
+-   🔧 UsageHistory preservation: incoming vs existing comparison
+-   🔧 Always outputs JSON strings for Google Sheets compatibility
+-   🔧 Localhost support with direct n8n calls
+
+### Documentation
+
+-   📝 Updated README with v0.5.8 data flow
+-   📝 Added n8n workflow update guide
+-   📝 Added debug data flow documentation
+-   📝 Added generation system refactor overview
+
 ## [0.5.7] - 2025-10-10
 
 ### Added
