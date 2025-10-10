@@ -575,7 +575,10 @@ export default {
                 'Magic link sent! Check your email to complete login.',
             magicLinkSendFailed: 'Failed to send magic link. Please try again.',
             magicLinkVerified: 'Magic link verified successfully!',
-            magicLinkVerificationFailed: 'Magic link verification failed'
+            magicLinkVerificationFailed: 'Magic link verification failed',
+            chartDataRefreshed: 'Chart data refreshed successfully!',
+            refreshFailed: 'Failed to refresh data',
+            noNewData: 'No new data available'
         },
 
         // Upgrade section
