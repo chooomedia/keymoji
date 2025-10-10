@@ -494,7 +494,7 @@ export default {
         dailyGenerations: 'Generaciones diarias',
 
         // Visualización de generaciones restantes
-        remainingDisplay: '{remaining} / {limit} restantes',
+        remainingDisplay: '{remaining} / {limit}',
 
         // Beneficios
         benefits: {

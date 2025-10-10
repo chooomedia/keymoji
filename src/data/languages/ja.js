@@ -487,7 +487,7 @@ export default {
         dailyGenerations: '1日の生成',
 
         // 残り生成数の表示
-        remainingDisplay: '残り {remaining} / {limit}',
+        remainingDisplay: '{remaining} / {limit}',
 
         // 特典
         benefits: {

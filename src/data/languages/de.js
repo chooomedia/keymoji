@@ -509,7 +509,7 @@ export default {
         dailyGenerations: 'Tägliche Generierungen',
 
         // Remaining generations display
-        remainingDisplay: '{remaining} / {limit} verbleibend',
+        remainingDisplay: '{remaining} / {limit}',
 
         // Vorteile
         benefits: {

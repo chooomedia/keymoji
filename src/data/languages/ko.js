@@ -486,7 +486,7 @@ export default {
         dailyGenerations: '일일 생성',
 
         // 남은 생성 표시
-        remainingDisplay: '남은 {remaining} / {limit}',
+        remainingDisplay: '{remaining} / {limit}',
 
         // 혜택
         benefits: {

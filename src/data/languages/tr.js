@@ -489,7 +489,7 @@ export default {
         dailyGenerations: 'Günlük Üretimler',
 
         // Kalan üretim görüntüleme
-        remainingDisplay: 'Kalan {remaining} / {limit}',
+        remainingDisplay: '{remaining} / {limit}',
 
         // Faydalar
         benefits: {

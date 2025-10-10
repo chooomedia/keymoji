@@ -489,7 +489,7 @@ export default {
         dailyGenerations: 'Ежедневные генерации',
 
         // Отображение оставшихся генераций
-        remainingDisplay: '{remaining} / {limit} осталось',
+        remainingDisplay: '{remaining} / {limit}',
 
         // Преимущества
         benefits: {

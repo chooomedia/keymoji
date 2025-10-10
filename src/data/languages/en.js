@@ -502,7 +502,7 @@ export default {
         dailyGenerations: 'Daily Generations',
 
         // Remaining generations display
-        remainingDisplay: '{remaining} / {limit} remaining',
+        remainingDisplay: '{remaining} / {limit}',
 
         // Benefits
         benefits: {

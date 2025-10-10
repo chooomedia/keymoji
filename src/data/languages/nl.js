@@ -490,7 +490,7 @@ export default {
         dailyGenerations: 'Dagelijkse generaties',
 
         // Weergave resterende generaties
-        remainingDisplay: '{remaining} / {limit} over',
+        remainingDisplay: '{remaining} / {limit}',
 
         // Voordelen
         benefits: {

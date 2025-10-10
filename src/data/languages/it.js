@@ -490,7 +490,7 @@ export default {
         dailyGenerations: 'Generazioni giornaliere',
 
         // Visualizzazione generazioni rimanenti
-        remainingDisplay: '{remaining} / {limit} rimanenti',
+        remainingDisplay: '{remaining} / {limit}',
 
         // Vantaggi
         benefits: {

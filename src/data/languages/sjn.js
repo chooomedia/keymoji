@@ -490,7 +490,7 @@ export default {
         dailyGenerations: 'jaj HochDaq chenmoH',
 
         // Remaining generations display
-        remainingDisplay: '{remaining} / {limit} chenmoHlaH',
+        remainingDisplay: '{remaining} / {limit}',
 
         // Benefits
         benefits: {

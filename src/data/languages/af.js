@@ -492,7 +492,7 @@ export default {
         dailyGenerations: 'Daaglikse Generasies',
 
         // Vertoon oorblywende generasies
-        remainingDisplay: 'Oorblywend {remaining} / {limit}',
+        remainingDisplay: '{remaining} / {limit}',
 
         // Voordele
         benefits: {

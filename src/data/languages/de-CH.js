@@ -490,7 +490,7 @@ export default {
         dailyGenerations: 'Tägligi Generierige',
 
         // Aazeig vo verbleibende Generierige
-        remainingDisplay: 'Verbleibend {remaining} / {limit}',
+        remainingDisplay: '{remaining} / {limit}',
 
         // Vorteil
         benefits: {
