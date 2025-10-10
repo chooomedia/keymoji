@@ -3,6 +3,7 @@
 ## 🎯 **USER FEEDBACK IMPLEMENTIERT:**
 
 ### **Was der User wollte:**
+
 ```
 ❌ NICHT: Random Daten (not cool!)
 ✅ STATTDESSEN: Statischer Demo-Datensatz
@@ -18,28 +19,31 @@
 ## ✅ **WAS IMPLEMENTIERT WURDE:**
 
 ### **1. Static Demo Dataset (`demoChartData.js`)**
+
 ```javascript
 // FIXED data - always the same!
 export const DEMO_USAGE_HISTORY = [
     { date: '2025-10-10', used: 6, limit: 9 },
     { date: '2025-10-09', used: 7, limit: 9 },
-    { date: '2025-10-08', used: 5, limit: 9 },
+    { date: '2025-10-08', used: 5, limit: 9 }
     // ... 7 days total
 ];
 
 // Extended (28 days)
 export const DEMO_USAGE_HISTORY_4W = [
-    ...DEMO_USAGE_HISTORY,
+    ...DEMO_USAGE_HISTORY
     // ... 28 days total
 ];
 ```
 
 **Wichtig:**
-- ✅ NICHT random!
-- ✅ IMMER gleich!
-- ✅ Konsistente UX!
+
+-   ✅ NICHT random!
+-   ✅ IMMER gleich!
+-   ✅ Konsistente UX!
 
 ### **2. Gray Chart Color**
+
 ```javascript
 // In AccountManager.svelte:
 color={isDemoDataShown ? '#9ca3af' : ($accountTier === 'pro' ? '#a855f7' : '#eab308')}
@@ -47,17 +51,20 @@ color={isDemoDataShown ? '#9ca3af' : ($accountTier === 'pro' ? '#a855f7' : '#eab
 ```
 
 **Visuell:**
-- ✅ Demo: Grau (#9ca3af)
-- ✅ FREE: Orange (#eab308)
-- ✅ PRO: Purple (#a855f7)
+
+-   ✅ Demo: Grau (#9ca3af)
+-   ✅ FREE: Orange (#eab308)
+-   ✅ PRO: Purple (#a855f7)
 
 ### **3. No Animations (Demo Mode)**
+
 ```javascript
 animate={!isDemoDataShown}
 // Animations NUR bei echten Daten!
 ```
 
 ### **4. Overlay with Explanation**
+
 ```html
 {#if isDemoDataShown}
     <div class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
@@ -74,14 +81,16 @@ animate={!isDemoDataShown}
 ```
 
 **Features:**
-- ✅ Semi-transparent backdrop
-- ✅ Clear icon (📊)
-- ✅ Title: "Demo Vorschau"
-- ✅ Description: Why demo data
-- ✅ CTA button: Navigate to home
-- ✅ Gradient button (yellow → orange)
+
+-   ✅ Semi-transparent backdrop
+-   ✅ Clear icon (📊)
+-   ✅ Title: "Demo Vorschau"
+-   ✅ Description: Why demo data
+-   ✅ CTA button: Navigate to home
+-   ✅ Gradient button (yellow → orange)
 
 ### **5. Backend-First Strategy**
+
 ```javascript
 // Priority:
 1. Try to load from backend (cached!)
@@ -95,6 +104,7 @@ animate={!isDemoDataShown}
 ## 📊 **USER FLOW:**
 
 ### **Scenario 1: New User (No Backend Data)**
+
 ```
 1. Open /account
 2. Backend: No usageHistory
@@ -107,6 +117,7 @@ animate={!isDemoDataShown}
 ```
 
 ### **Scenario 2: Existing User (Has Backend Data)**
+
 ```
 1. Open /account
 2. Backend: usageHistory available
@@ -122,6 +133,7 @@ animate={!isDemoDataShown}
 ## 🎨 **VISUAL DIFFERENCES:**
 
 ### **Demo Mode:**
+
 ```
 Color:      Gray (#9ca3af)
 Animations: None (static)
@@ -132,6 +144,7 @@ CTA:        "Jetzt Emojis generieren"
 ```
 
 ### **Real Data Mode:**
+
 ```
 Color:      Orange/Purple (tier-based)
 Animations: Smooth SVG animations
@@ -146,21 +159,24 @@ Fresh:      Yes (updated daily)
 ## 🔧 **TECHNICAL DETAILS:**
 
 ### **Demo Dataset Properties:**
-- **Fixed:** Always same data
-- **Realistic:** 60-80% usage
-- **Consistent:** 7 or 28 days
-- **Not Persisted:** In-memory only
-- **Not Random:** Predictable UX
+
+-   **Fixed:** Always same data
+-   **Realistic:** 60-80% usage
+-   **Consistent:** 7 or 28 days
+-   **Not Persisted:** In-memory only
+-   **Not Random:** Predictable UX
 
 ### **Detection Logic:**
+
 ```javascript
-isDemoDataShown = (usageHistory === DEMO_USAGE_HISTORY_4W);
+isDemoDataShown = usageHistory === DEMO_USAGE_HISTORY_4W;
 ```
 
 ### **Helper Functions:**
+
 ```javascript
-isDemoData(history)           // Check if demo
-getDemoDataForPeriod(period)  // Get demo for 7d/14d/4w/3m
+isDemoData(history); // Check if demo
+getDemoDataForPeriod(period); // Get demo for 7d/14d/4w/3m
 ```
 
 ---
@@ -168,6 +184,7 @@ getDemoDataForPeriod(period)  // Get demo for 7d/14d/4w/3m
 ## 📋 **TRANSLATIONS (15 Languages):**
 
 ### **German (de.js):**
+
 ```javascript
 demoChart: {
     title: 'Demo Vorschau',
@@ -177,6 +194,7 @@ demoChart: {
 ```
 
 ### **English (en.js):**
+
 ```javascript
 demoChart: {
     title: 'Demo Preview',
@@ -186,43 +204,49 @@ demoChart: {
 ```
 
 ### **All Others:**
-- English fallback works
-- Can be localized later
+
+-   English fallback works
+-   Can be localized later
 
 ---
 
 ## ✅ **BENEFITS:**
 
 ### **User Experience:**
-- ✅ Clear distinction (demo vs real)
-- ✅ No confusion (gray = demo)
-- ✅ Clear CTA (what to do)
-- ✅ Consistent (not random!)
-- ✅ Professional (polished overlay)
+
+-   ✅ Clear distinction (demo vs real)
+-   ✅ No confusion (gray = demo)
+-   ✅ Clear CTA (what to do)
+-   ✅ Consistent (not random!)
+-   ✅ Professional (polished overlay)
 
 ### **Performance:**
-- ✅ No random generation (CPU)
-- ✅ Fixed data (fast)
-- ✅ Backend-first (real data preferred)
-- ✅ Cached (no repeated requests)
+
+-   ✅ No random generation (CPU)
+-   ✅ Fixed data (fast)
+-   ✅ Backend-first (real data preferred)
+-   ✅ Cached (no repeated requests)
 
 ### **Backend:**
-- ✅ No unnecessary requests
-- ✅ Only when data available
-- ✅ Cached response (5 min)
-- ✅ Scalable
+
+-   ✅ No unnecessary requests
+-   ✅ Only when data available
+-   ✅ Cached response (5 min)
+-   ✅ Scalable
 
 ### **Development:**
-- ✅ Works offline
-- ✅ Works without Google Sheets
-- ✅ Predictable testing
-- ✅ Clean UX
+
+-   ✅ Works offline
+-   ✅ Works without Google Sheets
+-   ✅ Predictable testing
+-   ✅ Clean UX
 
 ---
 
 ## 🚀 **EXPECTED BEHAVIOR (Nach F5):**
 
 ### **Console Output:**
+
 ```javascript
 📊 No backend data available, using static demo dataset...
 ✅ Static demo dataset loaded: 28 entries
@@ -231,6 +255,7 @@ demoChart: {
 ```
 
 ### **Visual:**
+
 ```
 ┌─────────────────────────────────────┐
 │  📊 Daily Generations (Last 7 Days) │
@@ -254,6 +279,7 @@ demoChart: {
 ## 📊 **COMPARISON:**
 
 ### **Before (Random - Not Cool!):**
+
 ```
 Page 1: Chart shows 5,3,8,6,7,5,9 (random)
 Reload:  Chart shows 7,4,6,8,5,6,7 (different! ❌)
@@ -265,6 +291,7 @@ Reload:  Chart shows 6,8,5,7,6,9,4 (different! ❌)
 ```
 
 ### **After (Static - Best Practice!):**
+
 ```
 Page 1: Chart shows 6,7,5,8,6,4,7 (GRAY + overlay)
 Reload:  Chart shows 6,7,5,8,6,4,7 (SAME! ✓)
@@ -283,7 +310,6 @@ Reload:  Chart shows 6,7,5,8,6,4,7 (SAME! ✓)
 **UX:** Best Practice ✅  
 **Performance:** Optimiert ✅  
 **Backend:** Schonend ✅  
-**Code:** Sauber ✅  
+**Code:** Sauber ✅
 
 **🚀 F5 RELOAD - GRAUER CHART MIT OVERLAY! 🎯**
-

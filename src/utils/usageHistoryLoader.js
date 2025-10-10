@@ -18,18 +18,28 @@ function safeJSONParse(data, fallback = {}) {
             let parsed = JSON.parse(data);
             // Handle double-escaped JSON from Google Sheets
             if (typeof parsed === 'string') {
-                console.log('⚠️ [USAGE LOADER] Double-escaped JSON detected, parsing again...');
+                console.log(
+                    '⚠️ [USAGE LOADER] Double-escaped JSON detected, parsing again...'
+                );
                 try {
                     parsed = JSON.parse(parsed);
-                    console.log('✅ [USAGE LOADER] Successfully parsed double-escaped JSON');
+                    console.log(
+                        '✅ [USAGE LOADER] Successfully parsed double-escaped JSON'
+                    );
                 } catch (secondError) {
-                    console.warn('⚠️ [USAGE LOADER] Failed second parse:', secondError.message);
+                    console.warn(
+                        '⚠️ [USAGE LOADER] Failed second parse:',
+                        secondError.message
+                    );
                     return fallback;
                 }
             }
             return parsed;
         } catch (error) {
-            console.warn('⚠️ [USAGE LOADER] Failed to parse JSON:', error.message);
+            console.warn(
+                '⚠️ [USAGE LOADER] Failed to parse JSON:',
+                error.message
+            );
             return fallback;
         }
     }
@@ -75,18 +85,18 @@ export async function loadUsageHistory(userId = null, email = null) {
             console.warn(
                 '⚠️ Skipping API call on localhost (CORS), using currentAccount data'
             );
-            
+
             // CRITICAL: Parse metadata if it's a JSON string!
             const parsedMetadata = safeJSONParse(account?.metadata, {});
             const history = parsedMetadata.usageHistory || [];
-            
+
             console.log('📊 [LOCALHOST] Parsed metadata:', {
                 hadMetadata: !!account?.metadata,
                 wasString: typeof account?.metadata === 'string',
                 hasUsageHistory: !!parsedMetadata.usageHistory,
                 historyLength: history.length
             });
-            
+
             return history;
         }
 

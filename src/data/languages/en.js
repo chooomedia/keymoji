@@ -509,7 +509,7 @@ export default {
             title: 'No Data',
             description:
                 'Generate emojis to collect your real usage data and display it here.',
-            cta: 'Get Keyoji now'
+            cta: 'Get Keymoji now'
         },
 
         // Benefits
