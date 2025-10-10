@@ -682,6 +682,12 @@
                         {#if section.proItems}
                                 {#each section.proItems as item}
                                     {#key reactivityTrigger}
+                                    <!-- Conditional rendering for Custom API fields -->
+                                    {@const isCustomField = item.id?.startsWith('storyMode.custom')}
+                                    {@const currentProvider = getCurrentValue({ id: 'storyMode.provider' })}
+                                    {@const shouldShowCustomField = !isCustomField || currentProvider === 'custom'}
+                                    
+                                    {#if shouldShowCustomField}
                                     <div class="mb-4 last:mb-0">
                                         <ModularInput
                                             config={{
@@ -707,6 +713,7 @@
                                             onValueChange={(value) => handleSettingUpdate(item.id, value)}
                                         />
                                     </div>
+                                    {/if}
                                     {/key}
                                 {/each}
                         {/if}

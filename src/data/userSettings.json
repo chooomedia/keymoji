@@ -579,6 +579,47 @@
                     },
                     "defaultValue": true,
                     "color": "green"
+                },
+                {
+                    "id": "autoGenerate",
+                    "type": "toggle",
+                    "icon": "⚡",
+                    "title": {
+                        "en": "Auto-Generate on Load",
+                        "de": "Auto-Generierung beim Laden",
+                        "fr": "Générer automatiquement au chargement",
+                        "es": "Generación automática al cargar",
+                        "it": "Genera automaticamente al caricamento",
+                        "ja": "読み込み時に自動生成",
+                        "ko": "로드 시 자동 생성",
+                        "nl": "Automatisch genereren bij laden",
+                        "pl": "Automatyczne generowanie przy ładowaniu",
+                        "ru": "Автоматическая генерация при загрузке",
+                        "tr": "Yüklenirken otomatik oluşturma",
+                        "af": "Otomaties genereer tydens laai",
+                        "sjn": "Auto-Generate on Load",
+                        "tlh": "Auto-Generate on Load",
+                        "de-CH": "Auto-Generierung beim Laden"
+                    },
+                    "description": {
+                        "en": "Automatically generate emojis when page loads",
+                        "de": "Emojis automatisch generieren wenn Seite lädt",
+                        "fr": "Générer automatiquement des émojis au chargement de la page",
+                        "es": "Generar automáticamente emojis al cargar la página",
+                        "it": "Genera automaticamente emoji al caricamento della pagina",
+                        "ja": "ページ読み込み時に自動的に絵文字を生成",
+                        "ko": "페이지 로드 시 자동으로 이모지 생성",
+                        "nl": "Genereer automatisch emojis bij het laden van de pagina",
+                        "pl": "Automatycznie generuj emoji podczas ładowania strony",
+                        "ru": "Автоматически генерировать эмодзи при загрузке страницы",
+                        "tr": "Sayfa yüklendiğinde otomatik olarak emoji oluştur",
+                        "af": "Genereer outomaties emojis wanneer die bladsy laai",
+                        "sjn": "Automatically generate emojis when page loads",
+                        "tlh": "Automatically generate emojis when page loads",
+                        "de-CH": "Emojis automatisch generieren wenn Seite lädt"
+                    },
+                    "defaultValue": false,
+                    "color": "green"
                 }
             ]
         },
@@ -1754,47 +1795,6 @@
                         "de-CH": "sk-... oder AIza..."
                     },
                     "defaultValue": ""
-                },
-                {
-                    "id": "autoGenerate",
-                    "type": "toggle",
-                    "icon": "⚡",
-                    "title": {
-                        "en": "Auto-Generate on Load",
-                        "de": "Auto-Generierung beim Laden",
-                        "fr": "Générer automatiquement au chargement",
-                        "es": "Generación automática al cargar",
-                        "it": "Genera automaticamente al caricamento",
-                        "ja": "読み込み時に自動生成",
-                        "ko": "로드 시 자동 생성",
-                        "nl": "Automatisch genereren bij laden",
-                        "pl": "Automatyczne generowanie przy ładowaniu",
-                        "ru": "Автоматическая генерация при загрузке",
-                        "tr": "Yüklenirken otomatik oluşturma",
-                        "af": "Otomaties genereer tydens laai",
-                        "sjn": "Auto-Generate on Load",
-                        "tlh": "Auto-Generate on Load",
-                        "de-CH": "Auto-Generierung beim Laden"
-                    },
-                    "description": {
-                        "en": "Automatically generate emojis when page loads",
-                        "de": "Emojis automatisch generieren wenn Seite lädt",
-                        "fr": "Générer automatiquement des émojis au chargement de la page",
-                        "es": "Generar automáticamente emojis al cargar la página",
-                        "it": "Genera automaticamente emoji al caricamento della pagina",
-                        "ja": "ページ読み込み時に自動的に絵文字を生成",
-                        "ko": "페이지 로드 시 자동으로 이모지 생성",
-                        "nl": "Genereer automatisch emojis bij het laden van de pagina",
-                        "pl": "Automatycznie generuj emoji podczas ładowania strony",
-                        "ru": "Автоматически генерировать эмодзи при загрузке страницы",
-                        "tr": "Sayfa yüklendiğinde otomatik olarak emoji oluştur",
-                        "af": "Genereer outomaties emojis wanneer die bladsy laai",
-                        "sjn": "Automatically generate emojis when page loads",
-                        "tlh": "Automatically generate emojis when page loads",
-                        "de-CH": "Emojis automatisch generieren wenn Seite lädt"
-                    },
-                    "defaultValue": false,
-                    "color": "green"
                 }
             ],
             "proItems": [
