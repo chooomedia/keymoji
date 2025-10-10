@@ -383,10 +383,19 @@
     }
 
     function handleProModalUpgrade() {
-        // Handle upgrade action
+        // Handle upgrade action from modal
         showSuccess('Redirecting to Pro upgrade...', 3000);
         // Add your upgrade logic here
         showProModal = false;
+    }
+
+    // Handle upgrade action (from PRO banner button)
+    function handleUpgrade() {
+        // Show PRO feature modal with upgrade details
+        handleProFeature(
+            $translations?.accountManager?.proFeatureModal?.proUpgrade || 'Pro Upgrade',
+            $translations?.accountManager?.proFeatureModal?.unlockAdvancedFeatures || 'Unlock all advanced features and settings'
+        );
     }
 
     function toggleSection(sectionId) {
