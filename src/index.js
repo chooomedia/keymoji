@@ -132,6 +132,15 @@ function initializeApp() {
     // Display console art on production build
     displayKeymojiConsoleArt();
     
+    // Initialize API cache (cleanup expired entries, load debug tools)
+    import('./utils/apiCache.js').then(module => {
+        module.initializeCache();
+        console.log('✅ API cache initialized (prevents 429 errors)');
+        if (!isProduction()) {
+            console.log('🔧 apiCache debug: window.apiCache.stats()');
+        }
+    });
+    
     // Import debug tools in development
     if (!isProduction()) {
         import('./utils/settingsDebug.js').then(module => {
