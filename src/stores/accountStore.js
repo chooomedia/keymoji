@@ -14,7 +14,7 @@ import { showExistingAccountFound } from './modalStore.js';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 import { WEBHOOKS } from '../config/api.js';
 import { isDevelopment } from '../utils/environment.js';
-import { cachedFetchAccount, invalidateCachePattern, initializeCache } from '../utils/apiCache.js';
+import { cachedFetchAccount, invalidateCachePattern, initializeCache, clearAllCache } from '../utils/apiCache.js';
 
 // Security constants
 const SESSION_TIMEOUT = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -817,6 +817,10 @@ export function logout() {
         userId: get(currentAccount)?.userId,
         email: get(currentAccount)?.email
     });
+
+    // Clear ALL API cache on logout
+    clearAllCache();
+    console.log('🗑️ All API cache cleared on logout');
 
     syncAccountData(null);
 
