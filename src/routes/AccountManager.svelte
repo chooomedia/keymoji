@@ -193,10 +193,18 @@
         
         // Only load if we haven't loaded for this user yet, or if user changed
         if (currentUserId && currentUserId !== lastLoadedUserId && !chartDataLoaded) {
-            console.log('📊 [CHART] Triggering load for user:', currentUserId);
+            console.log('📊 [CHART REACTIVE] Triggering load for user:', currentUserId);
             lastLoadedUserId = currentUserId;
             // DON'T set chartDataLoaded = false here! It will be set to true in finally block
             loadChartDataAsync();
+        } else {
+            console.log('📊 [CHART REACTIVE] Skipping load:', {
+                hasAccount: !!$currentAccount,
+                currentUserId,
+                lastLoadedUserId,
+                chartDataLoaded,
+                reason: chartDataLoaded ? 'already loaded' : currentUserId === lastLoadedUserId ? 'same user' : 'unknown'
+            });
         }
     }
     
@@ -654,6 +662,8 @@
 
     onMount(async () => {
         try {
+            console.log('🔄 AccountManager: Component mounted');
+            
             // Initialize account from cookies
             console.log('🔐 AccountManager: Initializing account from cookies...');
             const accountRestored = await initializeAccountFromCookies();
@@ -663,6 +673,13 @@
             // The dailyLimit store is now managed by initializeDailyUsage() which runs on app start
             console.log('✅ AccountManager: Using centralized daily usage tracking');
             console.log('📊 Current daily limits:', $dailyLimit);
+            
+            // CRITICAL: Force chart load after mount if logged in
+            // This ensures chart loads even if reactive block doesn't trigger
+            if ($isLoggedIn && $currentAccount && !chartDataLoaded) {
+                console.log('🔄 AccountManager: Forcing chart load after mount');
+                await loadChartDataAsync();
+            }
             
             // Check for magic link verification - this works for both direct URL access and new tabs
             const urlParams = new URLSearchParams(window.location.search);
