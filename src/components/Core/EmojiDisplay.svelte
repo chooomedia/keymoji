@@ -18,6 +18,7 @@
         isModalVisible
     } from '../../stores/modalStore.js';
     import { translations } from '../../stores/contentStore.js';
+    import { getCurrentUserSettings } from '../../stores/userSettingsStore.js';
     import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
     import emojisData from '../../../public/emojisArray.json';
     import { WEBHOOKS } from '../../../src/config/api.js';
@@ -67,8 +68,19 @@
       await new Promise(resolve => setTimeout(resolve, 100));
       console.log('📊 Daily limits after wait:', $dailyLimit);
 
-      if (!initialRenderComplete) {
+      // Check autoGenerate setting (FREE & PRO feature)
+      const userSettings = getCurrentUserSettings();
+      const autoGenerateEnabled = userSettings?.autoGenerate ?? false;
+      
+      console.log('🎯 Auto-generate setting:', autoGenerateEnabled);
+
+      if (!initialRenderComplete && autoGenerateEnabled) {
+        console.log('🤖 Auto-generating emojis on page load');
         generateRandomEmojis(true); // count initial load towards daily limit
+      } else if (!initialRenderComplete && !autoGenerateEnabled) {
+        console.log('⏸️ Auto-generate disabled, waiting for user action');
+        // Generate placeholders without counting towards limit
+        randomEmojis = getRandomEmojis(emojiCount);
       }
       
       initialRenderComplete = true;

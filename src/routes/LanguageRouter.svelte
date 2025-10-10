@@ -13,6 +13,8 @@ import BlogPost from '../components/Features/BlogPost.svelte';
     import VersionHistory from './VersionHistory.svelte';
     import ContactForm from './ContactForm.svelte';
     import AccountManager from './AccountManager.svelte';
+    import PrivacyPolicy from './PrivacyPolicy.svelte';
+    import LegalNotice from './LegalNotice.svelte';
 
     import NotFound from './NotFound.svelte';
     import SEO from '../components/SEO.svelte';
@@ -58,6 +60,8 @@ import BlogPost from '../components/Features/BlogPost.svelte';
                 case 'versions': return 'versions';
                 case 'contact': return 'contact';
                 case 'account': return 'account';
+                case 'privacy': return 'privacy';
+                case 'legal': return 'legal';
                 default: return 'home';
             }
         } else {
@@ -70,6 +74,8 @@ import BlogPost from '../components/Features/BlogPost.svelte';
                 case 'versions': return 'versions';
                 case 'contact': return 'contact';
                 case 'account': return 'account';
+                case 'privacy': return 'privacy';
+                case 'legal': return 'legal';
 
                 default: return 'home';
             }
@@ -282,6 +288,20 @@ import BlogPost from '../components/Features/BlogPost.svelte';
     </Route>
     <Route path="/:lang/blog/:slug" let:params>
         <BlogPost slug={params.slug} />
+    </Route>
+    
+    <Route path="/privacy" let:params>
+        <PrivacyPolicy />
+    </Route>
+    <Route path="/:lang/privacy" let:params>
+        <PrivacyPolicy />
+    </Route>
+    
+    <Route path="/legal" let:params>
+        <LegalNotice />
+    </Route>
+    <Route path="/:lang/legal" let:params>
+        <LegalNotice />
     </Route>
     
     <Route component={NotFound} />

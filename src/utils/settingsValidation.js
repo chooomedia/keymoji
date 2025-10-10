@@ -137,6 +137,20 @@ export function validateSettings(settings, tier = 'free') {
         }
     }
 
+    // === Story Mode Settings (FREE & PRO) ===
+
+    if (settings.storyMode) {
+        const storyModeValidation = validateStoryModeSettings(settings.storyMode);
+        errors.push(...storyModeValidation.errors);
+        warnings.push(...storyModeValidation.warnings);
+    }
+
+    // === Auto Generate Setting (FREE & PRO) ===
+
+    if (settings.autoGenerate !== undefined && typeof settings.autoGenerate !== 'boolean') {
+        errors.push('autoGenerate must be a boolean');
+    }
+
     return {
         isValid: errors.length === 0,
         errors,
@@ -215,9 +229,21 @@ export function getDefaultSettings(tier = 'free') {
         excludeEmojis: [],
 
         // Generation
-        autoGenerate: false,
+        autoGenerate: false, // Auto-generate on home reload/click (FREE & PRO)
         copyToClipboard: true,
         showStrength: true,
+
+        // Story Mode AI Configuration (FREE & PRO)
+        storyMode: {
+            enabled: false, // Story mode available when API key configured
+            provider: 'openai', // 'openai' | 'gemini' | 'mistral' | 'custom'
+            apiKey: '', // User's own API key (encrypted in backend)
+            customApiUrl: '', // For custom provider (e.g., https://aimi.matt-interfaces.ch/)
+            model: 'gpt-3.5-turbo', // Default model per provider
+            cacheResults: true, // Cache story generations (7 days)
+            maxTokens: 150, // Max tokens per request
+            temperature: 0.7 // Creativity level (0.0 - 1.0)
+        },
 
         // Privacy
         saveHistory: false,
@@ -259,6 +285,15 @@ export function getDefaultSettings(tier = 'free') {
             autoRefresh: false,
             refreshInterval: 30,
 
+            // Enhanced Story Mode (PRO can use premium models)
+            storyMode: {
+                ...baseSettings.storyMode,
+                enabled: false,
+                model: 'gpt-4o-mini', // PRO default: better model
+                maxTokens: 300, // PRO: more tokens
+                cacheResults: true
+            },
+
             // Enhanced Privacy
             saveHistory: true,
             exportHistory: true,
@@ -282,6 +317,88 @@ export function getDefaultSettings(tier = 'free') {
     }
 
     return baseSettings;
+}
+
+/**
+ * Validate Story Mode settings
+ */
+export function validateStoryModeSettings(storyMode) {
+    const errors = [];
+    const warnings = [];
+
+    if (!storyMode) return { isValid: true, errors, warnings };
+
+    // Provider validation
+    const validProviders = ['openai', 'gemini', 'mistral', 'custom'];
+    if (storyMode.provider && !validProviders.includes(storyMode.provider)) {
+        errors.push(`provider must be one of: ${validProviders.join(', ')}`);
+    }
+
+    // API Key validation (basic format check)
+    if (storyMode.enabled && !storyMode.apiKey) {
+        errors.push('API key is required when story mode is enabled');
+    }
+
+    if (storyMode.apiKey && storyMode.apiKey.length < 10) {
+        errors.push('API key seems too short (minimum 10 characters)');
+    }
+
+    // Custom URL validation
+    if (storyMode.provider === 'custom' && !storyMode.customApiUrl) {
+        errors.push('Custom API URL is required for custom provider');
+    }
+
+    if (storyMode.customApiUrl) {
+        try {
+            new URL(storyMode.customApiUrl);
+        } catch (e) {
+            errors.push('Invalid custom API URL format');
+        }
+    }
+
+    // Model validation per provider
+    const validModels = {
+        openai: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo', 'gpt-4o', 'gpt-4o-mini'],
+        gemini: ['gemini-pro', 'gemini-1.5-pro', 'gemini-1.5-flash'],
+        mistral: ['mistral-tiny', 'mistral-small', 'mistral-medium', 'mistral-large'],
+        custom: [] // No validation for custom
+    };
+
+    if (
+        storyMode.provider !== 'custom' &&
+        storyMode.model &&
+        !validModels[storyMode.provider]?.includes(storyMode.model)
+    ) {
+        warnings.push(
+            `Model "${storyMode.model}" may not be valid for ${storyMode.provider}`
+        );
+    }
+
+    // maxTokens validation
+    if (storyMode.maxTokens !== undefined) {
+        if (typeof storyMode.maxTokens !== 'number') {
+            errors.push('maxTokens must be a number');
+        } else if (storyMode.maxTokens < 50) {
+            errors.push('maxTokens must be at least 50');
+        } else if (storyMode.maxTokens > 1000) {
+            errors.push('maxTokens must be less than 1000');
+        }
+    }
+
+    // temperature validation
+    if (storyMode.temperature !== undefined) {
+        if (typeof storyMode.temperature !== 'number') {
+            errors.push('temperature must be a number');
+        } else if (storyMode.temperature < 0 || storyMode.temperature > 1) {
+            errors.push('temperature must be between 0.0 and 1.0');
+        }
+    }
+
+    return {
+        isValid: errors.length === 0,
+        errors,
+        warnings
+    };
 }
 
 /**
