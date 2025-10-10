@@ -1088,7 +1088,7 @@
                                 <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
                                     {$translations?.accountManager?.dailyGenerations || 'Daily Generations'}
                                 </span>
-                                <div class="flex items-center space-x-2">
+                                <div class="flex items-center gap-2">
                                     <!-- Time Period Buttons (rounded-full, optimized colors) -->
                                     <div class="inline-flex gap-1">
                                         {#each ['7d', '14d', '4w', '3m'] as period}
@@ -1119,10 +1119,6 @@
                                             🔄
                                         </span>
                                     </button>
-                                    
-                                    <span class="text-sm font-semibold text-yellow-600 dark:text-yellow-400">
-                                        {dailyLimitDisplay}
-                                    </span>
                                 </div>
                             </div>
                             
@@ -1180,12 +1176,19 @@
                                 {/if}
                             </div>
                             
-                            <!-- Progress Bar (shows remaining capacity - more remaining = fuller bar) -->
-                            <div class="w-full bg-gray-300 dark:bg-aubergine-600 rounded-full h-3 mb-2">
-                                <div 
-                                    class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500"
-                                    style="width: {Math.min(100, (remainingGenerations / currentUserLimits.limit) * 100)}%"
-                                ></div>
+                            <!-- Progress Bar with Inline Counter (UX Best Practice) -->
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex-1 mr-3">
+                                    <div class="w-full bg-gray-300 dark:bg-aubergine-600 rounded-full h-3">
+                                        <div 
+                                            class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500"
+                                            style="width: {Math.min(100, (remainingGenerations / currentUserLimits.limit) * 100)}%"
+                                        ></div>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-bold text-yellow-600 dark:text-yellow-400 tabular-nums">
+                                    {dailyLimitDisplay}
+                                </span>
                             </div>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
                                 {remainingGenerations > 0 ? ($translations?.accountManager?.canStillGenerate || 'You can still generate emojis!') : ($translations?.accountManager?.limitReached || 'Daily limit reached. Upgrade to PRO for unlimited generations.')}
