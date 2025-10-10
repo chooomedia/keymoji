@@ -240,6 +240,10 @@ export async function saveAllSettings() {
 
             await saveSettingsToAPI(updatedSettings);
 
+            // Invalidate cache (force fresh account data on next load)
+            invalidateCachePattern(`/api/account:read:${account.userId}`);
+            console.log('🗑️ Cache invalidated after settings save');
+
             // CRITICAL: Update USER_PREFERENCES in localStorage with new name!
             // This prevents session restore from overwriting the new settings
             const currentPrefs =
