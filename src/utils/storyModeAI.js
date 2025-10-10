@@ -79,9 +79,25 @@ function validateGeneratedEmojis(response, emojiCount) {
 }
 
 /**
+ * Get default model for provider (Best Practice: Auto-Selection)
+ */
+function getDefaultModel(provider, tier = 'free') {
+    const models = {
+        openai: tier === 'pro' ? 'gpt-4o-mini' : 'gpt-3.5-turbo',
+        gemini: tier === 'pro' ? 'gemini-1.5-flash' : 'gemini-1.5-flash',
+        mistral: tier === 'pro' ? 'mistral-small' : 'mistral-tiny',
+        claude: tier === 'pro' ? 'claude-3-haiku-20240307' : 'claude-3-haiku-20240307',
+        custom: '' // No default for custom
+    };
+    return models[provider] || 'gpt-3.5-turbo';
+}
+
+/**
  * Call OpenAI API
  */
 async function callOpenAI(apiKey, prompt, model, maxTokens, temperature) {
+    const finalModel = model || 'gpt-3.5-turbo';
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -89,9 +105,9 @@ async function callOpenAI(apiKey, prompt, model, maxTokens, temperature) {
             'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-            model: model || 'gpt-3.5-turbo',
+            model: finalModel,
             messages: [
-                { role: 'system', content: 'You are an emoji generator. Respond ONLY with emojis.' },
+                { role: 'system', content: 'You are an emoji generator. Respond ONLY with emojis, no text.' },
                 { role: 'user', content: prompt }
             ],
             max_tokens: maxTokens || 150,
@@ -106,6 +122,41 @@ async function callOpenAI(apiKey, prompt, model, maxTokens, temperature) {
     
     const data = await response.json();
     return data.choices[0]?.message?.content || '';
+}
+
+/**
+ * Call Claude API (Anthropic)
+ */
+async function callClaude(apiKey, prompt, model, maxTokens, temperature) {
+    const finalModel = model || 'claude-3-haiku-20240307';
+    
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+            model: finalModel,
+            max_tokens: maxTokens || 150,
+            temperature: temperature || 0.7,
+            messages: [
+                { 
+                    role: 'user', 
+                    content: `You are an emoji generator. ${prompt}\n\nRespond ONLY with emojis, no explanations.` 
+                }
+            ]
+        })
+    });
+    
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || 'Claude API error');
+    }
+    
+    const data = await response.json();
+    return data.content[0]?.text || '';
 }
 
 /**
@@ -173,20 +224,67 @@ async function callMistral(apiKey, prompt, model, maxTokens, temperature) {
 
 /**
  * Call Custom API
+ * Supports different endpoint formats and response structures
  */
-async function callCustomAPI(apiUrl, apiKey, prompt, model, maxTokens, temperature) {
-    const response = await fetch(apiUrl, {
+async function callCustomAPI(config) {
+    const { 
+        apiUrl, 
+        apiKey, 
+        prompt, 
+        model, 
+        maxTokens, 
+        temperature,
+        endpoint = '/v1/chat/completions', // Default endpoint
+        format = 'openai' // 'openai', 'claude', 'raw'
+    } = config;
+    
+    // Build full URL
+    const fullUrl = apiUrl.endsWith('/') ? apiUrl + endpoint.replace(/^\//, '') : apiUrl + endpoint;
+    
+    // Build request body based on format
+    let body = {};
+    
+    switch (format) {
+        case 'openai':
+            body = {
+                model: model || 'gpt-3.5-turbo',
+                messages: [
+                    { role: 'system', content: 'You are an emoji generator. Respond ONLY with emojis.' },
+                    { role: 'user', content: prompt }
+                ],
+                max_tokens: maxTokens || 150,
+                temperature: temperature || 0.7
+            };
+            break;
+        
+        case 'claude':
+            body = {
+                model: model || 'claude-3-haiku-20240307',
+                max_tokens: maxTokens || 150,
+                temperature: temperature || 0.7,
+                messages: [
+                    { role: 'user', content: `You are an emoji generator. ${prompt}\n\nRespond ONLY with emojis.` }
+                ]
+            };
+            break;
+        
+        case 'raw':
+        default:
+            body = {
+                prompt,
+                model,
+                max_tokens: maxTokens,
+                temperature
+            };
+    }
+    
+    const response = await fetch(fullUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiKey}`
         },
-        body: JSON.stringify({
-            prompt,
-            model,
-            max_tokens: maxTokens,
-            temperature
-        })
+        body: JSON.stringify(body)
     });
     
     if (!response.ok) {
@@ -195,8 +293,15 @@ async function callCustomAPI(apiUrl, apiKey, prompt, model, maxTokens, temperatu
     }
     
     const data = await response.json();
+    
     // Try common response formats
-    return data.response || data.text || data.content || data.emojis || '';
+    return data.choices?.[0]?.message?.content || // OpenAI format
+           data.content?.[0]?.text ||              // Claude format
+           data.response || 
+           data.text || 
+           data.content || 
+           data.emojis || 
+           '';
 }
 
 /**
@@ -297,25 +402,43 @@ export async function generateStoryEmojis(text, emojiCount, storyModeConfig) {
         const prompt = buildPrompt(text, emojiCount, provider);
         let aiResponse = '';
         
+        // Auto-select model if not provided (Best Practice)
+        const finalModel = model || getDefaultModel(provider, storyModeConfig.tier);
+        
+        console.log(`🎯 Using model: ${finalModel}`);
+        
         // Call appropriate AI provider
         switch (provider) {
             case 'openai':
-                aiResponse = await callOpenAI(apiKey, prompt, model, maxTokens, temperature);
+                aiResponse = await callOpenAI(apiKey, prompt, finalModel, maxTokens, temperature);
                 break;
             
             case 'gemini':
-                aiResponse = await callGemini(apiKey, prompt, model, maxTokens, temperature);
+                aiResponse = await callGemini(apiKey, prompt, finalModel, maxTokens, temperature);
                 break;
             
             case 'mistral':
-                aiResponse = await callMistral(apiKey, prompt, model, maxTokens, temperature);
+                aiResponse = await callMistral(apiKey, prompt, finalModel, maxTokens, temperature);
+                break;
+            
+            case 'claude':
+                aiResponse = await callClaude(apiKey, prompt, finalModel, maxTokens, temperature);
                 break;
             
             case 'custom':
                 if (!customApiUrl) {
                     throw new Error('Custom API URL is required');
                 }
-                aiResponse = await callCustomAPI(customApiUrl, apiKey, prompt, model, maxTokens, temperature);
+                aiResponse = await callCustomAPI({
+                    apiUrl: customApiUrl,
+                    apiKey,
+                    prompt,
+                    model: finalModel,
+                    maxTokens,
+                    temperature,
+                    endpoint: storyModeConfig.customEndpoint || '/v1/chat/completions',
+                    format: storyModeConfig.customFormat || 'openai'
+                });
                 break;
             
             default:
@@ -450,10 +573,69 @@ export async function testAIProvider(storyModeConfig) {
     }
 }
 
+/**
+ * Get provider info and recommended settings
+ */
+export function getProviderInfo(provider) {
+    const info = {
+        openai: {
+            name: 'OpenAI',
+            models: {
+                free: ['gpt-3.5-turbo'],
+                pro: ['gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo']
+            },
+            defaultModel: { free: 'gpt-3.5-turbo', pro: 'gpt-4o-mini' },
+            apiKeyPrefix: 'sk-',
+            docsUrl: 'https://platform.openai.com/docs'
+        },
+        gemini: {
+            name: 'Google Gemini',
+            models: {
+                free: ['gemini-1.5-flash'],
+                pro: ['gemini-1.5-flash', 'gemini-1.5-pro']
+            },
+            defaultModel: { free: 'gemini-1.5-flash', pro: 'gemini-1.5-flash' },
+            apiKeyPrefix: 'AIza',
+            docsUrl: 'https://ai.google.dev/docs'
+        },
+        mistral: {
+            name: 'Mistral AI',
+            models: {
+                free: ['mistral-tiny'],
+                pro: ['mistral-small', 'mistral-medium', 'mistral-large']
+            },
+            defaultModel: { free: 'mistral-tiny', pro: 'mistral-small' },
+            apiKeyPrefix: '',
+            docsUrl: 'https://docs.mistral.ai'
+        },
+        claude: {
+            name: 'Anthropic Claude',
+            models: {
+                free: ['claude-3-haiku-20240307'],
+                pro: ['claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-opus-20240229']
+            },
+            defaultModel: { free: 'claude-3-haiku-20240307', pro: 'claude-3-haiku-20240307' },
+            apiKeyPrefix: 'sk-ant-',
+            docsUrl: 'https://docs.anthropic.com'
+        },
+        custom: {
+            name: 'Custom API',
+            models: { free: [], pro: [] },
+            defaultModel: { free: '', pro: '' },
+            apiKeyPrefix: '',
+            docsUrl: ''
+        }
+    };
+    
+    return info[provider] || info.openai;
+}
+
 export default {
     generateStoryEmojis,
     clearStoryCache,
     getStoryCacheStats,
-    testAIProvider
+    testAIProvider,
+    getDefaultModel,
+    getProviderInfo
 };
 

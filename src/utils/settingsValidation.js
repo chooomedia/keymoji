@@ -329,7 +329,7 @@ export function validateStoryModeSettings(storyMode) {
     if (!storyMode) return { isValid: true, errors, warnings };
 
     // Provider validation
-    const validProviders = ['openai', 'gemini', 'mistral', 'custom'];
+    const validProviders = ['openai', 'gemini', 'mistral', 'claude', 'custom'];
     if (storyMode.provider && !validProviders.includes(storyMode.provider)) {
         errors.push(`provider must be one of: ${validProviders.join(', ')}`);
     }
@@ -361,6 +361,7 @@ export function validateStoryModeSettings(storyMode) {
         openai: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo', 'gpt-4o', 'gpt-4o-mini'],
         gemini: ['gemini-pro', 'gemini-1.5-pro', 'gemini-1.5-flash'],
         mistral: ['mistral-tiny', 'mistral-small', 'mistral-medium', 'mistral-large'],
+        claude: ['claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-opus-20240229', 'claude-3-5-sonnet-20241022'],
         custom: [] // No validation for custom
     };
 
