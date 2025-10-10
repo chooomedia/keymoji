@@ -22,8 +22,18 @@
         "lastIncrement": "2025-10-10T12:34:56.789Z"
     },
     "usageHistory": [
-        { "date": "2025-10-10", "used": 5, "limit": 9, "timestamp": "2025-10-10T12:00:00.000Z" },
-        { "date": "2025-10-09", "used": 7, "limit": 9, "timestamp": "2025-10-09T12:00:00.000Z" },
+        {
+            "date": "2025-10-10",
+            "used": 5,
+            "limit": 9,
+            "timestamp": "2025-10-10T12:00:00.000Z"
+        },
+        {
+            "date": "2025-10-09",
+            "used": 7,
+            "limit": 9,
+            "timestamp": "2025-10-09T12:00:00.000Z"
+        }
         // ... 26 weitere Einträge bis 2025-09-13
     ],
     "source": "magic_link_verification",
@@ -44,39 +54,39 @@
 ```
 0ms    User öffnet /account Seite
        └─ AccountManager.svelte mounted
-       
+
 50ms   Reactive Statement triggered:
        $: if ($currentAccount && $isLoggedIn) {
            loadChartDataAsync();
        }
-       
+
 100ms  loadChartDataAsync() startet
        ├─ isLoadingChartData = true
        ├─ ChartSkeleton wird angezeigt 📊
        └─ console.log('📊 Loading chart data asynchronously...')
-       
+
 150ms  Option 1: Load from currentAccount
        const accountHistory = getUsageHistory($currentAccount);
-       
+
 200ms  ✅ Daten gefunden in currentAccount!
        usageHistory = accountHistory (28 Einträge)
        console.log('✅ Chart data loaded from currentAccount:', 28, 'entries')
-       
+
 250ms  Check: shouldRefreshHistory(usageHistory)?
        └─ Prüft: Ist das neuste Datum "2025-10-10" (heute)?
        └─ JA! → Kein Refresh nötig
-       
+
 550ms  Smooth transition delay (300ms)
        await new Promise(resolve => setTimeout(resolve, 300));
-       
+
 600ms  isLoadingChartData = false
        └─ ChartSkeleton verschwindet
        └─ LineChart erscheint mit fade-in (400ms)
-       
+
 1000ms ✨ Chart vollständig animiert!
        └─ Linie gezeichnet (in:draw)
        └─ 28 Punkte erscheinen (staggered fade)
-       
+
 2550ms 🎉 ALLE Animationen komplett!
 ```
 
@@ -90,12 +100,12 @@
 <!-- AccountManager.svelte -->
 <script>
     import { loadUsageHistoryWithRetry, refreshUsageHistory, shouldRefreshHistory } from '../utils/usageHistoryLoader.js';
-    
+
     // State
     let isLoadingChartData = false;
     let chartDataError = null;
     let usageHistory = [];
-    
+
     // REACTIVE: Triggered when currentAccount becomes available
     $: if ($currentAccount && $isLoggedIn) {
         loadChartDataAsync();
@@ -104,9 +114,10 @@
 ```
 
 **Was passiert:**
-- User logged in → `$currentAccount` wird gesetzt
-- Reactive statement läuft → `loadChartDataAsync()` wird aufgerufen
-- Automatischer Load-Prozess startet
+
+-   User logged in → `$currentAccount` wird gesetzt
+-   Reactive statement läuft → `loadChartDataAsync()` wird aufgerufen
+-   Automatischer Load-Prozess startet
 
 ---
 
@@ -118,40 +129,53 @@ async function loadChartDataAsync() {
         // STEP 1: Show loading skeleton
         isLoadingChartData = true;
         chartDataError = null;
-        
+
         console.log('📊 Loading chart data asynchronously...');
-        
+
         // STEP 2: Try to load from currentAccount (already loaded by accountStore)
         const accountHistory = getUsageHistory($currentAccount);
-        
+
         if (accountHistory && accountHistory.length > 0) {
             // ✅ Data already available!
             usageHistory = accountHistory;
-            console.log('✅ Chart data loaded from currentAccount:', usageHistory.length, 'entries');
+            console.log(
+                '✅ Chart data loaded from currentAccount:',
+                usageHistory.length,
+                'entries'
+            );
         } else {
             // 📡 Fallback: Fetch from API
-            console.log('📡 No history in currentAccount, fetching from API...');
+            console.log(
+                '📡 No history in currentAccount, fetching from API...'
+            );
             usageHistory = await loadUsageHistoryWithRetry(
                 $currentAccount?.userId,
                 $currentAccount?.email
             );
-            console.log('✅ Chart data loaded from API:', usageHistory.length, 'entries');
+            console.log(
+                '✅ Chart data loaded from API:',
+                usageHistory.length,
+                'entries'
+            );
         }
-        
+
         // STEP 3: Check if data is stale (optional refresh)
         if (shouldRefreshHistory(usageHistory)) {
             console.log('🔄 History is stale, refreshing...');
             const refreshed = await refreshUsageHistory();
             if (refreshed && refreshed.length > 0) {
                 usageHistory = refreshed;
-                console.log('✅ Chart data refreshed:', usageHistory.length, 'entries');
+                console.log(
+                    '✅ Chart data refreshed:',
+                    usageHistory.length,
+                    'entries'
+                );
             }
         }
-        
     } catch (error) {
         console.error('❌ Failed to load chart data:', error);
         chartDataError = error.message || 'Failed to load chart data';
-        
+
         // Fallback: Use any existing data
         usageHistory = getUsageHistory($currentAccount) || [];
     } finally {
@@ -172,7 +196,7 @@ async function loadChartDataAsync() {
     {#if isLoadingChartData}
         <!-- LOADING STATE -->
         <ChartSkeleton height={200} />
-        
+
     {:else if chartDataError}
         <!-- ERROR STATE -->
         <div class="error-container">
@@ -183,7 +207,7 @@ async function loadChartDataAsync() {
                 🔄 Erneut versuchen
             </Button>
         </div>
-        
+
     {:else if usageHistory.length === 0}
         <!-- NO DATA STATE -->
         <div class="no-data-container">
@@ -191,11 +215,11 @@ async function loadChartDataAsync() {
             <h4>Noch keine Daten</h4>
             <p>Generiere Emojis, um deine Statistiken zu sehen!</p>
         </div>
-        
+
     {:else}
         <!-- SUCCESS STATE - Chart mit Daten -->
         <div in:fade={{ duration: 400 }}>
-            <LineChart 
+            <LineChart
                 data={usageChartData}
                 maxValue={$accountTier === 'pro' ? 25 : 9}
                 height={200}
@@ -212,15 +236,17 @@ async function loadChartDataAsync() {
 ## 🎯 **Was muss NICHT geändert werden:**
 
 ### ✅ Google Sheets Daten
-- **Struktur ist perfekt!**
-- `usageHistory` Array mit 28 Einträgen ✅
-- Chronologisch sortiert (neueste zuerst) ✅
-- Alle Felder vorhanden (`date`, `used`, `limit`, `timestamp`) ✅
+
+-   **Struktur ist perfekt!**
+-   `usageHistory` Array mit 28 Einträgen ✅
+-   Chronologisch sortiert (neueste zuerst) ✅
+-   Alle Felder vorhanden (`date`, `used`, `limit`, `timestamp`) ✅
 
 ### ✅ Frontend Stores
-- `currentAccount` empfängt bereits geparste Daten vom n8n Workflow ✅
-- `accountStore.js` lädt Daten korrekt ✅
-- Keine Änderung nötig! ✅
+
+-   `currentAccount` empfängt bereits geparste Daten vom n8n Workflow ✅
+-   `accountStore.js` lädt Daten korrekt ✅
+-   Keine Änderung nötig! ✅
 
 ---
 
@@ -250,8 +276,8 @@ function parseJSON(str, fallback = {}) {
 const metadata = parseJSON(lookupData.metadata);
 
 // Ensure usageHistory is array
-const usageHistory = Array.isArray(metadata.usageHistory) 
-    ? metadata.usageHistory 
+const usageHistory = Array.isArray(metadata.usageHistory)
+    ? metadata.usageHistory
     : [];
 
 console.log('✅ Parsed metadata:', {
@@ -271,7 +297,7 @@ return {
         profile: parseJSON(lookupData.profile),
         metadata: {
             dailyUsage: metadata.dailyUsage,
-            usageHistory: usageHistory,  // ← MUSS ARRAY SEIN!
+            usageHistory: usageHistory, // ← MUSS ARRAY SEIN!
             settings: metadata.settings
         },
         status: lookupData.status
@@ -280,8 +306,9 @@ return {
 ```
 
 **Check:** Ist dieser Code Node bereits im n8n Workflow?
-- ✅ JA → Alles funktioniert automatisch!
-- ❌ NEIN → Code Node muss hinzugefügt/aktualisiert werden!
+
+-   ✅ JA → Alles funktioniert automatisch!
+-   ❌ NEIN → Code Node muss hinzugefügt/aktualisiert werden!
 
 ---
 
@@ -304,15 +331,15 @@ async function handleAccountRead(userId, email, res) {
                 })
             }
         );
-        
+
         const data = await n8nResponse.json();
-        
+
         // IMPORTANT: Return parsed data (n8n already parsed)
         return res.status(200).json(data);
     } catch (error) {
-        return res.status(500).json({ 
-            success: false, 
-            error: error.message 
+        return res.status(500).json({
+            success: false,
+            error: error.message
         });
     }
 }
@@ -373,22 +400,25 @@ console.log('Type:', Array.isArray(account?.metadata?.usageHistory));
 **Beim Laden der /account Seite sollte man sehen:**
 
 1. **Loading Skeleton** (0-600ms)
-   - Graue pulsierende Linien
-   - Skeleton-Kreise
-   - Spinner mit "📊 Lade Chart-Daten..."
+
+    - Graue pulsierende Linien
+    - Skeleton-Kreise
+    - Spinner mit "📊 Lade Chart-Daten..."
 
 2. **Chart Fade-In** (600-1000ms)
-   - Smooth fade transition
-   - Linie zeichnet sich von links nach rechts
+
+    - Smooth fade transition
+    - Linie zeichnet sich von links nach rechts
 
 3. **Data Points** (800-2550ms)
-   - 28 Kreise erscheinen nacheinander
-   - Staggered animation (je +50ms)
+
+    - 28 Kreise erscheinen nacheinander
+    - Staggered animation (je +50ms)
 
 4. **Final State** (2550ms+)
-   - Voll animierter Chart
-   - 28 sichtbare Datenpunkte
-   - Interaktiv (hover zeigt Tooltips)
+    - Voll animierter Chart
+    - 28 sichtbare Datenpunkte
+    - Interaktiv (hover zeigt Tooltips)
 
 ---
 
@@ -406,7 +436,7 @@ async function saveUsageToAPI(account, usageData) {
     try {
         // Update usage history
         const updatedHistory = await saveToUsageHistory(account, usageData);
-        
+
         const response = await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -415,11 +445,11 @@ async function saveUsageToAPI(account, usageData) {
                 email: account.email,
                 profile: {
                     ...(account.profile || {}),
-                    dailyUsage: usageData  // ← Heutiger Stand
+                    dailyUsage: usageData // ← Heutiger Stand
                 },
                 metadata: {
                     ...(account.metadata || {}),
-                    dailyUsage: usageData,      // ← Backward compatibility
+                    dailyUsage: usageData, // ← Backward compatibility
                     usageHistory: updatedHistory, // ← Für Chart! (28-365 Tage)
                     lastActivity: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
@@ -428,12 +458,11 @@ async function saveUsageToAPI(account, usageData) {
                 lastLogin: new Date().toISOString()
             })
         });
-        
+
         console.log('✅ Usage saved to database:', {
             dailyUsage: usageData,
             historyEntries: updatedHistory.length
         });
-        
     } catch (error) {
         console.error('❌ Failed to save usage to API:', error);
         throw error;
@@ -446,17 +475,17 @@ async function saveUsageToAPI(account, usageData) {
 async function saveToUsageHistory(account, usageData) {
     const existingHistory = account?.metadata?.usageHistory || [];
     const today = getTodayDateString();
-    
+
     // Update or add today's entry
     const existingIndex = existingHistory.findIndex(e => e.date === today);
-    
+
     const newEntry = {
         date: today,
         used: usageData.used,
         limit: usageData.limit,
         timestamp: new Date().toISOString()
     };
-    
+
     let updatedHistory;
     if (existingIndex >= 0) {
         // Update existing
@@ -466,29 +495,30 @@ async function saveToUsageHistory(account, usageData) {
         // Add new
         updatedHistory = [...existingHistory, newEntry];
     }
-    
+
     // Keep only last 365 days (sorted newest first)
     updatedHistory = updatedHistory
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 365);
-    
+
     console.log('📊 Updated usage history:', updatedHistory.length, 'entries');
-    
+
     return updatedHistory;
 }
 ```
 
 **Wann wird das aufgerufen?**
+
 ```javascript
 // src/components/Core/EmojiDisplay.svelte
 
 async function handleSuccessfulGeneration(countTowardsLimit = true) {
     // ... copy to clipboard, show success, etc.
-    
+
     if (countTowardsLimit) {
         // AUTOMATIC: Increment daily usage
         await incrementDailyUsage();
-        
+
         // → calls saveUsageToAPI()
         // → updates usageHistory in Google Sheets
         // → next time user reloads: new data is shown in chart!
@@ -501,22 +531,25 @@ async function handleSuccessfulGeneration(countTowardsLimit = true) {
 ## ✅ **Zusammenfassung: Was ist zu tun?**
 
 ### Für cm@chooo.de (Manuelle Test-Daten):
-- [x] ✅ Daten in Google Sheets manuell eingefügt
-- [x] ✅ Struktur ist korrekt
-- [ ] ⚠️ n8n Workflow prüfen: Parsed `metadata` korrekt?
-- [ ] ⚠️ Nach Login testen: Wird Chart geladen?
+
+-   [x] ✅ Daten in Google Sheets manuell eingefügt
+-   [x] ✅ Struktur ist korrekt
+-   [ ] ⚠️ n8n Workflow prüfen: Parsed `metadata` korrekt?
+-   [ ] ⚠️ Nach Login testen: Wird Chart geladen?
 
 ### Für alle anderen User (Automatisch):
-- [x] ✅ `dailyUsageStore.js` schreibt automatisch
-- [x] ✅ `saveUsageToAPI()` updated `usageHistory`
-- [x] ✅ Async Loading lädt Daten beim nächsten Login
-- [x] ✅ Chart zeigt historische Daten
+
+-   [x] ✅ `dailyUsageStore.js` schreibt automatisch
+-   [x] ✅ `saveUsageToAPI()` updated `usageHistory`
+-   [x] ✅ Async Loading lädt Daten beim nächsten Login
+-   [x] ✅ Chart zeigt historische Daten
 
 ### n8n Workflow Checklist:
-- [ ] Code Node "Parse Response" vorhanden?
-- [ ] `JSON.parse(metadata)` wird aufgerufen?
-- [ ] `usageHistory` wird als Array zurückgegeben?
-- [ ] Response enthält parsed objects (nicht strings)?
+
+-   [ ] Code Node "Parse Response" vorhanden?
+-   [ ] `JSON.parse(metadata)` wird aufgerufen?
+-   [ ] `usageHistory` wird als Array zurückgegeben?
+-   [ ] Response enthält parsed objects (nicht strings)?
 
 ---
 
@@ -575,4 +608,3 @@ return {
 ---
 
 **Alles bereit! Die Google Sheets Daten sind perfekt. Jetzt muss nur noch der n8n Workflow geprüft werden! 🚀**
-

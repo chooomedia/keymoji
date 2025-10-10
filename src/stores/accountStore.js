@@ -1020,29 +1020,79 @@ function getCreatedAtFromUserPreferences() {
     return createdAt;
 }
 
+/**
+ * Safe JSON parsing helper
+ * Handles both strings and already-parsed objects
+ */
+function safeJSONParse(data, fallback = {}) {
+    if (!data) return fallback;
+    
+    // Already an object? Return as-is
+    if (typeof data === 'object' && data !== null) {
+        return data;
+    }
+    
+    // String? Try to parse
+    if (typeof data === 'string') {
+        try {
+            return JSON.parse(data);
+        } catch (error) {
+            console.warn('⚠️ Failed to parse JSON:', error.message);
+            return fallback;
+        }
+    }
+    
+    return fallback;
+}
+
 // Synchronize account data across stores
 async function syncAccountData(accountData) {
     if (accountData) {
+        console.log('🔄 syncAccountData: Raw data received:', {
+            profileType: typeof accountData.profile,
+            metadataType: typeof accountData.metadata,
+            hasUserId: !!accountData.userId
+        });
+
+        // CRITICAL: Parse JSON strings from n8n/Google Sheets
+        const parsedProfile = safeJSONParse(accountData.profile, {});
+        const parsedMetadata = safeJSONParse(accountData.metadata, {});
+        
+        console.log('✅ Parsed data:', {
+            profile: parsedProfile,
+            metadata: {
+                ...parsedMetadata,
+                usageHistory: parsedMetadata.usageHistory?.length || 0
+            }
+        });
+
+        // Create clean account object with parsed data
+        const cleanAccountData = {
+            ...accountData,
+            profile: parsedProfile,
+            metadata: parsedMetadata
+        };
+
         // Ensure createdAt is present - get from localStorage if not in accountData
-        if (!accountData.createdAt) {
+        if (!cleanAccountData.createdAt) {
             const userPrefs = storageHelpers.get(
                 STORAGE_KEYS.USER_PREFERENCES,
                 {}
             );
             if (userPrefs.createdAt) {
-                accountData.createdAt = userPrefs.createdAt;
+                cleanAccountData.createdAt = userPrefs.createdAt;
                 console.log(
                     '🔄 syncAccountData: Added createdAt from localStorage:',
-                    accountData.createdAt
+                    cleanAccountData.createdAt
                 );
             }
         }
 
-        // Update all account-related stores
+        // Update all account-related stores with PARSED data
         isLoggedIn.set(true);
-        currentAccount.set(accountData);
-        userProfile.set(accountData.profile || {});
-        accountTier.set(accountData.tier || 'free');
+        currentAccount.set(cleanAccountData);
+        userProfile.set(parsedProfile);
+        accountTier.set(cleanAccountData.tier || 'free');
 
         // Initialize daily usage from API + localStorage
         try {
@@ -1051,17 +1101,21 @@ async function syncAccountData(accountData) {
             console.log('✅ Daily usage initialized from API/localStorage');
         } catch (error) {
             console.warn('⚠️ Failed to initialize daily usage, using fallback:', error);
-            // Fallback to old method
+            // Fallback to old method (use parsedMetadata)
             updateDailyLimit(
                 true,
-                accountData.tier,
-                accountData.metadata?.dailyUsage?.used || accountData.usedGenerations || 0
+                cleanAccountData.tier,
+                parsedMetadata?.dailyUsage?.used || cleanAccountData.usedGenerations || 0
             );
         }
 
         console.log(
             '✅ syncAccountData: Account synced with createdAt:',
-            accountData.createdAt
+            cleanAccountData.createdAt
+        );
+        console.log(
+            '✅ syncAccountData: UsageHistory entries:',
+            parsedMetadata?.usageHistory?.length || 0
         );
     } else {
         // Reset all stores when no account data
