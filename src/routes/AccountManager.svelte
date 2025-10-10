@@ -1190,8 +1190,8 @@
                                             data={usageChartData}
                                             maxValue={$accountTier === 'pro' ? 35 : 9}
                                             height={200}
-                                            color={isDemoDataShown ? '#9ca3af' : ($accountTier === 'pro' ? '#a855f7' : '#eab308')}
-                                            animate={!isDemoDataShown}
+                                            color={$accountTier === 'pro' ? '#a855f7' : '#eab308'}
+                                            animate={true}
                                         />
                                         
                                         {#if isDemoDataShown}
@@ -1200,7 +1200,7 @@
                                                 class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg"
                                                 transition:fade={{ duration: 300 }}
                                             >
-                                                <div class="text-center p-6 max-w-md">
+                                                <div class="bg-creme-500 dark:bg-aubergine-900 bg-opacity-90 rounded-xl backdrop-blur-sm text-center p-6 max-w-md">
                                                     <div class="text-4xl mb-3">📊</div>
                                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                                         {$translations?.accountManager?.demoChart?.title || 'Demo Vorschau'}
