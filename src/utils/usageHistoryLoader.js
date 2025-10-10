@@ -4,6 +4,7 @@ import { get } from 'svelte/store';
 import { currentAccount, isLoggedIn } from '../stores/appStores.js';
 import { WEBHOOKS } from '../config/api.js';
 import { isDevelopment } from './environment.js';
+import { cachedFetchUsageHistory } from './apiCache.js';
 
 /**
  * Async loader for usage history data
@@ -47,29 +48,10 @@ export async function loadUsageHistory(userId = null, email = null) {
             return account?.metadata?.usageHistory || [];
         }
 
-        console.log('📡 Fetching usage history for:', targetUserId);
+        console.log('📡 Fetching usage history (cached):', targetUserId);
 
-        // Call backend API
-        const response = await fetch(WEBHOOKS.ACCOUNT.READ || '/api/account', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({
-                action: 'read',
-                userId: targetUserId,
-                email: targetEmail
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(
-                `API returned ${response.status}: ${response.statusText}`
-            );
-        }
-
-        const result = await response.json();
+        // Use cached fetch - prevents 429 errors, 1 hour TTL!
+        const result = await cachedFetchUsageHistory(targetUserId, targetEmail);
 
         console.log('✅ API Response received:', {
             success: result.success,
