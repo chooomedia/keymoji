@@ -606,11 +606,11 @@
             if (accountCheck.exists) {
                 console.log('✅ Account already exists, proceeding with magic link');
                 // Account exists, proceed with magic link
-                showInfo('Account found! Sending magic link to existing account.', 3000);
+                showInfo($translations?.accountManager?.messages?.accountFoundSendingLink || 'Account found! Sending magic link to existing account.', 3000);
             } else {
                 console.log('🆕 No existing account found, will create new account');
                 // Account doesn't exist, will be created during magic link verification
-                showInfo('Creating new account and sending magic link.', 3000);
+                showInfo($translations?.accountManager?.messages?.creatingNewAccount || 'Creating new account and sending magic link.', 3000);
             }
 
             // Determine if we're in development mode
