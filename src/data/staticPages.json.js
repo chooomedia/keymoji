@@ -141,7 +141,8 @@ export const staticPagesData = {
                             items: [
                                 'OpenAI: openai.com/policies/privacy-policy',
                                 'Google Gemini: policies.google.com/privacy',
-                                'Mistral AI: mistral.ai/terms'
+                                'Mistral AI: mistral.ai/terms',
+                                'Anthropic Claude: anthropic.com/legal/privacy'
                             ]
                         },
                         {
@@ -405,7 +406,8 @@ export const staticPagesData = {
                             items: [
                                 'OpenAI: openai.com/policies/privacy-policy',
                                 'Google Gemini: policies.google.com/privacy',
-                                'Mistral AI: mistral.ai/terms'
+                                'Mistral AI: mistral.ai/terms',
+                                'Anthropic Claude: anthropic.com/legal/privacy'
                             ]
                         },
                         {
@@ -604,7 +606,7 @@ export const staticPagesData = {
                                 { label: 'Email', text: 'Brevo' },
                                 {
                                     label: 'AI',
-                                    text: 'OpenAI, Google Gemini, Mistral AI'
+                                    text: 'OpenAI, Google Gemini, Mistral AI, Anthropic Claude'
                                 },
                                 { label: 'Hosting', text: 'Vercel' }
                             ]
@@ -742,7 +744,7 @@ export const staticPagesData = {
                                 { label: 'Email', text: 'Brevo' },
                                 {
                                     label: 'AI',
-                                    text: 'OpenAI, Google Gemini, Mistral AI'
+                                    text: 'OpenAI, Google Gemini, Mistral AI, Anthropic Claude'
                                 },
                                 { label: 'Hosting', text: 'Vercel' }
                             ]
