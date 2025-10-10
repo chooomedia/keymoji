@@ -81,21 +81,21 @@
                 </div>
                 
             {:else if item.type === 'warning'}
-                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-500 dark:border-yellow-600 p-6 rounded-lg">
+                <div class="bg-yellow-50 dark:bg-aubergine-900 border-2 border-yellow-500 dark:border-yellow-600/40 p-6 rounded-lg">
                     {#if item.title}
-                        <h4 class="text-lg font-semibold text-yellow-900 dark:text-yellow-300 mb-3">
+                        <h4 class="text-lg font-semibold text-black dark:text-white mb-3">
                             {item.title}
                         </h4>
                     {/if}
                     {#if item.text}
-                        <p class="text-yellow-800 dark:text-yellow-200 leading-relaxed mb-3">
+                        <p class="text-gray-900 dark:text-white leading-relaxed mb-3">
                             {item.text}
                         </p>
                     {/if}
                     {#if item.items}
                         <ul class="space-y-2 list-disc pl-6">
                             {#each item.items as warningItem}
-                                <li class="text-yellow-800 dark:text-yellow-200">
+                                <li class="text-gray-900 dark:text-white">
                                     {warningItem}
                                 </li>
                             {/each}
@@ -104,23 +104,23 @@
                 </div>
                 
             {:else if item.type === 'info'}
-                <div class="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500 dark:border-blue-600 p-6 rounded-lg">
+                <div class="bg-blue-50 dark:bg-aubergine-900 border-2 border-blue-500 dark:border-blue-600/40 p-6 rounded-lg">
                     {#if item.title}
-                        <h4 class="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-3">
+                        <h4 class="text-lg font-semibold text-black dark:text-white mb-3">
                             {item.title}
                         </h4>
                     {/if}
                     {#if item.text}
-                        <p class="text-blue-800 dark:text-blue-200 leading-relaxed">
+                        <p class="text-gray-900 dark:text-white leading-relaxed">
                             {item.text}
                         </p>
                     {/if}
                     {#if item.items}
-                        <ul class="mt-3 space-y-2">
+                        <ul class="mt-3 space-y-2 list-disc pl-6">
                             {#each item.items as infoItem}
-                                <li class="text-blue-800 dark:text-blue-200">
+                                <li class="text-gray-900 dark:text-white">
                                     {#if infoItem.label}
-                                        <strong class="text-blue-900 dark:text-blue-300">{infoItem.label}:</strong>
+                                        <strong class="text-black dark:text-white">{infoItem.label}:</strong>
                                     {/if}
                                     {#if infoItem.link}
                                         <a 
@@ -169,11 +169,11 @@
                 </div>
                 
             {:else if item.type === 'contact'}
-                <div class="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500 dark:border-blue-600 p-6 rounded-lg">
+                <div class="bg-blue-50 dark:bg-aubergine-900 border-2 border-blue-500 dark:border-blue-600/40 p-6 rounded-lg">
                     <div class="space-y-3">
                         {#each item.items as contactItem}
-                            <p class="text-blue-900 dark:text-blue-200">
-                                <strong class="text-blue-900 dark:text-blue-300">{contactItem.label}:</strong>
+                            <p class="text-gray-900 dark:text-white">
+                                <strong class="text-black dark:text-white">{contactItem.label}:</strong>
                                 {#if contactItem.link}
                                     <a 
                                         href={contactItem.link}
@@ -182,7 +182,7 @@
                                         {contactItem.text}
                                     </a>
                                 {:else}
-                                    <span class="text-blue-800 dark:text-blue-200 ml-2">{contactItem.text}</span>
+                                    <span class="text-gray-900 dark:text-white ml-2">{contactItem.text}</span>
                                 {/if}
                             </p>
                         {/each}
