@@ -38,7 +38,15 @@
         logAccountingEvent
     } from '../stores/accountStore.js';
     import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore.js';
-    import { currentSettings, resetSettings, exportSettings, importSettings } from '../stores/userSettingsStore.js';
+    import { 
+        currentSettings, 
+        resetSettings, 
+        exportSettings, 
+        importSettings,
+        hasUnsavedChanges,
+        saveAllSettings,
+        settingsStatus
+    } from '../stores/userSettingsStore.js';
     import { WEBHOOKS } from '../config/api.js';
     import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
     import UserSettings from '../components/UserSettings.svelte';
@@ -52,6 +60,7 @@
     import ContextBadge from '../components/UI/ContextBadge.svelte';
     import FooterInfo from '../widgets/FooterInfo.svelte';
     import FeatureCard from '../components/Features/FeatureCard.svelte';
+    import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers.js';
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
     $: pageTitle = (() => {
@@ -109,110 +118,14 @@
     let checkingAccount = false;
     let sessionExpired = false;
     let hasValidSession = false;
-
-    // Calculate days since account creation
-    function getDaysSinceAccountCreation() {
-        // Direkt nach keymoji_user_preferences > createdAt im localStorage suchen
-        const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
-        console.log('🔍 DEBUG: User preferences from localStorage:', userPrefs);
-        
-        // Priorität 1: localStorage USER_PREFERENCES.createdAt
-        let createdAtValue = userPrefs?.createdAt;
-        
-        if (!createdAtValue) {
-            console.log('⚠️ No creation date found - setting to current date');
-            createdAtValue = new Date().toISOString();
-            
-            // Speichere es sofort im localStorage
-            const updatedPrefs = {
-                ...userPrefs,
-                createdAt: createdAtValue
-            };
-            storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
-            console.log('✅ CreatedAt set to current date and saved:', createdAtValue);
-        }
-        
-        try {
-            const createdAt = new Date(createdAtValue);
-            const now = new Date();
-            
-            // Check if the date is valid
-            if (isNaN(createdAt.getTime())) {
-                console.warn('⚠️ Invalid date format:', createdAtValue);
-                return 0;
-            }
-            
-            // Check if the date is in the future (which would be invalid)
-            if (createdAt > now) {
-                console.warn('⚠️ CreatedAt date is in the future:', createdAtValue);
-                // Use a reasonable fallback date (e.g., 1 day ago)
-                const fallbackDate = new Date(now.getTime() - (24 * 60 * 60 * 1000)); // 1 day ago
-                const diffTime = Math.abs(now - fallbackDate);
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                console.log('🔧 Using fallback date (1 day ago):', diffDays);
-                return diffDays;
-            }
-            
-            const diffTime = Math.abs(now - createdAt);
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
-            console.log('✅ Days since creation calculated:', {
-                createdAtValue,
-                createdAt,
-                diffDays,
-                source: 'localStorage'
-            });
-            
-            return diffDays;
-        } catch (error) {
-            console.warn('Error calculating days since account creation:', error);
-            return 0;
-        }
-    }
-    
-    // Test function to manually set createdAt for debugging
-    function testSetCreatedAt() {
-        const testDate = new Date().toISOString();
-        const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
-        const updatedPrefs = {
-            ...userPrefs,
-            createdAt: testDate
-        };
-        storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
-        console.log('🔧 Test createdAt set:', testDate);
-        console.log('🔧 Updated userPrefs:', updatedPrefs);
-    }
-    
-    // Test function to manually set a specific createdAt for debugging
-    function testSetSpecificCreatedAt() {
-        // Set a specific date for testing (e.g., 30 days ago)
-        const testDate = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000)).toISOString();
-        const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
-        const updatedPrefs = {
-            ...userPrefs,
-            createdAt: testDate
-        };
-        storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
-        console.log('🔧 Test createdAt set to 30 days ago:', testDate);
-        console.log('🔧 Updated userPrefs:', updatedPrefs);
-    }
-    
-    // Test function to check what's in localStorage
-    function checkLocalStorage() {
-        const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
-        console.log('🔍 Current userPrefs in localStorage:', userPrefs);
-        return userPrefs;
-    }
     
     // Reactive calculation for days since account creation
-    $: daysSinceCreation = getDaysSinceAccountCreation();
-    
-    // TEMPORARY TEST: Force a value to test UI
-    // $: daysSinceCreation = 42; // Uncomment this line to test with 42 days
+    // Übergebe $currentAccount damit API-Daten (Google Sheets) bevorzugt werden!
+    $: daysSinceCreation = getDaysSinceAccountCreation($currentAccount);
     
     // Debug: Log when daysSinceCreation changes
     $: if (daysSinceCreation !== undefined) {
-        console.log('🔄 daysSinceCreation updated:', daysSinceCreation);
+        console.log('🔄 daysSinceCreation updated:', daysSinceCreation, 'from account:', $currentAccount?.createdAt);
     }
     
     // Return user view state
@@ -368,37 +281,14 @@
         return $translations?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
     })();
     
-    // Account age label for psychological effect - zeigt wie lange User im aktuellen Tier ist
-    $: accountAgeLabel = (() => {
-        const isProAccount = $accountTier === 'pro';
-        
-        if (daysSinceCreation === 0) {
-            const baseText = $translations?.accountManager?.accountAge?.today || '✨ FREE: Seit heute!';
-            return isProAccount ? baseText.replace('✨ FREE', '💎 PRO') : baseText;
-        } else if (daysSinceCreation === 1) {
-            const baseText = $translations?.accountManager?.accountAge?.yesterday || '🚀 FREE: Seit gestern!';
-            return isProAccount ? baseText.replace('🚀 FREE', '💎 PRO') : baseText;
-        } else if (daysSinceCreation < 7) {
-            const baseText = $translations?.accountManager?.accountAge?.days || '🔥 FREE: Seit {days} Tagen!';
-            const formattedText = baseText.replace('{days}', daysSinceCreation);
-            return isProAccount ? formattedText.replace('🔥 FREE', '💎 PRO') : formattedText;
-        } else if (daysSinceCreation < 30) {
-            const weeks = Math.floor(daysSinceCreation / 7);
-            const baseText = $translations?.accountManager?.accountAge?.weeks || '⚡ FREE: Seit {weeks} Woche{plural}!';
-            const formattedText = baseText.replace('{weeks}', weeks).replace('{plural}', weeks > 1 ? 'n' : '');
-            return isProAccount ? formattedText.replace('⚡ FREE', '💎 PRO') : formattedText;
-        } else if (daysSinceCreation < 365) {
-            const months = Math.floor(daysSinceCreation / 30);
-            const baseText = $translations?.accountManager?.accountAge?.months || '💪 FREE: Seit {months} Monat{plural}!';
-            const formattedText = baseText.replace('{months}', months).replace('{plural}', months > 1 ? 'en' : '');
-            return isProAccount ? formattedText.replace('💪 FREE', '💎 PRO') : formattedText;
-        } else {
-            const years = Math.floor(daysSinceCreation / 365);
-            const baseText = $translations?.accountManager?.accountAge?.years || '🏆 FREE: Seit {years} Jahr{plural}!';
-            const formattedText = baseText.replace('{years}', years).replace('{plural}', years > 1 ? 'en' : '');
-            return isProAccount ? formattedText.replace('🏆 FREE', '💎 PRO') : formattedText;
-        }
-    })();
+    // Account age label for tooltip - zeigt wie lange User den Account hat (NUR Zeitangabe)
+    $: accountAgeLabel = formatAccountAge(
+        daysSinceCreation, 
+        $translations?.accountManager?.accountAge
+    );
+    
+    // Tier badge text - zeigt NUR den Tier-Status
+    $: tierBadgeText = getTierBadgeText($accountTier);
     
 
 
@@ -899,8 +789,9 @@
                                 <div class="relative context-menu">
                                     <button
                                         on:click={toggleContextMenu}
-                                        class="p-2 rounded-full bg-powder-300 dark:bg-aubergine-950 text-gray-700 dark:text-white hover:bg-creme-600 dark:hover:bg-aubergine-900 transition-colors"
+                                        class="p-2 rounded-full bg-powder-300 dark:bg-aubergine-950 text-gray-700 dark:text-white hover:bg-creme-600 dark:hover:bg-aubergine-900 focus:bg-creme-600 dark:focus:bg-aubergine-900 active:bg-creme-700 dark:active:bg-aubergine-800 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                                         aria-label="{$translations?.accountManager?.contextMenu?.settingsMenu || 'Settings menu'}"
+                                        title="{$translations?.accountManager?.contextMenu?.settingsMenu || 'Settings menu'}"
                                     >
                                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -917,7 +808,8 @@
                                             <div class="py-1">
                                                 <button
                                                     on:click={handleExportSettings}
-                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 transition-colors flex items-center"
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 focus:bg-gray-100 dark:focus:bg-aubergine-700 active:bg-gray-200 dark:active:bg-aubergine-600 transition-all flex items-center focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1"
+                                                    aria-label={$translations?.accountManager?.contextMenu?.exportSettings || 'Export Settings'}
                                                 >
                                                     <span class="mr-2">📤</span>
                                                     {$translations?.accountManager?.contextMenu?.exportSettings || 'Export Settings'}
@@ -925,7 +817,8 @@
                                                 
                                                 <button
                                                     on:click={triggerFileInput}
-                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 transition-colors flex items-center"
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 focus:bg-gray-100 dark:focus:bg-aubergine-700 active:bg-gray-200 dark:active:bg-aubergine-600 transition-all flex items-center focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1"
+                                                    aria-label={$translations?.accountManager?.contextMenu?.importSettings || 'Import Settings'}
                                                 >
                                                     <span class="mr-2">📥</span>
                                                     {$translations?.accountManager?.contextMenu?.importSettings || 'Import Settings'}
@@ -935,7 +828,8 @@
                                                 
                                                 <button
                                                     on:click={handleResetSettings}
-                                                    class="w-full text-left px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors flex items-center"
+                                                    class="w-full text-left px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 focus:bg-orange-50 dark:focus:bg-orange-900/20 active:bg-orange-100 dark:active:bg-orange-900/30 transition-all flex items-center focus:ring-2 focus:ring-orange-300 focus:ring-offset-1"
+                                                    aria-label={$translations?.accountManager?.contextMenu?.resetToDefault || 'Reset to Default'}
                                                 >
                                                     <span class="mr-2">🔄</span>
                                                     {$translations?.accountManager?.contextMenu?.resetToDefault || 'Reset to Default'}
@@ -945,7 +839,8 @@
                                                 
                                                 <button
                                                     on:click={handleLogout}
-                                                    class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center"
+                                                    class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:bg-red-50 dark:focus:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 transition-all flex items-center focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
+                                                    aria-label={$translations?.accountManager?.contextMenu?.logout || 'Logout'}
                                                 >
                                                     <span class="mr-2">🚪</span>
                                                     {$translations?.accountManager?.contextMenu?.logout || 'Logout'}
@@ -1010,9 +905,29 @@
                                 variant="primary"
                                 size="md"
                                 fullWidth={true}
-                                on:click={() => showSuccess($translations?.accountManager?.actions?.settingsSaved || 'Settings saved successfully!', 3000)}
+                                disabled={!$hasUnsavedChanges || $settingsStatus.isSaving}
+                                on:click={async () => {
+                                    try {
+                                        await saveAllSettings();
+                                        showSuccess($translations?.accountManager?.actions?.settingsSaved || 'Settings saved successfully!', 3000);
+                                    } catch (error) {
+                                        showError($translations?.accountManager?.actions?.settingsSaveFailed || 'Failed to save settings', 3000);
+                                    }
+                                }}
+                                ariaLabel={$translations?.accountManager?.actions?.saveSettings || 'Save settings'}
+                                tooltip={$hasUnsavedChanges ? ($translations?.accountManager?.actions?.unsavedChanges || 'You have unsaved changes') : ($translations?.accountManager?.actions?.noChanges || 'No changes to save')}
                             >
-                                {$translations?.accountManager?.actions?.saveSettings || '💾 Save Settings'}
+                                {#if $settingsStatus.isSaving}
+                                    <span class="flex items-center justify-center">
+                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        {$translations?.accountManager?.actions?.saving || 'Saving...'}
+                                    </span>
+                                {:else}
+                                    {$translations?.accountManager?.actions?.saveSettings || '💾 Save Settings'}
+                                {/if}
                             </Button>
                             
                             <!-- Secondary Action: Back to Home -->
@@ -1122,21 +1037,25 @@
                                     class="absolute inset-y-1 bg-powder-300 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
                                     style="width: calc(48% - 2px); left: 4px; transform: translateX({showBenefitsToggle === 'pro' ? 'calc(100% + 11px)' : '0'})"
                                 ></div>
-                                <div class="w-full h-full relative flex justify-around">
-                                    <button
-                                        class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
-                                        on:click={() => selectAccountType('free')}
-                                    >
-                                        <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                            {$translations?.accountManager?.tiers?.free || 'FREE'}
-                                        </span>
-                                                                            <span class="text-xs transition-colors duration-300 text-yellow-600">
+                            <div class="w-full h-full relative flex justify-around">
+                                <button
+                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10 hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+                                    on:click={() => selectAccountType('free')}
+                                    aria-label={$translations?.accountManager?.tiers?.free || 'Select Free account'}
+                                    title={$translations?.accountManager?.freeDescription || 'Free account'}
+                                >
+                                    <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
+                                        {$translations?.accountManager?.tiers?.free || 'FREE'}
+                                    </span>
+                                    <span class="text-xs transition-colors duration-300 text-yellow-600">
                                         {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
                                     </span>
                                 </button>
                                 <button
-                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
+                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10 hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
                                     on:click={() => selectAccountType('pro')}
+                                    aria-label={$translations?.accountManager?.tiers?.pro || 'Select Pro account'}
+                                    title={$translations?.accountManager?.proDescription || 'Pro account'}
                                 >
                                     <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
                                         {$translations?.accountManager?.tiers?.pro || 'PRO'}
@@ -1144,8 +1063,8 @@
                                     <span class="text-xs transition-colors duration-300 text-purple-600">
                                         {$translations?.accountManager?.proDescription || '💎 Enterprise Security'}
                                     </span>
-                                    </button>
-                                </div>
+                                </button>
+                            </div>
                             </div>
                         </div>
                         <!-- Benefits Content -->

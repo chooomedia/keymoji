@@ -8,6 +8,12 @@ import {
     getCookieStatus
 } from '../utils/cookies.js';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
+import {
+    validateSettings,
+    sanitizeSettings,
+    getDefaultSettings,
+    mergeWithDefaults
+} from '../utils/settingsValidation.js';
 
 // Helper function to generate client fingerprint
 function generateClientFingerprint() {
@@ -33,96 +39,9 @@ export const settingsStatus = writable({
     errorMessage: null
 });
 
-// Default settings for different user tiers
-const DEFAULT_FREE_SETTINGS = {
-    // Basic Settings
-    language: 'en',
-    theme: 'auto', // auto, light, dark
-    notifications: true,
-
-    // Security Settings
-    passwordLength: 8,
-    includeNumbers: true,
-    includeSymbols: true,
-    includeUppercase: true,
-    includeLowercase: true,
-
-    // Emoji Settings
-    emojiCount: 5,
-    emojiCategories: ['faces', 'animals', 'food'],
-    excludeEmojis: [],
-
-    // Generation Settings
-    autoGenerate: false,
-    copyToClipboard: true,
-    showStrength: true,
-
-    // Privacy Settings
-    saveHistory: false,
-    analytics: true,
-    shareUsage: false
-};
-
-const DEFAULT_PRO_SETTINGS = {
-    // Basic Settings
-    language: 'en',
-    theme: 'auto',
-    notifications: true,
-
-    // Advanced Security Settings
-    passwordLength: 12,
-    includeNumbers: true,
-    includeSymbols: true,
-    includeUppercase: true,
-    includeLowercase: true,
-    includeSpecialChars: true,
-    excludeSimilarChars: true,
-    requireUniqueChars: true,
-
-    // Advanced Emoji Settings
-    emojiCount: 8,
-    emojiCategories: [
-        'faces',
-        'animals',
-        'food',
-        'objects',
-        'symbols',
-        'flags'
-    ],
-    excludeEmojis: [],
-    emojiPattern: 'random', // random, sequential, alternating
-    emojiTheme: 'mixed', // mixed, cute, professional, fantasy
-
-    // Advanced Generation Settings
-    autoGenerate: true,
-    copyToClipboard: true,
-    showStrength: true,
-    strengthThreshold: 'medium', // low, medium, high
-    autoRefresh: false,
-    refreshInterval: 30, // seconds
-
-    // Advanced Privacy Settings
-    saveHistory: true,
-    analytics: true,
-    shareUsage: false,
-    exportHistory: true,
-    backupSettings: true,
-
-    // Pro Features
-    customPatterns: [],
-    favoriteEmojis: [],
-    passwordHistory: [],
-    strengthAnalytics: true,
-    securityAudit: true,
-    breachCheck: true,
-
-    // Advanced UI Settings
-    compactMode: false,
-    showAdvancedOptions: true,
-    customThemes: [],
-    keyboardShortcuts: true,
-    accessibilityMode: false
-};
+// Use centralized default settings from validation utils
+const DEFAULT_FREE_SETTINGS = getDefaultSettings('free');
+const DEFAULT_PRO_SETTINGS = getDefaultSettings('pro');
 
 // Create the main settings store
 export const userSettings = writable(DEFAULT_FREE_SETTINGS);
@@ -183,47 +102,76 @@ export function saveSettings(settings) {
 }
 
 // Apply settings reactively
-export function applySettingsReactive(settings) {
-    // Apply theme
+export async function applySettingsReactive(settings) {
+    console.log('🔄 Applying settings reactively:', settings);
+
+    // Apply theme (updates darkMode store + DOM)
     if (settings.theme) {
-        applyThemeReactive(settings.theme);
+        await applyThemeReactive(settings.theme);
     }
 
-    // Apply language
+    // Apply language (updates currentLanguage store + DOM)
     if (settings.language) {
-        applyLanguageReactive(settings.language);
+        await applyLanguageReactive(settings.language);
     }
 
     // Apply other settings as needed
-    console.log('🔄 Settings applied reactively:', settings);
+    console.log('✅ Settings applied reactively');
 }
 
 // Apply theme reactively
-export function applyThemeReactive(theme) {
+export async function applyThemeReactive(theme) {
     if (typeof document === 'undefined') return;
 
     const root = document.documentElement;
 
+    // Import darkMode store
+    const { darkMode } = await import('./appStores.js');
+
+    let isDark = false;
+
     if (theme === 'dark') {
         root.classList.add('dark');
+        isDark = true;
     } else if (theme === 'light') {
         root.classList.remove('dark');
+        isDark = false;
     } else {
         // Auto theme - use system preference
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
             root.classList.add('dark');
+            isDark = true;
         } else {
             root.classList.remove('dark');
+            isDark = false;
         }
     }
+
+    // Update darkMode store
+    darkMode.set(isDark);
+
+    // Save to storage
+    storageHelpers.set(STORAGE_KEYS.DARK_MODE, isDark);
+    storageHelpers.set(STORAGE_KEYS.THEME, theme);
+
+    console.log('🎨 Theme applied:', theme, 'isDark:', isDark);
 }
 
 // Apply language reactively
-export function applyLanguageReactive(language) {
+export async function applyLanguageReactive(language) {
     if (typeof document === 'undefined') return;
+
+    // Import currentLanguage store
+    const { currentLanguage } = await import('./contentStore.js');
 
     // Update document language
     document.documentElement.lang = language;
+
+    // Update currentLanguage store
+    currentLanguage.set(language);
+
+    // Save to storage
+    storageHelpers.set(STORAGE_KEYS.LANGUAGE, language);
 
     // Trigger language change event
     window.dispatchEvent(
@@ -231,6 +179,8 @@ export function applyLanguageReactive(language) {
             detail: { language }
         })
     );
+
+    console.log('🌍 Language applied:', language);
 }
 
 // Neue Funktionen für Settings-Management
@@ -248,34 +198,86 @@ export async function saveAllSettings() {
 
         const currentSettings = get(userSettings);
         const pendingSettings = get(pendingChanges);
+        const tier = get(accountTier);
 
         // Merge current settings with pending changes
-        const updatedSettings = {
+        let updatedSettings = {
             ...currentSettings,
             ...pendingSettings
         };
 
+        console.log('💾 Saving settings (before validation):', updatedSettings);
+
+        // Validate settings
+        const validation = validateSettings(updatedSettings, tier);
+        if (!validation.isValid) {
+            console.error('❌ Settings validation failed:', validation.errors);
+            throw new Error(
+                `Settings validation failed: ${validation.errors.join(', ')}`
+            );
+        }
+
+        // Log warnings (e.g., Pro features used on free tier)
+        if (validation.warnings.length > 0) {
+            console.warn('⚠️ Settings warnings:', validation.warnings);
+        }
+
+        // Sanitize settings (remove pro-only features for free users)
+        updatedSettings = sanitizeSettings(updatedSettings, tier);
+
+        console.log('💾 Saving settings (after validation):', updatedSettings);
+
+        // Apply settings immediately (updates stores + UI)
+        await applySettingsReactive(updatedSettings);
+
         // Save to API if user is logged in
         const account = get(currentAccount);
         if (account && account.userId) {
+            // If name changed, also update account
+            if (pendingSettings.name && pendingSettings.name !== account.name) {
+                await updateAccountName(account.userId, pendingSettings.name);
+            }
+
             await saveSettingsToAPI(updatedSettings);
+
+            // CRITICAL: Update USER_PREFERENCES in localStorage with new name!
+            // This prevents session restore from overwriting the new settings
+            const currentPrefs =
+                storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES) || {};
+            storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
+                ...currentPrefs,
+                name: updatedSettings.name,
+                profile: {
+                    ...(currentPrefs.profile || {}),
+                    name: updatedSettings.name
+                },
+                lastSettingsUpdate: new Date().toISOString()
+            });
+            console.log(
+                '✅ USER_PREFERENCES updated in localStorage with new name:',
+                updatedSettings.name
+            );
         } else {
             // Save to localStorage for guest users
             storageHelpers.set(STORAGE_KEYS.USER_SETTINGS, updatedSettings);
         }
 
-        // Save to local storage
+        // Save to local storage (cookies + localStorage)
         setUserPreferences({
             ...getUserPreferences(),
             settings: updatedSettings,
+            name: updatedSettings.name,
+            language: updatedSettings.language, // Explicit save
+            theme: updatedSettings.theme, // Explicit save
             lastSettingsUpdate: new Date().toISOString()
         });
 
+        // Also save language and theme to their dedicated storage keys
+        storageHelpers.set(STORAGE_KEYS.LANGUAGE, updatedSettings.language);
+        storageHelpers.set(STORAGE_KEYS.THEME, updatedSettings.theme || 'auto');
+
         // Update user settings store
         userSettings.set(updatedSettings);
-
-        // Apply settings immediately
-        applySettingsReactive(updatedSettings);
 
         // Clear pending changes
         pendingChanges.set({});
@@ -289,9 +291,11 @@ export async function saveAllSettings() {
             errorMessage: null
         }));
 
+        console.log('✅ Settings saved successfully:', updatedSettings);
+
         return updatedSettings;
     } catch (error) {
-        console.error('Save all settings error:', error);
+        console.error('❌ Save all settings error:', error);
 
         // Update settings status with error
         settingsStatus.update(status => ({
@@ -301,6 +305,59 @@ export async function saveAllSettings() {
             errorMessage: error.message
         }));
 
+        throw error;
+    }
+}
+
+// Update account name via API
+async function updateAccountName(userId, name) {
+    try {
+        const account = get(currentAccount);
+
+        const response = await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                userId: userId,
+                email: account?.email || '',
+                profile: {
+                    ...(account?.profile || {}),
+                    name: name
+                },
+                lastLogin: new Date().toISOString(), // Update lastLogin
+                metadata: {
+                    ...(account?.metadata || {}),
+                    updatedAt: new Date().toISOString(),
+                    updatedVia: 'settings-ui-name-change'
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || 'Failed to update account name');
+        }
+
+        const result = await response.json();
+        console.log('✅ Account name updated:', result);
+
+        // Update currentAccount store
+        currentAccount.update(acc => ({
+            ...acc,
+            name: name,
+            lastLogin: new Date().toISOString(),
+            profile: {
+                ...(acc?.profile || {}),
+                name: name
+            }
+        }));
+
+        return result;
+    } catch (error) {
+        console.error('❌ Failed to update account name:', error);
         throw error;
     }
 }
@@ -320,15 +377,43 @@ export function getPendingValue(key) {
 }
 
 export function getEffectiveValue(key) {
-    const current = get(userSettings);
     const pending = get(pendingChanges);
+    const settings = get(userSettings);
+    const tier = get(accountTier);
 
-    // Pending value hat Vorrang
+    // Priority 1: Pending changes (unsaved)
     if (pending[key] !== undefined) {
+        console.log(
+            `📝 getEffectiveValue(${key}): Using pending value:`,
+            pending[key]
+        );
         return pending[key];
     }
 
-    return current[key];
+    // Priority 2: User settings (saved)
+    if (settings[key] !== undefined) {
+        console.log(
+            `📦 getEffectiveValue(${key}): Using userSettings value:`,
+            settings[key]
+        );
+        return settings[key];
+    }
+
+    // Priority 3: Tier defaults (FREE vs PRO)
+    const defaults =
+        tier === 'pro' ? DEFAULT_PRO_SETTINGS : DEFAULT_FREE_SETTINGS;
+    const defaultValue = defaults[key];
+
+    if (defaultValue !== undefined) {
+        console.log(
+            `⚙️ getEffectiveValue(${key}): Using ${tier} default:`,
+            defaultValue
+        );
+        return defaultValue;
+    }
+
+    console.warn(`⚠️ getEffectiveValue(${key}): No value found!`);
+    return undefined;
 }
 
 // Reset settings to default
@@ -466,46 +551,184 @@ export function runSecurityAudit() {
 // Initialize settings for user
 export async function initializeSettingsForUser() {
     try {
+        console.log('🔄 Initializing settings for user...');
+
         const account = get(currentAccount);
+
+        // Import current language and darkMode stores
+        const { currentLanguage } = await import('./contentStore.js');
+        const { darkMode } = await import('./appStores.js');
+
+        let loadedSettings = null;
 
         if (account && account.userId) {
             // Try to load settings from API first
             try {
                 const apiSettings = await loadSettingsFromAPI();
                 if (apiSettings) {
-                    console.log('✅ Settings loaded from API');
-                    return apiSettings;
+                    console.log('✅ Settings loaded from API:', apiSettings);
+                    loadedSettings = apiSettings;
                 }
             } catch (error) {
-                console.warn(
-                    '⚠️ Failed to load settings from API, using local settings:',
-                    error.message
-                );
+                // CORS error is expected in localhost - use localStorage instead
+                if (
+                    error.message.includes('CORS') ||
+                    error.message.includes('Failed to fetch')
+                ) {
+                    console.log(
+                        'ℹ️ API not available (CORS/localhost), using local settings'
+                    );
+                } else {
+                    console.warn('⚠️ API error:', error.message);
+                }
             }
         }
 
         // Fallback to local settings
-        const localSettings = getUserPreferences()?.settings;
-        if (localSettings) {
-            userSettings.set(localSettings);
-            console.log('✅ Settings loaded from local storage');
-            return localSettings;
+        if (!loadedSettings) {
+            // Priority 1: Check localStorage.USER_PREFERENCES.settings
+            const localStoragePrefs = storageHelpers.get(
+                STORAGE_KEYS.USER_PREFERENCES
+            );
+            if (localStoragePrefs?.settings) {
+                console.log(
+                    '✅ Settings loaded from localStorage.USER_PREFERENCES:',
+                    localStoragePrefs.settings
+                );
+                loadedSettings = localStoragePrefs.settings;
+            } else {
+                // Priority 2: Check cookies
+                const cookiePrefs = getUserPreferences();
+                if (cookiePrefs?.settings) {
+                    console.log(
+                        '✅ Settings loaded from cookies:',
+                        cookiePrefs.settings
+                    );
+                    loadedSettings = cookiePrefs.settings;
+                } else {
+                    console.log(
+                        'ℹ️ No settings found in localStorage or cookies'
+                    );
+                }
+            }
         }
 
-        // Initialize with default settings
-        const defaultSettings =
-            get(accountTier) === 'pro'
-                ? DEFAULT_PRO_SETTINGS
-                : DEFAULT_FREE_SETTINGS;
-        userSettings.set(defaultSettings);
-        console.log('✅ Settings initialized with defaults');
-        return defaultSettings;
+        // If still no settings, use defaults based on tier
+        const tier = get(accountTier);
+        if (!loadedSettings) {
+            loadedSettings = {
+                ...(tier === 'pro'
+                    ? DEFAULT_PRO_SETTINGS
+                    : DEFAULT_FREE_SETTINGS)
+            };
+            console.log(`✅ Using default ${tier} settings:`, loadedSettings);
+        } else {
+            // CRITICAL: Merge loaded settings with tier-appropriate defaults
+            // This ensures FREE users get FREE defaults, PRO users get PRO defaults
+            const defaults =
+                tier === 'pro' ? DEFAULT_PRO_SETTINGS : DEFAULT_FREE_SETTINGS;
+            loadedSettings = {
+                ...defaults,
+                ...loadedSettings
+            };
+            console.log(
+                `✅ Settings merged with ${tier} defaults:`,
+                loadedSettings
+            );
+        }
+
+        // Ensure name is set from account
+        if (!loadedSettings.name && account?.name) {
+            loadedSettings.name = account.name;
+        }
+
+        // CRITICAL: ALWAYS sync language and theme from active stores
+        // This ensures UI dropdowns show the correct current values
+
+        // Language: Use currentLanguage store as source of truth
+        const activeLanguage = get(currentLanguage);
+        if (activeLanguage) {
+            loadedSettings.language = activeLanguage;
+            console.log(
+                '🌍 Language synced from currentLanguage store:',
+                activeLanguage
+            );
+        } else if (!loadedSettings.language) {
+            loadedSettings.language =
+                storageHelpers.get(STORAGE_KEYS.LANGUAGE) || 'en';
+            console.log(
+                '🌍 Language loaded from storage fallback:',
+                loadedSettings.language
+            );
+        }
+
+        // Theme: Check storage for explicit 'auto' value, otherwise derive from darkMode
+        const storedTheme = storageHelpers.get(STORAGE_KEYS.THEME);
+        if (storedTheme && ['auto', 'light', 'dark'].includes(storedTheme)) {
+            loadedSettings.theme = storedTheme;
+            console.log('🎨 Theme loaded from storage:', storedTheme);
+        } else if (!loadedSettings.theme) {
+            const isDark = get(darkMode);
+            loadedSettings.theme = isDark ? 'dark' : 'light';
+            console.log(
+                '🎨 Theme derived from darkMode store:',
+                loadedSettings.theme
+            );
+        }
+
+        console.log('📋 Final settings to apply:', loadedSettings);
+
+        // Update store
+        userSettings.set(loadedSettings);
+
+        // Apply settings (updates language/theme stores + UI)
+        await applySettingsReactive(loadedSettings);
+
+        console.log('✅ Settings initialized and applied successfully');
+        return loadedSettings;
     } catch (error) {
         console.error('❌ Failed to initialize settings:', error);
 
         // Fallback to free settings
-        userSettings.set(DEFAULT_FREE_SETTINGS);
-        return DEFAULT_FREE_SETTINGS;
+        const fallbackSettings = { ...DEFAULT_FREE_SETTINGS };
+        const account = get(currentAccount);
+        if (account?.name) {
+            fallbackSettings.name = account.name;
+        }
+
+        // CRITICAL: Sync language and theme from active stores
+        try {
+            const { currentLanguage } = await import('./contentStore.js');
+            const { darkMode } = await import('./appStores.js');
+
+            // Language: Always use currentLanguage store
+            fallbackSettings.language = get(currentLanguage) || 'en';
+
+            // Theme: Check for explicit 'auto' in storage
+            const storedTheme = storageHelpers.get(STORAGE_KEYS.THEME);
+            if (
+                storedTheme &&
+                ['auto', 'light', 'dark'].includes(storedTheme)
+            ) {
+                fallbackSettings.theme = storedTheme;
+            } else {
+                const isDark = get(darkMode);
+                fallbackSettings.theme = isDark ? 'dark' : 'light';
+            }
+
+            console.log('🔄 Fallback settings synced:', {
+                language: fallbackSettings.language,
+                theme: fallbackSettings.theme
+            });
+        } catch (e) {
+            console.warn('Could not load current language/theme:', e);
+        }
+
+        userSettings.set(fallbackSettings);
+        await applySettingsReactive(fallbackSettings);
+
+        console.log('✅ Settings fallback initialized:', fallbackSettings);
+        return fallbackSettings;
     }
 }
 
@@ -531,34 +754,6 @@ export function syncSettingsWithCookies() {
     }
 }
 
-// Validate settings
-export function validateSettings(settings) {
-    const errors = [];
-
-    // Validate password length
-    if (settings.passwordLength < 6 || settings.passwordLength > 50) {
-        errors.push('Password length must be between 6 and 50');
-    }
-
-    // Validate emoji count
-    if (settings.emojiCount < 3 || settings.emojiCount > 20) {
-        errors.push('Emoji count must be between 3 and 20');
-    }
-
-    // Validate refresh interval
-    if (
-        settings.refreshInterval &&
-        (settings.refreshInterval < 5 || settings.refreshInterval > 300)
-    ) {
-        errors.push('Refresh interval must be between 5 and 300 seconds');
-    }
-
-    return {
-        isValid: errors.length === 0,
-        errors
-    };
-}
-
 // On-demand settings saving via API
 export async function saveSettingsToAPI(settings) {
     try {
@@ -575,15 +770,26 @@ export async function saveSettingsToAPI(settings) {
             },
             body: JSON.stringify({
                 userId: account.userId,
-                updates: {
-                    settings: settings
+                email: account.email || '',
+                profile: {
+                    ...(account?.profile || {}),
+                    name: settings.name || account.name || ''
                 },
-                timestamp: new Date().toISOString()
+                lastLogin: new Date().toISOString(), // Update lastLogin on settings save
+                metadata: {
+                    settings: settings, // UserSettings → Google Sheets metadata column
+                    updatedAt: new Date().toISOString(),
+                    updatedVia: 'settings-ui',
+                    lastSettingsSave: new Date().toISOString()
+                }
             })
         });
 
         if (!response.ok) {
-            throw new Error('Failed to save settings to API');
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(
+                errorData.error || 'Failed to save settings to API'
+            );
         }
 
         const result = await response.json();
@@ -602,6 +808,17 @@ export async function loadSettingsFromAPI() {
             throw new Error('No user account found');
         }
 
+        // Skip API call in localhost development (CORS issue until backend deployed)
+        if (
+            typeof window !== 'undefined' &&
+            window.location.hostname === 'localhost'
+        ) {
+            console.log(
+                'ℹ️ Skipping API call on localhost (CORS), using local settings'
+            );
+            throw new Error('CORS: Localhost development mode');
+        }
+
         const response = await fetch(WEBHOOKS.ACCOUNT.CRUD, {
             method: 'POST',
             headers: {
@@ -611,36 +828,64 @@ export async function loadSettingsFromAPI() {
             body: JSON.stringify({
                 action: 'get',
                 userId: account.userId,
+                email: account.email,
                 timestamp: new Date().toISOString()
             })
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json().catch(() => ({}));
             throw new Error(
                 errorData.error || 'Failed to load settings from API'
             );
         }
 
         const result = await response.json();
+        console.log('🔍 API response:', result);
 
-        if (result.success && result.account && result.account.settings) {
+        // Extract settings from metadata or directly from account
+        let loadedSettings = null;
+
+        if (result.success && result.account) {
+            // Settings might be in metadata.settings or directly in account
+            loadedSettings =
+                result.account.metadata?.settings || result.account.settings;
+
+            // Also load name from profile or account
+            const accountName =
+                result.account.profile?.name ||
+                result.account.name ||
+                account.name;
+
+            if (loadedSettings) {
+                loadedSettings.name = accountName;
+            } else {
+                // Create settings object with at least the name
+                loadedSettings = {
+                    ...DEFAULT_FREE_SETTINGS,
+                    name: accountName
+                };
+            }
+
             // Update local storage with API settings
             setUserPreferences({
                 ...getUserPreferences(),
-                settings: result.account.settings,
+                settings: loadedSettings,
+                name: accountName,
                 lastSettingsLoad: new Date().toISOString()
             });
 
             // Update user settings store
-            userSettings.set(result.account.settings);
+            userSettings.set(loadedSettings);
 
-            return result.account.settings;
+            console.log('✅ Settings loaded from API:', loadedSettings);
+
+            return loadedSettings;
         }
 
         return null;
     } catch (error) {
-        console.error('Load settings from API error:', error);
+        console.error('❌ Load settings from API error:', error);
         throw error;
     }
 }

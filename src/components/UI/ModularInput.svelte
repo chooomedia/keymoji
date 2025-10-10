@@ -130,7 +130,7 @@
         return { isValid, errors };
     }
     
-    // Handle value changes
+    // Handle value changes - Controlled Component Pattern
     function handleValueChange(event) {
         let value;
         
@@ -157,11 +157,18 @@
         isValid = validation.isValid;
         validationErrors = validation.errors;
         
-        // Call callbacks
-        onValueChange?.(value);
-        onValidation?.(isValid, validationErrors);
+        // IMPORTANT: Notify parent BEFORE updating local state
+        // This allows parent to control the value (Controlled Component Pattern)
+        if (onValueChange) {
+            onValueChange(value);
+        }
         
-        // Dispatch events
+        // Call validation callback
+        if (onValidation) {
+            onValidation(isValid, validationErrors);
+        }
+        
+        // Dispatch events for additional listeners
         dispatch('change', { value, isValid, errors: validationErrors });
         dispatch('validation', { isValid, errors: validationErrors });
     }
@@ -426,7 +433,7 @@
                 <input
                     id={config.id}
                     type="email"
-                    bind:value={currentValue}
+                    value={currentValue}
                     on:input={handleValueChange}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}
@@ -441,7 +448,7 @@
                 <input
                     id={config.id}
                     type="password"
-                    bind:value={currentValue}
+                    value={currentValue}
                     on:input={handleValueChange}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}
@@ -456,7 +463,7 @@
                 <input
                     id={config.id}
                     type="number"
-                    bind:value={currentValue}
+                    value={currentValue}
                     on:input={handleValueChange}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}
@@ -473,7 +480,7 @@
                 <input
                     id={config.id}
                     type="text"
-                    bind:value={currentValue}
+                    value={currentValue}
                     on:input={handleValueChange}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}

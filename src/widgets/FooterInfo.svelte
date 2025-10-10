@@ -15,15 +15,15 @@
     class="flex items-center justify-center space-x-1 text-sm text-gray-400 transform -translate-y-4"
     itemscope 
     itemtype="https://schema.org/Person"
-    role="contentinfo"
     aria-label="Site information">
     
     <!-- Version Information -->
     <button 
         on:click={navigateToVersion}
-        class="hover:text-yellow-500 transition-colors duration-200"
+        class="hover:text-yellow-500 focus:text-yellow-500 active:text-yellow-600 transition-all duration-200 transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1 rounded px-1"
         type="button"
-        aria-label="View version history">
+        aria-label={$translations?.footer?.versionHistory || 'View version history'}
+        title={$translations?.footer?.versionHistory || 'View version history'}>
         {$translations?.header?.pageVersion || 'v0.4.3'}
     </button>
     

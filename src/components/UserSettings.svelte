@@ -4,7 +4,7 @@
     import { fade, slide } from 'svelte/transition';
     import { get } from 'svelte/store';
     import { currentLanguage, translations } from '../stores/contentStore.js';
-    import { accountTier } from '../stores/appStores.js';
+    import { accountTier, currentAccount, darkMode } from '../stores/appStores.js';
     import { 
         userSettings, 
         pendingChanges, 
@@ -34,9 +34,73 @@
         return textObj?.[$currentLanguage] || textObj?.en || fallback;
     }
 
-    // Get effective value for a setting (includes pending changes) - optimiert
+    // Get effective value for a setting (includes pending changes) - ROBUST
     function getCurrentValue(item) {
-        return getEffectiveValue(item.id) ?? item.defaultValue;
+        const itemId = item.id;
+        
+        // Use getEffectiveValue from store (handles pending + userSettings + tier defaults)
+        let effectiveValue = getEffectiveValue(itemId);
+        
+        // DEBUG: Log for critical fields
+        if (['language', 'theme', 'name'].includes(itemId)) {
+            console.log(`🔍 getCurrentValue(${itemId}):`, {
+                effectiveValue,
+                userSettings: get(userSettings)[itemId],
+                pending: get(pendingChanges)[itemId]
+            });
+        }
+        
+        // Special handling for critical fields that sync with other stores
+        
+        // Name: Always prefer currentAccount
+        if (itemId === 'name') {
+            const account = get(currentAccount);
+            const accountName = account?.name || account?.profile?.name;
+            
+            // Use account name if available, otherwise use effective value
+            const finalName = accountName || effectiveValue || item.defaultValue || '';
+            console.log(`👤 getCurrentValue(name): Final value:`, finalName);
+            return finalName;
+        }
+        
+        // Language: Always sync from currentLanguage store (source of truth)
+        if (itemId === 'language') {
+            const lang = get(currentLanguage);
+            const finalLang = lang || effectiveValue || item.defaultValue || 'en';
+            console.log(`🌍 getCurrentValue(language): Final value:`, finalLang);
+            return finalLang;
+        }
+        
+        // Theme: Support "auto" + sync from storage
+        if (itemId === 'theme') {
+            // Check explicit storage first (supports "auto")
+            const storedTheme = localStorage.getItem('keymoji_theme');
+            if (storedTheme && ['auto', 'light', 'dark'].includes(storedTheme)) {
+                console.log(`🎨 getCurrentValue(theme): Using stored theme:`, storedTheme);
+                return storedTheme;
+            }
+            
+            // Then check effectiveValue
+            if (effectiveValue) {
+                console.log(`🎨 getCurrentValue(theme): Using effective value:`, effectiveValue);
+                return effectiveValue;
+            }
+            
+            // Fallback: Derive from darkMode
+            const isDark = get(darkMode);
+            const derivedTheme = isDark ? 'dark' : 'light';
+            console.log(`🎨 getCurrentValue(theme): Derived from darkMode:`, derivedTheme);
+            return derivedTheme;
+        }
+        
+        // For all other fields: Use effectiveValue (handles tier-appropriate defaults)
+        const finalValue = effectiveValue !== undefined ? effectiveValue : item.defaultValue;
+        
+        if (effectiveValue === undefined) {
+            console.log(`⚙️ getCurrentValue(${itemId}): Using fallback default:`, item.defaultValue);
+        }
+        
+        return finalValue;
     }
 
     // Get available sections based on user tier
@@ -106,6 +170,14 @@
 
     function handleSettingUpdate(key, value) {
         updateSetting(key, value);
+        
+        // Apply some settings immediately for preview
+        if (key === 'theme') {
+            applyTheme(value);
+        }
+        if (key === 'language') {
+            applyLanguage(value);
+        }
     }
 
     function handleSaveSettings() {
@@ -288,6 +360,11 @@
         await loadSettingsConfig();
         console.log('✅ UserSettings: Component mounted with config:', settingsConfig);
 
+        // Initialize settings from account and API
+        const { initializeSettingsForUser } = await import('../stores/userSettingsStore.js');
+        await initializeSettingsForUser();
+        console.log('✅ UserSettings: Settings initialized for user');
+
         // Add beforeunload event listener for page leave confirmation
         const handleBeforeUnload = (event) => {
             if ($hasUnsavedChanges) {
@@ -356,7 +433,9 @@
             {#if !isProUser}
                 <button
                     on:click={() => handleProFeature($translations?.accountManager?.proFeatureModal?.proUpgrade || 'Pro Upgrade', $translations?.accountManager?.proFeatureModal?.unlockAdvancedFeatures || 'Unlock all advanced features and settings')}
-                    class="w-full inline-flex justify-center items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+                    class="w-full inline-flex justify-center items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-800 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
+                    aria-label={$translations?.accountManager?.proFeatureModal?.upgradeProNow || 'Upgrade to Pro'}
+                    title={$translations?.accountManager?.proFeatureModal?.upgradeProNow || 'Upgrade to Pro'}
                 >
                 {$translations?.accountManager?.proFeatureModal?.upgradeProNow || '💎 Upgrade Pro now'}
                 </button>
@@ -371,7 +450,8 @@
                 <!-- Section Header -->
                 <button
                     on:click={() => toggleSection(section.id)}
-                    class="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    class="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-all focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+                    aria-label="{getLocalizedText(section.title)} - {activeSection === section.id ? 'Collapse' : 'Expand'}"
                 >
                     <div class="flex items-center space-x-3">
                         <span class="text-xl">{section.icon}</span>
@@ -395,7 +475,9 @@
                         {#if !isProUser && (section.id === 'security' || section.id === 'generation' || section.id === 'privacy' || section.id === 'pro')}
                             <button
                                 on:click|stopPropagation={() => handleProFeature(getLocalizedText(section.title), getLocalizedText(section.description))}
-                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
+                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800 focus:bg-purple-200 dark:focus:bg-purple-800 active:bg-purple-300 dark:active:bg-purple-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-1"
+                                aria-label="Upgrade to unlock {getLocalizedText(section.title)}"
+                                title="Upgrade to Pro"
                             >
                                 Upgrade
                             </button>

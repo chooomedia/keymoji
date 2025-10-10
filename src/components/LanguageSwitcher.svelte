@@ -2,7 +2,7 @@
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { onMount, createEventDispatcher } from 'svelte';
-    import { currentLanguage, changeLanguage, showLanguageMenu } from '../stores/contentStore.js';
+    import { currentLanguage, changeLanguage, showLanguageMenu, translations } from '../stores/contentStore.js';
     import { supportedLanguages } from '../utils/languages.js';
     import { navigate } from "svelte-routing";
     
@@ -112,10 +112,26 @@
         }
         
         console.log('🔄 LanguageSwitcher: Calling changeLanguage...');
-        // Set language in store
+        
+        // Set language in store (contentStore.js)
         await changeLanguage(langCode);
         selectedLang = langCode;
         console.log('🔄 LanguageSwitcher: Language changed to:', selectedLang);
+        
+        // CRITICAL: Sync with userSettings store
+        try {
+            const { updateSetting, userSettings } = await import('../stores/userSettingsStore.js');
+            const { get } = await import('svelte/store');
+            
+            // Update userSettings.language to stay in sync
+            const currentSettings = get(userSettings);
+            if (currentSettings.language !== langCode) {
+                updateSetting('language', langCode);
+                console.log('✅ userSettings.language synced:', langCode);
+            }
+        } catch (error) {
+            console.warn('⚠️ Failed to sync userSettings:', error);
+        }
         
         // Get new path with updated language
         const newPath = updateCurrentPath(langCode);
@@ -227,12 +243,13 @@
         id="language-toggle-button"
         bind:this={buttonRef}
         type="button"
-        class="transition transform hover:scale-105 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14"
+        class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14"
         on:click={toggleLanguageMenu}
-        aria-label="Change language"
+        aria-label={$showLanguageMenu ? ($translations?.languageSwitcher?.closeMenu || 'Close language menu') : ($translations?.languageSwitcher?.changeLanguage || 'Change language')}
         aria-haspopup="true"
         aria-expanded={$showLanguageMenu}
         aria-controls="language-dropdown-menu"
+        title={$translations?.languageSwitcher?.changeLanguage || 'Change language'}
     >
         <div class="flex items-center justify-between w-full">
             <div class="flex items-center">
@@ -272,13 +289,14 @@
                     {#each languages as lang}
                         <li role="none">
                             <button
-                                class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 text-sm transition-colors text-black dark:text-white  focus:ring-2 focus:ring-yellow focus:ring-offset-2"
+                                class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 dark:hover:bg-aubergine-800 focus:bg-aubergine-50 dark:focus:bg-aubergine-800 active:bg-aubergine-100 dark:active:bg-aubergine-700 text-sm transition-all text-black dark:text-white focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                                 role="menuitem"
                                 on:click={() => handleLanguageChange(lang.code)}
                                 on:keydown={(e) => handleMenuKeydown(e, lang.code)}
                                 aria-current={$currentLanguage === lang.code ? 'true' : 'false'}
                                 tabindex="-1"
                                 aria-label="Switch to {lang.name} language"
+                                title={lang.name}
                             >
                                 <span class="flag-icon text-xl mr-3" aria-hidden="true">{lang.flag}</span>
                                 <span class="lang-name flex-1 text-left">{lang.name}</span>

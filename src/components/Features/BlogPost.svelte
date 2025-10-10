@@ -82,16 +82,21 @@
           ⏱️ {post.readingTime} min
         </div>
         
-        <button aria-label="Share the blog post" 
+        <button 
+          aria-label="Share the blog post" 
           on:click={() => showShareMenu.set(true)} 
-          class="flex items-center hover:text-yellow transition-colors"
+          class="flex items-center hover:text-yellow focus:text-yellow active:text-yellow-600 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1 rounded px-2"
+          title="Share this post"
         >
           🔗 Share
         </button>
         
-        <button aria-label="Like the blog post" 
+        <button 
+          aria-label={post.liked ? 'Unlike the blog post' : 'Like the blog post'}
           on:click={handleLike}
-          class="flex items-center hover:text-red-500 transition-colors"
+          class="flex items-center hover:text-red-500 focus:text-red-500 active:text-red-600 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 rounded px-2"
+          title={post.liked ? 'Unlike' : 'Like'}
+          disabled={post.liked}
         >
           {#if post.liked}
             ❤️
@@ -121,7 +126,9 @@
         <p class="mb-6">Try Keymoji now and enhance your online security with unique emoji combinations.</p>
         <a 
           href="/"
-          class="inline-block bg-black text-white dark:bg-white dark:text-black px-8 py-3 rounded-full font-medium hover:scale-105 transition-all"
+          class="inline-block bg-black text-white dark:bg-white dark:text-black px-8 py-3 rounded-full font-medium hover:scale-105 focus:scale-105 active:scale-95 transition-all transform focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+          aria-label="Try Keymoji now"
+          title="Try Keymoji - Emoji Password Generator"
         >
           Try Keymoji Now
         </a>

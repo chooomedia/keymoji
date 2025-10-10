@@ -32,7 +32,8 @@ export const WEBHOOKS = {
 
     // Contact Form
     CONTACT: {
-        SEND: `${API_URL}/contact`
+        SEND: `${API_URL}/contact`,
+        SEND_MAIL: `${API_URL}/contact` // Alias for backwards compatibility
     },
 
     // Payment Processing
@@ -44,6 +45,9 @@ export const WEBHOOKS = {
     RANDOM: {
         GENERATE: `${API_URL}/random`
     },
+
+    // Story Generator (AI)
+    STORY_GENERATOR: `${N8N_URL}/xn--moji-pb73c-story-generator`,
 
     // Security & Audit
     SECURITY: {

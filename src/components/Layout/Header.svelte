@@ -84,26 +84,27 @@
                 </div>
                 
                 <!-- Account Button -->
-                <div class="flex">
-                    <Button 
-                        variant="default"
-                        size="md"
-                        on:click={navigateToAccount}
-                    >
-                        <span class="text-xl">{#if $isLoggedIn}👤{:else}🔐{/if}</span>
-                    </Button>
-                </div>
+                <button
+                    type="button"
+                    class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center"
+                    on:click={navigateToAccount}
+                    aria-label={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
+                    title={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
+                >
+                    <span class="text-xl">{#if $isLoggedIn}👤{:else}🔐{/if}</span>
+                </button>
                 
                 <!-- GitHub Button (mobile und desktop) -->
-                <div class="flex">
-                    <Button 
-                        variant="default"
-                        size="md"
-                        href="https://github.com/chooomedia/keymoji"
-                    >
-                        <span class="text-xl">⭐</span>
-                    </Button>
-                </div>
+                <a 
+                    href="https://github.com/chooomedia/keymoji"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center"
+                    aria-label={$translations?.header?.githubTooltip || 'Star us on GitHub'}
+                    title={$translations?.header?.githubTooltip || 'Star us on GitHub'}
+                >
+                    <span class="text-xl">⭐</span>
+                </a>
             </div>
         </div>
     </nav>

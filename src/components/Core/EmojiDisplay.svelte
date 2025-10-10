@@ -369,14 +369,15 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
     <button 
       id="emoji-display" 
       tabindex="0" 
-      class="core-button text-white bg-black border-gray-400 px-3 mb-2 md:pt-1 md:pb-1 pb-1 transform -translate-y-2.5" 
+      class="core-button text-white bg-black border-gray-400 px-3 mb-2 md:pt-1 md:pb-1 pb-1 transform -translate-y-2.5 transition-all hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2" 
       on:click={generateRandomEmojis} 
       on:keydown={e => e.key === 'Enter' && generateRandomEmojis()} 
-              aria-label={$translations.emojiDisplay.clickToCopy} 
+      aria-label={$translations.emojiDisplay.clickToCopy} 
       aria-live="polite"
       aria-pressed="false"
+      title={$translations.emojiDisplay.clickToCopy}
     >
-      <div class="mt-1 md:mt-0 flex gap-2 overflow-visible">
+      <div class="mt-1 md:mt-0 flex gap-2 overflow-visible justify-center items-center">
         {#if randomEmojis && randomEmojis.length > 0}
           {#each randomEmojis.filter(isVisible) as emoji, index (emoji)}
             <span class="text-2xl md:text-3xl" in:fly={{y: 50, duration: 300, delay: index * 100}}>
@@ -433,10 +434,12 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
       <p class="text-sm text-gray text-left py-3" aria-label="information">
         {$translations.emojiDisplay.dataPrivacyProcessingInfo}
       </p>
-      <button aria-label="Clear the form inputs" 
+      <button 
+        aria-label={$translations.emojiDisplay.clearButton || 'Clear input'}
         on:click={clearInput} 
-        class="bg-white dark:bg-aubergine-900 text-gray transition duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 px-3 py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
+        class="bg-white dark:bg-aubergine-900 text-gray transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 px-3 py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
         disabled={$isDisabled}
+        title={$translations.emojiDisplay.clearButton}
       >
         {$translations.emojiDisplay.clearButton}
       </button>
@@ -449,29 +452,34 @@ import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js
       class="flex space-x-4 mt-3 mb-2"
     >
       {#if isStoryMode}
-        <button aria-label="Generate your writte Story into fitting emojis" 
+        <button 
+          aria-label={$translations.emojiDisplay.storyButtonClicked || 'Generate story emojis'}
           on:click={generateEmojis} 
-          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 w-1/2 py-4 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
+          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 w-1/2 py-4 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
           disabled={$isDisabled}
+          title={$translations.emojiDisplay.storyButtonClicked}
         >
           {$translations.emojiDisplay.storyButtonClicked}
         </button>
       {:else}
-        <button aria-label="Toggle Story Form" 
+        <button 
+          aria-label={$translations.emojiDisplay.storyButton || 'Story mode coming soon'}
           on:click={toggleStoryMode} 
-          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 w-1/2 py-4 rounded-full opacity-50 cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100" 
+          class="bg-powder-500 text-black dark:bg-aubergine-900 dark:text-powder-500 shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 w-1/2 py-4 rounded-full opacity-50 cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2" 
           disabled
+          title="Story mode coming soon"
         >
           🔜 {$translations.emojiDisplay.storyButton}
         </button>
       {/if}
-  
+
       <button
-        aria-label={$translations.emojiDisplay.randomButton}
+        aria-label={$translations.emojiDisplay.randomButton || 'Generate random emojis'}
         on:click={() => generateRandomEmojis(true)} 
         on:keydown={handleKeyPress} 
-        class="bg-yellow-500 text-black shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 w-1/2 py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
+        class="bg-yellow-500 text-black shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 w-1/2 py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
         disabled={$isDisabled}
+        title={$translations.emojiDisplay.randomButton}
       >
         {$translations.emojiDisplay.randomButton}
       </button>

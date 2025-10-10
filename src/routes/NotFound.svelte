@@ -282,9 +282,10 @@
                         
                         <!-- Left Arrow -->
                         <button
-                            class="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-white dark:bg-aubergine-900 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform cursor-pointer border border-gray-200 dark:border-gray-700 arrow-button"
+                            class="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-white dark:bg-aubergine-900 rounded-full shadow-lg flex items-center justify-center hover:scale-105 focus:scale-105 active:scale-95 transition-all cursor-pointer border border-gray-200 dark:border-gray-700 arrow-button focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                             on:click={slideLeft}
-                            aria-label="Slide left"
+                            aria-label={$translations?.notFound?.prevEmoji || 'Previous emoji'}
+                            title={$translations?.notFound?.prevEmoji || 'Previous emoji'}
                         >
                             <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -293,9 +294,10 @@
                         
                         <!-- Right Arrow -->
                         <button
-                            class="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-white dark:bg-aubergine-900 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform cursor-pointer border border-gray-200 dark:border-gray-700 arrow-button"
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-white dark:bg-aubergine-900 rounded-full shadow-lg flex items-center justify-center hover:scale-105 focus:scale-105 active:scale-95 transition-all cursor-pointer border border-gray-200 dark:border-gray-700 arrow-button focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                             on:click={slideRight}
-                            aria-label="Slide right"
+                            aria-label={$translations?.notFound?.nextEmoji || 'Next emoji'}
+                            title={$translations?.notFound?.nextEmoji || 'Next emoji'}
                         >
                             <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -326,8 +328,12 @@
                         >
                             {#each recentEmojis as emoji, index}
                                 <div 
-                                    class="flex-shrink-0 text-2xl p-3 bg-white dark:bg-aubergine-900 rounded-lg shadow-lg hover:scale-110 transition-transform cursor-pointer border border-gray-200 dark:border-gray-700 hover:shadow-xl"
+                                    class="flex-shrink-0 text-2xl p-3 bg-white dark:bg-aubergine-900 rounded-lg shadow-lg hover:scale-105 focus:scale-105 transition-all cursor-pointer border border-gray-200 dark:border-gray-700 hover:shadow-xl flex items-center justify-center"
                                     in:fly={{ x: 50, duration: 300, delay: index * 50 }}
+                                    role="button"
+                                    tabindex="0"
+                                    aria-label="Recent emoji: {emoji}"
+                                    title={emoji}
                                 >
                                     {emoji}
                                 </div>
@@ -358,8 +364,10 @@
             <!-- Back to Home Button -->
             <div class="text-center mt-8">
                 <button
-                    class="w-full bg-yellow-500 text-black shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
+                    class="w-full bg-yellow-500 text-black shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                     on:click={navigateToHome}
+                    aria-label={$translations?.notFound?.backToHome || 'Back to Home'}
+                    title={$translations?.notFound?.backToHome || 'Back to Home'}
                 >
                     🏠 {$translations?.notFound?.backToHome || 'Back to Home'}
                 </button>
@@ -419,8 +427,17 @@
     }
     
     .arrow-button:hover {
-        transform: translateY(-50%) scale(1.1);
+        transform: translateY(-50%) scale(1.05);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .arrow-button:focus {
+        transform: translateY(-50%) scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .arrow-button:active {
+        transform: translateY(-50%) scale(0.95);
     }
     
     /* Reduce motion for accessibility */

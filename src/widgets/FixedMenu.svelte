@@ -2,6 +2,7 @@
   import { slide } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
   import { navigate } from 'svelte-routing';
+  import { get } from 'svelte/store';
 
   import { darkMode, showDonateMenu, isLoggedIn, currentAccount } from '../stores/appStores.js';
   import { translations } from '../stores/contentStore.js';
@@ -22,6 +23,7 @@
   } from '../assets/shapes.js';
   import { currentLanguage } from '../stores/contentStore.js';
   import { navigateToContact } from '../utils/navigation.js';
+  import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 
   const dispatch = createEventDispatcher();
 
@@ -56,8 +58,40 @@
     };
   });
 
-  function toggleDarkMode() {
-    darkMode.update(value => !value);
+  async function toggleDarkMode() {
+    const currentDarkMode = get(darkMode);
+    const newDarkMode = !currentDarkMode;
+    const newTheme = newDarkMode ? 'dark' : 'light';
+    
+    // Update darkMode store
+    darkMode.set(newDarkMode);
+    
+    // Save to storage
+    storageHelpers.set(STORAGE_KEYS.DARK_MODE, newDarkMode);
+    storageHelpers.set(STORAGE_KEYS.THEME, newTheme);
+    
+    // Update DOM
+    if (typeof document !== 'undefined') {
+      if (newDarkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+    
+    // CRITICAL: Sync with userSettings store
+    try {
+      const { updateSetting, userSettings } = await import('../stores/userSettingsStore.js');
+      
+      // Update userSettings.theme to stay in sync
+      const currentSettings = get(userSettings);
+      if (currentSettings.theme !== newTheme) {
+        updateSetting('theme', newTheme);
+        console.log('✅ userSettings.theme synced:', newTheme);
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to sync userSettings theme:', error);
+    }
   }
 
   function toggleMenu(menuType) {
@@ -203,19 +237,44 @@
 
   <nav id="fixed-menu-nav" class="bg-creme-500 dark:bg-aubergine-800 rounded-full transition duration-300 ease-in-out transform shadow-lg {align}-0 flex {showMenu ? 'opened' : 'closed'}" aria-label="Main">
     <div class="w-auto justify-center flex gap-2 rounded-full">
-      <button aria-label="toggle color schema (dark/light)" on:click={toggleDarkMode} class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
+      <button 
+        aria-label={$darkMode ? ($translations?.fixedMenu?.tooltips?.lightMode || 'Switch to light mode') : ($translations?.fixedMenu?.tooltips?.darkMode || 'Switch to dark mode')}
+        on:click={toggleDarkMode} 
+        class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+        title={$darkMode ? ($translations?.fixedMenu?.tooltips?.lightMode || 'Switch to light mode') : ($translations?.fixedMenu?.tooltips?.darkMode || 'Switch to dark mode')}
+      >
         {#if $darkMode}🌙{:else}🌞{/if}
       </button>
-      <button aria-label="open share menu" on:click={() => toggleMenu('share')} class="{showMenu ? 'opened' : 'closed'} btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
+      <button 
+        aria-label={showMenu ? ($translations?.fixedMenu?.tooltips?.closeShare || 'Close share menu') : ($translations?.fixedMenu?.tooltips?.openShare || 'Share Keymoji')}
+        on:click={() => toggleMenu('share')} 
+        class="{showMenu ? 'opened' : 'closed'} btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+        title={showMenu ? ($translations?.fixedMenu?.tooltips?.closeShare || 'Close share menu') : ($translations?.fixedMenu?.tooltips?.openShare || 'Share Keymoji')}
+      >
         {#if showMenu}💔{:else}❤️{/if}
       </button>
-      <button aria-label="navigate to contact form" on:click={navigateToContact} class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
+      <button 
+        aria-label={$translations?.fixedMenu?.tooltips?.contact || 'Contact us'}
+        on:click={navigateToContact} 
+        class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+        title={$translations?.fixedMenu?.tooltips?.contact || 'Contact us'}
+      >
         💌
       </button>
-      <button aria-label="open debug modal" on:click={toggleDebugModal} class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl">
+      <button 
+        aria-label={$translations?.fixedMenu?.tooltips?.debug || 'Open debug info'}
+        on:click={toggleDebugModal} 
+        class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+        title={$translations?.fixedMenu?.tooltips?.debug || 'Open debug info'}
+      >
         🐛
       </button>
-      <button aria-label="open donation menu" on:click={() => toggleMenu('donate')} class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl md:hidden">
+      <button 
+        aria-label={$showDonateMenu ? ($translations?.fixedMenu?.tooltips?.closeDonate || 'Close donation menu') : ($translations?.fixedMenu?.tooltips?.donate || 'Support us')}
+        on:click={() => toggleMenu('donate')} 
+        class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl md:hidden transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+        title={$showDonateMenu ? ($translations?.fixedMenu?.tooltips?.closeDonate || 'Close donation menu') : ($translations?.fixedMenu?.tooltips?.donate || 'Support us')}
+      >
         {#if $showDonateMenu}❌{:else}☕{/if}
       </button>
     </div>
@@ -225,9 +284,11 @@
   <div class="fixed bottom-4 right-4 z-50">
     <button 
       data-menu-type="donate"
-      aria-label="open donation menu" 
+      aria-label={$showDonateMenu ? ($translations?.fixedMenu?.tooltips?.closeDonate || 'Close donation menu') : ($translations?.fixedMenu?.tooltips?.donate || 'Support us')}
       on:click={() => toggleMenu('donate')} 
-      class="hidden md:flex  items-center btn border-4 p-3.5 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-lg relative z-50">
+      class="hidden md:flex items-center btn border-4 p-3.5 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-lg relative z-50 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+      title={$showDonateMenu ? ($translations?.donateButton?.openText || 'Close') : ($translations?.donateButton?.text || 'Support us')}
+    >
       <span class="text-xl mr-2">{#if $showDonateMenu}❌{:else}☕{/if}</span>
       <span class="text-sm font-semibold">
           {$showDonateMenu ? $translations.donateButton.openText : $translations.donateButton.text}

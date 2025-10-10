@@ -17,7 +17,6 @@
     export let introDelay = 2000; // Delay before showing (ms)
     export let introDuration = 3000; // How long to show (ms)
     export let disabled = false;
-    export let parentElement = null; // Reference to parent element
     export let alwaysVisible = false; // Always show the badge
     
     // Tier Badge specific props
@@ -39,11 +38,11 @@
     
     // Tier Badge specific logic
     $: isTierBadge = tier !== null;
+    // Badge zeigt NUR den Tier-Status
     $: tierText = tier === 'pro' ? '💎 PRO' : '✨ FREE';
     $: tierBgClass = tier === 'pro' ? 'bg-purple-700' : 'bg-yellow-600';
-    $: tierTooltipText = accountAgeLabel 
-        ? accountAgeLabel
-        : (translations?.accountCreated || 'Account erstellt');
+    // Tooltip zeigt die Account-Age (z.B. "Seit 7 Tagen!")
+    $: tierTooltipText = accountAgeLabel || (translations?.accountCreated || 'Account erstellt');
     
     // SVG Arrow color based on variant - use background color for the arrow
     $: arrowColor = variantClasses[variant].bg;
@@ -235,18 +234,14 @@
     ].filter(Boolean).join(' ');
 </script>
 
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div 
     bind:this={badgeElement}
     class={containerClasses}
     on:mouseenter={!alwaysVisible ? handleMouseEnter : undefined}
     on:mouseleave={!alwaysVisible ? handleMouseLeave : undefined}
-    on:click={!alwaysVisible ? handleClick : undefined}
-    on:keydown={!alwaysVisible ? (e) => { if (e.key === 'Enter' || e.key === ' ') { handleClick(); } } : undefined}
-    role={!alwaysVisible ? "button" : undefined}
-    tabindex={!alwaysVisible && (trigger === 'click' || trigger === 'both') ? '0' : undefined}
-    aria-label={!alwaysVisible ? "Toggle context information" : undefined}
-    aria-expanded={!alwaysVisible ? isVisible : undefined}
-    aria-describedby={!alwaysVisible && isVisible ? 'context-badge' : undefined}
+    on:click={!alwaysVisible && (trigger === 'click' || trigger === 'both') ? handleClick : undefined}
+    on:keydown={!alwaysVisible && (trigger === 'click' || trigger === 'both') ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } } : undefined}
 >
     <!-- Slot for parent content -->
     <slot />

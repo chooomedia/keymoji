@@ -683,6 +683,34 @@ export async function verifyMagicLinkFrontend(token, email) {
         // Save to localStorage
         storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, userPrefsData);
 
+        // Update lastLogin in Google Sheets via API
+        try {
+            console.log('📡 Updating lastLogin in database...');
+            await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    userId: accountData.userId,
+                    email: accountData.email,
+                    profile: accountData.profile,
+                    lastLogin: accountData.lastLogin, // Top-level lastLogin for Google Sheets
+                    metadata: {
+                        ...accountData.metadata,
+                        lastLogin: accountData.lastLogin,
+                        lastActivity: accountData.lastActivity,
+                        sessionId: accountData.sessionId
+                    }
+                })
+            });
+            console.log('✅ lastLogin updated in database');
+        } catch (error) {
+            console.warn('⚠️ Failed to update lastLogin in database:', error);
+            // Non-critical error, continue with login
+        }
+
         // Save createdAt separately if found (for backward compatibility)
         if (createdAt) {
             saveCreatedAtToUserPreferences(createdAt);
@@ -768,9 +796,26 @@ export function getCurrentAccount() {
     return get(currentAccount);
 }
 
+// Flag to prevent multiple simultaneous session restores
+let isRestoringSession = false;
+let sessionRestored = false;
+
 // Initialize account from cookies on app start - Enhanced Security
 export function initializeAccountFromCookies() {
     try {
+        // Prevent multiple simultaneous calls
+        if (isRestoringSession) {
+            console.log('⏳ Session restore already in progress, skipping...');
+            return sessionRestored;
+        }
+
+        if (sessionRestored) {
+            console.log('✅ Session already restored, skipping...');
+            return true;
+        }
+
+        isRestoringSession = true;
+
         const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
         const sessionId = getSessionId(); // Use local function, not storageHelpers.getSessionId
 
@@ -785,6 +830,7 @@ export function initializeAccountFromCookies() {
             } catch (error) {
                 console.warn('Failed to clear invalid session data:', error);
             }
+            isRestoringSession = false;
             return false;
         }
 
@@ -812,30 +858,84 @@ export function initializeAccountFromCookies() {
 
             console.log('✅ Account loaded from cookies:', accountInfo.email);
 
-            // Renew session expiration
+            // Renew session expiration and update lastLogin
+            const updatedLastLogin = new Date().toISOString();
             storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
                 ...userPrefs,
                 sessionExpires: new Date(
                     Date.now() + SESSION_TIMEOUT
                 ).toISOString(),
-                lastActivity: new Date().toISOString()
+                lastActivity: updatedLastLogin,
+                lastLogin: updatedLastLogin
             });
+
+            // Update ONLY lastLogin in database (don't overwrite profile/settings!)
+            // CRITICAL: Session restore should NOT overwrite user settings that might have been updated
+            const updatePayload = {
+                userId: accountInfo.userId,
+                email: accountInfo.email,
+                // DO NOT send profile - would overwrite settings saved by user!
+                lastLogin: updatedLastLogin, // Only update lastLogin
+                metadata: {
+                    lastLogin: updatedLastLogin,
+                    lastActivity: updatedLastLogin,
+                    sessionRestored: true
+                    // DO NOT send settings here - would overwrite!
+                }
+            };
+
+            console.log(
+                '📡 Session restore: Updating only lastLogin (not profile/settings):',
+                updatePayload
+            );
+
+            fetch(WEBHOOKS.ACCOUNT.UPDATE, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(updatePayload)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(
+                        '✅ lastLogin updated in database (session restore):',
+                        data
+                    );
+                })
+                .catch(error => {
+                    console.warn(
+                        '⚠️ Failed to update lastLogin in database:',
+                        error
+                    );
+                });
 
             logSecurityEvent('SESSION_RESTORED', {
                 email: accountInfo.email,
                 userId: accountInfo.userId
             });
 
+            sessionRestored = true;
+            isRestoringSession = false;
             return true;
         } else {
             console.log('❌ No valid session found in cookies');
+            isRestoringSession = false;
         }
     } catch (error) {
         console.warn('Failed to load account from cookies:', error);
         logSecurityEvent('SESSION_LOAD_ERROR', { error: error.message });
+        isRestoringSession = false;
     }
 
     return false;
+}
+
+// Reset session restore flag (e.g., after logout)
+export function resetSessionRestoreFlag() {
+    isRestoringSession = false;
+    sessionRestored = false;
 }
 
 // Helper functions for security
@@ -923,6 +1023,21 @@ function getCreatedAtFromUserPreferences() {
 // Synchronize account data across stores
 function syncAccountData(accountData) {
     if (accountData) {
+        // Ensure createdAt is present - get from localStorage if not in accountData
+        if (!accountData.createdAt) {
+            const userPrefs = storageHelpers.get(
+                STORAGE_KEYS.USER_PREFERENCES,
+                {}
+            );
+            if (userPrefs.createdAt) {
+                accountData.createdAt = userPrefs.createdAt;
+                console.log(
+                    '🔄 syncAccountData: Added createdAt from localStorage:',
+                    accountData.createdAt
+                );
+            }
+        }
+
         // Update all account-related stores
         isLoggedIn.set(true);
         currentAccount.set(accountData);
@@ -934,6 +1049,11 @@ function syncAccountData(accountData) {
             true,
             accountData.tier,
             accountData.usedGenerations || 0
+        );
+
+        console.log(
+            '✅ syncAccountData: Account synced with createdAt:',
+            accountData.createdAt
         );
     } else {
         // Reset all stores when no account data
