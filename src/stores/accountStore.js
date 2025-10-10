@@ -858,58 +858,31 @@ export function initializeAccountFromCookies() {
 
             console.log('✅ Account loaded from cookies:', accountInfo.email);
 
-            // Renew session expiration and update lastLogin
+            // Renew session expiration (localStorage only, DO NOT update database!)
             const updatedLastLogin = new Date().toISOString();
             storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
                 ...userPrefs,
                 sessionExpires: new Date(
                     Date.now() + SESSION_TIMEOUT
                 ).toISOString(),
-                lastActivity: updatedLastLogin,
-                lastLogin: updatedLastLogin
+                lastActivity: updatedLastLogin
+                // DO NOT update lastLogin here - session restore should NOT write to DB!
             });
 
-            // Update ONLY lastLogin in database (don't overwrite profile/settings!)
-            // CRITICAL: Session restore should NOT overwrite user settings that might have been updated
-            const updatePayload = {
-                userId: accountInfo.userId,
-                email: accountInfo.email,
-                // DO NOT send profile - would overwrite settings saved by user!
-                lastLogin: updatedLastLogin, // Only update lastLogin
-                metadata: {
-                    lastLogin: updatedLastLogin,
-                    lastActivity: updatedLastLogin,
-                    sessionRestored: true
-                    // DO NOT send settings here - would overwrite!
-                }
-            };
-
+            // CRITICAL FIX: Session restore should ONLY READ from database, NEVER WRITE!
+            // This prevents overwriting user settings/metadata on page refresh
             console.log(
-                '📡 Session restore: Updating only lastLogin (not profile/settings):',
-                updatePayload
+                '✅ Session restored (READ-ONLY, no database write):',
+                {
+                    userId: accountInfo.userId,
+                    email: accountInfo.email,
+                    action: 'READ_ONLY'
+                }
             );
 
-            fetch(WEBHOOKS.ACCOUNT.UPDATE, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify(updatePayload)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(
-                        '✅ lastLogin updated in database (session restore):',
-                        data
-                    );
-                })
-                .catch(error => {
-                    console.warn(
-                        '⚠️ Failed to update lastLogin in database:',
-                        error
-                    );
-                });
+            // DO NOT send any updates to database on session restore!
+            // User settings, dailyUsage, usageHistory must stay intact!
+            // Only explicit user actions (like login, save settings) should write to DB.
 
             logSecurityEvent('SESSION_RESTORED', {
                 email: accountInfo.email,
