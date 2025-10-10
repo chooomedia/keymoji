@@ -27,12 +27,12 @@ Die Daten kommen vom n8n Workflow als **JSON-STRINGS** ans Frontend, nicht als g
  */
 function safeJSONParse(data, fallback = {}) {
     if (!data) return fallback;
-    
+
     // Already an object? Return as-is
     if (typeof data === 'object' && data !== null) {
         return data;
     }
-    
+
     // String? Try to parse
     if (typeof data === 'string') {
         try {
@@ -42,12 +42,13 @@ function safeJSONParse(data, fallback = {}) {
             return fallback;
         }
     }
-    
+
     return fallback;
 }
 ```
 
 **Funktionsweise:**
+
 1. **Null/Undefined:** → Fallback-Wert (`{}`)
 2. **Object:** → Direkt zurückgeben (bereits geparst)
 3. **String:** → `JSON.parse()` versuchen
@@ -69,7 +70,7 @@ async function syncAccountData(accountData) {
         // CRITICAL: Parse JSON strings from n8n/Google Sheets
         const parsedProfile = safeJSONParse(accountData.profile, {});
         const parsedMetadata = safeJSONParse(accountData.metadata, {});
-        
+
         console.log('✅ Parsed data:', {
             profile: parsedProfile,
             metadata: {
@@ -90,13 +91,14 @@ async function syncAccountData(accountData) {
         currentAccount.set(cleanAccountData);
         userProfile.set(parsedProfile);
         accountTier.set(cleanAccountData.tier || 'free');
-        
+
         // ... rest of function
     }
 }
 ```
 
 **Was passiert:**
+
 1. ✅ Rohe Daten empfangen (mit JSON-Strings)
 2. ✅ `profile` und `metadata` werden geparst
 3. ✅ `cleanAccountData` Objekt mit geparsten Daten erstellen
@@ -119,7 +121,10 @@ console.log('Profile Type:', typeof account.profile);
 console.log('Metadata Type:', typeof account.metadata);
 // Expected: "object" (nicht "string"!)
 
-console.log('UsageHistory Type:', Array.isArray(account.metadata?.usageHistory));
+console.log(
+    'UsageHistory Type:',
+    Array.isArray(account.metadata?.usageHistory)
+);
 // Expected: true
 
 console.log('UsageHistory Length:', account.metadata?.usageHistory?.length);
@@ -153,6 +158,7 @@ console.log('UsageHistory Length:', account.metadata?.usageHistory?.length);
 ## 📊 **Auswirkung auf Chart Loading:**
 
 ### **Vorher (Broken):**
+
 ```javascript
 // AccountManager.svelte
 const usageHistory = getUsageHistory($currentAccount);
@@ -165,6 +171,7 @@ const accountHistory = getUsageHistory($currentAccount);
 ```
 
 ### **Nachher (Fixed):**
+
 ```javascript
 // AccountManager.svelte
 const usageHistory = getUsageHistory($currentAccount);
@@ -203,8 +210,8 @@ const profile = parseJSON(lookupData.profile);
 const metadata = parseJSON(lookupData.metadata);
 
 // WICHTIG: Ensure usageHistory is array
-const usageHistory = Array.isArray(metadata.usageHistory) 
-    ? metadata.usageHistory 
+const usageHistory = Array.isArray(metadata.usageHistory)
+    ? metadata.usageHistory
     : [];
 
 return {
@@ -214,10 +221,10 @@ return {
         tier: lookupData.tier || 'free',
         createdAt: lookupData.createdAt,
         lastLogin: lookupData.lastLogin,
-        profile: profile,        // ← OBJECT (not string!)
+        profile: profile, // ← OBJECT (not string!)
         metadata: {
             dailyUsage: metadata.dailyUsage,
-            usageHistory: usageHistory,  // ← ARRAY (not string!)
+            usageHistory: usageHistory, // ← ARRAY (not string!)
             settings: metadata.settings
         },
         status: lookupData.status || 'active'
@@ -226,10 +233,11 @@ return {
 ```
 
 **Vorteil:**
-- ✅ Frontend bekommt direkt Objekte
-- ✅ Kein Parsing im Frontend nötig
-- ✅ Weniger Code, weniger Fehlerquellen
-- ✅ Bessere Performance
+
+-   ✅ Frontend bekommt direkt Objekte
+-   ✅ Kein Parsing im Frontend nötig
+-   ✅ Weniger Code, weniger Fehlerquellen
+-   ✅ Bessere Performance
 
 **Aber:** Unser Frontend-Fix funktioniert **mit UND ohne** n8n Parsing! 🎉
 
@@ -238,6 +246,7 @@ return {
 ## 🔄 **Data Flow: Vorher vs. Nachher**
 
 ### **Vorher (Broken):**
+
 ```
 Google Sheets          n8n               Frontend
 ━━━━━━━━━━━━          ━━━               ━━━━━━━━
@@ -251,6 +260,7 @@ metadata: "{...}"  →  Forward as-is  →  metadata: "{...}" (STRING)
 ```
 
 ### **Nachher (Fixed):**
+
 ```
 Google Sheets          n8n               Frontend                accountStore.js
 ━━━━━━━━━━━━          ━━━               ━━━━━━━━                ━━━━━━━━━━━━
@@ -271,15 +281,15 @@ metadata: "{...}"  →  Forward as-is  →  metadata: "{...}"  →   safeJSONPar
 
 ## ✅ **Checkliste: Was wurde gefixt**
 
-- [x] **safeJSONParse()** hinzugefügt in accountStore.js
-- [x] **syncAccountData()** parsed jetzt automatisch
-- [x] **profile** wird als Object gesetzt (nicht String)
-- [x] **metadata** wird als Object gesetzt (nicht String)
-- [x] **usageHistory** ist Array (nicht String)
-- [x] **Chart** bekommt korrekte Daten
-- [x] **Console Logs** für Debugging
-- [x] **Fallback** für Parse-Errors
-- [x] **Kompatibel** mit beiden Formaten (String + Object)
+-   [x] **safeJSONParse()** hinzugefügt in accountStore.js
+-   [x] **syncAccountData()** parsed jetzt automatisch
+-   [x] **profile** wird als Object gesetzt (nicht String)
+-   [x] **metadata** wird als Object gesetzt (nicht String)
+-   [x] **usageHistory** ist Array (nicht String)
+-   [x] **Chart** bekommt korrekte Daten
+-   [x] **Console Logs** für Debugging
+-   [x] **Fallback** für Parse-Errors
+-   [x] **Kompatibel** mit beiden Formaten (String + Object)
 
 ---
 
@@ -288,34 +298,36 @@ metadata: "{...}"  →  Forward as-is  →  metadata: "{...}"  →   safeJSONPar
 ### **Nach Login:**
 
 1. **Console Logs:**
-   ```
-   🔄 syncAccountData: Raw data received: { profileType: "string", metadataType: "string" }
-   ✅ Parsed data: { profile: {}, metadata: { usageHistory: 28 } }
-   ✅ syncAccountData: UsageHistory entries: 28
-   ```
+
+    ```
+    🔄 syncAccountData: Raw data received: { profileType: "string", metadataType: "string" }
+    ✅ Parsed data: { profile: {}, metadata: { usageHistory: 28 } }
+    ✅ syncAccountData: UsageHistory entries: 28
+    ```
 
 2. **currentAccount Store:**
-   ```javascript
-   {
-       userId: "user_1753963152928",
-       profile: {},  // ← OBJECT!
-       metadata: {   // ← OBJECT!
-           settings: { name: "chooo12345", emojiCount: 9, ... },
-           dailyUsage: { date: "2025-10-10", used: 5, ... },
-           usageHistory: [  // ← ARRAY!
-               { date: "2025-10-10", used: 5, ... },
-               ... (28 entries)
-           ]
-       }
-   }
-   ```
+
+    ```javascript
+    {
+        userId: "user_1753963152928",
+        profile: {},  // ← OBJECT!
+        metadata: {   // ← OBJECT!
+            settings: { name: "chooo12345", emojiCount: 9, ... },
+            dailyUsage: { date: "2025-10-10", used: 5, ... },
+            usageHistory: [  // ← ARRAY!
+                { date: "2025-10-10", used: 5, ... },
+                ... (28 entries)
+            ]
+        }
+    }
+    ```
 
 3. **Chart:**
-   - ✅ Loading skeleton (kurz)
-   - ✅ Chart erscheint
-   - ✅ 28 Datenpunkte von 13.9 bis 10.10
-   - ✅ Animiert mit smooth transitions
-   - ✅ Interaktiv (hover, period selector)
+    - ✅ Loading skeleton (kurz)
+    - ✅ Chart erscheint
+    - ✅ 28 Datenpunkte von 13.9 bis 10.10
+    - ✅ Animiert mit smooth transitions
+    - ✅ Interaktiv (hover, period selector)
 
 ---
 
@@ -323,12 +335,13 @@ metadata: "{...}"  →  Forward as-is  →  metadata: "{...}"  →   safeJSONPar
 
 **Dieser Fix ist SOFORT produktionsbereit!**
 
-- ✅ Keine Breaking Changes
-- ✅ Abwärtskompatibel (funktioniert mit Strings UND Objects)
-- ✅ Kein n8n Workflow Update nötig (aber empfohlen)
-- ✅ Alle Features funktionieren
+-   ✅ Keine Breaking Changes
+-   ✅ Abwärtskompatibel (funktioniert mit Strings UND Objects)
+-   ✅ Kein n8n Workflow Update nötig (aber empfohlen)
+-   ✅ Alle Features funktionieren
 
 **Nach Deployment:**
+
 1. Login als cm@chooo.de
 2. Navigate zu /account
 3. Chart sollte 28 Tage anzeigen
@@ -342,18 +355,19 @@ metadata: "{...}"  →  Forward as-is  →  metadata: "{...}"  →   safeJSONPar
 
 **Lösung:** Frontend parsed jetzt automatisch mit `safeJSONParse()`.
 
-**Ergebnis:** 
-- ✅ Chart funktioniert
-- ✅ Settings werden geladen
-- ✅ UsageHistory ist verfügbar
-- ✅ Alle Features arbeiten korrekt
+**Ergebnis:**
+
+-   ✅ Chart funktioniert
+-   ✅ Settings werden geladen
+-   ✅ UsageHistory ist verfügbar
+-   ✅ Alle Features arbeiten korrekt
 
 **Next Steps (Optional):**
-- [ ] n8n Workflow mit Code Node erweitern (langfristig)
-- [ ] Testing auf Production (cm@chooo.de)
-- [ ] Monitoring für Parse-Errors
+
+-   [ ] n8n Workflow mit Code Node erweitern (langfristig)
+-   [ ] Testing auf Production (cm@chooo.de)
+-   [ ] Monitoring für Parse-Errors
 
 ---
 
 **STATUS: ✅ READY FOR PRODUCTION! 🚀**
-
