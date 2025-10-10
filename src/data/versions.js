@@ -1,4 +1,142 @@
 export const versions = {
+    '0.5.7': {
+        date: 'October 10, 2025',
+        core: {
+            userSettings: {
+                title: '🎯 Complete UserSettings System Overhaul',
+                improvements: [
+                    'Implemented Single Source of Truth for all settings',
+                    'Added tier-aware defaults (FREE vs PRO) with automatic merging',
+                    'Fixed settings not displaying for FREE users',
+                    'Fixed language/theme dropdowns showing incorrect values',
+                    'Implemented bidirectional sync: Buttons ↔ UserSettings',
+                    'Added settings validation and sanitization',
+                    'Added comprehensive debugging tools (window.keymojiDebug)',
+                    'Created automated test suite for settings',
+                    'Implemented controlled component pattern (removed bind:value anti-pattern)',
+                    'Added optimistic updates with rollback on error'
+                ]
+            },
+            sync: {
+                title: '🔄 Synchronization & Data Flow',
+                improvements: [
+                    'Language buttons now sync with UserSettings dropdown',
+                    'Theme toggle button syncs with UserSettings dropdown',
+                    'Settings persist correctly after page reload',
+                    'localStorage is now primary source, cookies as fallback',
+                    'All stores synchronized: currentLanguage ↔ userSettings.language',
+                    'All stores synchronized: darkMode ↔ userSettings.theme',
+                    'Eliminated race conditions in session restore',
+                    'Session restore no longer overwrites user settings',
+                    'Reduced 4 simultaneous API calls to 1 call'
+                ]
+            },
+            architecture: {
+                title: '🏗️ Architecture & Best Practices',
+                improvements: [
+                    'Created new SettingsManager with idempotent functions',
+                    'Implemented Controlled Components pattern (no bind: on props)',
+                    'Added comprehensive logging for debugging',
+                    'Separated concerns: Presentation ↔ Container ↔ Store ↔ API',
+                    'Implemented proper error handling with fallbacks',
+                    'Added validation before save, sanitization for tier limits'
+                ]
+            }
+        },
+        backend: {
+            api: {
+                title: '🔧 Backend & n8n Integration',
+                improvements: [
+                    'Fixed n8n workflow JSON corruption (character array bug)',
+                    'Implemented smart merge: only update when data provided',
+                    'Optimized CORS handling for localhost development',
+                    'Improved webhook payload structure',
+                    'Added proper lastLogin tracking',
+                    'Enhanced logging for better debugging',
+                    'Created n8n workflow v2 with empty data check'
+                ]
+            }
+        },
+        ui: {
+            buttons: {
+                title: '🎨 UI Consistency & Accessibility',
+                improvements: [
+                    'Standardized all buttons: hover scale-105, focus ring, active scale-95',
+                    'Created reusable Tooltip component',
+                    'Enhanced Button component with tooltip support',
+                    'Improved emoji centering in icon-only buttons',
+                    'Added consistent focus states for accessibility',
+                    'Implemented proper aria-labels throughout'
+                ]
+            },
+            contextBadge: {
+                title: '🏷️ ContextBadge Enhancements',
+                improvements: [
+                    'Fixed duplicate tier text display',
+                    'Added account age calculation (days since creation)',
+                    'Fixed createdAt source (API/Google Sheets priority)',
+                    'Improved tooltip with age information',
+                    'Better conditional rendering for interactive vs static'
+                ]
+            }
+        },
+        technical: {
+            performance: {
+                title: '⚡ Performance Optimizations',
+                improvements: [
+                    'Prevented duplicate session restore calls with flags',
+                    'Optimized settings initialization (cached promises)',
+                    'Reduced unnecessary re-renders with reactive patterns',
+                    'Improved storage access patterns',
+                    'Better component lifecycle management'
+                ]
+            },
+            testing: {
+                title: '🧪 Testing & Debugging',
+                improvements: [
+                    'Created automated test suite (window.testUserSettings)',
+                    'Added debug tools (window.keymojiDebug)',
+                    'Implemented consistency checks',
+                    'Added comprehensive logging throughout',
+                    'Created test helpers for manual testing'
+                ]
+            }
+        },
+        documentation: {
+            title: '📝 Documentation',
+            improvements: [
+                'Added comprehensive CHANGELOG',
+                'Created n8n workflow setup guides',
+                'Added UserSettings architecture documentation',
+                'Created testing and debugging guides',
+                'Documented all data flows and synchronization'
+            ]
+        }
+    },
+    '0.5.6': {
+        date: 'October 10, 2025',
+        note: 'Internal iteration - n8n workflow fixes'
+    },
+    '0.5.5': {
+        date: 'October 10, 2025',
+        note: 'Internal iteration - settings validation'
+    },
+    '0.5.4': {
+        date: 'October 10, 2025',
+        note: 'Internal iteration - controlled components'
+    },
+    '0.5.3': {
+        date: 'October 10, 2025',
+        note: 'Internal iteration - race condition fixes'
+    },
+    '0.5.2': {
+        date: 'October 10, 2025',
+        note: 'Internal iteration - localStorage priority'
+    },
+    '0.5.1': {
+        date: 'October 10, 2025',
+        note: 'Internal iteration - tier-aware defaults'
+    },
     '0.5.0': {
         date: 'August 2025',
         core: {
