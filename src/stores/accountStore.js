@@ -1021,21 +1021,29 @@ function safeJSONParse(data, fallback = {}) {
 // Synchronize account data across stores
 async function syncAccountData(accountData) {
     if (accountData) {
-        console.log('🔄 syncAccountData: Raw data received:', {
+        console.log('🔄 [ACCOUNT DEBUG] syncAccountData: Raw data received:', {
             profileType: typeof accountData.profile,
             metadataType: typeof accountData.metadata,
-            hasUserId: !!accountData.userId
+            hasUserId: !!accountData.userId,
+            userId: accountData.userId,
+            email: accountData.email
         });
 
         // CRITICAL: Parse JSON strings from n8n/Google Sheets
         const parsedProfile = safeJSONParse(accountData.profile, {});
         const parsedMetadata = safeJSONParse(accountData.metadata, {});
         
-        console.log('✅ Parsed data:', {
+        console.log('✅ [ACCOUNT DEBUG] Parsed data:', {
             profile: parsedProfile,
             metadata: {
-                ...parsedMetadata,
-                usageHistory: parsedMetadata.usageHistory?.length || 0
+                hasSettings: !!parsedMetadata.settings,
+                hasDailyUsage: !!parsedMetadata.dailyUsage,
+                hasUsageHistory: !!parsedMetadata.usageHistory,
+                usageHistoryType: typeof parsedMetadata.usageHistory,
+                usageHistoryIsArray: Array.isArray(parsedMetadata.usageHistory),
+                usageHistoryLength: parsedMetadata.usageHistory?.length || 0,
+                firstEntry: parsedMetadata.usageHistory?.[0],
+                lastEntry: parsedMetadata.usageHistory?.[parsedMetadata.usageHistory?.length - 1]
             }
         });
 
@@ -1083,12 +1091,21 @@ async function syncAccountData(accountData) {
         }
 
         console.log(
-            '✅ syncAccountData: Account synced with createdAt:',
+            '✅ [ACCOUNT DEBUG] syncAccountData: Account synced with createdAt:',
             cleanAccountData.createdAt
         );
         console.log(
-            '✅ syncAccountData: UsageHistory entries:',
+            '✅ [ACCOUNT DEBUG] syncAccountData: UsageHistory entries:',
             parsedMetadata?.usageHistory?.length || 0
+        );
+        console.log(
+            '✅ [ACCOUNT DEBUG] syncAccountData: Complete metadata structure:',
+            {
+                settings: !!parsedMetadata?.settings,
+                dailyUsage: !!parsedMetadata?.dailyUsage,
+                usageHistory: !!parsedMetadata?.usageHistory,
+                usageHistoryLength: parsedMetadata?.usageHistory?.length
+            }
         );
     } else {
         // Reset all stores when no account data

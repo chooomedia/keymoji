@@ -208,46 +208,85 @@
             isLoadingChartData = true;
             chartDataError = null;
             
-            console.log('📊 Loading chart data asynchronously...');
+            console.log('📊 [CHART DEBUG] Step 1: Starting chart data load...');
+            console.log('📊 [CHART DEBUG] Current account state:', {
+                hasAccount: !!$currentAccount,
+                userId: $currentAccount?.userId,
+                hasMetadata: !!$currentAccount?.metadata,
+                metadataType: typeof $currentAccount?.metadata,
+                hasUsageHistory: !!$currentAccount?.metadata?.usageHistory,
+                usageHistoryType: typeof $currentAccount?.metadata?.usageHistory,
+                usageHistoryLength: $currentAccount?.metadata?.usageHistory?.length
+            });
             
             // Option 1: Load from currentAccount (already loaded)
             const accountHistory = getUsageHistory($currentAccount);
             
+            console.log('📊 [CHART DEBUG] Step 2: getUsageHistory() returned:', {
+                isArray: Array.isArray(accountHistory),
+                length: accountHistory?.length,
+                firstEntry: accountHistory?.[0],
+                lastEntry: accountHistory?.[accountHistory?.length - 1]
+            });
+            
             if (accountHistory && accountHistory.length > 0) {
                 // Data already available in currentAccount
                 usageHistory = accountHistory;
-                console.log('✅ Chart data loaded from currentAccount:', usageHistory.length, 'entries');
+                console.log('✅ [CHART DEBUG] Step 3: Chart data loaded from currentAccount:', usageHistory.length, 'entries');
+                console.log('✅ [CHART DEBUG] First 3 entries:', usageHistory.slice(0, 3));
             } else {
                 // Option 2: Fetch from API (if currentAccount has no history)
-                console.log('📡 No history in currentAccount, fetching from API...');
+                console.warn('⚠️ [CHART DEBUG] No history in currentAccount, fetching from API...');
+                console.log('📡 [CHART DEBUG] API call parameters:', {
+                    userId: $currentAccount?.userId,
+                    email: $currentAccount?.email
+                });
+                
                 usageHistory = await loadUsageHistoryWithRetry(
                     $currentAccount?.userId,
                     $currentAccount?.email
                 );
-                console.log('✅ Chart data loaded from API:', usageHistory.length, 'entries');
+                
+                console.log('✅ [CHART DEBUG] Step 3: Chart data loaded from API:', usageHistory.length, 'entries');
             }
             
             // Check if we need to refresh (stale data)
             if (shouldRefreshHistory(usageHistory)) {
-                console.log('🔄 History is stale, refreshing...');
+                console.log('🔄 [CHART DEBUG] History is stale, refreshing...');
                 const refreshed = await refreshUsageHistory();
                 if (refreshed && refreshed.length > 0) {
                     usageHistory = refreshed;
-                    console.log('✅ Chart data refreshed:', usageHistory.length, 'entries');
+                    console.log('✅ [CHART DEBUG] Chart data refreshed:', usageHistory.length, 'entries');
                 }
+            } else {
+                console.log('✅ [CHART DEBUG] History is current (no refresh needed)');
             }
             
+            console.log('📊 [CHART DEBUG] Step 4: Final usageHistory:', {
+                length: usageHistory.length,
+                dateRange: usageHistory.length > 0 ? `${usageHistory[usageHistory.length - 1]?.date} to ${usageHistory[0]?.date}` : 'empty'
+            });
+            
         } catch (error) {
-            console.error('❌ Failed to load chart data:', error);
+            console.error('❌ [CHART DEBUG] Failed to load chart data:', error);
+            console.error('❌ [CHART DEBUG] Error stack:', error.stack);
             chartDataError = error.message || 'Failed to load chart data';
-            showError('Fehler beim Laden der Chart-Daten', 3000);
+            showError('Failed to load chart data', 3000);
             
             // Fallback: Try to use any existing data
             usageHistory = getUsageHistory($currentAccount) || [];
+            console.log('⚠️ [CHART DEBUG] Fallback usageHistory:', usageHistory.length, 'entries');
         } finally {
             // Smooth transition: Wait a bit to avoid flash
             await new Promise(resolve => setTimeout(resolve, 300));
             isLoadingChartData = false;
+            
+            console.log('📊 [CHART DEBUG] Step 5: Loading complete. Final state:', {
+                isLoading: false,
+                hasError: !!chartDataError,
+                dataLength: usageHistory.length,
+                chartDataPoints: usageChartData.length
+            });
         }
     }
     
@@ -266,6 +305,12 @@
      * @returns {Array} Filtered data for chart
      */
     function generateChartData(period, history) {
+        console.log('📊 [CHART DEBUG] generateChartData() called:', {
+            period,
+            historyLength: history?.length,
+            historyIsArray: Array.isArray(history)
+        });
+        
         const today = new Date();
         const data = [];
 
@@ -274,6 +319,8 @@
         if (period === '14d') days = 14;
         if (period === '4w') days = 28;
         if (period === '1y') days = 365;
+
+        console.log('📊 [CHART DEBUG] Generating data for', days, 'days');
 
         // Generate data points for each day (reverse order for chart)
         for (let i = days - 1; i >= 0; i--) {
@@ -290,6 +337,13 @@
                 value: value
             });
         }
+
+        console.log('📊 [CHART DEBUG] Generated chart data:', {
+            dataPoints: data.length,
+            firstPoint: data[0],
+            lastPoint: data[data.length - 1],
+            nonZeroPoints: data.filter(d => d.value > 0).length
+        });
 
         return data;
     }

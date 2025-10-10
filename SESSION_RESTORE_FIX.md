@@ -3,12 +3,14 @@
 ## 🔴 **Problem: Daten werden beim Page Refresh gelöscht**
 
 ### **Symptom:**
-- User speichert Settings/Daten in Google Sheets
-- Page wird refreshed (F5 / Reload)
-- **Alle Daten sind weg!** ❌
-- `usageHistory`, `settings`, `dailyUsage` werden gelöscht
+
+-   User speichert Settings/Daten in Google Sheets
+-   Page wird refreshed (F5 / Reload)
+-   **Alle Daten sind weg!** ❌
+-   `usageHistory`, `settings`, `dailyUsage` werden gelöscht
 
 ### **Ursache:**
+
 `initializeAccountFromCookies()` sendete beim Page Refresh ein **UPDATE** zur Datenbank:
 
 ```javascript
@@ -17,7 +19,8 @@ const updatePayload = {
     userId: accountInfo.userId,
     email: accountInfo.email,
     lastLogin: updatedLastLogin,
-    metadata: {  // ← Überschreibt ALLES!
+    metadata: {
+        // ← Überschreibt ALLES!
         lastLogin: updatedLastLogin,
         lastActivity: updatedLastLogin,
         sessionRestored: true
@@ -32,10 +35,10 @@ fetch(WEBHOOKS.ACCOUNT.UPDATE, {
 
 // n8n Workflow empfängt:
 metadata = {
-    lastLogin: "...",
-    lastActivity: "...",
+    lastLogin: '...',
+    lastActivity: '...',
     sessionRestored: true
-}
+};
 
 // n8n schreibt das als NEUE VOLLSTÄNDIGE metadata:
 // → settings: GELÖSCHT!
@@ -48,6 +51,7 @@ metadata = {
 ## ✅ **Lösung: Session Restore = READ-ONLY**
 
 ### **Prinzip:**
+
 **Session Restore sollte NIEMALS zur Datenbank schreiben!**
 
 ```javascript
@@ -144,31 +148,35 @@ Google Sheets: {
 ### **Nur bei expliziten User-Aktionen:**
 
 1. **Login (Magic Link)**
-   ```javascript
-   verifyMagicLinkFrontend() → WRITE
-   ```
+
+    ```javascript
+    verifyMagicLinkFrontend() → WRITE
+    ```
 
 2. **Settings Speichern**
-   ```javascript
-   saveAllSettings() → WRITE
-   ```
+
+    ```javascript
+    saveAllSettings() → WRITE
+    ```
 
 3. **Emoji Generierung**
-   ```javascript
-   incrementDailyUsage() → WRITE (dailyUsage + usageHistory)
-   ```
+
+    ```javascript
+    incrementDailyUsage() → WRITE (dailyUsage + usageHistory)
+    ```
 
 4. **Account Update**
-   ```javascript
-   updateAccountName() → WRITE
-   ```
+    ```javascript
+    updateAccountName() → WRITE
+    ```
 
 ### **NICHT bei:**
-- ❌ Page Refresh
-- ❌ Session Restore
-- ❌ Tab Switch
-- ❌ Browser Restart
-- ❌ App Mount
+
+-   ❌ Page Refresh
+-   ❌ Session Restore
+-   ❌ Tab Switch
+-   ❌ Browser Restart
+-   ❌ App Mount
 
 ---
 
@@ -250,15 +258,17 @@ Google Sheets: {
 ### **src/stores/accountStore.js**
 
 **Entfernt:**
+
 ```javascript
 // ❌ REMOVED: Database update on session restore
 fetch(WEBHOOKS.ACCOUNT.UPDATE, {
     method: 'POST',
     body: JSON.stringify(updatePayload)
-})
+});
 ```
 
 **Hinzugefügt:**
+
 ```javascript
 // ✅ ADDED: Clear documentation
 // CRITICAL FIX: Session restore should ONLY READ, NEVER WRITE!
@@ -269,16 +279,16 @@ console.log('✅ Session restored (READ-ONLY, no database write)');
 
 ## ✅ **Checkliste: Was wurde gefixt**
 
-- [x] `initializeAccountFromCookies()` sendet **KEIN** UPDATE mehr
-- [x] Session Restore ist **READ-ONLY**
-- [x] `settings` bleiben erhalten nach Refresh
-- [x] `dailyUsage` bleibt erhalten nach Refresh
-- [x] `usageHistory` bleibt erhalten nach Refresh
-- [x] Chart zeigt Daten nach Refresh
-- [x] Console Logs dokumentieren READ-ONLY
-- [x] localStorage wird updated (session expiration)
-- [x] Stores werden synced
-- [x] Keine Race Conditions
+-   [x] `initializeAccountFromCookies()` sendet **KEIN** UPDATE mehr
+-   [x] Session Restore ist **READ-ONLY**
+-   [x] `settings` bleiben erhalten nach Refresh
+-   [x] `dailyUsage` bleibt erhalten nach Refresh
+-   [x] `usageHistory` bleibt erhalten nach Refresh
+-   [x] Chart zeigt Daten nach Refresh
+-   [x] Console Logs dokumentieren READ-ONLY
+-   [x] localStorage wird updated (session expiration)
+-   [x] Stores werden synced
+-   [x] Keine Race Conditions
 
 ---
 
@@ -287,27 +297,30 @@ console.log('✅ Session restored (READ-ONLY, no database write)');
 ### **Nach diesem Fix:**
 
 1. **Login mit Magic Link**
-   - ✅ Daten werden in Google Sheets geschrieben
-   - ✅ `usageHistory`: 28 Einträge
-   - ✅ `settings.emojiCount`: 9
-   - ✅ `dailyUsage.used`: 5
+
+    - ✅ Daten werden in Google Sheets geschrieben
+    - ✅ `usageHistory`: 28 Einträge
+    - ✅ `settings.emojiCount`: 9
+    - ✅ `dailyUsage.used`: 5
 
 2. **Page Refresh (F5)**
-   - ✅ Daten werden aus Google Sheets geladen
-   - ✅ `usageHistory`: noch 28 Einträge
-   - ✅ `settings.emojiCount`: noch 9
-   - ✅ `dailyUsage.used`: noch 5
-   - ✅ Chart zeigt 28 Tage
-   - ❌ KEINE Datenbank-Überschreibung!
+
+    - ✅ Daten werden aus Google Sheets geladen
+    - ✅ `usageHistory`: noch 28 Einträge
+    - ✅ `settings.emojiCount`: noch 9
+    - ✅ `dailyUsage.used`: noch 5
+    - ✅ Chart zeigt 28 Tage
+    - ❌ KEINE Datenbank-Überschreibung!
 
 3. **Settings ändern & speichern**
-   - ✅ Daten werden in Google Sheets geschrieben
-   - ✅ Nach Refresh: Änderungen sind da
+
+    - ✅ Daten werden in Google Sheets geschrieben
+    - ✅ Nach Refresh: Änderungen sind da
 
 4. **Emojis generieren**
-   - ✅ `dailyUsage.used` wird updated
-   - ✅ `usageHistory` wird updated
-   - ✅ Nach Refresh: Updates sind da
+    - ✅ `dailyUsage.used` wird updated
+    - ✅ `usageHistory` wird updated
+    - ✅ Nach Refresh: Updates sind da
 
 ---
 
@@ -315,18 +328,19 @@ console.log('✅ Session restored (READ-ONLY, no database write)');
 
 **Dieser Fix ist kritisch und sofort deploybar:**
 
-- ✅ Verhindert Datenverlust
-- ✅ Keine Breaking Changes
-- ✅ Verbessert Performance (weniger API Calls)
-- ✅ Korrekte Separation of Concerns:
-  - **Session Restore:** READ-ONLY
-  - **User Actions:** WRITE
+-   ✅ Verhindert Datenverlust
+-   ✅ Keine Breaking Changes
+-   ✅ Verbessert Performance (weniger API Calls)
+-   ✅ Korrekte Separation of Concerns:
+    -   **Session Restore:** READ-ONLY
+    -   **User Actions:** WRITE
 
 ---
 
 ## 📊 **Vergleich: API Calls**
 
 ### **Vorher:**
+
 ```
 Login: 1 WRITE
 Refresh: 1 WRITE (❌ unnötig!)
@@ -337,6 +351,7 @@ Total: 5 API Calls
 ```
 
 ### **Nachher:**
+
 ```
 Login: 1 WRITE
 Refresh: 0 (✅ READ-ONLY!)
@@ -354,11 +369,10 @@ Total: 2 API Calls
 
 **Weniger Writes = Weniger Angriffsfläche**
 
-- ✅ Session Hijacking kann keine Daten überschreiben
-- ✅ Race Conditions zwischen Tabs vermieden
-- ✅ Klare Trennung: Lesen vs. Schreiben
+-   ✅ Session Hijacking kann keine Daten überschreiben
+-   ✅ Race Conditions zwischen Tabs vermieden
+-   ✅ Klare Trennung: Lesen vs. Schreiben
 
 ---
 
 **STATUS: ✅ CRITICAL FIX COMPLETE! READY FOR PRODUCTION! 🎉**
-
