@@ -51,70 +51,84 @@
     </PageLayout>
 {:else if pageData}
     <PageLayout {pageTitle} {pageDescription}>
-        <!-- Back Button (zentriert wie VersionHistory) -->
-        <div slot="before-content" class="w-full text-center mb-6">
+        <!-- Back Button - Liegt ZUR HÄLFTE auf content-wrapper Rand -->
+        <div slot="before-content" class="relative w-full flex justify-center -mb-14">
             <button 
                 on:click={navigateToHome}
-                class="inline-flex items-center gap-2 text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 rounded-lg px-3 py-2"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 z-20"
                 aria-label={$translations?.index?.backToMainButtonText || 'Back to home'}
                 title={$translations?.index?.backToMainButtonText || 'Back to home'}
             >
                 <span class="text-lg">←</span>
-                {$translations?.index?.backToMainButtonText || 'Go back home'}
+                <span class="font-semibold">{$translations?.index?.backToMainButtonText || 'Go back home'}</span>
             </button>
         </div>
+        
+        <!-- Content Container - Filigranes Spacing oben -->
+        <div class="container mx-auto pt-8 pb-4">
 
-        <!-- Meta Info (zentriert) -->
-        {#if formattedDate}
-            <div class="w-full text-center mb-6">
-                <div class="inline-flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                    <span class="flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        Last updated: {formattedDate}
-                    </span>
-                    
-                    <span class="flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg>
-                        Version: {appVersion}
-                    </span>
+            <!-- Meta Info (zentriert) -->
+            {#if formattedDate}
+                <div class="w-full text-center mb-6">
+                    <div class="inline-flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Last updated: {formattedDate}
+                        </span>
+                        
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            </svg>
+                            Version: {appVersion}
+                        </span>
+                    </div>
                 </div>
+            {/if}
+
+            <!-- Main Content: Sections -->
+            <div class="w-full space-y-8">
+                {#each sections as section (section.title)}
+                    <StaticSection {section} />
+                {/each}
             </div>
-        {/if}
 
-        <!-- Main Content: Sections -->
-        <div class="w-full space-y-8">
-            {#each sections as section (section.title)}
-                <StaticSection {section} />
-            {/each}
-        </div>
-
-        <!-- Back to Top Button -->
-        <div class="w-full mt-12 text-center">
+            <!-- Back to Top Button -->
+            <div class="w-full mt-12 text-center">
             <button
                 on:click={() => {
                     console.log('🔝 Scrolling to top...');
-                    // Try multiple methods for maximum compatibility
-                    const scrollOptions = { top: 0, left: 0, behavior: 'smooth' };
                     
-                    // Method 1: Modern smooth scroll
-                    window.scrollTo(scrollOptions);
-                    
-                    // Method 2: Direct assignment (instant fallback)
-                    setTimeout(() => {
-                        if (window.pageYOffset > 0) {
-                            document.documentElement.scrollTop = 0;
-                            document.body.scrollTop = 0;
-                        }
-                    }, 100);
-                    
-                    // Method 3: Force scroll on main container
-                    const mainContent = document.querySelector('.main-content');
-                    if (mainContent) {
-                        mainContent.scrollTop = 0;
+                    // ROBUST SCROLL - Try ALL methods immediately
+                    try {
+                        // Method 1: window.scrollTo (most reliable)
+                        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                        
+                        // Method 2: document elements (immediate)
+                        document.documentElement.scrollTop = 0;
+                        document.body.scrollTop = 0;
+                        
+                        // Method 3: All scrollable containers
+                        const scrollableElements = [
+                            document.querySelector('.app-container'),
+                            document.querySelector('.main-content'),
+                            document.querySelector('main'),
+                            document.querySelector('.wrapper'),
+                            document.querySelector('[class*="scroll"]')
+                        ];
+                        
+                        scrollableElements.forEach(el => {
+                            if (el) {
+                                el.scrollTop = 0;
+                                el.scrollTo?.({ top: 0, behavior: 'smooth' });
+                            }
+                        });
+                        
+                        console.log('✅ Scroll to top triggered');
+                    } catch (error) {
+                        console.error('❌ Scroll error:', error);
                     }
                 }}
                 class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-yellow-500 text-black dark:bg-aubergine-900 dark:text-white rounded-full font-medium shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
@@ -124,6 +138,7 @@
                 <span class="text-xl">↑</span>
                 <span>Back to top</span>
             </button>
+        </div>
         </div>
 
         <!-- Footer -->

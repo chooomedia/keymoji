@@ -45,9 +45,9 @@ export default {
         emojiDisplayTitle: 'Emoji Passwort Generator',
         dataPrivacyProcessingInfo:
             '🚀 Emoji-Magie über Webhooks und KI! ✨ Daten sind wie Strandsand - sie bleiben nicht.',
-        clearButton: '✖️ Löschen',
-        storyButton: '📝 Geschichte',
-        storyButtonClicked: '📩 Geschichte senden',
+        clearButton: 'Löschen',
+        storyButton: '✨ Geschichte',
+        storyButtonClicked: '✨ Geschichte generieren',
         randomButton: '🎲 Zufällig',
         placeholderText:
             'Erzähl mir eine Geschichte und ich generiere Emoji-Passwörter basierend darauf...',

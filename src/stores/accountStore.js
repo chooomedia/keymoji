@@ -1594,6 +1594,14 @@ async function syncAccountData(accountData) {
         userProfile.set(parsedProfile);
         accountTier.set(cleanAccountData.tier || 'free');
 
+        console.log('✅ [ACCOUNT] Stores updated:', {
+            isLoggedIn: true,
+            tier: cleanAccountData.tier || 'free',
+            hasProfile: !!parsedProfile,
+            hasMetadata: !!parsedMetadata,
+            hasSettings: !!parsedMetadata?.settings
+        });
+
         // Initialize daily usage from API + localStorage
         try {
             const { initializeDailyUsage } = await import(

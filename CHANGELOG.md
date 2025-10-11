@@ -1,5 +1,115 @@
 # Changelog
 
+## [0.6.0] - 2025-10-11
+
+### Added - AI Story Mode 🤖
+
+-   ✨ **Story Mode AI Integration**: Convert text to emoji passwords using AI
+    -   Support for OpenAI (GPT-3.5, GPT-4, GPT-4o)
+    -   Support for Google Gemini (Pro, 1.5 Flash, 2.5 Flash)
+    -   Support for Mistral AI (Tiny, Small, Medium)
+    -   Support for Anthropic Claude (Haiku, Sonnet, Opus)
+    -   Custom API support with flexible endpoints
+-   ✨ **Multi-Provider API Key Management**: Separate encrypted keys per provider
+    -   Automatic key switching based on selected provider
+    -   Show/Hide API key toggle in settings
+    -   Test Connection button with real-time validation
+    -   Provider-specific API key creation links
+    -   Success indicator after successful API test
+-   ✨ **Persistent Story Input**: Text survives page reloads
+    -   Auto-save to localStorage on every change
+    -   Auto-load on page mount
+    -   Clear button removes both text and storage
+-   ✨ **Smart Caching System**: 
+    -   7-day cache for story generations
+    -   Text-based cache keys (different text = new AI call)
+    -   Cache invalidation on settings changes
+    -   Validation to prevent caching errors
+-   ✨ **Static Pages**: Data-driven architecture
+    -   Privacy Policy (`/privacy`)
+    -   Legal Notice (`/legal`)
+    -   Multi-language support (DE/EN with English fallback)
+    -   10 content types (text, subtitle, list, card, warning, info, grid, contact)
+-   ✨ **Auto-Generate Toggle**: User setting for automatic emoji generation on load
+
+### Changed - UI/UX Improvements 🎨
+
+-   ♻️ **Story Mode UX**:
+    -   Textarea remains visible after generation for easy editing
+    -   Clear button positioned inside textarea (top-right)
+    -   AI model info displayed prominently with provider badges
+    -   Yellow active button styling for enabled Story Mode
+    -   Muted inactive button with yellow border
+-   ♻️ **Settings UI**:
+    -   API key input with inline Show/Hide button
+    -   Test Connection button integrated into input field
+    -   Gradient fade-out for long API keys
+    -   Perfect vertical centering with `inset-y-0`
+    -   Success icon next to provider dropdown
+    -   Consistent `p-4` spacing across all inputs (matches Contact Form)
+-   ♻️ **Static Pages**:
+    -   Robust "Back to Top" scrolling with multiple fallback methods
+    -   Centered Back button and meta-info
+    -   Consistent dark/light mode colors (WCAG 2.1 compliant)
+    -   English fallback for all translations
+
+### Fixed - Critical Bugs 🐛
+
+-   🐛 Fixed API key migration from old `apiKey` to new `apiKeys` structure
+-   🐛 Fixed cache returning old keys after update
+-   🐛 Fixed cache storing errors instead of valid results
+-   🐛 Fixed inconsistent return types (Array vs Object) in `generateStoryEmojis`
+-   🐛 Fixed settings cache not invalidating after save
+-   🐛 Fixed Story Mode button not activating despite correct settings
+-   🐛 Fixed CORS issues on localhost (proper error messages)
+-   🐛 Fixed Back to Top button not scrolling on static pages
+-   🐛 Fixed gradient overlay covering input border
+-   🐛 Fixed button vertical alignment issues
+
+### Technical Improvements ⚡
+
+-   ⚡ **Robust AI Fallbacks**: 
+    -   OpenAI: Tries gpt-3.5-turbo → gpt-4o-mini
+    -   Claude: Tries haiku → sonnet
+    -   Gemini: Tries multiple API versions (v1beta/v1), auth methods, models
+    -   Mistral: Tries tiny → small
+-   ⚡ **API Best Practices**: 
+    -   30-second timeout for all requests
+    -   Provider-specific optimized prompts
+    -   Proper headers for each API (anthropic-version, x-goog-api-key, etc.)
+    -   Comprehensive error handling with user-friendly messages
+-   ⚡ **Data Flow Optimization**:
+    -   Cache invalidation after `saveAllSettings()`
+    -   Cache invalidation after `applySettingsReactive()`
+    -   Automatic migration from old to new API key structure
+    -   100ms cache for `getCurrentUserSettings()` to prevent excessive calls
+-   ⚡ **Settings Persistence**:
+    -   Story Mode settings stored in `localStorage.USER_PREFERENCES.metadata.settings`
+    -   Immediate `currentAccount.metadata.settings` update for reactivity
+    -   `effectiveSettings` derived store includes `userSettings` and `pendingChanges`
+
+### Security & Privacy 🔒
+
+-   🔒 API keys stored encrypted in backend
+-   🔒 Keys never exposed in frontend logs (masked)
+-   🔒 CORS-safe API calls (localhost shows proper warnings)
+-   🔒 Privacy Policy and Legal Notice pages added
+-   🔒 GDPR/revDSGV compliant data handling
+
+### Performance 🚀
+
+-   ⚡ Reduced API calls with smart caching (7 days)
+-   ⚡ Settings cache prevents 100+ calls per render
+-   ⚡ Optimized gradient rendering with CSS custom properties
+-   ⚡ Lazy loading for AI provider info
+
+### Accessibility ♿
+
+-   ✅ Fixed A11y warnings in FeatureCard (role, tabindex, keydown)
+-   ✅ Proper ARIA labels for all buttons
+-   ✅ Screen reader support for success/error states
+-   ✅ Keyboard navigation for all interactive elements
+
 ## [0.5.8] - 2025-10-10
 
 ### Added

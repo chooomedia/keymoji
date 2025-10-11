@@ -45,9 +45,9 @@ export default {
         emojiDisplayTitle: '絵文字パスワードジェネレーター',
         dataPrivacyProcessingInfo:
             '🚀 WebhookとAIによる絵文字マジック！✨ データは砂浜の砂のようなもの - 残りません。',
-        clearButton: '✖️ クリア',
-        storyButton: '📝 ストーリー',
-        storyButtonClicked: '📩 ストーリーを送信',
+        clearButton: 'クリア',
+        storyButton: '✨ ストーリー',
+        storyButtonClicked: '✨ ストーリーを送信',
         randomButton: '🎲 ランダム',
         placeholderText:
             'ストーリーを教えてください。それに基づいて絵文字パスワードを生成します...',

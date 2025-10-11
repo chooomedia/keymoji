@@ -45,9 +45,9 @@ export default {
         emojiDisplayTitle: 'Generatore di Password Emoji',
         dataPrivacyProcessingInfo:
             '🚀 Magia emoji tramite webhook e IA! ✨ I dati sono come sabbia della spiaggia - non rimangono.',
-        clearButton: '✖️ Cancella',
-        storyButton: '📝 Storia',
-        storyButtonClicked: '📩 Invia storia',
+        clearButton: 'Cancella',
+        storyButton: '✨ Storia',
+        storyButtonClicked: '✨ Invia storia',
         randomButton: '🎲 Casuale',
         placeholderText:
             'Raccontami una storia e genererò password emoji basate su di essa...',

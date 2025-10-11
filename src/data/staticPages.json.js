@@ -30,7 +30,7 @@ export const staticPagesData = {
                             type: 'card',
                             items: [
                                 { label: 'Name', text: 'Christopher Matt' },
-                                { label: 'Firma', text: 'Chooomedia' },
+                                { label: 'Firma', text: 'Matt Interfaces' },
                                 {
                                     label: 'Email',
                                     text: 'hello@keymoji.wtf',
@@ -298,7 +298,7 @@ export const staticPagesData = {
                             type: 'card',
                             items: [
                                 { label: 'Name', text: 'Christopher Matt' },
-                                { label: 'Company', text: 'Chooomedia' },
+                                { label: 'Company', text: 'Matt Interfaces' },
                                 {
                                     label: 'Email',
                                     text: 'hello@keymoji.wtf',
@@ -490,7 +490,7 @@ export const staticPagesData = {
                             type: 'card',
                             items: [
                                 { label: 'Name', text: 'Christopher Matt' },
-                                { label: 'Firma', text: 'Chooomedia' },
+                                { label: 'Firma', text: 'Matt Interfaces' },
                                 {
                                     label: 'Email',
                                     text: 'hello@keymoji.wtf',

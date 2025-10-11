@@ -13,11 +13,15 @@
         updateSetting, 
         saveAllSettings, 
         discardChanges,
-        getEffectiveValue
+        getEffectiveValue,
+        getCurrentUserSettings,
+        invalidateSettingsCache
     } from '../stores/userSettingsStore.js';
     import ModularInput from './UI/ModularInput.svelte';
+    import Button from './UI/Button.svelte';
     import Modal from './UI/Modal.svelte';
     import { showSuccess, showError, showWarning, showModal } from '../stores/modalStore.js';
+    import { testAIProvider, getProviderInfo } from '../utils/storyModeAI.js';
 
     // Load settings configuration
     let settingsConfig = {};
@@ -35,9 +39,40 @@
     let showProBanner = true;
     const PRO_BANNER_KEY = 'keymoji_pro_banner_dismissed';
     const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+    
+    // API Test State
+    let isTestingAPI = false;
+    let showApiKey = false; // Toggle for showing/hiding API key
+    let apiTestSuccess = false; // ✅ Test successful for current provider
+    let testedProvider = null; // Track which provider was tested
 
     // Check if user is pro - optimiert mit $: um zu viele Aufrufe zu vermeiden
     $: isProUser = $accountTier === 'pro';
+    
+    // REACTIVE: Reset test status when provider or API key changes
+    $: {
+        const currentProvider = getEffectiveValue('storyMode.provider') || 'openai';
+        const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
+        const currentApiKey = apiKeys[currentProvider] || '';
+        
+        // Reset if provider changed
+        if (testedProvider && currentProvider !== testedProvider) {
+            apiTestSuccess = false;
+            testedProvider = null;
+            console.log('🔄 Provider changed, resetting test status');
+        }
+        
+        // Reset if API key was modified after successful test
+        if (apiTestSuccess && testedProvider === currentProvider) {
+            // We can't easily detect if the key changed, so we assume it's still valid
+            // The user must re-test if they change the key
+            console.log('✅ Test status maintained for current provider:', currentProvider);
+        }
+    }
+    
+    // REACTIVE: Check if Story Mode is enabled and requires testing
+    $: storyModeEnabled = getEffectiveValue('storyMode.enabled') || false;
+    $: requiresAPITest = storyModeEnabled && !apiTestSuccess;
     
     // REACTIVE: Force re-evaluation when these stores change
     $: reactivityTrigger = {
@@ -207,7 +242,78 @@
     }
 
     function handleSettingUpdate(key, value) {
+        console.log('🔧 handleSettingUpdate:', { key, value, type: typeof value });
+        
+        // Special validation for Story Mode enabled toggle
+        if (key === 'storyMode.enabled') {
+            const currentProvider = getEffectiveValue('storyMode.provider') || 'openai';
+            const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
+            const hasApiKey = apiKeys[currentProvider] && apiKeys[currentProvider].length >= 10;
+            
+            console.log('✨ Story Mode toggle:', {
+                newValue: value,
+                currentProvider,
+                hasApiKey,
+                apiKeyLength: apiKeys[currentProvider]?.length || 0,
+                apiTestSuccess,
+                testedProvider
+            });
+            
+            if (value === true) {
+                // Check if API key exists
+                if (!hasApiKey) {
+                    showWarning(
+                        `⚠️ Bitte gib zuerst einen API-Key ein!\n\n` +
+                        `Du benötigst einen gültigen API-Key, um Story Mode zu nutzen.`,
+                        5000
+                    );
+                    console.error('❌ Story Mode activation blocked: No API key');
+                    return; // Don't update setting
+                }
+                
+                // OPTIONAL: Warn if not tested, but allow activation
+                if (!apiTestSuccess || testedProvider !== currentProvider) {
+                    console.warn('⚠️ Story Mode aktiviert ohne API-Test');
+                    showWarning(
+                        `⚠️ Hinweis: API-Verbindung noch nicht getestet!\n\n` +
+                        `Klicke auf "🧪 Test" um die Verbindung zu prüfen.\n\n` +
+                        `Story Mode wird trotzdem aktiviert.`,
+                        4000
+                    );
+                    // Continue and activate anyway
+                }
+                
+                console.log('✅ Story Mode wird aktiviert');
+            }
+        }
+        
+        // Reset test status when API keys are modified
+        if (key === 'storyMode.apiKeys') {
+            const currentProvider = getEffectiveValue('storyMode.provider') || 'openai';
+            const oldApiKeys = getEffectiveValue('storyMode.apiKeys') || {};
+            const oldKey = oldApiKeys[currentProvider] || '';
+            const newKey = (value[currentProvider] || '');
+            
+            // If key changed for current provider, reset test status
+            if (oldKey !== newKey && apiTestSuccess && testedProvider === currentProvider) {
+                apiTestSuccess = false;
+                testedProvider = null;
+                console.log('🔄 API Key modified, test status reset');
+                
+                // Show info notification
+                if (newKey.length >= 10) {
+                    showWarning(
+                        `⚠️ API-Key geändert\n\n` +
+                        `Bitte teste die neue Verbindung mit "🧪 Test".`,
+                        3000
+                    );
+                }
+            }
+        }
+        
+        // Update the setting
         updateSetting(key, value);
+        console.log('✅ Setting updated in store:', { key, value });
         
         // Apply some settings immediately for preview
         if (key === 'theme') {
@@ -215,6 +321,16 @@
         }
         if (key === 'language') {
             applyLanguage(value);
+        }
+        
+        // Log final state for Story Mode
+        if (key === 'storyMode.enabled') {
+            const finalValue = getEffectiveValue('storyMode.enabled');
+            console.log('✅ Story Mode final state:', { 
+                requested: value, 
+                stored: finalValue,
+                match: value === finalValue 
+            });
         }
     }
 
@@ -471,6 +587,85 @@
             console.error('❌ Failed to reset PRO banner:', error);
         }
     }
+    
+    /**
+     * Test API Connection
+     * Tests if the configured API key and provider work correctly
+     */
+    async function testAPIConnection() {
+        isTestingAPI = true;
+        
+        try {
+            // Get current Story Mode settings
+            const provider = getEffectiveValue('storyMode.provider') || 'openai';
+            const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
+            const apiKey = apiKeys[provider];
+            const customApiUrl = getEffectiveValue('storyMode.customApiUrl');
+            const customEndpoint = getEffectiveValue('storyMode.customEndpoint');
+            const customFormat = getEffectiveValue('storyMode.customFormat');
+            const customModel = getEffectiveValue('storyMode.customModel');
+            const model = getEffectiveValue('storyMode.model');
+            
+            console.log('🧪 Testing API connection:', { provider, hasApiKey: !!apiKey });
+            
+            // Validate API key exists for current provider
+            if (!apiKey || apiKey.length < 10) {
+                showWarning(`⚠️ Bitte gib zuerst einen API-Key für ${provider} ein`, 3000);
+                return;
+            }
+            
+            // Build config for test
+            const testConfig = {
+                provider,
+                apiKey,
+                customApiUrl,
+                customEndpoint,
+                customFormat,
+                customModel,
+                model
+            };
+            
+            // Call test function
+            const result = await testAIProvider(testConfig);
+            
+            if (result.success) {
+                // ✅ Mark test as successful
+                apiTestSuccess = true;
+                testedProvider = provider;
+                console.log('✅ API test successful, provider verified:', provider);
+                
+                const providerInfo = getProviderInfo(provider);
+                showSuccess(
+                    `✅ Verbindung erfolgreich!\n\n` +
+                    `Provider: ${providerInfo.name}\n` +
+                    `Model: ${result.model || 'default'}\n` +
+                    `Response: ${result.response.substring(0, 50)}...`,
+                    5000
+                );
+                console.log('✅ API test successful:', result);
+            } else {
+                // ❌ Mark test as failed
+                apiTestSuccess = false;
+                testedProvider = null;
+                throw new Error(result.error || 'Unknown error');
+            }
+            
+        } catch (error) {
+            // ❌ Mark test as failed
+            apiTestSuccess = false;
+            testedProvider = null;
+            
+            console.error('❌ API test failed:', error);
+            showError(
+                `❌ Verbindung fehlgeschlagen\n\n` +
+                `Fehler: ${error.message || 'Unbekannter Fehler'}\n\n` +
+                `Bitte überprüfe deinen API-Key und Provider.`,
+                5000
+            );
+        } finally {
+            isTestingAPI = false;
+        }
+    }
 
     onMount(async () => {
         console.log('🔄 UserSettings: Component mounting...');
@@ -485,6 +680,36 @@
         const { initializeSettingsForUser } = await import('../stores/userSettingsStore.js');
         await initializeSettingsForUser();
         console.log('✅ UserSettings: Settings initialized for user');
+        
+        // 🔄 MIGRATION: Old apiKey → new apiKeys structure
+        const currentSettings = getCurrentUserSettings();
+        const storyMode = currentSettings?.storyMode || {};
+        const oldApiKey = storyMode.apiKey; // Old singular key
+        const apiKeys = storyMode.apiKeys || {};
+        const currentProvider = storyMode.provider || 'openai';
+        
+        // If old apiKey exists but not in new apiKeys structure, migrate it
+        if (oldApiKey && oldApiKey.length > 10 && !apiKeys[currentProvider]) {
+            console.log('🔄 Migrating old apiKey to new apiKeys structure...');
+            const newApiKeys = {
+                ...apiKeys,
+                [currentProvider]: oldApiKey
+            };
+            
+            // Update settings
+            handleSettingUpdate('storyMode.apiKeys', newApiKeys);
+            
+            // Remove old apiKey field (no longer used)
+            const updatedStoryMode = {
+                ...storyMode,
+                apiKeys: newApiKeys
+            };
+            delete updatedStoryMode.apiKey; // Remove old field
+            
+            // Save immediately
+            await saveAllSettings();
+            console.log('✅ Migration complete! Old apiKey moved to apiKeys[' + currentProvider + ']');
+        }
         
         // Load UI state from userSettings
         const loadedUiState = getEffectiveValue('uiState');
@@ -651,29 +876,229 @@
                         {#each section.items as item}
                             {#key reactivityTrigger}
                             <div class="mb-4 last:mb-0">
-                                <ModularInput
-                                    config={{
-                                        type: item.type,
-                                        id: item.id,
-                                        icon: item.icon,
-                                        label: item.title,
-                                        description: item.description,
-                                        placeholder: item.placeholder,
-                                        value: getCurrentValue(item),
-                                        options: item.options?.map(opt => ({
-                                            value: opt.value,
-                                            label: opt.label
-                                        })) || [],
-                                        min: item.min,
-                                        max: item.max,
-                                        labels: item.labels,
-                                        defaultValue: item.defaultValue,
-                                        class: 'contact-input'
-                                    }}
-                                    currentLanguage={$currentLanguage}
-                                    currentValue={getCurrentValue(item)}
-                                    onValueChange={(value) => handleSettingUpdate(item.id, value)}
-                                />
+                                <!-- Special handling for AI Provider dropdown with link -->
+                                {#if item.id === 'storyMode.provider'}
+                                    {@const currentProvider = getCurrentValue(item) || 'openai'}
+                                    
+                                    <div>
+                                        <!-- Provider Dropdown with Success Icon -->
+                                        <div class="relative">
+                                            <ModularInput
+                                                config={{
+                                                    type: item.type,
+                                                    id: item.id,
+                                                    icon: item.icon,
+                                                    label: item.title,
+                                                    description: item.description,
+                                                    placeholder: item.placeholder,
+                                                    value: getCurrentValue(item),
+                                                    options: item.options?.map(opt => ({
+                                                        value: opt.value,
+                                                        label: opt.label
+                                                    })) || [],
+                                                    min: item.min,
+                                                    max: item.max,
+                                                    labels: item.labels,
+                                                    defaultValue: item.defaultValue,
+                                                    class: 'contact-input'
+                                                }}
+                                                currentLanguage={$currentLanguage}
+                                                currentValue={getCurrentValue(item)}
+                                                onValueChange={(value) => handleSettingUpdate(item.id, value)}
+                                            />
+                                            
+                                            <!-- ✅ Success Icon - Elegant neben Provider Name (innerhalb Border) -->
+                                            {#if apiTestSuccess && testedProvider === currentProvider}
+                                                <div 
+                                                    class="absolute right-3 inset-y-0 flex items-center pointer-events-none z-10"
+                                                    transition:fade={{ duration: 200 }}
+                                                    title="API connection verified ✅"
+                                                >
+                                                    <svg class="w-5 h-5 text-green-500 dark:text-green-400 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                            {/if}
+                                        </div>
+                                        
+                                        <!-- API Key creation link below provider dropdown -->
+                                        {#if currentProvider !== 'custom'}
+                                            {@const apiKeyUrls = {
+                                                openai: 'https://platform.openai.com/api-keys',
+                                                gemini: 'https://makersuite.google.com/app/apikey',
+                                                mistral: 'https://console.mistral.ai/api-keys',
+                                                claude: 'https://console.anthropic.com/settings/keys'
+                                            }}
+                                            {@const providerNames = {
+                                                openai: 'OpenAI Platform',
+                                                gemini: 'Google AI Studio',
+                                                mistral: 'Mistral Console',
+                                                claude: 'Anthropic Console'
+                                            }}
+                                            <p class="text-xs text-blue-600 dark:text-blue-400 inline-flex items-center gap-1 mt-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Get API key at
+                                                <a 
+                                                    href={apiKeyUrls[currentProvider]} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    class="underline hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                                                >
+                                                    {providerNames[currentProvider]} ↗
+                                                </a>
+                                            </p>
+                                        {/if}
+                                    </div>
+                                    
+                                {:else if item.id === 'storyMode.apiKeys'}
+                                    <!-- Special handling for API Keys field with inline buttons -->
+                                    {@const currentProvider = getCurrentValue({ id: 'storyMode.provider' }) || 'openai'}
+                                    {@const apiKeys = getCurrentValue({ id: 'storyMode.apiKeys' }) || {}}
+                                    {@const currentApiKey = apiKeys[currentProvider] || ''}
+                                    {@const hasValidKey = currentApiKey && currentApiKey.length >= 10}
+                                    {@const hasAnyKey = currentApiKey && currentApiKey.length > 0}
+                                    {@const savedProviders = Object.entries(apiKeys).filter(([provider, key]) => provider !== currentProvider && key && key.length >= 10).map(([provider]) => provider)}
+                                    
+                                    <div class="space-y-3">
+                                        <!-- Label and Icon with Provider Info -->
+                                        <div class="flex items-center space-x-2">
+                                            {#if item.icon}
+                                                <span class="text-lg">{item.icon}</span>
+                                            {/if}
+                                            <label for={item.id} class="text-sm font-semibold text-gray-900 dark:text-white">
+                                                {getLocalizedText(item.title)}
+                                                <span class="ml-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+                                                    ({currentProvider.charAt(0).toUpperCase() + currentProvider.slice(1)})
+                                                </span>
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Input Container with inline Buttons -->
+                                        <div class="relative">
+                                            <input
+                                                id={item.id}
+                                                type={showApiKey ? 'text' : 'password'}
+                                                value={currentApiKey || ''}
+                                                on:input={(e) => {
+                                                    // Update the specific provider's API key
+                                                    const newApiKeys = { ...apiKeys, [currentProvider]: e.target.value };
+                                                    handleSettingUpdate('storyMode.apiKeys', newApiKeys);
+                                                }}
+                                                placeholder={getLocalizedText(item.placeholder)}
+                                                class="w-full p-4 {hasValidKey ? 'pr-32' : hasAnyKey ? 'pr-14' : 'pr-4'} bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50 placeholder-gray-400 dark:placeholder-gray-500"
+                                                aria-label={getLocalizedText(item.title)}
+                                            />
+                                            
+                                            <!-- Gradient Fade-out Overlay VOR Buttons (z-5, innerhalb Border) -->
+                                            {#if hasAnyKey}
+                                                <div 
+                                                    class="absolute {hasValidKey ? 'right-[7.25rem]' : 'right-[3.25rem]'} inset-y-[1px] {hasValidKey ? 'w-32' : 'w-20'} z-5 pointer-events-none rounded-r-[11px]"
+                                                    style="background: linear-gradient(to right, 
+                                                        transparent 0%, 
+                                                        {$darkMode ? 'rgba(14, 30, 48, 0.6)' : 'rgba(255, 255, 255, 0.6)'} 25%,
+                                                        {$darkMode ? 'rgba(14, 30, 48, 0.95)' : 'rgba(255, 255, 255, 0.95)'} 60%,
+                                                        {$darkMode ? '#0e1e30' : '#ffffff'} 100%);"
+                                                    aria-hidden="true"
+                                                ></div>
+                                            {/if}
+                                            
+                                            <!-- Inline Buttons Container - Perfect centering (z-10, über Gradient) -->
+                                            {#if hasAnyKey}
+                                                <div class="absolute right-2 inset-y-0 flex items-center gap-1 z-10">
+                                                    <!-- Show/Hide Button -->
+                                                    <button
+                                                        type="button"
+                                                        on:click={() => showApiKey = !showApiKey}
+                                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white active:text-black dark:active:text-white"
+                                                        aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
+                                                        title={showApiKey ? 'Hide' : 'Show'}
+                                                    >
+                                                        {#if showApiKey}
+                                                            <!-- Eye Slash Icon (Hide) -->
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                                            </svg>
+                                                        {:else}
+                                                            <!-- Eye Icon (Show) -->
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                            </svg>
+                                                        {/if}
+                                                    </button>
+                                                    
+                                                    <!-- Test Connection Button -->
+                                                    {#if hasValidKey}
+                                                        <button
+                                                            type="button"
+                                                            disabled={isTestingAPI}
+                                                            on:click={testAPIConnection}
+                                                            class="inline-flex items-center justify-center gap-1 px-2.5 h-8 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white active:text-black dark:active:text-white"
+                                                            aria-label={isTestingAPI ? 'Testing API connection' : 'Test API connection'}
+                                                            title={isTestingAPI ? 'Testing...' : 'Test'}
+                                                        >
+                                                            {#if isTestingAPI}
+                                                                <svg class="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                </svg>
+                                                            {:else}
+                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                                </svg>
+                                                            {/if}
+                                                            <span class="hidden sm:inline">Test</span>
+                                                        </button>
+                                                    {/if}
+                                                </div>
+                                            {/if}
+                                        </div>
+                                        
+                                        <!-- Description with saved keys indicator -->
+                                        {#if item.description}
+                                            <div class="text-xs text-gray-600 dark:text-gray-400 mt-1 space-y-1">
+                                                <p>{getLocalizedText(item.description)}</p>
+                                                
+                                                <!-- Show saved keys for other providers -->
+                                                {#if savedProviders.length > 0}
+                                                    <p class="text-green-600 dark:text-green-400 inline-flex items-center gap-1">
+                                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                        </svg>
+                                                        Saved keys for: {savedProviders.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ')}
+                                                    </p>
+                                                {/if}
+                                            </div>
+                                        {/if}
+                                    </div>
+                                {:else}
+                                    <!-- Normal input without special handling (skip provider as it's handled above) -->
+                                    <ModularInput
+                                        config={{
+                                            type: item.type,
+                                            id: item.id,
+                                            icon: item.icon,
+                                            label: item.title,
+                                            description: item.description,
+                                            placeholder: item.placeholder,
+                                            value: getCurrentValue(item),
+                                            options: item.options?.map(opt => ({
+                                                value: opt.value,
+                                                label: opt.label
+                                            })) || [],
+                                            min: item.min,
+                                            max: item.max,
+                                            labels: item.labels,
+                                            defaultValue: item.defaultValue,
+                                            class: 'contact-input'
+                                        }}
+                                        currentLanguage={$currentLanguage}
+                                        currentValue={getCurrentValue(item)}
+                                        onValueChange={(value) => handleSettingUpdate(item.id, value)}
+                                    />
+                                {/if}
                             </div>
                             {/key}
                         {/each}
@@ -681,13 +1106,13 @@
                         <!-- Pro Items (now functional for all users) -->
                         {#if section.proItems}
                                 {#each section.proItems as item}
-                                    {#key reactivityTrigger}
                                     <!-- Conditional rendering for Custom API fields -->
                                     {@const isCustomField = item.id?.startsWith('storyMode.custom')}
                                     {@const currentProvider = getCurrentValue({ id: 'storyMode.provider' })}
                                     {@const shouldShowCustomField = !isCustomField || currentProvider === 'custom'}
                                     
                                     {#if shouldShowCustomField}
+                                    {#key reactivityTrigger}
                                     <div class="mb-4 last:mb-0">
                                         <ModularInput
                                             config={{
@@ -713,8 +1138,8 @@
                                             onValueChange={(value) => handleSettingUpdate(item.id, value)}
                                         />
                                     </div>
-                                    {/if}
                                     {/key}
+                                    {/if}
                                 {/each}
                         {/if}
                     </div>

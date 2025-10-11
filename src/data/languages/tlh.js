@@ -46,8 +46,8 @@ export default {
         dataPrivacyProcessingInfo:
             "🚀 emoji 'IDnar QulwI' De' QaywI' je! ✨ De' rur puH nagh – ratlhbe'.",
         clearButton: "✖️ QIjHa'",
-        storyButton: '📝 lut',
-        storyButtonClicked: '📩 lut yIngeH',
+        storyButton: '✨ lut',
+        storyButtonClicked: '✨ lut yIngeH',
         randomButton: "🎲 SuvwI'",
         placeholderText: "lut yIja', vaj emoji mu'ghommey vIchenmoH",
         clipboardError: "Qagh! QInlIjDaq lanlaHbe'"

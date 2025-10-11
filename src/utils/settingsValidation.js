@@ -140,14 +140,19 @@ export function validateSettings(settings, tier = 'free') {
     // === Story Mode Settings (FREE & PRO) ===
 
     if (settings.storyMode) {
-        const storyModeValidation = validateStoryModeSettings(settings.storyMode);
+        const storyModeValidation = validateStoryModeSettings(
+            settings.storyMode
+        );
         errors.push(...storyModeValidation.errors);
         warnings.push(...storyModeValidation.warnings);
     }
 
     // === Auto Generate Setting (FREE & PRO) ===
 
-    if (settings.autoGenerate !== undefined && typeof settings.autoGenerate !== 'boolean') {
+    if (
+        settings.autoGenerate !== undefined &&
+        typeof settings.autoGenerate !== 'boolean'
+    ) {
         errors.push('autoGenerate must be a boolean');
     }
 
@@ -237,7 +242,14 @@ export function getDefaultSettings(tier = 'free') {
         storyMode: {
             enabled: false, // Story mode available when API key configured
             provider: 'openai', // 'openai' | 'gemini' | 'mistral' | 'claude' | 'custom'
-            apiKey: '', // User's own API key (encrypted in backend)
+            apiKeys: {
+                // Separate API keys for each provider
+                openai: '',
+                gemini: '',
+                mistral: '',
+                claude: '',
+                custom: ''
+            },
             customApiUrl: '', // For custom provider (e.g., https://aimi.matt-interfaces.ch)
             customEndpoint: '/v1/chat/completions', // Custom API endpoint path
             customFormat: 'openai', // 'openai' | 'claude' | 'raw'
@@ -338,12 +350,19 @@ export function validateStoryModeSettings(storyMode) {
     }
 
     // API Key validation (basic format check)
-    if (storyMode.enabled && !storyMode.apiKey) {
-        errors.push('API key is required when story mode is enabled');
-    }
+    if (storyMode.enabled) {
+        const currentProvider = storyMode.provider || 'openai';
+        const currentApiKey = storyMode.apiKeys?.[currentProvider];
 
-    if (storyMode.apiKey && storyMode.apiKey.length < 10) {
-        errors.push('API key seems too short (minimum 10 characters)');
+        if (!currentApiKey) {
+            errors.push(
+                `API key is required for ${currentProvider} when story mode is enabled`
+            );
+        } else if (currentApiKey.length < 10) {
+            errors.push(
+                `API key for ${currentProvider} seems too short (minimum 10 characters)`
+            );
+        }
     }
 
     // Custom URL validation
@@ -361,10 +380,31 @@ export function validateStoryModeSettings(storyMode) {
 
     // Model validation per provider
     const validModels = {
-        openai: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo', 'gpt-4o', 'gpt-4o-mini'],
-        gemini: ['gemini-pro', 'gemini-1.5-pro', 'gemini-1.5-flash'],
-        mistral: ['mistral-tiny', 'mistral-small', 'mistral-medium', 'mistral-large'],
-        claude: ['claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-opus-20240229', 'claude-3-5-sonnet-20241022'],
+        openai: [
+            'gpt-3.5-turbo',
+            'gpt-4',
+            'gpt-4-turbo',
+            'gpt-4o',
+            'gpt-4o-mini'
+        ],
+        gemini: [
+            'gemini-pro',
+            'gemini-1.5-pro',
+            'gemini-1.5-flash',
+            'gemini-1.0-pro'
+        ],
+        mistral: [
+            'mistral-tiny',
+            'mistral-small',
+            'mistral-medium',
+            'mistral-large'
+        ],
+        claude: [
+            'claude-3-haiku-20240307',
+            'claude-3-sonnet-20240229',
+            'claude-3-opus-20240229',
+            'claude-3-5-sonnet-20241022'
+        ],
         custom: [] // No validation for custom
     };
 

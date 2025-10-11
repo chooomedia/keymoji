@@ -45,9 +45,9 @@ export default {
         emojiDisplayTitle: 'Emoji Passwort Generator',
         dataPrivacyProcessingInfo:
             '🚀 Emoji-Magie über Webhooks und KI! ✨ Date sind wie Strandsand - si bliebe nöd.',
-        clearButton: '✖️ Lösche',
-        storyButton: '📝 Gschicht',
-        storyButtonClicked: '📩 Gschicht sende',
+        clearButton: 'Lösche',
+        storyButton: '✨ Gschicht',
+        storyButtonClicked: '✨ Gschicht generiere',
         randomButton: '🎲 Zufällig',
         placeholderText:
             'Verzell mir e Gschicht und ich generiere Emoji-Passwörter basierend druf...',

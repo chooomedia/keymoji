@@ -44,9 +44,9 @@ export default {
         emojiDisplayTitle: 'Emoji Şifre Üreticisi',
         dataPrivacyProcessingInfo:
             '🚀 Webhook ve AI ile emoji sihri! ✨ Veriler plaj kumu gibi - kalmaz.',
-        clearButton: '✖️ Temizle',
-        storyButton: '📝 Hikaye',
-        storyButtonClicked: '📩 Hikaye gönder',
+        clearButton: 'Temizle',
+        storyButton: '✨ Hikaye',
+        storyButtonClicked: '✨ Hikaye gönder',
         randomButton: '🎲 Rastgele',
         placeholderText:
             'Bana bir hikaye anlatın ve ona göre emoji şifreleri üreteyim...',

@@ -45,9 +45,9 @@ export default {
         emojiDisplayTitle: 'Generator Haseł Emoji',
         dataPrivacyProcessingInfo:
             '🚀 Magia emoji przez webhooki i AI! ✨ Dane są jak piasek na plaży - nie zostają.',
-        clearButton: '✖️ Wyczyść',
-        storyButton: '📝 Historia',
-        storyButtonClicked: '📩 Wyślij historię',
+        clearButton: 'Wyczyść',
+        storyButton: '✨ Historia',
+        storyButtonClicked: '✨ Wyślij historię',
         randomButton: '🎲 Losowe',
         placeholderText:
             'Opowiedz mi historię a wygeneruję hasła emoji na jej podstawie...',

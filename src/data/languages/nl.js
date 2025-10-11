@@ -45,9 +45,9 @@ export default {
         emojiDisplayTitle: 'Emoji Wachtwoord Generator',
         dataPrivacyProcessingInfo:
             '🚀 Emoji magie via webhooks en AI! ✨ Data is als strandzand - het blijft niet.',
-        clearButton: '✖️ Wissen',
-        storyButton: '📝 Verhaal',
-        storyButtonClicked: '📩 Verhaal versturen',
+        clearButton: 'Wissen',
+        storyButton: '✨ Verhaal',
+        storyButtonClicked: '✨ Verhaal versturen',
         randomButton: '🎲 Willekeurig',
         placeholderText:
             'Vertel me een verhaal en ik genereer emoji wachtwoorden gebaseerd daarop...',

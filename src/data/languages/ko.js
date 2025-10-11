@@ -45,9 +45,9 @@ export default {
         emojiDisplayTitle: '이모지 비밀번호 생성기',
         dataPrivacyProcessingInfo:
             '🚀 웹훅과 AI를 통한 이모지 마법! ✨ 데이터는 해변의 모래와 같습니다 - 남지 않습니다.',
-        clearButton: '✖️ 지우기',
-        storyButton: '📝 스토리',
-        storyButtonClicked: '📩 스토리 보내기',
+        clearButton: '지우기',
+        storyButton: '✨ 스토리',
+        storyButtonClicked: '✨ 스토리 보내기',
         randomButton: '🎲 랜덤',
         placeholderText:
             '이야기를 들려주세요. 그것을 기반으로 이모지 비밀번호를 생성하겠습니다...',

@@ -10,13 +10,13 @@
  */
 
 // Aktuelle Version der Anwendung
-export const appVersion = '0.5.8';
+export const appVersion = '0.6.0';
 
 // Versionsinformationen mit Datum der letzten Aktualisierung
 export const versionInfo = {
     version: appVersion,
-    updated: '2025-10-10',
-    codename: 'Data Flow Master'
+    updated: '2025-10-11',
+    codename: 'AI Story Master'
 };
 
 // Diese Funktion formatiert die Versionsnummer für die Anzeige

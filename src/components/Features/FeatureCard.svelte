@@ -67,7 +67,10 @@
     {:else}
         <div 
             class="{classes.container} rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg {onClick ? 'cursor-pointer' : ''}"
+            role={onClick ? 'button' : null}
+            tabindex={onClick ? '0' : null}
             on:click={handleClick}
+            on:keydown={(e) => onClick && e.key === 'Enter' && handleClick(e)}
         >
             <div class="flex items-center p-4">
                 <div class="flex-shrink-0 w-14 h-14 {classes.iconBg} rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">

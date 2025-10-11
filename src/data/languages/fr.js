@@ -45,8 +45,8 @@ export default {
         emojiDisplayTitle: 'Générateur de mots de passe Emoji',
         dataPrivacyProcessingInfo:
             '🚀 Magie emoji via webhooks et IA! ✨ Les données sont comme le sable de plage - elles ne restent pas.',
-        clearButton: '✖️ Effacer',
-        storyButton: '📝 Histoire',
+        clearButton: 'Effacer',
+        storyButton: '✨ Histoire',
         storyButtonClicked: "📩 Envoyer l'histoire",
         randomButton: '🎲 Aléatoire',
         placeholderText:

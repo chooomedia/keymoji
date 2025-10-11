@@ -1740,8 +1740,8 @@
                     "defaultValue": "openai"
                 },
                 {
-                    "id": "storyMode.apiKey",
-                    "type": "password",
+                    "id": "storyMode.apiKeys",
+                    "type": "custom",
                     "icon": "🔑",
                     "title": {
                         "en": "API Key",
@@ -1794,7 +1794,13 @@
                         "tlh": "sk-... or AIza...",
                         "de-CH": "sk-... oder AIza..."
                     },
-                    "defaultValue": ""
+                    "defaultValue": {
+                        "openai": "",
+                        "gemini": "",
+                        "mistral": "",
+                        "claude": "",
+                        "custom": ""
+                    }
                 }
             ],
             "proItems": [

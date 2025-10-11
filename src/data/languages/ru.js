@@ -45,9 +45,9 @@ export default {
         emojiDisplayTitle: 'Генератор Паролей Эмодзи',
         dataPrivacyProcessingInfo:
             '🚀 Магия эмодзи через вебхуки и ИИ! ✨ Данные как песок на пляже - не остаются.',
-        clearButton: '✖️ Очистить',
-        storyButton: '📝 История',
-        storyButtonClicked: '📩 Отправить историю',
+        clearButton: 'Очистить',
+        storyButton: '✨ История',
+        storyButtonClicked: '✨ Отправить историю',
         randomButton: '🎲 Случайный',
         placeholderText:
             'Расскажите мне историю и я сгенерирую пароли эмодзи на её основе...',

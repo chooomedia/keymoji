@@ -45,9 +45,9 @@ export default {
         emojiDisplayTitle: 'Generador de Contraseñas Emoji',
         dataPrivacyProcessingInfo:
             '🚀 ¡Magia emoji a través de webhooks e IA! ✨ Los datos son como arena de playa - no se quedan.',
-        clearButton: '✖️ Limpiar',
-        storyButton: '📝 Historia',
-        storyButtonClicked: '📩 Enviar historia',
+        clearButton: 'Limpiar',
+        storyButton: '✨ Historia',
+        storyButtonClicked: '✨ Enviar historia',
         randomButton: '🎲 Aleatorio',
         placeholderText:
             'Cuéntame una historia y generaré contraseñas emoji basadas en ella...',

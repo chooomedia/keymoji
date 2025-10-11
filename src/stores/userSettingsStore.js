@@ -68,7 +68,10 @@ export const currentSettings = derived(
  * This is the SINGLE SOURCE OF TRUTH for user settings!
  */
 function extractSettingsFromAccount(account) {
-    if (!account) return {};
+    if (!account) {
+        console.log('📊 [extractSettings] No account, returning empty');
+        return {};
+    }
 
     // Settings priority:
     // 1. account.metadata.settings (from backend/Google Sheets)
@@ -79,7 +82,7 @@ function extractSettingsFromAccount(account) {
     const settings = metadata.settings || {};
     const profile = account.profile || {};
 
-    return {
+    const extracted = {
         // User profile
         name: account.name || profile.name || '',
         email: account.email || '',
@@ -96,9 +99,18 @@ function extractSettingsFromAccount(account) {
         // UI state
         expandedSections: settings.expandedSections || ['basic'],
 
-        // Other metadata
+        // ALL other settings from metadata.settings (including storyMode!)
         ...settings
     };
+
+    console.log('📊 [extractSettings] Extracted:', {
+        hasSettings: !!settings,
+        settingsKeys: Object.keys(settings),
+        hasStoryMode: !!extracted.storyMode,
+        storyModeEnabled: extracted.storyMode?.enabled
+    });
+
+    return extracted;
 }
 
 /**
@@ -107,8 +119,8 @@ function extractSettingsFromAccount(account) {
  * Combines: backend data + tier defaults + reactive updates
  */
 export const effectiveSettings = derived(
-    [currentAccount, accountTier],
-    ([$currentAccount, $accountTier]) => {
+    [currentAccount, accountTier, userSettings, pendingChanges],
+    ([$currentAccount, $accountTier, $userSettings, $pendingChanges]) => {
         // Get tier defaults
         const tierDefaults =
             $accountTier === 'pro'
@@ -118,14 +130,23 @@ export const effectiveSettings = derived(
         // Extract settings from currentAccount (backend)
         const accountSettings = extractSettingsFromAccount($currentAccount);
 
-        // Merge: tier defaults + account settings
-        const merged = { ...tierDefaults, ...accountSettings };
+        // Merge priority: tier defaults < account settings < userSettings < pending changes
+        const merged = {
+            ...tierDefaults,
+            ...accountSettings,
+            ...$userSettings,
+            ...$pendingChanges
+        };
 
         console.log('📊 [effectiveSettings] Computed:', {
             tier: $accountTier,
             hasAccount: !!$currentAccount,
             accountSettings: Object.keys(accountSettings).length,
-            result: merged
+            userSettings: Object.keys($userSettings || {}).length,
+            pendingChanges: Object.keys($pendingChanges || {}).length,
+            storyModeEnabled: merged.storyMode?.enabled,
+            storyModeProvider: merged.storyMode?.provider,
+            hasStoryModeApiKeys: !!merged.storyMode?.apiKeys
         });
 
         return merged;
@@ -178,6 +199,22 @@ export function saveSettings(settings) {
 // Apply settings reactively
 export async function applySettingsReactive(settings) {
     console.log('🔄 Applying settings reactively:', settings);
+
+    // CRITICAL: REPLACE userSettings store completely (not merge!)
+    // This ensures Story Mode and all settings are fresh
+    userSettings.set(settings);
+    console.log(
+        '📊 [applySettingsReactive] userSettings store REPLACED with:',
+        {
+            hasStoryMode: !!settings.storyMode,
+            storyModeEnabled: settings.storyMode?.enabled,
+            provider: settings.storyMode?.provider,
+            hasApiKeys: !!settings.storyMode?.apiKeys
+        }
+    );
+
+    // CRITICAL: Invalidate cache immediately after updating store
+    invalidateSettingsCache();
 
     // Apply theme (updates darkMode store + DOM)
     if (settings.theme) {
@@ -318,10 +355,41 @@ export async function saveAllSettings() {
             invalidateCachePattern(`/api/account:read:${account.userId}`);
             console.log('🗑️ Cache invalidated after settings save');
 
-            // CRITICAL: Update USER_PREFERENCES in localStorage with new name!
-            // This prevents session restore from overwriting the new settings
+            // CRITICAL: Update currentAccount.metadata.settings immediately
+            // This ensures effectiveSettings derived store recomputes!
+            currentAccount.update(acc => {
+                if (acc && acc.metadata) {
+                    return {
+                        ...acc,
+                        metadata: {
+                            ...acc.metadata,
+                            settings: updatedSettings
+                        }
+                    };
+                }
+                return acc;
+            });
+            console.log(
+                '✅ currentAccount.metadata.settings updated for reactivity'
+            );
+
+            // CRITICAL: Update USER_PREFERENCES in localStorage with ALL settings!
+            // This ensures Story Mode and other settings persist correctly
             const currentPrefs =
                 storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES) || {};
+
+            // Parse existing metadata (might be string from n8n)
+            const existingMetadata =
+                typeof currentPrefs.metadata === 'string'
+                    ? JSON.parse(currentPrefs.metadata)
+                    : currentPrefs.metadata || {};
+
+            // Update metadata.settings with new settings
+            const updatedMetadata = {
+                ...existingMetadata,
+                settings: updatedSettings // ← COMPLETE settings object!
+            };
+
             storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
                 ...currentPrefs,
                 name: updatedSettings.name,
@@ -329,11 +397,17 @@ export async function saveAllSettings() {
                     ...(currentPrefs.profile || {}),
                     name: updatedSettings.name
                 },
+                metadata: updatedMetadata, // ← Updated with ALL settings!
                 lastSettingsUpdate: new Date().toISOString()
             });
             console.log(
-                '✅ USER_PREFERENCES updated in localStorage with new name:',
-                updatedSettings.name
+                '✅ USER_PREFERENCES updated in localStorage with ALL settings:',
+                {
+                    name: updatedSettings.name,
+                    hasStoryMode: !!updatedSettings.storyMode,
+                    storyModeEnabled: updatedSettings.storyMode?.enabled,
+                    provider: updatedSettings.storyMode?.provider
+                }
             );
         } else {
             // Save to localStorage for guest users
@@ -354,11 +428,19 @@ export async function saveAllSettings() {
         storageHelpers.set(STORAGE_KEYS.LANGUAGE, updatedSettings.language);
         storageHelpers.set(STORAGE_KEYS.THEME, updatedSettings.theme || 'auto');
 
-        // Update user settings store
-        userSettings.set(updatedSettings);
+        // NOTE: userSettings.set() is already called in applySettingsReactive()
+        // No need to call it again here (prevents double-update)
+        console.log(
+            '✅ userSettings store already updated via applySettingsReactive'
+        );
 
         // Clear pending changes
         pendingChanges.set({});
+        console.log('🧹 Pending changes cleared');
+
+        // CRITICAL: Invalidate getCurrentUserSettings cache
+        // This forces the next call to reload from stores/localStorage
+        invalidateSettingsCache();
 
         // Update settings status
         settingsStatus.update(status => ({
@@ -560,6 +642,69 @@ export function getSetting(key, fallback = null) {
     return settings[key] !== undefined ? settings[key] : fallback;
 }
 
+/**
+ * Get current user settings with all tier defaults applied
+ * This is a helper function for components that need the complete settings object
+ * @returns {Object} Complete settings object with tier defaults
+ */
+// Cache for getCurrentUserSettings to prevent excessive calls
+let lastSettingsCache = null;
+let lastSettingsCacheTime = 0;
+const SETTINGS_CACHE_DURATION = 100; // 100ms cache
+
+/**
+ * Invalidate the settings cache
+ * Call this after saving settings to force reload
+ */
+export function invalidateSettingsCache() {
+    console.log('🔄 Settings cache invalidated');
+    lastSettingsCache = null;
+    lastSettingsCacheTime = 0;
+}
+
+export function getCurrentUserSettings() {
+    // Use cache if recent (prevents 100+ calls per render!)
+    const now = Date.now();
+    if (
+        lastSettingsCache &&
+        now - lastSettingsCacheTime < SETTINGS_CACHE_DURATION
+    ) {
+        return lastSettingsCache;
+    }
+
+    // Try effectiveSettings first
+    const effective = get(effectiveSettings);
+    if (effective && Object.keys(effective).length > 0) {
+        lastSettingsCache = effective;
+        lastSettingsCacheTime = now;
+        return effective;
+    }
+
+    // Fallback to userSettings
+    const user = get(userSettings);
+    if (user && Object.keys(user).length > 0) {
+        lastSettingsCache = user;
+        lastSettingsCacheTime = now;
+        return user;
+    }
+
+    // Fallback to currentAccount.metadata.settings
+    const account = get(currentAccount);
+    if (account?.metadata?.settings) {
+        lastSettingsCache = account.metadata.settings;
+        lastSettingsCacheTime = now;
+        return account.metadata.settings;
+    }
+
+    // Last resort: tier defaults
+    const tier = get(accountTier);
+    const defaults =
+        tier === 'pro' ? DEFAULT_PRO_SETTINGS : DEFAULT_FREE_SETTINGS;
+    lastSettingsCache = defaults;
+    lastSettingsCacheTime = now;
+    return defaults;
+}
+
 // Check if a setting is available for current tier
 export function isSettingAvailable(key) {
     const tier = get(accountTier);
@@ -664,18 +809,78 @@ export async function initializeSettingsForUser() {
 
         // Fallback to local settings
         if (!loadedSettings) {
-            // Priority 1: Check localStorage.USER_PREFERENCES.settings
+            // Priority 1: Check localStorage.USER_PREFERENCES.metadata.settings
             const localStoragePrefs = storageHelpers.get(
                 STORAGE_KEYS.USER_PREFERENCES
             );
-            if (localStoragePrefs?.settings) {
-                console.log(
-                    '✅ Settings loaded from localStorage.USER_PREFERENCES:',
-                    localStoragePrefs.settings
-                );
-                loadedSettings = localStoragePrefs.settings;
-            } else {
-                // Priority 2: Check cookies
+
+            if (localStoragePrefs) {
+                // Parse metadata (might be string from n8n)
+                const parsedMetadata =
+                    typeof localStoragePrefs.metadata === 'string'
+                        ? JSON.parse(localStoragePrefs.metadata)
+                        : localStoragePrefs.metadata || {};
+
+                // Try metadata.settings first (correct structure)
+                if (parsedMetadata.settings) {
+                    console.log(
+                        '✅ Settings loaded from localStorage.USER_PREFERENCES.metadata.settings:',
+                        parsedMetadata.settings
+                    );
+                    loadedSettings = parsedMetadata.settings;
+                }
+                // Fallback to direct .settings (old structure)
+                else if (localStoragePrefs.settings) {
+                    console.log(
+                        '✅ Settings loaded from localStorage.USER_PREFERENCES.settings (old structure):',
+                        localStoragePrefs.settings
+                    );
+                    loadedSettings = localStoragePrefs.settings;
+                }
+
+                // 🔄 MIGRATION: Old storyMode.apiKey → new storyMode.apiKeys
+                if (
+                    loadedSettings?.storyMode?.apiKey &&
+                    !loadedSettings.storyMode.apiKeys
+                ) {
+                    console.log(
+                        '🔄 Migrating old storyMode.apiKey to new apiKeys structure...'
+                    );
+                    const oldKey = loadedSettings.storyMode.apiKey;
+                    const provider =
+                        loadedSettings.storyMode.provider || 'openai';
+
+                    loadedSettings.storyMode.apiKeys = {
+                        openai: '',
+                        gemini: '',
+                        mistral: '',
+                        claude: '',
+                        custom: '',
+                        [provider]: oldKey // Move old key to current provider
+                    };
+
+                    delete loadedSettings.storyMode.apiKey; // Remove old field
+
+                    // Save migrated settings back to localStorage
+                    const updatedMetadata = {
+                        ...parsedMetadata,
+                        settings: loadedSettings
+                    };
+                    storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
+                        ...localStoragePrefs,
+                        metadata: updatedMetadata
+                    });
+
+                    console.log(
+                        '✅ Migration complete! Old apiKey moved to apiKeys[' +
+                            provider +
+                            ']'
+                    );
+                }
+            }
+
+            // Priority 2: Check cookies
+            if (!loadedSettings) {
                 const cookiePrefs = getUserPreferences();
                 if (cookiePrefs?.settings) {
                     console.log(
@@ -756,10 +961,8 @@ export async function initializeSettingsForUser() {
 
         console.log('📋 Final settings to apply:', loadedSettings);
 
-        // Update store
-        userSettings.set(loadedSettings);
-
-        // Apply settings (updates language/theme stores + UI)
+        // Apply settings (updates userSettings store + language/theme stores + UI)
+        // NOTE: applySettingsReactive() handles userSettings.set() internally
         await applySettingsReactive(loadedSettings);
 
         console.log('✅ Settings initialized and applied successfully');
@@ -1080,17 +1283,56 @@ export async function loadSettingsFromAPI() {
                 profileName: parsedProfile.name
             });
 
-            // Extract settings
-            const loadedSettings = parsedMetadata.settings || {};
+            // Extract settings from backend
+            const backendSettings = parsedMetadata.settings || {};
             const accountName =
                 parsedProfile.name || parsedAccount.name || account.name;
 
-            // Merge with defaults
-            const finalSettings = {
-                ...DEFAULT_FREE_SETTINGS,
-                ...loadedSettings,
-                name: accountName
-            };
+            // CRITICAL: Check if backend has settings
+            // If backend is empty, prefer localStorage to prevent overwriting!
+            const hasBackendSettings =
+                backendSettings && Object.keys(backendSettings).length > 0;
+
+            let finalSettings;
+
+            if (!hasBackendSettings) {
+                // Backend empty - use localStorage settings
+                console.warn(
+                    '⚠️ [SYNC] Backend has no settings, preserving localStorage'
+                );
+                const localPrefs = storageHelpers.get(
+                    STORAGE_KEYS.USER_PREFERENCES,
+                    {}
+                );
+                const localMetadata =
+                    typeof localPrefs.metadata === 'string'
+                        ? JSON.parse(localPrefs.metadata)
+                        : localPrefs.metadata || {};
+                const localSettings = localMetadata.settings || {};
+
+                finalSettings = {
+                    ...DEFAULT_FREE_SETTINGS,
+                    ...localSettings, // ← Preserve localStorage!
+                    name: accountName
+                };
+
+                console.log('✅ [SYNC] Preserved localStorage settings:', {
+                    hasStoryMode: !!localSettings.storyMode,
+                    storyModeEnabled: localSettings.storyMode?.enabled
+                });
+            } else {
+                // Backend has settings - use them (they are newer)
+                finalSettings = {
+                    ...DEFAULT_FREE_SETTINGS,
+                    ...backendSettings,
+                    name: accountName
+                };
+
+                console.log('✅ [SYNC] Using backend settings:', {
+                    hasStoryMode: !!backendSettings.storyMode,
+                    storyModeEnabled: backendSettings.storyMode?.enabled
+                });
+            }
 
             // MODERN SYNC PATTERN: Update ALL stores & storage
 
@@ -1099,6 +1341,18 @@ export async function loadSettingsFromAPI() {
                 STORAGE_KEYS.USER_PREFERENCES,
                 {}
             );
+
+            // 2. Update userSettings store IMMEDIATELY for reactivity
+            userSettings.update(state => {
+                console.log(
+                    '📊 [SYNC] Updating userSettings store with loaded settings'
+                );
+                return {
+                    ...state,
+                    ...finalSettings
+                };
+            });
+
             const updatedPrefs = {
                 ...currentPrefs,
                 metadata: parsedMetadata, // ← Complete metadata (incl. usageHistory!)

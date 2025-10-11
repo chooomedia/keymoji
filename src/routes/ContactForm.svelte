@@ -392,13 +392,6 @@
                 >
                     Test Dynamic Modal
                 </Button>
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    on:click={testConfirmationModal}
-                >
-                    Test Confirmation
-                </Button>
             </div>
         {/if}
 

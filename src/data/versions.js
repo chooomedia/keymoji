@@ -1,4 +1,174 @@
 export const versions = {
+    '0.6.0': {
+        date: 'October 11, 2025',
+        core: {
+            storyMode: {
+                title: '🤖 AI Story Mode',
+                improvements: [
+                    'Convert text to emoji passwords using AI',
+                    'Support for OpenAI (GPT-3.5, GPT-4, GPT-4o)',
+                    'Support for Google Gemini (Pro, 1.5 Flash, 2.5 Flash)',
+                    'Support for Mistral AI (Tiny, Small, Medium, Large)',
+                    'Support for Anthropic Claude (Haiku, Sonnet, Opus)',
+                    'Custom API support with flexible endpoints',
+                    'Robust fallback mechanisms for all providers',
+                    '30-second timeout for all API requests',
+                    'Provider-specific optimized prompts'
+                ]
+            },
+            apiKeys: {
+                title: '🔑 Multi-Provider API Key Management',
+                improvements: [
+                    'Separate encrypted keys per AI provider',
+                    'Automatic key switching based on selected provider',
+                    'Show/Hide API key toggle in settings',
+                    'Test Connection button with real-time validation',
+                    'Provider-specific API key creation links',
+                    'Success indicator after successful API test',
+                    'Migration from old apiKey to new apiKeys structure',
+                    'Cache invalidation on key changes'
+                ]
+            },
+            persistence: {
+                title: '💾 Persistent Story Input',
+                improvements: [
+                    'Text survives page reloads (localStorage)',
+                    'Auto-save on every change (reactive)',
+                    'Auto-load on page mount',
+                    'Clear button removes text and storage',
+                    'Textarea remains visible after generation',
+                    'Edit and regenerate workflow optimized'
+                ]
+            },
+            caching: {
+                title: '⚡ Smart Caching System',
+                improvements: [
+                    '7-day cache for story generations',
+                    'Text-based cache keys (different text = new AI call)',
+                    'Cache invalidation after settings save',
+                    'Validation to prevent caching errors',
+                    'Never cache invalid or empty results',
+                    'Settings cache (100ms) prevents excessive calls'
+                ]
+            },
+            staticPages: {
+                title: '📄 Static Pages Architecture',
+                improvements: [
+                    'Data-driven architecture with JSON content',
+                    'Privacy Policy (/privacy)',
+                    'Legal Notice (/legal)',
+                    'Multi-language support (DE/EN, English fallback)',
+                    '10 reusable content types',
+                    'Consistent styling with dark/light mode',
+                    'WCAG 2.1 compliant color contrasts',
+                    'Robust Back to Top button with multiple scroll methods'
+                ]
+            }
+        },
+        ui: {
+            storyMode: {
+                title: '🎨 Story Mode UX',
+                improvements: [
+                    'AI model info badges (provider + model)',
+                    'Yellow active button when Story Mode enabled',
+                    'Muted inactive button with yellow border',
+                    'Clear button inside textarea (top-right)',
+                    'Textarea keeps visibility for editing',
+                    'Success/error messages with provider name',
+                    'Minimum 40 characters validation'
+                ]
+            },
+            settings: {
+                title: '⚙️ Settings UI Refinement',
+                improvements: [
+                    'API key input with inline Show/Hide button',
+                    'Test Connection button integrated into field',
+                    'Gradient fade-out for long API keys (z-5)',
+                    'Buttons perfectly centered (inset-y-0)',
+                    'Success icon next to provider dropdown',
+                    'Consistent p-4 spacing (matches Contact Form)',
+                    'Conditional rendering for Custom API fields',
+                    'Saved keys indicator for other providers'
+                ]
+            },
+            layout: {
+                title: '📐 Layout & Spacing',
+                improvements: [
+                    'Consistent input height across all forms',
+                    'Perfect button vertical centering',
+                    'Gradient stays inside border (inset-y-[1px])',
+                    'Rounded corners on gradients (rounded-r-[11px])',
+                    'Z-index layering: Input(0) → Gradient(5) → Buttons(10)',
+                    'Responsive gradient width (w-32 valid, w-20 short)'
+                ]
+            }
+        },
+        technical: {
+            ai: {
+                title: '🧠 AI Provider Integration',
+                improvements: [
+                    'Timeout mechanism (fetchWithTimeout)',
+                    'Model fallback chains for reliability',
+                    'Gemini: Tries v1beta/v1, header/url auth, multiple models',
+                    'OpenAI: Tries gpt-3.5-turbo, gpt-4o-mini',
+                    'Claude: Tries haiku, sonnet with correct headers',
+                    'Mistral: Tries tiny, small with safe_prompt=false',
+                    'Custom API: Flexible format (openai/claude/raw)',
+                    'Error messages guide users to fix issues'
+                ]
+            },
+            dataFlow: {
+                title: '🔄 Data Flow Optimization',
+                improvements: [
+                    'invalidateSettingsCache() after all updates',
+                    'getCurrentUserSettings() with 100ms cache',
+                    'effectiveSettings includes userSettings + pendingChanges',
+                    'Automatic API key migration on load',
+                    'localStorage.USER_PREFERENCES.metadata.settings structure',
+                    'Immediate currentAccount.metadata.settings update',
+                    'Prevents backend from overwriting local settings'
+                ]
+            },
+            validation: {
+                title: '✅ Enhanced Validation',
+                improvements: [
+                    'API key format validation per provider',
+                    'Story Mode settings validation',
+                    'Cache result validation (Array with emojis)',
+                    'Emoji validation (filters non-emoji characters)',
+                    'Settings tier validation (FREE vs PRO)',
+                    'Custom API endpoint validation'
+                ]
+            }
+        },
+        fixes: {
+            critical: {
+                title: '🐛 Critical Bug Fixes',
+                improvements: [
+                    'Fixed API key not updating after change',
+                    'Fixed old key being used instead of new key',
+                    'Fixed cache returning errors',
+                    'Fixed inconsistent return types (Array vs Object)',
+                    'Fixed Story Mode button staying disabled',
+                    'Fixed settings not persisting after reload',
+                    'Fixed CORS on localhost (proper warnings)',
+                    'Fixed Back to Top not scrolling'
+                ]
+            },
+            ui: {
+                title: '🎨 UI/UX Bug Fixes',
+                improvements: [
+                    'Fixed gradient covering input border',
+                    'Fixed button vertical misalignment',
+                    'Fixed icon duplications in button text',
+                    'Fixed border colors for muted buttons',
+                    'Fixed dark mode gradient visibility',
+                    'Fixed A11y warnings (tabindex, aria-invalid)',
+                    'Fixed input spacing inconsistency'
+                ]
+            }
+        }
+    },
     '0.5.8': {
         date: 'October 10, 2025',
         core: {

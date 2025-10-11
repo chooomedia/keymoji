@@ -18,20 +18,44 @@
     const dispatch = createEventDispatcher();
     
     // Calculate remaining generations - REACTIVE
-    $: remaining = $dailyLimit.limit - $dailyLimit.used;
+    $: remaining = Math.max(0, ($dailyLimit?.limit || 0) - ($dailyLimit?.used || 0));
     $: isProUser = $accountTier === 'pro';
-    $: showBadge = $isLoggedIn; // Only show badge when logged in
     
-    // DEBUG: Log badge state
+    // IMPROVED: Only show badge when logged in AND dailyLimit is initialized
+    $: showBadge = $isLoggedIn && $dailyLimit && typeof $dailyLimit.limit === 'number';
+    
+    // IMPROVED: Debounce badge state changes to prevent flicker
+    let stableBadgeState = false;
+    let badgeTimeout;
+    $: {
+        if (badgeTimeout) clearTimeout(badgeTimeout);
+        badgeTimeout = setTimeout(() => {
+            stableBadgeState = showBadge;
+        }, 100); // 100ms debounce
+    }
+    
+    // DEBUG: Log badge state (only on significant changes)
+    let lastLoggedState = null;
     $: if (typeof window !== 'undefined') {
-        console.log('🏷️ Header Badge State:', {
+        const currentState = JSON.stringify({
             showBadge,
             isLoggedIn: $isLoggedIn,
             remaining,
-            dailyLimit: $dailyLimit,
-            isProUser,
-            accountTier: $accountTier
+            isProUser
         });
+        
+        if (currentState !== lastLoggedState) {
+            lastLoggedState = currentState;
+            console.log('🏷️ Header Badge State:', {
+                showBadge,
+                stableBadgeState,
+                isLoggedIn: $isLoggedIn,
+                remaining,
+                dailyLimit: $dailyLimit,
+                isProUser,
+                accountTier: $accountTier
+            });
+        }
     }
 
     // Reaktive Übersetzungen mit robuster Fehlerbehandlung
@@ -94,6 +118,7 @@
 
         return () => {
             document.removeEventListener('click', handleClickOutside);
+            if (badgeTimeout) clearTimeout(badgeTimeout);
         };
     });
 </script>
@@ -144,8 +169,8 @@
                         <span class="text-xl">{#if $isLoggedIn}👤{:else}🔐{/if}</span>
                     </button>
                     
-                    <!-- Badge für verbleibende Generierungen -->
-                    {#if showBadge}
+                    <!-- Badge für verbleibende Generierungen (debounced for smooth UX) -->
+                    {#if stableBadgeState}
                         <button
                             type="button"
                             on:click={handleBadgeClick}

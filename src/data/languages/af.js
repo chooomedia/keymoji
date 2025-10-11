@@ -45,9 +45,9 @@ export default {
         emojiDisplayTitle: 'Emoji Wagwoord Generator',
         dataPrivacyProcessingInfo:
             '🚀 Emoji magie via webhooks en AI! ✨ Data is soos strand sand - dit bly nie.',
-        clearButton: '✖️ Maak skoon',
-        storyButton: '📝 Storie',
-        storyButtonClicked: '📩 Stuur storie',
+        clearButton: 'Maak skoon',
+        storyButton: '✨ Storie',
+        storyButtonClicked: '✨ Stuur storie',
         randomButton: '🎲 Lukraak',
         placeholderText:
             "Vertel my 'n storie en ek sal emoji wagwoorde genereer gebaseer daarop...",

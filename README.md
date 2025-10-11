@@ -2,7 +2,7 @@
 
 > **Sichere, unvergessliche Passwörter mit Emojis. KI-resistent. Privacy-First. Open Source.**
 
-[![Version](https://img.shields.io/badge/version-0.5.8-blue.svg)](https://github.com/chooomedia/keymoji)
+[![Version](https://img.shields.io/badge/version-0.6.0-blue.svg)](https://github.com/chooomedia/keymoji)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Made with Svelte](https://img.shields.io/badge/made%20with-svelte-ff3e00.svg)](https://svelte.dev)
 
@@ -29,12 +29,47 @@ npm run build
 
 ---
 
+## 🎉 What's New in v0.6.0 - AI Story Master
+
+**Release Date:** October 11, 2025
+
+### 🤖 **AI Story Mode**
+-   Convert your stories into emoji passwords using AI
+-   Support for 4 major AI providers + custom APIs
+-   Multi-provider API key management with encryption
+-   Persistent text input with auto-save
+-   Smart caching (7 days) for faster responses
+
+### 🎨 **UI/UX Enhancements**
+-   Refined settings with inline button controls
+-   Perfect input spacing consistency
+-   Enhanced dark/light mode colors
+-   Privacy Policy & Legal Notice pages
+
+### 🔧 **Technical Improvements**
+-   Robust AI fallback chains
+-   Cache invalidation system
+-   Data flow optimization
+-   Comprehensive error handling
+
+See [CHANGELOG.md](CHANGELOG.md) for complete details.
+
+---
+
 ## ✨ Features
 
 ### 🎯 **Core Features**
 
 -   **Random Emoji Generation** - Sichere, zufällige Emoji-Kombinationen
--   **Story Mode** - KI-basierte Emoji-Generierung aus Texten
+-   **🤖 AI Story Mode** - KI-basierte Emoji-Generierung aus Texten
+    -   OpenAI (GPT-3.5, GPT-4, GPT-4o)
+    -   Google Gemini (Pro, 1.5/2.5 Flash)
+    -   Mistral AI (Tiny, Small, Medium, Large)
+    -   Anthropic Claude (Haiku, Sonnet, Opus)
+    -   Custom API support
+    -   Multi-provider API key management
+    -   Persistent text input with auto-save
+    -   Smart caching (7 days)
 -   **15+ Languages** - inkl. Klingonisch & Elbisch! 🖖
 -   **Dark/Light Mode** - Automatische Theme-Erkennung
 -   **PWA-Ready** - Offline-fähig, installierbar
