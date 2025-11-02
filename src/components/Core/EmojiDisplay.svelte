@@ -758,6 +758,12 @@
       // Fallback: truncate to 10 chars
       return modelName.substring(0, 10);
     }
+    
+    // Get short button text for UI (max 12 chars)
+    function getShortButtonText(text) {
+      if (!text) return '';
+      return text.length <= 12 ? text : text.substring(0, 11) + '…';
+    }
   
     function toggleStoryMode() {
       // Only allow toggle if Story Mode is properly configured
@@ -1112,7 +1118,7 @@
               <span>Creating...</span>
             </span>
           {:else}
-            {$translations.emojiDisplay.storyButtonClicked}
+            {getShortButtonText($translations.emojiDisplay.storyButtonClicked)}
           {/if}
         </button>
         
