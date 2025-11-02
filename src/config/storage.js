@@ -207,9 +207,41 @@ export function migrateAndCleanupLocalStorage() {
         );
     }
 
+    // 4. Migrate recent emojis (mask middle emojis for privacy)
+    const recentEmojis = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
+    if (Array.isArray(recentEmojis) && recentEmojis.length > 0) {
+        console.log('🔄 [MIGRATION] Checking recent emojis for masking...');
+        
+        // Helper function to mask emojis
+        const maskEmojis = (emojiString) => {
+            if (!emojiString || typeof emojiString !== 'string') return emojiString;
+            const cleanString = emojiString.replace(/\s/g, '');
+            const emojis = cleanString.match(/[\p{Emoji}\u200d]+/gu) || [];
+            if (emojis.length < 2) return cleanString;
+            const first = emojis[0];
+            const last = emojis[emojis.length - 1];
+            const middleCount = emojis.length - 2;
+            const masked = '✨'.repeat(Math.max(0, middleCount));
+            return `${first}${masked}${last}`;
+        };
+        
+        const needsMigration = recentEmojis.some(emoji => {
+            if (!emoji || typeof emoji !== 'string') return false;
+            const emojis = emoji.match(/[\p{Emoji}\u200d]+/gu) || [];
+            return emojis.length > 2 && !emoji.includes('✨');
+        });
+        
+        if (needsMigration) {
+            console.log('🔒 [MIGRATION] Masking recent emojis for privacy...');
+            const masked = recentEmojis.map(maskEmojis).filter(Boolean);
+            storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, masked);
+            console.log(`✅ [MIGRATION] Masked ${masked.length} recent emojis`);
+        }
+    }
+
     console.log('✅ [MIGRATION] Migration & cleanup complete!');
 
-    // 4. Log final localStorage state for debugging
+    // 5. Log final localStorage state for debugging
     const finalKeys = storageHelpers.listAll();
     const keymojiKeys = finalKeys.filter(key => key.startsWith('keymoji_'));
 
