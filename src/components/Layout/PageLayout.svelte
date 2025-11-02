@@ -69,7 +69,7 @@
 
             <!-- Generic Page Header - wenn pageTitle gesetzt -->
             {#if pageTitle}
-                <div class="w-11/12 md:w-26r flex flex-wrap justify-center" role="banner">
+                <div class="w-11/12 md:w-27 flex flex-wrap justify-center" role="banner">
                     <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
                         {pageTitle}
                     </h1>
@@ -96,7 +96,7 @@
             <slot name="before-content" />
 
             <!-- Main Content Box - Mit Hintergrund für Modularität -->
-            <div class="content-wrapper p-4 w-full md:w-26r rounded-xl backdrop-blur-sm bg-creme-500 dark:bg-aubergine-80 backdrop-opacity-60 shadow-xl">
+            <div class="content-wrapper p-4 w-full md:w-27 rounded-2xl backdrop-blur-sm bg-creme-500 dark:bg-aubergine-80 backdrop-opacity-60 shadow-xl">
                 <slot />
             </div>
 

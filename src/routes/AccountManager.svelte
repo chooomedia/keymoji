@@ -1122,11 +1122,11 @@
                                         {#if isDemoDataShown}
                                             <!-- Demo Data Overlay - Full Height Centered -->
                                             <div 
-                                                class="absolute inset-0 flex items-center justify-center backdrop-blur-2xl rounded-lg bg-white/5 dark:bg-aubergine-900/10"
+                                                class="absolute w-96 h-48 mx-auto inset-0 flex items-center justify-center backdrop-blur-2xl rounded-lg bg-white/70 dark:bg-aubergine-900/70"
                                                 transition:fade={{ duration: 300 }}
                                             >
                                                 <!-- Centered Content Card with Strong Shadows -->
-                                                <div class="bg-creme-80 dark:bg-aubergine-80 backdrop-filter backdrop-blur-md rounded-lg text-center px-8 py-9 mt-6 shadow-[0_20px_60px_rgba(0,0,0,0.85),0_8px_24px_rgba(0,0,0,0.45),0_4px_12px_rgba(0,0,0,0.3)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.95),0_10px_30px_rgba(0,0,0,0.65),0_4px_15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]">
+                                                <div class="bg-creme-80 dark:bg-aubergine-80 backdrop-filter backdrop-blur-md rounded-lg text-center px-8 py-9 mt-9 shadow-[0_20px_60px_rgba(0,0,0,0.85),0_8px_24px_rgba(0,0,0,0.45),0_4px_12px_rgba(0,0,0,0.3)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.95),0_10px_30px_rgba(0,0,0,0.65),0_4px_15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]">
                                                     <!-- Icon -->
                                                     <div class="text-6xl mb-5">📊</div>
                                                     
