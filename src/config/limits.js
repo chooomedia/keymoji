@@ -2,6 +2,8 @@
 // Zentrale, sichere Konfiguration für alle App-Limits
 // Diese Werte sind HARDCODED und können NICHT client-seitig manipuliert werden
 
+import { isDevelopment } from '../utils/environment.js';
+
 export const DAILY_LIMITS = {
     // Guest User (nicht eingeloggt)
     GUEST: 5, // 5 generations per day for guests
@@ -13,7 +15,10 @@ export const DAILY_LIMITS = {
     PRO: 35, // 35 generations per day for PRO users
 
     // Unlimited für Pro (theoretisch unbegrenzt, aber mit Sicherheitslimit)
-    UNLIMITED: 999999
+    UNLIMITED: 999999,
+    
+    // Dev environment - unlimited for testing
+    DEV: 99999
 };
 
 export const LIMIT_TYPES = {
@@ -24,6 +29,11 @@ export const LIMIT_TYPES = {
 
 // Sichere Limit-Validierung
 export function getDailyLimitForUser(isLoggedIn, accountTier) {
+    // Dev environment: unlimited for testing
+    if (isDevelopment()) {
+        return DAILY_LIMITS.DEV;
+    }
+    
     if (!isLoggedIn) {
         return DAILY_LIMITS.GUEST;
     }

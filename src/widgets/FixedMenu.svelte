@@ -24,6 +24,7 @@
   import { currentLanguage } from '../stores/contentStore.js';
   import { navigateToContact } from '../utils/navigation.js';
   import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
+  import { isDevelopment } from '../utils/environment.js';
 
   const dispatch = createEventDispatcher();
 
@@ -108,6 +109,15 @@
 
   function toggleDebugModal() {
     showDebugModal = !showDebugModal;
+  }
+
+  function clearLocalStorage() {
+    const confirmed = confirm('⚠️ Clear ALL localStorage data? This cannot be undone!');
+    if (confirmed) {
+      storageHelpers.clearAll();
+      console.log('✅ localStorage cleared! Reloading page...');
+      window.location.reload();
+    }
   }
 
   function selectLink(links, id) {
@@ -269,6 +279,16 @@
       >
         🐛
       </button>
+      {#if isDevelopment()}
+      <button 
+        aria-label="Clear localStorage"
+        on:click={clearLocalStorage} 
+        class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+        title="Clear all localStorage data (Dev only)"
+      >
+        🧹
+      </button>
+      {/if}
       <button 
         aria-label={$showDonateMenu ? ($translations?.fixedMenu?.tooltips?.closeDonate || 'Close donation menu') : ($translations?.fixedMenu?.tooltips?.donate || 'Support us')}
         on:click={() => toggleMenu('donate')} 
