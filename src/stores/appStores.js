@@ -500,7 +500,7 @@ export function setLanguage(lang) {
         if (typeof document !== 'undefined') {
             document.documentElement.lang = lang;
 
-            if (lang === 'qya') {
+            if (lang === 'sjn') {
                 document.body.classList.add('font-elvish');
             } else {
                 document.body.classList.remove('font-elvish');

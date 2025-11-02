@@ -131,11 +131,11 @@ button:disabled {
     display: none !important;
 }
 
-/* Ausnahme: Language Dialog behält sichtbare Scrollbar */
+/* Ausnahme: Language Dialog behält sichtbare Scrollbar - konsistent mit UI */
 :global(.language-dialog-scrollbar) {
     scrollbar-width: thin !important;
     -ms-overflow-style: auto !important;
-    scrollbar-color: theme('colors.purple.400') theme('colors.gray.200');
+    scrollbar-color: theme('colors.yellow.500') theme('colors.gray.100');
 }
 
 :global(.language-dialog-scrollbar::-webkit-scrollbar) {
@@ -144,34 +144,26 @@ button:disabled {
 }
 
 :global(.language-dialog-scrollbar::-webkit-scrollbar-track) {
-    background: theme('colors.gray.200');
+    background: theme('colors.gray.100');
     border-radius: 4px;
 }
 
 :global(.language-dialog-scrollbar::-webkit-scrollbar-thumb) {
-    background: theme('colors.purple.400');
+    background: theme('colors.yellow.500');
     border-radius: 4px;
 }
 
 /* Dark mode für Language Dialog */
 :global(.dark) .language-dialog-scrollbar {
-    scrollbar-color: theme('colors.purple.600') theme('colors.gray.800');
+    scrollbar-color: theme('colors.yellow.600') theme('colors.gray.700');
 }
 
 :global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-track {
-    background: theme('colors.gray.800');
+    background: theme('colors.gray.700');
 }
 
 :global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-thumb {
-    background: theme('colors.purple.600');
-}
-
-:global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-track {
-    background: theme('colors.gray.800');
-}
-
-:global(.dark) .language-dialog-scrollbar::-webkit-scrollbar-thumb {
-    background: theme('colors.purple.600');
+    background: theme('colors.yellow.600');
 }
 
 /* Smooth Route Transitions */

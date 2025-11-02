@@ -81,8 +81,8 @@ import ModalDebug from '../UI/ModalDebug.svelte';
             document.documentElement.classList.remove('dark');
         }
         
-        // Handle special fonts (Elvish/Quenya)
-        if ($currentLanguage === 'qya') {
+        // Handle special fonts (Elvish/Sindarin)
+        if ($currentLanguage === 'sjn') {
             document.body.classList.add('font-elvish');
             
             // Preload font if not already done
