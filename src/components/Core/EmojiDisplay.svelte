@@ -517,7 +517,7 @@
           customModel: storyMode.customModel,
           model: storyMode.model,
           maxTokens: storyMode.maxTokens,
-          temperature: storyMode.temperature,
+          temperature: storyTemperature, // Use UI slider value, not saved setting
           forceRegenerate // Pass force flag to bypass cache
         };
         
@@ -992,7 +992,7 @@
           max="2" 
           step="0.1"
           bind:value={storyTemperature}
-          on:change={handleTemperatureChange}
+          on:input={handleTemperatureChange}
           class="flex-1 h-1.5 appearance-none rounded-full bg-gray-300 dark:bg-gray-600 transition-all hover:bg-yellow-400 dark:hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed shrink" 
           style="--range-thumb-color: rgb(234, 179, 8);"
           disabled={isGeneratingStory}
