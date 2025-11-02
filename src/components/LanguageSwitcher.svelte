@@ -210,9 +210,12 @@
         }
         
         const handleClickOutside = (event) => {
+            // Prüfen ob der Click außerhalb ALLER Menüs war
             if ($showLanguageMenu && 
                 !event.target.closest('#language-dropdown-menu') && 
-                !event.target.closest('#language-toggle-button')) {
+                !event.target.closest('#language-toggle-button') &&
+                !event.target.closest('#fixed-menu') &&
+                !event.target.closest('[data-menu-type="donate"]')) {
                 $showLanguageMenu = false;
             }
         };

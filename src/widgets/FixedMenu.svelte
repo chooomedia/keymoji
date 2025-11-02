@@ -5,7 +5,7 @@
   import { get } from 'svelte/store';
 
   import { darkMode, showDonateMenu, isLoggedIn, currentAccount } from '../stores/appStores.js';
-  import { translations } from '../stores/contentStore.js';
+  import { showLanguageMenu, translations } from '../stores/contentStore.js';
   import { createEventDispatcher, onMount } from 'svelte';
   import ModalDebug from '../components/UI/ModalDebug.svelte';
   import { initializeAccountFromCookies } from '../stores/accountStore.js';
@@ -42,12 +42,18 @@
     const handleClickOutside = (event) => {
       const fixedMenu = document.getElementById('fixed-menu');
       const donateButton = document.querySelector('[data-menu-type="donate"]');
+      const languageDropdown = document.getElementById('language-dropdown-menu');
+      const languageToggle = document.getElementById('language-toggle-button');
       
-      // Prüfen ob der Click außerhalb der Menüs war
+      // Prüfen ob der Click außerhalb ALLER Menüs war
       if (!event.target.closest('#fixed-menu') && 
-          !event.target.closest('[data-menu-type="donate"]')) {
+          !event.target.closest('[data-menu-type="donate"]') &&
+          !event.target.closest('#language-dropdown-menu') &&
+          !event.target.closest('#language-toggle-button')) {
+        // Schließe alle Menüs
         showMenu = false;
         showDonateMenu.set(false);
+        showLanguageMenu.set(false);
         selectedLink = undefined;
       }
     };
