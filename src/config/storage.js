@@ -211,10 +211,11 @@ export function migrateAndCleanupLocalStorage() {
     const recentEmojis = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
     if (Array.isArray(recentEmojis) && recentEmojis.length > 0) {
         console.log('🔄 [MIGRATION] Checking recent emojis for masking...');
-        
+
         // Helper function to mask emojis
-        const maskEmojis = (emojiString) => {
-            if (!emojiString || typeof emojiString !== 'string') return emojiString;
+        const maskEmojis = emojiString => {
+            if (!emojiString || typeof emojiString !== 'string')
+                return emojiString;
             const cleanString = emojiString.replace(/\s/g, '');
             const emojis = cleanString.match(/[\p{Emoji}\u200d]+/gu) || [];
             if (emojis.length < 2) return cleanString;
@@ -224,13 +225,13 @@ export function migrateAndCleanupLocalStorage() {
             const masked = '✨'.repeat(Math.max(0, middleCount));
             return `${first}${masked}${last}`;
         };
-        
+
         const needsMigration = recentEmojis.some(emoji => {
             if (!emoji || typeof emoji !== 'string') return false;
             const emojis = emoji.match(/[\p{Emoji}\u200d]+/gu) || [];
             return emojis.length > 2 && !emoji.includes('✨');
         });
-        
+
         if (needsMigration) {
             console.log('🔒 [MIGRATION] Masking recent emojis for privacy...');
             const masked = recentEmojis.map(maskEmojis).filter(Boolean);
