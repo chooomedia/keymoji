@@ -139,6 +139,22 @@
         }
     }
 
+    // REACTIVE: Display model for AI Model Chip
+    $: {
+        const settings = getCurrentUserSettings();
+        const provider = settings?.storyMode?.provider || 'openai';
+        const model = settings?.storyMode?.model || '';
+        const defaultModels = {
+            openai: 'GPT-3.5',
+            gemini: 'Gemini Pro',
+            mistral: 'Tiny',
+            claude: 'Haiku',
+            custom: model || 'Custom'
+        };
+        displayModel = model || defaultModels[provider] || 'Model';
+    }
+    let displayModel = 'Model'; // Initialize with default
+
     // Timeout-Tracking für Memory Leak Prevention
     let activeTimeouts = new Set();
     let modalVisibilityUnsubscribe;
@@ -954,8 +970,8 @@
       </div>
       
       <!-- Temperature Slider - Vor AI Model Chip -->
-      <div class="flex items-center mt-3 mb-1">
-        <label for="storyTemperature" class="text-xs text-gray-600 dark:text-gray-400 mr-3 font-medium">
+      <div class="flex items-center mt-3 mb-1 gap-2">
+        <label for="storyTemperature" class="text-xs text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap w-20 shrink-0">
           {getTemperatureLabel(storyTemperature)}
         </label>
         <input 
@@ -966,37 +982,18 @@
           step="0.1"
           bind:value={storyTemperature}
           on:change={handleTemperatureChange}
-          class="flex-1 h-1.5 appearance-none rounded-full bg-gray-300 dark:bg-gray-600 transition-all hover:bg-yellow-400 dark:hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed" 
+          class="flex-1 h-1.5 appearance-none rounded-full bg-gray-300 dark:bg-gray-600 transition-all hover:bg-yellow-400 dark:hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed shrink" 
           style="--range-thumb-color: rgb(234, 179, 8);"
           disabled={$isDisabled || isGeneratingStory}
           aria-label="Temperature: {getTemperatureLabel(storyTemperature)}"
           title="AI creativity level: {getTemperatureLabel(storyTemperature)}"
         />
-        <span class="text-xs font-semibold text-yellow-600 dark:text-yellow-400 ml-2 w-8 text-right tabular-nums">
+        <span class="text-xs font-semibold text-yellow-600 dark:text-yellow-400 w-8 text-right tabular-nums shrink-0">
           {storyTemperature.toFixed(1)}
         </span>
       </div>
       
       <!-- AI Model Chip - Minimalistisch unter Text-Input rechts -->
-      {@const userSettings = getCurrentUserSettings()}
-      {@const currentProvider = userSettings?.storyMode?.provider || 'openai'}
-      {@const currentModel = userSettings?.storyMode?.model || ''}
-      {@const providerNames = {
-        openai: 'OpenAI',
-        gemini: 'Gemini',
-        mistral: 'Mistral',
-        claude: 'Claude',
-        custom: 'Custom'
-      }}
-      {@const defaultModels = {
-        openai: 'GPT-3.5',
-        gemini: 'Gemini Pro',
-        mistral: 'Tiny',
-        claude: 'Haiku',
-        custom: currentModel || 'Model'
-      }}
-      {@const displayModel = currentModel || defaultModels[currentProvider]}
-      
       <div class="flex justify-end mt-2">
         <button
           on:click={() => {
