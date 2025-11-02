@@ -37,7 +37,7 @@
                         {
                             "column": "userId",
                             "condition": "equals",
-                            "value": "={{ $json.userId }}"
+                            "value": "={{ $json.body.userId }}"
                         }
                     ]
                 },
