@@ -45,7 +45,6 @@
         const savedInput = localStorage.getItem(STORY_INPUT_KEY);
         if (savedInput) {
             storyInput = savedInput;
-            console.log('📝 Loaded saved story input:', storyInput.substring(0, 50) + '...');
         }
     }
   
@@ -82,6 +81,7 @@
   
     // Temperature for Story Mode (0.0-2.0 range)
     let storyTemperature = 0.7; // Default
+    let temperatureInitialized = false; // Prevent override after user adjustment
   
     // REACTIVE: Update Story Mode status when ANY store changes
     // Priority: effectiveSettings > userSettings > currentAccount
@@ -91,17 +91,14 @@
         // Try effectiveSettings first (most up-to-date)
         if ($effectiveSettings?.storyMode) {
             storyModeSettings = $effectiveSettings.storyMode;
-            console.log('📊 Using effectiveSettings for Story Mode');
         }
         // Fallback to userSettings
         else if ($userSettings?.storyMode) {
             storyModeSettings = $userSettings.storyMode;
-            console.log('📦 Using userSettings for Story Mode');
         }
         // Fallback to currentAccount
         else if ($currentAccount?.metadata?.settings?.storyMode) {
             storyModeSettings = $currentAccount.metadata.settings.storyMode;
-            console.log('👤 Using currentAccount for Story Mode');
         }
         
         if (storyModeSettings) {
@@ -115,27 +112,11 @@
             storyModeEnabled = enabled;
             storyModeConfigured = configured;
             
-            // Update temperature from settings
-            storyTemperature = storyModeSettings.temperature ?? 0.7;
-            
-            console.log('🔄 Story Mode settings updated:', { 
-                enabled: storyModeEnabled, 
-                configured: storyModeConfigured,
-                provider: currentProvider,
-                hasApiKey: !!currentApiKey,
-                keyLength: currentApiKey?.length || 0,
-                temperature: storyTemperature,
-                source: $effectiveSettings?.storyMode ? 'effectiveSettings' : 
-                        $userSettings?.storyMode ? 'userSettings' : 'currentAccount'
-            });
-        } else {
-            console.warn('⚠️ No storyMode settings found in ANY store:', { 
-                hasEffectiveSettings: !!$effectiveSettings,
-                hasUserSettings: !!$userSettings, 
-                hasCurrentAccount: !!$currentAccount,
-                effectiveSettingsKeys: $effectiveSettings ? Object.keys($effectiveSettings) : [],
-                userSettingsKeys: $userSettings ? Object.keys($userSettings) : []
-            });
+            // Update temperature from settings ONLY on first load
+            if (!temperatureInitialized) {
+                storyTemperature = storyModeSettings.temperature ?? 0.7;
+                temperatureInitialized = true;
+            }
         }
     }
 
@@ -661,16 +642,30 @@
     // These are now handled by dailyUsageStore.js
     // TODO: Remove these functions in next release after migration period
     
-    // Recent Emojis Management
+    // Recent Emojis Management - Security: Mask middle emojis
     function saveToRecentEmojis(emojiString) {
       try {
+        // Security: Mask middle emojis, only keep first and last
+        // Format: first ✨✨✨ last (no spaces between)
+        // Extract individual emojis using regex to handle multi-byte characters
+        const emojis = emojiString.match(/[\p{Emoji}\u200d]+/gu) || [];
+        let maskedString = emojiString;
+        
+        if (emojis.length >= 2) {
+          const first = emojis[0];
+          const last = emojis[emojis.length - 1];
+          const middleCount = emojis.length - 2;
+          const masked = '✨'.repeat(Math.max(0, middleCount));
+          maskedString = `${first}${masked}${last}`;
+        }
+        
         const recent = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
         
         // Remove if already exists (to move to front)
-        const filtered = recent.filter(emoji => emoji !== emojiString);
+        const filtered = recent.filter(emoji => emoji !== maskedString);
         
         // Add to front, limit to 10 items
-        const updated = [emojiString, ...filtered].slice(0, 10);
+        const updated = [maskedString, ...filtered].slice(0, 10);
         
         storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, updated);
       } catch (error) {
@@ -706,7 +701,6 @@
       // Clear from localStorage
       if (typeof window !== 'undefined') {
         localStorage.removeItem(STORY_INPUT_KEY);
-        console.log('🧹 Story input cleared from localStorage');
       }
     }
   
@@ -716,7 +710,6 @@
       storyTemperature = newTemp;
       // Save to settings
       updateSetting('storyMode.temperature', newTemp);
-      console.log('🌡️ Temperature changed to:', newTemp);
     }
   
     // Get temperature label based on value
@@ -1008,7 +1001,6 @@
       <div class="flex justify-end mt-2">
         <button
           on:click={() => {
-            console.log('🎯 Navigating to AI Settings...');
             // Navigate to account page
             const lang = $currentLanguage || 'en';
             const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
@@ -1023,17 +1015,13 @@
               if (aiAccordion) {
                 // Check if accordion is closed, then click to open
                 if (!aiAccordion.querySelector('.p-4')) {
-                  console.log('📂 Opening AI Settings accordion...');
                   accordionButton?.click();
                 }
                 
                 // Scroll to accordion after opening
                 setTimeout(() => {
                   aiAccordion.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  console.log('✅ Scrolled to AI Settings');
                 }, 100);
-              } else {
-                console.warn('⚠️ AI Settings accordion not found');
               }
             }, 400);
           }}
