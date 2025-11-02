@@ -287,7 +287,7 @@
             >
                 <ul class="py-2" role="none">
                     {#each languages as lang}
-                        <li role="none">
+                        <li role="none" lang={lang.ogLocale}>
                             <button
                                 class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 dark:hover:bg-aubergine-800 focus:bg-aubergine-50 dark:focus:bg-aubergine-800 active:bg-aubergine-100 dark:active:bg-aubergine-700 text-sm transition-all text-black dark:text-white focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                                 role="menuitem"
