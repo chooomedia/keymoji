@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { slide } from 'svelte/transition';
+    import { slide, fly } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { hamburger, logo } from "../../assets/shapes.js";
     import { isDisabled, showDonateMenu, isLoggedIn, currentAccount, dailyLimit, accountTier } from '../../stores/appStores.js';
@@ -27,11 +27,20 @@
     // IMPROVED: Debounce badge state changes to prevent flicker
     let stableBadgeState = false;
     let badgeTimeout;
+    let previousRemaining = 0;
+    let isCountingDown = true; // Default to counting down
+    
     $: {
         if (badgeTimeout) clearTimeout(badgeTimeout);
         badgeTimeout = setTimeout(() => {
             stableBadgeState = showBadge;
         }, 100); // 100ms debounce
+    }
+    
+    // Track direction of change for animation (only on actual change)
+    $: if (remaining !== previousRemaining) {
+        isCountingDown = remaining < previousRemaining;
+        previousRemaining = remaining;
     }
     
     // DEBUG: Log badge state (only on significant changes)
@@ -171,27 +180,31 @@
                     
                     <!-- Badge für verbleibende Generierungen (debounced for smooth UX) -->
                     {#if stableBadgeState}
-                        <button
-                            type="button"
-                            on:click={handleBadgeClick}
-                            class="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center rounded-full text-[0.65rem] font-bold shadow-lg border border-white dark:border-aubergine-900 transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 focus:outline-none {
-                                remaining > 0 
-                                    ? 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-300' 
-                                    : isProUser 
-                                        ? 'bg-purple-500 dark:bg-purple-600 text-white focus:ring-purple-300'
-                                        : 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-300 animate-pulse'
-                            }"
-                            aria-label={remaining > 0 ? `${remaining} generations remaining` : isProUser ? 'Unlimited generations' : 'Upgrade to Pro for more'}
-                            title={remaining > 0 ? `${remaining} Story-Generierungen verbleibend heute` : isProUser ? '∞ Unlimited Pro' : '💎 Upgrade zu Pro für mehr'}
-                        >
-                            {#if isProUser}
-                                <span class="text-[0.7rem]">∞</span>
-                            {:else if remaining > 0}
-                                <span class="tabular-nums">{remaining}</span>
-                            {:else}
-                                <span class="text-[0.65rem]">💎</span>
-                            {/if}
-                        </button>
+                        {#key remaining}
+                            <button
+                                type="button"
+                                on:click={handleBadgeClick}
+                                in:fly={{y: isCountingDown ? 10 : -10, duration: 300, easing: cubicInOut}}
+                                out:fly={{y: isCountingDown ? -10 : 10, duration: 300, easing: cubicInOut}}
+                                class="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center rounded-full text-[0.65rem] font-bold shadow-lg border border-white dark:border-aubergine-900 transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 focus:outline-none {
+                                    remaining > 0 
+                                        ? 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-300' 
+                                        : isProUser 
+                                            ? 'bg-purple-500 dark:bg-purple-600 text-white focus:ring-purple-300'
+                                            : 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-300 animate-pulse'
+                                }"
+                                aria-label={remaining > 0 ? `${remaining} generations remaining` : isProUser ? 'Unlimited generations' : 'Upgrade to Pro for more'}
+                                title={remaining > 0 ? `${remaining} Story-Generierungen verbleibend heute` : isProUser ? '∞ Unlimited Pro' : '💎 Upgrade zu Pro für mehr'}
+                            >
+                                {#if isProUser}
+                                    <span class="text-[0.7rem]">∞</span>
+                                {:else if remaining > 0}
+                                    <span class="tabular-nums">{remaining}</span>
+                                {:else}
+                                    <span class="text-[0.65rem]">💎</span>
+                                {/if}
+                            </button>
+                        {/key}
                     {/if}
                 </div>
                 
