@@ -73,22 +73,27 @@
     
     function loadRecentEmojis() {
         const stored = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
+        console.log('📋 404 loadRecentEmojis:', { count: stored.length, sample: stored.slice(0, 2) });
         if (!Array.isArray(stored) || stored.length === 0) {
             recentEmojis = [];
             return;
         }
         
-        // CRITICAL: Mask any unmasked emojis (migration)
-        const masked = stored.map(maskEmojis).filter(Boolean);
+        // CRITICAL: ALWAYS mask emojis (force migration)
+        const masked = stored.map(emoji => maskEmojis(emoji)).filter(Boolean);
+        console.log('🎭 Masked emojis:', { sample: masked.slice(0, 2) });
         
-        // Limit to 10 and update localStorage if migration was needed
-        recentEmojis = masked.slice(0, 10);
+        // Check if migration was needed
+        const needsMigration = masked.some((emoji, i) => emoji !== stored[i]);
+        console.log('🔄 Migration needed:', needsMigration);
         
-        // If migration was needed, save back to localStorage
-        if (masked.some((emoji, i) => emoji !== stored[i])) {
-            storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, recentEmojis);
-            console.log('✅ Migrated unmasked emojis on 404 page');
+        if (needsMigration) {
+            console.log('✅ Migrating unmasked emojis on 404 page');
+            storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, masked);
         }
+        
+        // Limit to 10
+        recentEmojis = masked.slice(0, 10);
     }
     
     function navigateToPage(path) {
