@@ -149,10 +149,15 @@
             openai: 'GPT-3.5',
             gemini: 'Gemini Pro',
             mistral: 'Tiny',
-            claude: 'Haiku',
-            custom: customModel || 'Custom'
+            claude: 'Haiku'
         };
-        displayModel = model || defaultModels[provider] || 'Model';
+        
+        // For custom provider, use customModel; for others, use model or default
+        if (provider === 'custom') {
+            displayModel = customModel || 'Custom';
+        } else {
+            displayModel = model || defaultModels[provider] || 'Model';
+        }
     }
     let displayModel = 'Model'; // Initialize with default
 
@@ -985,7 +990,7 @@
           on:change={handleTemperatureChange}
           class="flex-1 h-1.5 appearance-none rounded-full bg-gray-300 dark:bg-gray-600 transition-all hover:bg-yellow-400 dark:hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed shrink" 
           style="--range-thumb-color: rgb(234, 179, 8);"
-          disabled={$isDisabled || isGeneratingStory}
+          disabled={isGeneratingStory}
           aria-label="Temperature: {getTemperatureLabel(storyTemperature)}"
           title="AI creativity level: {getTemperatureLabel(storyTemperature)}"
         />
