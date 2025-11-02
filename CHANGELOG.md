@@ -31,6 +31,21 @@
     -   Multi-language support (DE/EN with English fallback)
     -   10 content types (text, subtitle, list, card, warning, info, grid, contact)
 -   ✨ **Auto-Generate Toggle**: User setting for automatic emoji generation on load
+-   ✨ **Character Counter for Story Mode**: Min/max validation (10-400 chars)
+    -   Visual feedback: red (over), orange (under), green (valid)
+    -   Dynamic messages and icons
+    -   Disabled generate button when invalid
+-   ✨ **AI Model Chip**: Minimalist display below Story Mode textarea
+    -   Click to navigate to settings
+    -   Auto-open Story Mode accordion
+-   ✨ **Loading Animation for Story Mode**: Fancy universe-effect overlay
+    -   Spinner on generate button
+    -   Disabled textarea during generation
+    -   3 animated lanes with varied speeds
+-   ✨ **CORS Testing & Debugging**: Mock mode and detailed error messages
+    -   `?mock-custom-api=true` URL parameter
+    -   Specific troubleshooting steps
+    -   Documentation in `CUSTOM_API_TESTING.md`
 
 ### Changed - UI/UX Improvements 🎨
 
@@ -52,6 +67,13 @@
     -   Centered Back button and meta-info
     -   Consistent dark/light mode colors (WCAG 2.1 compliant)
     -   English fallback for all translations
+-   ♻️ **Story Mode Loading Animation**:
+    -   Fancy universe-effect with 3 animated lanes
+    -   Varied speeds: fast (20s), medium (30s), ultra-slow (60s)
+    -   Random giant emoji (60px) in middle lane
+    -   Backdrop blur with transparent background
+    -   Matches body background animation direction (RIGHT)
+    -   No adjacent emojis (large gaps between them)
 
 ### Fixed - Critical Bugs 🐛
 
@@ -61,10 +83,17 @@
 -   🐛 Fixed inconsistent return types (Array vs Object) in `generateStoryEmojis`
 -   🐛 Fixed settings cache not invalidating after save
 -   🐛 Fixed Story Mode button not activating despite correct settings
--   🐛 Fixed CORS issues on localhost (proper error messages)
+-   🐛 Fixed CORS issues on localhost (proper error messages with mock mode)
 -   🐛 Fixed Back to Top button not scrolling on static pages
 -   🐛 Fixed gradient overlay covering input border
 -   🐛 Fixed button vertical alignment issues
+-   🐛 Fixed PostCSS build errors (undefined CSS string)
+-   🐛 Fixed login status flickering on page reload
+-   🐛 Fixed nested settings not being applied (deep merge fix)
+-   🐛 Fixed custom API format selection not working
+-   🐛 Fixed clipboard errors when document not focused
+-   🐛 Fixed emoji animation glitches (static arrays instead of random)
+-   🐛 Fixed emoji animation direction (now matches body background)
 
 ### Technical Improvements ⚡
 
@@ -87,6 +116,15 @@
     -   Story Mode settings stored in `localStorage.USER_PREFERENCES.metadata.settings`
     -   Immediate `currentAccount.metadata.settings` update for reactivity
     -   `effectiveSettings` derived store includes `userSettings` and `pendingChanges`
+-   ⚡ **Session Management**:
+    -   Synchronous localStorage initialization for login state
+    -   Prevents flickering on route changes
+    -   Time-based duplicate prevention for session restore
+    -   Centralized account store initialization
+-   ⚡ **Deep Merge for Nested Settings**:
+    -   Correct handling of `storyMode.customFormat` and other nested keys
+    -   Support for dot-notation in `getEffectiveValue` and `updateSetting`
+    -   Preserves existing settings when updating nested properties
 
 ### Security & Privacy 🔒
 
@@ -102,6 +140,9 @@
 -   ⚡ Settings cache prevents 100+ calls per render
 -   ⚡ Optimized gradient rendering with CSS custom properties
 -   ⚡ Lazy loading for AI provider info
+-   ⚡ PostCSS preprocess configuration in webpack for faster builds
+-   ⚡ Static emoji arrays for loading animation (no re-render overhead)
+-   ⚡ Smooth scrolling with `requestAnimationFrame` for animations
 
 ### Accessibility ♿
 

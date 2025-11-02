@@ -184,7 +184,7 @@
                                         <h2 class="text-lg font-semibold text-black dark:text-white inline-flex items-center gap-2">
                                             v{version}
                                             {#if version === currentVersion}
-                                                <span class="px-2 py-0.5 text-[10px] font-medium bg-yellow-500 text-black rounded-full">
+                                                <span class="px-2 py-0.5 font-semibold text-xs bg-yellow-500 text-black rounded-full">
                                                     Current
                                                 </span>
                                             {/if}

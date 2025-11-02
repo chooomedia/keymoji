@@ -2,6 +2,7 @@
 <script>
     import { fly } from 'svelte/transition';
     import { onMount, onDestroy } from 'svelte';
+    import { navigate } from 'svelte-routing';
     import { 
         successfulStoryRequests, 
         isDisabled,
@@ -15,9 +16,10 @@
         showError, 
         showWarning,
         showModal,
+        showInfo,
         isModalVisible
     } from '../../stores/modalStore.js';
-    import { translations } from '../../stores/contentStore.js';
+    import { translations, currentLanguage } from '../../stores/contentStore.js';
     import { getCurrentUserSettings, userSettings, effectiveSettings } from '../../stores/userSettingsStore.js';
     import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
     import emojisData from '../../../public/emojisArray.json';
@@ -28,41 +30,56 @@
 
     // Props
     export let showEmojiCodes = false;
-  
+
     // State
     let storyInput = '';
     let randomEmojis = [];
     let emojiCount = 9; // Updated: Default 9 emojis for FREE users
     let showTextArea = false;
-    
+  
     // Story Mode - Persistent text input
     const STORY_INPUT_KEY = 'keymoji_story_input';
-    
+  
     // Load last story input from localStorage
     if (typeof window !== 'undefined') {
-      const savedInput = localStorage.getItem(STORY_INPUT_KEY);
-      if (savedInput) {
-        storyInput = savedInput;
-        console.log('📝 Loaded saved story input:', storyInput.substring(0, 50) + '...');
-      }
+        const savedInput = localStorage.getItem(STORY_INPUT_KEY);
+        if (savedInput) {
+            storyInput = savedInput;
+            console.log('📝 Loaded saved story input:', storyInput.substring(0, 50) + '...');
+        }
     }
-    
+  
     // Save story input to localStorage on every change (reactive)
     $: if (typeof window !== 'undefined') {
-      if (storyInput && storyInput.trim()) {
-        localStorage.setItem(STORY_INPUT_KEY, storyInput);
-      } else if (storyInput === '') {
-        localStorage.removeItem(STORY_INPUT_KEY);
-      }
+        if (storyInput && storyInput.trim()) {
+            localStorage.setItem(STORY_INPUT_KEY, storyInput);
+        } else if (storyInput === '') {
+            localStorage.removeItem(STORY_INPUT_KEY);
+        }
     }
     let shouldAnimateEmojis = false;
     let isStoryMode = false;
     let initialRenderComplete = false;
-    
+  
     // Story Mode Settings (reactive)
     let storyModeEnabled = false;
     let storyModeConfigured = false; // Has API key
-    
+  
+    // Story Mode Loading State
+    let isGeneratingStory = false;
+  
+    // Character Validation Constants (for Story Mode)
+    const MAX_CHARS = 400;
+    const MIN_CHARS = 10;
+  
+    // Reactive Character Validation
+    $: currentLength = storyInput?.length || 0;
+    $: remaining = MAX_CHARS - currentLength;
+    $: isOverLimit = currentLength > MAX_CHARS;
+    $: isUnderLimit = currentLength > 0 && currentLength < MIN_CHARS;
+    $: isValidLength = currentLength >= MIN_CHARS && currentLength <= MAX_CHARS;
+    $: canGenerate = isValidLength && storyInput.trim().length >= MIN_CHARS;
+  
     // REACTIVE: Update Story Mode status when ANY store changes
     // Priority: effectiveSettings > userSettings > currentAccount
     $: {
@@ -123,6 +140,45 @@
   
     // Constants
     const DISABLE_DURATION_MS = 3000;
+    
+    // Generate static emoji arrays for loading animation (no re-render glitches)
+    function generateEmojiConfig(count) {
+        return Array.from({ length: count }, () => {
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            const randomSize = Math.floor(Math.random() * 8) + 16;
+            const randomOpacity = Math.random() * 0.2 + 0.4;
+            const randomMargin = Math.floor(Math.random() * 80) + 150;
+            return { emoji: randomEmoji, size: randomSize, opacity: randomOpacity, margin: randomMargin };
+        });
+    }
+    
+    function generateMiddleLaneEmojis(count) {
+        // Choose random position for giant emoji (not always same position)
+        const giantEmojiPosition = Math.floor(Math.random() * count);
+        return Array.from({ length: count }, (_, i) => {
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            const isGiantEmoji = i === giantEmojiPosition;
+            const randomSize = isGiantEmoji ? 60 : Math.floor(Math.random() * 12) + 20;
+            const randomOpacity = isGiantEmoji ? 0.7 : Math.random() * 0.25 + 0.5;
+            const randomMargin = isGiantEmoji ? 180 : Math.floor(Math.random() * 70) + 140;
+            return { emoji: randomEmoji, size: randomSize, opacity: randomOpacity, margin: randomMargin };
+        });
+    }
+    
+    function generateSlowLaneEmojis(count) {
+        return Array.from({ length: count }, () => {
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            const randomSize = Math.floor(Math.random() * 10) + 12;
+            const randomOpacity = Math.random() * 0.15 + 0.35;
+            const randomMargin = Math.floor(Math.random() * 70) + 120;
+            return { emoji: randomEmoji, size: randomSize, opacity: randomOpacity, margin: randomMargin };
+        });
+    }
+    
+    // Generate static emoji configurations ONCE with more emojis for variety
+    const loadingLane1 = generateEmojiConfig(4);
+    const loadingLane2 = generateMiddleLaneEmojis(8); // More emojis for variety
+    const loadingLane3 = generateSlowLaneEmojis(5);
     
     // Helper-Funktion für sichere setTimeout mit Cleanup
     function safeSetTimeout(callback, delay) {
@@ -231,7 +287,7 @@
     }
   
 
-    async function generateEmojis() {
+    async function generateEmojis(forceRegenerate = true) {
       try {
         // UNIFIED Limit Check (same as generateRandomEmojis!)
         const limitCheck = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
@@ -252,15 +308,27 @@
           showTextArea = true;
           return;
         }
+        
+        // Validate character length
+        if (!canGenerate) {
+          console.warn('⚠️ Invalid text length:', { currentLength, MIN_CHARS, MAX_CHARS });
+          showWarning(`Text must be between ${MIN_CHARS} and ${MAX_CHARS} characters`, 3000);
+          return;
+        }
   
-        const response = await fetchEmojiStory();
+        // Set loading state
+        isGeneratingStory = true;
+        console.log('🚀 [STORY MODE] Starting generation...', { forceRegenerate });
+        
+        const response = await fetchEmojiStory(forceRegenerate);
+        
         if (response?.length > 0) {
           await handleSuccessfulStoryGeneration(response);
         } else {
           showErrorMessage($translations?.emojiDisplay?.errorMessage || 'Generation failed');
         }
       } catch (error) {
-        console.error('❌ Story generation failed:', error);
+        console.error('❌ [STORY MODE] Generation failed:', error);
         
         // Better error messages based on error type
         let errorMessage = $translations?.emojiDisplay?.errorMessage || 'Story generation failed';
@@ -278,6 +346,9 @@
         }
         
         showError(errorMessage, 5000);
+      } finally {
+        // Always clear loading state
+        isGeneratingStory = false;
       }
     }
   
@@ -302,58 +373,104 @@
   
     async function handleSuccessfulStoryGeneration(response) {
       randomEmojis = response;
-      await copyToClipboard(randomEmojis.join(' '));
       
-      // Get AI Model info for success message
+      // CRITICAL: Respect User Settings (same as Random Mode!)
       const userSettings = getCurrentUserSettings();
+      const copyToClipboardEnabled = userSettings?.copyToClipboard ?? true; // Default true
+      const showSuccessMessages = userSettings?.showSuccessMessages ?? true; // Default true
       const provider = userSettings?.storyMode?.provider || 'openai';
-      const providerNames = {
-        openai: 'OpenAI',
-        gemini: 'Gemini',
-        mistral: 'Mistral',
-        claude: 'Claude',
-        custom: 'Custom API'
-      };
       
-      const successMsg = `✅ ${$translations.emojiDisplay.successStoryMessage}\n\n🤖 Generated with ${providerNames[provider]}`;
-      showSuccess(successMsg, 3000);
+      console.log('📋 [STORY MODE] User Settings applied:', {
+        copyToClipboard: copyToClipboardEnabled,
+        showSuccessMessages,
+        provider,
+        emojiCount: response.length
+      });
+      
+      // Copy to clipboard if enabled
+      if (copyToClipboardEnabled) {
+        try {
+          await copyToClipboard(randomEmojis.join(' '));
+          console.log('📋 Story emojis copied to clipboard');
+        } catch (clipboardError) {
+          // Clipboard error already handled in copyToClipboard() - just log
+          console.log('⏸️ Copy-to-clipboard failed:', clipboardError.message);
+        }
+      } else {
+        console.log('⏸️ Copy-to-clipboard disabled in settings');
+      }
+      
+      // Show success message if enabled
+      if (showSuccessMessages) {
+        const providerNames = {
+          openai: 'OpenAI',
+          gemini: 'Gemini',
+          mistral: 'Mistral',
+          claude: 'Claude',
+          custom: 'Custom API'
+        };
+        
+        const successMsg = `✅ ${$translations.emojiDisplay.successStoryMessage}\n\n🤖 Generated with ${providerNames[provider]}`;
+        showSuccess(successMsg, 3000);
+      }
       
       shouldAnimateEmojis = true;
       // Keep textarea visible - user can edit and regenerate
       // showTextArea stays true for better UX
       
       // Use new centralized daily usage tracking (API + localStorage)
+      console.log('➕ [STORY MODE] Incrementing usage after successful generation');
       await incrementDailyUsage().catch(error => {
         console.warn('⚠️ Failed to increment daily usage:', error);
       });
       
-      console.log('✅ Story generation complete:', {
+      console.log('✅ [STORY MODE] Story generation complete:', {
         emojis: response.join(' '),
         provider,
-        count: response.length
+        count: response.length,
+        dailyUsed: $dailyLimit?.used,
+        dailyLimit: $dailyLimit?.limit
       });
     }
   
-    async function fetchEmojiStory() {
+    async function fetchEmojiStory(forceRegenerate = false) {
       try {
-        // Get user settings for Story Mode
+        // CRITICAL: Get FRESH user settings (no cache!)
         const userSettings = getCurrentUserSettings();
+        
+        console.log('🔍 [STORY MODE] Loading settings...', {
+          hasSettings: !!userSettings,
+          hasStoryMode: !!userSettings?.storyMode,
+          settingsSource: 'getCurrentUserSettings()'
+        });
+        
         const storyMode = userSettings?.storyMode || {};
         
         const provider = storyMode.provider || 'openai';
         const apiKeys = storyMode.apiKeys || {};
         const apiKey = apiKeys[provider];
         
+        console.log('🔑 [STORY MODE] API Key check:', {
+          provider,
+          hasApiKeys: !!apiKeys,
+          apiKeysKeys: Object.keys(apiKeys),
+          hasCurrentKey: !!apiKey,
+          keyLength: apiKey?.length || 0,
+          keyPreview: apiKey ? `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 4)}` : 'NONE'
+        });
+        
         // Validate API key
         if (!apiKey || apiKey.length < 10) {
           throw new Error('No valid API key configured. Please add one in settings.');
         }
         
-        console.log('🤖 Generating story emojis:', { 
+        console.log('🤖 [STORY MODE] Generating story emojis:', { 
           provider, 
-          hasKey: !!apiKey, 
+          hasKey: true,
+          keyLength: apiKey.length,
           text: storyInput.substring(0, 30),
-          count: emojiCount 
+          count: emojiCount,
+          forceRegenerate
         });
         
         // Generate emojis using AI
@@ -366,7 +483,8 @@
           customModel: storyMode.customModel,
           model: storyMode.model,
           maxTokens: storyMode.maxTokens,
-          temperature: storyMode.temperature
+          temperature: storyMode.temperature,
+          forceRegenerate // Pass force flag to bypass cache
         };
         
         const result = await generateStoryEmojis(
@@ -379,7 +497,11 @@
           throw new Error(result.error || 'Failed to generate story emojis');
         }
         
-        console.log('✅ Story emojis generated:', result.emojis);
+        console.log('✅ [STORY MODE] Story emojis generated:', {
+          count: result.emojis.length,
+          cached: result.cached,
+          provider: result.provider
+        });
         
         // Track successful request
         successfulStoryRequests.update(requests => [
@@ -530,7 +652,8 @@
     }
   
     function handleTextareaKeydown(event) {
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && canGenerate) {
+        event.preventDefault(); // Prevent default newline
         generateEmojis();
       }
     }
@@ -650,15 +773,144 @@
     {#if showTextArea}
       <div class="relative w-full">
         <textarea 
+        id="story-input"
           bind:value={storyInput} 
           placeholder={$translations.emojiDisplay.placeholderText} 
-          class="appearance-none block w-full pr-12 text-gray-900 dark:text-white rounded-2xl py-3 px-4 leading-tight transition duration-300 ease-in-out bg-white dark:bg-aubergine-900 border border-gray-200 dark:border-gray-700 focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed placeholder-gray-400 dark:placeholder-gray-500 resize-none" 
-          on:keydown={handleTextareaKeydown} 
-          minlength="40"
-          disabled={$isDisabled}
+          class="appearance-none block w-full pr-12 pb-8 text-gray-900 dark:text-white rounded-2xl py-3 px-4 leading-tight transition duration-300 ease-in-out bg-white dark:bg-aubergine-900 border-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed placeholder-gray-400 dark:placeholder-gray-500 resize-none
+            {isOverLimit 
+              ? 'border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-400/50' 
+              : isUnderLimit 
+                ? 'border-orange-400 dark:border-orange-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/50'
+                : isValidLength
+                  ? 'border-green-400 dark:border-green-500 focus:border-green-400 focus:ring-2 focus:ring-green-400/50'
+                  : 'border-gray-200 dark:border-gray-700 focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50'}" 
+          on:keydown={handleTextareaKeydown}
+          on:input={(e) => {
+            // Enforce max length
+            if (e.target.value.length > MAX_CHARS) {
+              storyInput = e.target.value.slice(0, MAX_CHARS);
+            }
+          }}
+          minlength={MIN_CHARS}
+          maxlength={MAX_CHARS}
+          disabled={$isDisabled || isGeneratingStory}
           autocomplete="off"
-          rows="4"
+          rows="5"
+          aria-describedby="char-counter"
+          aria-busy={isGeneratingStory}
         />
+        
+        <!-- Loading Overlay für Story Generation (Fancy UX) -->
+        {#if isGeneratingStory}
+          <div class="absolute inset-0 rounded-2xl bg-creme-700 dark:bg-aubergine-900 backdrop-blur-2xl flex flex-col items-center justify-center z-20 pointer-events-none overflow-hidden">
+            <!-- Colored background with backdrop blur -->
+            <div class="absolute inset-0 rounded-2xl"></div>
+            
+            <!-- Animated Emoji lanes - Universe effect moving RIGHT to match body background -->
+            <div class="absolute inset-0 flex flex-col justify-around z-10 py-6">
+              <!-- Lane 1: Top - Fast, small emojis -->
+              <div class="flex items-center relative h-8 overflow-hidden">
+                <div class="flex animate-scroll-right-fast whitespace-nowrap">
+                  {#each loadingLane1 as config}
+                    <span 
+                      class="inline-block" 
+                      style="font-size: {config.size}px; opacity: {config.opacity}; margin-left: {config.margin}px;"
+                    >{config.emoji}</span>
+                  {/each}
+                </div>
+                <!-- Duplicate for seamless loop -->
+                <div class="flex animate-scroll-right-fast whitespace-nowrap absolute right-full" style="animation-delay: -10s;">
+                  {#each loadingLane1 as config}
+                    <span 
+                      class="inline-block" 
+                      style="font-size: {config.size}px; opacity: {config.opacity}; margin-left: {config.margin}px;"
+                    >{config.emoji}</span>
+                  {/each}
+                </div>
+              </div>
+              
+              <!-- Lane 2: Middle - Medium, mix sizes with ONE huge emoji -->
+              <div class="flex items-center relative h-8 overflow-hidden">
+                <div class="flex animate-scroll-right whitespace-nowrap" style="animation-delay: -8s;">
+                  {#each loadingLane2 as config}
+                    <span 
+                      class="inline-block" 
+                      style="font-size: {config.size}px; opacity: {config.opacity}; margin-left: {config.margin}px;"
+                    >{config.emoji}</span>
+                  {/each}
+                </div>
+                <!-- Duplicate for seamless loop -->
+                <div class="flex animate-scroll-right whitespace-nowrap absolute right-full" style="animation-delay: -23s;">
+                  {#each loadingLane2 as config}
+                    <span 
+                      class="inline-block" 
+                      style="font-size: {config.size}px; opacity: {config.opacity}; margin-left: {config.margin}px;"
+                    >{config.emoji}</span>
+                  {/each}
+                </div>
+              </div>
+              
+              <!-- Lane 3: Bottom - Slow, small emojis -->
+              <div class="flex items-center relative h-8 overflow-hidden">
+                <div class="flex animate-scroll-right-ultra-slow whitespace-nowrap" style="animation-delay: -15s;">
+                  {#each loadingLane3 as config}
+                    <span 
+                      class="inline-block" 
+                      style="font-size: {config.size}px; opacity: {config.opacity}; margin-left: {config.margin}px;"
+                    >{config.emoji}</span>
+                  {/each}
+                </div>
+                <!-- Duplicate for seamless loop -->
+                <div class="flex animate-scroll-right-ultra-slow whitespace-nowrap absolute right-full" style="animation-delay: -45s;">
+                  {#each loadingLane3 as config}
+                    <span 
+                      class="inline-block" 
+                      style="font-size: {config.size}px; opacity: {config.opacity}; margin-left: {config.margin}px;"
+                    >{config.emoji}</span>
+                  {/each}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Loading Text - Above emojis -->
+            <p class="relative text-lg font-medium text-gray-700 dark:text-gray-300 z-20">
+              🤖 Creating your story emojis...
+            </p>
+          </div>
+        {/if}
+        
+        <!-- Character Counter (inside textarea, bottom-left) -->
+        <div 
+          id="char-counter"
+          class="absolute bottom-2 left-3 inline-flex items-center gap-1.5 py-1 rounded-md text-xs font-medium pointer-events-none transition-all duration-200
+            {isOverLimit 
+              ? ' text-red-700 dark:text-red-400' 
+              : isUnderLimit 
+                ? ' text-orange-700 dark:text-orange-400'
+                : isValidLength
+                  ? ' text-green-700 dark:text-green-400'
+                  : ' text-gray-600 dark:text-gray-400'}"
+          aria-live="polite"
+        >
+          {#if isOverLimit}
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+            <span>{Math.abs(remaining)} over limit</span>
+          {:else if isUnderLimit}
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            <span>{MIN_CHARS - currentLength} more needed</span>
+          {:else if isValidLength}
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span>{remaining} / {MAX_CHARS}</span>
+          {:else}
+            <span>{currentLength} / {MAX_CHARS}</span>
+          {/if}
+        </div>
         
         <!-- Clear Button (inside textarea, top-right) -->
         {#if storyInput && storyInput.length > 0}
@@ -666,7 +918,7 @@
             type="button"
             aria-label={$translations.emojiDisplay.clearButton || 'Clear input'}
             on:click={clearInput} 
-            class="absolute top-2 right-2 inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white active:text-black dark:active:text-white"
+            class="absolute top-2 right-2 inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white active:text-black dark:active:text-white z-10"
             disabled={$isDisabled}
             title={$translations.emojiDisplay.clearButton || 'Clear'}
           >
@@ -677,7 +929,7 @@
         {/if}
       </div>
       
-      <!-- AI Model Info Badge -->
+      <!-- AI Model Chip - Minimalistisch unter Text-Input rechts -->
       {@const userSettings = getCurrentUserSettings()}
       {@const currentProvider = userSettings?.storyMode?.provider || 'openai'}
       {@const currentModel = userSettings?.storyMode?.model || ''}
@@ -696,21 +948,49 @@
         custom: currentModel || 'Model'
       }}
       
-      <div class="flex items-center justify-between py-3 px-4 bg-white dark:bg-aubergine-900 rounded-xl border border-gray-200 dark:border-gray-700 mb-3 shadow-sm">
-        <!-- Text links -->
-        <div class="flex items-center gap-2 text-sm">
-          <span class="text-gray-700 dark:text-gray-300 font-semibold">AI Model</span>
-        </div>
-        
-        <!-- LLM Info rechts -->
-        <div class="flex items-center gap-1.5">
-          <span class="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-bold bg-yellow-500 text-black shadow-sm">
-            🤖 {providerNames[currentProvider]}
-          </span>
-          <span class="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium bg-powder-500 text-black dark:bg-yellow-600 shadow-sm">
-            {currentModel || defaultModels[currentProvider]}
-          </span>
-        </div>
+      <div class="flex justify-end mt-2">
+        <button
+          on:click={() => {
+            console.log('🎯 Navigating to AI Settings...');
+            // Navigate to account page
+            const lang = $currentLanguage || 'en';
+            const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
+            navigate(accountPath);
+            
+            // Open AI Settings Accordion and scroll to it
+            setTimeout(() => {
+              // Try to find the AI Settings accordion
+              const aiAccordion = document.querySelector('[data-accordion="story"]');
+              const accordionButton = document.querySelector('#accordion-story');
+              
+              if (aiAccordion) {
+                // Check if accordion is closed, then click to open
+                if (!aiAccordion.querySelector('.p-4')) {
+                  console.log('📂 Opening AI Settings accordion...');
+                  accordionButton?.click();
+                }
+                
+                // Scroll to accordion after opening
+                setTimeout(() => {
+                  aiAccordion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  console.log('✅ Scrolled to AI Settings');
+                }, 100);
+              } else {
+                console.warn('⚠️ AI Settings accordion not found');
+              }
+            }, 400);
+          }}
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer"
+          style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"
+          title="Click to change AI model in settings"
+          aria-label="Current AI model: {currentModel || defaultModels[currentProvider]}. Click to change in settings."
+        >
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>{currentModel || defaultModels[currentProvider]}</span>
+        </button>
       </div>
     {/if}
   
@@ -724,12 +1004,31 @@
         <!-- Story Mode Generate Button (gelb, aktiv) -->
         <button 
           aria-label={$translations.emojiDisplay.storyButtonClicked || 'Generate story emojis'}
+          aria-busy={isGeneratingStory}
           on:click={generateEmojis} 
           class="w-1/2 py-4 rounded-full bg-yellow-500 text-black border-2 border-yellow-500 shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-          disabled={$isDisabled}
-          title={$translations.emojiDisplay.storyButtonClicked}
+          disabled={$isDisabled || !canGenerate || isGeneratingStory}
+          title={!canGenerate 
+            ? (isOverLimit 
+              ? `Text too long (max ${MAX_CHARS} characters)` 
+              : isUnderLimit 
+                ? `Text too short (min ${MIN_CHARS} characters)` 
+                : `Enter at least ${MIN_CHARS} characters`)
+            : isGeneratingStory
+              ? 'Generating...'
+              : $translations.emojiDisplay.storyButtonClicked}
         >
-          {$translations.emojiDisplay.storyButtonClicked}
+          {#if isGeneratingStory}
+            <span class="flex items-center justify-center">
+              <svg class="animate-spin -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Creating...</span>
+            </span>
+          {:else}
+            {$translations.emojiDisplay.storyButtonClicked}
+          {/if}
         </button>
         
         <!-- Back to Random Button: gedämpft mit gelbem Border -->
@@ -737,7 +1036,7 @@
           aria-label={$translations.emojiDisplay.randomButton || 'Switch to random mode'}
           on:click={() => { isStoryMode = false; showTextArea = false; }} 
           class="w-1/2 py-4 rounded-full bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm transition-all duration-300 ease-in-out transform hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
-          disabled={$isDisabled}
+          disabled={$isDisabled || isGeneratingStory}
           title={$translations.emojiDisplay.randomButton}
         >
           {$translations.emojiDisplay.randomButton}

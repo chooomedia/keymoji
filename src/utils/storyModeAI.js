@@ -10,12 +10,14 @@
 
 import emojisData from '../../public/emojisArray.json';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
+import { isDevelopment } from '../utils/environment.js';
 
 const emojis = emojisData.emojis;
 
 /**
  * Timeout wrapper for fetch requests (Best Practice)
  * Prevents hanging requests and provides better UX
+ * Enhanced CORS error detection and development-mode handling
  */
 async function fetchWithTimeout(url, options, timeout = 30000) {
     const controller = new AbortController();
@@ -30,9 +32,30 @@ async function fetchWithTimeout(url, options, timeout = 30000) {
         return response;
     } catch (error) {
         clearTimeout(timeoutId);
+        
+        // Enhanced error detection
         if (error.name === 'AbortError') {
             throw new Error('Request timeout - API took too long to respond');
         }
+        
+        // CORS error detection
+        if (error.message?.includes('CORS') || 
+            error.message?.includes('blocked by CORS') ||
+            error.message?.includes('Access-Control-Allow-Origin')) {
+            throw new Error('CORS_ERROR: Cross-Origin Request Blocked. Your custom API server needs to enable CORS for ' + new URL(url).origin);
+        }
+        
+        // Network error
+        if (error.message?.includes('Failed to fetch') || 
+            error.message?.includes('NetworkError') ||
+            error.message?.includes('ERR_FAILED')) {
+            const isLocalhost = url.includes('127.0.0.1') || url.includes('localhost');
+            if (isLocalhost) {
+                throw new Error('NETWORK_ERROR: Cannot connect to ' + url + '. Is your local API server running?');
+            }
+            throw new Error('NETWORK_ERROR: Cannot connect to API. Check your internet connection and API URL.');
+        }
+        
         throw error;
     }
 }
@@ -583,6 +606,14 @@ async function callCustomAPI(config) {
         ? apiUrl + endpoint.replace(/^\//, '')
         : apiUrl + endpoint;
 
+    console.log('🌐 [Custom API] Request details:', {
+        fullUrl,
+        endpoint,
+        format,
+        model,
+        hasApiKey: !!apiKey
+    });
+
     // Build request body based on format
     let body = {};
 
@@ -627,6 +658,8 @@ async function callCustomAPI(config) {
             };
     }
 
+    console.log('📤 [Custom API] Request body:', JSON.stringify(body, null, 2));
+
     const response = await fetchWithTimeout(
         fullUrl,
         {
@@ -640,15 +673,19 @@ async function callCustomAPI(config) {
         30000 // 30 second timeout
     );
 
+    console.log('📥 [Custom API] Response status:', response.status, response.statusText);
+
     if (!response.ok) {
         const error = await response.text();
+        console.error('❌ [Custom API] Error response:', error);
         throw new Error(error || 'Custom API error');
     }
 
     const data = await response.json();
+    console.log('✅ [Custom API] Response data:', data);
 
     // Try common response formats
-    return (
+    const result = (
         data.choices?.[0]?.message?.content || // OpenAI format
         data.content?.[0]?.text || // Claude format
         data.response ||
@@ -657,6 +694,9 @@ async function callCustomAPI(config) {
         data.emojis ||
         ''
     );
+    
+    console.log('🎯 [Custom API] Extracted result:', result);
+    return result;
 }
 
 /**
@@ -759,11 +799,12 @@ export async function generateStoryEmojis(text, emojiCount, storyModeConfig) {
         maxTokens,
         temperature,
         cacheResults,
-        tier
+        tier,
+        forceRegenerate = false
     } = storyModeConfig;
 
-    // Check cache first
-    if (cacheResults !== false) {
+    // Check cache first (skip if forceRegenerate is true)
+    if (cacheResults !== false && !forceRegenerate) {
         const cached = getCachedStory(text, emojiCount, provider, model);
         // VALIDATION: Ensure cached result is valid array with emojis
         if (cached && Array.isArray(cached) && cached.length > 0) {
@@ -782,6 +823,8 @@ export async function generateStoryEmojis(text, emojiCount, storyModeConfig) {
         } else if (cached) {
             console.warn('⚠️ Invalid cached story, regenerating...', cached);
         }
+    } else if (forceRegenerate) {
+        console.log('🔄 Force regenerate: Skipping cache lookup');
     }
 
     try {
@@ -988,6 +1031,27 @@ export async function testAIProvider(storyModeConfig) {
 
         let response = '';
         let usedModel = model || getDefaultModel(provider, 'free');
+        
+        // DEVELOPMENT MODE: CORS Mock Mode for Custom API Testing
+        if (isDevelopment() && provider === 'custom' && customApiUrl && 
+            (customApiUrl.includes('127.0.0.1') || customApiUrl.includes('localhost'))) {
+            
+            // Check for URL parameter to enable mock mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const mockMode = urlParams.get('mock-custom-api') === 'true';
+            
+            if (mockMode) {
+                console.log('🧪 [DEV] Using MOCK response for Custom API (CORS bypass)');
+                response = '🧪'; // Return test emoji
+                return {
+                    success: true,
+                    provider: 'custom',
+                    model: usedModel,
+                    response: '[MOCK] CORS bypass - Testing locally',
+                    mocked: true
+                };
+            }
+        }
 
         switch (provider) {
             case 'openai':

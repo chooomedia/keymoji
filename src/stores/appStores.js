@@ -9,9 +9,25 @@ import {
 } from '../utils/languages.js';
 import { appVersion, formatVersion } from '../utils/version.js';
 import { WEBHOOKS } from '../config/api.js';
-import { STORAGE_KEYS, storageHelpers } from '../config/storage.js';
+import {
+    STORAGE_KEYS,
+    storageHelpers,
+    migrateAndCleanupLocalStorage
+} from '../config/storage.js';
 import { isDevelopment, devWarn } from '../utils/environment.js';
 import { getDailyLimitForUser, validateUserLimits } from '../config/limits.js';
+
+// ============================================
+// CRITICAL: Run migration IMMEDIATELY on import (synchronous!)
+// This ensures all localStorage data is clean BEFORE stores initialize
+// ============================================
+if (typeof window !== 'undefined') {
+    try {
+        migrateAndCleanupLocalStorage();
+    } catch (error) {
+        console.warn('⚠️ [APP INIT] Failed to migrate localStorage:', error);
+    }
+}
 
 // === LOCAL STORAGE HELPER ===
 // Verwende zentrale Storage-Helpers
@@ -498,7 +514,93 @@ export function setLanguage(lang) {
 }
 
 // === ACCOUNT STORES ===
-export const isLoggedIn = writable(false);
+// =======================================
+// ACCOUNT STORES - PERSISTENT & SYNCHRONIZED
+// =======================================
+// CRITICAL: These stores MUST be initialized from localStorage IMMEDIATELY
+// to prevent login-status "flicker" on route changes
+// Single source of truth: localStorage.USER_PREFERENCES
+
+// Initialize account stores from localStorage (synchronous!)
+function initializeAccountStores() {
+    if (typeof window === 'undefined') {
+        return {
+            isLoggedIn: false,
+            currentAccount: null,
+            userProfile: null,
+            accountTier: 'free'
+        };
+    }
+
+    try {
+        const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
+
+        if (userPrefs && userPrefs.email && userPrefs.sessionExpires) {
+            // Check if session is still valid
+            const now = new Date();
+            const expires = new Date(userPrefs.sessionExpires);
+            const isSessionValid = now < expires;
+
+            if (isSessionValid) {
+                console.log(
+                    '✅ [STORE INIT] Restoring logged-in state from localStorage:',
+                    {
+                        email: userPrefs.email,
+                        hasProfile: !!userPrefs.profile,
+                        tier: userPrefs.tier || 'free'
+                    }
+                );
+
+                return {
+                    isLoggedIn: true,
+                    currentAccount: {
+                        email: userPrefs.email,
+                        name: userPrefs.name || 'User',
+                        userId: userPrefs.userId,
+                        tier: userPrefs.tier || 'free',
+                        profile: userPrefs.profile || {},
+                        metadata: userPrefs.metadata || {},
+                        lastLogin: userPrefs.lastLogin,
+                        createdAt: userPrefs.createdAt,
+                        sessionId: userPrefs.sessionId
+                    },
+                    userProfile: userPrefs.profile || {},
+                    accountTier: userPrefs.tier || 'free'
+                };
+            } else {
+                console.log('⚠️ [STORE INIT] Session expired, clearing...');
+                // Session expired, clear it
+                localStorage.removeItem(STORAGE_KEYS.USER_PREFERENCES);
+            }
+        }
+    } catch (error) {
+        console.warn(
+            '⚠️ [STORE INIT] Failed to load account from localStorage:',
+            error
+        );
+    }
+
+    console.log('🔓 [STORE INIT] No valid session, starting as guest');
+    return {
+        isLoggedIn: false,
+        currentAccount: null,
+        userProfile: null,
+        accountTier: 'free'
+    };
+}
+
+// Initialize immediately (synchronous!)
+const initialAccountState = initializeAccountStores();
+
+// Create persistent account stores
+export const isLoggedIn = writable(initialAccountState.isLoggedIn);
+export const currentAccount = writable(initialAccountState.currentAccount);
+export const userProfile = writable(initialAccountState.userProfile);
+export const accountTier = writable(initialAccountState.accountTier);
+
+// Derived guest/pro flags (reactive)
+export const isGuestUser = derived(currentAccount, $account => !$account);
+export const isProUser = derived(accountTier, $tier => $tier === 'pro');
 
 // IMPORTANT: dailyLimit is managed by dailyUsageStore.js (v0.5.7+)
 // This store is updated by initializeDailyUsage() on app start
@@ -507,15 +609,6 @@ export const dailyLimit = writable({
     limit: 5, // Default for guest (GUEST: 5 generations) - updated by initializeDailyUsage
     used: 0
 });
-
-// REMOVED: accountSettings and currentSettings (use userSettingsStore instead!)
-// These were duplicates causing data inconsistencies.
-// Single source of truth: userSettings (derived from currentAccount)
-export const isGuestUser = writable(true);
-export const isProUser = writable(false);
-export const currentAccount = writable(null);
-export const userProfile = writable(null);
-export const accountTier = writable('free');
 
 // LEGACY: Kept for backward compatibility and fallback
 // Primary limit management is now in dailyUsageStore.js

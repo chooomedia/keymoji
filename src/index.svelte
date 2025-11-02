@@ -31,25 +31,23 @@
       // Als gerendert markieren
       isRendered = true;
       
-      // Only initialize if not already logged in (prevent reset on navigation!)
-      const alreadyLoggedIn = get(isLoggedIn);
-      const hasAccount = get(currentAccount);
+      console.log('🏠 Index: onMount - Component initialized');
       
-      console.log('🏠 Index: onMount check:', {
-          alreadyLoggedIn,
-          hasAccount: !!hasAccount
+      // CRITICAL: Session restore is handled by LanguageRouter on app start
+      // Do NOT call initializeAccountFromCookies here - it causes duplicate calls
+      // The session is already restored before this component mounts
+      
+      // Just verify the current state
+      const accountData = get(currentAccount);
+      const loggedIn = get(isLoggedIn);
+      console.log('🏠 Index: Current state:', {
+          hasAccount: !!accountData,
+          isLoggedIn: loggedIn,
+          email: accountData?.email
       });
       
-      if (!alreadyLoggedIn || !hasAccount) {
-          console.log('🔄 Index: Initializing account (not logged in yet)');
-          // Initialize account from cookies
-          initializeAccountFromCookies();
-          
-          // Initialize user settings
-          initializeSettingsForUser();
-      } else {
-          console.log('✅ Index: Already logged in, keeping current state');
-      }
+      // Initialize user settings (this reads from localStorage, doesn't break session)
+      initializeSettingsForUser();
       
       // Setup cross-tab communication for magic links
       setupMagicLinkListener();

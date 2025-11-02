@@ -154,19 +154,45 @@ function checkRateLimit(email) {
 
 // Session validation with enhanced security
 function validateSession(sessionData) {
-    if (!sessionData) return false;
+    console.log('🔍 [SESSION VALIDATION] Checking session...', {
+        hasData: !!sessionData,
+        hasEmail: !!sessionData?.email,
+        hasSessionExpires: !!sessionData?.sessionExpires,
+        sessionExpires: sessionData?.sessionExpires
+    });
+
+    if (!sessionData) {
+        console.log('❌ [SESSION VALIDATION] No session data');
+        return false;
+    }
+
+    // Require email as minimum
+    if (!sessionData.email) {
+        console.log('❌ [SESSION VALIDATION] No email in session data');
+        return false;
+    }
 
     // If sessionExpires is not present, assume session is valid (for backward compatibility)
     if (!sessionData.sessionExpires) {
-        console.log('⚠️ No sessionExpires found, assuming valid session');
+        console.log(
+            '⚠️ [SESSION VALIDATION] No sessionExpires found, assuming valid session (backward compat)'
+        );
         return true;
     }
 
     const now = new Date();
     const expires = new Date(sessionData.sessionExpires);
 
+    console.log('🕐 [SESSION VALIDATION] Time check:', {
+        now: now.toISOString(),
+        expires: expires.toISOString(),
+        isExpired: now > expires,
+        timeUntilExpiry: Math.floor((expires - now) / 1000 / 60) + ' minutes'
+    });
+
     // Check if session is expired
     if (now > expires) {
+        console.log('❌ [SESSION VALIDATION] Session expired');
         logSecurityEvent('SESSION_EXPIRED', { userId: sessionData.userId });
         return false;
     }
@@ -174,6 +200,10 @@ function validateSession(sessionData) {
     // Check for suspicious activity (multiple sessions)
     const activeSessions = getActiveSessions(sessionData.userId);
     if (activeSessions.length > MAX_SESSIONS_PER_USER) {
+        console.log(
+            '❌ [SESSION VALIDATION] Too many active sessions:',
+            activeSessions.length
+        );
         logSecurityEvent('SUSPICIOUS_ACTIVITY', {
             userId: sessionData.userId,
             sessionCount: activeSessions.length
@@ -181,6 +211,7 @@ function validateSession(sessionData) {
         return false;
     }
 
+    console.log('✅ [SESSION VALIDATION] Session is valid');
     return true;
 }
 
@@ -1108,9 +1139,8 @@ export async function logout() {
         LOGIN_ATTEMPTS.delete(get(currentAccount).email);
     }
 
-    // Step 5: Reset session flags
-    sessionRestored = false;
-    isRestoringSession = false;
+    // Step 5: Reset session flags using exported function
+    resetSessionFlags();
     console.log('✅ [LOGOUT] Session flags reset');
 
     // Step 6: Smooth redirect to home with clean state
@@ -1133,41 +1163,99 @@ export function getCurrentAccount() {
 }
 
 // Flag to prevent multiple simultaneous session restores
+// CRITICAL: These must be reset on every page load!
 let isRestoringSession = false;
 let sessionRestored = false;
+let sessionRestoreTimestamp = 0;
+
+// Reset session restore flags (called on app init)
+export function resetSessionFlags() {
+    console.log('🔄 [SESSION] Resetting session flags for new page load');
+    isRestoringSession = false;
+    sessionRestored = false;
+    sessionRestoreTimestamp = 0;
+}
 
 // Initialize account from cookies on app start - Enhanced Security
-export async function initializeAccountFromCookies() {
+export async function initializeAccountFromCookies(forceRestore = false) {
     try {
-        // Prevent multiple simultaneous calls
-        if (isRestoringSession) {
+        // On page reload, always try to restore (but prevent multiple simultaneous calls)
+        const timeSinceLastRestore = Date.now() - sessionRestoreTimestamp;
+
+        if (isRestoringSession && timeSinceLastRestore < 5000) {
             console.log('⏳ Session restore already in progress, skipping...');
             return sessionRestored;
         }
 
-        if (sessionRestored) {
-            console.log('✅ Session already restored, skipping...');
+        if (sessionRestored && !forceRestore && timeSinceLastRestore < 5000) {
+            console.log('✅ Session already restored (recent), skipping...');
             return true;
         }
 
+        console.log('🔐 [SESSION RESTORE] Starting session restoration...', {
+            forceRestore,
+            timeSinceLastRestore,
+            previouslyRestored: sessionRestored,
+            currentStoreState: {
+                isLoggedIn: get(isLoggedIn),
+                hasAccount: !!get(currentAccount),
+                email: get(currentAccount)?.email
+            }
+        });
+
         isRestoringSession = true;
+        sessionRestoreTimestamp = Date.now();
 
         const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
         const sessionId = getSessionId(); // Use local function, not storageHelpers.getSessionId
 
         // Enhanced session validation
         if (!validateSession(userPrefs)) {
-            console.log('❌ Invalid session, clearing session data only');
+            console.log(
+                '❌ [SESSION RESTORE] Invalid session, clearing session data'
+            );
             // Nur Session-Daten löschen, andere localStorage-Daten beibehalten
             try {
                 localStorage.removeItem(STORAGE_KEYS.USER_PREFERENCES);
                 localStorage.removeItem('sessionId');
                 sessionStorage.clear();
+
+                // Also reset stores
+                isLoggedIn.set(false);
+                currentAccount.set(null);
+                userProfile.set(null);
+                accountTier.set('free');
             } catch (error) {
-                console.warn('Failed to clear invalid session data:', error);
+                console.warn(
+                    '⚠️ [SESSION RESTORE] Failed to clear invalid session data:',
+                    error
+                );
             }
             isRestoringSession = false;
             return false;
+        }
+
+        // CRITICAL: If stores are already set correctly, don't do full API restore
+        // This prevents unnecessary API calls and potential race conditions
+        const currentlyLoggedIn = get(isLoggedIn);
+        const hasAccountData = !!get(currentAccount);
+
+        if (
+            currentlyLoggedIn &&
+            hasAccountData &&
+            userPrefs.email &&
+            !forceRestore
+        ) {
+            console.log(
+                '✅ [SESSION RESTORE] Stores already initialized, skipping API call',
+                {
+                    email: userPrefs.email,
+                    storeEmail: get(currentAccount)?.email
+                }
+            );
+            isRestoringSession = false;
+            sessionRestored = true;
+            return true;
         }
 
         if (userPrefs.email && sessionId) {
@@ -1401,10 +1489,13 @@ export async function initializeAccountFromCookies() {
     return false;
 }
 
-// Reset session restore flag (e.g., after logout)
+// DEPRECATED: Use resetSessionFlags() instead
+// Kept for backward compatibility
 export function resetSessionRestoreFlag() {
-    isRestoringSession = false;
-    sessionRestored = false;
+    console.warn(
+        '⚠️ resetSessionRestoreFlag() is deprecated, use resetSessionFlags() instead'
+    );
+    resetSessionFlags();
 }
 
 // Helper functions for security

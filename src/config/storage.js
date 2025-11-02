@@ -91,7 +91,194 @@ export const storageHelpers = {
             console.warn('Failed to clear localStorage:', error);
             return false;
         }
+    },
+
+    // Liste aller Keys auflisten
+    listAll: () => {
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key) keys.push(key);
+        }
+        return keys;
     }
 };
+
+/**
+ * Migrate and cleanup old localStorage structures
+ * Called once on app initialization
+ */
+export function migrateAndCleanupLocalStorage() {
+    console.log('🔄 [MIGRATION] Starting localStorage migration & cleanup...');
+
+    const DEPRECATED_KEYS = [
+        'keymoji_daily_request_count', // Old daily usage key
+        'keymoji_stored_date', // Old date tracking
+        'keymoji_user_settings_timestamp', // Old timestamp
+        'keymoji_usage_history_timestamp' // Old timestamp
+    ];
+
+    // 1. Remove deprecated keys
+    let removedCount = 0;
+    DEPRECATED_KEYS.forEach(key => {
+        if (storageHelpers.has(key)) {
+            console.log(`🗑️ [MIGRATION] Removing deprecated key: ${key}`);
+            storageHelpers.remove(key);
+            removedCount++;
+        }
+    });
+
+    if (removedCount > 0) {
+        console.log(`✅ [MIGRATION] Removed ${removedCount} deprecated keys`);
+    }
+
+    // 2. Migrate old API key structure (storyMode.apiKey → storyMode.apiKeys)
+    const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
+    if (userPrefs) {
+        let needsSave = false;
+
+        // Check if metadata.settings has old apiKey structure
+        const metadata =
+            typeof userPrefs.metadata === 'string'
+                ? JSON.parse(userPrefs.metadata)
+                : userPrefs.metadata || {};
+        const settings = metadata.settings || {};
+
+        if (settings.storyMode?.apiKey && !settings.storyMode.apiKeys) {
+            console.log(
+                '🔄 [MIGRATION] Migrating storyMode.apiKey to apiKeys...'
+            );
+
+            const oldKey = settings.storyMode.apiKey;
+            const provider = settings.storyMode.provider || 'openai';
+
+            settings.storyMode.apiKeys = {
+                openai: provider === 'openai' ? oldKey : '',
+                gemini: provider === 'gemini' ? oldKey : '',
+                mistral: provider === 'mistral' ? oldKey : '',
+                claude: provider === 'claude' ? oldKey : '',
+                custom: provider === 'custom' ? oldKey : ''
+            };
+
+            delete settings.storyMode.apiKey;
+            needsSave = true;
+
+            console.log(
+                `✅ [MIGRATION] Moved old apiKey to apiKeys[${provider}]`
+            );
+        }
+
+        // Save if migrated
+        if (needsSave) {
+            metadata.settings = settings;
+            storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
+                ...userPrefs,
+                metadata
+            });
+            console.log(
+                '💾 [MIGRATION] Saved migrated settings to localStorage'
+            );
+        }
+    }
+
+    // 3. Clean up old story cache entries (older than 30 days)
+    const allKeys = storageHelpers.listAll();
+    const storyCacheKeys = allKeys.filter(key =>
+        key.startsWith('story_cache_')
+    );
+    let expiredCaches = 0;
+
+    storyCacheKeys.forEach(key => {
+        const cached = storageHelpers.get(key);
+        if (cached?.timestamp) {
+            const age = Date.now() - cached.timestamp;
+            const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+            if (age > maxAge) {
+                storageHelpers.remove(key);
+                expiredCaches++;
+            }
+        }
+    });
+
+    if (expiredCaches > 0) {
+        console.log(
+            `🧹 [MIGRATION] Removed ${expiredCaches} expired cache entries`
+        );
+    }
+
+    console.log('✅ [MIGRATION] Migration & cleanup complete!');
+
+    // 4. Log final localStorage state for debugging
+    const finalKeys = storageHelpers.listAll();
+    const keymojiKeys = finalKeys.filter(key => key.startsWith('keymoji_'));
+
+    console.log('📊 [MIGRATION] Final localStorage state:', {
+        totalKeys: finalKeys.length,
+        keymojiKeys: keymojiKeys.length,
+        keys: keymojiKeys
+    });
+}
+
+/**
+ * Debug function: Print all localStorage contents
+ * Call from console: window.debugLocalStorage()
+ */
+export function debugLocalStorage() {
+    console.log('🔍 [DEBUG] localStorage contents:');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    const allKeys = storageHelpers.listAll();
+    const keymojiKeys = allKeys.filter(
+        key => key.startsWith('keymoji_') || key.startsWith('story_cache_')
+    );
+
+    keymojiKeys.forEach(key => {
+        const value = storageHelpers.get(key);
+        const size = JSON.stringify(value).length;
+
+        console.log(`\n📦 ${key}:`, {
+            type: typeof value,
+            size: `${size} bytes`,
+            value: size > 500 ? `[Large object: ${size} bytes]` : value
+        });
+    });
+
+    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`📊 Total keymoji keys: ${keymojiKeys.length}`);
+    console.log(`📊 Total localStorage keys: ${allKeys.length}`);
+
+    // Calculate total size
+    const totalSize = keymojiKeys.reduce((acc, key) => {
+        return acc + JSON.stringify(storageHelpers.get(key)).length;
+    }, 0);
+
+    console.log(`📊 Total size: ${(totalSize / 1024).toFixed(2)} KB`);
+
+    return {
+        keymojiKeys,
+        totalKeys: allKeys.length,
+        totalSize,
+        totalSizeKB: (totalSize / 1024).toFixed(2)
+    };
+}
+
+// Export to window for console access (development only)
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    window.debugLocalStorage = debugLocalStorage;
+    window.clearLocalStorage = () => {
+        const confirmed = confirm(
+            '⚠️ Clear ALL localStorage data? This cannot be undone!'
+        );
+        if (confirmed) {
+            storageHelpers.clearAll();
+            console.log('✅ localStorage cleared! Reloading page...');
+            window.location.reload();
+        }
+    };
+    console.log('🛠️ Debug tools available:');
+    console.log('  • window.debugLocalStorage() - Show all keys');
+    console.log('  • window.clearLocalStorage() - Clear everything');
+}
 
 export default STORAGE_KEYS;

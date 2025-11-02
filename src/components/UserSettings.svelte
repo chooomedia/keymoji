@@ -595,18 +595,26 @@
     async function testAPIConnection() {
         isTestingAPI = true;
         
+        // Get current Story Mode settings (OUTSIDE try block for error handler access)
+        const provider = getEffectiveValue('storyMode.provider') || 'openai';
+        const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
+        const apiKey = apiKeys[provider];
+        const customApiUrl = getEffectiveValue('storyMode.customApiUrl');
+        const customEndpoint = getEffectiveValue('storyMode.customEndpoint');
+        const customFormat = getEffectiveValue('storyMode.customFormat');
+        const customModel = getEffectiveValue('storyMode.customModel');
+        const model = getEffectiveValue('storyMode.model');
+        
         try {
-            // Get current Story Mode settings
-            const provider = getEffectiveValue('storyMode.provider') || 'openai';
-            const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
-            const apiKey = apiKeys[provider];
-            const customApiUrl = getEffectiveValue('storyMode.customApiUrl');
-            const customEndpoint = getEffectiveValue('storyMode.customEndpoint');
-            const customFormat = getEffectiveValue('storyMode.customFormat');
-            const customModel = getEffectiveValue('storyMode.customModel');
-            const model = getEffectiveValue('storyMode.model');
-            
-            console.log('🧪 Testing API connection:', { provider, hasApiKey: !!apiKey });
+            console.log('🧪 Testing API connection:', { 
+                provider, 
+                hasApiKey: !!apiKey,
+                customApiUrl,
+                customEndpoint,
+                customFormat,
+                customModel,
+                model
+            });
             
             // Validate API key exists for current provider
             if (!apiKey || apiKey.length < 10) {
@@ -625,8 +633,12 @@
                 model
             };
             
+            console.log('📤 Sending test request with config:', testConfig);
+            
             // Call test function
             const result = await testAIProvider(testConfig);
+            
+            console.log('📥 Received test result:', result);
             
             if (result.success) {
                 // ✅ Mark test as successful
@@ -656,11 +668,29 @@
             testedProvider = null;
             
             console.error('❌ API test failed:', error);
+            
+            // Enhanced error message for CORS errors
+            let errorMessage = error.message || 'Unbekannter Fehler';
+            let helpText = '';
+            
+            if (errorMessage.includes('CORS_ERROR')) {
+                helpText = `\n\n💡 CORS-Lösung für lokale API:\n` +
+                    `1. Füge CORS-Header in deinem API-Server hinzu:\n` +
+                    `   Access-Control-Allow-Origin: http://localhost:8080\n` +
+                    `   Access-Control-Allow-Methods: POST\n` +
+                    `   Access-Control-Allow-Headers: Content-Type, Authorization\n\n` +
+                    `2. Oder teste mit Mock-Mode: /?mock-custom-api=true`;
+            } else if (errorMessage.includes('NETWORK_ERROR') && errorMessage.includes('Is your local API server running?')) {
+                helpText = `\n\n💡 Lösungen:\n` +
+                    `1. Starte deinen lokalen API-Server (Port 1234)\n` +
+                    `2. Prüfe ob die URL korrekt ist: ${customApiUrl || 'http://127.0.0.1:1234'}\n` +
+                    `3. Oder teste mit Mock-Mode: /?mock-custom-api=true`;
+            }
+            
             showError(
                 `❌ Verbindung fehlgeschlagen\n\n` +
-                `Fehler: ${error.message || 'Unbekannter Fehler'}\n\n` +
-                `Bitte überprüfe deinen API-Key und Provider.`,
-                5000
+                `Fehler: ${errorMessage}${helpText}`,
+                10000 // Show longer for CORS/network errors
             );
         } finally {
             isTestingAPI = false;
@@ -822,12 +852,16 @@
     <!-- Settings Sections -->
     <div class="space-y-4">
         {#each availableSections as section}
-            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div 
+                class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+                data-accordion="{section.id}"
+            >
                 <!-- Section Header -->
                 <button
                     on:click={() => toggleSection(section.id)}
                     class="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-all focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                     aria-label="{getLocalizedText(section.title)} - {activeSection === section.id ? 'Collapse' : 'Expand'}"
+                    id="accordion-{section.id}"
                 >
                     <div class="flex items-center space-x-3">
                         <span class="text-xl">{section.icon}</span>

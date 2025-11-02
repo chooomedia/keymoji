@@ -297,10 +297,60 @@ export async function applyLanguageReactive(language) {
 // Neue Funktionen für Settings-Management
 export function updateSetting(key, value) {
     // Füge zur pendingChanges hinzu, anstatt sofort zu speichern
-    pendingChanges.update(changes => ({
-        ...changes,
-        [key]: value
-    }));
+    // Support nested keys like "storyMode.customFormat"
+    pendingChanges.update(changes => {
+        if (key.includes('.')) {
+            // Handle nested key
+            const parts = key.split('.');
+            const topLevelKey = parts[0];
+            const nestedPath = parts.slice(1).join('.');
+            
+            // Preserve existing nested structure
+            const existingTopLevel = changes[topLevelKey] || {};
+            
+            // Build new nested value
+            let nestedValue = existingTopLevel;
+            const pathParts = nestedPath.split('.');
+            
+            // Build nested object path by path
+            let current = nestedValue;
+            for (let i = 0; i < pathParts.length - 1; i++) {
+                if (!current[pathParts[i]]) {
+                    current[pathParts[i]] = {};
+                }
+                current = current[pathParts[i]];
+            }
+            
+            // Set final value
+            current[pathParts[pathParts.length - 1]] = value;
+            
+            return {
+                ...changes,
+                [topLevelKey]: nestedValue
+            };
+        } else {
+            // Handle flat key (original behavior)
+            return {
+                ...changes,
+                [key]: value
+            };
+        }
+    });
+}
+
+// Deep merge function for nested settings
+function deepMerge(target, source) {
+    const result = { ...target };
+    
+    for (const key in source) {
+        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+            result[key] = deepMerge(target[key] || {}, source[key]);
+        } else {
+            result[key] = source[key];
+        }
+    }
+    
+    return result;
 }
 
 export async function saveAllSettings() {
@@ -311,11 +361,8 @@ export async function saveAllSettings() {
         const pendingSettings = get(pendingChanges);
         const tier = get(accountTier);
 
-        // Merge current settings with pending changes
-        let updatedSettings = {
-            ...currentSettings,
-            ...pendingSettings
-        };
+        // Merge current settings with pending changes (deep merge for nested objects!)
+        let updatedSettings = deepMerge(currentSettings, pendingSettings);
 
         console.log('💾 Saving settings (before validation):', updatedSettings);
 
@@ -533,7 +580,24 @@ export function discardChanges() {
 
 export function getPendingValue(key) {
     const pending = get(pendingChanges);
-    return pending[key];
+    
+    // Support nested keys like "storyMode.customFormat"
+    if (!key.includes('.')) {
+        return pending[key];
+    }
+    
+    const getNestedValue = (obj, path) => {
+        if (!obj || typeof obj !== 'object') return undefined;
+        const parts = path.split('.');
+        let result = obj;
+        for (const part of parts) {
+            if (result === undefined || result === null) return undefined;
+            result = result[part];
+        }
+        return result;
+    };
+    
+    return getNestedValue(pending, key);
 }
 
 export function getEffectiveValue(key) {
@@ -541,28 +605,42 @@ export function getEffectiveValue(key) {
     const settings = get(userSettings);
     const tier = get(accountTier);
 
+    // Support nested keys like "storyMode.customFormat"
+    const getNestedValue = (obj, path) => {
+        if (!obj || typeof obj !== 'object') return undefined;
+        const parts = path.split('.');
+        let result = obj;
+        for (const part of parts) {
+            if (result === undefined || result === null) return undefined;
+            result = result[part];
+        }
+        return result;
+    };
+
     // Priority 1: Pending changes (unsaved)
-    if (pending[key] !== undefined) {
+    const pendingValue = getNestedValue(pending, key);
+    if (pendingValue !== undefined) {
         console.log(
             `📝 getEffectiveValue(${key}): Using pending value:`,
-            pending[key]
+            pendingValue
         );
-        return pending[key];
+        return pendingValue;
     }
 
     // Priority 2: User settings (saved)
-    if (settings[key] !== undefined) {
+    const settingsValue = getNestedValue(settings, key);
+    if (settingsValue !== undefined) {
         console.log(
             `📦 getEffectiveValue(${key}): Using userSettings value:`,
-            settings[key]
+            settingsValue
         );
-        return settings[key];
+        return settingsValue;
     }
 
     // Priority 3: Tier defaults (FREE vs PRO)
     const defaults =
         tier === 'pro' ? DEFAULT_PRO_SETTINGS : DEFAULT_FREE_SETTINGS;
-    const defaultValue = defaults[key];
+    const defaultValue = getNestedValue(defaults, key);
 
     if (defaultValue !== undefined) {
         console.log(
@@ -794,12 +872,15 @@ export async function initializeSettingsForUser() {
                 }
             } catch (error) {
                 // CORS error is expected in localhost - use localStorage instead
-                if (
+                // Only log if NOT localhost CORS (which is expected)
+                if (error.message === 'CORS: Localhost development mode') {
+                    // Silent - expected behavior on localhost
+                } else if (
                     error.message.includes('CORS') ||
                     error.message.includes('Failed to fetch')
                 ) {
                     console.log(
-                        'ℹ️ API not available (CORS/localhost), using local settings'
+                        'ℹ️ API not available (CORS), using local settings'
                     );
                 } else {
                     console.warn('⚠️ API error:', error.message);

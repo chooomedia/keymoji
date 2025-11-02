@@ -6,7 +6,7 @@
     import { getBrowserLanguage, isLanguageSupported } from '../utils/languages.js';
     import { closeModal, isModalVisible } from '../stores/modalStore.js';
     import { devLog } from '../utils/environment.js';
-    import { initializeAccountFromCookies } from '../stores/accountStore.js';
+    import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore.js';
     import Index from '../index.svelte';
     import BlogGrid from '../components/Features/BlogGrid.svelte';
 import BlogPost from '../components/Features/BlogPost.svelte';
@@ -164,6 +164,13 @@ import BlogPost from '../components/Features/BlogPost.svelte';
         try {
             devLog('🚀 LanguageRouter: Component mounted');
             
+            // NOTE: localStorage migration runs SYNCHRONOUSLY on appStores.js import
+            // This ensures all data is clean BEFORE any store initialization
+            
+            // CRITICAL: Reset session flags on every page load (before session restore!)
+            resetSessionFlags();
+            console.log('✅ LanguageRouter: Session flags reset for new page load');
+            
             // CRITICAL: Initialize daily usage for ALL users (logged in or guest)
             try {
                 const { initializeDailyUsage } = await import('../stores/dailyUsageStore.js');
@@ -173,8 +180,10 @@ import BlogPost from '../components/Features/BlogPost.svelte';
                 console.warn('⚠️ LanguageRouter: Failed to initialize daily usage:', error);
             }
             
-            // Initialize account from cookies
-            initializeAccountFromCookies();
+            // Initialize account from cookies (session restore)
+            console.log('🔐 LanguageRouter: Starting session restoration...');
+            const sessionRestored = await initializeAccountFromCookies();
+            console.log('🔐 LanguageRouter: Session restoration result:', sessionRestored);
             
             // SEO-optimierte Initialisierung
             currentPath = window.location.pathname;

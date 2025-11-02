@@ -18,7 +18,14 @@ module.exports = {
                     options: {
                         emitCss: true,
                         hotReload: true,
-                        preprocess: require('svelte-preprocess')({})
+                        preprocess: require('svelte-preprocess')({
+                            postcss: {
+                                plugins: [
+                                    require('tailwindcss'),
+                                    require('autoprefixer')
+                                ]
+                            }
+                        })
                     }
                 }
             },

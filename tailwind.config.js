@@ -180,7 +180,7 @@ module.exports = {
                 117: '1.17'
             },
             spacing: {
-                '26r': '26rem',
+                27: '27rem',
                 '8xl': '96rem',
                 '9xl': '128rem',
                 42: '42px',
@@ -199,7 +199,15 @@ module.exports = {
                 'fade-in': 'fadeIn 0.5s ease-in-out',
                 'slide-up': 'slideUp 0.3s ease-out',
                 'scale-in': 'scaleIn 0.2s ease-out',
-                'bounce-gentle': 'bounceGentle 0.6s ease-in-out'
+                'bounce-gentle': 'bounceGentle 0.6s ease-in-out',
+                'scroll-left': 'scrollLeft 30s linear infinite',
+                'scroll-left-slow': 'scrollLeft 45s linear infinite',
+                'scroll-left-fast': 'scrollLeft 20s linear infinite',
+                'scroll-left-ultra-slow': 'scrollLeft 60s linear infinite',
+                'scroll-right': 'scrollRight 30s linear infinite',
+                'scroll-right-slow': 'scrollRight 45s linear infinite',
+                'scroll-right-fast': 'scrollRight 20s linear infinite',
+                'scroll-right-ultra-slow': 'scrollRight 60s linear infinite'
             },
             keyframes: {
                 fadeIn: {
@@ -217,6 +225,14 @@ module.exports = {
                 bounceGentle: {
                     '0%, 100%': { transform: 'scale(1)' },
                     '50%': { transform: 'scale(1.05)' }
+                },
+                scrollLeft: {
+                    '0%': { transform: 'translateX(0)' },
+                    '100%': { transform: 'translateX(-50%)' }
+                },
+                scrollRight: {
+                    '0%': { transform: 'translateX(0)' },
+                    '100%': { transform: 'translateX(50%)' }
                 }
             }
         }
