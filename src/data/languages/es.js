@@ -61,7 +61,7 @@ export default {
     contactForm: {
         pageTitle: 'Hola, soy Christopher',
         pageDescription:
-            'Desarrollador frontend y me encanta crear sitios web fáciles de usar con JavaScript, PHP y HTML. ¡No dudes en enviarme un mensaje si quieres!',
+            'Desarrollador frontend y me encanta crear sitios web fáciles de usar con TypeScript, JavaScript, PHP y HTML. ¡No dudes en enviarme un mensaje si quieres!',
         nameLabel: '🧑🏻 Tu nombre',
         emailLabel: 'Tu correo electrónico',
         messageLabel: '✍🏻 Tu mensaje',

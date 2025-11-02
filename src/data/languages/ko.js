@@ -61,7 +61,7 @@ export default {
     contactForm: {
         pageTitle: '안녕하세요, 저는 Christopher입니다',
         pageDescription:
-            '프론트엔드 개발자이며 JavaScript, PHP, HTML로 사용자 친화적인 웹사이트를 만드는 것을 좋아합니다. 언제든지 메시지 보내주세요!',
+            '프론트엔드 개발자이며 TypeScript, JavaScript, PHP, HTML로 사용자 친화적인 웹사이트를 만드는 것을 좋아합니다. 언제든지 메시지 보내주세요!',
         nameLabel: '🧑🏻 이름',
         emailLabel: '이메일',
         messageLabel: '✍🏻 메시지',

@@ -61,7 +61,7 @@ export default {
     contactForm: {
         pageTitle: 'Hallo, ik ben Christopher',
         pageDescription:
-            'Frontend-ontwikkelaar en ik hou ervan om gebruiksvriendelijke websites te bouwen met JavaScript, PHP en HTML. Stuur gerust een berichtje als je wilt!',
+            'Frontend-ontwikkelaar en ik hou ervan om gebruiksvriendelijke websites te bouwen met TypeScript, JavaScript, PHP en HTML. Stuur gerust een berichtje als je wilt!',
         nameLabel: '🧑🏻 Jouw naam',
         emailLabel: 'Jouw e-mail',
         messageLabel: '✍🏻 Bericht',
@@ -633,7 +633,7 @@ export default {
 
     // Contactformulier
     contact: {
-        intro: 'Hallo, ik ben Christopher\nFrontend-ontwikkelaar en ik hou ervan om gebruiksvriendelijke websites te bouwen met JavaScript, PHP en HTML. Stuur gerust een berichtje als je wilt!',
+        intro: 'Hallo, ik ben Christopher\nFrontend-ontwikkelaar en ik hou ervan om gebruiksvriendelijke websites te bouwen met TypeScript, JavaScript, PHP en HTML. Stuur gerust een berichtje als je wilt!',
         headline: 'Contact',
         description: 'Stuur ons een bericht!',
         nameLabel: 'Jouw naam',

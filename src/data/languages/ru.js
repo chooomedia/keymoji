@@ -61,7 +61,7 @@ export default {
     contactForm: {
         pageTitle: 'Привет, я Кристофер',
         pageDescription:
-            'Фронтенд-разработчик, люблю создавать удобные сайты на JavaScript, PHP и HTML. Не стесняйтесь написать мне сообщение!',
+            'Фронтенд-разработчик, люблю создавать удобные сайты на TypeScript, JavaScript, PHP и HTML. Не стесняйтесь написать мне сообщение!',
         nameLabel: '🧑🏻 Ваше имя',
         emailLabel: 'Ваш e-mail',
         messageLabel: '✍🏻 Сообщение',
@@ -653,7 +653,7 @@ export default {
     contactForm: {
         pageTitle: 'Привет, я Кристофер',
         pageDescription:
-            'Фронтенд-разработчик, люблю создавать удобные сайты на JavaScript, PHP и HTML. Не стесняйтесь написать мне сообщение!',
+            'Фронтенд-разработчик, люблю создавать удобные сайты на TypeScript, JavaScript, PHP и HTML. Не стесняйтесь написать мне сообщение!',
         nameLabel: '🧑🏻 Ваше имя',
         emailLabel: 'Ваш e-mail',
         messageLabel: '✍🏻 Сообщение',

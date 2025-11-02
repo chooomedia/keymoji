@@ -61,7 +61,7 @@ export default {
     contactForm: {
         pageTitle: 'こんにちは、Christopherです',
         pageDescription:
-            'フロントエンド開発者で、JavaScript、PHP、HTMLを使った使いやすいウェブサイトを作るのが大好きです。お気軽にメッセージしてください！',
+            'フロントエンド開発者で、TypeScript、JavaScript、PHP、HTMLを使った使いやすいウェブサイトを作るのが大好きです。お気軽にメッセージしてください！',
         nameLabel: '🧑🏻 お名前',
         emailLabel: 'メールアドレス',
         messageLabel: '✍🏻 メッセージ',

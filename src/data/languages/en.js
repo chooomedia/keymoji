@@ -60,7 +60,7 @@ export default {
     contactForm: {
         pageTitle: "Hi, i'm Christopher",
         pageDescription:
-            "Frontend Developer and i love to design and code userfriendly Websites with JavaScript, PHP and HTML. Don't hesitate and send me a message if you like.",
+            "Frontend Developer and i love to design and code userfriendly Websites with TypeScript, JavaScript, PHP and HTML. Don't hesitate and send me a message if you like.",
         nameLabel: '🧑🏻 Your Name',
         emailLabel: 'Your Email',
         messageLabel: '✍🏻 Your Message',

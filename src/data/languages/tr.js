@@ -61,7 +61,7 @@ export default {
     contactForm: {
         pageTitle: 'Merhaba, ben Christopher',
         pageDescription:
-            'Frontend geliştiriciyim ve JavaScript, PHP, HTML ile kullanıcı dostu siteler yapmayı seviyorum. İstersen bana mesaj göndermekten çekinme!',
+            'Frontend geliştiriciyim ve TypeScript, JavaScript, PHP, HTML ile kullanıcı dostu siteler yapmayı seviyorum. İstersen bana mesaj göndermekten çekinme!',
         nameLabel: '🧑🏻 Adınız',
         emailLabel: 'E-posta adresiniz',
         messageLabel: '✍🏻 Mesaj',

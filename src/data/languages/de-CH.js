@@ -62,7 +62,7 @@ export default {
     contactForm: {
         pageTitle: 'Hallo, ich bi Christopher',
         pageDescription:
-            'Frontend-Entwickler und ich liebe es, benutzerfreundliche Websites mit JavaScript, PHP und HTML zu gestalten und zu programmieren. Zögere nicht und schick mir eine Nachricht wenn du möchtest.',
+            'Frontend-Entwickler und ich liebe es, benutzerfreundliche Websites mit TypeScript, JavaScript, PHP und HTML zu gestalten und zu programmieren. Zögere nicht und schick mir eine Nachricht wenn du möchtest.',
         nameLabel: '🧑🏻 Din Name',
         emailLabel: 'Dini E-Mail',
         messageLabel: '✍🏻 Dini Nachricht',
