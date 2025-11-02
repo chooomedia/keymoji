@@ -257,7 +257,7 @@ export function getDefaultSettings(tier = 'free') {
             model: '', // Auto-selected if empty (Best Practice)
             cacheResults: true, // Cache story generations (7 days)
             maxTokens: 150, // Max tokens per request
-            temperature: 0.7 // Creativity level (0.0 - 1.0)
+            temperature: 0.7 // Creativity level (0.0 - 2.0)
         },
 
         // Privacy
@@ -429,12 +429,12 @@ export function validateStoryModeSettings(storyMode) {
         }
     }
 
-    // temperature validation
+    // temperature validation (0.0 - 2.0 range for all AI providers)
     if (storyMode.temperature !== undefined) {
         if (typeof storyMode.temperature !== 'number') {
             errors.push('temperature must be a number');
-        } else if (storyMode.temperature < 0 || storyMode.temperature > 1) {
-            errors.push('temperature must be between 0.0 and 1.0');
+        } else if (storyMode.temperature < 0 || storyMode.temperature > 2) {
+            errors.push('temperature must be between 0.0 and 2.0');
         }
     }
 

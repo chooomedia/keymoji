@@ -175,6 +175,58 @@ button:disabled {
     transition: opacity 0.3s ease-in-out;
 }
 
+/* Range Slider Custom Styling for Temperature */
+:global(input[type="range"]) {
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+:global(input[type="range"]::-webkit-slider-thumb) {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(234, 179, 8);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+:global(input[type="range"]::-webkit-slider-thumb:hover) {
+    transform: scale(1.2);
+    background: rgb(217, 167, 0);
+}
+
+:global(input[type="range"]::-moz-range-thumb) {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(234, 179, 8);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+:global(input[type="range"]::-moz-range-thumb:hover) {
+    transform: scale(1.2);
+    background: rgb(217, 167, 0);
+}
+
+/* Dark mode for range slider */
+:global(.dark input[type="range"]::-webkit-slider-thumb) {
+    border: 2px solid rgb(31, 41, 55);
+    background: rgb(217, 167, 0);
+}
+
+:global(.dark input[type="range"]::-moz-range-thumb) {
+    border: 2px solid rgb(31, 41, 55);
+    background: rgb(217, 167, 0);
+}
+
 /* Modal/Menu Status Management */
 :global(body.modal-open) {
     overflow: hidden;
@@ -386,4 +438,56 @@ button:disabled {
 
 :global(.route-transition > *) {
     transition: opacity 0.3s ease-in-out;
+}
+
+/* Range Slider Custom Styling for Temperature */
+:global(input[type="range"]) {
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+:global(input[type="range"]::-webkit-slider-thumb) {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(234, 179, 8);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+:global(input[type="range"]::-webkit-slider-thumb:hover) {
+    transform: scale(1.2);
+    background: rgb(217, 167, 0);
+}
+
+:global(input[type="range"]::-moz-range-thumb) {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(234, 179, 8);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+:global(input[type="range"]::-moz-range-thumb:hover) {
+    transform: scale(1.2);
+    background: rgb(217, 167, 0);
+}
+
+/* Dark mode for range slider */
+:global(.dark input[type="range"]::-webkit-slider-thumb) {
+    border: 2px solid rgb(31, 41, 55);
+    background: rgb(217, 167, 0);
+}
+
+:global(.dark input[type="range"]::-moz-range-thumb) {
+    border: 2px solid rgb(31, 41, 55);
+    background: rgb(217, 167, 0);
 }

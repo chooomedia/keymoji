@@ -20,7 +20,7 @@
         isModalVisible
     } from '../../stores/modalStore.js';
     import { translations, currentLanguage } from '../../stores/contentStore.js';
-    import { getCurrentUserSettings, userSettings, effectiveSettings } from '../../stores/userSettingsStore.js';
+    import { getCurrentUserSettings, userSettings, effectiveSettings, updateSetting } from '../../stores/userSettingsStore.js';
     import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
     import emojisData from '../../../public/emojisArray.json';
     import { WEBHOOKS } from '../../../src/config/api.js';
@@ -80,6 +80,9 @@
     $: isValidLength = currentLength >= MIN_CHARS && currentLength <= MAX_CHARS;
     $: canGenerate = isValidLength && storyInput.trim().length >= MIN_CHARS;
   
+    // Temperature for Story Mode (0.0-2.0 range)
+    let storyTemperature = 0.7; // Default
+  
     // REACTIVE: Update Story Mode status when ANY store changes
     // Priority: effectiveSettings > userSettings > currentAccount
     $: {
@@ -112,12 +115,16 @@
             storyModeEnabled = enabled;
             storyModeConfigured = configured;
             
+            // Update temperature from settings
+            storyTemperature = storyModeSettings.temperature ?? 0.7;
+            
             console.log('🔄 Story Mode settings updated:', { 
                 enabled: storyModeEnabled, 
                 configured: storyModeConfigured,
                 provider: currentProvider,
                 hasApiKey: !!currentApiKey,
                 keyLength: currentApiKey?.length || 0,
+                temperature: storyTemperature,
                 source: $effectiveSettings?.storyMode ? 'effectiveSettings' : 
                         $userSettings?.storyMode ? 'userSettings' : 'currentAccount'
             });
@@ -676,6 +683,23 @@
       }
     }
   
+    // Temperature handler
+    function handleTemperatureChange(event) {
+      const newTemp = parseFloat(event.target.value);
+      storyTemperature = newTemp;
+      // Save to settings
+      updateSetting('storyMode.temperature', newTemp);
+      console.log('🌡️ Temperature changed to:', newTemp);
+    }
+  
+    // Get temperature label based on value
+    function getTemperatureLabel(value) {
+      if (value <= 0.5) return 'Precise';
+      if (value <= 1.0) return 'Balanced';
+      if (value <= 1.5) return 'Creative';
+      return 'Chaotic';
+    }
+  
     function toggleStoryMode() {
       // Only allow toggle if Story Mode is properly configured
       if (!storyModeEnabled || !storyModeConfigured) {
@@ -927,6 +951,31 @@
             </svg>
           </button>
         {/if}
+      </div>
+      
+      <!-- Temperature Slider - Vor AI Model Chip -->
+      <div class="flex items-center mt-3 mb-1">
+        <label for="storyTemperature" class="text-xs text-gray-600 dark:text-gray-400 mr-3 font-medium">
+          {getTemperatureLabel(storyTemperature)}
+        </label>
+        <input 
+          type="range" 
+          id="storyTemperature" 
+          min="0" 
+          max="2" 
+          step="0.1"
+          value={storyTemperature}
+          bind:value={storyTemperature}
+          on:change={handleTemperatureChange}
+          class="flex-1 h-1.5 appearance-none rounded-full bg-gray-300 dark:bg-gray-600 transition-all hover:bg-yellow-400 dark:hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed" 
+          style="--range-thumb-color: rgb(234, 179, 8);"
+          disabled={$isDisabled || isGeneratingStory}
+          aria-label="Temperature: {getTemperatureLabel(storyTemperature)}"
+          title="AI creativity level: {getTemperatureLabel(storyTemperature)}"
+        />
+        <span class="text-xs font-semibold text-yellow-600 dark:text-yellow-400 ml-2 w-8 text-right tabular-nums">
+          {storyTemperature.toFixed(1)}
+        </span>
       </div>
       
       <!-- AI Model Chip - Minimalistisch unter Text-Input rechts -->
