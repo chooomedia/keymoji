@@ -2,7 +2,7 @@
 
 > **Sichere, unvergessliche Passwörter mit Emojis. KI-resistent. Privacy-First. Open Source.**
 
-[![Version](https://img.shields.io/badge/version-0.7.0-blue.svg)](https://github.com/chooomedia/keymoji)
+[![Version](https://img.shields.io/badge/version-0.7.1-blue.svg)](https://github.com/chooomedia/keymoji)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Made with Svelte](https://img.shields.io/badge/made%20with-svelte-ff3e00.svg)](https://svelte.dev)
 
@@ -29,24 +29,30 @@ npm run build
 
 ---
 
-## 🎉 What's New in v0.7.0 - Stability Master
+## 🎉 What's New in v0.7.1 - Stability Master
 
 **Release Date:** November 2, 2025
 
 ### 🐛 **Critical Bug Fixes**
--   Fixed PostCSS build errors preventing development
--   Fixed login status flickering on page reload
--   Fixed nested settings not being applied
--   Fixed custom API format selection
--   Fixed clipboard errors when unfocused
--   Fixed emoji animation glitches
+-   Fixed deep merge in effectiveSettings preventing settings overwrite
+-   Fixed Model Chip 'GPT' flickering when changing temperature
+-   Fixed nested settings race conditions with pendingChanges
+-   Added temperature slider UI improvements (full width, max 16 chars)
+-   Smart model name truncation (12 chars, preserves meaningful parts)
 
-### ⚡ **Stability Improvements**
--   Synchronous localStorage initialization
--   Deep merge for nested settings
--   PostCSS build system fix
--   localStorage migration & cleanup
--   Enhanced session management
+### ⚡ **New Features**
+-   localStorage cleaner button in dev mode (🧹 emoji)
+-   Unlimited daily limits in development for testing
+-   Production limits unchanged (Guest:5, Free:9, Pro:35)
+-   Button text truncation for better UX
+
+### 🔧 **Code Quality**
+-   Proper deep merge chain for all data sources
+-   Removed debug console.log statements
+-   Cleaner, more predictable reactivity
+-   Consistent storage handling across entire app
+
+## Previous Release: v0.7.0 - Stability Master
 
 ### ✨ **Animation Polish**
 -   Universe-effect loading animation (3 lanes)

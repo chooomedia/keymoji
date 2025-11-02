@@ -1,5 +1,45 @@
 # Changelog
 
+## [0.7.1] - 2025-11-02
+
+### Fixed - Critical Bug Fixes 🐛
+
+-   🐛 Fixed deep merge in effectiveSettings preventing settings overwrite
+-   🐛 Fixed Model Chip 'GPT' flickering when changing temperature slider
+-   🐛 Fixed nested settings race conditions with pendingChanges
+-   🐛 Fixed temperature slider initialization preventing reactivity issues
+-   🐛 Fixed model name display to correctly show custom model (e.g., 'Apertus')
+-   🐛 Fixed button text truncation for better UI consistency
+
+### Added - New Features ⚡
+
+-   ✨ **Dev Tools**: localStorage cleaner button in development mode (🧹 emoji)
+    -   Only visible on localhost:8080
+    -   Prevents accidental data loss in production
+-   ✨ **Dev Daily Limits**: Unlimited daily limits in development for testing
+    -   Dev: 99999 generations
+    -   Production unchanged: Guest:5, Free:9, Pro:35
+-   ✨ **Temperature Slider**: Full width with smart model name display
+    -   Model Chip below slider (separate div)
+    -   Short model names (max 12 chars, e.g., 'Apertus')
+    -   Button text truncation (max 16 chars with ellipsis)
+-   ✨ **Security**: Emoji masking for localStorage
+    -   Only first and last emojis saved
+    -   Middle emojis replaced with ✨ for privacy
+
+### Changed - Code Quality 🚀
+
+-   ⚡ Proper deep merge chain for effectiveSettings
+    -   tierDefaults < account < userSettings < pendingChanges
+    -   Removed debug console.log statements
+-   ⚡ Cleaner reactivity for displayModel
+    -   Initialization before reactive blocks
+    -   No duplicate declarations
+    -   Consistent data source across components
+-   ⚡ Consistent storage handling
+    -   Synchronous initialization
+    -   Proper cleanup and migration
+
 ## [0.7.0] - 2025-11-02
 
 ### Fixed - Critical Bug Fixes 🐛

@@ -1,4 +1,68 @@
 export const versions = {
+    '0.7.1': {
+        date: 'November 2, 2025',
+        core: {
+            deepMerge: {
+                title: '🔧 Deep Merge Fix',
+                improvements: [
+                    'Fixed effectiveSettings nested merge preventing settings overwrite',
+                    'Proper deep merge chain: tierDefaults < account < userSettings < pending',
+                    'Eliminated Model Chip flickering when changing temperature',
+                    'Preserves nested settings (storyMode.apiKeys, etc.) correctly'
+                ]
+            },
+            temperatureSlider: {
+                title: '🌡️ Temperature Slider Improvements',
+                improvements: [
+                    'Full width slider with proper spacing',
+                    'Model Chip positioned below slider (separate div)',
+                    'Smart model name truncation (max 12 chars)',
+                    'Button text truncation (max 16 chars with ellipsis)',
+                    'Initialization before reactive blocks prevents race conditions'
+                ]
+            },
+            devTools: {
+                title: '🛠️ Development Tools',
+                improvements: [
+                    'localStorage cleaner button (🧹) in dev mode',
+                    'Unlimited daily limits in development (99999)',
+                    'Production limits unchanged (Guest:5, Free:9, Pro:35)',
+                    'Dev tools only visible on localhost:8080',
+                    'Prevents accidental data loss in production'
+                ]
+            },
+            security: {
+                title: '🔒 Security: Emoji Masking',
+                improvements: [
+                    'Only first and last emojis saved to localStorage',
+                    'Middle emojis replaced with ✨ for privacy',
+                    'Prevents full emoji password leak in recent emojis',
+                    '404 page correctly displays masked emojis'
+                ]
+            }
+        },
+        fixes: {
+            critical: {
+                title: '🐛 Critical Bug Fixes',
+                improvements: [
+                    'Fixed Model Chip showing "GPT" instead of custom model',
+                    'Fixed temperature slider initialization race condition',
+                    'Fixed nested settings overwrite in effectiveSettings',
+                    'Fixed button text overflow in UI',
+                    'Removed debug console.log statements'
+                ]
+            },
+            codeQuality: {
+                title: '⚡ Code Quality',
+                improvements: [
+                    'Cleaner reactivity for displayModel',
+                    'Consistent data source across components',
+                    'Proper deep merge implementation',
+                    'Consistent storage handling across entire app'
+                ]
+            }
+        }
+    },
     '0.7.0': {
         date: 'November 2, 2025',
         core: {
