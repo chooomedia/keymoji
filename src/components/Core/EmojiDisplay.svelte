@@ -82,6 +82,10 @@
     // Temperature for Story Mode (0.0-2.0 range)
     let storyTemperature = 0.7; // Default
     let temperatureInitialized = false; // Prevent override after user adjustment
+    
+    // Model display variables
+    let displayModel = 'Model'; // Initialize with default
+    let displayModelShort = 'Model'; // Short version for chip
   
     // REACTIVE: Update Story Mode status when ANY store changes
     // Priority: effectiveSettings > userSettings > currentAccount
@@ -159,9 +163,7 @@
             displayModelShort = getShortModelName(displayModel);
         }
     }
-    let displayModel = 'Model'; // Initialize with default
-    let displayModelShort = 'Model'; // Short version for chip
-
+  
     // Timeout-Tracking für Memory Leak Prevention
     let activeTimeouts = new Set();
     let modalVisibilityUnsubscribe;
@@ -740,23 +742,34 @@
       return 'Chaotic';
     }
     
-    // Get short model name for chip display (max 10 chars)
+    // Get short model name for chip display (max 12 chars, smart truncation)
     function getShortModelName(modelName) {
       if (!modelName) return 'Model';
       
       // If already short enough, return as-is
-      if (modelName.length <= 10) return modelName;
+      if (modelName.length <= 12) return modelName;
       
-      // Extract first word or first 10 chars
-      // Examples: "apertus-8b-instruct-2509" -> "Apertus", "GPT-4-turbo" -> "GPT-4-turb"
-      const firstPart = modelName.split(/[-_\s]/)[0];
-      if (firstPart.length > 0 && firstPart.length <= 10) {
-        // Capitalize first letter
-        return firstPart.charAt(0).toUpperCase() + firstPart.slice(1);
+      // Smart truncation: try to preserve meaningful parts
+      // Examples: "apertus-8b-instruct-2509" -> "Apertus", "GPT-3.5-turbo" -> "GPT-3.5-tur"
+      
+      // Try to get first word or meaningful prefix
+      const parts = modelName.split(/[-_\s]/);
+      
+      // If first part is good length and capitalized, use it
+      if (parts[0] && parts[0].length <= 12 && parts[0][0] === parts[0][0].toUpperCase()) {
+        return parts[0];
       }
       
-      // Fallback: truncate to 10 chars
-      return modelName.substring(0, 10);
+      // Otherwise truncate intelligently at word boundaries
+      let result = '';
+      for (const part of parts) {
+        if ((result + '-' + part).length > 12) break;
+        if (result) result += '-';
+        result += part;
+      }
+      
+      // If still too long or empty, just truncate
+      return result || modelName.substring(0, 12);
     }
     
     // Get short button text for UI (max 12 chars)
