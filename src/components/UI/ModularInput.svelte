@@ -183,7 +183,7 @@
     
     // Handle range input changes
     function handleRangeChange(event) {
-        const value = parseInt(event.target.value);
+        const value = parseFloat(event.target.value); // Use parseFloat for decimal step values
         handleValueChange({ target: { value } });
     }
     
