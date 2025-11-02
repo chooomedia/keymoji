@@ -28,6 +28,9 @@ export default {
             '"Aleatorio" es autoexplicativo 😜.',
             '¡Después de generar, se guarda en tu portapapeles! 📋'
         ],
+        setupStoryMode: 'Configura tu LLM',
+        setupStoryModeDescription: 'Conéctate con tu LLM para contraseñas emoji personalizadas.',
+        storyModeReady: 'Contraseñas emoji generadas por IA listas 🤖',
         backToMainText: 'Haz clic abajo 👇 para volver',
         backToMainButtonText: 'Volver al inicio',
         contactText: '¿Tienes una pregunta o una sugerencia genial?',

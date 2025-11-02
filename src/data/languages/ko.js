@@ -28,6 +28,9 @@ export default {
             '"랜덤"은 자명합니다 😜.',
             '생성 후 클립보드에 저장됩니다! 📋'
         ],
+        setupStoryMode: 'LLM 설정',
+        setupStoryModeDescription: 'LLM에 연결하여 개인화된 이모지 비밀번호를 받으세요.',
+        storyModeReady: 'AI 생성 이모지 비밀번호 준비 완료 🤖',
         backToMainText: '아래를 클릭 👇 하여 돌아가기',
         backToMainButtonText: '홈으로 돌아가기',
         contactText: '질문이나 멋진 제안이 있나요?',

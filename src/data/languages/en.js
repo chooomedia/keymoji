@@ -28,6 +28,9 @@ export default {
             '"Random" is self-explanatory 😜.',
             "After generating, it's saved to your clipboard! 📋"
         ],
+        setupStoryMode: 'Setup your LLM',
+        setupStoryModeDescription: 'Connect with your LLM for personalized emoji passwords.',
+        storyModeReady: 'AI-generated emoji passwords ready 🤖',
         backToMainText: 'Click on below 👇 to get back',
         backToMainButtonText: 'Back to home',
         contactText: 'Got a question or a cool suggestion?',

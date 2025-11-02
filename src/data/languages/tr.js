@@ -28,6 +28,9 @@ export default {
             '"Rastgele" kendini açıklıyor 😜.',
             'Üretildikten sonra panoya kopyalanır! 📋'
         ],
+        setupStoryMode: 'LLM\'inizi Yapılandırın',
+        setupStoryModeDescription: 'Kişiselleştirilmiş emoji şifreleri için LLM\'inize bağlanın.',
+        storyModeReady: 'AI tarafından oluşturulmuş emoji şifreleri hazır 🤖',
         backToMainText: 'Geri dönmek için aşağıya tıklayın 👇',
         backToMainButtonText: 'Ana sayfaya dön',
         contactText: 'Bir sorunuz veya harika bir öneriniz var mı?',

@@ -28,6 +28,9 @@ export default {
             '"Zufällig" isch selbsterklärend 😜.',
             'Nach em Generiere wirds in dini Zwischeablage kopiert! 📋'
         ],
+        setupStoryMode: 'Dine KI yrichte',
+        setupStoryModeDescription: 'Verbind di mit dim LLM für personalisiereti Emoji-Passwörter.',
+        storyModeReady: 'KI-generierti Emoji-Passwörter bereit 🤖',
         backToMainText: 'Klick unde 👇 zum zrugggah',
         backToMainButtonText: 'Zrugg zu Home',
         contactText: 'Hesch e Frog oder e coole Vorschlag?',

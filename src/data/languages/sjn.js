@@ -28,6 +28,9 @@ export default {
             '"Random" ú-echad – Qapchu\' 😜.',
             "Echadlu'DI', De' línDaq pollu'! 📋"
         ],
+        setupStoryMode: 'Motlh narnmey lín',
+        setupStoryModeDescription: "Hur'IghSIS QIn narnmey DaghajmeH, narnwI' lIjDaq",
+        storyModeReady: "QIn echadmo'chu' emoji gwedh QapmeH malja' 🤖",
         backToMainText: "bIruchqa'meH, bIngDaq yI'nga' 👇",
         backToMainButtonText: 'Ad na bar',
         contactText: "Dap yIghaj'a'? pagh QIn QaQ Daghaj'a'?",

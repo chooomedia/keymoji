@@ -28,6 +28,9 @@ export default {
             '"Willekeurig" spreekt voor zich 😜.',
             'Na genereren wordt het gekopieerd naar je klembord! 📋'
         ],
+        setupStoryMode: 'Stel je LLM in',
+        setupStoryModeDescription: 'Verbind met je LLM voor gepersonaliseerde emoji-wachtwoorden.',
+        storyModeReady: 'Door AI gegenereerde emoji-wachtwoorden gereed 🤖',
         backToMainText: 'Klik hieronder 👇 om terug te gaan',
         backToMainButtonText: 'Terug naar home',
         contactText: 'Heb je een vraag of een cool voorstel?',

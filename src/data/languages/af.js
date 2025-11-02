@@ -28,6 +28,9 @@ export default {
             '"Lukraak" spreek vanself 😜.',
             'Na generering word dit na jou knipbord gekopieer! 📋'
         ],
+        setupStoryMode: 'Stel jou LLM op',
+        setupStoryModeDescription: 'Koppel met jou LLM vir gepersonaliseerde emoji-wagwoorde.',
+        storyModeReady: 'AI-gegenereerde emoji-wagwoorde gereed 🤖',
         backToMainText: 'Klik hieronder 👇 om terug te gaan',
         backToMainButtonText: 'Terug na tuisblad',
         contactText: "Het jy 'n vraag of 'n cool voorstel?",

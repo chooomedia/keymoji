@@ -917,42 +917,55 @@
                                     <div>
                                         <!-- Provider Dropdown with Success Icon -->
                                         <div class="relative">
-                                            <ModularInput
-                                                config={{
-                                                    type: item.type,
-                                                    id: item.id,
-                                                    icon: item.icon,
-                                                    label: item.title,
-                                                    description: item.description,
-                                                    placeholder: item.placeholder,
-                                                    value: getCurrentValue(item),
-                                                    options: item.options?.map(opt => ({
-                                                        value: opt.value,
-                                                        label: opt.label
-                                                    })) || [],
-                                                    min: item.min,
-                                                    max: item.max,
-                                                    labels: item.labels,
-                                                    defaultValue: item.defaultValue,
-                                                    class: 'contact-input'
-                                                }}
-                                                currentLanguage={$currentLanguage}
-                                                currentValue={getCurrentValue(item)}
-                                                onValueChange={(value) => handleSettingUpdate(item.id, value)}
-                                            />
-                                            
-                                            <!-- ✅ Success Icon - Elegant neben Provider Name (innerhalb Border) -->
-                                            {#if apiTestSuccess && testedProvider === currentProvider}
-                                                <div 
-                                                    class="absolute right-3 inset-y-0 flex items-center pointer-events-none z-10"
-                                                    transition:fade={{ duration: 200 }}
-                                                    title="API connection verified ✅"
-                                                >
-                                                    <svg class="w-5 h-5 text-green-500 dark:text-green-400 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                                    </svg>
-                                                </div>
-                                            {/if}
+                                            <div class="relative">
+                                                <ModularInput
+                                                    config={{
+                                                        type: item.type,
+                                                        id: item.id,
+                                                        icon: item.icon,
+                                                        label: item.title,
+                                                        description: item.description,
+                                                        placeholder: item.placeholder,
+                                                        value: getCurrentValue(item),
+                                                        options: item.options?.map(opt => ({
+                                                            value: opt.value,
+                                                            label: opt.label
+                                                        })) || [],
+                                                        min: item.min,
+                                                        max: item.max,
+                                                        labels: item.labels,
+                                                        defaultValue: item.defaultValue,
+                                                        class: 'contact-input'
+                                                    }}
+                                                    currentLanguage={$currentLanguage}
+                                                    currentValue={getCurrentValue(item)}
+                                                    onValueChange={(value) => handleSettingUpdate(item.id, value)}
+                                                />
+                                                
+                                                {#if apiTestSuccess && testedProvider === currentProvider}
+                                                    <!-- Gradient Fade-out Overlay (like API key input) -->
+                                                    <div 
+                                                        class="absolute right-10 inset-y-[1px] w-16 z-5 pointer-events-none rounded-r-[11px]"
+                                                        style="background: linear-gradient(to right, 
+                                                            transparent 0%, 
+                                                            {$darkMode ? 'rgba(14, 30, 48, 0.6)' : 'rgba(255, 255, 255, 0.6)'} 25%,
+                                                            {$darkMode ? 'rgba(14, 30, 48, 0.95)' : 'rgba(255, 255, 255, 0.95)'} 60%,
+                                                            {$darkMode ? '#0e1e30' : '#ffffff'} 100%);"
+                                                        aria-hidden="true"
+                                                    ></div>
+                                                    
+                                                    <!-- ✅ Success Icon - Elegant neben Provider Name (innerhalb Border) -->
+                                                    <div 
+                                                        class="absolute right-3 inset-y-0 flex items-center pointer-events-none z-10"
+                                                        transition:fade={{ duration: 200 }}
+                                                        title="API connection verified ✅"
+                                                    >
+                                                        <svg class="w-5 h-5 text-green-500 dark:text-green-400 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                {/if}
+                                            </div>
                                         </div>
                                         
                                         <!-- API Key creation link below provider dropdown -->

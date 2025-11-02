@@ -28,6 +28,9 @@ export default {
             '"Losowe" mówi samo za siebie 😜.',
             'Po wygenerowaniu zostanie skopiowane do schowka! 📋'
         ],
+        setupStoryMode: 'Skonfiguruj swój LLM',
+        setupStoryModeDescription: 'Połącz się ze swoim LLM dla spersonalizowanych haseł emoji.',
+        storyModeReady: 'Wygenerowane przez AI hasła emoji gotowe 🤖',
         backToMainText: 'Kliknij poniżej 👇 aby wrócić',
         backToMainButtonText: 'Wróć do strony głównej',
         contactText: 'Masz pytanie lub fajną sugestię?',

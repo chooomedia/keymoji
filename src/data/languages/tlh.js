@@ -28,6 +28,9 @@ export default {
             "Random QIjbe'lu' – Qapchu' 😜.",
             "DachenmoHDI', De' QInlIjDaq pollu'! 📋"
         ],
+        setupStoryMode: 'QIn yuDmoH',
+        setupStoryModeDescription: 'QIn SaghwI\' lIjDaq Yu\' Daghaj QIn mu\'ghommey HevmoHmeH',
+        storyModeReady: 'QIn wIvchu\' \'echadmo\'chu\' emoji mu\'ghommey wI\'meH tuHmaH 🤖',
         backToMainText: "bIruchqa'meH, bIngDaq yI'nga' 👇",
         backToMainButtonText: 'juH wIchegh',
         contactText: "Dap yIghaj'a'? pagh QIn QaQ Daghaj'a'?",

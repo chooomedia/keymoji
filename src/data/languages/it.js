@@ -28,6 +28,9 @@ export default {
             '"Casuale" è autoesplicativo 😜.',
             'Dopo la generazione, viene salvato negli appunti! 📋'
         ],
+        setupStoryMode: 'Configura il tuo LLM',
+        setupStoryModeDescription: 'Connettiti con il tuo LLM per password emoji personalizzate.',
+        storyModeReady: 'Password emoji generate da IA pronte 🤖',
         backToMainText: 'Clicca sotto 👇 per tornare',
         backToMainButtonText: 'Torna alla home',
         contactText: 'Hai una domanda o un suggerimento figo?',

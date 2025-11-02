@@ -28,6 +28,9 @@ export default {
             '"ランダム"は自明です 😜。',
             '生成後、クリップボードに保存されます！📋'
         ],
+        setupStoryMode: 'LLMをセットアップ',
+        setupStoryModeDescription: 'LLMに接続してパーソナライズされた絵文字パスワードを取得。',
+        storyModeReady: 'AI生成の絵文字パスワード準備完了 🤖',
         backToMainText: '下をクリック 👇 して戻る',
         backToMainButtonText: 'ホームに戻る',
         contactText: '質問やクールな提案がありますか？',

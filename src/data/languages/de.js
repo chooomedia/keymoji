@@ -28,6 +28,9 @@ export default {
             '"Random" ist selbsterklärend 😜.',
             'Nach dem Generieren wird es in deine Zwischenablage kopiert! 📋'
         ],
+        setupStoryMode: 'Richte deine KI ein',
+        setupStoryModeDescription: 'Verbinde dich mit deinem LLM für personalisierte Emoji-Passwörter.',
+        storyModeReady: 'KI-generierte Emoji-Passwörter bereit 🤖',
         backToMainText: 'Klicke unten 👇 um zurückzukehren',
         backToMainButtonText: 'Zurück zu Home',
         contactText: 'Hast du eine Frage oder einen coolen Vorschlag?',
