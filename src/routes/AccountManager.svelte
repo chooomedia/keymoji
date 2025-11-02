@@ -1101,11 +1101,32 @@
                                     >
                                         <div class="text-6xl mb-4">📊</div>
                                         <h4 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                                            No Data
+                                            {$translations?.accountManager?.statistics?.noDataTitle || 'No Data'}
                                         </h4>
-                                        <p class="text-base text-gray-600 dark:text-gray-400 text-center max-w-md">
-                                            Generate emojis to collect your real usage data and display it here.
+                                        <p class="text-base text-gray-600 dark:text-gray-400 text-center max-w-md mb-6">
+                                            {$translations?.accountManager?.statistics?.noDataMessage || 'Generate emojis to collect your real usage data and display it here.'}
                                         </p>
+                                        <!-- Refresh Button -->
+                                        <button
+                                            on:click={() => refreshUsageHistory(true)}
+                                            disabled={chartDataError || isLoadingChartData}
+                                            class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-medium rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 shadow-md"
+                                            title="Refresh usage data"
+                                            aria-label="Refresh usage data"
+                                        >
+                                            {#if isLoadingChartData}
+                                                <svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span>{$translations?.accountManager?.statistics?.loading || 'Loading...'}</span>
+                                            {:else}
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                </svg>
+                                                <span>{$translations?.accountManager?.statistics?.refreshButton || 'Refresh'}</span>
+                                            {/if}
+                                        </button>
                                     </div>
                                 {:else}
                                     <!-- Chart Container (Relative positioning for overlay) -->

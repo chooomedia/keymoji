@@ -504,7 +504,11 @@ export default {
         // Statistiken
         statistics: {
             storiesGenerated: 'Generierte Stories',
-            remainingGenerations: 'Verbleibende Generierungen'
+            remainingGenerations: 'Verbleibende Generierungen',
+            noDataTitle: 'Keine Daten',
+            noDataMessage: 'Generiere Emojis um deine echten Nutzungsdaten zu sammeln und hier anzuzeigen.',
+            refreshButton: 'Neu laden',
+            loading: 'Lade...'
         },
 
         // Daily generations
