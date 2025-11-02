@@ -1,5 +1,53 @@
 # Changelog
 
+## [0.7.0] - 2025-11-02
+
+### Fixed - Critical Bug Fixes 🐛
+
+-   🐛 Fixed PostCSS build errors preventing development (svelte-preprocess config)
+-   🐛 Fixed login status flickering on page reload (sync localStorage initialization)
+-   🐛 Fixed nested settings not being applied (deep merge for storyMode.customFormat)
+-   🐛 Fixed custom API format selection not working (dot-notation support)
+-   🐛 Fixed clipboard errors when document not focused (window.focus() before copy)
+-   🐛 Fixed emoji animation glitches with static arrays (no re-render overhead)
+-   🐛 Fixed animation direction matches body background (RIGHT instead of LEFT)
+-   🐛 Fixed ReferenceError: showInfo is not defined (missing import)
+-   🐛 Fixed ReferenceError: customApiUrl is not defined (scope fix in try-catch)
+
+### Added - Stability Improvements ⚡
+
+-   ✨ **Session Management**: Synchronous localStorage initialization for login state
+    -   Time-based duplicate prevention for session restore
+    -   Centralized account store initialization
+    -   Proper session validation across all routes
+-   ✨ **Nested Settings Deep Merge**: Support for dot-notation in getEffectiveValue and updateSetting
+    -   Correct handling of storyMode.customFormat and other nested keys
+    -   Preserves existing settings when updating nested properties
+    -   Eliminated settings overwrite issues
+-   ✨ **PostCSS Build System**: Correct svelte-preprocess configuration in webpack
+    -   Explicit PostCSS plugin inclusion (Tailwind, Autoprefixer)
+    -   Eliminated corrupted build cache issues
+-   ✨ **localStorage Migration & Cleanup**: Migration from deprecated keys to new structure
+    -   Cleanup of expired story cache entries
+    -   Automatic migration of old API key structures
+-   ✨ **Story Mode Loading Animation**: Fancy universe-effect with 3 animated lanes
+    -   Varied speeds (fast/medium/ultra-slow) for universe effect
+    -   Random giant emoji (60px) in middle lane
+    -   No adjacent emojis with large gaps
+    -   Smooth infinite scrolling with seamless loops
+    -   Backdrop blur with proper z-index layering
+-   ✨ **CORS Testing & Debugging**: Mock mode for local custom API testing
+    -   `?mock-custom-api=true` URL parameter
+    -   Detailed error messages with troubleshooting steps
+    -   Documentation in `CUSTOM_API_TESTING.md`
+
+### Changed - Performance 🚀
+
+-   ⚡ Static emoji arrays prevent re-render overhead (no glitches)
+-   ⚡ Eliminated height animation stuttering in VersionHistory
+-   ⚡ Throttled timeline height updates
+-   ⚡ Debounced resize handlers for smooth performance
+
 ## [0.6.0] - 2025-10-11
 
 ### Added - AI Story Mode 🤖

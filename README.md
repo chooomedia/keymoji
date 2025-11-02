@@ -2,7 +2,7 @@
 
 > **Sichere, unvergessliche Passwörter mit Emojis. KI-resistent. Privacy-First. Open Source.**
 
-[![Version](https://img.shields.io/badge/version-0.6.0-blue.svg)](https://github.com/chooomedia/keymoji)
+[![Version](https://img.shields.io/badge/version-0.7.0-blue.svg)](https://github.com/chooomedia/keymoji)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Made with Svelte](https://img.shields.io/badge/made%20with-svelte-ff3e00.svg)](https://svelte.dev)
 
@@ -29,28 +29,35 @@ npm run build
 
 ---
 
-## 🎉 What's New in v0.6.0 - AI Story Master
+## 🎉 What's New in v0.7.0 - Stability Master
 
-**Release Date:** October 11, 2025
+**Release Date:** November 2, 2025
 
-### 🤖 **AI Story Mode**
--   Convert your stories into emoji passwords using AI
--   Support for 4 major AI providers + custom APIs
--   Multi-provider API key management with encryption
--   Persistent text input with auto-save
--   Smart caching (7 days) for faster responses
+### 🐛 **Critical Bug Fixes**
+-   Fixed PostCSS build errors preventing development
+-   Fixed login status flickering on page reload
+-   Fixed nested settings not being applied
+-   Fixed custom API format selection
+-   Fixed clipboard errors when unfocused
+-   Fixed emoji animation glitches
 
-### 🎨 **UI/UX Enhancements**
--   Refined settings with inline button controls
--   Perfect input spacing consistency
--   Enhanced dark/light mode colors
--   Privacy Policy & Legal Notice pages
+### ⚡ **Stability Improvements**
+-   Synchronous localStorage initialization
+-   Deep merge for nested settings
+-   PostCSS build system fix
+-   localStorage migration & cleanup
+-   Enhanced session management
 
-### 🔧 **Technical Improvements**
--   Robust AI fallback chains
--   Cache invalidation system
--   Data flow optimization
--   Comprehensive error handling
+### ✨ **Animation Polish**
+-   Universe-effect loading animation (3 lanes)
+-   Varied speeds for smooth scrolling
+-   Random giant emoji in middle lane
+-   No glitches with static arrays
+
+### 🌐 **CORS Testing**
+-   Mock mode for local API testing
+-   Detailed error messages
+-   Complete documentation
 
 See [CHANGELOG.md](CHANGELOG.md) for complete details.
 

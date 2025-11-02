@@ -1,4 +1,92 @@
 export const versions = {
+    '0.7.0': {
+        date: 'November 2, 2025',
+        core: {
+            session: {
+                title: '🔐 Session Management Overhaul',
+                improvements: [
+                    'Fixed login status flickering on page reload',
+                    'Synchronous localStorage initialization for login state',
+                    'Time-based duplicate prevention for session restore',
+                    'Centralized account store initialization',
+                    'Proper session validation across all routes'
+                ]
+            },
+            nestedSettings: {
+                title: '🔄 Nested Settings Deep Merge',
+                improvements: [
+                    'Correct handling of storyMode.customFormat and other nested keys',
+                    'Support for dot-notation in getEffectiveValue and updateSetting',
+                    'Preserves existing settings when updating nested properties',
+                    'Fixed validation for custom API providers',
+                    'Eliminated settings overwrite issues'
+                ]
+            },
+            postcss: {
+                title: '⚡ PostCSS Build System',
+                improvements: [
+                    'Fixed PostCSS build errors (undefined CSS string)',
+                    'Correct svelte-preprocess configuration in webpack',
+                    'Explicit PostCSS plugin inclusion (Tailwind, Autoprefixer)',
+                    'Eliminated corrupted build cache issues'
+                ]
+            },
+            localStorage: {
+                title: '🧹 localStorage Migration & Cleanup',
+                improvements: [
+                    'Migration from deprecated keys to new structure',
+                    'Cleanup of expired story cache entries',
+                    'Synchronous localStorage initialization',
+                    'Automatic migration of old API key structures'
+                ]
+            },
+            animation: {
+                title: '✨ Story Mode Loading Animation Finalized',
+                improvements: [
+                    'Fixed emoji animation glitches with static arrays',
+                    'Animation direction matches body background (RIGHT)',
+                    'No adjacent emojis with large gaps',
+                    'Varied speeds across 3 lanes for universe effect',
+                    'Random giant emoji (60px) in middle lane',
+                    'Smooth infinite scrolling with seamless loops',
+                    'Backdrop blur with proper z-index layering'
+                ]
+            },
+            cors: {
+                title: '🌐 CORS Testing & Debugging',
+                improvements: [
+                    'Mock mode for local custom API testing (?mock-custom-api=true)',
+                    'Detailed error messages with troubleshooting steps',
+                    'Documentation in CUSTOM_API_TESTING.md',
+                    'Enhanced fetchWithTimeout error detection'
+                ]
+            }
+        },
+        fixes: {
+            critical: {
+                title: '🐛 Critical Bug Fixes',
+                improvements: [
+                    'Fixed PostCSS build errors preventing development',
+                    'Fixed login status lost on route changes',
+                    'Fixed nested settings not being applied',
+                    'Fixed custom API format selection not working',
+                    'Fixed clipboard errors when document not focused',
+                    'Fixed emoji animation disappearing/reappearing',
+                    'Fixed ReferenceError: showInfo is not defined',
+                    'Fixed ReferenceError: customApiUrl is not defined'
+                ]
+            },
+            performance: {
+                title: '⚡ Performance Fixes',
+                improvements: [
+                    'Static emoji arrays prevent re-render overhead',
+                    'Eliminated height animation stuttering',
+                    'Throttled timeline height updates',
+                    'Debounced resize handlers for smooth performance'
+                ]
+            }
+        }
+    },
     '0.6.0': {
         date: 'October 11, 2025',
         core: {
@@ -169,7 +257,7 @@ export const versions = {
             }
         }
     },
-    '0.5.8': {
+    '0.5.9': {
         date: 'October 10, 2025',
         core: {
             dataFlow: {
@@ -203,29 +291,6 @@ export const versions = {
                     'EmojiDisplay.svelte: Removed hard redirect on limit',
                     'Consistent routing across all components'
                 ]
-            },
-            charts: {
-                title: '📊 SVG Charts & UsageHistory',
-                improvements: [
-                    'Larger charts (200px → 240px height)',
-                    'Edge-to-edge rendering with -mx-4 negative margins',
-                    'Optimized chart padding (minimal side space)',
-                    'Demo overlay with strong shadows and glassmorphism',
-                    'Orange color for demo charts (#f97316)',
-                    'Automatic data loading from n8n on localhost',
-                    'UsageHistory auto-increments with each emoji generation'
-                ]
-            },
-            account: {
-                title: '👤 Account System Improvements',
-                improvements: [
-                    'Smart username fallback: settings > profile > email prefix > "there"',
-                    'Fixed "User" placeholder - now shows actual names',
-                    'Complete logout cleanup: all stores + storage + session flags',
-                    'Account creation initializes empty usageHistory array',
-                    'Session restore loads full data from n8n (even on localhost)',
-                    'Localhost development: direct n8n calls bypass Vercel 404s'
-                ]
             }
         },
         backend: {
@@ -248,29 +313,6 @@ export const versions = {
                     'Action field required for all n8n requests',
                     'Fresh metadata always sent to backend',
                     'Response parsing handles double-escaped JSON'
-                ]
-            }
-        },
-        ui: {
-            components: {
-                title: '🎨 UI Component Polish',
-                improvements: [
-                    'LineChart: Optimized padding (right: 15px)',
-                    'Demo overlay: Stronger shadows with multiple layers',
-                    'NotFound slider: Smooth momentum scrolling',
-                    'Emoji spacing: Consistent gap-2 (8px)',
-                    'Modal translations: closeModal, modalClosesIn',
-                    'ContextBadge: Size affects spacing + text, width property added'
-                ]
-            },
-            spacing: {
-                title: '📐 Spacing Optimization',
-                improvements: [
-                    'Chart container: p-6 mb-6 (unified 8-point grid)',
-                    'Demo card: px-8 py-10 (asymmetric, optimized)',
-                    'Progress bar: mb-3 (better visual rhythm)',
-                    'Header: mb-6 (more breathing room)',
-                    'Consistent Tailwind spacing throughout'
                 ]
             }
         },
@@ -307,6 +349,57 @@ export const versions = {
                 'CLEANUP_SUMMARY.md - All fixes documented',
                 'process-update-node-FIXED.js - Production-ready n8n code'
             ]
+        }
+    },
+    '0.5.8': {
+        date: 'October 10, 2025',
+        core: {
+            charts: {
+                title: '📊 SVG Charts & UsageHistory',
+                improvements: [
+                    'Larger charts (200px → 240px height)',
+                    'Edge-to-edge rendering with -mx-4 negative margins',
+                    'Optimized chart padding (minimal side space)',
+                    'Demo overlay with strong shadows and glassmorphism',
+                    'Orange color for demo charts (#f97316)',
+                    'Automatic data loading from n8n on localhost',
+                    'UsageHistory auto-increments with each emoji generation'
+                ]
+            },
+            account: {
+                title: '👤 Account System Improvements',
+                improvements: [
+                    'Smart username fallback: settings > profile > email prefix > "there"',
+                    'Fixed "User" placeholder - now shows actual names',
+                    'Complete logout cleanup: all stores + storage + session flags',
+                    'Account creation initializes empty usageHistory array',
+                    'Session restore loads full data from n8n (even on localhost)',
+                    'Localhost development: direct n8n calls bypass Vercel 404s'
+                ]
+            }
+        },
+        ui: {
+            components: {
+                title: '🎨 UI Component Polish',
+                improvements: [
+                    'LineChart: Optimized padding (right: 15px)',
+                    'Demo overlay: Stronger shadows with multiple layers',
+                    'NotFound slider: Smooth momentum scrolling',
+                    'Emoji spacing: Consistent gap-2 (8px)',
+                    'Modal translations: closeModal, modalClosesIn',
+                    'ContextBadge: Size affects spacing + text, width property added'
+                ]
+            },
+            spacing: {
+                title: '📐 Spacing Optimization',
+                improvements: [
+                    'Chart container: p-6 mb-6 (unified 8-point grid)',
+                    'Demo card: px-8 py-10 (asymmetric, optimized)',
+                    'Progress bar: mb-3 (better visual rhythm)',
+                    'Header: mb-6 (more breathing room)',
+                    'Consistent Tailwind spacing throughout'
+                ]
+            }
         }
     },
     '0.5.7': {
