@@ -1308,9 +1308,7 @@ export async function loadSettingsFromAPI() {
             typeof window !== 'undefined' &&
             window.location.hostname === 'localhost'
         ) {
-            console.log(
-                'ℹ️ Skipping API call on localhost (CORS), using local settings'
-            );
+            // Silent skip - expected behavior on localhost
             throw new Error('CORS: Localhost development mode');
         }
 

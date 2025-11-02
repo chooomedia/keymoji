@@ -255,7 +255,12 @@
         console.warn('⚠️ No Story Mode settings found in userSettings');
       }
 
-      if (!initialRenderComplete && autoGenerateEnabled) {
+      // If logged in and Story Mode is configured, default to Story Mode view
+      if (!initialRenderComplete && $isLoggedIn && storyModeEnabled && storyModeConfigured) {
+        console.log('🚀 Logged in user with Story Mode configured - defaulting to Story Mode');
+        isStoryMode = true;
+        showTextArea = true;
+      } else if (!initialRenderComplete && autoGenerateEnabled) {
         console.log('🤖 Auto-generating emojis on page load');
         generateRandomEmojis(true); // count initial load towards daily limit
       } else if (!initialRenderComplete && !autoGenerateEnabled) {
