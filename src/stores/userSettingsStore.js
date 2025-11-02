@@ -131,23 +131,11 @@ export const effectiveSettings = derived(
         const accountSettings = extractSettingsFromAccount($currentAccount);
 
         // Merge priority: tier defaults < account settings < userSettings < pending changes
-        const merged = {
-            ...tierDefaults,
-            ...accountSettings,
-            ...$userSettings,
-            ...$pendingChanges
-        };
-
-        console.log('📊 [effectiveSettings] Computed:', {
-            tier: $accountTier,
-            hasAccount: !!$currentAccount,
-            accountSettings: Object.keys(accountSettings).length,
-            userSettings: Object.keys($userSettings || {}).length,
-            pendingChanges: Object.keys($pendingChanges || {}).length,
-            storyModeEnabled: merged.storyMode?.enabled,
-            storyModeProvider: merged.storyMode?.provider,
-            hasStoryModeApiKeys: !!merged.storyMode?.apiKeys
-        });
+        // Use deepMerge to properly handle nested objects
+        let merged = deepMerge({}, tierDefaults);
+        merged = deepMerge(merged, accountSettings);
+        merged = deepMerge(merged, $userSettings);
+        merged = deepMerge(merged, $pendingChanges);
 
         return merged;
     }
