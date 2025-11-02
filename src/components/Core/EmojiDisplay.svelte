@@ -266,6 +266,8 @@
         console.log('🚀 Logged in user with Story Mode configured - defaulting to Story Mode');
         isStoryMode = true;
         showTextArea = true;
+        // Generate placeholders for Story Mode too
+        randomEmojis = getRandomEmojis(emojiCount);
       } else if (!initialRenderComplete && autoGenerateEnabled) {
         console.log('🤖 Auto-generating emojis on page load');
         generateRandomEmojis(true); // count initial load towards daily limit
@@ -877,10 +879,6 @@
               {getEmojiDisplay(emoji)}
             </span>
           {/each}
-        {:else}
-          <div class="text-xs">
-            {$translations.emojiDisplay.dailyLimitReachedMessage}
-          </div>
         {/if}
       </div>
     </button>
@@ -1099,10 +1097,7 @@
         <span class="text-xs font-semibold text-yellow-600 dark:text-yellow-400 w-8 text-right tabular-nums shrink-0">
           {storyTemperature.toFixed(1)}
         </span>
-      </div>
-      
-      <!-- AI Model Chip - Minimalistisch unter Temperature Slider rechts -->
-      <div class="flex justify-end mt-2">
+
         <button
           on:click={() => {
             // Navigate to account page
@@ -1141,7 +1136,6 @@
           <span>{displayModelShort}</span>
         </button>
       </div>
-
     {/if}
   
     <!-- Action Buttons -->
