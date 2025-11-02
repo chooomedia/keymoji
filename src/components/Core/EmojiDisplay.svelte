@@ -120,27 +120,47 @@
         }
     }
 
-    // REACTIVE: Display model for AI Model Chip
+    // REACTIVE: Display model for AI Model Chip (use same source as temperature)
     $: {
-        const settings = getCurrentUserSettings();
-        const provider = settings?.storyMode?.provider || 'openai';
-        const model = settings?.storyMode?.model || '';
-        const customModel = settings?.storyMode?.customModel || '';
-        const defaultModels = {
-            openai: 'GPT-3.5',
-            gemini: 'Gemini Pro',
-            mistral: 'Tiny',
-            claude: 'Haiku'
-        };
+        let storyModeSettings = null;
         
-        // For custom provider, use customModel; for others, use model or default
-        if (provider === 'custom') {
-            displayModel = customModel || 'Custom';
-        } else {
-            displayModel = model || defaultModels[provider] || 'Model';
+        // Try effectiveSettings first (most up-to-date)
+        if ($effectiveSettings?.storyMode) {
+            storyModeSettings = $effectiveSettings.storyMode;
+        }
+        // Fallback to userSettings
+        else if ($userSettings?.storyMode) {
+            storyModeSettings = $userSettings.storyMode;
+        }
+        // Fallback to currentAccount
+        else if ($currentAccount?.metadata?.settings?.storyMode) {
+            storyModeSettings = $currentAccount.metadata.settings.storyMode;
+        }
+        
+        if (storyModeSettings) {
+            const provider = storyModeSettings.provider || 'openai';
+            const model = storyModeSettings.model || '';
+            const customModel = storyModeSettings.customModel || '';
+            const defaultModels = {
+                openai: 'GPT-3.5',
+                gemini: 'Gemini Pro',
+                mistral: 'Tiny',
+                claude: 'Haiku'
+            };
+            
+            // For custom provider, use customModel; for others, use model or default
+            if (provider === 'custom') {
+                displayModel = customModel || 'Custom';
+            } else {
+                displayModel = model || defaultModels[provider] || 'Model';
+            }
+            
+            // Create short version for chip display
+            displayModelShort = getShortModelName(displayModel);
         }
     }
     let displayModel = 'Model'; // Initialize with default
+    let displayModelShort = 'Model'; // Short version for chip
 
     // Timeout-Tracking für Memory Leak Prevention
     let activeTimeouts = new Set();
@@ -719,6 +739,25 @@
       if (value <= 1.5) return 'Creative';
       return 'Chaotic';
     }
+    
+    // Get short model name for chip display (max 10 chars)
+    function getShortModelName(modelName) {
+      if (!modelName) return 'Model';
+      
+      // If already short enough, return as-is
+      if (modelName.length <= 10) return modelName;
+      
+      // Extract first word or first 10 chars
+      // Examples: "apertus-8b-instruct-2509" -> "Apertus", "GPT-4-turbo" -> "GPT-4-turb"
+      const firstPart = modelName.split(/[-_\s]/)[0];
+      if (firstPart.length > 0 && firstPart.length <= 10) {
+        // Capitalize first letter
+        return firstPart.charAt(0).toUpperCase() + firstPart.slice(1);
+      }
+      
+      // Fallback: truncate to 10 chars
+      return modelName.substring(0, 10);
+    }
   
     function toggleStoryMode() {
       // Only allow toggle if Story Mode is properly configured
@@ -973,7 +1012,7 @@
         {/if}
       </div>
       
-      <!-- Temperature Slider - Vor AI Model Chip -->
+      <!-- Temperature Slider -->
       <div class="flex items-center mt-3 mb-1 gap-2">
         <label for="storyTemperature" class="text-xs text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap w-20 shrink-0">
           {getTemperatureLabel(storyTemperature)}
@@ -986,7 +1025,7 @@
           step="0.1"
           bind:value={storyTemperature}
           on:input={handleTemperatureChange}
-          class="flex-1 h-1.5 appearance-none rounded-full bg-gray-300 dark:bg-gray-600 transition-all hover:bg-yellow-400 dark:hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed shrink" 
+          class="flex-1 h-1.5 appearance-none rounded-full bg-gray-300 dark:bg-gray-600 transition-all hover:bg-yellow-400 dark:hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed" 
           style="--range-thumb-color: rgb(234, 179, 8);"
           disabled={isGeneratingStory}
           aria-label="Temperature: {getTemperatureLabel(storyTemperature)}"
@@ -997,7 +1036,7 @@
         </span>
       </div>
       
-      <!-- AI Model Chip - Minimalistisch unter Text-Input rechts -->
+      <!-- AI Model Chip - Minimalistisch unter Temperature Slider rechts -->
       <div class="flex justify-end mt-2">
         <button
           on:click={() => {
@@ -1034,9 +1073,10 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <span>{displayModel}</span>
+          <span>{displayModelShort}</span>
         </button>
       </div>
+
     {/if}
   
     <!-- Action Buttons -->
