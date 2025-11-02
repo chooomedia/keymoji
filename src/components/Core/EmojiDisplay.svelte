@@ -698,21 +698,32 @@
     function migrateRecentEmojis() {
       try {
         const recent = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
-        if (!Array.isArray(recent) || recent.length === 0) return;
+        console.log('🔄 Migration check:', { count: recent.length, items: recent });
+        if (!Array.isArray(recent) || recent.length === 0) {
+          console.log('⏭️ No recent emojis to migrate');
+          return;
+        }
         
         // Check if migration is needed (look for unmasked emojis)
         const needsMigration = recent.some(emoji => {
           if (!emoji || typeof emoji !== 'string') return false;
           const emojis = emoji.match(/[\p{Emoji}\u200d]+/gu) || [];
           // If has more than 2 emojis but no ✨ in middle, needs masking
-          return emojis.length > 2 && !emoji.includes('✨');
+          const needsMasking = emojis.length > 2 && !emoji.includes('✨');
+          if (needsMasking) {
+            console.log('🔍 Found unmasked emoji:', emoji.substring(0, 20) + '...', 'emojis:', emojis.length);
+          }
+          return needsMasking;
         });
         
         if (needsMigration) {
           console.log('🔄 Migrating recent emojis: masking old data');
           const migrated = recent.map(maskEmojis).filter(Boolean);
           storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, migrated);
-          console.log('✅ Recent emojis migrated:', migrated.length);
+          console.log('✅ Recent emojis migrated:', migrated.length, 'Before:', recent.length);
+          console.log('📊 Sample:', migrated.slice(0, 3));
+        } else {
+          console.log('✅ All emojis already masked');
         }
       } catch (error) {
         console.warn('⚠️ Failed to migrate recent emojis:', error);
