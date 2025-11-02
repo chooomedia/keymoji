@@ -47,9 +47,48 @@
     let autoSlideInterval = null;
     let currentIndex = 0;
     
+    // Helper: Mask emojis (keep first and last, mask middle)
+    function maskEmojis(emojiString) {
+        if (!emojiString || typeof emojiString !== 'string') return emojiString;
+        
+        // Remove spaces for processing
+        const cleanString = emojiString.replace(/\s/g, '');
+        
+        // Extract individual emojis using regex to handle multi-byte characters
+        const emojis = cleanString.match(/[\p{Emoji}\u200d]+/gu) || [];
+        
+        // If less than 2 emojis, return as-is
+        if (emojis.length < 2) {
+            return cleanString;
+        }
+        
+        // Mask middle emojis
+        const first = emojis[0];
+        const last = emojis[emojis.length - 1];
+        const middleCount = emojis.length - 2;
+        const masked = '✨'.repeat(Math.max(0, middleCount));
+        
+        return `${first}${masked}${last}`;
+    }
+    
     function loadRecentEmojis() {
         const stored = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
-        recentEmojis = Array.isArray(stored) ? stored.slice(0, 10) : []; // Max 10 recent emojis
+        if (!Array.isArray(stored) || stored.length === 0) {
+            recentEmojis = [];
+            return;
+        }
+        
+        // CRITICAL: Mask any unmasked emojis (migration)
+        const masked = stored.map(maskEmojis).filter(Boolean);
+        
+        // Limit to 10 and update localStorage if migration was needed
+        recentEmojis = masked.slice(0, 10);
+        
+        // If migration was needed, save back to localStorage
+        if (masked.some((emoji, i) => emoji !== stored[i])) {
+            storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, recentEmojis);
+            console.log('✅ Migrated unmasked emojis on 404 page');
+        }
     }
     
     function navigateToPage(path) {

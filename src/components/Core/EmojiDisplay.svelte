@@ -224,6 +224,9 @@
     
     // Lifecycle
     onMount(async () => {
+      // CRITICAL: Migrate old unmasked emojis first!
+      migrateRecentEmojis();
+      
       // REMOVED: initializeDailyUsage() is now called centrally in LanguageRouter
       // This prevents duplicate initialization and ensures single source of truth
       console.log('✅ EmojiDisplay: Using centralized daily usage tracking');
@@ -665,20 +668,63 @@
     // TODO: Remove these functions in next release after migration period
     
     // Recent Emojis Management - Security: Mask middle emojis
+    // Helper: Mask emojis (keep first and last, mask middle)
+    function maskEmojis(emojiString) {
+      if (!emojiString || typeof emojiString !== 'string') return emojiString;
+      
+      // Remove spaces for processing
+      const cleanString = emojiString.replace(/\s/g, '');
+      
+      // Extract individual emojis using regex to handle multi-byte characters
+      const emojis = cleanString.match(/[\p{Emoji}\u200d]+/gu) || [];
+      
+      // If less than 2 emojis, return as-is
+      if (emojis.length < 2) {
+        return cleanString;
+      }
+      
+      // Mask middle emojis
+      const first = emojis[0];
+      const last = emojis[emojis.length - 1];
+      const middleCount = emojis.length - 2;
+      const masked = '✨'.repeat(Math.max(0, middleCount));
+      
+      return `${first}${masked}${last}`;
+    }
+    
+    // Migration: Mask old unmasked emojis in localStorage
+    function migrateRecentEmojis() {
+      try {
+        const recent = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
+        if (!Array.isArray(recent) || recent.length === 0) return;
+        
+        // Check if migration is needed (look for unmasked emojis)
+        const needsMigration = recent.some(emoji => {
+          if (!emoji || typeof emoji !== 'string') return false;
+          const emojis = emoji.match(/[\p{Emoji}\u200d]+/gu) || [];
+          // If has more than 2 emojis but no ✨ in middle, needs masking
+          return emojis.length > 2 && !emoji.includes('✨');
+        });
+        
+        if (needsMigration) {
+          console.log('🔄 Migrating recent emojis: masking old data');
+          const migrated = recent.map(maskEmojis).filter(Boolean);
+          storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, migrated);
+          console.log('✅ Recent emojis migrated:', migrated.length);
+        }
+      } catch (error) {
+        console.warn('⚠️ Failed to migrate recent emojis:', error);
+      }
+    }
+    
     function saveToRecentEmojis(emojiString) {
       try {
-        // Security: Mask middle emojis, only keep first and last
-        // Format: first ✨✨✨ last (no spaces between)
-        // Extract individual emojis using regex to handle multi-byte characters
-        const emojis = emojiString.match(/[\p{Emoji}\u200d]+/gu) || [];
-        let maskedString = emojiString;
+        // Always mask before saving
+        const maskedString = maskEmojis(emojiString);
         
-        if (emojis.length >= 2) {
-          const first = emojis[0];
-          const last = emojis[emojis.length - 1];
-          const middleCount = emojis.length - 2;
-          const masked = '✨'.repeat(Math.max(0, middleCount));
-          maskedString = `${first}${masked}${last}`;
+        if (!maskedString) {
+          console.warn('⚠️ Cannot save empty emoji string');
+          return;
         }
         
         const recent = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
