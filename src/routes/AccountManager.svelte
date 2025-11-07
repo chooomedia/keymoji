@@ -16,6 +16,7 @@
         successfulStoryRequests,
         isDisabled
     } from '../stores/appStores.js';
+    import { remainingGenerations as remainingGenerationsStore } from '../stores/dailyUsageStore.js';
     import { translations, currentLanguage } from '../stores/contentStore.js';
     import { 
         loginWithMagicLink, 
@@ -183,7 +184,8 @@
     
     // Reactive daily limit calculation
     $: currentUserLimits = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
-    $: remainingGenerations = currentUserLimits.remaining;
+    // Use remainingGenerations from dailyUsageStore (single source of truth)
+    $: remainingGenerations = $remainingGenerationsStore;
     $: dailyLimitDisplay = ($translations?.accountManager?.remainingDisplay || '{remaining} / {limit}')
         .replace('{remaining}', remainingGenerations)
         .replace('{limit}', currentUserLimits.limit);
@@ -203,6 +205,34 @@
     $: isLoadingChartData = $usageHistoryStore.isLoading;
     $: chartDataError = $usageHistoryStore.errorMessage;
     $: usageStats = $usageHistoryStore.stats;
+    
+    // Calculate total stories generated (from usage history stats or daily limit)
+    // Best Practice: Use multiple sources for accuracy
+    $: totalStoriesGenerated = (() => {
+        // Priority 1: Use usageStats.total if available (sum of all history entries)
+        // This gives the total across all days in history
+        if (usageStats && typeof usageStats.total === 'number' && usageStats.total > 0) {
+            return usageStats.total;
+        }
+        
+        // Priority 2: Sum all entries in usage history if available
+        if (chartUsageHistory && Array.isArray(chartUsageHistory) && chartUsageHistory.length > 0) {
+            const sum = chartUsageHistory.reduce((total, entry) => {
+                return total + (entry.used || 0);
+            }, 0);
+            if (sum > 0) {
+                return sum;
+            }
+        }
+        
+        // Priority 3: Use current dailyLimit.used (today's count as fallback)
+        if ($dailyLimit && typeof $dailyLimit.used === 'number') {
+            return $dailyLimit.used;
+        }
+        
+        // Fallback: 0
+        return 0;
+    })();
     
     // ROBUST: Watch currentAccount changes and trigger load
     // This works for BOTH soft reload AND hard reload!
@@ -438,10 +468,6 @@
         return EMAIL_REGEX.test(email);
     }
 
-    function getRemainingGenerations() {
-        const userLimits = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
-        return userLimits.remaining;
-    }
 
     function navigateToHome() {
         // Mark that user has navigated away from initial load
@@ -1217,7 +1243,7 @@
                                     <div class="w-full bg-gray-300 dark:bg-aubergine-600 rounded-full h-3">
                                 <div 
                                     class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500"
-                                            style="width: {Math.min(100, (remainingGenerations / currentUserLimits.limit) * 100)}%"
+                                    style="width: {currentUserLimits.limit > 0 ? Math.min(100, (remainingGenerations / currentUserLimits.limit) * 100) : 0}%"
                                 ></div>
                                     </div>
                                 </div>
@@ -1233,15 +1259,15 @@
                         <!-- Account Statistics -->
                         <div class="grid grid-cols-2 gap-4 mb-6">
                             <div class="text-center p-4 bg-powder-300 dark:bg-aubergine-900 rounded-xl">
-                                <div class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                                    0
+                                <div class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2 tabular-nums">
+                                    {totalStoriesGenerated}
                                 </div>
                                 <div class="text-sm font-medium text-blue-800 dark:text-blue-200">
                                     {$translations?.accountManager?.statistics?.storiesGenerated || 'Stories Generated'}
                                 </div>
                             </div>
                             <div class="text-center p-4 bg-powder-300 dark:bg-aubergine-900 rounded-xl">
-                                <div class="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
+                                <div class="text-3xl font-bold text-green-600 dark:text-green-400 mb-2 tabular-nums">
                                     {$accountTier === 'pro' ? '∞' : remainingGenerations}
                                 </div>
                                 <div class="text-sm font-medium text-green-800 dark:text-green-200">

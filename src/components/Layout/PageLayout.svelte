@@ -39,11 +39,6 @@
     $: finalBgSrc = supportsWebP ? hieroglyphicEmojisWebP : hieroglyphicEmojisSrc;
     $: bgImage = `background-image: url("${finalBgSrc}"), ${$darkMode ? darkGradient : lightGradient}`;
     $: bgBlendMode = $darkMode ? 'multiply' : 'hue';
-
-    // Props werden von außen übergeben - KEINE lokale Überschreibung!
-    // pageTitle und pageDescription kommen als Props von jeder Route
-
-    // Props werden korrekt von jeder Route übergeben
 </script>
 
 <!-- Modal-Komponenten - Immer verfügbar -->
@@ -70,11 +65,11 @@
             <!-- Generic Page Header - wenn pageTitle gesetzt -->
             {#if pageTitle}
                 <div class="w-11/12 md:w-27 flex flex-wrap justify-center" role="banner">
-                    <h1 class="md:text-4xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
+                    <h1 class="md:text-3xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
                         {pageTitle}
                     </h1>
                     {#if pageDescription}
-                        <p class="dark:text-gray-400 md:mb-3 text-center w-full leading-relaxed {titleClass}">
+                        <p class="dark:text-gray-400 text-center w-full leading-relaxed {titleClass}">
                             {pageDescription}
                         </p>
                     {/if}
