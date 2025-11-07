@@ -19,9 +19,21 @@ function createEnvForDefinePlugin(env) {
     // Entferne NODE_ENV, da es bereits durch webpack.DefinePlugin.__definierte__ gesetzt wird
     for (const key in env) {
         if (key !== 'NODE_ENV') {
-            const stringified = typeof env[key] === 'string' 
-                ? JSON.stringify(env[key]) 
-                : env[key];
+            let value = env[key];
+            
+            // Handle stringified values (from webpack/utils/environment.js)
+            // If value is already a JSON string (starts and ends with quotes), parse it first
+            if (typeof value === 'string' && value.startsWith('"') && value.endsWith('"')) {
+                try {
+                    value = JSON.parse(value);
+                } catch (e) {
+                    // If parsing fails, use as-is
+                }
+            }
+            
+            const stringified = typeof value === 'string' 
+                ? JSON.stringify(value) 
+                : value;
             
             // Alle Variablen für process.env
             processEnv[key] = stringified;

@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: 'Richte deine KI ein',
         setupStoryModeSwiss: 'Schweizer KI nutzen',
+        setupStoryModeOr: 'oder',
         setupStoryModeDescription:
             'Verbinde dich mit deiner KI für personalisierte Emoji-Passwörter.',
         setupStoryModeSwissDescription:

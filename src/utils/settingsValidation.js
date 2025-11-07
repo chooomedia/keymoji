@@ -251,6 +251,7 @@ export function getDefaultSettings(tier = 'free') {
                 apertus: '',
                 custom: ''
             },
+            verifiedProviders: {}, // Track verified providers: { provider: { verifiedAt, model, lastTest } }
             customApiUrl: '', // For custom provider (e.g., https://aimi.matt-interfaces.ch)
             customEndpoint: '/v1/chat/completions', // Custom API endpoint path
             customFormat: 'openai', // 'openai' | 'claude' | 'raw'
@@ -351,19 +352,26 @@ export function validateStoryModeSettings(storyMode) {
     }
 
     // API Key validation (basic format check)
+    // NOTE: Apertus doesn't require an API key - it uses VITE_N8N_APERTUS_TOKEN from environment
     if (storyMode.enabled) {
         const currentProvider = storyMode.provider || 'openai';
-        const currentApiKey = storyMode.apiKeys?.[currentProvider];
+        
+        // Skip API key validation for Apertus (uses environment token)
+        if (currentProvider !== 'apertus') {
+            const currentApiKey = storyMode.apiKeys?.[currentProvider];
 
-        if (!currentApiKey) {
-            errors.push(
-                `API key is required for ${currentProvider} when story mode is enabled`
-            );
-        } else if (currentApiKey.length < 10) {
-            errors.push(
-                `API key for ${currentProvider} seems too short (minimum 10 characters)`
-            );
+            if (!currentApiKey) {
+                errors.push(
+                    `API key is required for ${currentProvider} when story mode is enabled`
+                );
+            } else if (currentApiKey.length < 10) {
+                errors.push(
+                    `API key for ${currentProvider} seems too short (minimum 10 characters)`
+                );
+            }
         }
+        // For Apertus: API key is optional (token is loaded from environment)
+        // No validation needed - callApertus will handle token loading
     }
 
     // Custom URL validation

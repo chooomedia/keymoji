@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: 'Motlh narnmey lín',
         setupStoryModeSwiss: "Swiss AI yIlo'",
+        setupStoryModeOr: "ghap",
         setupStoryModeDescription:
             "Hur'IghSIS QIn narnmey DaghajmeH, narnwI' lIjDaq",
         setupStoryModeSwissDescription:

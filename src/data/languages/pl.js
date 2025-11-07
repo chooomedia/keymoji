@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: 'Skonfiguruj swoją AI',
         setupStoryModeSwiss: 'Użyj szwajcarskiej AI',
+        setupStoryModeOr: 'lub',
         setupStoryModeDescription:
             'Połącz się ze swoją AI dla spersonalizowanych haseł emoji.',
         setupStoryModeSwissDescription:

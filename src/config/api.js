@@ -6,10 +6,66 @@
 
 // Get API URL from environment or use default
 // Priority: VITE_API_URL (env) > default
-const API_URL =
-    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) ||
-    process.env.VITE_API_URL ||
-    'https://its.keymoji.wtf/api';
+// SECURITY: Always set VITE_API_URL in production via environment variables!
+const getApiUrl = () => {
+    const envUrl = 
+        (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) ||
+        process.env.VITE_API_URL;
+    
+    // Check if envUrl exists and is not empty/just quotes
+    if (envUrl) {
+        // Remove any quotes, whitespace, or JSON stringification artifacts
+        let cleanedUrl = String(envUrl).trim();
+        
+        // Remove JSON stringification quotes (from webpack DefinePlugin)
+        cleanedUrl = cleanedUrl.replace(/^["']|["']$/g, '');
+        
+        // Remove URL-encoded quotes (%22)
+        cleanedUrl = cleanedUrl.replace(/%22/g, '');
+        
+        // Remove any remaining quotes
+        cleanedUrl = cleanedUrl.replace(/["']/g, '');
+        
+        // Debug: Log cleaning process
+        console.log('🔍 [Config] VITE_API_URL cleaning:', {
+            original: envUrl,
+            cleaned: cleanedUrl,
+            length: cleanedUrl.length,
+            isEmpty: !cleanedUrl || cleanedUrl.length === 0
+        });
+        
+        // Check if URL is empty or just quotes after cleaning
+        // IMPORTANT: Must check length AFTER cleaning, not before
+        if (cleanedUrl && cleanedUrl.length > 0 && cleanedUrl !== '""' && cleanedUrl !== "''") {
+            // Validate URL format
+            if (cleanedUrl.startsWith('http://') || cleanedUrl.startsWith('https://')) {
+                // Valid URL - remove trailing slash if present
+                const finalUrl = cleanedUrl.replace(/\/$/, '');
+                console.log('✅ [Config] Using VITE_API_URL from environment:', finalUrl.substring(0, 30) + '...');
+                return finalUrl;
+            } else {
+                console.warn('⚠️ [Config] Invalid VITE_API_URL format (must start with http:// or https://):', cleanedUrl.substring(0, 50));
+            }
+        } else {
+            // Empty or invalid - fall through to default
+            console.log('ℹ️ [Config] VITE_API_URL is empty or invalid after cleaning, using fallback');
+        }
+    }
+    
+    // Fallback for development (should be overridden via env vars)
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        console.warn('⚠️ [SECURITY] VITE_API_URL not set. Using default fallback. Set VITE_API_URL in .env.local for security.');
+    }
+    
+    return 'https://its.keymoji.wtf/api'; // Default fallback
+};
+
+const API_URL = getApiUrl();
+
+// Debug: Log API URL (without exposing full URL in production)
+if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    console.log('🔗 [Config] API_URL:', API_URL);
+}
 
 // Get n8n URL from environment or use default
 // Priority: VITE_N8N_URL (env) > default
@@ -19,8 +75,44 @@ const getN8NUrl = () => {
         (typeof import.meta !== 'undefined' && import.meta.env?.VITE_N8N_URL) ||
         process.env.VITE_N8N_URL;
     
+    // Check if envUrl exists and is not empty/just quotes
     if (envUrl) {
-        return envUrl;
+        // Remove any quotes, whitespace, or JSON stringification artifacts
+        let cleanedUrl = String(envUrl).trim();
+        
+        // Remove JSON stringification quotes (from webpack DefinePlugin)
+        cleanedUrl = cleanedUrl.replace(/^["']|["']$/g, '');
+        
+        // Remove URL-encoded quotes (%22)
+        cleanedUrl = cleanedUrl.replace(/%22/g, '');
+        
+        // Remove any remaining quotes
+        cleanedUrl = cleanedUrl.replace(/["']/g, '');
+        
+        // Debug: Log cleaning process
+        console.log('🔍 [Config] VITE_N8N_URL cleaning:', {
+            original: envUrl,
+            cleaned: cleanedUrl,
+            length: cleanedUrl.length,
+            isEmpty: !cleanedUrl || cleanedUrl.length === 0
+        });
+        
+        // Check if URL is empty or just quotes after cleaning
+        // IMPORTANT: Must check length AFTER cleaning, not before
+        if (cleanedUrl && cleanedUrl.length > 0 && cleanedUrl !== '""' && cleanedUrl !== "''") {
+            // Validate URL format
+            if (cleanedUrl.startsWith('http://') || cleanedUrl.startsWith('https://')) {
+                // Valid URL - remove trailing slash if present
+                const finalUrl = cleanedUrl.replace(/\/$/, '');
+                console.log('✅ [Config] Using VITE_N8N_URL from environment:', finalUrl.substring(0, 30) + '...');
+                return finalUrl;
+            } else {
+                console.warn('⚠️ [Config] Invalid VITE_N8N_URL format (must start with http:// or https://):', cleanedUrl.substring(0, 50));
+            }
+        } else {
+            // Empty or invalid - fall through to default
+            console.log('ℹ️ [Config] VITE_N8N_URL is empty or invalid after cleaning, using fallback');
+        }
     }
     
     // Fallback for development (should be overridden via env vars)
@@ -31,7 +123,30 @@ const getN8NUrl = () => {
     return 'https://n8n.chooomedia.com/webhook'; // Default fallback
 };
 
-const N8N_URL = getN8NUrl();
+// Get N8N URL dynamically (not at build time to avoid empty string issues)
+const getN8NUrlDynamic = () => {
+    const url = getN8NUrl();
+    // Validate URL before returning
+    if (!url || url.length === 0 || url.includes('%22') || url.includes('""')) {
+        console.error('❌ [Config] Invalid N8N_URL detected:', url);
+        return 'https://n8n.chooomedia.com/webhook'; // Fallback
+    }
+    return url;
+};
+
+// Debug: Log N8N URL (without exposing full URL in production)
+if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    const debugUrl = getN8NUrlDynamic();
+    console.log('🔗 [Config] N8N_URL:', debugUrl);
+}
+
+// Helper function to build n8n webhook URLs dynamically
+const buildN8NUrl = (path) => {
+    const baseUrl = getN8NUrlDynamic();
+    // Ensure path starts with /
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${baseUrl}${cleanPath}`;
+};
 
 export const WEBHOOKS = {
     // Account Management
@@ -41,17 +156,17 @@ export const WEBHOOKS = {
         UPDATE: `${API_URL}/account/update`,
         MAGIC_LINK_SEND: `${API_URL}/magic-link/send`,
         MAGIC_LINK_VERIFY: `${API_URL}/magic-link/verify`,
-        CHECK_EXISTS: `${N8N_URL}/xn--moji-pb73c-account-check`, // n8n workflow endpoint
+        get CHECK_EXISTS() { return buildN8NUrl('/xn--moji-pb73c-account-check'); }, // n8n workflow endpoint
         // Sichere Accounting-Endpunkte
-        SECURE_CREATE: `${N8N_URL}/xn--moji-pb73c-account`,
-        SECURE_UPDATE: `${N8N_URL}/xn--moji-pb73c-account`,
-        SECURE_GET: `${N8N_URL}/xn--moji-pb73c-account`,
-        AUDIT_LOG: `${N8N_URL}/xn--moji-pb73c-accounting-audit-log`
+        get SECURE_CREATE() { return buildN8NUrl('/xn--moji-pb73c-account'); },
+        get SECURE_UPDATE() { return buildN8NUrl('/xn--moji-pb73c-account'); },
+        get SECURE_GET() { return buildN8NUrl('/xn--moji-pb73c-account'); },
+        get AUDIT_LOG() { return buildN8NUrl('/xn--moji-pb73c-accounting-audit-log'); }
     },
 
     // Analytics & User Counter
-    USER_COUNTER: `${N8N_URL}/xn--moji-pb73c-counter`,
-    ANALYTICS: `${N8N_URL}/xn--moji-pb73c-analytics`,
+    get USER_COUNTER() { return buildN8NUrl('/xn--moji-pb73c-counter'); },
+    get ANALYTICS() { return buildN8NUrl('/xn--moji-pb73c-analytics'); },
 
     // Contact Form
     CONTACT: {
@@ -70,10 +185,10 @@ export const WEBHOOKS = {
     },
 
     // Story Generator (AI)
-    STORY_GENERATOR: `${N8N_URL}/xn--moji-pb73c-story-generator`,
+    get STORY_GENERATOR() { return buildN8NUrl('/xn--moji-pb73c-story-generator'); },
 
     // Apertus (Swiss LLM) via n8n
-    APERTUS: `${N8N_URL}/apertus-test`,
+    get APERTUS() { return buildN8NUrl('/apertus-test'); },
 
     // Security & Audit
     SECURITY: {
@@ -87,10 +202,10 @@ export const WEBHOOKS = {
 
     // Accounting & Financial Security
     ACCOUNTING: {
-        AUDIT_LOG: `${N8N_URL}/xn--moji-pb73c-accounting-audit-log`,
-        SECURITY_LOG: `${N8N_URL}/xn--moji-pb73c-accounting-security-log`,
-        VALIDATION: `${N8N_URL}/xn--moji-pb73c-accounting-validation`,
-        RATE_LIMIT: `${N8N_URL}/xn--moji-pb73c-accounting-rate-limit`
+        get AUDIT_LOG() { return buildN8NUrl('/xn--moji-pb73c-accounting-audit-log'); },
+        get SECURITY_LOG() { return buildN8NUrl('/xn--moji-pb73c-accounting-security-log'); },
+        get VALIDATION() { return buildN8NUrl('/xn--moji-pb73c-accounting-validation'); },
+        get RATE_LIMIT() { return buildN8NUrl('/xn--moji-pb73c-accounting-rate-limit'); }
     }
 };
 

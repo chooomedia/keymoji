@@ -26,7 +26,9 @@
         "validate:schema": "node scripts/validate-structured-data.js",
         "generate:token": "node scripts/generate-n8n-token.js",
         "generate:token:dev": "node scripts/generate-n8n-token.js --env dev",
-        "generate:token:prod": "node scripts/generate-n8n-token.js --env prod"
+        "generate:token:prod": "node scripts/generate-n8n-token.js --env prod",
+        "check:apertus-token": "node scripts/check-apertus-token.js",
+        "setup:apertus": "bash scripts/setup-apertus-token.sh"
     },
     "devDependencies": {
         "@babel/cli": "^7.12.1",

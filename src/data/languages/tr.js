@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: "AI'nizi Yapılandırın",
         setupStoryModeSwiss: 'İsviçre AI kullan',
+        setupStoryModeOr: 'veya',
         setupStoryModeDescription:
             "Kişiselleştirilmiş emoji şifreleri için AI'nize bağlanın.",
         setupStoryModeSwissDescription:

@@ -7,7 +7,7 @@
 [![Made with Svelte](https://img.shields.io/badge/made%20with-svelte-ff3e00.svg)](https://svelte.dev)
 
 🌐 **Live:** [keymoji.wtf](https://keymoji.wtf)
-📧 **Contact:** [hello@keymoji.wtf](mailto:hello@keymoji.wtf)
+📧 **Contact:** [hello@keymoji.wtf](mailto:hello@keymoji.wtf)  
 👨‍💻 **Author:** Christopher Matt
 
 ---

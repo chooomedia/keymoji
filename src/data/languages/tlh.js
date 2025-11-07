@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: 'QIn yuDmoH',
         setupStoryModeSwiss: "Swiss AI yIlo'",
+        setupStoryModeOr: "ghap",
         setupStoryModeDescription:
             "QIn SaghwI' lIjDaq Yu' Daghaj QIn mu'ghommey HevmoHmeH",
         setupStoryModeSwissDescription:

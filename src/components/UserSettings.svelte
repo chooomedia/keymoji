@@ -49,17 +49,47 @@
     // Check if user is pro - optimiert mit $: um zu viele Aufrufe zu vermeiden
     $: isProUser = $accountTier === 'pro';
     
+    // Load verification status from settings
+    function loadVerificationStatus() {
+        const currentSettings = getCurrentUserSettings();
+        const storyMode = currentSettings?.storyMode || {};
+        const verifiedProviders = storyMode.verifiedProviders || {};
+        const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
+        
+        // Check if current provider is verified
+        if (verifiedProviders[currentProvider]?.success) {
+            const verification = verifiedProviders[currentProvider];
+            apiTestSuccess = true;
+            testedProvider = currentProvider;
+            console.log('✅ Verification status restored for provider:', currentProvider, {
+                verifiedAt: verification.verifiedAt,
+                model: verification.model
+            });
+        } else {
+            apiTestSuccess = false;
+            testedProvider = null;
+            console.log('ℹ️ No verification status found for provider:', currentProvider);
+        }
+    }
+    
     // REACTIVE: Reset test status when provider or API key changes
     $: {
         const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
         const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
         const currentApiKey = apiKeys[currentProvider] || '';
         
+        // Load verification status when provider changes
+        if (currentProvider) {
+            loadVerificationStatus();
+        }
+        
         // Reset if provider changed
         if (testedProvider && currentProvider !== testedProvider) {
             apiTestSuccess = false;
             testedProvider = null;
             console.log('🔄 Provider changed, resetting test status');
+            // Reload verification status for new provider
+            loadVerificationStatus();
         }
         
         // Reset if API key was modified after successful test
@@ -344,7 +374,10 @@
                         // Set loading state
                         settingsStatus.update(status => ({ ...status, isSaving: true }));
                         
-                        // Save settings
+                        // Ensure uiState is saved before saving all settings
+                        updateSetting('uiState', uiState);
+                        
+                        // Save settings (includes uiState)
                         await saveAllSettings();
                         
                         // Show success message
@@ -355,6 +388,9 @@
                         
                         // Apply settings immediately after save
                         applySettingsImmediately();
+                        
+                        // Log saved UI state for debugging
+                        console.log('💾 UI State saved:', uiState);
                         
                     } catch (error) {
                         // Show error message
@@ -515,10 +551,11 @@
     }
 
     function toggleSection(sectionId) {
-        activeSection = activeSection === sectionId ? null : sectionId;
+        const wasOpen = activeSection === sectionId;
+        activeSection = wasOpen ? null : sectionId;
         
         // Update uiState for persistence
-        if (activeSection === sectionId) {
+        if (!wasOpen) {
             // Section opened - add to expanded list
             if (!uiState.expandedSections.includes(sectionId)) {
                 uiState.expandedSections = [...uiState.expandedSections, sectionId];
@@ -526,9 +563,15 @@
         } else {
             // Section closed - remove from expanded list
             uiState.expandedSections = uiState.expandedSections.filter(id => id !== sectionId);
+            // If we closed the active section, set activeSection to first remaining expanded section or null
+            if (uiState.expandedSections.length > 0) {
+                activeSection = uiState.expandedSections[0];
+            } else {
+                activeSection = null;
+            }
         }
         
-        console.log('🎨 UI State updated:', uiState);
+        console.log('🎨 UI State updated:', uiState, 'activeSection:', activeSection);
         
         // Mark as pending change (will be saved with "Save Settings" button)
         updateSetting('uiState', uiState);
@@ -649,6 +692,23 @@
                 testedProvider = provider;
                 console.log('✅ API test successful, provider verified:', provider);
                 
+                // Save verification status to settings (persistent storage)
+                const currentSettings = getCurrentUserSettings();
+                const storyMode = currentSettings?.storyMode || {};
+                const verifiedProviders = storyMode.verifiedProviders || {};
+                
+                // Update verified providers with test result
+                verifiedProviders[provider] = {
+                    verifiedAt: new Date().toISOString(),
+                    model: result.model || getEffectiveValue('storyMode.model') || '',
+                    lastTest: new Date().toISOString(),
+                    success: true
+                };
+                
+                // Save to settings (will be persisted on next save)
+                updateSetting('storyMode.verifiedProviders', verifiedProviders);
+                console.log('💾 Verification status saved for provider:', provider, verifiedProviders[provider]);
+                
                 const providerInfo = getProviderInfo(provider);
                 showSuccess(
                     `✅ Verbindung erfolgreich!\n\n` +
@@ -714,6 +774,9 @@
         await initializeSettingsForUser();
         console.log('✅ UserSettings: Settings initialized for user');
         
+        // Load and restore verification status from settings
+        loadVerificationStatus();
+        
         // 🔄 MIGRATION: Old apiKey → new apiKeys structure
         const currentSettings = getCurrentUserSettings();
         const storyMode = currentSettings?.storyMode || {};
@@ -748,11 +811,16 @@
         const loadedUiState = getEffectiveValue('uiState');
         if (loadedUiState && loadedUiState.expandedSections) {
             uiState = loadedUiState;
-            // Set activeSection to first expanded section
+            // Restore all expanded sections - set activeSection to first expanded section
             if (uiState.expandedSections.length > 0) {
                 activeSection = uiState.expandedSections[0];
             }
-            console.log('✅ UI State loaded from settings:', uiState);
+            console.log('✅ UI State loaded from settings:', uiState, 'activeSection:', activeSection);
+        } else {
+            // Default: basic section open
+            uiState = { expandedSections: ['basic'] };
+            activeSection = 'basic';
+            console.log('ℹ️ Using default UI state (basic section open)');
         }
 
         // Add beforeunload event listener for page leave confirmation
@@ -1120,7 +1188,7 @@
                                                             rel="noopener noreferrer"
                                                             class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
                                                         >
-                                                            <span>Apertus-8B auf HuggingFace</span>
+                                                            <span>{$translations?.accountManager?.apertusHuggingFaceLink || 'Apertus-8B auf HuggingFace'}</span>
                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                                             </svg>

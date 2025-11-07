@@ -19,11 +19,10 @@
     let timelineHeight = 0;
     let versionItems = [];
     
-    // Collapsible State - Current Version initial geöffnet
-    let expandedVersions = {
-        [currentVersion]: true // Current version is expanded by default
-    };
-   
+    // Accordion State - Only one version open at a time
+    // Current Version initial geöffnet
+    let expandedVersion = currentVersion; // Only store the currently expanded version
+    
     // Berechnet die Timeline-Höhe: Vom ersten Dot bis zum letzten Dot
     function calculateTimelineHeight() {
         if (!versionItems.length) return 0;
@@ -66,12 +65,12 @@
         navigate(fullPath, { replace: true });
     }
     
-    // Toggle Version Expansion (wie UserSettings Accordion)
+    // Toggle Version Expansion - Accordion behavior (only one open at a time)
     function toggleVersion(version) {
-        expandedVersions = {
-            ...expandedVersions,
-            [version]: !expandedVersions[version]
-        };
+        // If clicking the same version that's already open, close it
+        // Otherwise, open the clicked version and close all others
+        expandedVersion = expandedVersion === version ? null : version;
+        
         // Smooth timeline height update während der Animation
         requestAnimationFrame(() => {
             updateTimelineHeight();
@@ -155,7 +154,7 @@
                     />
 
                     {#each Object.entries(versions).sort((a, b) => b[0].localeCompare(a[0])) as [version, details], i (version)}
-                        {@const isExpanded = expandedVersions[version] || false}
+                        {@const isExpanded = expandedVersion === version}
                         
                         <div 
                             bind:this={versionItems[i]}
@@ -194,13 +193,14 @@
                                         </time>
                                     </div>
                                     
-                                    <!-- Chevron Icon - Kleiner & filigraner -->
+                                    <!-- Chevron Icon - Rotates on toggle -->
                                     <svg 
-                                        class="w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 flex-shrink-0 {isExpanded ? 'rotate-180' : ''}" 
+                                        class="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0 transition-transform duration-300 ease-in-out transform {isExpanded ? 'rotate-180' : 'rotate-0'}" 
                                         fill="none" 
                                         stroke="currentColor" 
                                         viewBox="0 0 24 24"
                                         stroke-width="2.5"
+                                        aria-hidden="true"
                                     >
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                                     </svg>

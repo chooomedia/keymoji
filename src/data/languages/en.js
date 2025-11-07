@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: 'Setup your AI',
         setupStoryModeSwiss: 'Use Swiss AI',
+        setupStoryModeOr: 'or',
         setupStoryModeDescription:
             'Connect with your AI for personalized emoji passwords.',
         setupStoryModeSwissDescription:

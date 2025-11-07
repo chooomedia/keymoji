@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: 'Dine KI yrichte',
         setupStoryModeSwiss: 'Schwiizer KI bruche',
+        setupStoryModeOr: 'oder',
         setupStoryModeDescription:
             'Verbind di mit dim KI für personalisiereti Emoji-Passwörter.',
         setupStoryModeSwissDescription:

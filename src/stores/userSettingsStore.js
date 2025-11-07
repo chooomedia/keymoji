@@ -1487,6 +1487,11 @@ export async function loadSettingsFromAPI() {
 
         return null;
     } catch (error) {
+        // Silent skip for expected localhost CORS error
+        if (error.message === 'CORS: Localhost development mode') {
+            console.log('ℹ️ [Settings] Skipping API load on localhost (expected CORS behavior)');
+            return null; // Return null instead of throwing
+        }
         console.error('❌ Load settings from API error:', error);
         throw error;
     }

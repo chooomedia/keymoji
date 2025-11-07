@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: 'AI 설정',
         setupStoryModeSwiss: '스위스 AI 사용',
+        setupStoryModeOr: '또는',
         setupStoryModeDescription:
             'AI에 연결하여 개인화된 이모지 비밀번호를 받으세요.',
         setupStoryModeSwissDescription:

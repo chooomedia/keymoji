@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: 'Настройте ваш ИИ',
         setupStoryModeSwiss: 'Использовать швейцарский ИИ',
+        setupStoryModeOr: 'или',
         setupStoryModeDescription:
             'Подключитесь к вашему ИИ для персонализированных паролей эмодзи.',
         setupStoryModeSwissDescription:

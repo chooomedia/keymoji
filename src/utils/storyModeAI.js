@@ -32,30 +32,44 @@ async function fetchWithTimeout(url, options, timeout = 30000) {
         return response;
     } catch (error) {
         clearTimeout(timeoutId);
-        
+
         // Enhanced error detection
         if (error.name === 'AbortError') {
             throw new Error('Request timeout - API took too long to respond');
         }
-        
+
         // CORS error detection
-        if (error.message?.includes('CORS') || 
+        if (
+            error.message?.includes('CORS') ||
             error.message?.includes('blocked by CORS') ||
-            error.message?.includes('Access-Control-Allow-Origin')) {
-            throw new Error('CORS_ERROR: Cross-Origin Request Blocked. Your custom API server needs to enable CORS for ' + new URL(url).origin);
+            error.message?.includes('Access-Control-Allow-Origin')
+        ) {
+            throw new Error(
+                'CORS_ERROR: Cross-Origin Request Blocked. Your custom API server needs to enable CORS for ' +
+                    new URL(url).origin
+            );
         }
-        
+
         // Network error
-        if (error.message?.includes('Failed to fetch') || 
+        if (
+            error.message?.includes('Failed to fetch') ||
             error.message?.includes('NetworkError') ||
-            error.message?.includes('ERR_FAILED')) {
-            const isLocalhost = url.includes('127.0.0.1') || url.includes('localhost');
+            error.message?.includes('ERR_FAILED')
+        ) {
+            const isLocalhost =
+                url.includes('127.0.0.1') || url.includes('localhost');
             if (isLocalhost) {
-                throw new Error('NETWORK_ERROR: Cannot connect to ' + url + '. Is your local API server running?');
+                throw new Error(
+                    'NETWORK_ERROR: Cannot connect to ' +
+                        url +
+                        '. Is your local API server running?'
+                );
             }
-            throw new Error('NETWORK_ERROR: Cannot connect to API. Check your internet connection and API URL.');
+            throw new Error(
+                'NETWORK_ERROR: Cannot connect to API. Check your internet connection and API URL.'
+            );
         }
-        
+
         throw error;
     }
 }
@@ -65,12 +79,19 @@ async function fetchWithTimeout(url, options, timeout = 30000) {
  * Only include valid emojis from our curated list
  */
 function getAvailableEmojisForPrompt() {
-    // Sample diverse emojis (every 10th) to keep prompt manageable
-    // This gives AI a representative sample while staying under token limits
-    const emojiSample = emojis
-        .filter((_, index) => index % 10 === 0)
-        .slice(0, 100);
-    return emojiSample.join(' ');
+    // Use the SAME emoji list as Random Mode (emojisData.emojis)
+    // This ensures consistency between Random and Story Mode
+    // Return ALL emojis joined with spaces for the AI prompt
+    if (!emojis || !Array.isArray(emojis) || emojis.length === 0) {
+        console.warn(
+            '⚠️ [Story Mode] Emojis array is empty or invalid, using fallback'
+        );
+        return '😀 😃 😄 😁 😆 😅 🤣 😂 🙂 🙃 😉 😊 😇 🥰 😍 🤩 😘 😗 ☺ 😚 😙';
+    }
+
+    // Return ALL emojis (same as Random Mode uses in getRandomEmojis)
+    // Join with spaces for the AI prompt
+    return emojis.join(' ');
 }
 
 /**
@@ -159,7 +180,7 @@ function validateGeneratedEmojis(response, emojiCount) {
  * Get default model for each provider based on tier
  * Uses most stable, widely available models as defaults
  */
-function getDefaultModel(provider, tier = 'free') {
+export function getDefaultModel(provider, tier = 'free') {
     const models = {
         openai: tier === 'pro' ? 'gpt-4o-mini' : 'gpt-3.5-turbo',
         gemini: tier === 'pro' ? 'gemini-pro' : 'gemini-pro', // Most stable model
@@ -168,10 +189,10 @@ function getDefaultModel(provider, tier = 'free') {
             tier === 'pro'
                 ? 'claude-3-haiku-20240307'
                 : 'claude-3-haiku-20240307',
-        apertus: 'apertus-8b-2509', // Swiss LLM - same for free and pro
+        apertus: 'swiss-ai/apertus-70b-instruct', // Swiss LLM - strongest available model (70B)
         custom: '' // No default for custom
     };
-    return models[provider] || 'apertus-8b-2509'; // Default to Swiss LLM
+    return models[provider] || 'swiss-ai/apertus-70b-instruct'; // Default to strongest Swiss LLM
 }
 
 /**
@@ -350,29 +371,114 @@ async function callClaudeWithModel(
  * Uses n8n workflow endpoint configured via WEBHOOKS.APERTUS
  * Best Practices:
  * - Uses n8n workflow with token authentication
- * - Model: apertus-8b-2509 (via HuggingFace)
+ * - Model: swiss-ai/apertus-70b-instruct (strongest available, 70B via HuggingFace)
  * - Token from environment variable (VITE_N8N_APERTUS_TOKEN)
  * - Webhook URL from environment variable (VITE_N8N_URL) or config default
  */
 async function callApertus(apiKey, prompt, model, maxTokens, temperature) {
-    const finalModel = model || 'apertus-8b-2509';
-    
+    const finalModel = model || 'swiss-ai/apertus-70b-instruct';
+
     // Import WEBHOOKS dynamically to avoid circular dependencies
     const { WEBHOOKS } = await import('../config/api.js');
-    
+
     // Get n8n token from environment (fallback to empty string for dev)
     // In production, this should be set in .env files as VITE_N8N_APERTUS_TOKEN
-    const n8nToken = typeof import.meta !== 'undefined' && import.meta.env?.VITE_N8N_APERTUS_TOKEN
-        ? import.meta.env.VITE_N8N_APERTUS_TOKEN
-        : ''; // Empty token for development - should be set in .env
-    
-    // Warn if token is missing (helps with debugging)
-    if (!n8nToken) {
-        console.warn('⚠️ [Apertus] VITE_N8N_APERTUS_TOKEN not set. Webhook will reject request.');
+    // SECURITY: Token is injected via webpack DefinePlugin from .env.local
+    const rawToken =
+        typeof import.meta !== 'undefined' &&
+        import.meta.env?.VITE_N8N_APERTUS_TOKEN
+            ? import.meta.env.VITE_N8N_APERTUS_TOKEN
+            : (typeof process !== 'undefined' &&
+                  process.env?.VITE_N8N_APERTUS_TOKEN) ||
+              '';
+
+    // Debug: Log raw token (before cleaning) - only in development
+    if (
+        typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1')
+    ) {
+        console.log('🔍 [Apertus] Raw token from env:', {
+            exists: !!rawToken,
+            type: typeof rawToken,
+            length: rawToken?.length || 0,
+            preview: rawToken
+                ? `${String(rawToken).substring(0, 10)}...`
+                : 'empty'
+        });
+    }
+
+    // Clean token: remove quotes, whitespace, and JSON stringification artifacts
+    let n8nToken = String(rawToken || '').trim();
+
+    // Remove JSON stringification quotes (from webpack DefinePlugin)
+    // This handles cases where the token is stringified as "token_value"
+    n8nToken = n8nToken.replace(/^["']|["']$/g, '');
+
+    // Remove URL-encoded quotes (%22)
+    n8nToken = n8nToken.replace(/%22/g, '');
+
+    // Remove any remaining quotes (shouldn't be necessary, but safety first)
+    n8nToken = n8nToken.replace(/["']/g, '');
+
+    // Final validation: check if token is placeholder or empty
+    if (
+        !n8nToken ||
+        n8nToken.length === 0 ||
+        n8nToken.includes('your_apertus_n8n_token_here') ||
+        n8nToken === '""' ||
+        n8nToken === "''" ||
+        n8nToken.length < 10
+    ) {
+        console.error(
+            '❌ [Apertus] VITE_N8N_APERTUS_TOKEN not set or is invalid. Webhook will reject request.'
+        );
+        console.error(
+            '   💡 Run: npm run check:apertus-token to verify configuration'
+        );
+        console.error('   🔍 Raw token value:', rawToken);
+        console.error('   🔍 Cleaned token:', n8nToken);
+        console.error('   🔍 Token length:', n8nToken?.length || 0);
+
+        // Throw error instead of silently continuing with empty token
+        throw new Error(
+            'VITE_N8N_APERTUS_TOKEN is not set or invalid. ' +
+                'Please set it in .env.local and restart the dev server. ' +
+                'Run: npm run check:apertus-token to verify.'
+        );
+    } else {
+        // Debug: Log token status (without exposing the actual token)
+        console.log('✅ [Apertus] Token loaded and validated:', {
+            length: n8nToken.length,
+            preview: `${n8nToken.substring(0, 4)}...${n8nToken.substring(
+                n8nToken.length - 4
+            )}`,
+            isValid: true
+        });
+    }
+
+    // Debug: Log URL before fetch
+    const apertusUrl = WEBHOOKS.APERTUS;
+    console.log('🔗 [Apertus] Calling webhook:', apertusUrl);
+    console.log(
+        '🔍 [Debug] URL type:',
+        typeof apertusUrl,
+        'Length:',
+        apertusUrl?.length
+    );
+
+    // Validate URL
+    if (
+        !apertusUrl ||
+        typeof apertusUrl !== 'string' ||
+        !apertusUrl.startsWith('http')
+    ) {
+        console.error('❌ Invalid APERTUS URL:', apertusUrl);
+        throw new Error('Invalid APERTUS URL configuration');
     }
 
     const response = await fetchWithTimeout(
-        WEBHOOKS.APERTUS,
+        apertusUrl,
         {
             method: 'POST',
             headers: {
@@ -384,38 +490,293 @@ async function callApertus(apiKey, prompt, model, maxTokens, temperature) {
                 max_tokens: maxTokens || 512,
                 temperature: temperature || 0.7,
                 language: 'Deutsch', // Default language
-                token: n8nToken // n8n webhook authentication token
+                token: n8nToken // n8n webhook authentication token (required for security)
             })
         },
         120000 // 120 second timeout (n8n workflows can take longer)
     );
 
+    // Get response text first (for better error handling)
+    const responseText = await response.text();
+    console.log(
+        '📥 [Apertus] Raw response text:',
+        responseText.substring(0, 500)
+    );
+    console.log(
+        '📥 [Apertus] Response status:',
+        response.status,
+        response.statusText
+    );
+    console.log(
+        '📥 [Apertus] Response headers:',
+        Object.fromEntries(response.headers.entries())
+    );
+
     if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
+        // Try to parse error as JSON, fallback to text
+        let errorData = {};
+        try {
+            if (responseText) {
+                errorData = JSON.parse(responseText);
+            }
+        } catch (e) {
+            // Not JSON, use text as error message
+            console.warn(
+                '⚠️ [Apertus] Error response is not JSON:',
+                responseText
+            );
+            throw new Error(
+                `Apertus n8n API error: ${response.status} ${
+                    response.statusText
+                }. Response: ${responseText.substring(0, 200)}`
+            );
+        }
+
         throw new Error(
-            error.error?.message || error.message || `Apertus n8n API error: ${response.status}`
+            errorData.error?.message ||
+                errorData.message ||
+                `Apertus n8n API error: ${response.status} ${response.statusText}`
         );
     }
 
-    const data = await response.json();
-    
+    // Check if response is empty
+    if (!responseText || responseText.trim().length === 0) {
+        console.error('❌ [Apertus] Empty response from n8n webhook');
+        console.error('   💡 Check n8n workflow execution logs for errors');
+        console.error(
+            '   💡 Ensure "Respond to Webhook" node is connected and configured'
+        );
+        console.error(
+            '   💡 Verify "Call Apertus" node succeeds (not error branch)'
+        );
+        throw new Error(
+            'Empty response from Apertus n8n workflow. ' +
+                'The workflow may have failed or the "Respond to Webhook" node is not returning data. ' +
+                'Please check the n8n workflow execution logs.'
+        );
+    }
+
+    // Parse JSON response
+    let data;
+    try {
+        data = JSON.parse(responseText);
+    } catch (e) {
+        console.error('❌ [Apertus] Failed to parse JSON response:', e);
+        console.error('❌ [Apertus] Response text:', responseText);
+        throw new Error(
+            `Invalid JSON response from Apertus n8n workflow. Response: ${responseText.substring(
+                0,
+                200
+            )}`
+        );
+    }
+
+    console.log(
+        '📥 [Apertus] Parsed response data:',
+        JSON.stringify(data, null, 2)
+    );
+    console.log(
+        '📥 [Apertus] Response type:',
+        Array.isArray(data) ? 'Array' : typeof data
+    );
+
     // Handle n8n workflow response format
-    // The workflow returns: { response: "...", usage: {...}, ... }
-    if (data.response) {
-        return data.response;
+    // n8n can return either an object or an array (depending on workflow configuration)
+
+    // Case 1: Response is an array (n8n sometimes wraps responses in arrays)
+    if (Array.isArray(data)) {
+        console.log('📦 [Apertus] Response is array, length:', data.length);
+
+        // Try to find response in array elements
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
+
+            // Check if item has response field (and it's not empty)
+            if (item && typeof item === 'object') {
+                // Check for OpenAI-compatible format first (choices[0].message.content)
+                if (item.choices && item.choices[0]?.message?.content) {
+                    const content = item.choices[0].message.content;
+                    if (content && content.trim().length > 0) {
+                        console.log(
+                            `✅ [Apertus] Found OpenAI format in array[${i}]:`,
+                            content.substring(0, 100)
+                        );
+                        return content;
+                    }
+                }
+
+                // Check response field (must not be empty)
+                if (item.response && item.response.trim().length > 0) {
+                    console.log(
+                        `✅ [Apertus] Found response in array[${i}]:`,
+                        item.response.substring(0, 100)
+                    );
+                    return item.response;
+                }
+
+                // Check text field
+                if (item.text && item.text.trim().length > 0) {
+                    console.log(
+                        `✅ [Apertus] Found text in array[${i}]:`,
+                        item.text.substring(0, 100)
+                    );
+                    return item.text;
+                }
+
+                // Check content field
+                if (item.content) {
+                    let content =
+                        typeof item.content === 'string'
+                            ? item.content
+                            : item.content.text || item.content[0]?.text || '';
+                    if (content && content.trim().length > 0) {
+                        console.log(
+                            `✅ [Apertus] Found content in array[${i}]:`,
+                            content.substring(0, 100)
+                        );
+                        return content;
+                    }
+                }
+            } else if (typeof item === 'string' && item.trim().length > 0) {
+                console.log(
+                    `✅ [Apertus] Found string in array[${i}]:`,
+                    item.substring(0, 100)
+                );
+                return item;
+            }
+        }
+
+        // If array contains objects, try to extract from first element
+        if (data.length > 0 && typeof data[0] === 'object') {
+            const firstItem = data[0];
+
+            // Try OpenAI format first
+            if (firstItem.choices && firstItem.choices[0]?.message?.content) {
+                const content = firstItem.choices[0].message.content;
+                if (content && content.trim().length > 0) {
+                    console.log(
+                        '✅ [Apertus] Extracted OpenAI format from first array element'
+                    );
+                    return content;
+                }
+            }
+
+            // Try other fields
+            const extracted =
+                firstItem.response || firstItem.text || firstItem.content;
+            if (extracted) {
+                const content =
+                    typeof extracted === 'string'
+                        ? extracted
+                        : extracted.text || '';
+                if (content && content.trim().length > 0) {
+                    console.log(
+                        '✅ [Apertus] Extracted from first array element:',
+                        content.substring(0, 100)
+                    );
+                    return content;
+                }
+            }
+        }
+
+        // If we get here, the response field exists but is empty
+        // This means the API call succeeded but returned empty content
+        console.warn(
+            '⚠️ [Apertus] Response field exists but is empty. API call succeeded but no content returned.'
+        );
+        throw new Error(
+            'Apertus API returned empty response. The workflow executed successfully but the AI model returned no content. ' +
+                'Please check the n8n workflow "Format Response" node - it should extract the content from the API response.'
+        );
     }
-    
-    // Fallback: try OpenAI-compatible format
-    if (data.choices && data.choices[0]?.message?.content) {
-        return data.choices[0].message.content;
+
+    // Case 2: Response is an object
+    if (data && typeof data === 'object') {
+        // Try OpenAI-compatible format first (most common)
+        if (data.choices && data.choices[0]?.message?.content) {
+            const content = data.choices[0].message.content;
+            if (content && content.trim().length > 0) {
+                console.log(
+                    '✅ [Apertus] Found OpenAI format:',
+                    content.substring(0, 100)
+                );
+                return content;
+            }
+        }
+
+        // The workflow returns: { response: "...", usage: {...}, ... }
+        if (data.response && data.response.trim().length > 0) {
+            console.log(
+                '✅ [Apertus] Found response field:',
+                data.response.substring(0, 100)
+            );
+            return data.response;
+        }
+
+        // Try other common formats
+        if (data.content) {
+            const content =
+                typeof data.content === 'string'
+                    ? data.content
+                    : data.content.text || data.content[0]?.text || '';
+            if (content && content.trim().length > 0) {
+                console.log(
+                    '✅ [Apertus] Found content field:',
+                    content.substring(0, 100)
+                );
+                return content;
+            }
+        }
+
+        if (data.text && data.text.trim().length > 0) {
+            console.log(
+                '✅ [Apertus] Found text field:',
+                data.text.substring(0, 100)
+            );
+            return data.text;
+        }
+
+        if (data.message && data.message.trim().length > 0) {
+            console.log(
+                '✅ [Apertus] Found message field:',
+                data.message.substring(0, 100)
+            );
+            return data.message;
+        }
+
+        // If response field exists but is empty, provide helpful error
+        if (data.response !== undefined && data.response.trim().length === 0) {
+            console.warn(
+                '⚠️ [Apertus] Response field exists but is empty. Full data:',
+                JSON.stringify(data, null, 2)
+            );
+            throw new Error(
+                'Apertus API returned empty response. The workflow executed successfully but the AI model returned no content. ' +
+                    'Please check the n8n workflow "Format Response" node - it should extract the content from choices[0].message.content.'
+            );
+        }
     }
-    
-    // Last resort: return raw response if it's a string
+
+    // Case 3: Response is a string
     if (typeof data === 'string') {
+        console.log('✅ [Apertus] Response is string:', data.substring(0, 100));
         return data;
     }
-    
-    throw new Error('Invalid response format from Apertus n8n workflow');
+
+    // Enhanced error message with response structure
+    const responseType = Array.isArray(data) ? 'Array' : typeof data;
+    const responseInfo = Array.isArray(data)
+        ? `Array with ${data.length} elements`
+        : `Object with keys: ${Object.keys(data).join(', ')}`;
+
+    console.error(
+        '❌ [Apertus] Invalid response format. Response type:',
+        responseType,
+        responseInfo
+    );
+    throw new Error(
+        `Invalid response format from Apertus n8n workflow. Received: ${responseInfo}`
+    );
 }
 
 /**
@@ -752,7 +1113,11 @@ async function callCustomAPI(config) {
         30000 // 30 second timeout
     );
 
-    console.log('📥 [Custom API] Response status:', response.status, response.statusText);
+    console.log(
+        '📥 [Custom API] Response status:',
+        response.status,
+        response.statusText
+    );
 
     if (!response.ok) {
         const error = await response.text();
@@ -764,16 +1129,15 @@ async function callCustomAPI(config) {
     console.log('✅ [Custom API] Response data:', data);
 
     // Try common response formats
-    const result = (
+    const result =
         data.choices?.[0]?.message?.content || // OpenAI format
         data.content?.[0]?.text || // Claude format
         data.response ||
         data.text ||
         data.content ||
         data.emojis ||
-        ''
-    );
-    
+        '';
+
     console.log('🎯 [Custom API] Extracted result:', result);
     return result;
 }
@@ -863,10 +1227,6 @@ export async function generateStoryEmojis(text, emojiCount, storyModeConfig) {
         throw new Error('Story mode configuration is required');
     }
 
-    if (!storyModeConfig.apiKey) {
-        throw new Error('API key is required for story mode');
-    }
-
     const {
         provider,
         apiKey,
@@ -881,6 +1241,11 @@ export async function generateStoryEmojis(text, emojiCount, storyModeConfig) {
         tier,
         forceRegenerate = false
     } = storyModeConfig;
+
+    // Skip API key validation for Apertus (uses n8n token from environment)
+    if (provider !== 'apertus' && !apiKey) {
+        throw new Error('API key is required for story mode');
+    }
 
     // Check cache first (skip if forceRegenerate is true)
     if (cacheResults !== false && !forceRegenerate) {
@@ -1120,17 +1485,23 @@ export async function testAIProvider(storyModeConfig) {
 
         let response = '';
         let usedModel = model || getDefaultModel(provider, 'free');
-        
+
         // DEVELOPMENT MODE: CORS Mock Mode for Custom API Testing
-        if (isDevelopment() && provider === 'custom' && customApiUrl && 
-            (customApiUrl.includes('127.0.0.1') || customApiUrl.includes('localhost'))) {
-            
+        if (
+            isDevelopment() &&
+            provider === 'custom' &&
+            customApiUrl &&
+            (customApiUrl.includes('127.0.0.1') ||
+                customApiUrl.includes('localhost'))
+        ) {
             // Check for URL parameter to enable mock mode
             const urlParams = new URLSearchParams(window.location.search);
             const mockMode = urlParams.get('mock-custom-api') === 'true';
-            
+
             if (mockMode) {
-                console.log('🧪 [DEV] Using MOCK response for Custom API (CORS bypass)');
+                console.log(
+                    '🧪 [DEV] Using MOCK response for Custom API (CORS bypass)'
+                );
                 response = '🧪'; // Return test emoji
                 return {
                     success: true,
@@ -1177,6 +1548,22 @@ export async function testAIProvider(storyModeConfig) {
                 usedModel = customModel || model || 'claude-3-haiku-20240307';
                 response = await callClaude(
                     apiKey,
+                    testPrompt,
+                    usedModel,
+                    10,
+                    0.5
+                );
+                break;
+
+            case 'apertus':
+                usedModel = model || 'swiss-ai/apertus-70b-instruct';
+                // For Apertus, token is loaded from environment in callApertus
+                // Pass empty string as apiKey - callApertus will load token internally
+                console.log(
+                    '🧪 [Apertus Test] Calling callApertus with empty API key (token loaded from env)'
+                );
+                response = await callApertus(
+                    '', // Empty API key for Apertus (token handled internally via VITE_N8N_APERTUS_TOKEN)
                     testPrompt,
                     usedModel,
                     10,
@@ -1277,10 +1664,19 @@ export function getProviderInfo(provider) {
         apertus: {
             name: 'Apertus (Swiss LLM)',
             models: {
-                free: ['apertus-8b-2509'],
-                pro: ['apertus-8b-2509']
+                free: [
+                    'swiss-ai/apertus-70b-instruct',
+                    'swiss-ai/apertus-8b-instruct'
+                ],
+                pro: [
+                    'swiss-ai/apertus-70b-instruct',
+                    'swiss-ai/apertus-8b-instruct'
+                ]
             },
-            defaultModel: { free: 'apertus-8b-2509', pro: 'apertus-8b-2509' },
+            defaultModel: {
+                free: 'swiss-ai/apertus-70b-instruct',
+                pro: 'swiss-ai/apertus-70b-instruct'
+            },
             apiKeyPrefix: '',
             docsUrl: 'https://aimi.matt-interfaces.ch/api'
         },
@@ -1296,6 +1692,8 @@ export function getProviderInfo(provider) {
     return info[provider] || info.openai;
 }
 
+// Functions are already exported individually above (export async function, export function)
+// Default export for backward compatibility
 export default {
     generateStoryEmojis,
     clearStoryCache,

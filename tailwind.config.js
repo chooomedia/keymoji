@@ -207,7 +207,14 @@ module.exports = {
                 'scroll-right': 'scrollRight 30s linear infinite',
                 'scroll-right-slow': 'scrollRight 45s linear infinite',
                 'scroll-right-fast': 'scrollRight 20s linear infinite',
-                'scroll-right-ultra-slow': 'scrollRight 60s linear infinite'
+                'scroll-right-ultra-slow': 'scrollRight 60s linear infinite',
+                'swiss-shine': 'swissShine 6s ease-in-out infinite',
+                'swiss-pulse': 'swissPulse 7s ease-in-out infinite',
+                'swiss-pulse-bg': 'swissPulseBg 7s ease-in-out infinite',
+                'swiss-pulse-text': 'swissPulseText 7s ease-in-out infinite',
+                'yellow-pulse': 'yellowPulse 0.6s ease-in-out',
+                'yellow-pulse-bg': 'yellowPulseBg 0.6s ease-in-out',
+                'yellow-pulse-text': 'yellowPulseText 0.6s ease-in-out'
             },
             keyframes: {
                 fadeIn: {
@@ -233,6 +240,82 @@ module.exports = {
                 scrollRight: {
                     '0%': { transform: 'translateX(0)' },
                     '100%': { transform: 'translateX(50%)' }
+                },
+                swissShine: {
+                    '0%, 96%, 100%': {
+                        opacity: '0',
+                        transform: 'translateX(-150%) skewX(-12deg)'
+                    },
+                    '1%, 2.5%': {
+                        opacity: '1',
+                        transform: 'translateX(150%) skewX(-12deg)'
+                    }
+                },
+                swissPulse: {
+                    '0%, 85%, 100%': {
+                        transform: 'scale(1)'
+                    },
+                    '90%, 92%': {
+                        transform: 'scale(1.12)'
+                    }
+                },
+                swissPulseBg: {
+                    '0%, 85%, 100%': {
+                        opacity: '0',
+                        backgroundColor: 'transparent'
+                    },
+                    '88%, 90%': {
+                        opacity: '0.3',
+                        backgroundColor: 'rgb(218, 41, 28)'
+                    },
+                    '90%, 92%': {
+                        opacity: '1',
+                        backgroundColor: 'rgb(218, 41, 28)'
+                    }
+                },
+                swissPulseText: {
+                    '0%, 85%, 100%': {
+                        color: 'rgb(218, 41, 28)'
+                    },
+                    '90%, 92%': {
+                        color: 'rgb(255, 255, 255)'
+                    }
+                },
+                yellowPulse: {
+                    '0%': {
+                        transform: 'scale(1)'
+                    },
+                    '50%': {
+                        transform: 'scale(1.12)'
+                    },
+                    '100%': {
+                        transform: 'scale(1)'
+                    }
+                },
+                yellowPulseBg: {
+                    '0%': {
+                        opacity: '0',
+                        backgroundColor: 'transparent'
+                    },
+                    '50%': {
+                        opacity: '1',
+                        backgroundColor: 'rgb(234, 179, 8)'
+                    },
+                    '100%': {
+                        opacity: '0',
+                        backgroundColor: 'transparent'
+                    }
+                },
+                yellowPulseText: {
+                    '0%': {
+                        color: 'rgb(234, 179, 8)'
+                    },
+                    '50%': {
+                        color: 'rgb(0, 0, 0)'
+                    },
+                    '100%': {
+                        color: 'rgb(234, 179, 8)'
+                    }
                 }
             }
         }

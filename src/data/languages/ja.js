@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: 'AIをセットアップ',
         setupStoryModeSwiss: 'スイスAIを使用',
+        setupStoryModeOr: 'または',
         setupStoryModeDescription:
             'AIに接続してパーソナライズされた絵文字パスワードを取得。',
         setupStoryModeSwissDescription:

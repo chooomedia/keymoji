@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: 'Stel jou AI op',
         setupStoryModeSwiss: 'Gebruik Switserse AI',
+        setupStoryModeOr: 'of',
         setupStoryModeDescription:
             'Koppel met jou AI vir gepersonaliseerde emoji-wagwoorde.',
         setupStoryModeSwissDescription:

@@ -81,9 +81,18 @@ export async function refreshUserCounter() {
     }));
 
     try {
-        console.log('📡 Fetching from:', WEBHOOKS.USER_COUNTER);
+        // Debug: Log URL before fetch
+        const counterUrl = WEBHOOKS.USER_COUNTER;
+        console.log('📡 Fetching from:', counterUrl);
+        console.log('🔍 [Debug] URL type:', typeof counterUrl, 'Length:', counterUrl?.length);
+        
+        // Validate URL
+        if (!counterUrl || typeof counterUrl !== 'string' || !counterUrl.startsWith('http')) {
+            console.error('❌ Invalid USER_COUNTER URL:', counterUrl);
+            throw new Error('Invalid USER_COUNTER URL configuration');
+        }
 
-        const response = await fetch(WEBHOOKS.USER_COUNTER, {
+        const response = await fetch(counterUrl, {
             method: 'POST',
             mode: 'cors',
             headers: {
@@ -282,7 +291,18 @@ export async function sendAnalyticsEvent(eventType, eventData = {}) {
 
         const detailedClientInfo = getDetailedClientInfo();
 
-        const response = await fetch(WEBHOOKS.ANALYTICS, {
+        // Debug: Log URL before fetch
+        const analyticsUrl = WEBHOOKS.ANALYTICS;
+        console.log('📊 [Analytics] Sending to:', analyticsUrl);
+        console.log('🔍 [Debug] URL type:', typeof analyticsUrl, 'Length:', analyticsUrl?.length);
+        
+        // Validate URL
+        if (!analyticsUrl || typeof analyticsUrl !== 'string' || !analyticsUrl.startsWith('http')) {
+            console.error('❌ Invalid ANALYTICS URL:', analyticsUrl);
+            return null;
+        }
+
+        const response = await fetch(analyticsUrl, {
             method: 'POST',
             mode: 'cors',
             headers: {

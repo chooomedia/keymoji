@@ -30,6 +30,7 @@ export default {
         ],
         setupStoryMode: 'Configura la tua IA',
         setupStoryModeSwiss: 'Usa IA svizzera',
+        setupStoryModeOr: 'o',
         setupStoryModeDescription:
             'Connettiti con la tua IA per password emoji personalizzate.',
         setupStoryModeSwissDescription:
