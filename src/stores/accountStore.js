@@ -1094,10 +1094,20 @@ export async function logout() {
 
         console.log('✅ [LOGOUT] User data stores reset');
 
-        // Reset daily usage store
+        // Reset daily usage store (only in dev mode - security!)
+        // In production, daily usage persists across logout/login
+        if (isDevelopment()) {
         const { resetDailyUsage } = await import('./dailyUsageStore.js');
+            try {
         resetDailyUsage();
-        console.log('✅ [LOGOUT] Daily usage reset');
+                console.log('✅ [LOGOUT] Daily usage reset (dev mode)');
+            } catch (error) {
+                // Ignore if not in dev mode (expected in production)
+                console.log('ℹ️ [LOGOUT] Daily usage reset skipped (production mode)');
+            }
+        } else {
+            console.log('ℹ️ [LOGOUT] Daily usage persists (production mode - security)');
+        }
     } catch (error) {
         console.warn('⚠️ [LOGOUT] Error resetting stores:', error);
     }
@@ -1712,6 +1722,24 @@ async function syncAccountData(accountData) {
                 parsedMetadata?.dailyUsage?.used ||
                     cleanAccountData.usedGenerations ||
                     0
+            );
+        }
+
+        // CRITICAL: Refresh usage history after account sync
+        // This ensures usage data is loaded immediately after login
+        try {
+            const { refreshUsageHistory } = await import(
+                './userDataStore.js'
+            );
+            // Use a small delay to ensure stores are fully updated
+            setTimeout(async () => {
+                await refreshUsageHistory(true); // Force refresh to get latest data
+                console.log('✅ Usage history refreshed after account sync');
+            }, 100);
+        } catch (error) {
+            console.warn(
+                '⚠️ Failed to refresh usage history after sync:',
+                error
             );
         }
 

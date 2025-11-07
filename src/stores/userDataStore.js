@@ -440,8 +440,21 @@ export async function refreshUsageHistory(force = false) {
             // 1. metadata.usageHistory (korrekt)
             // 2. profile.usageHistory (alte/falsche Struktur in Google Sheets!)
 
-            const parsedMetadata = safeJSONParse(account.metadata, {});
-            const parsedProfile = safeJSONParse(account.profile, {});
+            // Handle both string and object formats
+            let parsedMetadata = {};
+            let parsedProfile = {};
+            
+            if (typeof account.metadata === 'string') {
+                parsedMetadata = safeJSONParse(account.metadata, {});
+            } else if (account.metadata && typeof account.metadata === 'object') {
+                parsedMetadata = account.metadata;
+            }
+            
+            if (typeof account.profile === 'string') {
+                parsedProfile = safeJSONParse(account.profile, {});
+            } else if (account.profile && typeof account.profile === 'object') {
+                parsedProfile = account.profile;
+            }
 
             // Versuche BEIDE Locations
             const history =
@@ -452,9 +465,12 @@ export async function refreshUsageHistory(force = false) {
             console.log('🔍 [USAGE HISTORY] Checking data locations:', {
                 hasMetadata: !!account.metadata,
                 hasProfile: !!account.profile,
+                metadataType: typeof account.metadata,
+                profileType: typeof account.profile,
                 metadataHasHistory: !!parsedMetadata.usageHistory,
                 profileHasHistory: !!parsedProfile.usageHistory,
-                finalHistoryLength: history.length
+                finalHistoryLength: history.length,
+                historyIsArray: Array.isArray(history)
             });
 
             if (Array.isArray(history) && history.length > 0) {
@@ -483,6 +499,8 @@ export async function refreshUsageHistory(force = false) {
                 );
 
                 return history;
+            } else {
+                console.log('⚠️ [USAGE HISTORY] No history found in currentAccount, will try API next');
             }
         }
 

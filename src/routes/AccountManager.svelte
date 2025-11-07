@@ -2,7 +2,8 @@
 <script>
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
-    import { fade, fly, slide } from 'svelte/transition';
+    import { fade, fly, slide, crossfade } from 'svelte/transition';
+    import { tick } from 'svelte';
     import PageLayout from '../components/Layout/PageLayout.svelte';
     import { 
         isLoggedIn, 
@@ -66,6 +67,8 @@
     import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers.js';
     import { getUsageHistory, calculateUsageStats } from '../utils/usageHistoryHelpers.js';
     import { DEMO_USAGE_HISTORY_4W, getDemoDataForPeriod, isDemoData } from '../utils/demoChartData.js';
+    import { generateBenefitsStructuredData, injectStructuredData } from '../utils/seo.js';
+    import { formatCanonicalUrl } from '../utils/seo.js';
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
     $: pageTitle = (() => {
@@ -136,6 +139,21 @@
     // Reactive calculation for days since account creation
     // Übergebe $currentAccount damit API-Daten (Google Sheets) bevorzugt werden!
     $: daysSinceCreation = getDaysSinceAccountCreation($currentAccount);
+    
+    // Generate and inject structured data for benefits (Rich Elements for SEO)
+    $: if ($translations?.accountManager?.benefits && !$isLoggedIn && accountCreationStep === 'benefits') {
+        try {
+            const canonicalUrl = formatCanonicalUrl(window.location.pathname);
+            const benefitsStructuredData = generateBenefitsStructuredData(
+                $translations.accountManager.benefits,
+                $currentLanguage,
+                canonicalUrl
+            );
+            injectStructuredData(benefitsStructuredData);
+        } catch (error) {
+            console.warn('⚠️ Failed to inject benefits structured data:', error);
+        }
+    }
     
     // Debug: Log when daysSinceCreation changes
     $: if (daysSinceCreation !== undefined) {
@@ -274,11 +292,19 @@
             return chartUsageHistory;
         }
         
-        // If logged in but no data, show demo
-        if ($isLoggedIn && chartUsageHistory.length === 0) {
-            isDemoDataShown = true;
-            console.log('📊 No backend data, using demo dataset');
-            return DEMO_USAGE_HISTORY_4W;
+        // If logged in but no data AND not loading, show empty (will show "No Data" message)
+        // Only show demo if explicitly enabled (for testing)
+        if ($isLoggedIn && chartUsageHistory.length === 0 && !isLoadingChartData) {
+            isDemoDataShown = false;
+            console.log('📊 Logged in but no usage data available yet');
+            return [];
+        }
+        
+        // Still loading - return empty to show loading state
+        if ($isLoggedIn && isLoadingChartData) {
+            isDemoDataShown = false;
+            console.log('⏳ Loading usage data...');
+            return [];
         }
         
         // Not logged in - empty
@@ -1153,8 +1179,8 @@
                                             🔄 Erneut versuchen
                                         </Button>
                                     </div>
-                                {:else if finalUsageHistory.length === 0}
-                                    <!-- No Data State (nur wenn wirklich KEINE Daten!) -->
+                                {:else if finalUsageHistory.length === 0 && !isLoadingChartData && $isLoggedIn}
+                                    <!-- No Data State (nur wenn wirklich KEINE Daten UND eingeloggt UND nicht am Laden!) -->
                                     <div 
                                         class="flex flex-col items-center justify-center h-64 bg-gray-100 dark:bg-aubergine-900 rounded-lg border border-gray-200 dark:border-aubergine-700 p-8"
                                         in:fade={{ duration: 300 }}
@@ -1451,10 +1477,16 @@
                             </div>
                         </div>
                         <!-- Benefits Content -->
-                        <div class="relative min-h-[400px] mb-5 z-10">
+                        <div class="relative mb-5 z-10 grid" role="tabpanel" aria-live="polite">
                             <!-- FREE Benefits -->
-                            <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'free' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0 pointer-events-none'}">
-                                <div class="space-y-4">
+                            {#if showBenefitsToggle === 'free'}
+                                <div 
+                                    class="space-y-4 col-start-1 row-start-1"
+                                    in:fade={{ duration: 350, easing: (t) => t * (2 - t) }}
+                                    out:fade={{ duration: 250, easing: (t) => t * t }}
+                                    role="region"
+                                    aria-label="Free tier benefits"
+                                >
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
                                         <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">✓</span>
@@ -1483,11 +1515,17 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            {/if}
 
                             <!-- PRO Benefits -->
-                            <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'pro' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0 pointer-events-none'}">
-                                <div class="space-y-4">
+                            {#if showBenefitsToggle === 'pro'}
+                                <div 
+                                    class="space-y-4 col-start-1 row-start-1"
+                                    in:fade={{ duration: 350, easing: (t) => t * (2 - t) }}
+                                    out:fade={{ duration: 250, easing: (t) => t * t }}
+                                    role="region"
+                                    aria-label="Pro tier benefits"
+                                >
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
                                         <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
                                             <span class="text-purple-600 dark:text-purple-400 text-2xl">∞</span>
@@ -1516,7 +1554,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            {/if}
                         </div>
 
                                             <!-- Action Buttons for Expanded View -->
@@ -1664,33 +1702,81 @@
                     </div>
 
                     <!-- Benefits Content -->
-                    <div class="relative min-h-[400px] mb-5">
+                    <div class="relative mb-5 grid" role="tabpanel" aria-live="polite">
                         <!-- FREE Benefits -->
-                        <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'free' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0'}">
-                            <div class="space-y-4">
+                        {#if showBenefitsToggle === 'free'}
+                            <div 
+                                class="space-y-4 col-start-1 row-start-1"
+                                in:fade={{ duration: 350, easing: (t) => t * (2 - t) }}
+                                out:fade={{ duration: 250, easing: (t) => t * t }}
+                                role="region"
+                                aria-label="Free tier benefits"
+                            >
                                 {#each Object.entries($translations?.accountManager?.benefits?.free || {}) as [key, value]}
                                     {#if !key.endsWith('Desc')}
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
                                         <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
                                             <span class="text-yellow-600 dark:text-yellow-400 text-2xl">
                                                 {key === 'dailyGenerations' ? '✓' : 
-                                                 key === 'decentralizedData' ? '🔒' : 
+                                                 key === 'decentralizedData' ? '🤖' : 
                                                  key === 'webApp' ? '📱' : '✓'}
                                             </span>
                                         </div>
                                         <div>
                                             <span class="text-md font-bold text-black dark:text-white">{value}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.[key + 'Desc'] || ''}</p>
+                                            <p class="text-gray-600 dark:text-gray-400">
+                                                {#if key === 'decentralizedData'}
+                                                    {@const desc = $translations?.accountManager?.benefits?.free?.[key + 'Desc'] || ''}
+                                                    {@const parts = desc.split('Apertus')}
+                                                    {#if parts.length > 1}
+                                                        {parts[0]}
+                                                        <a 
+                                                            href="https://publicai.co/apertus" 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer external"
+                                                            class="inline-flex items-center gap-1 text-yellow-500 dark:text-yellow-400 hover:text-yellow-600 dark:hover:text-yellow-500 underline transition-colors duration-200"
+                                                            aria-label="Apertus LLM Documentation (opens in new tab)"
+                                                            title="Apertus LLM - Official Documentation">
+                                                            <span>Apertus</span>
+                                                            <svg 
+                                                                class="w-3 h-3 inline" 
+                                                                fill="none" 
+                                                                stroke="currentColor" 
+                                                                viewBox="0 0 24 24" 
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                aria-hidden="true">
+                                                                <path 
+                                                                    stroke-linecap="round" 
+                                                                    stroke-linejoin="round" 
+                                                                    stroke-width="2" 
+                                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                                                </path>
+                                                            </svg>
+                                                        </a>
+                                                        {parts[1]}
+                                                    {:else}
+                                                        {desc}
+                                                    {/if}
+                                                {:else}
+                                                    {$translations?.accountManager?.benefits?.free?.[key + 'Desc'] || ''}
+                                                {/if}
+                                            </p>
                                         </div>
                                     </div>
                                     {/if}
                                 {/each}
                             </div>
-                        </div>
+                        {/if}
 
                         <!-- PRO Benefits -->
-                        <div class="transition-all duration-700 ease-in-out {showBenefitsToggle === 'pro' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full absolute inset-0'}">
-                            <div class="space-y-4">
+                        {#if showBenefitsToggle === 'pro'}
+                            <div 
+                                class="space-y-4 col-start-1 row-start-1"
+                                in:fade={{ duration: 350, easing: (t) => t * (2 - t) }}
+                                out:fade={{ duration: 250, easing: (t) => t * t }}
+                                role="region"
+                                aria-label="Pro tier benefits"
+                            >
                                 {#each Object.entries($translations?.accountManager?.benefits?.pro || {}) as [key, value]}
                                     {#if !key.endsWith('Desc')}
                                     <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -1699,7 +1785,7 @@
                                                 {key === 'unlimitedGenerations' ? '∞' : 
                                                  key === 'aiThreatDetection' ? '🧠' : 
                                                  key === 'prioritySupport' ? '⚡' : 
-                                                 key === 'browserExtension' ? '🌐' : 
+                                                 key === 'browserExtension' ? '🤖' : 
                                                  key === 'apiIntegration' ? '🔌' : 
                                                  key === 'advancedAnalytics' ? '📊' : 
                                                  key === 'wordpressPlugin' ? '📝' : '✓'}
@@ -1713,7 +1799,7 @@
                                     {/if}
                                 {/each}
                             </div>
-                        </div>
+                        {/if}
                     </div>
 
                     <!-- Create Account Button - ENTFERNT -->
