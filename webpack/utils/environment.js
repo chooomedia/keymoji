@@ -41,9 +41,9 @@ function loadEnv(mode) {
                         );
                         
                         if (newKeys.length > 0) {
-                            console.warn(
+            console.warn(
                                 `⚠️ Using .env.example as fallback for: ${newKeys.join(', ')}. Please create .env.local for local development.`
-                            );
+            );
                             // Only add missing keys from .env.example
                             for (const key of newKeys) {
                                 loadedEnv[key] = config.parsed[key];
@@ -54,7 +54,7 @@ function loadEnv(mode) {
                         loadedEnv = { ...loadedEnv, ...config.parsed };
                     }
                 }
-            } catch (error) {
+    } catch (error) {
                 console.warn(`⚠️ Error loading ${envFile}:`, error.message);
             }
         }

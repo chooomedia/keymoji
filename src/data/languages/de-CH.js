@@ -505,12 +505,12 @@ export default {
         // Vorteil
         benefits: {
             free: {
-                dailyGenerations: '9 tägligi sicheri Generierige',
+                dailyGenerations: '10 tägligi sicheri Generierige',
                 dailyGenerationsDesc:
                     'KI-resistenti Technologie für maximali Sicherheit',
-                decentralizedData: 'Dezentrali Dateverarbeitig',
+                decentralizedData: 'Kostenlosi Schwiizer KI',
                 decentralizedDataDesc:
-                    'Dini Date bliibe immer bi dir - nie uf fremde Server',
+                    'Apertus, ChatGPT, Gemini, Claude, Mistral & meh - direkt nutzbar',
                 webApp: 'Als Web-App verfüegbar',
                 webAppDesc: 'Sofort verfüegbar - kei Installation nötig'
             },
@@ -520,7 +520,7 @@ export default {
                     'Erstell so vieli Passwörter wie du bruchsch - ohni Limite',
                 browserExtension: 'Browser-Erwiterig (Q4 2025)',
                 browserExtensionDesc:
-                    'Sicherheit direkt in dinem Browser - automatisch und überall',
+                    'Sicherheit direkt im Browser - automatisch und überall',
                 apiIntegration: 'API-Integration (Q4 2025)',
                 apiIntegrationDesc:
                     'Integrier Sicherheit nahtlos in dini eigene Anwendige'

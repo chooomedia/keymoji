@@ -507,12 +507,12 @@ export default {
         // Voordele
         benefits: {
             free: {
-                dailyGenerations: '9 daaglikse veilige generasies',
+                dailyGenerations: '10 daaglikse veilige generasies',
                 dailyGenerationsDesc:
                     'AI-weerstandige tegnologie vir maksimum sekuriteit',
-                decentralizedData: 'Gedesentraliseerde data verwerking',
+                decentralizedData: 'Gratis Switserse AI',
                 decentralizedDataDesc:
-                    'Jou data bly altyd by jou - nooit op vreemde bedieners nie',
+                    'Gebruik Apertus, ChatGPT, Gemini, Claude, Mistral & meer - direk bruikbaar',
                 webApp: 'Beskikbaar as web app',
                 webAppDesc: 'Oombliklik beskikbaar - geen installasie nodig nie'
             },

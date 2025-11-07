@@ -131,6 +131,75 @@ export function generateStructuredData(seoData, currentLanguage) {
 }
 
 /**
+ * Generate structured data for account benefits (Rich Elements for SEO)
+ * @param {object} benefits - Benefits object with free and pro tiers
+ * @param {string} currentLanguage - Current language code
+ * @param {string} canonicalUrl - Canonical URL for the account page
+ * @returns {object} Structured data for benefits
+ */
+export function generateBenefitsStructuredData(benefits, currentLanguage, canonicalUrl) {
+    const benefitsList = [];
+    
+    // Add FREE benefits
+    if (benefits?.free) {
+        Object.entries(benefits.free).forEach(([key, value]) => {
+            if (!key.endsWith('Desc')) {
+                const description = benefits.free[key + 'Desc'] || '';
+                benefitsList.push({
+                    '@type': 'SoftwareApplication',
+                    name: value,
+                    description: description,
+                    applicationCategory: 'SecurityApplication',
+                    operatingSystem: 'Web Browser',
+                    offers: {
+                        '@type': 'Offer',
+                        price: '0',
+                        priceCurrency: 'USD',
+                        availability: 'https://schema.org/InStock'
+                    }
+                });
+            }
+        });
+    }
+    
+    // Add PRO benefits
+    if (benefits?.pro) {
+        Object.entries(benefits.pro).forEach(([key, value]) => {
+            if (!key.endsWith('Desc')) {
+                const description = benefits.pro[key + 'Desc'] || '';
+                benefitsList.push({
+                    '@type': 'SoftwareApplication',
+                    name: value,
+                    description: description,
+                    applicationCategory: 'SecurityApplication',
+                    operatingSystem: 'Web Browser',
+                    offers: {
+                        '@type': 'Offer',
+                        price: '0',
+                        priceCurrency: 'USD',
+                        availability: 'https://schema.org/InStock'
+                    }
+                });
+            }
+        });
+    }
+    
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'Keymoji Account Benefits',
+        description: 'Features and benefits available in Keymoji free and pro accounts',
+        url: canonicalUrl,
+        inLanguage: currentLanguage,
+        itemListElement: benefitsList.map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            item: item
+        }))
+    };
+}
+
+/**
  * Generate alternate URLs for each language
  * @param {string} url - Current URL
  * @returns {Array} Array of alternate URLs

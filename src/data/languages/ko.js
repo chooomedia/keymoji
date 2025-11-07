@@ -501,11 +501,11 @@ export default {
         // 혜택
         benefits: {
             free: {
-                dailyGenerations: '하루 5회 안전한 생성',
+                dailyGenerations: '하루 10회 안전한 생성',
                 dailyGenerationsDesc: '최대 보안을 위한 AI 저항 기술',
-                decentralizedData: '분산 데이터 처리',
+                decentralizedData: '무료 스위스 AI',
                 decentralizedDataDesc:
-                    '귀하의 데이터는 항상 귀하와 함께 - 외부 서버에는 절대 저장되지 않습니다',
+                    'Apertus, ChatGPT, Gemini, Claude, Mistral 등 사용 - 직접 사용 가능',
                 webApp: '웹 앱으로 사용 가능',
                 webAppDesc: '즉시 사용 가능 - 설치 불필요'
             },
@@ -515,7 +515,7 @@ export default {
                     '필요한 만큼 비밀번호 생성 - 제한 없음',
                 browserExtension: '브라우저 확장 프로그램 (2025년 Q4)',
                 browserExtensionDesc:
-                    '브라우저에 직접 보안 - 자동적이고 어디서나',
+                    '브라우저에서 직접 보안 - 자동으로 어디서나',
                 apiIntegration: 'API 통합 (2025년 Q4)',
                 apiIntegrationDesc: '보안을 귀하의 애플리케이션에 원활하게 통합'
             }

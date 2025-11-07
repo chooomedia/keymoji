@@ -504,12 +504,12 @@ export default {
         // Faydalar
         benefits: {
             free: {
-                dailyGenerations: '9 günlük güvenli üretim',
+                dailyGenerations: '10 günlük güvenli üretim',
                 dailyGenerationsDesc:
                     'Maksimum güvenlik için AI dirençli teknoloji',
-                decentralizedData: 'Merkezi olmayan veri işleme',
+                decentralizedData: 'Ücretsiz İsviçre AI',
                 decentralizedDataDesc:
-                    'Verileriniz her zaman sizinle kalır - asla yabancı sunucularda değil',
+                    'Apertus, ChatGPT, Gemini, Claude, Mistral ve daha fazlasını kullanın - doğrudan kullanılabilir',
                 webApp: 'Web uygulaması olarak mevcut',
                 webAppDesc: 'Anında mevcut - kurulum gerekmez'
             },
@@ -519,7 +519,7 @@ export default {
                     'İhtiyacınız kadar şifre oluşturun - sınır yok',
                 browserExtension: 'Tarayıcı uzantısı (Q4 2025)',
                 browserExtensionDesc:
-                    'Tarayıcınızda doğrudan güvenlik - otomatik olarak ve her yerde',
+                    'Güvenlik doğrudan tarayıcınızda - otomatik olarak ve her yerde',
                 apiIntegration: 'API Entegrasyonu (Q4 2025)',
                 apiIntegrationDesc:
                     'Güvenliği kendi uygulamalarınıza sorunsuz bir şekilde entegre edin'

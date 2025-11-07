@@ -30,6 +30,7 @@
     
     // Import translations
     import { translations } from '../../stores/contentStore.js';
+    import { isDevelopment } from '../../utils/environment.js';
 
     const dispatch = createEventDispatcher();
 
@@ -165,7 +166,16 @@
         }, 6000);
     }
 
+    /**
+     * SECURITY: Clear all data (DEV MODE ONLY!)
+     * Production users CANNOT clear their data.
+     */
     function clearAllData() {
+        if (!isDevelopment()) {
+            showError('❌ [SECURITY] This function is only available in development mode!', 5000);
+            return;
+        }
+        
         isLoggedIn.set(false);
         currentAccount.set(null);
         accountTier.set('free');
@@ -173,24 +183,42 @@
         successfulStoryRequests.set(0);
         loginError.set(null);
         isLoggingIn.set(false);
-        showSuccess('All data cleared!', 2000);
+        showSuccess('All data cleared! (Dev Mode)', 2000);
     }
 
+    /**
+     * SECURITY: Erase localStorage (DEV MODE ONLY!)
+     * Production users CANNOT erase their storage.
+     */
     function eraseLocalStorage() {
+        if (!isDevelopment()) {
+            showError('❌ [SECURITY] This function is only available in development mode!', 5000);
+            return;
+        }
+        
         try {
             localStorage.clear();
             sessionStorage.clear();
-            showSuccess('Local storage cleared! 🗑️', 2000);
+            showSuccess('Local storage cleared! 🗑️ (Dev Mode)', 2000);
         } catch (error) {
             showError('Failed to clear storage: ' + error.message, 3000);
         }
     }
 
+    /**
+     * SECURITY: Erase and reload (DEV MODE ONLY!)
+     * Production users CANNOT erase their storage.
+     */
     function eraseAndReload() {
+        if (!isDevelopment()) {
+            showError('❌ [SECURITY] This function is only available in development mode!', 5000);
+            return;
+        }
+        
         try {
             localStorage.clear();
             sessionStorage.clear();
-            showSuccess('Storage cleared, reloading... 🔄', 2000);
+            showSuccess('Storage cleared, reloading... 🔄 (Dev Mode)', 2000);
             setTimeout(() => {
                 window.location.reload();
             }, 2000);
@@ -442,9 +470,10 @@
                 {:else if activeTab === 'actions'}
                     <!-- Actions Tab -->
                     <div class="space-y-4">
-                        <!-- Data Management -->
+                        <!-- Data Management (DEV MODE ONLY!) -->
+                        {#if isDevelopment()}
                         <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
-                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Data Management</h3>
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Data Management (Dev Only)</h3>
                             <div class="grid grid-cols-1 gap-2">
                                 <button on:click={clearAllData} class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     🗑️ Clear All Data
@@ -457,6 +486,14 @@
                                 </button>
                             </div>
                         </div>
+                        {:else}
+                        <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Data Management</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                ⚠️ Data management functions are only available in development mode for security reasons.
+                            </p>
+                        </div>
+                        {/if}
 
                         <!-- Account Data -->
                         {#if $currentAccount}

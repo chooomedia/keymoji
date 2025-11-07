@@ -506,12 +506,12 @@ export default {
         // Korzyści
         benefits: {
             free: {
-                dailyGenerations: '9 dziennych bezpiecznych generacji',
+                dailyGenerations: '10 dziennych bezpiecznych generacji',
                 dailyGenerationsDesc:
                     'Technologia odporna na AI dla maksymalnego bezpieczeństwa',
-                decentralizedData: 'Zdecentralizowane przetwarzanie danych',
+                decentralizedData: 'Darmowa szwajcarska AI',
                 decentralizedDataDesc:
-                    'Twoje dane pozostają zawsze z tobą - nigdy na obcych serwerach',
+                    'Użyj Apertus, ChatGPT, Gemini, Claude, Mistral i więcej - bezpośrednio użyteczne',
                 webApp: 'Dostępne jako aplikacja web',
                 webAppDesc: 'Dostępne natychmiast - bez instalacji'
             },

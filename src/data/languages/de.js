@@ -539,12 +539,12 @@ export default {
         // Vorteile
         benefits: {
             free: {
-                dailyGenerations: '9 tägliche sichere Generierungen',
+                dailyGenerations: '10 tägliche sichere Generierungen',
                 dailyGenerationsDesc:
                     'KI-resistente Technologie für maximale Sicherheit',
-                decentralizedData: 'Dezentrale Datenverarbeitung',
+                decentralizedData: 'Kostenlose Schweizer KI',
                 decentralizedDataDesc:
-                    'Deine Daten bleiben immer bei dir - nie auf fremden Servern',
+                    'Apertus, ChatGPT, Gemini, Claude, Mistral & mehr - direkt verwendbar',
                 webApp: 'Als Webapp nutzbar',
                 webAppDesc: 'Sofort verfügbar - keine Installation nötig'
             },

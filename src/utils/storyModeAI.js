@@ -661,7 +661,7 @@ async function callApertus(apiKey, prompt, model, maxTokens, temperature) {
                 }
             }
 
-            // Try other fields
+            // Try other fields (response, text, content)
             const extracted =
                 firstItem.response || firstItem.text || firstItem.content;
             if (extracted) {
@@ -676,6 +676,26 @@ async function callApertus(apiKey, prompt, model, maxTokens, temperature) {
                     );
                     return content;
                 }
+            }
+
+            // Check if success is true but response is empty (n8n workflow issue)
+            if (
+                firstItem.success === true &&
+                (!firstItem.response || firstItem.response.trim().length === 0)
+            ) {
+                console.warn(
+                    '⚠️ [Apertus] n8n workflow returned success=true but empty response. Full data:',
+                    JSON.stringify(firstItem, null, 2)
+                );
+                throw new Error(
+                    'Apertus API returned empty response. The workflow executed successfully but the AI model returned no content. ' +
+                        'Please check the n8n workflow "Format Response" node - it should extract the content from choices[0].message.content or the API response field. ' +
+                        `Current response structure: ${JSON.stringify(
+                            firstItem,
+                            null,
+                            2
+                        )}`
+                );
             }
         }
 
@@ -1562,13 +1582,32 @@ export async function testAIProvider(storyModeConfig) {
                 console.log(
                     '🧪 [Apertus Test] Calling callApertus with empty API key (token loaded from env)'
                 );
-                response = await callApertus(
-                    '', // Empty API key for Apertus (token handled internally via VITE_N8N_APERTUS_TOKEN)
-                    testPrompt,
-                    usedModel,
-                    10,
-                    0.5
-                );
+                try {
+                    response = await callApertus(
+                        '', // Empty API key for Apertus (token handled internally via VITE_N8N_APERTUS_TOKEN)
+                        testPrompt,
+                        usedModel,
+                        10,
+                        0.5
+                    );
+
+                    // Additional check: Even if callApertus didn't throw, verify response is not empty
+                    if (!response || response.trim().length === 0) {
+                        throw new Error(
+                            'Apertus API returned empty response. The workflow executed successfully but the AI model returned no content. ' +
+                                'Please check the n8n workflow "Format Response" node - it should extract the content from choices[0].message.content.'
+                        );
+                    }
+                } catch (error) {
+                    // Re-throw with enhanced error message for empty responses
+                    if (
+                        error.message.includes('empty response') ||
+                        error.message.includes('no content')
+                    ) {
+                        throw error; // Already has good error message
+                    }
+                    throw error; // Re-throw other errors as-is
+                }
                 break;
 
             case 'custom':

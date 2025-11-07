@@ -45,35 +45,50 @@
     let showApiKey = false; // Toggle for showing/hiding API key
     let apiTestSuccess = false; // ✅ Test successful for current provider
     let testedProvider = null; // Track which provider was tested
+    let settingsInitialized = false; // Track if settings are fully initialized
 
     // Check if user is pro - optimiert mit $: um zu viele Aufrufe zu vermeiden
     $: isProUser = $accountTier === 'pro';
     
-    // Load verification status from settings
+    // Load verification status from settings (only if settings are initialized)
     function loadVerificationStatus() {
-        const currentSettings = getCurrentUserSettings();
-        const storyMode = currentSettings?.storyMode || {};
-        const verifiedProviders = storyMode.verifiedProviders || {};
-        const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
+        // Guard: Don't load if settings aren't initialized yet
+        if (!settingsInitialized) {
+            console.log('⏸️ Skipping loadVerificationStatus - settings not yet initialized');
+            return;
+        }
         
-        // Check if current provider is verified
-        if (verifiedProviders[currentProvider]?.success) {
-            const verification = verifiedProviders[currentProvider];
-            apiTestSuccess = true;
-            testedProvider = currentProvider;
-            console.log('✅ Verification status restored for provider:', currentProvider, {
-                verifiedAt: verification.verifiedAt,
-                model: verification.model
-            });
-        } else {
+        try {
+            const currentSettings = getCurrentUserSettings();
+            const storyMode = currentSettings?.storyMode || {};
+            const verifiedProviders = storyMode.verifiedProviders || {};
+            const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
+            
+            // Check if current provider is verified
+            if (verifiedProviders[currentProvider]?.success) {
+                const verification = verifiedProviders[currentProvider];
+                apiTestSuccess = true;
+                testedProvider = currentProvider;
+                console.log('✅ Verification status restored for provider:', currentProvider, {
+                    verifiedAt: verification.verifiedAt,
+                    model: verification.model
+                });
+            } else {
+                apiTestSuccess = false;
+                testedProvider = null;
+                console.log('ℹ️ No verification status found for provider:', currentProvider);
+            }
+        } catch (error) {
+            console.warn('⚠️ Error loading verification status:', error);
+            // Don't throw - just reset to safe state
             apiTestSuccess = false;
             testedProvider = null;
-            console.log('ℹ️ No verification status found for provider:', currentProvider);
         }
     }
     
-    // REACTIVE: Reset test status when provider or API key changes
-    $: {
+    // REACTIVE: Reset test status when provider or API key changes (only after initialization)
+    // Guard: Only run reactive block if settings are initialized
+    $: if (settingsInitialized) {
         const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
         const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
         const currentApiKey = apiKeys[currentProvider] || '';
@@ -732,11 +747,21 @@
             
             console.error('❌ API test failed:', error);
             
-            // Enhanced error message for CORS errors
+            // Enhanced error message for different error types
             let errorMessage = error.message || 'Unbekannter Fehler';
             let helpText = '';
             
-            if (errorMessage.includes('CORS_ERROR')) {
+            if (errorMessage.includes('empty response') || errorMessage.includes('no content')) {
+                // Apertus n8n workflow issue - empty response
+                helpText = `\n\n💡 n8n Workflow Problem:\n` +
+                    `Das n8n Workflow hat erfolgreich ausgeführt, aber keine Content zurückgegeben.\n\n` +
+                    `Lösung:\n` +
+                    `1. Öffne das n8n Workflow "Format Response" Node\n` +
+                    `2. Stelle sicher, dass es den Content aus \`choices[0].message.content\` extrahiert\n` +
+                    `3. Oder aus dem API Response Feld, falls die API direkt den Content zurückgibt\n` +
+                    `4. Das Response-Feld sollte nicht leer sein\n\n` +
+                    `Aktuelle Response-Struktur wurde in der Console geloggt.`;
+            } else if (errorMessage.includes('CORS_ERROR')) {
                 helpText = `\n\n💡 CORS-Lösung für lokale API:\n` +
                     `1. Füge CORS-Header in deinem API-Server hinzu:\n` +
                     `   Access-Control-Allow-Origin: http://localhost:8080\n` +
@@ -774,7 +799,13 @@
         await initializeSettingsForUser();
         console.log('✅ UserSettings: Settings initialized for user');
         
-        // Load and restore verification status from settings
+        // Mark settings as initialized BEFORE loading verification status
+        settingsInitialized = true;
+        
+        // Small delay to ensure stores are fully updated
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // Load and restore verification status from settings (now safe to call)
         loadVerificationStatus();
         
         // 🔄 MIGRATION: Old apiKey → new apiKeys structure

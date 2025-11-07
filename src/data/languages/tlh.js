@@ -506,12 +506,12 @@ export default {
         // Benefits
         benefits: {
             free: {
-                dailyGenerations: 'jaj HochDaq 5 chenmoH',
+                dailyGenerations: 'jaj HochDaq 10 chenmoH',
                 dailyGenerationsDesc:
                     "QIn Qaw'laHbe'bogh De' - Qan QulwI' HevmeH",
-                decentralizedData: "De' QulwI'",
+                decentralizedData: "QIn QulwI' QulwI'",
                 decentralizedDataDesc:
-                    "De'lIj reH SoHvaD - QIn QulwI' QulwI'vaD",
+                    "Apertus, ChatGPT, Gemini, Claude, Mistral & QulwI' - QIn QulwI' QulwI'",
                 webApp: "De' QulwI' poQlu'",
                 webAppDesc: "QulwI' QulwI' - QIn QulwI' poQlu'"
             },
@@ -519,7 +519,7 @@ export default {
                 unlimitedGenerations: "chenmoHlaHbe'",
                 unlimitedGenerationsDesc: "chenmoHlaHbe' - QIn Qaw'laHbe'",
                 browserExtension: "Browser QulwI' (Q4 2025)",
-                browserExtensionDesc: "Qan QIn QulwI' - QulwI' QulwI' 'ej Hoch",
+                browserExtensionDesc: "QIn QulwI' QulwI' - QIn QulwI' QulwI' QulwI'",
                 apiIntegration: "API QulwI' (Q4 2025)",
                 apiIntegrationDesc: "Qan QIn QulwI' - QIn QulwI' QulwI'vaD"
             }

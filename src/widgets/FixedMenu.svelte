@@ -277,14 +277,17 @@
       >
         💌
       </button>
+      <!-- Debug Button (DEV MODE ONLY!) -->
+      {#if isDevelopment()}
       <button 
-        aria-label={$translations?.fixedMenu?.tooltips?.debug || 'Open debug info'}
+        aria-label={$translations?.fixedMenu?.tooltips?.debug || 'Open debug info (Dev only)'}
         on:click={toggleDebugModal} 
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-        title={$translations?.fixedMenu?.tooltips?.debug || 'Open debug info'}
+        title={$translations?.fixedMenu?.tooltips?.debug || 'Open debug info (Dev only)'}
       >
         🐛
       </button>
+      {/if}
       {#if isDevelopment()}
       <button 
         aria-label="Clear localStorage"

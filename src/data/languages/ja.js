@@ -502,11 +502,11 @@ export default {
         // 特典
         benefits: {
             free: {
-                dailyGenerations: '1日5回の安全な生成',
+                dailyGenerations: '1日10回の安全な生成',
                 dailyGenerationsDesc: '最大限のセキュリティのためのAI耐性技術',
-                decentralizedData: '分散データ処理',
+                decentralizedData: '無料のスイスAI',
                 decentralizedDataDesc:
-                    'あなたのデータは常にあなたと共に - 外部サーバーには決して保存されません',
+                    'Apertus、ChatGPT、Gemini、Claude、Mistralなどを使用 - 直接利用可能',
                 webApp: 'Webアプリとして利用可能',
                 webAppDesc: '即座に利用可能 - インストール不要'
             },
@@ -516,7 +516,7 @@ export default {
                     '必要なだけパスワードを作成 - 制限なし',
                 browserExtension: 'ブラウザ拡張機能（2025年Q4）',
                 browserExtensionDesc:
-                    'ブラウザに直接セキュリティ - 自動的かつどこでも',
+                    'ブラウザで直接セキュリティ - 自動的かつどこでも',
                 apiIntegration: 'API統合（2025年Q4）',
                 apiIntegrationDesc:
                     'セキュリティをあなたのアプリケーションにシームレスに統合'

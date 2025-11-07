@@ -9,22 +9,28 @@ export const DAILY_LIMITS = {
     GUEST: 5, // 5 generations per day for guests
 
     // Free User (eingeloggt, kostenlos)
-    FREE: 9, // 9 generations per day for FREE users
+    // NEW: 10 random executions + 5 story generations per day
+    FREE: 10, // 10 random executions per day for FREE users
+    FREE_STORIES: 5, // 5 story generations per day for FREE users
 
     // Pro User (eingeloggt, bezahlt)
-    PRO: 35, // 35 generations per day for PRO users
+    // NEW: Unlimited executions and stories
+    PRO: 999999, // Unlimited random executions for PRO users
+    PRO_STORIES: 999999, // Unlimited story generations for PRO users
 
     // Unlimited für Pro (theoretisch unbegrenzt, aber mit Sicherheitslimit)
     UNLIMITED: 999999,
     
     // Dev environment - unlimited for testing
-    DEV: 99999
+    DEV: 99999,
+    DEV_STORIES: 99999
 };
 
 export const LIMIT_TYPES = {
     RANDOM_GENERATIONS: 'random_generations',
     STORY_GENERATIONS: 'story_generations',
-    DAILY_REQUESTS: 'daily_requests'
+    DAILY_REQUESTS: 'daily_requests',
+    DAILY_EXECUTIONS: 'daily_executions' // NEW: Separate tracking for executions
 };
 
 // Sichere Limit-Validierung
@@ -40,10 +46,33 @@ export function getDailyLimitForUser(isLoggedIn, accountTier) {
 
     switch (accountTier) {
         case 'pro':
-            return DAILY_LIMITS.PRO;
+            return DAILY_LIMITS.PRO; // Unlimited for Pro
         case 'free':
         default:
-            return DAILY_LIMITS.FREE;
+            return DAILY_LIMITS.FREE; // 10 random executions for Free
+    }
+}
+
+/**
+ * Get daily story generation limit for user
+ * NEW: Separate limit for story generations
+ */
+export function getDailyStoryLimitForUser(isLoggedIn, accountTier) {
+    // Dev environment: unlimited for testing
+    if (isDevelopment()) {
+        return DAILY_LIMITS.DEV_STORIES;
+    }
+    
+    if (!isLoggedIn) {
+        return 0; // Guests cannot generate stories
+    }
+
+    switch (accountTier) {
+        case 'pro':
+            return DAILY_LIMITS.PRO_STORIES; // Unlimited for Pro
+        case 'free':
+        default:
+            return DAILY_LIMITS.FREE_STORIES; // 5 stories per day for Free
     }
 }
 

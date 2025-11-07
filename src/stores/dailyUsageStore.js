@@ -482,10 +482,32 @@ async function loadUsageFromAPI(account) {
         }
 
         if (result.success && result.account) {
-            // Extract usage from profile.dailyUsage (primary) or metadata.dailyUsage (fallback)
-            const dailyUsage =
-                result.account.profile?.dailyUsage ||
-                result.account.metadata?.dailyUsage;
+            // NEW STRUCTURE: Priority order for loading dailyUsage
+            // Priority 1: Own column dailyUsage (NEW structure)
+            let dailyUsage = result.account.dailyUsage;
+            
+            // Priority 2: Fallback to profile.dailyUsage (backward compatibility)
+            if (!dailyUsage) {
+                dailyUsage = result.account.profile?.dailyUsage;
+            }
+            
+            // Priority 3: Fallback to metadata.dailyUsage (migration support)
+            if (!dailyUsage) {
+                dailyUsage = result.account.metadata?.dailyUsage;
+                if (dailyUsage) {
+                    console.log('⚠️ [MIGRATION] Loading dailyUsage from metadata (should be migrated to own column)');
+                }
+            }
+
+            // Parse if string (from Google Sheets JSON column)
+            if (typeof dailyUsage === 'string') {
+                try {
+                    dailyUsage = JSON.parse(dailyUsage);
+                } catch (e) {
+                    console.warn('⚠️ Failed to parse dailyUsage:', e);
+                    dailyUsage = null;
+                }
+            }
 
             if (dailyUsage && typeof dailyUsage === 'object') {
                 console.log('✅ Daily usage from API (cached):', dailyUsage);
@@ -514,10 +536,15 @@ async function saveUsageToAPI(account, usageData) {
         );
         const freshMetadata = currentPrefs.metadata || account?.metadata || {};
 
-        // Update account with fresh metadata
+        // CRITICAL: Remove dailyUsage from metadata before sending
+        // It should now be in its own column in Google Sheets!
+        const metadataWithoutDailyUsage = { ...freshMetadata };
+        delete metadataWithoutDailyUsage.dailyUsage; // Remove from metadata
+
+        // Update account with fresh metadata (without dailyUsage)
         const freshAccount = {
             ...account,
-            metadata: freshMetadata
+            metadata: metadataWithoutDailyUsage
         };
 
         // Update usage history with FRESH data
@@ -553,13 +580,21 @@ async function saveUsageToAPI(account, usageData) {
                 action: 'update', // Required for n8n
                 userId: account.userId,
                 email: account.email,
+                // NEW: dailyUsage in eigene Spalte (vor metadata!)
+                dailyUsage: usageData, // ← NEU: Eigene Spalte in Google Sheets
+                // TODO: dailyExecutions wird später hinzugefügt
+                // dailyExecutions: {
+                //     date: getTodayDateString(),
+                //     randomExecutions: 0,
+                //     storyExecutions: 0,
+                //     lastReset: getTodayDateString()
+                // },
                 profile: {
                     ...(account.profile || {}),
-                    dailyUsage: usageData // ALSO save in profile for easy access
+                    // REMOVED: dailyUsage from profile (now in own column)
                 },
                 metadata: {
-                    ...freshMetadata, // ← Use FRESH metadata from localStorage!
-                    dailyUsage: usageData, // Keep in metadata for backward compatibility
+                    ...metadataWithoutDailyUsage, // ← WITHOUT dailyUsage!
                     usageHistory: updatedHistory, // History for charts (last 365 days)
                     lastActivity: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
@@ -662,7 +697,18 @@ function updateDailyLimitStore(usageData) {
 /**
  * Reset usage (for testing or admin)
  */
+/**
+ * Reset daily usage (DEV MODE ONLY!)
+ * SECURITY: This function can ONLY be called in development mode.
+ * Production users CANNOT reset their daily usage.
+ */
 export async function resetDailyUsage() {
+    // SECURITY: Only allow in development mode
+    if (!isDevelopment()) {
+        console.error('❌ [SECURITY] resetDailyUsage() is only available in development mode!');
+        throw new Error('resetDailyUsage() is only available in development mode. Production users cannot reset their daily usage.');
+    }
+
     const account = get(currentAccount);
     const tier = get(accountTier);
     const loggedIn = get(isLoggedIn);
@@ -682,7 +728,7 @@ export async function resetDailyUsage() {
         await saveUsageToAPI(account, usageData);
     }
 
-    console.log('🔄 Daily usage reset:', usageData);
+    console.log('🔄 [DEV] Daily usage reset:', usageData);
     return usageData;
 }
 

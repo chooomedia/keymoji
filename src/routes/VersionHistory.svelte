@@ -22,7 +22,7 @@
     // Accordion State - Only one version open at a time
     // Current Version initial geöffnet
     let expandedVersion = currentVersion; // Only store the currently expanded version
-    
+   
     // Berechnet die Timeline-Höhe: Vom ersten Dot bis zum letzten Dot
     function calculateTimelineHeight() {
         if (!versionItems.length) return 0;
