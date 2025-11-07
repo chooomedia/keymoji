@@ -29,8 +29,15 @@ export default {
             "DachenmoHDI', De' QInlIjDaq pollu'! 📋"
         ],
         setupStoryMode: 'QIn yuDmoH',
-        setupStoryModeDescription: 'QIn SaghwI\' lIjDaq Yu\' Daghaj QIn mu\'ghommey HevmoHmeH',
-        storyModeReady: 'QIn wIvchu\' \'echadmo\'chu\' emoji mu\'ghommey wI\'meH tuHmaH 🤖',
+        setupStoryModeSwiss: "Swiss AI yIlo'",
+        setupStoryModeDescription:
+            "QIn SaghwI' lIjDaq Yu' Daghaj QIn mu'ghommey HevmoHmeH",
+        setupStoryModeSwissDescription:
+            'Swiss-made AI for privacy-focused users. Data stays in Switzerland, GDPR-compliant, enterprise security. Perfect for individuals and businesses who value data sovereignty.',
+        setupStoryModeSwissTooltip:
+            'Swiss AI (Apertus) - Privacy-first AI hosted in Switzerland. Your data stays in Switzerland, protected by Swiss data protection laws. GDPR-compliant, enterprise-grade security. Ideal for privacy-conscious users and businesses requiring data sovereignty.',
+        storyModeReady:
+            "QIn wIvchu' 'echadmo'chu' emoji mu'ghommey wI'meH tuHmaH 🤖",
         backToMainText: "bIruchqa'meH, bIngDaq yI'nga' 👇",
         backToMainButtonText: 'juH wIchegh',
         contactText: "Dap yIghaj'a'? pagh QIn QaQ Daghaj'a'?",
@@ -567,6 +574,10 @@ export default {
             settingsExported: "QulwI' lanlu'!",
             freeAccountActivated: "Hutlh Huch Qan QulmoHlu'!"
         },
+
+        // Apertus Info
+        apertusInfo:
+            "Keymoji'Daq Qap: Apertus – SuIS LLM. wa'DIch UservaD QulmoHlu'. HuggingFaceDaq ghoS, n8n workflow vItlheghmoH.",
 
         // Upgrade section
         upgrade: {

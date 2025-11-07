@@ -115,6 +115,11 @@ Required output: ${emojiCount} emojis separated by spaces`;
         return basePrompt + '\n\nOutput (emojis only):';
     }
 
+    if (provider === 'apertus') {
+        // Apertus: OpenAI-compatible, straightforward prompt works best
+        return basePrompt + '\n\nEmojis:';
+    }
+
     // OpenAI: Straightforward prompt works best
     return basePrompt + '\n\nEmojis:';
 }
@@ -163,9 +168,10 @@ function getDefaultModel(provider, tier = 'free') {
             tier === 'pro'
                 ? 'claude-3-haiku-20240307'
                 : 'claude-3-haiku-20240307',
+        apertus: 'apertus-8b-2509', // Swiss LLM - same for free and pro
         custom: '' // No default for custom
     };
-    return models[provider] || 'gpt-3.5-turbo';
+    return models[provider] || 'apertus-8b-2509'; // Default to Swiss LLM
 }
 
 /**
@@ -337,6 +343,79 @@ async function callClaudeWithModel(
 
     const data = await response.json();
     return data.content[0]?.text || '';
+}
+
+/**
+ * Call Apertus (Swiss LLM) API via n8n Webhook
+ * Uses n8n workflow endpoint configured via WEBHOOKS.APERTUS
+ * Best Practices:
+ * - Uses n8n workflow with token authentication
+ * - Model: apertus-8b-2509 (via HuggingFace)
+ * - Token from environment variable (VITE_N8N_APERTUS_TOKEN)
+ * - Webhook URL from environment variable (VITE_N8N_URL) or config default
+ */
+async function callApertus(apiKey, prompt, model, maxTokens, temperature) {
+    const finalModel = model || 'apertus-8b-2509';
+    
+    // Import WEBHOOKS dynamically to avoid circular dependencies
+    const { WEBHOOKS } = await import('../config/api.js');
+    
+    // Get n8n token from environment (fallback to empty string for dev)
+    // In production, this should be set in .env files as VITE_N8N_APERTUS_TOKEN
+    const n8nToken = typeof import.meta !== 'undefined' && import.meta.env?.VITE_N8N_APERTUS_TOKEN
+        ? import.meta.env.VITE_N8N_APERTUS_TOKEN
+        : ''; // Empty token for development - should be set in .env
+    
+    // Warn if token is missing (helps with debugging)
+    if (!n8nToken) {
+        console.warn('⚠️ [Apertus] VITE_N8N_APERTUS_TOKEN not set. Webhook will reject request.');
+    }
+
+    const response = await fetchWithTimeout(
+        WEBHOOKS.APERTUS,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                prompt: prompt,
+                model: finalModel,
+                max_tokens: maxTokens || 512,
+                temperature: temperature || 0.7,
+                language: 'Deutsch', // Default language
+                token: n8nToken // n8n webhook authentication token
+            })
+        },
+        120000 // 120 second timeout (n8n workflows can take longer)
+    );
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(
+            error.error?.message || error.message || `Apertus n8n API error: ${response.status}`
+        );
+    }
+
+    const data = await response.json();
+    
+    // Handle n8n workflow response format
+    // The workflow returns: { response: "...", usage: {...}, ... }
+    if (data.response) {
+        return data.response;
+    }
+    
+    // Fallback: try OpenAI-compatible format
+    if (data.choices && data.choices[0]?.message?.content) {
+        return data.choices[0].message.content;
+    }
+    
+    // Last resort: return raw response if it's a string
+    if (typeof data === 'string') {
+        return data;
+    }
+    
+    throw new Error('Invalid response format from Apertus n8n workflow');
 }
 
 /**
@@ -889,6 +968,16 @@ export async function generateStoryEmojis(text, emojiCount, storyModeConfig) {
                 );
                 break;
 
+            case 'apertus':
+                aiResponse = await callApertus(
+                    apiKey,
+                    prompt,
+                    finalModel,
+                    maxTokens,
+                    temperature
+                );
+                break;
+
             case 'custom':
                 if (!customApiUrl) {
                     throw new Error('Custom API URL is required');
@@ -1184,6 +1273,16 @@ export function getProviderInfo(provider) {
             },
             apiKeyPrefix: 'sk-ant-',
             docsUrl: 'https://docs.anthropic.com'
+        },
+        apertus: {
+            name: 'Apertus (Swiss LLM)',
+            models: {
+                free: ['apertus-8b-2509'],
+                pro: ['apertus-8b-2509']
+            },
+            defaultModel: { free: 'apertus-8b-2509', pro: 'apertus-8b-2509' },
+            apiKeyPrefix: '',
+            docsUrl: 'https://aimi.matt-interfaces.ch/api'
         },
         custom: {
             name: 'Custom API',

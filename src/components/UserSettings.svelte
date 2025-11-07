@@ -51,7 +51,7 @@
     
     // REACTIVE: Reset test status when provider or API key changes
     $: {
-        const currentProvider = getEffectiveValue('storyMode.provider') || 'openai';
+        const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
         const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
         const currentApiKey = apiKeys[currentProvider] || '';
         
@@ -246,7 +246,7 @@
         
         // Special validation for Story Mode enabled toggle
         if (key === 'storyMode.enabled') {
-            const currentProvider = getEffectiveValue('storyMode.provider') || 'openai';
+            const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
             const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
             const hasApiKey = apiKeys[currentProvider] && apiKeys[currentProvider].length >= 10;
             
@@ -289,7 +289,7 @@
         
         // Reset test status when API keys are modified
         if (key === 'storyMode.apiKeys') {
-            const currentProvider = getEffectiveValue('storyMode.provider') || 'openai';
+            const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
             const oldApiKeys = getEffectiveValue('storyMode.apiKeys') || {};
             const oldKey = oldApiKeys[currentProvider] || '';
             const newKey = (value[currentProvider] || '');
@@ -616,16 +616,19 @@
                 model
             });
             
-            // Validate API key exists for current provider
-            if (!apiKey || apiKey.length < 10) {
+            // Validate API key exists for current provider (skip for Apertus as it uses n8n token)
+            if (provider !== 'apertus' && (!apiKey || apiKey.length < 10)) {
                 showWarning(`⚠️ Bitte gib zuerst einen API-Key für ${provider} ein`, 3000);
                 return;
             }
             
+            // For Apertus, use empty string as apiKey (n8n token is handled in callApertus)
+            const effectiveApiKey = provider === 'apertus' ? '' : apiKey;
+            
             // Build config for test
             const testConfig = {
                 provider,
-                apiKey,
+                apiKey: effectiveApiKey,
                 customApiUrl,
                 customEndpoint,
                 customFormat,
@@ -912,7 +915,7 @@
                             <div class="mb-4 last:mb-0">
                                 <!-- Special handling for AI Provider dropdown with link -->
                                 {#if item.id === 'storyMode.provider'}
-                                    {@const currentProvider = getCurrentValue(item) || 'openai'}
+                                    {@const currentProvider = getCurrentValue(item) || 'apertus'}
                                     
                                     <div>
                                         <!-- Provider Dropdown with Success Icon -->
@@ -941,30 +944,6 @@
                                                     currentValue={getCurrentValue(item)}
                                                     onValueChange={(value) => handleSettingUpdate(item.id, value)}
                                                 />
-                                                
-                                                {#if apiTestSuccess && testedProvider === currentProvider}
-                                                    <!-- Gradient Fade-out Overlay (like API key input) -->
-                                                    <div 
-                                                        class="absolute right-10 inset-y-[1px] w-16 z-5 pointer-events-none rounded-r-[11px]"
-                                                        style="background: linear-gradient(to right, 
-                                                            transparent 0%, 
-                                                            {$darkMode ? 'rgba(14, 30, 48, 0.6)' : 'rgba(255, 255, 255, 0.6)'} 25%,
-                                                            {$darkMode ? 'rgba(14, 30, 48, 0.95)' : 'rgba(255, 255, 255, 0.95)'} 60%,
-                                                            {$darkMode ? '#0e1e30' : '#ffffff'} 100%);"
-                                                        aria-hidden="true"
-                                                    ></div>
-                                                    
-                                                    <!-- ✅ Success Icon - Elegant neben Provider Name (innerhalb Border) -->
-                                                    <div 
-                                                        class="absolute right-3 inset-y-0 flex items-center pointer-events-none z-10"
-                                                        transition:fade={{ duration: 200 }}
-                                                        title="API connection verified ✅"
-                                                    >
-                                                        <svg class="w-5 h-5 text-green-500 dark:text-green-400 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                {/if}
                                             </div>
                                         </div>
                                         
@@ -974,39 +953,29 @@
                                                 openai: 'https://platform.openai.com/api-keys',
                                                 gemini: 'https://makersuite.google.com/app/apikey',
                                                 mistral: 'https://console.mistral.ai/api-keys',
-                                                claude: 'https://console.anthropic.com/settings/keys'
+                                                claude: 'https://console.anthropic.com/settings/keys',
+                                                apertus: 'https://aimi.matt-interfaces.ch/api'
                                             }}
                                             {@const providerNames = {
                                                 openai: 'OpenAI Platform',
                                                 gemini: 'Google AI Studio',
                                                 mistral: 'Mistral Console',
-                                                claude: 'Anthropic Console'
+                                                claude: 'Anthropic Console',
+                                                apertus: 'Apertus API'
                                             }}
-                                            <p class="text-xs text-blue-600 dark:text-blue-400 inline-flex items-center gap-1 mt-1">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                Get API key at
-                                                <a 
-                                                    href={apiKeyUrls[currentProvider]} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    class="underline hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-                                                >
-                                                    {providerNames[currentProvider]} ↗
-                                                </a>
-                                            </p>
                                         {/if}
                                     </div>
                                     
                                 {:else if item.id === 'storyMode.apiKeys'}
                                     <!-- Special handling for API Keys field with inline buttons -->
-                                    {@const currentProvider = getCurrentValue({ id: 'storyMode.provider' }) || 'openai'}
+                                    {@const currentProvider = getCurrentValue({ id: 'storyMode.provider' }) || 'apertus'}
                                     {@const apiKeys = getCurrentValue({ id: 'storyMode.apiKeys' }) || {}}
                                     {@const currentApiKey = apiKeys[currentProvider] || ''}
                                     {@const hasValidKey = currentApiKey && currentApiKey.length >= 10}
                                     {@const hasAnyKey = currentApiKey && currentApiKey.length > 0}
                                     {@const savedProviders = Object.entries(apiKeys).filter(([provider, key]) => provider !== currentProvider && key && key.length >= 10).map(([provider]) => provider)}
+                                    {@const isApertus = currentProvider === 'apertus'}
+                                    {@const apertusPlaceholder = 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'}
                                     
                                     <div class="space-y-3">
                                         <!-- Label and Icon with Provider Info -->
@@ -1024,6 +993,20 @@
                                         
                                         <!-- Input Container with inline Buttons -->
                                         <div class="relative">
+                                            {#if isApertus}
+                                                <!-- Apertus: Disabled input with placeholder -->
+                                                <input
+                                                    id={item.id}
+                                                    type="password"
+                                                    value={apertusPlaceholder}
+                                                    disabled={true}
+                                                    readonly={true}
+                                                    placeholder={apertusPlaceholder}
+                                                    class="w-full p-4 pr-4 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-500 border border-gray-300 dark:border-gray-600 rounded-xl transition-all duration-200 cursor-not-allowed opacity-60"
+                                                    aria-label={getLocalizedText(item.title)}
+                                                />
+                                            {:else}
+                                                <!-- Other providers: Normal input -->
                                             <input
                                                 id={item.id}
                                                 type={showApiKey ? 'text' : 'password'}
@@ -1033,13 +1016,22 @@
                                                     const newApiKeys = { ...apiKeys, [currentProvider]: e.target.value };
                                                     handleSettingUpdate('storyMode.apiKeys', newApiKeys);
                                                 }}
+                                                    on:keydown={(e) => {
+                                                        // Prevent focus loss on keydown - only prevent default for specific problematic keys
+                                                        // Allow normal typing, but prevent focus-stealing behaviors
+                                                        if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                                                            // Allow Tab for navigation
+                                                            return;
+                                                        }
+                                                    }}
                                                 placeholder={getLocalizedText(item.placeholder)}
                                                 class="w-full p-4 {hasValidKey ? 'pr-32' : hasAnyKey ? 'pr-14' : 'pr-4'} bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50 placeholder-gray-400 dark:placeholder-gray-500"
                                                 aria-label={getLocalizedText(item.title)}
                                             />
+                                            {/if}
                                             
                                             <!-- Gradient Fade-out Overlay VOR Buttons (z-5, innerhalb Border) -->
-                                            {#if hasAnyKey}
+                                            {#if !isApertus && hasAnyKey}
                                                 <div 
                                                     class="absolute {hasValidKey ? 'right-[7.25rem]' : 'right-[3.25rem]'} inset-y-[1px] {hasValidKey ? 'w-32' : 'w-20'} z-5 pointer-events-none rounded-r-[11px]"
                                                     style="background: linear-gradient(to right, 
@@ -1052,9 +1044,10 @@
                                             {/if}
                                             
                                             <!-- Inline Buttons Container - Perfect centering (z-10, über Gradient) -->
-                                            {#if hasAnyKey}
+                                            {#if isApertus || hasAnyKey}
                                                 <div class="absolute right-2 inset-y-0 flex items-center gap-1 z-10">
-                                                    <!-- Show/Hide Button -->
+                                                    {#if !isApertus}
+                                                        <!-- Show/Hide Button (only for non-Apertus providers) -->
                                                     <button
                                                         type="button"
                                                         on:click={() => showApiKey = !showApiKey}
@@ -1075,28 +1068,37 @@
                                                             </svg>
                                                         {/if}
                                                     </button>
+                                                    {/if}
                                                     
-                                                    <!-- Test Connection Button -->
-                                                    {#if hasValidKey}
+                                                    <!-- Test Connection Button (always available for Apertus, or if hasValidKey for others) -->
+                                                    {#if isApertus || hasValidKey}
+                                                        {@const isTestSuccessful = apiTestSuccess && testedProvider === currentProvider}
                                                         <button
                                                             type="button"
                                                             disabled={isTestingAPI}
                                                             on:click={testAPIConnection}
-                                                            class="inline-flex items-center justify-center gap-1 px-2.5 h-8 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white active:text-black dark:active:text-white"
-                                                            aria-label={isTestingAPI ? 'Testing API connection' : 'Test API connection'}
-                                                            title={isTestingAPI ? 'Testing...' : 'Test'}
+                                                            class="inline-flex items-center justify-center gap-1 px-2.5 h-8 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed
+                                                                {isTestSuccessful
+                                                                    ? 'bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700 active:bg-green-700 dark:active:bg-green-800'
+                                                                    : 'hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white active:text-black dark:active:text-white'}"
+                                                            aria-label={isTestingAPI ? 'Testing API connection' : isTestSuccessful ? 'API connection verified' : 'Test API connection'}
+                                                            title={isTestingAPI ? 'Testing...' : isTestSuccessful ? 'API connection verified ✅' : 'Test'}
                                                         >
                                                             {#if isTestingAPI}
                                                                 <svg class="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                                                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                                 </svg>
+                                                            {:else if isTestSuccessful}
+                                                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                                </svg>
                                                             {:else}
                                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                                                 </svg>
                                                             {/if}
-                                                            <span class="hidden sm:inline">Test</span>
+                                                            <span class="hidden sm:inline">{isTestSuccessful ? 'Verified' : 'Test'}</span>
                                                         </button>
                                                     {/if}
                                                 </div>
@@ -1106,7 +1108,38 @@
                                         <!-- Description with saved keys indicator -->
                                         {#if item.description}
                                             <div class="text-xs text-gray-600 dark:text-gray-400 mt-1 space-y-1">
+                                                {#if isApertus}
+                                                    <!-- Apertus-specific info -->
+                                                    <p class="text-gray-700 dark:text-gray-300 font-medium mb-2">
+                                                        {$translations?.accountManager?.apertusInfo || 'Derzeit wird ein auf HuggingFace gehostetes LLM-Modell (Apertus) verwendet, das über einen n8n Workflow bereitgestellt wird.'}
+                                                    </p>
+                                                    <div class="flex flex-wrap items-center gap-3 mt-2">
+                                                        <a 
+                                                            href="https://huggingface.co/swiss-ai/Apertus-8B-Instruct-2509" 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                                                        >
+                                                            <span>Apertus-8B auf HuggingFace</span>
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                            </svg>
+                                                        </a>
+                                                        <a 
+                                                            href="http://matt-interfaces.ch/n8n" 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                                                        >
+                                                            <span>n8n Workflow Tool</span>
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                {:else}
                                                 <p>{getLocalizedText(item.description)}</p>
+                                                {/if}
                                                 
                                                 <!-- Show saved keys for other providers -->
                                                 {#if savedProviders.length > 0}

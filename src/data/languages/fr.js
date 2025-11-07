@@ -28,8 +28,14 @@ export default {
             '"Aléatoire" est auto-explicatif 😜.',
             "Après génération, c'est sauvegardé dans votre presse-papiers! 📋"
         ],
-        setupStoryMode: 'Configurez votre LLM',
-        setupStoryModeDescription: 'Connectez-vous avec votre LLM pour des mots de passe emoji personnalisés.',
+        setupStoryMode: 'Configurez votre IA',
+        setupStoryModeSwiss: 'Utiliser l\'IA suisse',
+        setupStoryModeDescription:
+            'Connectez-vous avec votre IA pour des mots de passe emoji personnalisés.',
+        setupStoryModeSwissDescription:
+            "IA suisse pour les utilisateurs soucieux de la confidentialité. Les données restent en Suisse, conformes au RGPD, sécurité d'entreprise. Parfait pour les particuliers et les entreprises qui valorisent la souveraineté des données.",
+        setupStoryModeSwissTooltip:
+            'IA suisse (Apertus) - IA axée sur la confidentialité, hébergée en Suisse. Vos données restent en Suisse, protégées par les lois suisses sur la protection des données. Conforme au RGPD, sécurité de niveau entreprise. Idéal pour les utilisateurs soucieux de la confidentialité et les entreprises nécessitant la souveraineté des données.',
         storyModeReady: 'Mots de passe emoji générés par IA prêts 🤖',
         backToMainText: 'Cliquez ci-dessous 👇 pour revenir',
         backToMainButtonText: 'Retour à la home',
@@ -587,6 +593,9 @@ export default {
             settingsExported: 'Paramètres exportés avec succès',
             freeAccountActivated: 'Compte gratuit activé !'
         },
+        
+        // Apertus Info
+        apertusInfo: 'Exclusif sur Keymoji : Apertus – le LLM suisse. Première fois disponible pour les utilisateurs. Hébergé sur HuggingFace, livré via workflow n8n.',
 
         // Section de mise à niveau
         upgrade: {

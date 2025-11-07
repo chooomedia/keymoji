@@ -1,471 +1,210 @@
-# 🔑 Keymoji - Emoji Password Generator
+# 🔑 Keymoji – Emoji Password Generator
 
-> **Sichere, unvergessliche Passwörter mit Emojis. KI-resistent. Privacy-First. Open Source.**
+> Secure, memorable passwords with emojis. AI-resistant. Privacy-first. Open Source.
 
-[![Version](https://img.shields.io/badge/version-0.7.1-blue.svg)](https://github.com/chooomedia/keymoji)
+[![Version](https://img.shields.io/badge/version-0.7.2-blue.svg)](https://github.com/chooomedia/keymoji)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Made with Svelte](https://img.shields.io/badge/made%20with-svelte-ff3e00.svg)](https://svelte.dev)
 
-🌐 **Live App:** [keymoji.wtf](https://keymoji.wtf)  
-📧 **Contact:** [hello@keymoji.wtf](mailto:hello@keymoji.wtf)  
-👨‍💻 **Author:** Christopher Matt (C. Matt)
+🌐 **Live:** [keymoji.wtf](https://keymoji.wtf)
+📧 **Contact:** [hello@keymoji.wtf](mailto:hello@keymoji.wtf)
+👨‍💻 **Author:** Christopher Matt
 
 ---
 
-## 🚀 Quick Start
+## 📚 Table of Contents
+
+-   [Overview](#-overview)
+-   [Key Features](#-key-features)
+-   [Architecture & Stack](#-architecture--stack)
+-   [Getting Started](#-getting-started)
+-   [AI Story Mode & n8n Integration](#-ai-story-mode--n8n-integration)
+-   [Custom API Testing](#-custom-api-testing)
+-   [Modular Input Architecture](#-modular-input-architecture)
+-   [Release Highlights](#-release-highlights)
+-   [Roadmap](#-roadmap)
+-   [Development Tips](#-development-tips)
+-   [Contributing](#-contributing)
+-   [License & Support](#-license--support)
+
+---
+
+## 🌟 Overview
+
+Keymoji generates secure passwords exclusively from emojis. The goal: maximum memorability with AI resistance – fully client-side, ensuring your passwords never leave your device.
+
+---
+
+## 🎯 Key Features
+
+-   **Random Emoji Generator** – Instant, random emoji combinations for secure passwords.
+-   **🤖 AI Story Mode** – Transforms text into emojis, supports multiple AI providers (OpenAI, Gemini, Mistral, Claude, Apertus, and Custom APIs) with multi-key management and 7-day caching.
+-   **Account System** – Magic-link login, daily usage limits (Guest 5 / Free 9 / Pro 35), usage analytics with interactive charts.
+-   **Multi-Language** – 15+ languages (including Klingon & Sindarin), automatic theme detection, PWA-ready.
+-   **Privacy & Security** – Fully client-side, zero-knowledge approach, AI-resistant passwords.
+
+---
+
+## 🏗️ Architecture & Stack
+
+| Layer         | Technology / Purpose                              |
+| ------------- | ------------------------------------------------- |
+| Frontend      | Svelte, Tailwind, Webpack, PostCSS, Svelte Stores |
+| API Layer     | Vercel Serverless Functions                       |
+| Orchestration | n8n Workflows (automation, validation, logging)   |
+| Backend       | Serverless architecture with secure data handling |
+| Emails        | Magic-link authentication system                  |
+
+Data Flow:
+
+```
+Frontend → Vercel API → n8n Workflows → Backend Services → Sync to Frontend
+```
+
+---
+
+## 🚀 Getting Started
 
 ```bash
 # Install dependencies
 npm install
 
-# Start development server
+# Start development server (http://localhost:8080)
 npm run dev
 
-# Build for production
+# Production build
 npm run build
 ```
 
-**Development Server:** `http://localhost:8080`
+**Environment Setup:**
+
+1. Copy `.env.example` to `.env.local`:
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. Fill in your values in `.env.local` (never commit this file)
+
+3. Generate tokens:
+   ```bash
+   npm run generate:token:dev   # Development
+   npm run generate:token:prod  # Production
+   ```
+
+See [`docs/ENVIRONMENT_VARIABLES.md`](docs/ENVIRONMENT_VARIABLES.md) for detailed documentation.
 
 ---
 
-## 🎉 What's New in v0.7.1 - Stability Master
+## 🤖 AI Story Mode & n8n Integration
 
-**Release Date:** November 2, 2025
+Keymoji leverages [n8n](https://matt-interfaces.ch/n8n) – a powerful workflow automation tool – to orchestrate AI-powered emoji generation and manage backend processes seamlessly.
 
-### 🐛 **Critical Bug Fixes**
--   Fixed deep merge in effectiveSettings preventing settings overwrite
--   Fixed Model Chip 'GPT' flickering when changing temperature
--   Fixed nested settings race conditions with pendingChanges
--   Added temperature slider UI improvements (full width, max 16 chars)
--   Smart model name truncation (12 chars, preserves meaningful parts)
+### Apertus (Swiss LLM) – Exclusively on Keymoji
 
-### ⚡ **New Features**
--   localStorage cleaner button in dev mode (🧹 emoji)
--   Unlimited daily limits in development for testing
--   Production limits unchanged (Guest:5, Free:9, Pro:35)
--   Button text truncation for better UX
+Apertus is a Swiss language model hosted on HuggingFace, made accessible to users through Keymoji's n8n workflow integration. This is the first time Apertus is available in a user-facing application.
 
-### 🔧 **Code Quality**
--   Proper deep merge chain for all data sources
--   Removed debug console.log statements
--   Cleaner, more predictable reactivity
--   Consistent storage handling across entire app
+**Setup Steps:**
 
-## Previous Release: v0.7.0 - Stability Master
+1. Generate token (`npm run generate:token:dev`)
+2. Add token to `.env.local` or Vercel environment variable `VITE_N8N_APERTUS_TOKEN`
+3. Import workflow `n8n-workflows/n8n-workflow-apertus-keymoji.json` into your n8n instance
+4. Update the "Set Expected Token" node with your generated token (replaces Enterprise variables)
+5. Activate & test (`./tests/test-n8n-webhook.sh` or cURL)
+6. Ready to use – tokens can be rotated anytime by updating the Set node
 
-### ✨ **Animation Polish**
--   Universe-effect loading animation (3 lanes)
--   Varied speeds for smooth scrolling
--   Random giant emoji in middle lane
--   No glitches with static arrays
+The workflow uses Apertus-8B model from HuggingFace, delivered via n8n for optimal performance and reliability.
 
-### 🌐 **CORS Testing**
--   Mock mode for local API testing
--   Detailed error messages
--   Complete documentation
+### Smart Merge & Workflow Optimization
 
-See [CHANGELOG.md](CHANGELOG.md) for complete details.
+The n8n "Process Update" node preserves usage history via Longest-List-Merge algorithm (`n8n-workflows/process-update-node-FIXED.js`), ensuring data consistency across updates.
 
 ---
 
-## ✨ Features
+## 🔌 Custom API Testing
 
-### 🎯 **Core Features**
-
--   **Random Emoji Generation** - Sichere, zufällige Emoji-Kombinationen
--   **🤖 AI Story Mode** - KI-basierte Emoji-Generierung aus Texten
-    -   OpenAI (GPT-3.5, GPT-4, GPT-4o)
-    -   Google Gemini (Pro, 1.5/2.5 Flash)
-    -   Mistral AI (Tiny, Small, Medium, Large)
-    -   Anthropic Claude (Haiku, Sonnet, Opus)
-    -   Custom API support
-    -   Multi-provider API key management
-    -   Persistent text input with auto-save
-    -   Smart caching (7 days)
--   **15+ Languages** - inkl. Klingonisch & Elbisch! 🖖
--   **Dark/Light Mode** - Automatische Theme-Erkennung
--   **PWA-Ready** - Offline-fähig, installierbar
-
-### 🔐 **Security**
-
--   **KI-resistent** - Unknackbar für moderne AI-Systeme
--   **Privacy-First** - Keine Daten auf fremden Servern
--   **Client-Side Processing** - Alles lokal im Browser
--   **Zero-Knowledge** - Wir sehen deine Passwörter nie
-
-### 👤 **Account System**
-
--   **FREE Tier** - 9 tägliche Generierungen
--   **PRO Tier** - 35 tägliche Generierungen
--   **Magic Link Login** - Kein Passwort nötig
--   **Usage Charts** - SVG Charts mit 365-Tage Historie
--   **Settings Sync** - localStorage + Backend + Google Sheets
+-   **Mock Mode:** `http://localhost:8080/?mock-custom-api=true` delivers instant emoji responses – perfect for UI testing without backend dependencies.
+-   **Custom Endpoint:** Your server must correctly handle OPTIONS preflight requests:
+    -   `Access-Control-Allow-Origin: http://localhost:8080`
+    -   `Access-Control-Allow-Methods: POST, OPTIONS`
+    -   `Access-Control-Allow-Headers: Content-Type, Authorization`
+-   Example implementations available in the repository (`n8n-workflows/story-generator-ai-node.js`, `scripts/generate-n8n-token.js`) – ready-to-use snippets for Express, Flask, and FastAPI.
 
 ---
 
-## 🏗️ Tech Stack
+## 🧱 Modular Input Architecture
 
-### **Frontend**
+Reusable UI layer for all forms:
 
--   **Svelte** - Reactive Framework
--   **Tailwind CSS** - Utility-First Styling
--   **Webpack** - Module Bundler
--   **PostCSS** - CSS Processing
-
-### **Backend**
-
--   **Vercel Serverless** - API Functions
--   **n8n Automation** - Workflow Engine
--   **Google Sheets** - Database
--   **Brevo** - Email Service
--   **Stripe** - Payment Processing (coming soon)
-
-### **Architecture**
-
-```
-┌─────────────────────────────────────────────────┐
-│                   FRONTEND                      │
-│  Svelte + Tailwind + Stores + localStorage      │
-└─────────────────┬───────────────────────────────┘
-                  ↓
-┌─────────────────────────────────────────────────┐
-│              VERCEL SERVERLESS                  │
-│         /api/account, /api/magic-link           │
-└─────────────────┬───────────────────────────────┘
-                  ↓
-┌─────────────────────────────────────────────────┐
-│               N8N WORKFLOWS                     │
-│    Smart Merge, Validation, Routing             │
-└─────────────────┬───────────────────────────────┘
-                  ↓
-┌─────────────────────────────────────────────────┐
-│              GOOGLE SHEETS                      │
-│   accounts, usageHistory, settings, metadata    │
-└─────────────────────────────────────────────────┘
-```
+-   **Core Components:** `ModularInput`, `ModularForm`, `ModularLoginForm`
+-   **Features:** 10+ input types, validation, i18n, accessibility, JSON-based configuration
+-   **Demos:**
+    -   `/demo` – Advanced demo (all input types & live preview)
+    -   `/account` – Account settings use the same architecture
+-   **Best Practices:** JSDoc, type safety, modular extensibility
 
 ---
 
-## 📊 Data Flow (v0.5.8)
+## 📜 Release Highlights
 
-### **Bi-Directional Sync**
+| Version | Date       | Highlights                                                                           |
+| ------- | ---------- | ------------------------------------------------------------------------------------ |
+| 0.7.2   | 2025-11-07 | Security improvements, environment variables best practices, configuration cleanup   |
+| 0.7.1   | 2025-11-02 | Deep-merge fixes, temperature slider UX, dev tools for localStorage, emoji masking   |
+| 0.7.0   | 2025-11-02 | Stability fixes, session management, nested settings deep merge, PostCSS build fixes |
+| 0.6.0   | 2025-10-11 | AI Story Mode launch, multi-provider API keys, story cache, static pages             |
 
-```
-User Action → Frontend Store → localStorage → Backend API
-              ↓                                    ↓
-         Update UI                            n8n Workflow
-              ↑                                    ↓
-         Sync Back ← Backend Response ← Google Sheets
-```
-
-### **UsageHistory Tracking**
-
-```
-Emoji Generation
-  → incrementDailyUsage()
-  → saveToUsageHistory() (merge today's data)
-  → saveUsageToAPI() (send to backend)
-  → n8n Smart Merge (preserve existing!)
-  → Google Sheets Update
-  → Sync Response Back
-  → All Stores Updated
-  → Charts Auto-Refresh
-```
-
-### **Settings Update**
-
-```
-Change Name
-  → Get LATEST usageHistory (store > localStorage)
-  → saveSettingsToAPI()
-  → Send: { metadata: { settings: {...}, usageHistory: [...] } }
-  → n8n preserves usageHistory (smart merge!)
-  → Sync response to all stores
-  → UsageHistory NEVER lost!
-```
+> For detailed release history, see the commit log or `src/data/versions.js`.
 
 ---
 
-## 🧪 Development
+## 🔭 Roadmap
 
-### **Localhost Helpers**
+-   Clean up CSRF helper functions & exports in `accountStore.js`
+-   Refactor `UserSettings.svelte` + CSS selectors
+-   Cache account existence checks & throttle API calls
+-   Improve error boundaries & generic error flows
+-   Complete email template translations for all languages
+
+---
+
+## 🧪 Development Tips
 
 ```javascript
-// Load real data from n8n (bypasses Vercel 404 on localhost)
+// Load real data from n8n (to test charts locally)
 await window.loadRealData();
 
-// Debug tools
+// Debug helpers
 window.keymojiDebug.showStores();
 window.testUserSettings();
 ```
 
-### **Key Files**
+Key Files:
 
--   `src/stores/dailyUsageStore.js` - Usage tracking & limits
--   `src/stores/userDataStore.js` - User settings & usageHistory
--   `src/stores/accountStore.js` - Authentication & session
--   `src/components/Core/EmojiDisplay.svelte` - Main generator
--   `src/routes/AccountManager.svelte` - Account & charts
--   `n8n-workflows/process-update-node-FIXED.js` - n8n smart merge logic
-
-### **Important Patterns**
-
-**Fresh Metadata Pattern:**
-
-```javascript
-// ❌ NEVER use stale data from stores:
-const metadata = account.metadata;
-
-// ✅ ALWAYS get fresh from localStorage:
-const currentPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
-const freshMetadata = currentPrefs.metadata || {};
-```
-
-**Bi-Directional Sync Pattern:**
-
-```javascript
-// After API call:
-const result = await fetch(...);
-if (result.success && result.account) {
-  // Parse response
-  const parsedMetadata = JSON.parse(result.account.metadata);
-
-  // Sync back to stores
-  localStorage.setItem(KEY, JSON.stringify(parsedMetadata));
-  usageHistoryStore.update(state => ({ ...state, data: parsedMetadata.usageHistory }));
-  syncAccountData({ ...account, metadata: parsedMetadata });
-}
-```
-
----
-
-## 🔧 n8n Workflow Setup
-
-### **Critical: Process Update Node**
-
-Der n8n Workflow **MUSS** die `usageHistory` mit Smart Merge behandeln!
-
-**Code für n8n "Process Update" Node:**
-
-```javascript
-// Get existing from Google Sheets
-const existingUsageHistory = existingMetadata.usageHistory || [];
-
-// Get incoming from webhook
-const incomingUsageHistory = incomingMetadata.usageHistory || [];
-
-// SMART MERGE: Use longest list (never delete!)
-const finalUsageHistory =
-    incomingUsageHistory.length > existingUsageHistory.length
-        ? incomingUsageHistory
-        : existingUsageHistory;
-
-// Merge metadata
-const mergedMetadata = {
-    ...existingMetadata,
-    ...incomingMetadata,
-    usageHistory: finalUsageHistory // PRESERVE!
-};
-
-// Output as JSON string
-return {
-    metadata: JSON.stringify(mergedMetadata)
-};
-```
-
-**Siehe:** `n8n-workflows/process-update-node-FIXED.js` für kompletten Code!
-
----
-
-## 📈 Version History
-
-### **v0.5.8** - Complete Data Flow Refactor (October 10, 2025)
-
--   🔄 Bi-directional sync: Frontend ↔ Backend ↔ Google Sheets
--   🎯 Unified generation system (single source of truth)
--   🧭 Language-aware navigation everywhere
--   📊 SVG Charts optimization (larger, edge-to-edge)
--   👤 Smart username fallback (no more "User" placeholder)
--   ⚡ n8n workflow with robust smart merge
--   🔐 UsageHistory preservation guaranteed
-
-### **v0.5.7** - UserSettings System Overhaul (October 10, 2025)
-
--   Complete settings architecture refactor
--   Tier-aware defaults (FREE vs PRO)
--   Bidirectional sync: Buttons ↔ Settings
--   Session restore optimization
-
-**Siehe:** `src/data/versions.js` für komplette Version History!
-
----
-
-## 🧪 Testing
-
-### **Manual Testing**
-
-```bash
-# Test 1: Settings Update (should preserve usageHistory)
-1. Change name in UserSettings
-2. Save
-3. Check localStorage: metadata.usageHistory should have entries
-4. Reload page → Charts still show data!
-
-# Test 2: Daily Usage Increment
-1. Generate emoji
-2. Check localStorage: usageHistory updated with today's data
-3. Reload page → Chart shows new data point!
-
-# Test 3: Logout → Login
-1. Logout (complete cleanup)
-2. Login again
-3. UsageHistory loaded from backend
-4. All data restored correctly
-```
-
-### **Console Testing**
-
-```javascript
-// Check current usage
-JSON.parse(localStorage.getItem('keymoji_user_preferences')).metadata
-    .usageHistory;
-
-// Load real data (localhost)
-await window.loadRealData();
-
-// Check stores
-window.keymojiDebug.showStores();
-```
-
----
-
-## 🐛 Known Issues & Solutions
-
-### **Issue: Charts show "No Data" on localhost**
-
-**Solution:** Run `await window.loadRealData()` in browser console
-
-### **Issue: UsageHistory deleted after settings update**
-
-**Solution:** Update n8n "Process Update" node with code from `process-update-node-FIXED.js`
-
-### **Issue: Language-less redirects**
-
-**Solution:** Fixed in v0.5.8 - all navigation is now language-aware
-
----
-
-## 📝 Configuration
-
-### **Daily Limits** (`src/config/limits.js`)
-
-```javascript
-DAILY_LIMITS = {
-    GUEST: 5, // Not logged in
-    FREE: 9, // Free account
-    PRO: 35 // Pro account
-};
-```
-
-### **Storage Keys** (`src/config/storage.js`)
-
-```javascript
-STORAGE_KEYS = {
-    USER_PREFERENCES: 'keymoji_user_preferences',
-    DAILY_USAGE: 'keymoji_daily_usage',
-    USAGE_HISTORY: 'keymoji_usage_history',
-    USER_SETTINGS: 'keymoji_user_settings'
-};
-```
-
-### **API Webhooks** (`src/config/api.js`)
-
-```javascript
-WEBHOOKS = {
-    ACCOUNT: {
-        CRUD: '/api/account',
-        UPDATE: '/api/account/update',
-        CHECK_EXISTS: '/api/account'
-    },
-    N8N: {
-        ACCOUNT: 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account'
-    }
-};
-```
-
----
-
-## 🎨 UI/UX Highlights
-
--   **Apple/Airbnb-inspired Design** - Clean, modern, intuitive
--   **Glassmorphism** - Backdrop blur, gradients, shadows
--   **8-Point Grid** - Consistent spacing throughout
--   **Accessibility** - ARIA labels, keyboard navigation, focus states
--   **Responsive** - Mobile-first, works on all devices
--   **Smooth Animations** - Transitions, hover effects, loading states
-
----
-
-## 🌍 Supported Languages
-
-English • Deutsch • Deutsch (Schweiz) • Español • Nederlands • Italiano • Français • Polski • Русский • Türkçe • Afrikaans • 日本語 • 한국어 • Klingonisch (tlh) • Sindarin (sjn)
-
----
-
-## 📦 Project Structure
-
-```
-keymoji/
-├── src/
-│   ├── components/     # Svelte components
-│   ├── routes/         # Page components (AccountManager, ContactForm, etc.)
-│   ├── stores/         # State management (Svelte stores)
-│   ├── utils/          # Utility functions
-│   ├── config/         # App configuration
-│   └── data/           # Static data (languages, versions)
-├── keymoji-backend/    # Vercel serverless functions
-├── n8n-workflows/      # n8n automation workflows
-├── public/             # Static assets
-└── webpack/            # Build configuration
-```
+-   `src/stores/dailyUsageStore.js` – Usage tracking & limits
+-   `src/stores/userDataStore.js` – Settings & usage history
+-   `src/stores/accountStore.js` – Session & authentication
+-   `src/components/Core/EmojiDisplay.svelte` – Main generator
+-   `src/routes/AccountManager.svelte` – Account page with charts
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please:
-
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+5. Open a Pull Request – contributions welcome!
 
 ---
 
-## 📄 License
+## 📄 License & Support
 
-MIT License - see [LICENSE](LICENSE) for details
-
----
-
-## 🙏 Acknowledgments
-
--   **Base Template:** [start template project 🎒](https://github.com/davi-mbatista/start)
--   **Emoji Data:** Unicode Emoji Standard
--   **Inspiration:** Modern password security research
+-   MIT License – see [LICENSE](LICENSE)
+-   Website: [keymoji.wtf](https://keymoji.wtf)
+-   Email: [hello@keymoji.wtf](mailto:hello@keymoji.wtf)
+-   GitHub Issues: [Report a bug](https://github.com/chooomedia/keymoji/issues)
 
 ---
 
-## 📞 Support
-
--   **Website:** [keymoji.wtf](https://keymoji.wtf)
--   **Email:** [hello@keymoji.wtf](mailto:hello@keymoji.wtf)
--   **GitHub Issues:** [Report a bug](https://github.com/chooomedia/keymoji/issues)
-
----
-
-**Made with ❤️ by Christopher Matt in Germany 🇩🇪**
-
-_Keymoji - Bring emojis into your passwords!_ 🔑✨
+**Made with ❤️ in Germany 🇩🇪** – _Keymoji: Bring emojis into your passwords!_ 🔑✨

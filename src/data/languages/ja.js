@@ -28,8 +28,14 @@ export default {
             '"ランダム"は自明です 😜。',
             '生成後、クリップボードに保存されます！📋'
         ],
-        setupStoryMode: 'LLMをセットアップ',
-        setupStoryModeDescription: 'LLMに接続してパーソナライズされた絵文字パスワードを取得。',
+        setupStoryMode: 'AIをセットアップ',
+        setupStoryModeSwiss: 'スイスAIを使用',
+        setupStoryModeDescription:
+            'AIに接続してパーソナライズされた絵文字パスワードを取得。',
+        setupStoryModeSwissDescription:
+            'プライバシー重視のユーザー向けスイス製AI。データはスイスに留まり、GDPR準拠、エンタープライズセキュリティ。データ主権を重視する個人や企業に最適。',
+        setupStoryModeSwissTooltip:
+            'スイスAI（Apertus）- スイスでホストされるプライバシー重視のAI。データはスイスに留まり、スイスのデータ保護法により保護されます。GDPR準拠、エンタープライズグレードのセキュリティ。プライバシー意識の高いユーザーやデータ主権を必要とする企業に最適。',
         storyModeReady: 'AI生成の絵文字パスワード準備完了 🤖',
         backToMainText: '下をクリック 👇 して戻る',
         backToMainButtonText: 'ホームに戻る',
@@ -568,6 +574,10 @@ export default {
             settingsExported: '設定が正常にエクスポートされました',
             freeAccountActivated: '無料アカウントがアクティブ化されました！'
         },
+
+        // Apertus Info
+        apertusInfo:
+            'Keymoji限定：Apertus – スイス製LLM。ユーザー向けに初公開。HuggingFaceでホスト、n8nワークフロー経由で提供。',
 
         // アップグレードセクション
         upgrade: {

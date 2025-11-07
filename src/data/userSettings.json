@@ -1637,6 +1637,26 @@
                     },
                     "options": [
                         {
+                            "value": "apertus",
+                            "label": {
+                                "en": "Apertus (Swiss LLM) 🇨🇭",
+                                "de": "Apertus (Schweizer LLM) 🇨🇭",
+                                "fr": "Apertus (LLM suisse) 🇨🇭",
+                                "es": "Apertus (LLM suizo) 🇨🇭",
+                                "it": "Apertus (LLM svizzero) 🇨🇭",
+                                "ja": "Apertus (スイスLLM) 🇨🇭",
+                                "ko": "Apertus (스위스 LLM) 🇨🇭",
+                                "nl": "Apertus (Zwitserse LLM) 🇨🇭",
+                                "pl": "Apertus (szwajcarski LLM) 🇨🇭",
+                                "ru": "Apertus (швейцарский LLM) 🇨🇭",
+                                "tr": "Apertus (İsviçre LLM) 🇨🇭",
+                                "af": "Apertus (Switserse LLM) 🇨🇭",
+                                "sjn": "Apertus (Swiss LLM) 🇨🇭",
+                                "tlh": "Apertus (Swiss LLM) 🇨🇭",
+                                "de-CH": "Apertus (Schweizer LLM) 🇨🇭"
+                            }
+                        },
+                        {
                             "value": "openai",
                             "label": {
                                 "en": "OpenAI (GPT)",
@@ -1737,7 +1757,7 @@
                             }
                         }
                     ],
-                    "defaultValue": "openai"
+                    "defaultValue": "apertus"
                 },
                 {
                     "id": "storyMode.apiKeys",

@@ -28,8 +28,14 @@ export default {
             '"Random" is self-explanatory 😜.',
             "After generating, it's saved to your clipboard! 📋"
         ],
-        setupStoryMode: 'Setup your LLM',
-        setupStoryModeDescription: 'Connect with your LLM for personalized emoji passwords.',
+        setupStoryMode: 'Setup your AI',
+        setupStoryModeSwiss: 'Use Swiss AI',
+        setupStoryModeDescription:
+            'Connect with your AI for personalized emoji passwords.',
+        setupStoryModeSwissDescription:
+            'Swiss-made AI for privacy-focused users. Data stays in Switzerland, GDPR-compliant, enterprise security. Perfect for individuals and businesses who value data sovereignty.',
+        setupStoryModeSwissTooltip:
+            'Swiss AI (Apertus) - Privacy-first AI hosted in Switzerland. Your data stays in Switzerland, protected by Swiss data protection laws. GDPR-compliant, enterprise-grade security. Ideal for privacy-conscious users and businesses requiring data sovereignty.',
         storyModeReady: 'AI-generated emoji passwords ready 🤖',
         backToMainText: 'Click on below 👇 to get back',
         backToMainButtonText: 'Back to home',
@@ -502,7 +508,8 @@ export default {
             storiesGenerated: 'Stories Generated',
             remainingGenerations: 'Remaining Generations',
             noDataTitle: 'No Data',
-            noDataMessage: 'Generate emojis to collect your real usage data and display it here.',
+            noDataMessage:
+                'Generate emojis to collect your real usage data and display it here.',
             refreshButton: 'Refresh',
             loading: 'Loading...'
         },
@@ -599,6 +606,9 @@ export default {
             refreshFailed: 'Failed to refresh data',
             noNewData: 'No new data available'
         },
+        
+        // Apertus Info
+        apertusInfo: 'Exclusive on Keymoji: Apertus – the Swiss LLM. First time available for users. Hosted on HuggingFace, delivered via n8n workflow.',
 
         // Upgrade section
         upgrade: {

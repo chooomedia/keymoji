@@ -260,6 +260,38 @@
     // Reactive: Generate chart data from final history
     $: finalChartData = generateChartData(selectedTimePeriod, finalUsageHistory);
     
+    /**
+     * Calculate optimal maxValue for chart Y-axis
+     * Dynamically adjusts based on actual data, with a maximum of 100
+     * Rounds up to nice numbers (9, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100)
+     */
+    function calculateMaxValue(chartData) {
+        if (!chartData || chartData.length === 0) {
+            // Default fallback
+            return $accountTier === 'pro' ? 35 : 9;
+        }
+        
+        // Find maximum value in data
+        const maxDataValue = Math.max(...chartData.map(point => point.value || 0));
+        
+        // If no data values, use default
+        if (maxDataValue === 0) {
+            return $accountTier === 'pro' ? 35 : 9;
+        }
+        
+        // Round up to next nice number, but cap at 100
+        const niceNumbers = [9, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100];
+        
+        // Find the smallest nice number that's >= maxDataValue
+        const optimalMax = niceNumbers.find(num => num >= maxDataValue) || 100;
+        
+        // Ensure we don't exceed 100
+        return Math.min(optimalMax, 100);
+    }
+    
+    // Reactive: Calculate dynamic maxValue based on chart data
+    $: chartMaxValue = calculateMaxValue(finalChartData);
+    
     // Debug: Log final state
     $: {
         console.log('📊 [CHART STATE]', {
@@ -268,6 +300,8 @@
             finalUsageHistoryLength: finalUsageHistory.length,
             isDemoDataShown,
             finalChartDataLength: finalChartData?.length || 0,
+            chartMaxValue,
+            maxDataValue: finalChartData?.length > 0 ? Math.max(...finalChartData.map(p => p.value || 0)) : 0,
             isLoadingChartData,
             chartDataError
         });
@@ -1134,7 +1168,7 @@
                                         <!-- Background Chart -->
                                         <LineChart 
                                             data={finalChartData}
-                                            maxValue={$accountTier === 'pro' ? 35 : 9}
+                                            maxValue={chartMaxValue}
                                             height={240}
                                             color={isDemoDataShown ? '#f97316' : ($accountTier === 'pro' ? '#a855f7' : '#eab308')}
                                             animate={true}

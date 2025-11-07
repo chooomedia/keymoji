@@ -28,8 +28,14 @@ export default {
             '"Rastgele" kendini açıklıyor 😜.',
             'Üretildikten sonra panoya kopyalanır! 📋'
         ],
-        setupStoryMode: 'LLM\'inizi Yapılandırın',
-        setupStoryModeDescription: 'Kişiselleştirilmiş emoji şifreleri için LLM\'inize bağlanın.',
+        setupStoryMode: "AI'nizi Yapılandırın",
+        setupStoryModeSwiss: 'İsviçre AI kullan',
+        setupStoryModeDescription:
+            "Kişiselleştirilmiş emoji şifreleri için AI'nize bağlanın.",
+        setupStoryModeSwissDescription:
+            "Gizlilik odaklı kullanıcılar için İsviçre yapımı AI. Veriler İsviçre'de kalır, GDPR uyumlu, kurumsal güvenlik. Veri egemenliğini değer veren bireyler ve işletmeler için mükemmel.",
+        setupStoryModeSwissTooltip:
+            "İsviçre AI (Apertus) - İsviçre'de barındırılan gizlilik odaklı AI. Verileriniz İsviçre'de kalır, İsviçre veri koruma yasalarıyla korunur. GDPR uyumlu, kurumsal düzeyde güvenlik. Gizlilik bilincine sahip kullanıcılar ve veri egemenliği gerektiren işletmeler için ideal.",
         storyModeReady: 'AI tarafından oluşturulmuş emoji şifreleri hazır 🤖',
         backToMainText: 'Geri dönmek için aşağıya tıklayın 👇',
         backToMainButtonText: 'Ana sayfaya dön',
@@ -571,6 +577,10 @@ export default {
             settingsExported: 'Ayarlar başarıyla dışa aktarıldı',
             freeAccountActivated: 'Ücretsiz hesap etkinleştirildi!'
         },
+
+        // Apertus Info
+        apertusInfo:
+            "Keymoji'ye özel: Apertus – İsviçre LLM'si. Kullanıcılar için ilk kez kullanılabilir. HuggingFace'de barındırılıyor, n8n workflow ile sunuluyor.",
 
         // Yükseltme bölümü
         upgrade: {

@@ -28,8 +28,14 @@ export default {
             '"Losowe" mówi samo za siebie 😜.',
             'Po wygenerowaniu zostanie skopiowane do schowka! 📋'
         ],
-        setupStoryMode: 'Skonfiguruj swój LLM',
-        setupStoryModeDescription: 'Połącz się ze swoim LLM dla spersonalizowanych haseł emoji.',
+        setupStoryMode: 'Skonfiguruj swoją AI',
+        setupStoryModeSwiss: 'Użyj szwajcarskiej AI',
+        setupStoryModeDescription:
+            'Połącz się ze swoją AI dla spersonalizowanych haseł emoji.',
+        setupStoryModeSwissDescription:
+            'Szwajcarska AI dla użytkowników dbających o prywatność. Dane pozostają w Szwajcarii, zgodne z RODO, bezpieczeństwo korporacyjne. Idealne dla osób i firm ceniących suwerenność danych.',
+        setupStoryModeSwissTooltip:
+            'Szwajcarska AI (Apertus) - AI skoncentrowane na prywatności, hostowane w Szwajcarii. Twoje dane pozostają w Szwajcarii, chronione przez szwajcarskie przepisy o ochronie danych. Zgodne z RODO, bezpieczeństwo korporacyjne. Idealne dla użytkowników dbających o prywatność i firm wymagających suwerenności danych.',
         storyModeReady: 'Wygenerowane przez AI hasła emoji gotowe 🤖',
         backToMainText: 'Kliknij poniżej 👇 aby wrócić',
         backToMainButtonText: 'Wróć do strony głównej',
@@ -572,6 +578,10 @@ export default {
             settingsExported: 'Ustawienia zostały wyeksportowane',
             freeAccountActivated: 'Darmowe konto aktywowane!'
         },
+
+        // Apertus Info
+        apertusInfo:
+            'Ekskluzywnie na Keymoji: Apertus – szwajcarski LLM. Po raz pierwszy dostępny dla użytkowników. Hostowany na HuggingFace, dostarczany przez workflow n8n.',
 
         // Sekcja aktualizacji
         upgrade: {

@@ -28,8 +28,14 @@ export default {
             '"랜덤"은 자명합니다 😜.',
             '생성 후 클립보드에 저장됩니다! 📋'
         ],
-        setupStoryMode: 'LLM 설정',
-        setupStoryModeDescription: 'LLM에 연결하여 개인화된 이모지 비밀번호를 받으세요.',
+        setupStoryMode: 'AI 설정',
+        setupStoryModeSwiss: '스위스 AI 사용',
+        setupStoryModeDescription:
+            'AI에 연결하여 개인화된 이모지 비밀번호를 받으세요.',
+        setupStoryModeSwissDescription:
+            '개인정보 보호 중심 사용자를 위한 스위스 제작 AI. 데이터는 스위스에 유지되며, GDPR 준수, 엔터프라이즈 보안. 데이터 주권을 중시하는 개인 및 기업에 완벽합니다.',
+        setupStoryModeSwissTooltip:
+            '스위스 AI (Apertus) - 스위스에서 호스팅되는 개인정보 보호 중심 AI. 데이터는 스위스에 유지되며 스위스 데이터 보호법으로 보호됩니다. GDPR 준수, 엔터프라이즈급 보안. 개인정보 보호에 민감한 사용자 및 데이터 주권이 필요한 기업에 이상적입니다.',
         storyModeReady: 'AI 생성 이모지 비밀번호 준비 완료 🤖',
         backToMainText: '아래를 클릭 👇 하여 돌아가기',
         backToMainButtonText: '홈으로 돌아가기',
@@ -565,6 +571,10 @@ export default {
             settingsExported: '설정이 성공적으로 내보내졌습니다',
             freeAccountActivated: '무료 계정이 활성화되었습니다!'
         },
+
+        // Apertus Info
+        apertusInfo:
+            'Keymoji 전용: Apertus – 스위스 LLM. 사용자에게 처음 제공. HuggingFace 호스팅, n8n 워크플로우로 제공.',
 
         // 업그레이드 섹션
         upgrade: {

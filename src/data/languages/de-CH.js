@@ -29,7 +29,13 @@ export default {
             'Nach em Generiere wirds in dini Zwischeablage kopiert! 📋'
         ],
         setupStoryMode: 'Dine KI yrichte',
-        setupStoryModeDescription: 'Verbind di mit dim LLM für personalisiereti Emoji-Passwörter.',
+        setupStoryModeSwiss: 'Schwiizer KI bruche',
+        setupStoryModeDescription:
+            'Verbind di mit dim KI für personalisiereti Emoji-Passwörter.',
+        setupStoryModeSwissDescription:
+            'Schwiizer KI für dateschutzbewussti Nutzer. Date bliibe i de Schwiiz, DSGVO-konform, Enterprise-Sicherheit. Perfekt für Privatpersone und Unternehme, wo Datesouveränität schätze.',
+        setupStoryModeSwissTooltip:
+            'Schwiizer KI (Apertus) - Dateschutzorientierti KI, ghostet i de Schwiiz. Dini Date bliibe i de Schwiiz, gschützt dur Schwiizer Dateschutzgsetz. DSGVO-konform, Enterprise-Sicherheit. Ideal für dateschutzbewussti Nutzer und Unternehme, wo Datesouveränität bruche.',
         storyModeReady: 'KI-generierti Emoji-Passwörter bereit 🤖',
         backToMainText: 'Klick unde 👇 zum zrugggah',
         backToMainButtonText: 'Zrugg zu Home',
@@ -572,6 +578,9 @@ export default {
             settingsExported: 'Iistellige erfolgreich exportiert',
             freeAccountActivated: 'Gratis-Account aktiviert!'
         },
+        
+        // Apertus Info
+        apertusInfo: 'Exklusiv uf Keymoji: Apertus – s Schwiizer LLM. Erschtmalig für User nutzbar. Ghosted uf HuggingFace, bereitgstellt via n8n Workflow.',
 
         // Upgrade-Sektion
         upgrade: {

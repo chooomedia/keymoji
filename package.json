@@ -1,7 +1,7 @@
 {
     "name": "keymoji",
-    "version": "0.7.1",
-    "description": "Secure emoji password generator with AI Story Mode - Stability Master",
+    "version": "0.7.2",
+    "description": "Secure emoji password generator with AI Story Mode - Security & Configuration",
     "private": true,
     "license": "MIT",
     "author": {
@@ -23,7 +23,10 @@
         "postbuild": "node scripts/prerender-meta.js",
         "check:images": "node scripts/check-social-images.js",
         "setup:fonts": "node scripts/setup-fonts.js",
-        "validate:schema": "node scripts/validate-structured-data.js"
+        "validate:schema": "node scripts/validate-structured-data.js",
+        "generate:token": "node scripts/generate-n8n-token.js",
+        "generate:token:dev": "node scripts/generate-n8n-token.js --env dev",
+        "generate:token:prod": "node scripts/generate-n8n-token.js --env prod"
     },
     "devDependencies": {
         "@babel/cli": "^7.12.1",

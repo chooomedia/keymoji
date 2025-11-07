@@ -91,8 +91,12 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
+# .env.example is versioned (template for developers)
 .env
-.env.example
+.env.local
+.env.*.local
+.env.development
+.env.production
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

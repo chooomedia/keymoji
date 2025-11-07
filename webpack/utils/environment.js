@@ -4,37 +4,47 @@ const dotenv = require('dotenv');
 const path = require('path');
 
 // Lade die richtige .env-Datei basierend auf der Umgebung
+// Priority: .env.local > .env.{mode} > .env > .env.example
 function loadEnv(mode) {
     const basePath = path.resolve(process.cwd());
-    const envFile = mode === 'production' ? '.env.production' : '.env';
 
-    // Versuche zuerst die umgebungsspezifische Datei zu laden
-    let envPath = path.resolve(basePath, envFile);
+    // Priority order (highest first):
+    // 1. .env.local (highest priority, never committed)
+    // 2. .env.{mode} (.env.development or .env.production)
+    // 3. .env (shared defaults)
+    // 4. .env.example (fallback template)
 
-    // Fallback zur .env-Datei, wenn die spezifische nicht existiert
-    if (!fs.existsSync(envPath)) {
-        envPath = path.resolve(basePath, '.env');
+    const envFiles = [
+        '.env.local',
+        mode === 'production' ? '.env.production' : '.env.development',
+        '.env',
+        '.env.example'
+    ];
 
-        // Wenn auch die normale .env nicht existiert, nutze die Beispieldatei als Fallback
-        if (!fs.existsSync(envPath)) {
-            envPath = path.resolve(basePath, '.env.example');
-            console.warn(
-                `Weder .env noch ${envFile} gefunden. Verwende .env.example als Fallback.`
-            );
+    let loadedEnv = {};
+
+    // Load files in priority order (later files override earlier ones)
+    for (const envFile of envFiles) {
+        const envPath = path.resolve(basePath, envFile);
+
+        if (fs.existsSync(envPath)) {
+            try {
+                const config = dotenv.config({ path: envPath });
+                if (config.parsed) {
+                    loadedEnv = { ...loadedEnv, ...config.parsed };
+                    if (envFile === '.env.example') {
+                        console.warn(
+                            `⚠️ Using .env.example as fallback. Please create .env.local for local development.`
+                        );
+                    }
+                }
+            } catch (error) {
+                console.warn(`⚠️ Error loading ${envFile}:`, error.message);
+            }
         }
     }
 
-    // Lade die env-Datei, aber fange Fehler ab
-    try {
-        const config = dotenv.config({ path: envPath });
-        return config.parsed || {};
-    } catch (error) {
-        console.warn(
-            `Fehler beim Laden der Umgebungsvariablen aus ${envPath}:`,
-            error
-        );
-        return {};
-    }
+    return loadedEnv;
 }
 
 // utils
@@ -78,26 +88,26 @@ module.exports = {
         ...common,
         // NODE_ENV wird nicht hier definiert, sondern durch mode: 'development' in webpack/start.js
         ...convertEnvValues(developmentEnv),
-        // Stelle sicher, dass kritische Variablen immer verfügbar sind
-        WEBHOOK_BASE: stringify(
-            developmentEnv.WEBHOOK_BASE || 'https://n8n.chooomedia.com/webhook'
+        // VITE_ variables werden für import.meta.env verfügbar gemacht
+        // SECURITY: URLs should be set via environment variables, not hardcoded
+        VITE_API_URL: stringify(
+            developmentEnv.VITE_API_URL || developmentEnv.API_URL || ''
         ),
-        WEBHOOK_TEST_BASE: stringify(
-            developmentEnv.WEBHOOK_TEST_BASE ||
-                'https://n8n.chooomedia.com/webhook'
+        VITE_N8N_URL: stringify(
+            developmentEnv.VITE_N8N_URL || developmentEnv.N8N_URL || ''
         )
     },
     production: {
         ...common,
         // NODE_ENV wird nicht hier definiert, sondern durch mode: 'production' in webpack/build.js
         ...convertEnvValues(productionEnv),
-        // Stelle sicher, dass kritische Variablen immer verfügbar sind
-        WEBHOOK_BASE: stringify(
-            productionEnv.WEBHOOK_BASE || 'https://n8n.chooomedia.com/webhook'
+        // VITE_ variables werden für import.meta.env verfügbar gemacht
+        // SECURITY: URLs should be set via environment variables, not hardcoded
+        VITE_API_URL: stringify(
+            productionEnv.VITE_API_URL || productionEnv.API_URL || ''
         ),
-        WEBHOOK_TEST_BASE: stringify(
-            productionEnv.WEBHOOK_TEST_BASE ||
-                'https://n8n.chooomedia.com/webhook'
+        VITE_N8N_URL: stringify(
+            productionEnv.VITE_N8N_URL || productionEnv.N8N_URL || ''
         )
     }
 };

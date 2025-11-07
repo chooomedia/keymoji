@@ -1,4 +1,74 @@
 export const versions = {
+    '0.7.2': {
+        date: 'November 7, 2025',
+        core: {
+            security: {
+                title: '🔒 Security: Environment Variables & Configuration',
+                improvements: [
+                    'Removed n8n URLs from .env.example (security best practice)',
+                    'API URLs now configurable via environment variables (VITE_N8N_URL, VITE_API_URL)',
+                    'Webpack supports import.meta.env.* for VITE_ prefixed variables',
+                    'Security warnings when fallback URLs are used in development',
+                    'Test scripts updated to read URLs from .env.local',
+                    'Documentation updated with security best practices'
+                ]
+            },
+            environment: {
+                title: '⚙️ Environment Variables Best Practices',
+                improvements: [
+                    'Clean .env.example with only required variables and placeholders',
+                    'Priority system: .env.local > .env.{mode} > .env > .env.example',
+                    'Comprehensive environment variables documentation (docs/ENVIRONMENT_VARIABLES.md)',
+                    '.env.example now versioned in Git (template only)',
+                    'Clear setup instructions for development and production',
+                    'Security notes and troubleshooting guide added'
+                ]
+            },
+            configuration: {
+                title: '🔧 Configuration Improvements',
+                improvements: [
+                    'Centralized API configuration with environment variable support',
+                    'Webpack environment loader with proper priority handling',
+                    'Support for both process.env.* and import.meta.env.* patterns',
+                    'Fallback warnings for missing environment variables',
+                    'Updated test scripts to use environment variables'
+                ]
+            },
+            documentation: {
+                title: '📚 Documentation Updates',
+                improvements: [
+                    'Complete README rewrite in English with modern structure',
+                    'Comprehensive environment variables guide created',
+                    'Architecture and refactoring documentation (tests/KEYMOJI-DOCU.md)',
+                    'Security best practices documented',
+                    'Setup instructions improved for new developers',
+                    'Test files reorganized into tests/ directory'
+                ]
+            }
+        },
+        fixes: {
+            codeQuality: {
+                title: '⚡ Code Quality & Organization',
+                improvements: [
+                    'Test files moved to tests/ directory (test-n8n-webhook.sh, test-api-chart-data.js)',
+                    'Test script improvements (reads URLs from .env.local)',
+                    'Removed hardcoded URLs from public repository',
+                    'Improved error handling in environment variable loading',
+                    'Better separation of concerns in configuration files'
+                ]
+            },
+            security: {
+                title: '🔒 Security Improvements',
+                improvements: [
+                    'No sensitive URLs in public repository',
+                    'Environment variables required for production deployments',
+                    'Clear security warnings in code comments',
+                    'Best practices enforced via configuration',
+                    'Documentation updated to reflect security requirements'
+                ]
+            }
+        }
+    },
     '0.7.1': {
         date: 'November 2, 2025',
         core: {

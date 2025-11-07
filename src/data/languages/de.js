@@ -29,7 +29,13 @@ export default {
             'Nach dem Generieren wird es in deine Zwischenablage kopiert! 📋'
         ],
         setupStoryMode: 'Richte deine KI ein',
-        setupStoryModeDescription: 'Verbinde dich mit deinem LLM für personalisierte Emoji-Passwörter.',
+        setupStoryModeSwiss: 'Schweizer KI nutzen',
+        setupStoryModeDescription:
+            'Verbinde dich mit deiner KI für personalisierte Emoji-Passwörter.',
+        setupStoryModeSwissDescription:
+            'Schweizer KI für datenschutzbewusste Nutzer. Daten bleiben in der Schweiz, DSGVO-konform, Enterprise-Sicherheit. Perfekt für Privatpersonen und Unternehmen, die Datensouveränität schätzen.',
+        setupStoryModeSwissTooltip:
+            'Schweizer KI (Apertus) - Datenschutzorientierte KI, gehostet in der Schweiz. Deine Daten bleiben in der Schweiz, geschützt durch Schweizer Datenschutzgesetze. DSGVO-konform, Enterprise-Sicherheit. Ideal für datenschutzbewusste Nutzer und Unternehmen, die Datensouveränität benötigen.',
         storyModeReady: 'KI-generierte Emoji-Passwörter bereit 🤖',
         backToMainText: 'Klicke unten 👇 um zurückzukehren',
         backToMainButtonText: 'Zurück zu Home',
@@ -509,7 +515,8 @@ export default {
             storiesGenerated: 'Generierte Stories',
             remainingGenerations: 'Verbleibende Generierungen',
             noDataTitle: 'Keine Daten',
-            noDataMessage: 'Generiere Emojis um deine echten Nutzungsdaten zu sammeln und hier anzuzeigen.',
+            noDataMessage:
+                'Generiere Emojis um deine echten Nutzungsdaten zu sammeln und hier anzuzeigen.',
             refreshButton: 'Neu laden',
             loading: 'Lade...'
         },
@@ -628,6 +635,10 @@ export default {
             refreshFailed: 'Aktualisierung fehlgeschlagen',
             noNewData: 'Keine neuen Daten verfügbar'
         },
+
+        // Apertus Info
+        apertusInfo:
+            'Exklusiv auf Keymoji: Apertus – das Schweizer LLM. Erstmalig für User nutzbar. Gehostet auf HuggingFace, bereitgestellt via n8n Workflow.',
 
         // Upgrade-Bereich
         upgrade: {

@@ -28,8 +28,14 @@ export default {
             '"Aleatorio" es autoexplicativo 😜.',
             '¡Después de generar, se guarda en tu portapapeles! 📋'
         ],
-        setupStoryMode: 'Configura tu LLM',
-        setupStoryModeDescription: 'Conéctate con tu LLM para contraseñas emoji personalizadas.',
+        setupStoryMode: 'Configura tu IA',
+        setupStoryModeSwiss: 'Usar IA suiza',
+        setupStoryModeDescription:
+            'Conéctate con tu IA para contraseñas emoji personalizadas.',
+        setupStoryModeSwissDescription:
+            'IA suiza para usuarios preocupados por la privacidad. Los datos permanecen en Suiza, conformes con GDPR, seguridad empresarial. Perfecto para particulares y empresas que valoran la soberanía de datos.',
+        setupStoryModeSwissTooltip:
+            'IA suiza (Apertus) - IA centrada en la privacidad, alojada en Suiza. Tus datos permanecen en Suiza, protegidos por las leyes suizas de protección de datos. Conforme con GDPR, seguridad de nivel empresarial. Ideal para usuarios preocupados por la privacidad y empresas que requieren soberanía de datos.',
         storyModeReady: 'Contraseñas emoji generadas por IA listas 🤖',
         backToMainText: 'Haz clic abajo 👇 para volver',
         backToMainButtonText: 'Volver al inicio',
@@ -503,19 +509,24 @@ export default {
         benefits: {
             free: {
                 dailyGenerations: '9 generaciones seguras diarias',
-                dailyGenerationsDesc: 'Tecnología resistente a IA para máxima seguridad',
+                dailyGenerationsDesc:
+                    'Tecnología resistente a IA para máxima seguridad',
                 decentralizedData: 'Procesamiento de datos descentralizado',
-                decentralizedDataDesc: 'Tus datos permanecen siempre contigo - nunca en servidores extranjeros',
+                decentralizedDataDesc:
+                    'Tus datos permanecen siempre contigo - nunca en servidores extranjeros',
                 webApp: 'Disponible como aplicación web',
                 webAppDesc: 'Disponible al instante - sin instalación necesaria'
             },
             pro: {
                 unlimitedGenerations: 'Generaciones seguras ilimitadas',
-                unlimitedGenerationsDesc: 'Crea tantas contraseñas como necesites - sin límites',
+                unlimitedGenerationsDesc:
+                    'Crea tantas contraseñas como necesites - sin límites',
                 browserExtension: 'Extensión de navegador (Q4 2025)',
-                browserExtensionDesc: 'Seguridad directamente en tu navegador - automáticamente y en todas partes',
+                browserExtensionDesc:
+                    'Seguridad directamente en tu navegador - automáticamente y en todas partes',
                 apiIntegration: 'Integración API (Q4 2025)',
-                apiIntegrationDesc: 'Integra seguridad de manera transparente en tus propias aplicaciones'
+                apiIntegrationDesc:
+                    'Integra seguridad de manera transparente en tus propias aplicaciones'
             }
         },
 
@@ -587,6 +598,9 @@ export default {
             settingsExported: 'Configuración exportada exitosamente',
             freeAccountActivated: '¡Cuenta gratuita activada!'
         },
+        
+        // Apertus Info
+        apertusInfo: 'Exclusivo en Keymoji: Apertus – el LLM suizo. Primera vez disponible para usuarios. Alojado en HuggingFace, entregado vía workflow n8n.',
 
         // Sección de actualización
         upgrade: {

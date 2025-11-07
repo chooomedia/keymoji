@@ -241,13 +241,14 @@ export function getDefaultSettings(tier = 'free') {
         // Story Mode AI Configuration (FREE & PRO)
         storyMode: {
             enabled: false, // Story mode available when API key configured
-            provider: 'openai', // 'openai' | 'gemini' | 'mistral' | 'claude' | 'custom'
+            provider: 'apertus', // 'openai' | 'gemini' | 'mistral' | 'claude' | 'apertus' | 'custom' (default: apertus for Swiss LLM)
             apiKeys: {
                 // Separate API keys for each provider
                 openai: '',
                 gemini: '',
                 mistral: '',
                 claude: '',
+                apertus: '',
                 custom: ''
             },
             customApiUrl: '', // For custom provider (e.g., https://aimi.matt-interfaces.ch)
@@ -344,7 +345,7 @@ export function validateStoryModeSettings(storyMode) {
     if (!storyMode) return { isValid: true, errors, warnings };
 
     // Provider validation
-    const validProviders = ['openai', 'gemini', 'mistral', 'claude', 'custom'];
+    const validProviders = ['openai', 'gemini', 'mistral', 'claude', 'apertus', 'custom'];
     if (storyMode.provider && !validProviders.includes(storyMode.provider)) {
         errors.push(`provider must be one of: ${validProviders.join(', ')}`);
     }

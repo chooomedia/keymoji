@@ -28,8 +28,14 @@ export default {
             '"Lukraak" spreek vanself 😜.',
             'Na generering word dit na jou knipbord gekopieer! 📋'
         ],
-        setupStoryMode: 'Stel jou LLM op',
-        setupStoryModeDescription: 'Koppel met jou LLM vir gepersonaliseerde emoji-wagwoorde.',
+        setupStoryMode: 'Stel jou AI op',
+        setupStoryModeSwiss: 'Gebruik Switserse AI',
+        setupStoryModeDescription:
+            'Koppel met jou AI vir gepersonaliseerde emoji-wagwoorde.',
+        setupStoryModeSwissDescription:
+            'Switserse AI vir privaatheid-gefokusde gebruikers. Data bly in Switserland, GDPR-voldoende, ondernemingsveiligheid. Perfek vir individue en besighede wat datasoewereiniteit waardeer.',
+        setupStoryModeSwissTooltip:
+            'Switserse AI (Apertus) - Privaatheid-eerste AI, gehuisves in Switserland. Jou data bly in Switserland, beskerm deur Switserse databeskermingswette. GDPR-voldoende, ondernemingsgraad veiligheid. Ideaal vir privaatheid-bewuste gebruikers en besighede wat datasoewereiniteit vereis.',
         storyModeReady: 'AI-gegenereerde emoji-wagwoorde gereed 🤖',
         backToMainText: 'Klik hieronder 👇 om terug te gaan',
         backToMainButtonText: 'Terug na tuisblad',
@@ -574,6 +580,9 @@ export default {
             settingsExported: 'Instellings suksesvol geëksporteer',
             freeAccountActivated: 'Gratis rekening geaktiveer!'
         },
+        
+        // Apertus Info
+        apertusInfo: 'Eksklusief op Keymoji: Apertus – die Switserse LLM. Eerste keer beskikbaar vir gebruikers. Gehuisves op HuggingFace, gelewer via n8n workflow.',
 
         // Opgradering afdeling
         upgrade: {

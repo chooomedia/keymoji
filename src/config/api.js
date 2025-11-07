@@ -1,15 +1,37 @@
 // src/config/api.js
 // Central configuration for API endpoints and webhooks
+// 
+// SECURITY: URLs can be overridden via environment variables to avoid exposing
+// internal endpoints in the public repository.
 
+// Get API URL from environment or use default
+// Priority: VITE_API_URL (env) > default
 const API_URL =
-    process.env.NODE_ENV === 'production'
-        ? 'https://its.keymoji.wtf/api'
-        : 'https://its.keymoji.wtf/api'; // Use production API in development too
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) ||
+    process.env.VITE_API_URL ||
+    'https://its.keymoji.wtf/api';
 
-const N8N_URL =
-    process.env.NODE_ENV === 'production'
-        ? 'https://n8n.chooomedia.com/webhook'
-        : 'https://n8n.chooomedia.com/webhook'; // Use production n8n in development too
+// Get n8n URL from environment or use default
+// Priority: VITE_N8N_URL (env) > default
+// SECURITY: Always set VITE_N8N_URL in production via environment variables!
+const getN8NUrl = () => {
+    const envUrl = 
+        (typeof import.meta !== 'undefined' && import.meta.env?.VITE_N8N_URL) ||
+        process.env.VITE_N8N_URL;
+    
+    if (envUrl) {
+        return envUrl;
+    }
+    
+    // Fallback for development (should be overridden via env vars)
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        console.warn('⚠️ [SECURITY] VITE_N8N_URL not set. Using default fallback. Set VITE_N8N_URL in .env.local for security.');
+    }
+    
+    return 'https://n8n.chooomedia.com/webhook'; // Default fallback
+};
+
+const N8N_URL = getN8NUrl();
 
 export const WEBHOOKS = {
     // Account Management
@@ -49,6 +71,9 @@ export const WEBHOOKS = {
 
     // Story Generator (AI)
     STORY_GENERATOR: `${N8N_URL}/xn--moji-pb73c-story-generator`,
+
+    // Apertus (Swiss LLM) via n8n
+    APERTUS: `${N8N_URL}/apertus-test`,
 
     // Security & Audit
     SECURITY: {
