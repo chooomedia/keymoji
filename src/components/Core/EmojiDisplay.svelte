@@ -26,7 +26,7 @@
     import { WEBHOOKS } from '../../../src/config/api.js';
     import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js';
     import { incrementDailyUsage, initializeDailyUsage } from '../../stores/dailyUsageStore.js';
-    import { generateStoryEmojis } from '../../utils/storyModeAI.js';
+    import { generateStoryEmojis, getDefaultModel } from '../../utils/storyModeAI.js';
 
     // Props
     export let showEmojiCodes = false;
@@ -36,6 +36,12 @@
     let randomEmojis = [];
     let emojiCount = 9; // Updated: Default 9 emojis for FREE users
     let showTextArea = false;
+    
+    // Button animation state
+    let swissButtonHover = false;
+    let swissButtonClick = false;
+    let yellowButtonHover = false;
+    let yellowButtonClick = false;
   
     // Story Mode - Persistent text input
     const STORY_INPUT_KEY = 'keymoji_story_input';
@@ -107,10 +113,15 @@
         
         if (storyModeSettings) {
             const enabled = storyModeSettings.enabled ?? false;
-            const currentProvider = storyModeSettings.provider || 'openai';
+            const currentProvider = storyModeSettings.provider || 'apertus';
             const apiKeys = storyModeSettings.apiKeys || {};
             const currentApiKey = apiKeys[currentProvider] || '';
-            const configured = !!(currentApiKey && currentApiKey.length >= 10);
+            
+            // For Apertus: configured if enabled (token is loaded from environment)
+            // For other providers: configured if API key exists and is valid
+            const configured = currentProvider === 'apertus' 
+                ? enabled // Apertus is configured if Story Mode is enabled (token handled internally)
+                : !!(currentApiKey && currentApiKey.length >= 10);
             
             // Always update (let Svelte handle change detection)
             storyModeEnabled = enabled;
@@ -142,21 +153,42 @@
         }
         
         if (storyModeSettings) {
-            const provider = storyModeSettings.provider || 'openai';
+            const provider = storyModeSettings.provider || 'apertus';
             const model = storyModeSettings.model || '';
             const customModel = storyModeSettings.customModel || '';
-            const defaultModels = {
-                openai: 'GPT-3.5',
-                gemini: 'Gemini Pro',
-                mistral: 'Tiny',
-                claude: 'Haiku'
-            };
+            
+            // Get user tier for default model selection
+            const userTier = $accountTier || 'free';
             
             // For custom provider, use customModel; for others, use model or default
             if (provider === 'custom') {
                 displayModel = customModel || 'Custom';
             } else {
-                displayModel = model || defaultModels[provider] || 'Model';
+                // Use the actual model from settings, or fallback to default for provider
+                // getDefaultModel returns the full model name (e.g., 'apertus-8b-2509')
+                // We'll format it nicely for display
+                const defaultModel = getDefaultModel(provider, userTier);
+                const modelToDisplay = model || defaultModel || 'Model';
+                
+                // Format model name for display (make it more readable)
+                if (modelToDisplay.includes('apertus-70b') || modelToDisplay.includes('70b')) {
+                    displayModel = 'Apertus-70B';
+                } else if (modelToDisplay.includes('apertus')) {
+                    displayModel = 'Apertus-8B';
+                } else if (modelToDisplay.includes('gpt-3.5')) {
+                    displayModel = 'GPT-3.5';
+                } else if (modelToDisplay.includes('gpt-4')) {
+                    displayModel = 'GPT-4';
+                } else if (modelToDisplay.includes('gemini')) {
+                    displayModel = 'Gemini Pro';
+                } else if (modelToDisplay.includes('mistral')) {
+                    displayModel = modelToDisplay.includes('tiny') ? 'Mistral Tiny' : 'Mistral';
+                } else if (modelToDisplay.includes('claude')) {
+                    displayModel = 'Claude Haiku';
+                } else {
+                    // Use model as-is, or capitalize first letter
+                    displayModel = modelToDisplay.charAt(0).toUpperCase() + modelToDisplay.slice(1);
+                }
             }
             
             // Create short version for chip display
@@ -244,10 +276,15 @@
       // Story Mode Configuration - set immediately from getCurrentUserSettings
       if (userSettings?.storyMode) {
         storyModeEnabled = userSettings.storyMode.enabled ?? false;
-        const currentProvider = userSettings.storyMode.provider || 'openai';
+        const currentProvider = userSettings.storyMode.provider || 'apertus';
         const apiKeys = userSettings.storyMode.apiKeys || {};
         const currentApiKey = apiKeys[currentProvider] || '';
-        storyModeConfigured = !!(currentApiKey && currentApiKey.length >= 10);
+        
+        // For Apertus: configured if enabled (token is loaded from environment)
+        // For other providers: configured if API key exists and is valid
+        storyModeConfigured = currentProvider === 'apertus'
+            ? storyModeEnabled // Apertus is configured if Story Mode is enabled
+            : !!(currentApiKey && currentApiKey.length >= 10);
         
         console.log('🎯 Auto-generate setting:', autoGenerateEnabled);
         console.log('🤖 Story Mode initialized:', {
@@ -488,7 +525,7 @@
         
         const storyMode = userSettings?.storyMode || {};
         
-        const provider = storyMode.provider || 'openai';
+        const provider = storyMode.provider || 'apertus';
         const apiKeys = storyMode.apiKeys || {};
         const apiKey = apiKeys[provider];
         
@@ -498,11 +535,12 @@
           apiKeysKeys: Object.keys(apiKeys),
           hasCurrentKey: !!apiKey,
           keyLength: apiKey?.length || 0,
-          keyPreview: apiKey ? `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 4)}` : 'NONE'
+          keyPreview: apiKey ? `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 4)}` : 'NONE',
+          isApertus: provider === 'apertus'
         });
         
-        // Validate API key
-        if (!apiKey || apiKey.length < 10) {
+        // Validate API key (skip for Apertus as it uses n8n token from environment)
+        if (provider !== 'apertus' && (!apiKey || apiKey.length < 10)) {
           throw new Error('No valid API key configured. Please add one in settings.');
         }
         
@@ -516,9 +554,10 @@
         });
         
         // Generate emojis using AI
+        // For Apertus, use empty string as apiKey (n8n token is handled in callApertus)
         const config = {
           provider,
-          apiKey,
+          apiKey: provider === 'apertus' ? '' : apiKey, // Empty for Apertus (token handled internally)
           customApiUrl: storyMode.customApiUrl,
           customEndpoint: storyMode.customEndpoint,
           customFormat: storyMode.customFormat,
@@ -921,14 +960,36 @@
                     }, 100);
                   }, 400);
                 }}
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 cursor-pointer relative group"
-                style="background: linear-gradient(135deg, rgba(218, 41, 28, 0.12) 0%, rgba(218, 41, 28, 0.08) 100%); border: 1px solid rgba(218, 41, 28, 0.2); color: rgb(218, 41, 28);"
+                class="swiss-ai-button inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 cursor-pointer relative overflow-hidden h-8 transition-all duration-300 ease-in-out {swissButtonHover ? 'swiss-hover' : ''} {swissButtonClick ? 'swiss-click' : ''}"
+                style="background: linear-gradient(135deg, rgba(218, 41, 28, 0.15) 0%, rgba(218, 41, 28, 0.1) 100%); border: 1px solid rgba(218, 41, 28, 0.25); color: rgb(218, 41, 28);"
                 title={$translations.index.setupStoryModeSwissTooltip || 'Swiss AI (Apertus) - Privacy-first AI hosted in Switzerland'}
                 aria-label={$translations.index.setupStoryModeSwiss || 'Use Swiss AI'}
+                on:mouseenter={() => {
+                  swissButtonHover = true;
+                }}
+                on:mouseleave={() => {
+                  swissButtonHover = false;
+                }}
+                on:click={() => {
+                  swissButtonClick = true;
+                  setTimeout(() => {
+                    swissButtonClick = false;
+                  }, 600);
+                }}
               >
-                <span class="text-sm" aria-hidden="true">🇨🇭</span>
-                <span>{$translations.index.setupStoryModeSwiss || 'Use Swiss AI 🇨🇭'}</span>
+                <!-- Background overlay - Auto-Animation alle 7 Sekunden (nur wenn nicht gehovered/geklickt) -->
+                <div class="swiss-auto-bg absolute inset-0 bg-red-600 rounded-full pointer-events-none {swissButtonHover || swissButtonClick ? 'opacity-0' : ''}" style="background-color: rgb(218, 41, 28);"></div>
+                <!-- Background overlay - bei Hover/Klick -->
+                <div class="swiss-hover-bg absolute inset-0 bg-red-600 rounded-full pointer-events-none {swissButtonHover || swissButtonClick ? 'opacity-100' : 'opacity-0'}" style="background-color: rgb(218, 41, 28); transition: opacity 0.3s ease-in-out;"></div>
+                <!-- Content -->
+                <span class="swiss-text text-sm relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;" aria-hidden="true">🇨🇭</span>
+                <span class="swiss-text relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;">{$translations.index.setupStoryModeSwiss || 'Use Swiss AI 🇨🇭'}</span>
               </button>
+              
+              <!-- "or" separator -->
+              <span class="text-xs text-gray-500 dark:text-gray-400 px-1 relative z-10">
+                {$translations.index.setupStoryModeOr || 'oder'}
+              </span>
               
               <!-- Standard LLM Setup Button -->
               <button
@@ -947,17 +1008,31 @@
                     }, 100);
                   }, 400);
                 }}
-                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer relative"
+                class="standard-ai-button inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer relative overflow-hidden h-8 transition-all duration-300 ease-in-out {yellowButtonHover ? 'yellow-hover' : ''} {yellowButtonClick ? 'yellow-click' : ''}"
                 style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"
                 title={$translations.index.setupStoryModeDescription || 'Setup your AI for AI-generated emoji passwords'}
                 aria-label={$translations.index.setupStoryMode || 'Setup your AI'}
+                on:mouseenter={() => {
+                  yellowButtonHover = true;
+                }}
+                on:mouseleave={() => {
+                  yellowButtonHover = false;
+                }}
+                on:click={() => {
+                  yellowButtonClick = true;
+                  setTimeout(() => {
+                    yellowButtonClick = false;
+                  }, 600);
+                }}
               >
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <!-- Background overlay - bei Hover/Klick -->
+                <div class="yellow-hover-bg absolute inset-0 bg-yellow-500 rounded-full pointer-events-none {yellowButtonHover || yellowButtonClick ? 'opacity-100' : 'opacity-0'}" style="background-color: rgb(234, 179, 8); transition: opacity 0.3s ease-in-out;"></div>
+                <!-- Content -->
+                <svg class="yellow-text w-3 h-3 relative z-20 {yellowButtonHover || yellowButtonClick ? 'text-black' : ''}" style="transition: color 0.3s ease-in-out;" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span>{$translations.index.setupStoryMode || 'Setup your AI'}</span>
-                <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[0.6rem] font-bold rounded-full bg-green-500 text-white ml-0.5" title="New feature">NEW</span>
+                <span class="yellow-text relative z-20 {yellowButtonHover || yellowButtonClick ? 'text-black' : ''}" style="transition: color 0.3s ease-in-out;">{$translations.index.setupStoryMode || 'Setup your AI'}</span>
               </button>
             </div>
           {:else if i === 0 && storyModeEnabled && !storyModeConfigured}
@@ -1326,3 +1401,116 @@
       {/if}
     </div>
 </div>
+
+<style>
+  /* ===== SWISS BUTTON ===== */
+  
+  /* Hover: Zoom + Background + Text */
+  .swiss-ai-button.swiss-hover {
+    transform: scale(1.12);
+  }
+  
+  .swiss-ai-button.swiss-hover .swiss-hover-bg {
+    opacity: 1;
+  }
+  
+  .swiss-ai-button.swiss-hover .swiss-text {
+    color: rgb(255, 255, 255);
+  }
+  
+  /* Klick: Animation */
+  .swiss-ai-button.swiss-click {
+    animation: swissClickPulse 0.6s ease-in-out;
+  }
+  
+  .swiss-ai-button.swiss-click .swiss-hover-bg {
+    opacity: 1;
+  }
+  
+  .swiss-ai-button.swiss-click .swiss-text {
+    color: rgb(255, 255, 255);
+  }
+  
+  /* Auto-Animation alle 7 Sekunden (nur wenn nicht gehovered/geklickt) */
+  /* Animation dauert 2.5 Sekunden (64.3% bis 100%), dann 4.5 Sekunden Pause (0% bis 64.3%) */
+  @keyframes swissAutoPulse {
+    0%, 64.3% { 
+      transform: scale(1);
+    }
+    75% { 
+      transform: scale(1.12);
+    }
+    82% { 
+      transform: scale(1.12);
+    }
+    100% { 
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes swissAutoBg {
+    0%, 64.3% { opacity: 0; }
+    75% { opacity: 1; }
+    82% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  
+  @keyframes swissAutoText {
+    0%, 64.3% { color: rgb(218, 41, 28); }
+    75% { color: rgb(255, 255, 255); }
+    82% { color: rgb(255, 255, 255); }
+    100% { color: rgb(218, 41, 28); }
+  }
+  
+  .swiss-ai-button:not(.swiss-hover):not(.swiss-click) {
+    animation: swissAutoPulse 7s ease-in-out infinite;
+  }
+  
+  .swiss-ai-button:not(.swiss-hover):not(.swiss-click) .swiss-auto-bg {
+    animation: swissAutoBg 7s ease-in-out infinite;
+  }
+  
+  .swiss-ai-button:not(.swiss-hover):not(.swiss-click) .swiss-text {
+    animation: swissAutoText 7s ease-in-out infinite;
+  }
+  
+  @keyframes swissClickPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+  
+  /* ===== STANDARD BUTTON ===== */
+  
+  /* Hover: Zoom + Background + Text */
+  .standard-ai-button.yellow-hover {
+    transform: scale(1.12);
+  }
+  
+  .standard-ai-button.yellow-hover .yellow-hover-bg {
+    opacity: 1;
+  }
+  
+  .standard-ai-button.yellow-hover .yellow-text {
+    color: rgb(0, 0, 0);
+  }
+  
+  /* Klick: Animation */
+  .standard-ai-button.yellow-click {
+    animation: yellowClickPulse 0.6s ease-in-out;
+  }
+  
+  .standard-ai-button.yellow-click .yellow-hover-bg {
+    opacity: 1;
+  }
+  
+  .standard-ai-button.yellow-click .yellow-text {
+    color: rgb(0, 0, 0);
+  }
+  
+  @keyframes yellowClickPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+</style>
