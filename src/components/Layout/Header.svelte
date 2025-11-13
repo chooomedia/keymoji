@@ -7,7 +7,7 @@
     import { currentLanguage, t, showLanguageMenu, changeLanguage } from '../../stores/contentStore.js';
     import GitButton from '../../widgets/GitButton.svelte';
     import { createEventDispatcher } from 'svelte';
-    import { navigate } from 'svelte-routing';
+    import { navigate, Link } from 'svelte-routing';
     import LanguageSwitcher from '../LanguageSwitcher.svelte';
     import { supportedLanguages } from '../../utils/languages.js';
     import { translations } from '../../stores/contentStore.js';
@@ -139,9 +139,9 @@
             <!-- Logo und Titel links -->
             <div class="flex items-center">
                 <h2 class="flex flex-wrap md:text-2xl font-semibold items-center whitespace-nowrap dark:text-white">
-                    <a 
-                        href="/{$currentLanguage}/" 
-                        class="flex items-center hover:text-yellow transition-colors"
+                    <Link 
+                        to={$currentLanguage === 'en' ? '/' : `/${$currentLanguage}`}
+                        class="flex items-center hover:text-yellow transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-aubergine-800 rounded-lg"
                         aria-label={headerTitle}
                     >
                         <!-- Keymoji Logo SVG from shapes.js -->
@@ -155,7 +155,7 @@
                             {@html logo}
                         </svg>
                         <span class="ml-2">{headerTitle}</span>
-                    </a>
+                    </Link>
                 </h2>
             </div>
             
