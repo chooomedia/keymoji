@@ -112,7 +112,9 @@ function generateMetaTags(route, lang = 'en') {
             return `<link rel="alternate" hreflang="${l}" href="${finalUrl}">`;
         })
         .join('\n    ')}
-    <link rel="alternate" hreflang="x-default" href="${baseUrl}${route === '/' ? '/' : route}">`;
+    <link rel="alternate" hreflang="x-default" href="${baseUrl}${
+        route === '/' ? '/' : route
+    }">`;
 }
 
 // Update index.html with proper meta tags

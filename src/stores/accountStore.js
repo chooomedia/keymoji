@@ -1907,7 +1907,7 @@ async function syncAccountData(accountData) {
                 parsedDailyUsage = accountData.dailyUsage;
             }
         }
-        
+
         // Create clean account object with parsed data
         const cleanAccountData = {
             ...accountData,
@@ -1986,11 +1986,11 @@ async function syncAccountData(accountData) {
             if (!finalDailyUsage) {
                 // Only load from API/localStorage if not already in accountData
                 console.log('ℹ️ [ACCOUNT DEBUG] No dailyUsage in accountData - loading from API/localStorage...');
-                const { initializeDailyUsage } = await import(
-                    './dailyUsageStore.js'
-                );
+            const { initializeDailyUsage } = await import(
+                './dailyUsageStore.js'
+            );
                 finalDailyUsage = await initializeDailyUsage();
-                console.log('✅ Daily usage initialized from API/localStorage');
+            console.log('✅ Daily usage initialized from API/localStorage');
             } else {
                 // dailyUsage already in accountData - sync to dailyUsageStore
                 console.log('✅ [ACCOUNT DEBUG] Using dailyUsage from accountData, syncing to dailyUsageStore...');
@@ -2021,8 +2021,8 @@ async function syncAccountData(accountData) {
                     './userDataStore.js'
                 );
                 // NO setTimeout - await directly after dailyUsage is synced!
-                await refreshUsageHistory(true); // Force refresh to get latest data
-                console.log('✅ Usage history refreshed after account sync (with today merge)');
+                    await refreshUsageHistory(true); // Force refresh to get latest data
+                    console.log('✅ Usage history refreshed after account sync (with today merge)');
             } catch (error) {
                 console.warn(
                     '⚠️ Failed to refresh usage history after sync:',
@@ -2049,8 +2049,8 @@ async function syncAccountData(accountData) {
                 const { refreshUsageHistory } = await import(
                     './userDataStore.js'
                 );
-                await refreshUsageHistory(true);
-                console.log('✅ Usage history refreshed after account sync (fallback)');
+                    await refreshUsageHistory(true);
+                    console.log('✅ Usage history refreshed after account sync (fallback)');
             } catch (err) {
                 console.warn('⚠️ Failed to refresh usage history:', err);
             }

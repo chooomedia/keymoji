@@ -587,7 +587,7 @@ async function saveUsageToAPI(account, usageData) {
             ...account,
             metadata: freshMetadata
         };
-        
+
         // Update usage history with FRESH data
         const updatedHistory = await saveToUsageHistory(
             freshAccount,
