@@ -297,30 +297,50 @@
             // CRITICAL: Use getCurrentUserSettings() as fallback for API key detection
             const currentSettings = getCurrentUserSettings();
             const currentProvider = getEffectiveValue('storyMode.provider') || currentSettings?.storyMode?.provider || 'apertus';
-            let apiKeys = getEffectiveValue('storyMode.apiKeys');
-            if (!apiKeys || typeof apiKeys !== 'object' || Object.keys(apiKeys).length === 0) {
-                apiKeys = currentSettings?.storyMode?.apiKeys || {};
+            const isApertus = currentProvider === 'apertus';
+            
+            // CRITICAL: Apertus uses VITE_N8N_APERTUS_TOKEN from environment, NOT apiKeys.apertus!
+            // For other providers, check apiKeys
+            let hasApiKey = false;
+            if (!isApertus) {
+                let apiKeys = getEffectiveValue('storyMode.apiKeys');
+                if (!apiKeys || typeof apiKeys !== 'object' || Object.keys(apiKeys).length === 0) {
+                    apiKeys = currentSettings?.storyMode?.apiKeys || {};
+                }
+                hasApiKey = apiKeys[currentProvider] && apiKeys[currentProvider].length >= 10;
+            } else {
+                // For Apertus: Check if VITE_N8N_APERTUS_TOKEN exists in environment
+                const hasToken = typeof import.meta !== 'undefined' && 
+                    import.meta.env?.VITE_N8N_APERTUS_TOKEN &&
+                    import.meta.env.VITE_N8N_APERTUS_TOKEN.trim().length > 0;
+                hasApiKey = hasToken; // Apertus is configured if token exists
+                console.log('🔍 [Apertus] Token check:', {
+                    hasToken,
+                    tokenExists: !!import.meta?.env?.VITE_N8N_APERTUS_TOKEN,
+                    tokenLength: import.meta?.env?.VITE_N8N_APERTUS_TOKEN?.length || 0
+                });
             }
-            const hasApiKey = apiKeys[currentProvider] && apiKeys[currentProvider].length >= 10;
             
             console.log('✨ Story Mode toggle:', {
                 newValue: value,
                 currentProvider,
+                isApertus,
                 hasApiKey,
-                apiKeyLength: apiKeys[currentProvider]?.length || 0,
+                apiKeyLength: !isApertus ? (currentSettings?.storyMode?.apiKeys?.[currentProvider]?.length || 0) : 'N/A (uses env token)',
                 apiTestSuccess,
                 testedProvider
             });
             
             if (value === true) {
-                // Check if API key exists
+                // Check if API key/token exists (skip for Apertus if token is in env)
                 if (!hasApiKey) {
-                    showWarning(
-                        `⚠️ Bitte gib zuerst einen API-Key ein!\n\n` +
-                        `Du benötigst einen gültigen API-Key, um Story Mode zu nutzen.`,
-                        5000
-                    );
-                    console.error('❌ Story Mode activation blocked: No API key');
+                    const errorMessage = isApertus
+                        ? `⚠️ Bitte konfiguriere VITE_N8N_APERTUS_TOKEN in der .env Datei!\n\n` +
+                          `Apertus verwendet einen n8n Token aus der Umgebungsvariable, nicht einen API-Key.`
+                        : `⚠️ Bitte gib zuerst einen API-Key für ${currentProvider} ein!\n\n` +
+                          `Du benötigst einen gültigen API-Key, um Story Mode zu nutzen.`;
+                    showWarning(errorMessage, 5000);
+                    console.error(`❌ Story Mode activation blocked: ${isApertus ? 'No n8n token' : 'No API key'}`);
                     return; // Don't update setting
                 }
                 

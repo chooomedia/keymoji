@@ -384,11 +384,10 @@ export async function saveAllSettings() {
         // Save to API if user is logged in
         const account = get(currentAccount);
         if (account && account.userId) {
-            // If name changed, also update account
-            if (pendingSettings.name && pendingSettings.name !== account.name) {
-                await updateAccountName(account.userId, pendingSettings.name);
-            }
-
+            // CRITICAL: saveSettingsToAPI already updates profile.name (line 1397)
+            // No need to call updateAccountName separately - this was causing duplicate n8n calls!
+            // The name is included in updatedSettings and will be sent via saveSettingsToAPI
+            
             await saveSettingsToAPI(updatedSettings);
 
             // Invalidate cache (force fresh account data on next load)
