@@ -847,6 +847,7 @@ export async function verifyMagicLinkFrontend(token, email) {
                     createdAt: parsedFullAccount.createdAt,
                     createdAtType: typeof parsedFullAccount.createdAt,
                     rawAccountCreatedAt: fullAccountResult.account?.createdAt,
+                    hasDailyUsage: !!parsedFullAccount.dailyUsage,
                     hasMetadata: !!parsedFullAccount.metadata,
                     hasProfile: !!parsedFullAccount.profile
                 });
@@ -1174,17 +1175,22 @@ export async function verifyMagicLinkFrontend(token, email) {
             history
         );
 
-        // NEW: Refresh user data after successful login (robust pattern!)
-        console.log('🔄 Refreshing user data after login...');
+        // OPTIMIZED: Refresh user data after successful login
+        // CRITICAL: accountData already contains full data from cachedFetchAccount above
+        // refreshUsageHistory will use currentAccount (which was set by syncAccountData)
+        // This prevents duplicate cachedFetchAccount calls!
+        console.log('🔄 Refreshing user data after login (using already-loaded account data)...');
         try {
             const { refreshUserSettings, refreshUsageHistory } = await import(
                 './userDataStore.js'
             );
+            // CRITICAL: refreshUsageHistory will check currentAccount FIRST (Priority 2)
+            // before calling cachedFetchAccount (Priority 3), so no duplicate API call!
             await Promise.all([
-                refreshUserSettings(true), // Force refresh
-                refreshUsageHistory(true) // Force refresh
+                refreshUserSettings(true), // Force refresh (may call API, but settings are separate)
+                refreshUsageHistory(false) // Use currentAccount data (already loaded!) - NO force to avoid duplicate API call
             ]);
-            console.log('✅ User data refreshed successfully');
+            console.log('✅ User data refreshed successfully (no duplicate API calls)');
         } catch (error) {
             console.warn(
                 '⚠️ Failed to refresh user data (non-critical):',
@@ -2036,14 +2042,13 @@ async function syncAccountData(accountData) {
             );
             
             // Still try to refresh history even if dailyUsage init failed
+            // CRITICAL: Use await directly - NO setTimeout delays!
             try {
                 const { refreshUsageHistory } = await import(
                     './userDataStore.js'
                 );
-                setTimeout(async () => {
-                    await refreshUsageHistory(true);
-                    console.log('✅ Usage history refreshed after account sync (fallback)');
-                }, 200);
+                await refreshUsageHistory(true);
+                console.log('✅ Usage history refreshed after account sync (fallback)');
             } catch (err) {
                 console.warn('⚠️ Failed to refresh usage history:', err);
             }
