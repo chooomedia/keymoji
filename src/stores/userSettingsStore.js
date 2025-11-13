@@ -15,6 +15,11 @@ import {
     getDefaultSettings,
     mergeWithDefaults
 } from '../utils/settingsValidation.js';
+// Import dailyLimit store for dailyUsage preservation
+// Note: dailyLimit is exported from appStores.js, not dailyUsageStore.js
+import { dailyLimit } from './appStores.js';
+// Import metadata cleaner to prevent duplicate fields
+import { prepareMetadataForAPI, validateMetadataNoDuplicates } from '../utils/metadataCleaner.js';
 
 // Helper function to generate client fingerprint
 function generateClientFingerprint() {
@@ -505,9 +510,61 @@ export async function saveAllSettings() {
 }
 
 // Update account name via API
+// CRITICAL: Must preserve dailyUsage when updating name!
 async function updateAccountName(userId, name) {
     try {
         const account = get(currentAccount);
+        
+        // CRITICAL: Load current dailyUsage to preserve it during name update!
+        // dailyUsage is in its own column and must be explicitly sent to preserve it
+        let currentDailyUsage = null;
+        try {
+            // Try to get from account.dailyUsage (if already loaded)
+            if (account?.dailyUsage) {
+                currentDailyUsage = account.dailyUsage;
+                console.log('✅ [NAME UPDATE] Using dailyUsage from account store');
+            } else {
+                // Load from localStorage or API
+                const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+                const dailyLimitStore = get(dailyLimit);
+                if (dailyLimitStore && dailyLimitStore.date) {
+                    currentDailyUsage = dailyLimitStore;
+                    console.log('✅ [NAME UPDATE] Using dailyUsage from dailyLimit store');
+                } else if (prefs.dailyUsage) {
+                    currentDailyUsage = typeof prefs.dailyUsage === 'string' 
+                        ? JSON.parse(prefs.dailyUsage) 
+                        : prefs.dailyUsage;
+                    console.log('✅ [NAME UPDATE] Using dailyUsage from localStorage');
+                } else {
+                    // Try to load from API
+                    const { loadUsageFromAPI } = await import('./dailyUsageStore.js');
+                    if (loadUsageFromAPI) {
+                        const apiUsage = await loadUsageFromAPI(account).catch(() => null);
+                        if (apiUsage) {
+                            currentDailyUsage = apiUsage;
+                            console.log('✅ [NAME UPDATE] Loaded dailyUsage from API');
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn('⚠️ [NAME UPDATE] Could not load dailyUsage, n8n will preserve from Google Sheets:', error);
+        }
+        
+        // CRITICAL: Build clean metadata without duplicate fields (fields with own columns!)
+        // Single Source of Truth: Fields with own columns should NOT be in metadata
+        const metadataToSend = {
+            ...(account?.metadata || {}),
+            updatedAt: new Date().toISOString(),
+            updatedVia: 'settings-ui-name-change'
+        };
+        
+        // CRITICAL: Clean metadata to remove duplicate fields (createdAt, dailyUsage, profile, tier, etc.)
+        // These fields have their own columns and should NOT be in metadata!
+        const cleanedMetadata = prepareMetadataForAPI(metadataToSend, { source: 'updateAccountName' });
+        
+        // Validate (warns in dev if duplicates found)
+        validateMetadataNoDuplicates(cleanedMetadata, 'updateAccountName');
 
         const response = await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
             method: 'POST',
@@ -516,18 +573,17 @@ async function updateAccountName(userId, name) {
                 'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
+                action: 'update', // Required for n8n
                 userId: userId,
                 email: account?.email || '',
+                // CRITICAL: Include dailyUsage to preserve it during name update!
+                ...(currentDailyUsage ? { dailyUsage: currentDailyUsage } : {}),
                 profile: {
                     ...(account?.profile || {}),
                     name: name
                 },
                 lastLogin: new Date().toISOString(), // Update lastLogin
-                metadata: {
-                    ...(account?.metadata || {}),
-                    updatedAt: new Date().toISOString(),
-                    updatedVia: 'settings-ui-name-change'
-                }
+                metadata: cleanedMetadata // Clean metadata without duplicates!
             })
         });
 
@@ -1170,13 +1226,72 @@ export async function saveSettingsToAPI(settings) {
             'entries'
         );
 
-        // CRITICAL: Remove createdAt from metadata before sending UPDATE request!
-        // createdAt should NEVER be sent in update requests - only on CREATE
-        const { createdAt, ...metadataWithoutCreatedAt } = currentMetadata || {};
-        
-        if (createdAt) {
-            console.warn('⚠️ [SETTINGS SAVE] createdAt found in metadata - removing it (should not be sent in updates)');
+        // CRITICAL: Load current dailyUsage to preserve it during settings save!
+        // dailyUsage is in its own column and must be explicitly sent to preserve it
+        let currentDailyUsage = null;
+        try {
+            // Priority 1: Try to get from account.dailyUsage (if already loaded)
+            if (account?.dailyUsage) {
+                currentDailyUsage = account.dailyUsage;
+                console.log('✅ [SETTINGS SAVE] Using dailyUsage from account store');
+            } else {
+                // Priority 2: Load from dailyLimit store (most up-to-date)
+                const dailyLimitStore = get(dailyLimit);
+                if (dailyLimitStore && dailyLimitStore.date) {
+                    currentDailyUsage = dailyLimitStore;
+                    console.log('✅ [SETTINGS SAVE] Using dailyUsage from dailyLimit store');
+                } else {
+                    // Priority 3: Load from localStorage
+                    const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+                    if (prefs.dailyUsage) {
+                        currentDailyUsage = typeof prefs.dailyUsage === 'string' 
+                            ? JSON.parse(prefs.dailyUsage) 
+                            : prefs.dailyUsage;
+                        console.log('✅ [SETTINGS SAVE] Using dailyUsage from localStorage');
+                    } else {
+                        // Priority 4: Try to load from API
+                        const { loadUsageFromAPI } = await import('./dailyUsageStore.js');
+                        if (loadUsageFromAPI) {
+                            const apiUsage = await loadUsageFromAPI(account).catch(() => null);
+                            if (apiUsage) {
+                                currentDailyUsage = apiUsage;
+                                console.log('✅ [SETTINGS SAVE] Loaded dailyUsage from API');
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn('⚠️ [SETTINGS SAVE] Could not load dailyUsage, n8n will preserve from Google Sheets:', error);
         }
+        
+        if (!currentDailyUsage) {
+            console.warn('⚠️ [SETTINGS SAVE] No dailyUsage found - n8n will preserve existing value from Google Sheets');
+        } else {
+            console.log('✅ [SETTINGS SAVE] Preserving dailyUsage:', {
+                date: currentDailyUsage.date,
+                used: currentDailyUsage.used,
+                limit: currentDailyUsage.limit
+            });
+        }
+
+        // CRITICAL: Build clean metadata without duplicate fields (fields with own columns!)
+        // Single Source of Truth: Fields with own columns should NOT be in metadata
+        const metadataToSend = {
+            ...currentMetadata,
+            usageHistory: latestUsageHistory, // CRITICAL: Include latest usageHistory!
+            settings: settings, // UserSettings → Google Sheets metadata column
+            updatedAt: new Date().toISOString(),
+            updatedVia: 'settings-ui',
+            lastSettingsSave: new Date().toISOString()
+        };
+        
+        // CRITICAL: Clean metadata to remove duplicate fields (createdAt, dailyUsage, profile, tier, etc.)
+        // These fields have their own columns and should NOT be in metadata!
+        const cleanedMetadata = prepareMetadataForAPI(metadataToSend, { source: 'saveSettingsToAPI' });
+        
+        // Validate (warns in dev if duplicates found)
+        validateMetadataNoDuplicates(cleanedMetadata, 'saveSettingsToAPI');
         
         const response = await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
             method: 'POST',
@@ -1188,19 +1303,14 @@ export async function saveSettingsToAPI(settings) {
                 action: 'update', // Required for n8n
                 userId: account.userId,
                 email: account.email || '',
+                // CRITICAL: Include dailyUsage to preserve it during settings save!
+                ...(currentDailyUsage ? { dailyUsage: currentDailyUsage } : {}),
                 profile: {
                     ...(account?.profile || {}),
                     name: settings.name || account.name || ''
                 },
                 lastLogin: new Date().toISOString(), // Update lastLogin on settings save
-                metadata: {
-                    ...metadataWithoutCreatedAt, // Use metadata WITHOUT createdAt!
-                    usageHistory: latestUsageHistory, // CRITICAL: Include latest usageHistory!
-                    settings: settings, // UserSettings → Google Sheets metadata column
-                    updatedAt: new Date().toISOString(),
-                    updatedVia: 'settings-ui',
-                    lastSettingsSave: new Date().toISOString()
-                }
+                metadata: cleanedMetadata // Clean metadata without duplicates!
             })
         });
 
@@ -1236,11 +1346,32 @@ export async function saveSettingsToAPI(settings) {
                     ? JSON.parse(parsedAccount.profile)
                     : parsedAccount.profile || {};
 
+            // CRITICAL: Parse dailyUsage from response (separate column!)
+            let parsedDailyUsage = null;
+            if (parsedAccount.dailyUsage) {
+                if (typeof parsedAccount.dailyUsage === 'string') {
+                    try {
+                        parsedDailyUsage = JSON.parse(parsedAccount.dailyUsage);
+                    } catch (e) {
+                        console.warn('⚠️ [SETTINGS SAVE] Failed to parse dailyUsage from response:', e);
+                    }
+                } else if (typeof parsedAccount.dailyUsage === 'object') {
+                    parsedDailyUsage = parsedAccount.dailyUsage;
+                }
+            }
+
             console.log(
                 '📊 [SYNC] Backend returned usageHistory:',
                 parsedMetadata.usageHistory?.length || 0,
                 'entries'
             );
+            if (parsedDailyUsage) {
+                console.log('✅ [SETTINGS SAVE] Backend returned dailyUsage:', {
+                    date: parsedDailyUsage.date,
+                    used: parsedDailyUsage.used,
+                    limit: parsedDailyUsage.limit
+                });
+            }
 
             // Update localStorage with backend truth
             const updatedPrefs = {
@@ -1254,16 +1385,18 @@ export async function saveSettingsToAPI(settings) {
             storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
             console.log('✅ [SYNC] localStorage updated with backend data');
 
-            // Update currentAccount store
+            // Update currentAccount store with dailyUsage
             try {
                 const { syncAccountData } = await import('./accountStore.js');
                 syncAccountData({
                     ...account,
                     metadata: parsedMetadata,
                     profile: parsedProfile,
-                    tier: parsedAccount.tier || account.tier
+                    tier: parsedAccount.tier || account.tier,
+                    // CRITICAL: Include dailyUsage from response!
+                    dailyUsage: parsedDailyUsage || account.dailyUsage || null
                 });
-                console.log('✅ [SYNC] currentAccount store updated');
+                console.log('✅ [SYNC] currentAccount store updated with dailyUsage');
             } catch (error) {
                 console.warn(
                     '⚠️ [SYNC] Failed to update currentAccount store:',

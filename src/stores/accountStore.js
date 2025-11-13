@@ -593,7 +593,7 @@ export async function verifyMagicLinkFrontend(token, email) {
 
         // CRITICAL: Track if account is new or existing for correct modal display
         let isNewAccount = !accountCheck.exists;
-        
+
         let verificationResult;
 
         if (accountCheck.exists) {
@@ -944,7 +944,7 @@ export async function verifyMagicLinkFrontend(token, email) {
                                 const existingPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
                                 return existingPrefs.createdAt || null;
                             })();
-                            
+
                             // Merge with accountData
                             accountData = {
                                 ...accountData,
@@ -1029,7 +1029,7 @@ export async function verifyMagicLinkFrontend(token, email) {
         } else if (createdAt) {
             console.log('✅ [LOGIN] Using createdAt from backend/accountData:', finalCreatedAt);
         }
-        
+
         // Build userPrefsData from the MERGED accountData
         // CRITICAL: Always include createdAt if it exists (from backend OR localStorage)!
         const userPrefsData = {
@@ -1066,6 +1066,16 @@ export async function verifyMagicLinkFrontend(token, email) {
             // createdAt should NEVER be sent in update requests - only on CREATE
             const cleanedAccountData = removeCreatedAtFromObject(accountData);
             
+            // CRITICAL: Clean metadata to remove duplicate fields (lastLogin has own column!)
+            const { prepareMetadataForAPI } = await import('../utils/metadataCleaner.js');
+            const metadataToClean = {
+                ...(cleanedAccountData.metadata || {}),
+                lastActivity: cleanedAccountData.lastActivity,
+                sessionId: cleanedAccountData.sessionId
+                // NOTE: lastLogin is NOT included - it's a separate column!
+            };
+            const cleanedMetadata = prepareMetadataForAPI(metadataToClean, { source: 'updateLastLogin' });
+            
             await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
                 method: 'POST',
                 headers: {
@@ -1077,12 +1087,7 @@ export async function verifyMagicLinkFrontend(token, email) {
                     email: cleanedAccountData.email,
                     profile: cleanedAccountData.profile,
                     lastLogin: cleanedAccountData.lastLogin, // Top-level lastLogin for Google Sheets
-                    metadata: {
-                        ...cleanedAccountData.metadata,
-                        lastLogin: cleanedAccountData.lastLogin,
-                        lastActivity: cleanedAccountData.lastActivity,
-                        sessionId: cleanedAccountData.sessionId
-                    }
+                    metadata: cleanedMetadata // Clean metadata without duplicates!
                 })
             });
             console.log('✅ lastLogin updated in database');
@@ -1868,12 +1873,39 @@ async function syncAccountData(accountData) {
             }
         });
 
+        // CRITICAL: Parse dailyUsage from accountData (if present)
+        // dailyUsage is in its own column in Google Sheets, not in metadata!
+        let parsedDailyUsage = null;
+        if (accountData.dailyUsage) {
+            if (typeof accountData.dailyUsage === 'string') {
+                try {
+                    parsedDailyUsage = JSON.parse(accountData.dailyUsage);
+                } catch (e) {
+                    console.warn('⚠️ Failed to parse dailyUsage from accountData:', e);
+                }
+            } else if (typeof accountData.dailyUsage === 'object') {
+                parsedDailyUsage = accountData.dailyUsage;
+            }
+        }
+        
         // Create clean account object with parsed data
         const cleanAccountData = {
             ...accountData,
             profile: parsedProfile,
-            metadata: parsedMetadata
+            metadata: parsedMetadata,
+            // CRITICAL: Include dailyUsage in account object for easy access!
+            ...(parsedDailyUsage ? { dailyUsage: parsedDailyUsage } : {})
         };
+        
+        if (parsedDailyUsage) {
+            console.log('✅ [ACCOUNT DEBUG] dailyUsage loaded from accountData:', {
+                date: parsedDailyUsage.date,
+                used: parsedDailyUsage.used,
+                limit: parsedDailyUsage.limit
+            });
+        } else {
+            console.log('ℹ️ [ACCOUNT DEBUG] No dailyUsage in accountData - will be loaded by initializeDailyUsage()');
+        }
 
         // CRITICAL: Ensure createdAt is present - prioritize accountData.createdAt from API
         // The n8n webhook returns createdAt directly in account.createdAt
@@ -1909,7 +1941,7 @@ async function syncAccountData(accountData) {
                 cleanAccountData.createdAt
             );
             // CRITICAL: Save to localStorage to preserve it for future logins
-            saveCreatedAtToUserPreferences(cleanAccountData.createdAt);
+                saveCreatedAtToUserPreferences(cleanAccountData.createdAt);
         }
 
         // Update all account-related stores with PARSED data
@@ -1931,8 +1963,23 @@ async function syncAccountData(accountData) {
             const { initializeDailyUsage } = await import(
                 './dailyUsageStore.js'
             );
-            await initializeDailyUsage();
+            const loadedDailyUsage = await initializeDailyUsage();
             console.log('✅ Daily usage initialized from API/localStorage');
+            
+            // CRITICAL: Update currentAccount with loaded dailyUsage!
+            // This ensures dailyUsage is available in account store for updates
+            if (loadedDailyUsage) {
+                currentAccount.update(acc => {
+                    if (acc) {
+                        return {
+                            ...acc,
+                            dailyUsage: loadedDailyUsage
+                        };
+                    }
+                    return acc;
+                });
+                console.log('✅ [ACCOUNT DEBUG] dailyUsage synced to currentAccount store');
+            }
             
             // CRITICAL: Refresh usage history AFTER dailyUsage is initialized
             // This ensures today's usage is merged into history
@@ -2037,26 +2084,28 @@ export async function createAccount(
     metadata = {}
 ) {
     try {
-        // CRITICAL: Initialize usageHistory if not provided
-        // CRITICAL: createdAt should NOT be set in metadata - it will be created by n8n workflow!
-        // Remove createdAt from metadata if present (should not be sent in create requests)
-        const { createdAt, ...metadataWithoutCreatedAt } = metadata || {};
+        // CRITICAL: Clean metadata to remove duplicate fields (fields with own columns!)
+        // Single Source of Truth: Fields with own columns should NOT be in metadata
+        const { prepareMetadataForAPI, validateMetadataNoDuplicates } = await import('../utils/metadataCleaner.js');
         
-        if (createdAt) {
-            console.warn('⚠️ [CREATE] createdAt found in metadata - removing it (will be created by n8n workflow)');
-        }
-        
-        const initialMetadata = {
-            ...metadataWithoutCreatedAt,
-            usageHistory: metadata?.usageHistory || [], // Empty array for new accounts
-            tier: metadata?.tier || 'free'
+        // Build metadata to send (will be cleaned)
+        const metadataToSend = {
+            ...metadata,
+            usageHistory: metadata?.usageHistory || [] // Empty array for new accounts
+            // NOTE: tier is NOT in metadata - it's a separate column!
         };
+        
+        // CRITICAL: Clean metadata to remove duplicate fields (createdAt, dailyUsage, profile, tier, etc.)
+        // These fields have their own columns and should NOT be in metadata!
+        const cleanedMetadata = prepareMetadataForAPI(metadataToSend, { source: 'createAccount' });
+        
+        // Validate (warns in dev if duplicates found)
+        validateMetadataNoDuplicates(cleanedMetadata, 'createAccount');
 
-        console.log('🆕 Creating account with initial metadata:', {
-            hasUsageHistory: !!initialMetadata.usageHistory,
-            usageHistoryLength: initialMetadata.usageHistory?.length || 0,
-            tier: initialMetadata.tier,
-            createdAtRemoved: !!createdAt
+        console.log('🆕 Creating account with cleaned metadata:', {
+            hasUsageHistory: !!cleanedMetadata.usageHistory,
+            usageHistoryLength: cleanedMetadata.usageHistory?.length || 0,
+            tier: metadata?.tier || 'free' // tier is separate column, not in metadata!
         });
 
         const response = await fetch(WEBHOOKS.ACCOUNT.CRUD, {
@@ -2069,8 +2118,9 @@ export async function createAccount(
                 action: 'create',
                 userId,
                 email,
+                tier: metadata?.tier || 'free', // tier as separate field!
                 profile,
-                metadata: initialMetadata,
+                metadata: cleanedMetadata, // Clean metadata without duplicates!
                 timestamp: new Date().toISOString(),
                 clientFingerprint: generateClientFingerprint()
             })
@@ -2384,7 +2434,7 @@ export function notifyMagicLinkVerification(accountData) {
     // CRITICAL: Preserve createdAt when updating localStorage for cross-tab communication!
     const existingPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
     const preservedCreatedAt = accountData.createdAt || existingPrefs.createdAt || null;
-    
+
     // Also update localStorage to trigger storage event with session data
     storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
         email: accountData.email,

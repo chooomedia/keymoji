@@ -535,8 +535,8 @@ async function loadUsageFromAPI(account) {
                 if (result.account.profile?.dailyUsage) {
                     dailyUsage = result.account.profile.dailyUsage;
                     console.warn('⚠️ [DEPRECATED] Loading dailyUsage from profile (should be in own column)');
-                }
-                
+            }
+            
                 // Priority 3: Fallback to metadata.dailyUsage (migration support - deprecated)
                 if (!dailyUsage && result.account.metadata?.dailyUsage) {
                     dailyUsage = result.account.metadata.dailyUsage;
@@ -581,19 +581,31 @@ async function saveUsageToAPI(account, usageData) {
         );
         const freshMetadata = currentPrefs.metadata || account?.metadata || {};
 
-        // CRITICAL: Remove dailyUsage AND createdAt from metadata before sending
-        // dailyUsage should be in its own column in Google Sheets
-        // createdAt should NEVER be sent in update requests - only on CREATE
-        const { dailyUsage, createdAt, ...metadataWithoutDailyUsageAndCreatedAt } = freshMetadata || {};
+        // CRITICAL: Clean metadata to remove duplicate fields (fields with own columns!)
+        // Single Source of Truth: Fields with own columns should NOT be in metadata
+        // Import metadata cleaner
+        const { prepareMetadataForAPI, validateMetadataNoDuplicates } = await import('../utils/metadataCleaner.js');
         
-        if (createdAt) {
-            console.warn('⚠️ [USAGE SAVE] createdAt found in metadata - removing it (should not be sent in updates)');
-        }
+        // Build metadata to send (will be cleaned)
+        const metadataToSend = {
+            ...freshMetadata,
+            usageHistory: updatedHistory, // History for charts (last 365 days)
+            lastActivity: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            updatedVia: 'daily-usage-tracking'
+        };
+        
+        // CRITICAL: Clean metadata to remove duplicate fields (dailyUsage, createdAt, profile, tier, etc.)
+        // These fields have their own columns and should NOT be in metadata!
+        const cleanedMetadata = prepareMetadataForAPI(metadataToSend, { source: 'saveUsageToAPI' });
+        
+        // Validate (warns in dev if duplicates found)
+        validateMetadataNoDuplicates(cleanedMetadata, 'saveUsageToAPI');
 
-        // Update account with fresh metadata (without dailyUsage AND createdAt)
+        // Update account with cleaned metadata
         const freshAccount = {
             ...account,
-            metadata: metadataWithoutDailyUsageAndCreatedAt
+            metadata: cleanedMetadata
         };
 
         // Update usage history with FRESH data
@@ -642,13 +654,7 @@ async function saveUsageToAPI(account, usageData) {
                     ...(account.profile || {}),
                     // REMOVED: dailyUsage from profile (now in own column)
                 },
-                metadata: {
-                    ...metadataWithoutDailyUsageAndCreatedAt, // ← WITHOUT dailyUsage AND createdAt!
-                    usageHistory: updatedHistory, // History for charts (last 365 days)
-                    lastActivity: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    updatedVia: 'daily-usage-tracking'
-                },
+                metadata: cleanedMetadata, // Clean metadata without duplicates!
                 lastLogin: new Date().toISOString()
             })
         });
@@ -706,11 +712,32 @@ async function saveUsageToAPI(account, usageData) {
                         ? JSON.parse(parsedAccount.metadata)
                         : parsedAccount.metadata || {};
 
+                // CRITICAL: Parse dailyUsage from response (separate column!)
+                let parsedDailyUsage = null;
+                if (parsedAccount.dailyUsage) {
+                    if (typeof parsedAccount.dailyUsage === 'string') {
+                        try {
+                            parsedDailyUsage = JSON.parse(parsedAccount.dailyUsage);
+                        } catch (e) {
+                            console.warn('⚠️ Failed to parse dailyUsage from response:', e);
+                        }
+                    } else if (typeof parsedAccount.dailyUsage === 'object') {
+                        parsedDailyUsage = parsedAccount.dailyUsage;
+                    }
+                }
+
                 console.log(
                     '📊 [SYNC] Backend returned usageHistory:',
                     parsedMetadata.usageHistory?.length || 0,
                     'entries'
                 );
+                if (parsedDailyUsage) {
+                    console.log('✅ [SYNC] Backend returned dailyUsage:', {
+                        date: parsedDailyUsage.date,
+                        used: parsedDailyUsage.used,
+                        limit: parsedDailyUsage.limit
+                    });
+                }
 
                 // Update localStorage
                 const updatedPrefs = {
@@ -738,13 +765,15 @@ async function saveUsageToAPI(account, usageData) {
                     console.log('✅ [SYNC] usageHistory store updated');
                 }
 
-                // Update currentAccount store
+                // Update currentAccount store with dailyUsage
                 const { syncAccountData } = await import('./accountStore.js');
                 syncAccountData({
                     ...account,
-                    metadata: parsedMetadata
+                    metadata: parsedMetadata,
+                    // CRITICAL: Include dailyUsage in account object!
+                    dailyUsage: parsedDailyUsage || account.dailyUsage || null
                 });
-                console.log('✅ [SYNC] currentAccount store updated');
+                console.log('✅ [SYNC] currentAccount store updated with dailyUsage');
             } catch (syncError) {
                 console.warn(
                     '⚠️ [SYNC] Failed to sync backend response (non-critical):',
