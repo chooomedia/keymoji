@@ -246,6 +246,96 @@ function calculateUsageStats(history) {
 }
 
 /**
+ * Refresh User Settings (async, cached, robust)
+ * SINGLE SOURCE OF TRUTH for user settings loading
+ * Similar pattern to refreshUsageHistory
+ */
+export async function refreshUserSettings(force = false) {
+    const account = get(currentAccount);
+    const loggedIn = get(isLoggedIn);
+
+    console.log('⚙️ [USER SETTINGS] Starting refresh...', {
+        loggedIn,
+        force,
+        hasAccount: !!account
+    });
+
+    try {
+        // Priority 1: Use initializeSettingsForUser (handles all sources: API, localStorage, defaults)
+        // This is the most robust way to load settings after login
+        const { initializeSettingsForUser } = await import('./userSettingsStore.js');
+        
+        if (account && account.userId) {
+            console.log('🔄 [USER SETTINGS] Initializing settings for user...');
+            const loadedSettings = await initializeSettingsForUser();
+            
+            if (loadedSettings && Object.keys(loadedSettings).length > 0) {
+                console.log('✅ [USER SETTINGS] Settings initialized successfully:', {
+                    hasName: !!loadedSettings.name,
+                    hasLanguage: !!loadedSettings.language,
+                    hasTheme: !!loadedSettings.theme,
+                    hasStoryMode: !!loadedSettings.storyMode
+                });
+                
+                // Update cache
+                storageHelpers.set(CACHE_KEYS.SETTINGS, loadedSettings);
+                storageHelpers.set(CACHE_KEYS.SETTINGS_TIMESTAMP, Date.now());
+                
+                // Update userSettings store (for compatibility with old code)
+                userSettings.update(state => ({
+                    ...state,
+                    data: loadedSettings,
+                    isCached: false,
+                    isLoading: false,
+                    hasError: false,
+                    lastUpdate: Date.now()
+                }));
+                
+                return loadedSettings;
+            }
+        }
+        
+        // Fallback: If no account or initialization failed, try to load from cache
+        if (!force && isCacheValid(CACHE_KEYS.SETTINGS_TIMESTAMP, CACHE_DURATION.SETTINGS)) {
+            const cachedSettings = storageHelpers.get(CACHE_KEYS.SETTINGS);
+            if (cachedSettings) {
+                console.log('📦 [USER SETTINGS] Using cached settings');
+                userSettings.update(state => ({
+                    ...state,
+                    data: cachedSettings,
+                    isCached: true,
+                    isLoading: false,
+                    hasError: false,
+                    lastUpdate: storageHelpers.get(CACHE_KEYS.SETTINGS_TIMESTAMP)
+                }));
+                return cachedSettings;
+            }
+        }
+        
+        console.log('💡 [USER SETTINGS] No settings available');
+        return null;
+    } catch (error) {
+        console.error('❌ [USER SETTINGS] Refresh error:', error);
+        
+        userSettings.update(state => ({
+            ...state,
+            hasError: true,
+            isLoading: false,
+            errorMessage: error.message
+        }));
+        
+        // Try to return cached data even on error
+        const cachedSettings = storageHelpers.get(CACHE_KEYS.SETTINGS);
+        if (cachedSettings) {
+            console.log('💡 [USER SETTINGS] Returning stale cache due to error');
+            return cachedSettings;
+        }
+        
+        return null;
+    }
+}
+
+/**
  * Refresh Usage History (async, cached, robust)
  * SINGLE SOURCE OF TRUTH for usage history loading
  */

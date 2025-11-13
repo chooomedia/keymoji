@@ -650,8 +650,17 @@
     }
     
     /**
-     * Test API Connection
+     * Test API Connection with Retry Logic
      * Tests if the configured API key and provider work correctly
+     * Implements silent retry mechanism: 3 attempts per button click
+     * - Silent testing: No modals during retries (only console logs for devs)
+     * - User-friendly: Short error message only after all 3 attempts fail
+     * - Dev-friendly: Detailed logs in console for debugging
+     * 
+     * Best Practices:
+     * - Exponential backoff between retries
+     * - Silent failures during retries (no UI disruption)
+     * - Clear separation between dev logs and user messages
      */
     async function testAPIConnection() {
         isTestingAPI = true;
@@ -666,142 +675,197 @@
         const customModel = getEffectiveValue('storyMode.customModel');
         const model = getEffectiveValue('storyMode.model');
         
-        try {
-            console.log('🧪 Testing API connection:', { 
-                provider, 
-                hasApiKey: !!apiKey,
-                customApiUrl,
-                customEndpoint,
-                customFormat,
-                customModel,
-                model
-            });
-            
-            // Validate API key exists for current provider (skip for Apertus as it uses n8n token)
-            if (provider !== 'apertus' && (!apiKey || apiKey.length < 10)) {
-                showWarning(`⚠️ Bitte gib zuerst einen API-Key für ${provider} ein`, 3000);
-                return;
-            }
-            
-            // For Apertus, use empty string as apiKey (n8n token is handled in callApertus)
-            const effectiveApiKey = provider === 'apertus' ? '' : apiKey;
-            
-            // Build config for test
-            const testConfig = {
-                provider,
-                apiKey: effectiveApiKey,
-                customApiUrl,
-                customEndpoint,
-                customFormat,
-                customModel,
-                model
-            };
-            
-            console.log('📤 Sending test request with config:', testConfig);
-            
-            // Call test function
-            const result = await testAIProvider(testConfig);
-            
-            console.log('📥 Received test result:', result);
-            
-            // Validate result: success must be true AND response must not be empty
-            if (result.success) {
-                // Additional validation: Check if response exists and is not empty
-                if (!result.response || (typeof result.response === 'string' && result.response.trim().length === 0)) {
-                    // Response is empty even though success is true - treat as error
-                    throw new Error(
-                        'API test returned success but empty response. The workflow executed successfully but the AI model returned no content. ' +
-                        'Please check the n8n workflow "Format Response" node - it should extract the content from choices[0].message.content or the API response field.'
-                    );
-                }
-
-                // ✅ Mark test as successful
-                apiTestSuccess = true;
-                testedProvider = provider;
-                console.log('✅ API test successful, provider verified:', provider);
-                
-                // Save verification status to settings (persistent storage)
-                const currentSettings = getCurrentUserSettings();
-                const storyMode = currentSettings?.storyMode || {};
-                const verifiedProviders = storyMode.verifiedProviders || {};
-                
-                // Update verified providers with test result
-                verifiedProviders[provider] = {
-                    verifiedAt: new Date().toISOString(),
-                    model: result.model || getEffectiveValue('storyMode.model') || '',
-                    lastTest: new Date().toISOString(),
-                    success: true
-                };
-                
-                // Save to settings (will be persisted on next save)
-                updateSetting('storyMode.verifiedProviders', verifiedProviders);
-                console.log('💾 Verification status saved for provider:', provider, verifiedProviders[provider]);
-                
-                const providerInfo = getProviderInfo(provider);
-                const responsePreview = typeof result.response === 'string' 
-                    ? result.response.substring(0, 50) 
-                    : String(result.response || '').substring(0, 50);
-                
-                showSuccess(
-                    `✅ Verbindung erfolgreich!\n\n` +
-                    `Provider: ${providerInfo.name}\n` +
-                    `Model: ${result.model || 'default'}\n` +
-                    `Response: ${responsePreview}${responsePreview.length >= 50 ? '...' : ''}`,
-                    5000
-                );
-                console.log('✅ API test successful:', result);
-            } else {
-                // ❌ Mark test as failed
-                apiTestSuccess = false;
-                testedProvider = null;
-                throw new Error(result.error || 'Unknown error');
-            }
-            
-        } catch (error) {
-            // ❌ Mark test as failed
-            apiTestSuccess = false;
-            testedProvider = null;
-            
-            console.error('❌ API test failed:', error);
-            
-            // Enhanced error message for different error types
-            let errorMessage = error.message || 'Unbekannter Fehler';
-            let helpText = '';
-            
-            if (errorMessage.includes('empty response') || errorMessage.includes('no content') || 
-                errorMessage.includes('success but empty') || errorMessage.includes('returned empty')) {
-                // Apertus n8n workflow issue - empty response
-                helpText = `\n\n💡 n8n Workflow Problem:\n` +
-                    `Das n8n Workflow hat erfolgreich ausgeführt (success: true), aber keine Content zurückgegeben (response: "").\n\n` +
-                    `Lösung:\n` +
-                    `1. Öffne das n8n Workflow "Format Response" Node\n` +
-                    `2. Stelle sicher, dass es den Content aus \`choices[0].message.content\` extrahiert\n` +
-                    `3. Oder aus dem API Response Feld, falls die API direkt den Content zurückgibt\n` +
-                    `4. Das Response-Feld sollte nicht leer sein\n` +
-                    `5. Prüfe die n8n Execution Logs für Details\n\n` +
-                    `Aktuelle Response-Struktur wurde in der Console geloggt.`;
-            } else if (errorMessage.includes('CORS_ERROR')) {
-                helpText = `\n\n💡 CORS-Lösung für lokale API:\n` +
-                    `1. Füge CORS-Header in deinem API-Server hinzu:\n` +
-                    `   Access-Control-Allow-Origin: http://localhost:8080\n` +
-                    `   Access-Control-Allow-Methods: POST\n` +
-                    `   Access-Control-Allow-Headers: Content-Type, Authorization\n\n` +
-                    `2. Oder teste mit Mock-Mode: /?mock-custom-api=true`;
-            } else if (errorMessage.includes('NETWORK_ERROR') && errorMessage.includes('Is your local API server running?')) {
-                helpText = `\n\n💡 Lösungen:\n` +
-                    `1. Starte deinen lokalen API-Server (Port 1234)\n` +
-                    `2. Prüfe ob die URL korrekt ist: ${customApiUrl || 'http://127.0.0.1:1234'}\n` +
-                    `3. Oder teste mit Mock-Mode: /?mock-custom-api=true`;
-            }
-            
-            showError(
-                `❌ Verbindung fehlgeschlagen\n\n` +
-                `Fehler: ${errorMessage}${helpText}`,
-                10000 // Show longer for CORS/network errors
-            );
-        } finally {
+        // Validate API key exists for current provider (skip for Apertus as it uses n8n token)
+        if (provider !== 'apertus' && (!apiKey || apiKey.length < 10)) {
+            showWarning(`⚠️ Bitte gib zuerst einen API-Key für ${provider} ein`, 3000);
             isTestingAPI = false;
+            return;
         }
+        
+        // For Apertus, use empty string as apiKey (n8n token is handled in callApertus)
+        const effectiveApiKey = provider === 'apertus' ? '' : apiKey;
+        
+        // Build config for test
+        const testConfig = {
+            provider,
+            apiKey: effectiveApiKey,
+            customApiUrl,
+            customEndpoint,
+            customFormat,
+            customModel,
+            model
+        };
+        
+        // Retry configuration
+        const MAX_RETRIES = 3;
+        const RETRY_DELAY_BASE = 500; // Base delay in ms (exponential backoff: 500ms, 1000ms, 2000ms)
+        let lastError = null;
+        let attempt = 0;
+        
+        // DEV: Log initial test attempt
+        console.log('🧪 [TEST] Starting API connection test with retry logic:', {
+            provider,
+            hasApiKey: !!apiKey,
+            customApiUrl,
+            maxRetries: MAX_RETRIES,
+            retryDelayBase: RETRY_DELAY_BASE
+        });
+        
+        // Retry loop: Attempt up to MAX_RETRIES times
+        for (attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                // DEV: Log attempt (silent for user)
+                if (attempt > 1) {
+                    console.log(`🔄 [TEST] Retry attempt ${attempt}/${MAX_RETRIES} (silent)`);
+                } else {
+                    console.log(`📤 [TEST] Attempt ${attempt}/${MAX_RETRIES}: Sending test request`, testConfig);
+                }
+                
+                // Call test function
+                const result = await testAIProvider(testConfig);
+                
+                // DEV: Log result (silent for user during retries)
+                if (attempt > 1) {
+                    console.log(`📥 [TEST] Retry ${attempt} result received (silent)`);
+                } else {
+                    console.log('📥 [TEST] Received test result:', result);
+                }
+                
+                // Validate result: success must be true AND response must not be empty
+                if (result.success) {
+                    // Additional validation: Check if response exists and is not empty
+                    if (!result.response || (typeof result.response === 'string' && result.response.trim().length === 0)) {
+                        // Response is empty even though success is true - treat as error
+                        throw new Error(
+                            'API test returned success but empty response. The workflow executed successfully but the AI model returned no content. ' +
+                            'Please check the n8n workflow "Format Response" node - it should extract the content from choices[0].message.content or the API response field.'
+                        );
+                    }
+
+                    // ✅ SUCCESS: Mark test as successful
+                    apiTestSuccess = true;
+                    testedProvider = provider;
+                    
+                    // DEV: Log success with attempt info
+                    console.log(`✅ [TEST] API test successful on attempt ${attempt}/${MAX_RETRIES}, provider verified:`, provider);
+                    
+                    // Save verification status to settings (persistent storage)
+                    const currentSettings = getCurrentUserSettings();
+                    const storyMode = currentSettings?.storyMode || {};
+                    const verifiedProviders = storyMode.verifiedProviders || {};
+                    
+                    // Update verified providers with test result
+                    verifiedProviders[provider] = {
+                        verifiedAt: new Date().toISOString(),
+                        model: result.model || getEffectiveValue('storyMode.model') || '',
+                        lastTest: new Date().toISOString(),
+                        success: true,
+                        attempts: attempt // Track how many attempts were needed
+                    };
+                    
+                    // Save to settings (will be persisted on next save)
+                    updateSetting('storyMode.verifiedProviders', verifiedProviders);
+                    console.log('💾 [TEST] Verification status saved for provider:', provider, verifiedProviders[provider]);
+                    
+                    // Show success message to user (only after successful test)
+                    const providerInfo = getProviderInfo(provider);
+                    const responsePreview = typeof result.response === 'string' 
+                        ? result.response.substring(0, 50) 
+                        : String(result.response || '').substring(0, 50);
+                    
+                    // Show success message (only if not a retry, or show retry info)
+                    const successMessage = attempt > 1
+                        ? `✅ Verbindung erfolgreich (nach ${attempt} Versuchen)!\n\n` +
+                          `Provider: ${providerInfo.name}\n` +
+                          `Model: ${result.model || 'default'}\n` +
+                          `Response: ${responsePreview}${responsePreview.length >= 50 ? '...' : ''}`
+                        : `✅ Verbindung erfolgreich!\n\n` +
+                          `Provider: ${providerInfo.name}\n` +
+                          `Model: ${result.model || 'default'}\n` +
+                          `Response: ${responsePreview}${responsePreview.length >= 50 ? '...' : ''}`;
+                    
+                    showSuccess(successMessage, 5000);
+                    console.log('✅ [TEST] API test successful:', result);
+                    
+                    // Exit retry loop on success
+                    isTestingAPI = false;
+                    return;
+                } else {
+                    // ❌ Test returned failure
+                    throw new Error(result.error || 'Unknown error');
+                }
+                
+            } catch (error) {
+                // Store error for potential user message (only after all retries fail)
+                lastError = error;
+                
+                // DEV: Log error attempt (silent for user during retries)
+                console.error(`❌ [TEST] Attempt ${attempt}/${MAX_RETRIES} failed (silent):`, {
+                    error: error.message,
+                    provider,
+                    attempt,
+                    willRetry: attempt < MAX_RETRIES
+                });
+                
+                // If this is not the last attempt, wait before retrying (exponential backoff)
+                if (attempt < MAX_RETRIES) {
+                    const retryDelay = RETRY_DELAY_BASE * Math.pow(2, attempt - 1); // 500ms, 1000ms, 2000ms
+                    console.log(`⏳ [TEST] Waiting ${retryDelay}ms before retry ${attempt + 1}/${MAX_RETRIES} (silent)`);
+                    await new Promise(resolve => setTimeout(resolve, retryDelay));
+                }
+            }
+        }
+        
+        // ❌ ALL RETRIES FAILED: Show user-friendly error message
+        // Mark test as failed
+        apiTestSuccess = false;
+        testedProvider = null;
+        
+        // DEV: Log final failure with all details
+        console.error('❌ [TEST] All retry attempts failed:', {
+            provider,
+            totalAttempts: MAX_RETRIES,
+            finalError: lastError?.message,
+            errorStack: lastError?.stack,
+            testConfig: {
+                provider: testConfig.provider,
+                hasApiKey: !!testConfig.apiKey,
+                customApiUrl: testConfig.customApiUrl,
+                customEndpoint: testConfig.customEndpoint
+            }
+        });
+        
+        // USER: Show short, user-friendly error message
+        const errorMessage = lastError?.message || 'Unbekannter Fehler';
+        
+        // Create short error message for user (not as detailed as dev logs)
+        let userErrorMessage = 'Verbindung fehlgeschlagen';
+        let userHelpText = '';
+        
+        // Provide context-specific short help text
+        if (errorMessage.includes('empty response') || errorMessage.includes('no content') || 
+            errorMessage.includes('success but empty') || errorMessage.includes('returned empty')) {
+            userErrorMessage = 'Leere Antwort vom API';
+            userHelpText = '\n\n💡 Prüfe das n8n Workflow "Format Response" Node.';
+        } else if (errorMessage.includes('CORS_ERROR')) {
+            userErrorMessage = 'CORS-Fehler';
+            userHelpText = '\n\n💡 CORS-Header in API-Server hinzufügen.';
+        } else if (errorMessage.includes('NETWORK_ERROR')) {
+            userErrorMessage = 'Netzwerkfehler';
+            userHelpText = '\n\n💡 Prüfe API-URL und Internetverbindung.';
+        } else if (errorMessage.includes('timeout')) {
+            userErrorMessage = 'Zeitüberschreitung';
+            userHelpText = '\n\n💡 API antwortet nicht. Prüfe Server-Status.';
+        }
+        
+        // Show short error message to user (detailed logs are in console for devs)
+        showError(
+            `❌ ${userErrorMessage}${userHelpText}\n\n` +
+            `(Details in Browser-Console für Entwickler)`,
+            5000 // Shorter display time for user
+        );
+        
+        isTestingAPI = false;
     }
 
     onMount(async () => {

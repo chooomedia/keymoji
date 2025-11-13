@@ -1017,6 +1017,18 @@ export async function verifyMagicLinkFrontend(token, email) {
             createdAt || 'NOT FOUND - will not be set (preserves existing value)'
         );
 
+        // CRITICAL: Initialize settings immediately after account sync
+        // This ensures settings are loaded from account.metadata.settings right after login
+        console.log('⚙️ [LOGIN] Initializing user settings after account sync...');
+        try {
+            const { initializeSettingsForUser } = await import('./userSettingsStore.js');
+            await initializeSettingsForUser();
+            console.log('✅ [LOGIN] User settings initialized successfully');
+        } catch (error) {
+            console.warn('⚠️ [LOGIN] Failed to initialize settings (non-critical):', error);
+            // Non-critical - settings will be loaded later via refreshUserSettings
+        }
+
         // CRITICAL: Get existing createdAt from localStorage BEFORE building userPrefsData!
         // This ensures we NEVER lose existing createdAt even if backend doesn't provide it
         const existingPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});

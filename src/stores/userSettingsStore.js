@@ -959,33 +959,51 @@ export async function initializeSettingsForUser() {
         let loadedSettings = null;
 
         if (account && account.userId) {
-            // Try to load settings from API first
-            try {
-                const apiSettings = await loadSettingsFromAPI();
-                if (apiSettings) {
-                    console.log('✅ Settings loaded from API:', apiSettings);
-                    loadedSettings = apiSettings;
-                }
-            } catch (error) {
-                // CORS error is expected in localhost - use localStorage instead
-                // Only log if NOT localhost CORS (which is expected)
-                if (error.message === 'CORS: Localhost development mode') {
-                    // Silent - expected behavior on localhost
-                } else if (
-                    error.message.includes('CORS') ||
-                    error.message.includes('Failed to fetch')
-                ) {
-                    console.log(
-                        'ℹ️ API not available (CORS), using local settings'
-                    );
-                } else {
-                    console.warn('⚠️ API error:', error.message);
+            // CRITICAL: Priority 1: Extract settings from currentAccount (backend data)
+            // This is the SINGLE SOURCE OF TRUTH after login!
+            // account.metadata.settings contains the latest settings from Google Sheets
+            const accountSettings = extractSettingsFromAccount(account);
+            if (accountSettings && Object.keys(accountSettings).length > 0) {
+                console.log('✅ Settings extracted from currentAccount:', {
+                    hasName: !!accountSettings.name,
+                    hasLanguage: !!accountSettings.language,
+                    hasTheme: !!accountSettings.theme,
+                    hasStoryMode: !!accountSettings.storyMode,
+                    settingsKeys: Object.keys(accountSettings)
+                });
+                loadedSettings = accountSettings;
+            }
+
+            // Priority 2: Try to load settings from API (if not already loaded from account)
+            // This is useful for force refresh, but account.metadata.settings should be primary
+            if (!loadedSettings || Object.keys(loadedSettings).length === 0) {
+                try {
+                    const apiSettings = await loadSettingsFromAPI();
+                    if (apiSettings) {
+                        console.log('✅ Settings loaded from API:', apiSettings);
+                        loadedSettings = apiSettings;
+                    }
+                } catch (error) {
+                    // CORS error is expected in localhost - use localStorage instead
+                    // Only log if NOT localhost CORS (which is expected)
+                    if (error.message === 'CORS: Localhost development mode') {
+                        // Silent - expected behavior on localhost
+                    } else if (
+                        error.message.includes('CORS') ||
+                        error.message.includes('Failed to fetch')
+                    ) {
+                        console.log(
+                            'ℹ️ API not available (CORS), using local settings'
+                        );
+                    } else {
+                        console.warn('⚠️ API error:', error.message);
+                    }
                 }
             }
         }
 
-        // Fallback to local settings
-        if (!loadedSettings) {
+        // Priority 3: Fallback to local settings (localStorage)
+        if (!loadedSettings || Object.keys(loadedSettings).length === 0) {
             // Priority 1: Check localStorage.USER_PREFERENCES.metadata.settings
             const localStoragePrefs = storageHelpers.get(
                 STORAGE_KEYS.USER_PREFERENCES

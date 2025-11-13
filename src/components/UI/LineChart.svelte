@@ -585,22 +585,22 @@
                         <div class="relative z-10">
                             <!-- Date -->
                             <div class="font-semibold mb-1.5 text-xs text-gray-300 dark:text-gray-400 tabular-nums">
-                                {formatDateFull(hoveredPoint.point.date)}
-                            </div>
+                        {formatDateFull(hoveredPoint.point.date)}
+                    </div>
                             
                             <!-- Value -->
-                            <div class="flex items-center gap-2">
-                                {#if hoveredPoint.isStoryPoint}
+                    <div class="flex items-center gap-2">
+                        {#if hoveredPoint.isStoryPoint}
                                     <span class="text-blue-400 text-base leading-none" aria-hidden="true">📝</span>
                                     <span class="font-medium text-sm">
                                         {hoveredPoint.point.value || 0} {hoveredPoint.point.value === 1 ? 'story' : 'stories'}
                                     </span>
-                                {:else}
+                        {:else}
                                     <span class="text-yellow-400 text-base leading-none" aria-hidden="true">➕</span>
                                     <span class="font-medium text-sm">
                                         {hoveredPoint.point.value} {hoveredPoint.point.value === 1 ? 'generation' : 'generations'}
                                     </span>
-                                {/if}
+                        {/if}
                             </div>
                         </div>
                     </div>
