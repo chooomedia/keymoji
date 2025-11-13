@@ -700,6 +700,8 @@ export function getEffectiveValue(key) {
     const pending = get(pendingChanges);
     const settings = get(userSettings);
     const tier = get(accountTier);
+    // CRITICAL: Also check effectiveSettings (Single Source of Truth from currentAccount!)
+    const effective = get(effectiveSettings);
 
     // Support nested keys like "storyMode.customFormat"
     const getNestedValue = (obj, path) => {
@@ -733,7 +735,17 @@ export function getEffectiveValue(key) {
         return settingsValue;
     }
 
-    // Priority 3: Tier defaults (FREE vs PRO)
+    // Priority 3: Effective settings (from currentAccount.metadata.settings - Single Source of Truth!)
+    const effectiveValue = getNestedValue(effective, key);
+    if (effectiveValue !== undefined) {
+        console.log(
+            `🔗 getEffectiveValue(${key}): Using effectiveSettings value (from account.metadata.settings):`,
+            effectiveValue
+        );
+        return effectiveValue;
+    }
+
+    // Priority 4: Tier defaults (FREE vs PRO)
     const defaults =
         tier === 'pro' ? DEFAULT_PRO_SETTINGS : DEFAULT_FREE_SETTINGS;
     const defaultValue = getNestedValue(defaults, key);
@@ -746,7 +758,12 @@ export function getEffectiveValue(key) {
         return defaultValue;
     }
 
-    console.warn(`⚠️ getEffectiveValue(${key}): No value found!`);
+    console.warn(`⚠️ getEffectiveValue(${key}): No value found!`, {
+        hasPending: !!pending && Object.keys(pending).length > 0,
+        hasSettings: !!settings && Object.keys(settings).length > 0,
+        hasEffective: !!effective && Object.keys(effective).length > 0,
+        effectiveKeys: effective ? Object.keys(effective).slice(0, 10) : []
+    });
     return undefined;
 }
 

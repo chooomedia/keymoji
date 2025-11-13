@@ -294,8 +294,13 @@
         
         // Special validation for Story Mode enabled toggle
         if (key === 'storyMode.enabled') {
-            const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
-            const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
+            // CRITICAL: Use getCurrentUserSettings() as fallback for API key detection
+            const currentSettings = getCurrentUserSettings();
+            const currentProvider = getEffectiveValue('storyMode.provider') || currentSettings?.storyMode?.provider || 'apertus';
+            let apiKeys = getEffectiveValue('storyMode.apiKeys');
+            if (!apiKeys || typeof apiKeys !== 'object' || Object.keys(apiKeys).length === 0) {
+                apiKeys = currentSettings?.storyMode?.apiKeys || {};
+            }
             const hasApiKey = apiKeys[currentProvider] && apiKeys[currentProvider].length >= 10;
             
             console.log('✨ Story Mode toggle:', {
@@ -666,17 +671,51 @@
         isTestingAPI = true;
         
         // Get current Story Mode settings (OUTSIDE try block for error handler access)
-        const provider = getEffectiveValue('storyMode.provider') || 'openai';
-        const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
+        // CRITICAL: Use getCurrentUserSettings() as fallback if getEffectiveValue fails
+        const currentSettings = getCurrentUserSettings();
+        const provider = getEffectiveValue('storyMode.provider') || currentSettings?.storyMode?.provider || 'openai';
+        
+        // CRITICAL: Try multiple sources for apiKeys
+        let apiKeys = getEffectiveValue('storyMode.apiKeys');
+        if (!apiKeys || typeof apiKeys !== 'object' || Object.keys(apiKeys).length === 0) {
+            // Fallback to currentSettings
+            apiKeys = currentSettings?.storyMode?.apiKeys || {};
+            console.warn('⚠️ [TEST] apiKeys not found in getEffectiveValue, using currentSettings:', {
+                hasApiKeys: !!apiKeys,
+                apiKeysKeys: Object.keys(apiKeys),
+                provider
+            });
+        }
+        
         const apiKey = apiKeys[provider];
-        const customApiUrl = getEffectiveValue('storyMode.customApiUrl');
-        const customEndpoint = getEffectiveValue('storyMode.customEndpoint');
-        const customFormat = getEffectiveValue('storyMode.customFormat');
-        const customModel = getEffectiveValue('storyMode.customModel');
-        const model = getEffectiveValue('storyMode.model');
+        const customApiUrl = getEffectiveValue('storyMode.customApiUrl') || currentSettings?.storyMode?.customApiUrl;
+        const customEndpoint = getEffectiveValue('storyMode.customEndpoint') || currentSettings?.storyMode?.customEndpoint;
+        const customFormat = getEffectiveValue('storyMode.customFormat') || currentSettings?.storyMode?.customFormat;
+        const customModel = getEffectiveValue('storyMode.customModel') || currentSettings?.storyMode?.customModel;
+        const model = getEffectiveValue('storyMode.model') || currentSettings?.storyMode?.model;
+        
+        // CRITICAL: Enhanced debugging for API key detection
+        console.log('🔍 [TEST] API Key Detection:', {
+            provider,
+            hasApiKeys: !!apiKeys,
+            apiKeysType: typeof apiKeys,
+            apiKeysKeys: Object.keys(apiKeys || {}),
+            hasApiKey: !!apiKey,
+            apiKeyLength: apiKey?.length || 0,
+            apiKeyPreview: apiKey ? `${apiKey.substring(0, 10)}...` : 'none',
+            currentSettingsHasStoryMode: !!currentSettings?.storyMode,
+            currentSettingsHasApiKeys: !!currentSettings?.storyMode?.apiKeys
+        });
         
         // Validate API key exists for current provider (skip for Apertus as it uses n8n token)
         if (provider !== 'apertus' && (!apiKey || apiKey.length < 10)) {
+            console.error('❌ [TEST] API Key validation failed:', {
+                provider,
+                hasApiKey: !!apiKey,
+                apiKeyLength: apiKey?.length || 0,
+                apiKeysObject: apiKeys,
+                allApiKeys: Object.keys(apiKeys || {}).map(k => ({ key: k, length: apiKeys[k]?.length || 0 }))
+            });
             showWarning(`⚠️ Bitte gib zuerst einen API-Key für ${provider} ein`, 3000);
             isTestingAPI = false;
             return;
@@ -802,9 +841,17 @@
                 // DEV: Log error attempt (silent for user during retries)
                 console.error(`❌ [TEST] Attempt ${attempt}/${MAX_RETRIES} failed (silent):`, {
                     error: error.message,
+                    errorStack: error.stack,
+                    errorName: error.name,
                     provider,
                     attempt,
-                    willRetry: attempt < MAX_RETRIES
+                    willRetry: attempt < MAX_RETRIES,
+                    testConfig: {
+                        provider: testConfig.provider,
+                        hasApiKey: !!testConfig.apiKey,
+                        apiKeyLength: testConfig.apiKey?.length || 0,
+                        customApiUrl: testConfig.customApiUrl
+                    }
                 });
                 
                 // If this is not the last attempt, wait before retrying (exponential backoff)
