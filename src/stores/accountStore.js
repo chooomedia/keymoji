@@ -1668,7 +1668,7 @@ export async function initializeAccountFromCookies(forceRestore = false) {
 // DEPRECATED: Use resetSessionFlags() instead
 // REMOVED: This function is no longer used anywhere in the codebase (verified with grep)
 // Migration: Replace all calls to resetSessionRestoreFlag() with resetSessionFlags()
-// @deprecated - Removed in v0.7.3+ (use resetSessionFlags() instead)
+// @deprecated - Removed in v0.7.4+ (use resetSessionFlags() instead)
 // export function resetSessionRestoreFlag() {
 //     console.warn(
 //         '⚠️ resetSessionRestoreFlag() is deprecated, use resetSessionFlags() instead'

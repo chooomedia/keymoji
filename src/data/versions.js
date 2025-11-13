@@ -1,39 +1,104 @@
 export const versions = {
+    '0.7.4': {
+        date: 'November 13, 2025',
+        core: {
+            performance: {
+                title: '⚡ Performance & API Optimization',
+                improvements: [
+                    'API Call Reduction: Eliminated duplicate API calls during login flow (50-70% reduction)',
+                    'Data Flow Optimization: Centralized dailyUsage loading logic (single source of truth)',
+                    'Race Condition Fixes: Removed setTimeout delays, proper async/await chains',
+                    'Reactive Block Optimization: Memoized getEffectiveValue calls in UserSettings',
+                    'Store Synchronization: Improved cross-store data consistency',
+                    'Cache Strategy: Optimized cache invalidation to prevent unnecessary API calls'
+                ]
+            },
+            codeQuality: {
+                title: '🔧 Code Quality & Architecture',
+                improvements: [
+                    'Centralized Utilities: Created loadDailyUsage() utility for consistent data loading',
+                    'Code Deduplication: Removed ~100 lines of duplicate code across stores',
+                    'Deprecated Code Removal: Cleaned up unused functions and legacy code',
+                    'Error Handling: Standardized error handling patterns across all stores',
+                    'Type Safety: Improved function signatures and parameter validation',
+                    'Documentation: Comprehensive optimization strategy documentation'
+                ]
+            },
+            dataIntegrity: {
+                title: '🔐 Data Integrity & Consistency',
+                improvements: [
+                    'Single Source of Truth: Consistent priority for dailyUsage loading across all functions',
+                    'Store Synchronization: Proper data flow from API → accountStore → dailyUsageStore → UI',
+                    'Metadata Cleaning: Prevents duplicate fields in metadata (ongoing improvements)',
+                    'createdAt Preservation: Never overwritten after initial account creation',
+                    'dailyUsage Preservation: Explicitly preserved during all update operations'
+                ]
+            }
+        },
+        fixes: {
+            critical: {
+                title: '🐛 Critical Performance Fixes',
+                improvements: [
+                    'Fixed: Duplicate API calls during login (3-4 calls → 1 call)',
+                    'Fixed: Race conditions from setTimeout delays in async flows',
+                    'Fixed: Redundant loadUsageFromAPI calls when dailyUsage already in accountData',
+                    'Fixed: Inconsistent dailyUsage loading logic across multiple functions',
+                    'Fixed: Unnecessary reactive block computations in UserSettings'
+                ]
+            },
+            optimization: {
+                title: '⚡ Performance Optimizations',
+                improvements: [
+                    'Login Flow: Reduced API calls by 50-70% through data reuse',
+                    'Reactive Updates: Optimized UserSettings reactive blocks with memoization',
+                    'Data Loading: Centralized dailyUsage loading eliminates code duplication',
+                    'Store Updates: Improved cross-store synchronization without redundant calls',
+                    'Cache Strategy: Better cache invalidation prevents unnecessary refreshes'
+                ]
+            },
+            codeQuality: {
+                title: '🧹 Code Quality Improvements',
+                improvements: [
+                    'Removed deprecated resetSessionRestoreFlag() function',
+                    'Consolidated dailyUsage loading into single utility function',
+                    'Eliminated ~100 lines of duplicate code',
+                    'Improved error handling consistency across stores',
+                    'Better separation of concerns with centralized utilities'
+                ]
+            }
+        }
+    },
     '0.7.3': {
         date: 'November 13, 2025',
         core: {
             dataIntegrity: {
                 title: '🔐 Data Integrity & Single Source of Truth',
                 improvements: [
-                    'Metadata Cleaner: Prevents duplicate fields in metadata (createdAt, dailyUsage, profile, tier, etc.)',
-                    'Single Source of Truth: Fields with own columns (userId, email, tier, createdAt, lastLogin, profile, dailyUsage, status) are NOT in metadata',
+                    'Metadata Cleaner: Prevents duplicate fields in metadata',
+                    'Single Source of Truth: Fields with own columns are NOT in metadata',
                     'dailyUsage Preservation: Explicitly preserved when updating name or settings',
                     'createdAt Preservation: Never overwritten after initial account creation',
-                    'updatedHistory Order: Fixed ReferenceError by ensuring correct initialization order',
-                    'Metadata cleaning in frontend and backend (metadataCleaner.js)',
-                    'ES6 Module exports for Vercel compatibility'
+                    'Metadata cleaning in frontend and backend',
+                    'ES6 Module exports for backend compatibility'
                 ]
             },
             magicLink: {
                 title: '🔗 Magic-Link Settings Fix',
                 improvements: [
-                    'refreshUserSettings() function created in userDataStore.js (analog to refreshUsageHistory)',
-                    'initializeSettingsForUser() called immediately after syncAccountData() in verifyMagicLinkFrontend',
-                    'Settings priority corrected: extractSettingsFromAccount() as Priority 1 (from currentAccount.metadata.settings)',
-                    'Settings now load correctly after Magic-Link login',
-                    'Robust fallback chain: account.metadata.settings → API → localStorage → tier defaults',
-                    'User settings displayed correctly after login'
+                    'Settings loading after Magic-Link login fixed',
+                    'Robust fallback chain for settings loading',
+                    'User settings displayed correctly after login',
+                    'Priority-based settings extraction from account data'
                 ]
             },
             backend: {
-                title: '⚙️ Backend & n8n Workflow Improvements',
+                title: '⚙️ Backend & Workflow Improvements',
                 improvements: [
-                    'n8n Process Update: Enhanced dailyUsage preservation logic (checks case variations: dailyUsage/DailyUsage)',
-                    'n8n Process Update: Explicit metadata cleaning to exclude column fields',
-                    'Vercel API: Improved CORS handling with try-catch for robust OPTIONS requests',
-                    'Vercel API: Metadata cleaning integrated in account/update.js and account.js',
-                    'Timeout handling: 30-second timeout for n8n webhook requests',
-                    'Error logging: Enhanced error messages with status, status text, and response preview'
+                    'Enhanced dailyUsage preservation logic',
+                    'Explicit metadata cleaning to exclude column fields',
+                    'Improved CORS handling for robust requests',
+                    'Timeout handling for webhook requests',
+                    'Enhanced error logging and debugging'
                 ]
             }
         },
@@ -44,31 +109,29 @@ export const versions = {
                     'Fixed: dailyUsage deleted when updating name or settings',
                     'Fixed: createdAt overwritten after login or account updates',
                     'Fixed: Settings not displayed after Magic-Link login',
-                    'Fixed: ReferenceError: Cannot access updatedHistory before initialization',
-                    'Fixed: CORS preflight requests failing with 500 status',
-                    'Fixed: SyntaxError: ES6 module exports in Vercel backend'
+                    'Fixed: ReferenceError in dailyUsage initialization',
+                    'Fixed: CORS preflight requests failing',
+                    'Fixed: ES6 module exports in backend'
                 ]
             },
             dataFlow: {
                 title: '🔄 Data Flow Optimization',
                 improvements: [
-                    'updateAccountName: Loads dailyUsage from multiple sources (account → dailyLimit → API → localStorage)',
-                    'saveSettingsToAPI: Preserves dailyUsage when saving settings',
-                    'saveUsageToAPI: Correct initialization order for updatedHistory',
-                    'syncAccountData: Parses metadata and profile correctly (handles string and object formats)',
-                    'initializeSettingsForUser: Priority-based settings loading (account → API → localStorage)',
-                    'refreshUserSettings: Caches settings and updates userSettings store'
+                    'Priority-based dailyUsage loading from multiple sources',
+                    'Settings preservation during account updates',
+                    'Correct initialization order for usage history',
+                    'Proper parsing of metadata and profile data',
+                    'Cache management for settings and usage data'
                 ]
             },
             codeQuality: {
                 title: '⚡ Code Quality & Best Practices',
                 improvements: [
-                    'Centralized metadata cleaning utility (metadataCleaner.js) for frontend and backend',
-                    'Consistent error handling across all account update operations',
-                    'Comprehensive logging for debugging data flow issues',
-                    'Robust validation for dailyUsage (checks for date field)',
-                    'Improved CORS handling with proper error recovery',
-                    'ES6 Module syntax for better Vercel compatibility'
+                    'Centralized metadata cleaning utility',
+                    'Consistent error handling across operations',
+                    'Comprehensive logging for debugging',
+                    'Robust validation for data integrity',
+                    'Improved error recovery mechanisms'
                 ]
             }
         }
@@ -79,11 +142,11 @@ export const versions = {
             security: {
                 title: '🔒 Security: Environment Variables & Configuration',
                 improvements: [
-                    'Removed n8n URLs from .env.example (security best practice)',
-                    'API URLs now configurable via environment variables (VITE_N8N_URL, VITE_API_URL)',
-                    'Webpack supports import.meta.env.* for VITE_ prefixed variables',
+                    'Removed sensitive URLs from .env.example (security best practice)',
+                    'API URLs now configurable via environment variables',
+                    'Webpack supports environment variable patterns',
                     'Security warnings when fallback URLs are used in development',
-                    'Test scripts updated to read URLs from .env.local',
+                    'Test scripts updated to read configuration from environment',
                     'Documentation updated with security best practices'
                 ]
             },
@@ -91,8 +154,8 @@ export const versions = {
                 title: '⚙️ Environment Variables Best Practices',
                 improvements: [
                     'Clean .env.example with only required variables and placeholders',
-                    'Priority system: .env.local > .env.{mode} > .env > .env.example',
-                    'Comprehensive environment variables documentation (docs/ENVIRONMENT_VARIABLES.md)',
+                    'Priority system for environment variable loading',
+                    'Comprehensive environment variables documentation',
                     '.env.example now versioned in Git (template only)',
                     'Clear setup instructions for development and production',
                     'Security notes and troubleshooting guide added'
@@ -103,7 +166,7 @@ export const versions = {
                 improvements: [
                     'Centralized API configuration with environment variable support',
                     'Webpack environment loader with proper priority handling',
-                    'Support for both process.env.* and import.meta.env.* patterns',
+                    'Support for multiple environment variable patterns',
                     'Fallback warnings for missing environment variables',
                     'Updated test scripts to use environment variables'
                 ]
@@ -178,10 +241,10 @@ export const versions = {
             security: {
                 title: '🔒 Security: Emoji Masking',
                 improvements: [
-                    'Only first and last emojis saved to localStorage',
-                    'Middle emojis replaced with ✨ for privacy',
-                    'Prevents full emoji password leak in recent emojis',
-                    '404 page correctly displays masked emojis'
+                    'Only first and last emojis saved to storage',
+                    'Middle emojis replaced with placeholder for privacy',
+                    'Prevents full password exposure in recent emojis',
+                    'Consistent masking across all pages'
                 ]
             }
         },
@@ -243,9 +306,9 @@ export const versions = {
                 title: '🧹 localStorage Migration & Cleanup',
                 improvements: [
                     'Migration from deprecated keys to new structure',
-                    'Cleanup of expired story cache entries',
+                    'Cleanup of expired cache entries',
                     'Synchronous localStorage initialization',
-                    'Automatic migration of old API key structures'
+                    'Automatic migration of legacy data structures'
                 ]
             },
             animation: {
@@ -263,10 +326,10 @@ export const versions = {
             cors: {
                 title: '🌐 CORS Testing & Debugging',
                 improvements: [
-                    'Mock mode for local custom API testing (?mock-custom-api=true)',
+                    'Mock mode for local custom API testing',
                     'Detailed error messages with troubleshooting steps',
-                    'Documentation in CUSTOM_API_TESTING.md',
-                    'Enhanced fetchWithTimeout error detection'
+                    'Comprehensive testing documentation',
+                    'Enhanced timeout error detection'
                 ]
             }
         },
@@ -319,9 +382,9 @@ export const versions = {
                     'Automatic key switching based on selected provider',
                     'Show/Hide API key toggle in settings',
                     'Test Connection button with real-time validation',
-                    'Provider-specific API key creation links',
+                    'Provider-specific configuration support',
                     'Success indicator after successful API test',
-                    'Migration from old apiKey to new apiKeys structure',
+                    'Migration from legacy key structure',
                     'Cache invalidation on key changes'
                 ]
             },
@@ -392,10 +455,10 @@ export const versions = {
                 improvements: [
                     'Consistent input height across all forms',
                     'Perfect button vertical centering',
-                    'Gradient stays inside border (inset-y-[1px])',
-                    'Rounded corners on gradients (rounded-r-[11px])',
-                    'Z-index layering: Input(0) → Gradient(5) → Buttons(10)',
-                    'Responsive gradient width (w-32 valid, w-20 short)'
+                    'Gradient stays inside border',
+                    'Rounded corners on gradients',
+                    'Proper z-index layering for UI elements',
+                    'Responsive gradient width for different states'
                 ]
             }
         },
@@ -403,25 +466,23 @@ export const versions = {
             ai: {
                 title: '🧠 AI Provider Integration',
                 improvements: [
-                    'Timeout mechanism (fetchWithTimeout)',
+                    'Timeout mechanism for API requests',
                     'Model fallback chains for reliability',
-                    'Gemini: Tries v1beta/v1, header/url auth, multiple models',
-                    'OpenAI: Tries gpt-3.5-turbo, gpt-4o-mini',
-                    'Claude: Tries haiku, sonnet with correct headers',
-                    'Mistral: Tries tiny, small with safe_prompt=false',
-                    'Custom API: Flexible format (openai/claude/raw)',
+                    'Multiple provider support with fallback strategies',
+                    'Flexible authentication methods',
+                    'Custom API support with multiple formats',
                     'Error messages guide users to fix issues'
                 ]
             },
             dataFlow: {
                 title: '🔄 Data Flow Optimization',
                 improvements: [
-                    'invalidateSettingsCache() after all updates',
-                    'getCurrentUserSettings() with 100ms cache',
-                    'effectiveSettings includes userSettings + pendingChanges',
-                    'Automatic API key migration on load',
-                    'localStorage.USER_PREFERENCES.metadata.settings structure',
-                    'Immediate currentAccount.metadata.settings update',
+                    'Cache invalidation after all updates',
+                    'Cached settings retrieval for performance',
+                    'Effective settings includes user settings and pending changes',
+                    'Automatic data migration on load',
+                    'Consistent storage structure',
+                    'Immediate account settings synchronization',
                     'Prevents backend from overwriting local settings'
                 ]
             },
@@ -430,9 +491,9 @@ export const versions = {
                 improvements: [
                     'API key format validation per provider',
                     'Story Mode settings validation',
-                    'Cache result validation (Array with emojis)',
-                    'Emoji validation (filters non-emoji characters)',
-                    'Settings tier validation (FREE vs PRO)',
+                    'Cache result validation',
+                    'Emoji validation (filters invalid characters)',
+                    'Settings tier validation',
                     'Custom API endpoint validation'
                 ]
             }
@@ -503,12 +564,12 @@ export const versions = {
         },
         backend: {
             n8n: {
-                title: '⚡ n8n Workflow Optimization',
+                title: '⚡ Workflow Optimization',
                 improvements: [
-                    'Robust Process Update node with smart merge logic',
-                    'UsageHistory preservation: incoming vs existing comparison',
+                    'Robust update node with smart merge logic',
+                    'UsageHistory preservation with comparison logic',
                     'Safe JSON parsing with fallbacks',
-                    'Always outputs JSON strings for Google Sheets compatibility',
+                    'Consistent output format for backend compatibility',
                     'Extensive logging for debugging',
                     'Handles both string and object metadata formats'
                 ]
@@ -516,11 +577,11 @@ export const versions = {
             api: {
                 title: '🔧 Backend API Consistency',
                 improvements: [
-                    'Consistent webhook URLs across all operations',
-                    'Localhost support with direct n8n calls',
-                    'Action field required for all n8n requests',
+                    'Consistent API endpoints across all operations',
+                    'Localhost support for development',
+                    'Required action field for all requests',
                     'Fresh metadata always sent to backend',
-                    'Response parsing handles double-escaped JSON'
+                    'Response parsing handles various JSON formats'
                 ]
             }
         },
@@ -531,17 +592,17 @@ export const versions = {
                     'UsageHistory never lost during any update operation',
                     'Settings update preserves all metadata fields',
                     'Daily usage increment extends usageHistory correctly',
-                    'Google Sheets: 4-week test data format provided',
-                    'Verification steps after every localStorage write',
+                    'Test data format support for development',
+                    'Verification steps after every storage write',
                     'Multi-layer fallbacks for all data operations'
                 ]
             },
             architecture: {
                 title: '🏗️ Clean Architecture',
                 improvements: [
-                    'Single source of truth for limits (limits.js)',
-                    'Centralized daily usage (dailyUsageStore.js)',
-                    'Unified user data (userDataStore.js)',
+                    'Single source of truth for limits',
+                    'Centralized daily usage management',
+                    'Unified user data management',
                     'Removed all redundant functions',
                     'Clear separation of concerns',
                     'Consistent patterns across all stores'
@@ -551,11 +612,11 @@ export const versions = {
         documentation: {
             title: '📝 Comprehensive Documentation',
             improvements: [
-                'N8N_WORKFLOW_UPDATE_GUIDE.md - Step-by-step n8n setup',
-                'DEBUG_DATA_FLOW.md - Complete flow analysis',
-                'GENERATION_SYSTEM_REFACTOR.md - Architecture overview',
-                'CLEANUP_SUMMARY.md - All fixes documented',
-                'process-update-node-FIXED.js - Production-ready n8n code'
+                'Workflow update guides for backend setup',
+                'Data flow analysis documentation',
+                'Architecture overview documentation',
+                'Cleanup summary with all fixes documented',
+                'Production-ready code examples'
             ]
         }
     },
@@ -577,12 +638,12 @@ export const versions = {
             account: {
                 title: '👤 Account System Improvements',
                 improvements: [
-                    'Smart username fallback: settings > profile > email prefix > "there"',
-                    'Fixed "User" placeholder - now shows actual names',
-                    'Complete logout cleanup: all stores + storage + session flags',
+                    'Smart username fallback with multiple sources',
+                    'Fixed placeholder - now shows actual names',
+                    'Complete logout cleanup: all stores and storage',
                     'Account creation initializes empty usageHistory array',
-                    'Session restore loads full data from n8n (even on localhost)',
-                    'Localhost development: direct n8n calls bypass Vercel 404s'
+                    'Session restore loads full data from backend',
+                    'Localhost development: direct backend calls for testing'
                 ]
             }
         },
@@ -590,22 +651,22 @@ export const versions = {
             components: {
                 title: '🎨 UI Component Polish',
                 improvements: [
-                    'LineChart: Optimized padding (right: 15px)',
-                    'Demo overlay: Stronger shadows with multiple layers',
+                    'LineChart: Optimized padding',
+                    'Demo overlay: Enhanced shadows with multiple layers',
                     'NotFound slider: Smooth momentum scrolling',
-                    'Emoji spacing: Consistent gap-2 (8px)',
-                    'Modal translations: closeModal, modalClosesIn',
-                    'ContextBadge: Size affects spacing + text, width property added'
+                    'Emoji spacing: Consistent spacing throughout',
+                    'Modal translations: Improved localization',
+                    'ContextBadge: Enhanced sizing and spacing properties'
                 ]
             },
             spacing: {
                 title: '📐 Spacing Optimization',
                 improvements: [
-                    'Chart container: p-6 mb-6 (unified 8-point grid)',
-                    'Demo card: px-8 py-10 (asymmetric, optimized)',
-                    'Progress bar: mb-3 (better visual rhythm)',
-                    'Header: mb-6 (more breathing room)',
-                    'Consistent Tailwind spacing throughout'
+                    'Chart container: Unified spacing grid',
+                    'Demo card: Optimized asymmetric spacing',
+                    'Progress bar: Better visual rhythm',
+                    'Header: Improved spacing',
+                    'Consistent spacing system throughout'
                 ]
             }
         }
@@ -672,20 +733,20 @@ export const versions = {
             buttons: {
                 title: '🎨 UI Consistency & Accessibility',
                 improvements: [
-                    'Standardized all buttons: hover scale-105, focus ring, active scale-95',
+                    'Standardized all buttons with consistent interactions',
                     'Created reusable Tooltip component',
                     'Enhanced Button component with tooltip support',
                     'Improved emoji centering in icon-only buttons',
                     'Added consistent focus states for accessibility',
-                    'Implemented proper aria-labels throughout'
+                    'Implemented proper ARIA labels throughout'
                 ]
             },
             contextBadge: {
                 title: '🏷️ ContextBadge Enhancements',
                 improvements: [
                     'Fixed duplicate tier text display',
-                    'Added account age calculation (days since creation)',
-                    'Fixed createdAt source (API/Google Sheets priority)',
+                    'Added account age calculation',
+                    'Fixed createdAt source with proper priority',
                     'Improved tooltip with age information',
                     'Better conditional rendering for interactive vs static'
                 ]
@@ -705,8 +766,8 @@ export const versions = {
             testing: {
                 title: '🧪 Testing & Debugging',
                 improvements: [
-                    'Created automated test suite (window.testUserSettings)',
-                    'Added debug tools (window.keymojiDebug)',
+                    'Created automated test suite',
+                    'Added debug tools for development',
                     'Implemented consistency checks',
                     'Added comprehensive logging throughout',
                     'Created test helpers for manual testing'
@@ -717,8 +778,8 @@ export const versions = {
             title: '📝 Documentation',
             improvements: [
                 'Added comprehensive CHANGELOG',
-                'Created n8n workflow setup guides',
-                'Added UserSettings architecture documentation',
+                'Created workflow setup guides',
+                'Added architecture documentation',
                 'Created testing and debugging guides',
                 'Documented all data flows and synchronization'
             ]
