@@ -581,6 +581,19 @@ async function saveUsageToAPI(account, usageData) {
         );
         const freshMetadata = currentPrefs.metadata || account?.metadata || {};
 
+        // CRITICAL: Update usage history FIRST (before building metadata!)
+        // This ensures updatedHistory is available when building metadataToSend
+        const freshAccount = {
+            ...account,
+            metadata: freshMetadata
+        };
+        
+        // Update usage history with FRESH data
+        const updatedHistory = await saveToUsageHistory(
+            freshAccount,
+            usageData
+        );
+
         // CRITICAL: Clean metadata to remove duplicate fields (fields with own columns!)
         // Single Source of Truth: Fields with own columns should NOT be in metadata
         // Import metadata cleaner
@@ -601,18 +614,6 @@ async function saveUsageToAPI(account, usageData) {
         
         // Validate (warns in dev if duplicates found)
         validateMetadataNoDuplicates(cleanedMetadata, 'saveUsageToAPI');
-
-        // Update account with cleaned metadata
-        const freshAccount = {
-            ...account,
-            metadata: cleanedMetadata
-        };
-
-        // Update usage history with FRESH data
-        const updatedHistory = await saveToUsageHistory(
-            freshAccount,
-            usageData
-        );
 
         // LOCALHOST FIX: Use direct n8n call if Vercel API not available
         const isLocalhost =
