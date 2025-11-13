@@ -97,7 +97,22 @@ function generateMetaTags(route, lang = 'en') {
     <meta property="twitter:image" content="${imageUrl}">
     
     <!-- Canonical -->
-    <link rel="canonical" href="${canonicalUrl}">`;
+    <link rel="canonical" href="${canonicalUrl}">
+    
+    <!-- Language Alternates (hreflang) - Required for SEO -->
+    ${supportedLanguages
+        .map(l => {
+            const altPath = route === '/' ? '' : route;
+            const altUrl =
+                l === 'en'
+                    ? `${baseUrl}${altPath}`
+                    : `${baseUrl}/${l}${altPath}`;
+            // Ensure trailing slash for directories
+            const finalUrl = altUrl.endsWith('/') ? altUrl : `${altUrl}/`;
+            return `<link rel="alternate" hreflang="${l}" href="${finalUrl}">`;
+        })
+        .join('\n    ')}
+    <link rel="alternate" hreflang="x-default" href="${baseUrl}${route === '/' ? '/' : route}">`;
 }
 
 // Update index.html with proper meta tags

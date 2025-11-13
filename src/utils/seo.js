@@ -200,11 +200,12 @@ export function generateBenefitsStructuredData(benefits, currentLanguage, canoni
 }
 
 /**
- * Generate alternate URLs for each language
- * @param {string} url - Current URL
- * @returns {Array} Array of alternate URLs
+ * Generate alternate URLs for each language with ABSOLUTE URLs (required for SEO)
+ * @param {string} url - Current URL (can be relative or absolute)
+ * @returns {Array} Array of alternate URLs with absolute URLs
  */
 export function generateAlternateUrls(url) {
+    const baseUrl = 'https://keymoji.wtf';
     const supportedLanguages = [
         'en',
         'de',
@@ -223,12 +224,52 @@ export function generateAlternateUrls(url) {
         'sjn'
     ];
 
+    // Extract path from URL (remove domain if present, remove language prefix)
+    let path = url;
+    if (path.startsWith('http')) {
+        try {
+            const urlObj = new URL(path);
+            path = urlObj.pathname;
+        } catch (e) {
+            // If URL parsing fails, assume it's already a path
+            path = url;
+        }
+    }
+
+    // Remove language prefix if present (e.g., /de/contact -> /contact)
+    const langPrefixPattern = /^\/[a-z-]+(\/|$)/;
+    const pathWithoutLang = path.replace(langPrefixPattern, '/');
+
+    // Ensure path starts with /
+    const cleanPath = pathWithoutLang.startsWith('/') ? pathWithoutLang : `/${pathWithoutLang}`;
+
     return supportedLanguages.map(lang => {
-        const locale = getLocale(lang);
+        // Build absolute URL for each language
+        // English: https://keymoji.wtf/ (or /path)
+        // Others: https://keymoji.wtf/{lang}/ (or /{lang}/path)
+        let langPath;
+        if (lang === 'en') {
+            // English uses root path
+            langPath = cleanPath === '/' ? '/' : cleanPath;
+        } else {
+            // Other languages use /{lang}/ prefix
+            langPath = cleanPath === '/' ? `/${lang}/` : `/${lang}${cleanPath}`;
+        }
+
+        // Ensure trailing slash for home pages
+        if (langPath === '/' || langPath.endsWith('/')) {
+            // Already has trailing slash or is root
+        } else if (!langPath.includes('.')) {
+            // No file extension, add trailing slash
+            langPath = `${langPath}/`;
+        }
+
+        const absoluteUrl = `${baseUrl}${langPath}`;
+
         return {
             lang,
-            locale,
-            url: url.replace(/^\/[a-z-]+/, `/${lang}`)
+            locale: getLocale(lang),
+            url: absoluteUrl
         };
     });
 }
@@ -644,6 +685,46 @@ export function updateMetaTags(seoData, currentLanguage) {
         document.head.appendChild(canonicalLink);
     }
     canonicalLink.setAttribute('href', canonical);
+
+    // Update hreflang links dynamically (if not already present in static HTML)
+    // Generate alternate URLs for current page
+    const alternateUrls = generateAlternateUrls(canonical);
+    
+    // Remove existing hreflang links that might be outdated
+    const existingHreflangLinks = document.querySelectorAll('link[rel="alternate"][hreflang]');
+    existingHreflangLinks.forEach(link => {
+        // Only remove if it's not in the static HTML (check if it has a data attribute)
+        // Static hreflang links in public/index.html should remain
+        if (!link.hasAttribute('data-static')) {
+            link.remove();
+        }
+    });
+
+    // Add/update hreflang links for all languages
+    alternateUrls.forEach(alt => {
+        let hreflangLink = document.querySelector(`link[rel="alternate"][hreflang="${alt.lang}"]`);
+        if (!hreflangLink) {
+            hreflangLink = document.createElement('link');
+            hreflangLink.setAttribute('rel', 'alternate');
+            hreflangLink.setAttribute('hreflang', alt.lang);
+            hreflangLink.setAttribute('data-dynamic', 'true');
+            document.head.appendChild(hreflangLink);
+        }
+        hreflangLink.setAttribute('href', alt.url);
+    });
+
+    // Ensure x-default link exists
+    let xDefaultLink = document.querySelector('link[rel="alternate"][hreflang="x-default"]');
+    if (!xDefaultLink) {
+        xDefaultLink = document.createElement('link');
+        xDefaultLink.setAttribute('rel', 'alternate');
+        xDefaultLink.setAttribute('hreflang', 'x-default');
+        xDefaultLink.setAttribute('data-dynamic', 'true');
+        document.head.appendChild(xDefaultLink);
+    }
+    // x-default should point to English version
+    const englishUrl = alternateUrls.find(alt => alt.lang === 'en')?.url || 'https://keymoji.wtf/';
+    xDefaultLink.setAttribute('href', englishUrl);
 }
 
 /**
