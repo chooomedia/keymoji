@@ -528,58 +528,15 @@ async function updateAccountName(userId, name) {
                     limit: currentDailyUsage.limit
                 });
             } else {
-                // Priority 2: Load from dailyLimit store (most up-to-date)
-                const dailyLimitStore = get(dailyLimit);
-                // CRITICAL: dailyLimit store has {limit, used, storyUsed} but NOT date
-                // We need to construct dailyUsage object with today's date
-                if (dailyLimitStore && (dailyLimitStore.used > 0 || dailyLimitStore.storyUsed > 0 || dailyLimitStore.limit > 0)) {
-                    // Construct dailyUsage object from dailyLimit store
-                    const today = new Date().toISOString().split('T')[0];
-                    currentDailyUsage = {
-                        date: today,
-                        used: dailyLimitStore.used || 0,
-                        storyUsed: dailyLimitStore.storyUsed || 0,
-                        limit: dailyLimitStore.limit || 0,
-                        lastReset: today
-                    };
-                    console.log('✅ [NAME UPDATE] Using dailyUsage from dailyLimit store:', {
+                // Use centralized loadDailyUsage utility (single source of truth)
+                const { loadDailyUsage } = await import('../utils/dailyUsageLoader.js');
+                currentDailyUsage = await loadDailyUsage(account, { includeAPI: true });
+                if (currentDailyUsage) {
+                    console.log('✅ [NAME UPDATE] Loaded dailyUsage using centralized loader:', {
                         date: currentDailyUsage.date,
                         used: currentDailyUsage.used,
                         limit: currentDailyUsage.limit
                     });
-                } else {
-                    // Priority 3: Try to load from API FIRST (most reliable source!)
-                    const { loadUsageFromAPI } = await import('./dailyUsageStore.js');
-                    if (loadUsageFromAPI && account) {
-                        const apiUsage = await loadUsageFromAPI(account).catch(() => null);
-                        if (apiUsage && apiUsage.date) {
-                            currentDailyUsage = apiUsage;
-                            console.log('✅ [NAME UPDATE] Loaded dailyUsage from API:', {
-                                date: currentDailyUsage.date,
-                                used: currentDailyUsage.used,
-                                limit: currentDailyUsage.limit
-                            });
-                        }
-                    }
-                    
-                    // Priority 4: Fallback to localStorage if API failed
-                    if (!currentDailyUsage) {
-                        const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
-                        if (prefs.dailyUsage) {
-                            currentDailyUsage = typeof prefs.dailyUsage === 'string' 
-                                ? JSON.parse(prefs.dailyUsage) 
-                                : prefs.dailyUsage;
-                            if (currentDailyUsage && currentDailyUsage.date) {
-                                console.log('✅ [NAME UPDATE] Using dailyUsage from localStorage:', {
-                                    date: currentDailyUsage.date,
-                                    used: currentDailyUsage.used,
-                                    limit: currentDailyUsage.limit
-                                });
-                            } else {
-                                currentDailyUsage = null;
-                            }
-                        }
-                    }
                 }
             }
             
