@@ -1163,11 +1163,44 @@ async function callCustomAPI(config) {
 }
 
 /**
+ * Simple hash function for creating deterministic, short cache keys
+ * Uses djb2 algorithm (fast, good distribution, no external dependencies)
+ */
+function hashString(str) {
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) + hash) + str.charCodeAt(i);
+        hash = hash & hash; // Convert to 32-bit integer
+    }
+    // Convert to positive hex string (always 8 chars)
+    return Math.abs(hash).toString(16).padStart(8, '0');
+}
+
+/**
  * Get cache key for story generation
+ * CRITICAL: Uses hash to prevent extremely long keys that break localStorage
+ * localStorage keys should be short and safe (no special chars, reasonable length)
  */
 function getCacheKey(text, emojiCount, provider, model) {
+    // Normalize text for consistent hashing
     const normalized = text.toLowerCase().trim();
-    return `story_${provider}_${model}_${emojiCount}_${normalized}`;
+    
+    // Create a unique string from all parameters
+    const keyString = `${provider}_${model}_${emojiCount}_${normalized}`;
+    
+    // Hash the key string to create a short, deterministic key
+    // This prevents:
+    // 1. Extremely long keys (localStorage has practical limits)
+    // 2. Special character issues (Umlaute, spaces, slashes, etc.)
+    // 3. Key collisions are extremely unlikely with hash
+    const hash = hashString(keyString);
+    
+    // Create final key: story_cache_<provider>_<model>_<emojiCount>_<hash>
+    // This keeps it readable for debugging while being safe
+    const safeProvider = String(provider || 'unknown').replace(/[^a-z0-9]/gi, '_');
+    const safeModel = String(model || 'default').replace(/[^a-z0-9]/gi, '_');
+    
+    return `story_${safeProvider}_${safeModel}_${emojiCount}_${hash}`;
 }
 
 /**

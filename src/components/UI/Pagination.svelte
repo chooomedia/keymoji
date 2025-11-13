@@ -1,41 +1,34 @@
 <!-- src/components/UI/Pagination.svelte -->
-<!-- Minimalistische Pagination im Flowbite-Stil, angepasst an unser Design -->
+<!-- Klassische Pagination mit sichtbaren Seitenzahlen -->
 
 <script>
-    /**
-     * Props:
-     * @param {number} currentPage - Aktuelle Seite (1-indexed)
-     * @param {number} totalPages - Gesamtanzahl der Seiten
-     * @param {function} onPageChange - Callback-Funktion: (page: number) => void
-     * @param {boolean} isLoading - Ob gerade geladen wird (disabled state)
-     */
-    
     export let currentPage = 1;
     export let totalPages = 1;
     export let onPageChange = () => {};
     export let isLoading = false;
     
-    let goToPageInput = '';
-    
-    // Berechne visible pages (max 3: immer 1-3 anzeigen wenn möglich)
+    // Berechne sichtbare Seitenzahlen mit Ellipsis
     $: visiblePages = (() => {
-        if (totalPages <= 3) {
-            // Zeige alle Seiten wenn <= 3
+        if (totalPages <= 7) {
+            // Zeige alle Seiten wenn <= 7
             return Array.from({ length: totalPages }, (_, i) => i + 1);
         }
         
-        // Zeige immer max 3 Seiten basierend auf currentPage
-        if (currentPage === 1) {
-            return [1, 2, 3];
-        } else if (currentPage === totalPages) {
-            return [totalPages - 2, totalPages - 1, totalPages];
+        // Klassische Pagination-Logik
+        if (currentPage <= 3) {
+            // Anfang: 1, 2, 3, 4, ..., last
+            return [1, 2, 3, 4, '...', totalPages];
+        } else if (currentPage >= totalPages - 2) {
+            // Ende: 1, ..., last-3, last-2, last-1, last
+            return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
         } else {
-            return [currentPage - 1, currentPage, currentPage + 1];
+            // Mitte: 1, ..., current-1, current, current+1, ..., last
+            return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
         }
     })();
     
     function handlePageClick(page) {
-        if (page === currentPage || isLoading || page < 1 || page > totalPages) return;
+        if (page === '...' || page === currentPage || isLoading || page < 1 || page > totalPages) return;
         onPageChange(page);
     }
     
@@ -50,89 +43,63 @@
             onPageChange(currentPage + 1);
         }
     }
-    
-    function handleGoToPageSubmit(event) {
-        event.preventDefault();
-        const page = parseInt(goToPageInput, 10);
-        if (!isNaN(page) && page >= 1 && page <= totalPages && page !== currentPage) {
-            onPageChange(page);
-            goToPageInput = '';
-        }
-    }
 </script>
 
 {#if totalPages > 1}
 <div class="transform -translate-y-3.5 scale-114">
-    <div class="core-button relative h-20 bg-creme-500 dark:bg-aubergine-900 border-powder-300 dark:border-aubergine-800 shadow-inner overflow-hidden mb-1">
-        <nav aria-label="Page navigation" class="w-full h-full relative flex justify-around items-center space-x-4">
-            <ul class="flex -space-x-px text-sm">
-                <!-- Previous Button (Icon only) -->
-                <li>
-                    <button
-                        on:click={handlePrevious}
-                        disabled={currentPage === 1 || isLoading}
-                        class="flex items-center justify-center text-gray-700 dark:text-gray-300 bg-powder-50 dark:bg-aubergine-900 hover:text-gray-900 dark:hover:text-gray-200 shadow-sm font-medium leading-5 rounded-l-lg text-sm px-3 h-9 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-powder-50 dark:disabled:hover:bg-aubergine-800 transition-all duration-200"
-                        aria-label="Previous page"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                </li>
+    <div class="w-full max-w-screen-2xl mx-auto">
+        <div class="core-button relative h-20 bg-creme-500 dark:bg-aubergine-900 border-powder-300 dark:border-aubergine-800 shadow-inner overflow-hidden mb-1">
+            <nav aria-label="Page navigation" class="w-full h-full relative flex items-center justify-center gap-2">
+                <!-- Previous Button -->
+                <button
+                    on:click={handlePrevious}
+                    disabled={currentPage === 1 || isLoading}
+                    class="flex items-center justify-center w-14 h-14 rounded-full text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-200 font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 ease-in-out"
+                    aria-label="Previous page"
+                >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
                 
-                <!-- Page Number Buttons (max 3) -->
-                {#each visiblePages as page}
-                    <li>
-                        <button
-                            on:click={() => handlePageClick(page)}
-                            disabled={isLoading}
-                            aria-current={page === currentPage ? 'page' : undefined}
-                            class="flex items-center justify-center text-sm w-9 h-9 font-medium leading-5 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 transition-all duration-200
-                                {page === currentPage
-                                    ? 'text-yellow-500 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 hover:text-yellow-600 dark:hover:text-yellow-300'
-                                    : 'text-gray-700 dark:text-gray-300 bg-powder-50 dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-aubergine-700 hover:text-gray-900 dark:hover:text-gray-200 shadow-sm'}"
-                            aria-label="Go to page {page}"
-                            title="Page {page}"
-                        >
-                            {page}
-                        </button>
-                    </li>
-                {/each}
-                
-                <!-- Next Button (Icon only) -->
-                <li>
-                    <button
-                        on:click={handleNext}
-                        disabled={currentPage === totalPages || isLoading}
-                        class="flex items-center justify-center text-gray-700 dark:text-gray-300 bg-powder-50 dark:bg-aubergine-900 hover:text-gray-900 dark:hover:text-gray-200 shadow-sm font-medium leading-5 rounded-r-lg text-sm px-3 h-9 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-powder-50 dark:disabled:hover:bg-aubergine-800 transition-all duration-200"
-                        aria-label="Next page"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
-                </li>
-            </ul>
-            
-            <!-- Go to Page Input (Flowbite Style) -->
-            <form on:submit={handleGoToPageSubmit} class="mx-auto">
-                <div class="flex items-center space-x-2">
-                    <label for="go-to-page-input" class="text-sm font-medium text-gray-700 dark:text-gray-300 shrink-0">
-                        Go to
-                    </label>
-                    <input
-                        id="go-to-page-input"
-                        type="text"
-                        bind:value={goToPageInput}
-                        placeholder={totalPages.toString()}
-                        class="bg-powder-50 dark:bg-aubergine-800 w-10 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 block px-2.5 py-2 shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all duration-200"
-                        aria-label="Go to page number"
-                        required
-                    />
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">page</span>
+                <!-- Page Numbers - Alle in einer Zeile, sauber ausgerichtet -->
+                <div class="flex items-center justify-center gap-1.5">
+                    {#each visiblePages as page}
+                        {#if page === '...'}
+                            <span class="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 font-medium text-sm">
+                                ...
+                            </span>
+                        {:else}
+                            <button
+                                on:click={() => handlePageClick(page)}
+                                disabled={isLoading}
+                                aria-current={page === currentPage ? 'page' : undefined}
+                                class="flex items-center justify-center w-10 h-10 rounded-full text-sm font-bold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
+                                    {page === currentPage
+                                        ? 'bg-yellow-500 dark:bg-yellow-600 text-aubergine-900 '
+                                        : 'text-gray-700 hover:text-gray-900 dark:hover:text-gray-200'}"
+                                aria-label="Go to page {page}"
+                                title="Page {page}"
+                            >
+                                {page}
+                            </button>
+                        {/if}
+                    {/each}
                 </div>
-            </form>
-        </nav>
+                
+                <!-- Next Button -->
+                <button
+                    on:click={handleNext}
+                    disabled={currentPage === totalPages || isLoading}
+                    class="flex items-center justify-center w-14 h-14 rounded-full text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-200 font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 ease-in-out"
+                    aria-label="Next page"
+                >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </nav>
+        </div>
     </div>
 </div>
 {/if}

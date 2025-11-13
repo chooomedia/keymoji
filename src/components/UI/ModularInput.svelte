@@ -403,7 +403,6 @@
                             on:change={handleValueChange}
                             disabled={config.disabled}
                             class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                            aria-invalid={!isValid && validationErrors.length > 0}
                             aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
                         />
                         <label for="{config.id}_{option.value}" class="text-sm text-gray-900 dark:text-white">

@@ -8,10 +8,11 @@
     import { isLoggedIn } from '../../stores/appStores.js';
     import { get } from 'svelte/store';
     import PageLayout from '../Layout/PageLayout.svelte';
-    import { linkedinIcon, whatsappIcon, emailIcon, redditIcon } from '../../assets/shapes.js';
     import BlogPostImage from './BlogPostImage.svelte';
     import BlogPostMeta from './BlogPostMeta.svelte';
     import HeartAnimation from './HeartAnimation.svelte';
+    import ShareButtons from './ShareButtons.svelte';
+    import { generateBlogPostStructuredData, formatCanonicalUrl, injectStructuredData } from '../../utils/seo.js';
   
     export let slug;
     
@@ -20,6 +21,7 @@
     let error = null;
     let shareUrl = '';
     let showHeartAnimation = false;
+    let isLiking = false;
   
     // Translations for "Back to Posts" button
     $: backToPostsText = (() => {
@@ -51,31 +53,22 @@
         
         if (fetchedPost) {
           post = fetchedPost;
-          
-          // Debug: Log post data to verify structure and likes from backend
-          console.log('📡 [BlogPost] Loaded post:', {
-            id: post.id,
-            row_number: post.row_number,
-            slug: post.slug,
-            title: post.title,
-            image: post.image,
-            thumbnail: post.thumbnail,
-            likes: post.likes, // Should come from backend (n8n Merge With Likes)
-            liked: post.liked, // User-specific (from cache)
-            likesSource: post.likes !== undefined ? 'backend' : 'cache'
-          });
-          
-          // Generiere Share-URL
           shareUrl = getBlogShareUrl(post.slug || slug);
         
         // Update SEO for blog post
+          const canonicalUrl = formatCanonicalUrl(window.location.pathname);
           updateSeo({
             title: post.title,
             description: post.excerpt || (post.content ? post.content.replace(/<[^>]*>/g, '').substring(0, 160) : ''),
             url: window.location.pathname,
             pageType: 'blog',
-            image: post.thumbnail || post.image
+            image: post.thumbnail || post.image,
+            canonical: canonicalUrl
           });
+          
+          // Inject BlogPosting structured data (E-E-A-T-S optimized)
+          const structuredData = generateBlogPostStructuredData(post, $currentLanguage, canonicalUrl);
+          injectStructuredData(structuredData);
         } else {
           error = 'Post not found';
         }
@@ -88,83 +81,85 @@
     });
   
     async function handleLike() {
-      // Check if user is logged in
-      if (!get(isLoggedIn)) {
-        console.log('🔒 [BlogPost] User not logged in, redirecting to account page');
-        const lang = $currentLanguage || 'en';
-        const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
-        navigate(accountPath, { replace: false });
-        return;
-      }
-      
-      // Get post identifier (id or row_number)
-      const postId = post?.id || post?.row_number;
-      if (!post || !postId) {
-        console.warn('⚠️ [BlogPost] No post ID for like:', { post, postId });
-        return;
-      }
-      
-      // Prevent double-liking
-      if (post.liked) {
-        console.log('ℹ️ [BlogPost] Post already liked');
-        return;
-      }
-      
-      const originalLikes = post.likes || 0;
-      const originalLiked = post.liked || false;
-      
-      console.log('📡 [BlogPost] Liking post:', { postId, originalLikes, originalLiked });
-      
-      // Optimistic update
-      post = {
-        ...post,
-        likes: originalLikes + 1,
-        liked: true
-      };
-      
-      try {
-        // Call API
-        const result = await likeBlogPost(postId, { optimistic: true });
-        
-        console.log('📡 [BlogPost] Like API result:', result);
-        
-        if (result && result.success) {
-          // Update with server response
-          post = {
-            ...post,
-            likes: result.likes !== undefined ? result.likes : (originalLikes + 1),
-            liked: true
-          };
-          console.log('✅ [BlogPost] Like saved successfully:', { likes: post.likes });
-          
-          // Trigger heart animation
-          showHeartAnimation = true;
-          
-          // Reset animation flag after a short delay to allow re-triggering
-          setTimeout(() => {
-            showHeartAnimation = false;
-          }, 100);
-          
-          // Refresh likes from backend to ensure we have the latest value
-          await refreshLikesFromBackend();
-        } else {
-          // Rollback on error
-          post = {
-            ...post,
-            likes: originalLikes,
-            liked: originalLiked
-          };
-          console.warn('⚠️ [BlogPost] Like failed, rolled back:', result);
+        if (!get(isLoggedIn)) {
+            const lang = $currentLanguage || 'en';
+            const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
+            navigate(accountPath, { replace: false });
+            return;
         }
-      } catch (error) {
-        console.error('❌ [BlogPost] Error liking post:', error);
-        // Rollback on error
+        
+        const postId = post?.id || post?.row_number;
+        if (!post || !postId || isLiking) return;
+        
+        const originalLikes = post.likes || 0;
+        const originalLiked = post.liked || false;
+        const isUnlike = originalLiked;
+        
+        // Set loading state
+        isLiking = true;
+        
+        // Optimistic update
         post = {
-          ...post,
-          likes: originalLikes,
-          liked: originalLiked
+            ...post,
+            likes: isUnlike ? Math.max(0, originalLikes - 1) : originalLikes + 1,
+            liked: !isUnlike
         };
-      }
+        
+        try {
+            const result = await likeBlogPost(postId, { optimistic: true, unlike: isUnlike });
+            
+            // Clear loading state
+            isLiking = false;
+            
+            if (result && result.success) {
+                // PRIORITÄT: Backend-Wert (result.likes) hat immer höchste Priorität
+                const backendLikes = result.likes !== undefined && result.likes !== null 
+                    ? parseInt(result.likes, 10) 
+                    : null;
+                const optimisticLikes = isUnlike 
+                    ? Math.max(0, originalLikes - 1) 
+                    : originalLikes + 1;
+                
+                // Verwende immer den höheren Wert (Backend hat Priorität)
+                const finalLikes = backendLikes !== null 
+                    ? Math.max(backendLikes, optimisticLikes) 
+                    : optimisticLikes;
+                
+                post = {
+                    ...post,
+                    likes: finalLikes,
+                    liked: !isUnlike
+                };
+                post = post;
+                
+                // Animation nur bei Like (nicht bei Unlike)
+                if (!isUnlike) {
+                    showHeartAnimation = true;
+                    setTimeout(() => {
+                        showHeartAnimation = false;
+                    }, 50);
+                }
+                
+                if (result.likes === undefined || result.likes === null) {
+                    await refreshLikesFromBackend();
+                }
+            } else {
+                // Rollback on error
+                post = {
+                    ...post,
+                    likes: originalLikes,
+                    liked: originalLiked
+                };
+            }
+        } catch (error) {
+            console.error('❌ [BlogPost] Error liking post:', error);
+            isLiking = false;
+            post = {
+                ...post,
+                likes: originalLikes,
+                liked: originalLiked
+            };
+        }
     }
     
     async function refreshLikesFromBackend() {
@@ -206,8 +201,38 @@
     </div>
 
     {#if loading}
-        <div class="flex justify-center items-center py-12">
-            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow"></div>
+        <div class="container mx-auto py-4">
+            <div class="max-w-4xl mx-auto">
+                <!-- Skeleton Loading -->
+                <article class="bg-white dark:bg-aubergine-900 rounded-xl shadow-md overflow-hidden animate-pulse">
+                    <!-- Meta Skeleton -->
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="h-3 w-20 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
+                            <div class="h-3 w-16 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Image Skeleton -->
+                    <div class="w-full h-64 md:h-96 bg-gray-300 dark:bg-aubergine-800"></div>
+                    
+                    <!-- Content Skeleton -->
+                    <div class="p-6 md:p-8 space-y-4">
+                        <div class="space-y-2">
+                            <div class="h-8 w-3/4 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
+                            <div class="h-8 w-1/2 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
+                        </div>
+                        
+                        <div class="space-y-3 mt-6">
+                            <div class="h-4 w-full bg-gray-300 dark:bg-aubergine-800 rounded"></div>
+                            <div class="h-4 w-full bg-gray-300 dark:bg-aubergine-800 rounded"></div>
+                            <div class="h-4 w-5/6 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
+                            <div class="h-4 w-full bg-gray-300 dark:bg-aubergine-800 rounded"></div>
+                            <div class="h-4 w-4/5 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
+                        </div>
+                    </div>
+                </article>
+            </div>
         </div>
     {:else if error || !post}
         <div class="flex flex-col justify-center items-center py-12">
@@ -248,9 +273,15 @@
                 </div>
   
             <!-- Post Content -->
-            <article class="prose prose-gray dark:prose-invert dark:text-gray-200 max-w-none mb-16">
-        {@html post.content}
-      </article>
+            <article 
+                itemscope 
+                itemtype="https://schema.org/BlogPosting"
+                class="prose prose-gray dark:prose-invert dark:text-gray-200 max-w-none mb-16">
+                <h1 itemprop="headline" class="sr-only">{post.title}</h1>
+                <div itemprop="articleBody">
+                    {@html post.content}
+                </div>
+            </article>
   
             <!-- CTA Section -->
             <section class="bg-white dark:bg-aubergine-900 border border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center">
@@ -275,77 +306,25 @@
                         on:click={handleLike}
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
                         title={post.liked ? 'Unlike' : 'Like'}
-                        disabled={post.liked}
+                        disabled={isLiking}
                     >
                         <span class="text-base">{post.liked ? '❤️' : '🤍'}</span>
-                        <span class="text-gray-700 dark:text-gray-300">{post.likes || 0}</span>
+                        {#if isLiking}
+                            <svg class="animate-spin h-4 w-4 text-gray-700 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        {:else}
+                            <span class="text-gray-700 dark:text-gray-300">{post.likes || 0}</span>
+                        {/if}
                     </button>
                     
-                    <div class="flex gap-2">
-                        <!-- Native Share Button (if available) -->
-                        {#if typeof navigator !== 'undefined' && navigator.share}
-                            <button 
-                                aria-label="Share the blog post" 
-                                on:click={() => {
-                                    if (shareUrl) {
-                                        navigator.share({
-                                            title: post.title,
-                                            text: post.excerpt || '',
-                                            url: shareUrl
-                                        }).catch(err => {
-                                            if (err.name !== 'AbortError') {
-                                                showShareMenu.set(true);
-                                            }
-                                        });
-                                    } else {
-                                        showShareMenu.set(true);
-                                    }
-                                }}
-                                class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
-                                title="Share this post"
-                            >
-                                <span class="text-base">🔗</span>
-                            </button>
-                        {/if}
-                        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-blue-700 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
-                            title="Share on LinkedIn"
-                            aria-label="Share on LinkedIn">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                {@html linkedinIcon}
-                            </svg>
-                        </a>
-                        <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
-                            title="Share on WhatsApp"
-                            aria-label="Share on WhatsApp">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                {@html whatsappIcon}
-                            </svg>
-                        </a>
-                        <a href={`https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(post.title)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
-                            title="Share on Reddit"
-                            aria-label="Share on Reddit">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                {@html redditIcon}
-                            </svg>
-                        </a>
-                        <a href={`mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(shareUrl)}`}
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
-                            title="Share via Email"
-                            aria-label="Share via Email">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                {@html emailIcon}
-                            </svg>
-                        </a>
-                    </div>
+                    <ShareButtons 
+                        {shareUrl}
+                        {shareText}
+                        title={post.title}
+                        showNativeShare={true}
+                    />
                 </div>
             {/if}
             </div>
@@ -353,5 +332,5 @@
     {/if}
     
     <!-- Heart Animation -->
-    <HeartAnimation show={showHeartAnimation} count={3} />
+    <HeartAnimation show={showHeartAnimation} count={5} />
 </PageLayout>

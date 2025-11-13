@@ -1,7 +1,6 @@
 <script>
     import { onMount, onDestroy } from 'svelte';
     import { Link, navigate } from 'svelte-routing';
-    import { linkedinIcon, whatsappIcon, emailIcon, redditIcon } from '../../assets/shapes.js';
     import { 
         fetchBlogPosts, 
         likeBlogPost, 
@@ -17,24 +16,23 @@
     import BlogPostMeta from './BlogPostMeta.svelte';
     import HeartAnimation from './HeartAnimation.svelte';
     import Pagination from '../UI/Pagination.svelte';
+    import BlogPostSkeleton from './BlogPostSkeleton.svelte';
+    import ShareButtons from './ShareButtons.svelte';
+    import { generateBlogListStructuredData, formatCanonicalUrl, injectStructuredData } from '../../utils/seo.js';
     
     let posts = [];
     let showHeartAnimation = false;
-    let heartAnimationPostId = null;
     let loading = true;
     let error = null;
     let selectedCategory = 'all';
-    let displayedPosts = [];
-    let postsPerPage = 4; // 1 featured + 3 regular
     let currentPage = 1;
     let isLoadingMore = false;
-    let observer = null;
-    let loadMoreTrigger = null;
+    let isTransitioning = false;
     let isDropdownOpen = false;
     let dropdownRef = null;
     let buttonRef = null;
+    let likingPostId = null; // Track which post is being liked
     
-    // Get unique categories from posts with counts
     $: categoriesWithCounts = (() => {
         const categoryMap = new Map();
         categoryMap.set('all', posts.length);
@@ -50,27 +48,21 @@
             category,
             count
         })).sort((a, b) => {
-            // 'all' always first
             if (a.category === 'all') return -1;
             if (b.category === 'all') return 1;
-            // Then by count (descending)
             return b.count - a.count;
         });
     })();
     
-    // Get unique categories from posts (for backwards compatibility)
     $: categories = categoriesWithCounts.map(c => c.category);
     
-    // Filter and sort posts
     $: filteredPosts = (() => {
         let filtered = posts;
         
-        // Filter by category
         if (selectedCategory !== 'all') {
             filtered = filtered.filter(p => p.category === selectedCategory);
         }
         
-        // Sort by date (newest first) - assuming posts have isodate or date
         filtered = [...filtered].sort((a, b) => {
             const dateA = new Date(a.isodate || a.date || 0);
             const dateB = new Date(b.isodate || b.date || 0);
@@ -80,132 +72,112 @@
         return filtered;
     })();
     
-    // Calculate total pages
-    // Page 1: Featured post (1)
-    // Page 2+: 3 regular posts per page
+    // 1 Newest Post + 3 weitere Posts = 4 Posts pro Seite
+    const POSTS_PER_PAGE = 4;
+    const INITIAL_POSTS = 1; // 1 Newest Post immer prominent
+    
     $: totalPages = (() => {
         if (filteredPosts.length === 0) return 0;
-        if (filteredPosts.length === 1) return 1; // Only featured
-        const regularPosts = filteredPosts.length - 1; // Exclude featured
-        return Math.ceil(regularPosts / 3) + 1; // +1 for featured page
+        return Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
     })();
     
-    // Get displayed posts (featured + paginated)
     $: displayedPosts = (() => {
-        if (filteredPosts.length === 0) {
-            return [];
-        }
+        if (filteredPosts.length === 0) return [];
         
-        const featured = filteredPosts[0];
-        const regular = filteredPosts.slice(1);
-        
-        // Page 1: Featured post only
-        if (currentPage === 1) {
-            return [featured];
-        }
-        
-        // Page 2+: Featured + paginated regular posts
-        // Page 2: featured + posts 0-2 (3 posts)
-        // Page 3: featured + posts 0-5 (6 posts)
-        // Page 4: featured + posts 0-8 (9 posts)
-        // etc.
-        const regularToShow = (currentPage - 1) * 3;
-        const paginatedRegular = regular.slice(0, regularToShow);
-        return [featured, ...paginatedRegular];
+        const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+        const endIndex = startIndex + POSTS_PER_PAGE;
+        return filteredPosts.slice(startIndex, endIndex);
     })();
     
-    // Check if there are more posts to load
-    $: hasMore = filteredPosts.length > displayedPosts.length;
+    // Trenne newest Post von anderen Posts für besseres Layout
+    $: newestPosts = currentPage === 1 ? displayedPosts.slice(0, INITIAL_POSTS) : [];
+    $: otherPosts = currentPage === 1 ? displayedPosts.slice(INITIAL_POSTS) : displayedPosts;
     
-    // Helper function to truncate author text to max 24 characters
     function truncateAuthor(author) {
         if (!author) return 'Unknown';
         const text = String(author);
-        // If text is longer than 24 chars, show first 21 chars + "..." = 24 total
         return text.length > 24 ? text.substring(0, 21) + '...' : text;
     }
     
     async function handleLike(postId) {
-        // Check if user is logged in
         if (!get(isLoggedIn)) {
-            console.log('🔒 [BlogGrid] User not logged in, redirecting to account page');
             const lang = $currentLanguage || 'en';
             const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
             navigate(accountPath, { replace: false });
             return;
         }
         
-        if (!postId) {
-            console.warn('⚠️ [BlogGrid] No postId provided for like');
-            return;
-        }
+        if (!postId || likingPostId === postId) return;
         
-        // Find post
         const postIndex = posts.findIndex(p => (p.id === postId || p.row_number === postId));
-        if (postIndex === -1) {
-            console.warn('⚠️ [BlogGrid] Post not found for like:', postId);
-            return;
-        }
+        if (postIndex === -1) return;
         
         const originalPost = posts[postIndex];
-        
-        // Prevent double-liking
-        if (originalPost.liked) {
-            console.log('ℹ️ [BlogGrid] Post already liked');
-            return;
-    }
-        
         const originalLikes = originalPost.likes || 0;
+        const originalLiked = originalPost.liked || false;
+        const isUnlike = originalLiked;
         
-        // Update UI immediately (optimistic update)
+        // Set loading state
+        likingPostId = postId;
+        
+        // Optimistic update
         posts[postIndex] = {
             ...originalPost,
-            likes: originalLikes + 1,
-            liked: true
+            likes: isUnlike ? Math.max(0, originalLikes - 1) : originalLikes + 1,
+            liked: !isUnlike
         };
-        posts = posts; // Trigger reactivity
+        posts = posts;
         
-        // Call API
-        const result = await likeBlogPost(postId, { optimistic: true });
+        const result = await likeBlogPost(postId, { optimistic: true, unlike: isUnlike });
+        
+        // Clear loading state
+        likingPostId = null;
         
         if (result && result.success) {
-            // Update with server response
+            // CRITICAL: Backend-Wert (result.likes) hat IMMER höchste Priorität
+            const backendLikes = result.likes !== undefined && result.likes !== null 
+                ? parseInt(result.likes, 10) 
+                : null;
+            
+            // Verwende Backend-Wert wenn vorhanden, sonst optimistischen Wert
+            const finalLikes = backendLikes !== null && !isNaN(backendLikes) && backendLikes >= 0
+                ? backendLikes
+                : (isUnlike ? Math.max(0, originalLikes - 1) : originalLikes + 1);
+            
             posts[postIndex] = {
                 ...posts[postIndex],
-                likes: result.likes !== undefined ? result.likes : (originalLikes + 1),
-                liked: true
+                likes: finalLikes,
+                liked: !isUnlike
             };
+            posts = posts; // Trigger reactivity
             
-            // Trigger heart animation
-            heartAnimationPostId = postId;
-            showHeartAnimation = true;
+            // Animation nur bei Like (nicht bei Unlike)
+            if (!isUnlike) {
+                showHeartAnimation = true;
+                setTimeout(() => {
+                    showHeartAnimation = false;
+                }, 1200);
+            }
             
-            // Reset animation flag after a short delay to allow re-triggering
-            setTimeout(() => {
-                showHeartAnimation = false;
-            }, 100);
-            
-            // Refresh likes from backend to ensure we have the latest value
-            await refreshLikesFromBackend();
+            // Refresh likes from backend after successful like
+            if (result.likes === undefined || result.likes === null) {
+                await refreshLikesFromBackend();
+            }
         } else {
-            // Rollback on error
             posts[postIndex] = {
                 ...originalPost,
                 likes: originalLikes,
-                liked: false
+                liked: originalLiked
             };
-            console.warn('⚠️ [BlogGrid] Like failed, rolled back');
-            }
+        }
         
-        posts = posts; // Trigger reactivity
+        posts = posts;
     }
     
     async function refreshLikesFromBackend() {
-        // Fetch latest posts to get updated likes from backend
         try {
-            const allPosts = await fetchBlogPosts({ useCache: false, forceRefresh: true }); // Force fresh fetch
+            const allPosts = await fetchBlogPosts({ useCache: false, forceRefresh: true });
             
-            // Update likes for all posts
             posts = posts.map(post => {
                 const updatedPost = allPosts.find(p => 
                     (p.id === post.id || p.row_number === post.row_number) ||
@@ -213,53 +185,32 @@
                 );
                 
                 if (updatedPost && updatedPost.likes !== undefined) {
-                    return {
-                        ...post,
-                        likes: updatedPost.likes
-                    };
+                    return { ...post, likes: updatedPost.likes };
                 }
                 return post;
             });
             
-            posts = posts; // Trigger reactivity
-            console.log('✅ [BlogGrid] Likes refreshed from backend');
+            posts = posts;
         } catch (error) {
             console.warn('⚠️ [BlogGrid] Error refreshing likes:', error);
         }
     }
     
-    function loadMore() {
-        if (isLoadingMore || !hasMore) return;
-        
-        isLoadingMore = true;
-        // Use requestAnimationFrame for smoother updates
-        requestAnimationFrame(() => {
-            currentPage++;
-            isLoadingMore = false;
-            // Scroll to top of new content smoothly
-            if (loadMoreTrigger) {
-                loadMoreTrigger.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    }
-    
     function goToPage(page) {
-        if (page < 1 || page > totalPages || page === currentPage) return;
+        if (page < 1 || page > totalPages || page === currentPage || isLoading || isTransitioning) return;
         
-        currentPage = page;
+        isTransitioning = true;
         isLoadingMore = true;
+        currentPage = page;
         
         // Smooth scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
-        // Reset loading state after a short delay
+        // Reset transition state after animation
         setTimeout(() => {
             isLoadingMore = false;
-            // Re-setup infinite scroll after page change
-            setTimeout(() => {
-                setupInfiniteScroll();
-            }, 100);
-        }, 300);
+            isTransitioning = false;
+        }, 400);
     }
     
     function handlePageChange(page) {
@@ -278,37 +229,7 @@
         }
     }
     
-    function setupInfiniteScroll() {
-        if (typeof IntersectionObserver === 'undefined') return;
-        
-        // Disconnect existing observer
-        if (observer) {
-            observer.disconnect();
-        }
-        
-        observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && hasMore && !isLoadingMore) {
-                        // Prevent duplicate loads
-                        isLoadingMore = true;
-                        loadMore();
-                    }
-                });
-            },
-            {
-                rootMargin: '200px' // Start loading 200px before reaching the trigger
-            }
-        );
-        
-        if (loadMoreTrigger) {
-            observer.observe(loadMoreTrigger);
-        }
-    }
-    
-    // Handle click outside dropdown
     function handleClickOutside(event) {
-        // Prüfen ob der Click außerhalb des Category Dropdowns war
         if (isDropdownOpen && 
             !event.target.closest('#category-dropdown-menu') && 
             !event.target.closest('#category-toggle-button') &&
@@ -317,10 +238,9 @@
             !event.target.closest('#fixed-menu') &&
             !event.target.closest('[data-menu-type="donate"]')) {
             isDropdownOpen = false;
-            }
+        }
     }
     
-    // Handle keyboard navigation
     function handleKeydown(event) {
         if (!isDropdownOpen) return;
         
@@ -337,12 +257,10 @@
         }
     }
     
-    // Reset pagination when category changes
     $: if (selectedCategory) {
         currentPage = 1;
         isDropdownOpen = false;
         setTimeout(() => {
-            setupInfiniteScroll();
         }, 100);
     }
     
@@ -354,38 +272,91 @@
             const fetchedPosts = await fetchBlogPosts({ useCache: true });
             
             if (Array.isArray(fetchedPosts) && fetchedPosts.length > 0) {
-                posts = fetchedPosts;
-                // Debug: Log likes from backend for first post
-                if (posts.length > 0) {
-                    console.log('📡 [BlogGrid] Loaded posts with likes from backend:', {
-                        totalPosts: posts.length,
-                        firstPost: {
-                            title: posts[0].title,
-                            likes: posts[0].likes,
-                            liked: posts[0].liked,
-                            likesSource: posts[0].likes !== undefined ? 'backend' : 'cache'
-                        }
-                    });
+                // Debug: Log nur Posts mit fehlenden/ungültigen Likes
+                const postsWithIssues = fetchedPosts.filter(p => 
+                    p.likes === undefined || 
+                    p.likes === null || 
+                    isNaN(parseInt(p.likes, 10))
+                );
+                if (postsWithIssues.length > 0) {
+                    console.warn('⚠️ [BlogGrid] Posts with missing/invalid likes:', postsWithIssues.map(p => ({ 
+                        id: p.id || p.row_number, 
+                        title: p.title?.substring(0, 30), 
+                        likes: p.likes
+                    })));
                 }
+                
+                posts = fetchedPosts;
             } else {
-                posts = [];
-                console.warn('⚠️ [BlogGrid] No posts received');
+                // Demo-Daten für Entwicklung
+                posts = [
+                    {
+                        id: 1,
+                        row_number: 1,
+                        title: 'Willkommen zu Keymoji - Sichere Passwörter mit Emojis',
+                        slug: 'willkommen-zu-keymoji',
+                        content: '<p>Keymoji revolutioniert die Passwort-Sicherheit durch die Verwendung von Emojis. Erfahren Sie, wie Sie starke, einprägsame Passwörter erstellen können, die sowohl sicher als auch benutzerfreundlich sind.</p><p>Unsere innovative Technologie kombiniert die Stärke von alphanumerischen Zeichen mit der visuellen Einprägsamkeit von Emojis, um Passwörter zu erstellen, die schwer zu knacken, aber einfach zu merken sind.</p>',
+                        excerpt: 'Erfahren Sie, wie Keymoji die Passwort-Sicherheit durch Emojis revolutioniert.',
+                        image: '/images/blog/keymoji-intro.jpg',
+                        thumbnail: '/images/blog/keymoji-intro-thumb.jpg',
+                        isodate: '2025-11-10T10:00:00Z',
+                        date: '2025-11-10',
+                        creator: 'Keymoji Team',
+                        category: 'Security',
+                        likes: 5,
+                        liked: false
+                    },
+                    {
+                        id: 2,
+                        row_number: 2,
+                        title: 'Die Wissenschaft hinter Emoji-Passwörtern',
+                        slug: 'wissenschaft-emoji-passwoerter',
+                        content: '<p>Emoji-Passwörter nutzen die kognitive Psychologie, um sowohl Sicherheit als auch Benutzerfreundlichkeit zu gewährleisten. Studien zeigen, dass visuelle Elemente wie Emojis besser im Gedächtnis bleiben als reine Textzeichen.</p><p>Durch die Kombination von Unicode-Zeichen mit traditionellen Passwort-Elementen schaffen wir eine neue Generation von Passwörtern, die sowohl sicher als auch benutzerfreundlich sind.</p>',
+                        excerpt: 'Entdecken Sie die wissenschaftlichen Grundlagen von Emoji-Passwörtern und wie sie die Sicherheit verbessern.',
+                        image: '/images/blog/emoji-science.jpg',
+                        thumbnail: '/images/blog/emoji-science-thumb.jpg',
+                        isodate: '2025-11-08T14:30:00Z',
+                        date: '2025-11-08',
+                        creator: 'Dr. Security Expert',
+                        category: 'Technology',
+                        likes: 12,
+                        liked: false
+                    },
+                    {
+                        id: 3,
+                        row_number: 3,
+                        title: 'Best Practices für sichere Passwörter im Jahr 2025',
+                        slug: 'best-practices-sichere-passwoerter-2025',
+                        content: '<p>In einer Zeit zunehmender Cyber-Bedrohungen ist es wichtiger denn je, starke Passwörter zu verwenden. Dieser Artikel zeigt Ihnen die besten Praktiken für die Erstellung und Verwaltung sicherer Passwörter.</p><p>Wir behandeln Themen wie Passwort-Länge, Komplexität, Einzigartigkeit und die Verwendung von Passwort-Managern. Erfahren Sie, wie Sie Ihre Online-Sicherheit maximieren können.</p>',
+                        excerpt: 'Lernen Sie die wichtigsten Best Practices für sichere Passwörter im Jahr 2025 kennen.',
+                        image: '/images/blog/password-best-practices.jpg',
+                        thumbnail: '/images/blog/password-best-practices-thumb.jpg',
+                        isodate: '2025-11-05T09:15:00Z',
+                        date: '2025-11-05',
+                        creator: 'Security Team',
+                        category: 'Security',
+                        likes: 8,
+                        liked: false
+                    }
+                ];
+                
+                if (!Array.isArray(fetchedPosts)) {
+                    error = `Failed to load blog posts. (Invalid response: ${typeof fetchedPosts})`;
+                }
             }
             
-            // Update SEO
+            const canonicalUrl = formatCanonicalUrl(window.location.pathname);
             updateSeo({
                 title: $translations?.blog?.title || 'Blog',
                 description: $translations?.blog?.description || 'Read our latest blog posts about emoji passwords, security, and more.',
                 url: window.location.pathname,
-                pageType: 'blog'
+                pageType: 'blog',
+                canonical: canonicalUrl
             });
             
-            // Setup infinite scroll after posts are loaded
-            setTimeout(() => {
-                setupInfiniteScroll();
-            }, 100);
+            const structuredData = generateBlogListStructuredData(posts, $currentLanguage, canonicalUrl);
+            injectStructuredData(structuredData);
             
-            // Setup click outside and keyboard handlers
             document.addEventListener('click', handleClickOutside);
             document.addEventListener('keydown', handleKeydown);
         } catch (err) {
@@ -398,9 +369,6 @@
     });
     
     onDestroy(() => {
-        if (observer) {
-            observer.disconnect();
-        }
         document.removeEventListener('click', handleClickOutside);
         document.removeEventListener('keydown', handleKeydown);
     });
@@ -411,9 +379,7 @@
 
 <PageLayout {pageTitle} {pageDescription}>
 {#if loading}
-    <div class="flex justify-center items-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow"></div>
-    </div>
+    <BlogPostSkeleton count={6} />
     {:else if error}
         <div class="flex flex-col justify-center items-center py-12">
             <p class="text-red-500 dark:text-red-400 mb-4">❌ {error}</p>
@@ -428,30 +394,56 @@
             <p class="text-gray-500 dark:text-gray-400">No blog posts available yet.</p>
         </div>
 {:else}
-        <!-- Pagination (Reusable Component) -->
-        {#if filteredPosts.length > 4 && totalPages > 1}
+        {#if totalPages > 1}
             <Pagination 
                 {currentPage}
                 {totalPages}
                 onPageChange={handlePageChange}
-                isLoading={isLoadingMore}
+                isLoading={isLoadingMore || isTransitioning}
             />
         {/if}
+        
+        <!-- Fixed Navigation Buttons (Left/Right) -->
+        {#if totalPages > 1}
+            <!-- Fixed Previous Button (Left) -->
+            <button
+                on:click={previousPage}
+                disabled={currentPage === 1 || isLoadingMore || isTransitioning}
+                class="fixed left-4 top-1/2 -translate-y-1/2 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-creme-500 dark:bg-aubergine-800 border-4 border-powder-300 dark:border-aubergine-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-creme-400 dark:hover:bg-aubergine-700 shadow-lg font-medium text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95"
+                aria-label="Previous page"
+                title="Previous page"
+            >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            
+            <!-- Fixed Next Button (Right) -->
+            <button
+                on:click={nextPage}
+                disabled={currentPage === totalPages || isLoadingMore || isTransitioning}
+                class="fixed right-4 top-1/2 -translate-y-1/2 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-creme-500 dark:bg-aubergine-800 border-4 border-powder-300 dark:border-aubergine-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-creme-400 dark:hover:bg-aubergine-700 shadow-lg font-medium text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95"
+                aria-label="Next page"
+                title="Next page"
+            >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        {/if}
 
-        <!-- Category Filter Dropdown -->
         <div class="w-full mb-6 flex justify-center">
             <div class="relative inline-block w-full max-w-md">
                 <button
                     id="category-toggle-button"
                     bind:this={buttonRef}
                     on:click={() => {
-                        // Schließe Language Dropdown, wenn Category Dropdown geöffnet wird
                         if (!isDropdownOpen) {
                             const languageMenu = document.querySelector('#language-dropdown-menu');
                             if (languageMenu) {
                                 const languageButton = document.querySelector('#language-toggle-button');
                                 if (languageButton && languageButton.getAttribute('aria-expanded') === 'true') {
-                                    languageButton.click(); // Toggle schließt das Dropdown
+                                    languageButton.click();
                                 }
                             }
                         }
@@ -536,31 +528,27 @@
             </div>
         </div>
 
-        <!-- Infinite Scroll Trigger (Hidden) -->
-        {#if hasMore}
-            <div 
-                bind:this={loadMoreTrigger}
-                class="w-full h-1 opacity-0 pointer-events-none"
-                aria-hidden="true"
-            >
-                {#if isLoadingMore}
-                    <div class="flex justify-center py-4">
-                        <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-yellow"></div>
-                    </div>
-                {/if}
-            </div>
-        {/if}
 
-        <!-- Blog Posts Grid -->
-        <div class="w-full space-y-8">
-            {#each displayedPosts as post, index (post.row_number)}
-                {@const shareUrl = post.slug ? getBlogShareUrl(post.slug) : (post.link || (typeof window !== 'undefined' ? window.location.href : ''))}
-                {@const shareText = `${post.title} - ${shareUrl}`}
-                {@const isFeatured = index === 0}
-                
-                <article class="bg-white dark:bg-aubergine-900 rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl group
-                    {isFeatured ? 'md:col-span-full' : ''}"
-                >
+        <!-- Posts Container mit Transition -->
+        <div class="w-full max-w-7xl mx-auto space-y-8 relative">
+            {#if isTransitioning}
+                <!-- Skeleton während Transition -->
+                <BlogPostSkeleton count={4} />
+            {:else}
+                <!-- Newest Post (prominent, nur auf Seite 1) -->
+                {#if newestPosts.length > 0}
+                    <div class="w-full space-y-8 mb-8">
+                {#each newestPosts as post, index (post.row_number)}
+                    {@const shareUrl = post.slug ? getBlogShareUrl(post.slug) : (post.link || (typeof window !== 'undefined' ? window.location.href : ''))}
+                    {@const shareText = `${post.title} - ${shareUrl}`}
+                    {@const isNewest = true}
+                    
+                    <article 
+                        itemscope 
+                        itemtype="https://schema.org/BlogPosting"
+                        class="bg-white dark:bg-aubergine-900 rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl group
+                        w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto"
+                    >
                     {#if post.slug}
                         <Link to={getBlogUrl(post.slug)} class="block">
                             <BlogPostImage
@@ -568,13 +556,13 @@
                                 thumbnail={post.thumbnail}
                                 title={post.title}
                                 category={post.category}
-                                isFeatured={isFeatured}
-                                size={isFeatured ? 'featured' : 'regular'}
+                                isFeatured={isNewest}
+                                size="featured"
                                 showCategory={true}
-                                showFeaturedBadge={isFeatured}
+                                showFeaturedBadge={isNewest}
                             />
                             
-                            <div class="p-6">
+                            <div class="p-4 md:p-4 lg:p-6">
                                 <!-- Meta Information -->
                                 <BlogPostMeta
                                     isodate={post.isodate}
@@ -589,11 +577,15 @@
                                     truncateAuthor={truncateAuthor}
                                 />
                                 
-                                <h2 class="{isFeatured ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'} font-bold mb-3 text-black dark:text-white group-hover:text-yellow transition-colors">
+                                <h2 
+                                    itemprop="headline"
+                                    class="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 text-black dark:text-white group-hover:text-yellow transition-colors">
                                     {post.title}
                                 </h2>
                                 
-                                <p class="text-gray-600 dark:text-gray-300 {isFeatured ? 'text-base md:text-lg' : 'text-sm md:text-base'} leading-relaxed">
+                                <p 
+                                    itemprop="description"
+                                    class="text-gray-600 dark:text-gray-300 text-base md:text-lg lg:text-xl leading-relaxed">
                                     {formatContentPreview(post.content)}
                                 </p>
                             </div>
@@ -638,61 +630,158 @@
                     {/if}
                     
                     <!-- Like and Share Buttons as Chips -->
-                    <div class="px-6 pb-6 flex justify-between items-center border-t border-gray-100 dark:border-gray-800 mt-4 pt-4">
+                    <div class="px-6 md:px-8 lg:px-10 pb-6 md:pb-8 lg:pb-10 flex justify-between items-center border-t border-gray-100 dark:border-gray-800 mt-4 pt-4">
                         <button 
-                            aria-label="Like the blog post" 
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
-                            on:click|stopPropagation={() => handleLike(post.id || post.row_number)}>
+                            aria-label={post.liked ? 'Unlike the blog post' : 'Like the blog post'}
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            on:click|stopPropagation={() => handleLike(post.id || post.row_number)}
+                            title={post.liked ? 'Unlike' : 'Like'}
+                            disabled={likingPostId === (post.id || post.row_number)}
+                        >
                             <span class="text-base">{post.liked ? '❤️' : '🤍'}</span>
-                            <span class="text-gray-700 dark:text-gray-300">{post.likes || 0}</span>
-                </button>
+                            {#if likingPostId === (post.id || post.row_number)}
+                                <svg class="animate-spin h-4 w-4 text-gray-700 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            {:else}
+                                <span class="text-gray-700 dark:text-gray-300">{post.likes || 0}</span>
+                            {/if}
+                        </button>
                 
-                        <div class="flex gap-2">
-                            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
-                       target="_blank"
-                       rel="noopener noreferrer"
-                               class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-blue-700 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
-                               title="Share on LinkedIn"
-                               aria-label="Share on LinkedIn">
-                               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            {@html linkedinIcon}
-                       </svg>
-                    </a>
-                            <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`}
-                       target="_blank"
-                       rel="noopener noreferrer"
-                               class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
-                               title="Share on WhatsApp"
-                               aria-label="Share on WhatsApp">
-                               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            {@html whatsappIcon}
-                       </svg>
-                    </a>
-                            <a href={`https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(post.title)}`}
-                       target="_blank"
-                       rel="noopener noreferrer"
-                               class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
-                               title="Share on Reddit"
-                               aria-label="Share on Reddit">
-                               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            {@html redditIcon}
-                       </svg>
-                    </a>
-                            <a href={`mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(shareUrl)}`}
-                               class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
-                               title="Share via Email"
-                               aria-label="Share via Email">
-                               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            {@html emailIcon}
-                       </svg>
-                    </a>
-                </div>
+                        <ShareButtons 
+                            {shareUrl}
+                            {shareText}
+                            title={post.title}
+                        />
             </div>
         </article>
     {/each}
+                    </div>
+                {/if}
+                
+                <!-- Other Posts -->
+                {#if otherPosts.length > 0}
+                    <div class="w-full space-y-8">
+                        {#each otherPosts as post, index (post.row_number)}
+                            {@const shareUrl = post.slug ? getBlogShareUrl(post.slug) : (post.link || (typeof window !== 'undefined' ? window.location.href : ''))}
+                            {@const shareText = `${post.title} - ${shareUrl}`}
+                            
+                            <article 
+                                itemscope 
+                                itemtype="https://schema.org/BlogPosting"
+                                class="bg-white dark:bg-aubergine-900 rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl group"
+                            >
+                                {#if post.slug}
+                                    <Link to={getBlogUrl(post.slug)} class="block">
+                                        <BlogPostImage
+                                            image={post.image}
+                                            thumbnail={post.thumbnail}
+                                            title={post.title}
+                                            category={post.category}
+                                            isFeatured={false}
+                                            size="regular"
+                                            showCategory={true}
+                                            showFeaturedBadge={false}
+                                        />
+                                        
+                                        <div class="p-6">
+                                            <BlogPostMeta
+                                                isodate={post.isodate}
+                                                date={post.date}
+                                                creator={post.creator}
+                                                category={post.category}
+                                                readingTime={post.readingTime}
+                                                content={post.content}
+                                                showCreator={true}
+                                                showCategory={false}
+                                                variant="grid"
+                                                truncateAuthor={truncateAuthor}
+                                            />
+                                            
+                                            <h2 
+                                                itemprop="headline"
+                                                class="text-xl md:text-2xl font-bold mb-3 text-black dark:text-white group-hover:text-yellow transition-colors">
+                                                {post.title}
+                                            </h2>
+                                            
+                                            <p 
+                                                itemprop="description"
+                                                class="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed">
+                                                {formatContentPreview(post.content)}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                {:else}
+                                    <a href={post.link || '#'} target="_blank" rel="noopener noreferrer" class="block">
+                                        <BlogPostImage
+                                            image={post.image}
+                                            thumbnail={post.thumbnail}
+                                            title={post.title}
+                                            category={post.category}
+                                            isFeatured={false}
+                                            size="regular"
+                                            showCategory={true}
+                                            showFeaturedBadge={false}
+                                        />
+                                        
+                                        <div class="p-6">
+                                            <BlogPostMeta
+                                                isodate={post.isodate}
+                                                date={post.date}
+                                                creator={post.creator}
+                                                category={post.category}
+                                                readingTime={post.readingTime}
+                                                content={post.content}
+                                                showCreator={true}
+                                                showCategory={false}
+                                                variant="grid"
+                                                truncateAuthor={truncateAuthor}
+                                            />
+                                            
+                                            <h2 class="text-xl md:text-2xl font-bold mb-3 text-black dark:text-white group-hover:text-yellow transition-colors">
+                                                {post.title}
+                                            </h2>
+                                            
+                                            <p class="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed">
+                                                {formatContentPreview(post.content)}
+                                            </p>
+                                        </div>
+                                    </a>
+                                {/if}
+                                
+                                <div class="px-6 pb-6 flex justify-between items-center border-t border-gray-100 dark:border-gray-800 mt-4 pt-4">
+                                    <button 
+                                        aria-label={post.liked ? 'Unlike the blog post' : 'Like the blog post'}
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        on:click|stopPropagation={() => handleLike(post.id || post.row_number)}
+                                        title={post.liked ? 'Unlike' : 'Like'}
+                                        disabled={likingPostId === (post.id || post.row_number)}
+                                    >
+                                        <span class="text-base">{post.liked ? '❤️' : '🤍'}</span>
+                                        {#if likingPostId === (post.id || post.row_number)}
+                                            <svg class="animate-spin h-4 w-4 text-gray-700 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        {:else}
+                                            <span class="text-gray-700 dark:text-gray-300">{post.likes || 0}</span>
+                                        {/if}
+                                    </button>
+                            
+                                    <ShareButtons 
+                                        {shareUrl}
+                                        {shareText}
+                                        title={post.title}
+                                    />
+                                </div>
+                            </article>
+                        {/each}
+                    </div>
+                {/if}
+            {/if}
         </div>
 {/if}
 
-<!-- Heart Animation -->
-<HeartAnimation show={showHeartAnimation} count={3} />
+<HeartAnimation show={showHeartAnimation} count={5} />
 </PageLayout>

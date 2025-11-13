@@ -8,7 +8,8 @@
     export let data = []; // Array of { date: '2025-10-10', value: 5 }
     export let data2 = null; // Optional second dataset: Array of { date: '2025-10-10', value: 3 }
     export let label = 'Daily Generations';
-    export let label2 = 'Story Generations'; // Label for second line
+    // Note: label2 is reserved for future use when displaying legend for second line
+    // export let label2 = 'Story Generations'; // Label for second line (currently unused)
     export let maxValue = 9; // FREE tier default
     export let height = 200;
     export let color = '#eab308'; // yellow-500

@@ -74,8 +74,14 @@
         // Schließe Category Dropdown, wenn Language Dropdown geöffnet wird
         if ($showLanguageMenu) {
             // Calculate dropdown position once when opening
+            // Desktop: Position directly below header (no gap)
+            // Mobile: Small gap for better UX
             if (buttonRef) {
-                dropdownTop = buttonRef.getBoundingClientRect().bottom + 4;
+                const buttonRect = buttonRef.getBoundingClientRect();
+                const isDesktop = window.innerWidth >= 768; // md breakpoint
+                dropdownTop = isDesktop 
+                    ? buttonRect.bottom // Directly below, no gap
+                    : buttonRect.bottom + 4; // Small gap on mobile
             }
             
             // Schließe Category Dropdown falls geöffnet
@@ -319,12 +325,12 @@
         </div>
     </button>
     
-    <!-- Dropdown Menu - Consistent with Category Dropdown -->
+    <!-- Dropdown Menu - Desktop: Directly below header, no top/left/right border -->
     {#if $showLanguageMenu}
         <div 
             id="language-dropdown-menu"
             bind:this={menuRef}
-            class="fixed w-full flex flex-wrap justify-center z-50 right-0 left-0"
+            class="fixed w-full flex flex-wrap justify-center z-40 right-0 left-0"
             style="top: {dropdownTop}px;"
             role="menu"
             aria-orientation="vertical"
@@ -332,7 +338,13 @@
             aria-label="Language selection menu"
         >
             <div 
-                class="w-48 mx-auto bg-white dark:bg-aubergine-900 rounded-xl shadow-xl overflow-hidden"
+                class="w-48 mx-auto bg-white dark:bg-aubergine-900 
+                    rounded-xl shadow-xl 
+                    md:rounded-t-none md:rounded-b-xl 
+                    md:border-t-0 md:border-l-0 md:border-r-0 
+                    md:border-b md:border-transparent
+                    md:shadow-lg
+                    overflow-hidden"
                 in:slide={{ y: -5, duration: 400, easing: cubicInOut }}
                 out:slide={{ y: 5, duration: 400, easing: cubicInOut }}
             >

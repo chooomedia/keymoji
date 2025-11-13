@@ -108,12 +108,14 @@ export async function fetchBlogPosts(options = {}) {
         try {
             const stored = storageHelpers.get(STORAGE_KEYS_BLOG.POSTS, []);
             cachedPosts = Array.isArray(stored) ? stored : [];
+            console.log('📦 [blogApi] Cached posts in localStorage:', cachedPosts.length);
         } catch (error) {
             console.warn('⚠️ [blogApi] Error reading cached posts:', error);
         }
         
         // Fetch von API mit Caching (oder ohne Cache wenn forceRefresh)
         const url = WEBHOOKS.BLOG.POSTS;
+        console.log('🔗 [blogApi] Fetching blog posts from:', url);
         let posts;
         
         if (forceRefresh) {
@@ -183,9 +185,31 @@ export async function fetchBlogPosts(options = {}) {
             // Priority für likes: Backend (post.likes) > cachedLike.likes > 0
             // Backend liefert likes aus der "liked" Spalte im Google Sheet (via n8n Merge With Likes)
             // post.likes sollte bereits vom Backend kommen (nach Merge With Likes)
-            const backendLikes = post.likes !== undefined && post.likes !== null ? parseInt(post.likes, 10) : null;
+            // CRITICAL: post.likes ist die korrekte Quelle (wird im n8n "Clean Post Data" Node gesetzt)
+            // post.liked ist ein Boolean (User-spezifisch), NICHT die Anzahl!
+            const backendLikesRaw = post.likes;
+            const backendLikes = backendLikesRaw !== undefined && backendLikesRaw !== null 
+                ? parseInt(String(backendLikesRaw), 10) 
+                : null;
             const cachedLikesValue = cachedLike?.likes !== undefined && cachedLike.likes !== null ? parseInt(cachedLike.likes, 10) : null;
-            const finalLikes = backendLikes !== null ? backendLikes : (cachedLikesValue !== null ? cachedLikesValue : 0);
+            
+            // CRITICAL: Backend hat IMMER Priorität, auch wenn 0 (aber nicht wenn null/undefined)
+            // Nur wenn Backend null/undefined ist, verwende Cache oder 0
+            const finalLikes = backendLikes !== null && !isNaN(backendLikes) && backendLikes >= 0 
+                ? backendLikes 
+                : (cachedLikesValue !== null && !isNaN(cachedLikesValue) ? cachedLikesValue : 0);
+            
+            // Debug: Log nur wenn likes fehlen oder unerwartet sind
+            if (backendLikes === null || backendLikes === undefined) {
+                console.warn('⚠️ [blogApi] Missing likes from backend for post:', {
+                    id: post.id || post.row_number,
+                    title: post.title?.substring(0, 30),
+                    postLikes: post.likes,
+                    backendLikes,
+                    cachedLikesValue,
+                    finalLikes
+                });
+            }
             
             return {
                 ...post,
@@ -294,7 +318,7 @@ export async function fetchBlogPost(slug, options = {}) {
  * @returns {Promise<object|null>} Updated post data oder null
  */
 export async function likeBlogPost(postId, options = {}) {
-    const { optimistic = true } = options;
+    const { optimistic = true, unlike = false } = options;
     
     if (!postId) {
         console.error('❌ [blogApi] No postId provided');
@@ -302,14 +326,11 @@ export async function likeBlogPost(postId, options = {}) {
     }
     
     try {
-        // Use Vercel API endpoint (which proxies to n8n)
         const url = WEBHOOKS.BLOG.LIKE;
         
-        console.log('📡 [blogApi] Sending like request to Vercel API:', url);
-        
-        // Optimistic update: Speichere Like sofort lokal
+        // Optimistic update: Speichere Like/Unlike sofort lokal
         if (optimistic) {
-            updateCachedLike(postId, true);
+            updateCachedLike(postId, !unlike);
         }
         
         const response = await fetch(url, {
@@ -319,36 +340,23 @@ export async function likeBlogPost(postId, options = {}) {
             },
             body: JSON.stringify({
                 postId: postId,
-                rowNumber: postId
+                rowNumber: postId,
+                unlike: unlike
             })
         });
         
-        console.log('📡 [blogApi] Like response status:', response.status, response.statusText);
-        
         if (!response.ok) {
-            // Try to get error message from response
             let errorMessage = response.statusText;
             try {
                 const errorData = await response.json();
                 errorMessage = errorData.message || errorData.error || errorMessage;
-                console.error('❌ [blogApi] Like request failed:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    error: errorMessage,
-                    data: errorData
-                });
             } catch (parseError) {
                 const errorText = await response.text().catch(() => 'Unknown error');
-                console.error('❌ [blogApi] Like request failed (non-JSON):', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    errorText: errorText.substring(0, 200)
-                });
+                console.error('❌ [blogApi] Like request failed:', errorText.substring(0, 200));
             }
             
-            // Rollback optimistic update
             if (optimistic) {
-                updateCachedLike(postId, false);
+                updateCachedLike(postId, unlike);
             }
             return null;
         }
@@ -356,12 +364,10 @@ export async function likeBlogPost(postId, options = {}) {
         let result;
         try {
             const responseText = await response.text();
-            console.log('📡 [blogApi] Like response text:', responseText.substring(0, 200));
             
             if (!responseText || responseText.trim().length === 0) {
                 console.warn('⚠️ [blogApi] Empty response from API, assuming success');
-                // Update cached like with optimistic value
-                updateCachedLike(postId, true);
+                updateCachedLike(postId, !unlike);
                 return {
                     success: true,
                     likes: null
@@ -371,36 +377,33 @@ export async function likeBlogPost(postId, options = {}) {
             result = JSON.parse(responseText);
         } catch (parseError) {
             console.error('❌ [blogApi] Failed to parse response as JSON:', parseError);
-            // Rollback optimistic update
             if (optimistic) {
-                updateCachedLike(postId, false);
+                updateCachedLike(postId, unlike);
             }
             return null;
         }
         
-        // Check if result has success property or if response was ok
         if (result && (result.success !== false)) {
-            // Update cached like with server response
-            const likes = result.likes !== undefined ? result.likes : null;
-            updateCachedLike(postId, true, likes);
-            console.log('✅ [blogApi] Like saved successfully:', { postId, likes, result });
+            // PRIORITÄT: Backend-Wert hat immer höchste Priorität
+            const backendLikes = result.likes !== undefined && result.likes !== null 
+                ? parseInt(result.likes, 10) 
+                : null;
+            updateCachedLike(postId, !unlike, backendLikes);
             return {
                 success: true,
-                likes: likes
+                likes: backendLikes,
+                postId: postId
             };
         } else {
-            // Rollback optimistic update
             if (optimistic) {
-                updateCachedLike(postId, false);
+                updateCachedLike(postId, unlike);
             }
-            console.warn('⚠️ [blogApi] Like request returned success=false or no result:', result);
             return null;
         }
     } catch (error) {
         console.error('❌ [blogApi] Error liking blog post:', error);
-        // Rollback optimistic update
         if (optimistic) {
-            updateCachedLike(postId, false);
+            updateCachedLike(postId, unlike);
         }
         return null;
     }
@@ -431,12 +434,26 @@ function updateCachedLike(postId, liked, likes = null) {
         const cachedLikes = getCachedLikes();
         const key = String(postId);
         
+        // CRITICAL: Backend likes haben IMMER Priorität
+        // Nur wenn keine Backend-Likes vorhanden, berechne optimistisch
+        const newLikes = likes !== null && !isNaN(likes) && likes >= 0
+            ? likes
+            : (cachedLikes[key]?.likes || 0) + (liked ? 1 : -1);
+        
         cachedLikes[key] = {
-            liked,
-            likes: likes !== null ? likes : (cachedLikes[key]?.likes || 0) + (liked ? 1 : -1)
+            liked: liked,
+            likes: Math.max(0, newLikes) // Stelle sicher, dass likes >= 0
         };
         
         storageHelpers.set(STORAGE_KEYS_BLOG.LIKES, cachedLikes);
+        
+        // Debug: Log update
+        console.log('💾 [blogApi] Updated cached like:', {
+            postId,
+            liked,
+            likes: newLikes,
+            source: likes !== null ? 'backend' : 'optimistic'
+        });
     } catch (error) {
         console.warn('⚠️ [blogApi] Error updating cached like:', error);
     }

@@ -159,10 +159,10 @@
                 </div>
                 
                 <!-- Account Button with Badge -->
-                <div class="relative">
+                <div class="relative z-40">
                     <button
                         type="button"
-                        class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center"
+                        class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center relative z-40"
                         on:click={navigateToAccount}
                         aria-label={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
                         title={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
@@ -178,7 +178,7 @@
                                 on:click={handleBadgeClick}
                                 in:fly={{y: isCountingDown ? 10 : -10, duration: 300, easing: cubicInOut}}
                                 out:fly={{y: isCountingDown ? -10 : 10, duration: 300, easing: cubicInOut}}
-                                class="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center rounded-full text-[0.65rem] font-bold shadow-lg border border-white dark:border-aubergine-900 transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 focus:outline-none {
+                                class="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center rounded-full text-[0.65rem] font-bold shadow-lg border border-white dark:border-aubergine-900 transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 focus:outline-none z-50 {
                                     remaining > 0 
                                         ? 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-300' 
                                         : isProUser 

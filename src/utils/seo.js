@@ -109,7 +109,16 @@ export function generateStructuredData(seoData, currentLanguage) {
             url: canonical,
             inLanguage: currentLanguage,
             dateModified: updatedTime,
-            author: baseStructuredData.author
+            author: baseStructuredData.author,
+            publisher: {
+                '@type': 'Organization',
+                name: 'Keymoji',
+                url: 'https://keymoji.wtf',
+                logo: {
+                    '@type': 'ImageObject',
+                    url: 'https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png'
+                }
+            }
         };
     } else if (pageType === 'versions') {
         return {
@@ -197,6 +206,159 @@ export function generateBenefitsStructuredData(benefits, currentLanguage, canoni
             item: item
         }))
     };
+}
+
+/**
+ * Generate structured data for a single blog post (BlogPosting schema)
+ * E-E-A-T-S optimized: Experience, Expertise, Authoritativeness, Trustworthiness, Safety
+ * @param {object} postData - Blog post data
+ * @param {string} currentLanguage - Current language code
+ * @param {string} canonicalUrl - Canonical URL for the post
+ * @returns {object} BlogPosting structured data
+ */
+export function generateBlogPostStructuredData(postData, currentLanguage, canonicalUrl) {
+    const {
+        title,
+        content,
+        excerpt,
+        image,
+        thumbnail,
+        isodate,
+        date,
+        creator,
+        category,
+        readingTime,
+        slug
+    } = postData;
+
+    // Extract plain text from HTML content for description
+    const plainTextContent = content 
+        ? content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+        : excerpt || '';
+
+    // Format date for schema.org (ISO 8601)
+    const publishedDate = isodate || date || new Date().toISOString();
+    const modifiedDate = isodate || date || publishedDate;
+
+    // Author information (E-E-A-T-S: Expertise & Authoritativeness)
+    const author = {
+        '@type': 'Person',
+        name: creator || 'Christopher Matt',
+        url: 'https://www.linkedin.com/in/chooomedia/',
+        jobTitle: 'Security Expert & Developer',
+        sameAs: [
+            'https://www.linkedin.com/in/chooomedia/',
+            'https://keymoji.wtf'
+        ]
+    };
+
+    // Publisher information (E-E-A-T-S: Trustworthiness)
+    const publisher = {
+        '@type': 'Organization',
+        name: 'Keymoji',
+        url: 'https://keymoji.wtf',
+        logo: {
+            '@type': 'ImageObject',
+            url: 'https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png',
+            width: 1640,
+            height: 924
+        }
+    };
+
+    // Main image for the post
+    const mainImage = thumbnail || image || publisher.logo.url;
+
+    // BlogPosting schema (E-E-A-T-S optimized)
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: title,
+        description: plainTextContent.substring(0, 200) || excerpt || 'Blog post about password security and emoji technology',
+        image: {
+            '@type': 'ImageObject',
+            url: mainImage.startsWith('http') ? mainImage : `https://keymoji.wtf${mainImage}`,
+            width: 1200,
+            height: 630
+        },
+        datePublished: publishedDate,
+        dateModified: modifiedDate,
+        author: author,
+        publisher: publisher,
+        mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': canonicalUrl
+        },
+        articleSection: category || 'Security',
+        keywords: category ? `${category}, password security, emoji passwords, cybersecurity` : 'password security, emoji passwords, cybersecurity',
+        inLanguage: currentLanguage,
+        wordCount: plainTextContent.split(/\s+/).length,
+        timeRequired: readingTime ? `PT${readingTime}M` : undefined,
+        // E-E-A-T-S: Trust signals
+        about: {
+            '@type': 'Thing',
+            name: 'Password Security',
+            description: 'Secure password generation and cybersecurity best practices'
+        },
+        // E-E-A-T-S: Safety & Trust
+        isAccessibleForFree: true,
+        license: 'https://creativecommons.org/licenses/by/4.0/'
+    };
+}
+
+/**
+ * Generate structured data for blog listing page (Blog + ItemList)
+ * @param {Array} posts - Array of blog posts
+ * @param {string} currentLanguage - Current language code
+ * @param {string} canonicalUrl - Canonical URL for the blog page
+ * @returns {object} Blog + ItemList structured data
+ */
+export function generateBlogListStructuredData(posts, currentLanguage, canonicalUrl) {
+    const blogSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Blog',
+        name: 'Keymoji Blog',
+        description: 'Latest articles about password security, emoji technology, and cybersecurity',
+        url: canonicalUrl,
+        inLanguage: currentLanguage,
+        publisher: {
+            '@type': 'Organization',
+            name: 'Keymoji',
+            url: 'https://keymoji.wtf',
+            logo: {
+                '@type': 'ImageObject',
+                url: 'https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png'
+            }
+        },
+        author: {
+            '@type': 'Person',
+            name: 'Christopher Matt',
+            url: 'https://www.linkedin.com/in/chooomedia/'
+        }
+    };
+
+    // ItemList for blog posts (E-E-A-T-S: helps search engines understand content structure)
+    if (Array.isArray(posts) && posts.length > 0) {
+        blogSchema.blogPost = posts.slice(0, 10).map((post, index) => {
+            const postUrl = post.slug 
+                ? `${canonicalUrl.replace('/blog', '')}/blog/${post.slug}`
+                : post.link || canonicalUrl;
+            
+            return {
+                '@type': 'BlogPosting',
+                headline: post.title,
+                url: postUrl,
+                datePublished: post.isodate || post.date,
+                author: {
+                    '@type': 'Person',
+                    name: post.creator || 'Christopher Matt'
+                },
+                image: post.thumbnail || post.image || blogSchema.publisher.logo.url,
+                description: post.excerpt || (post.content ? post.content.replace(/<[^>]*>/g, ' ').substring(0, 200) : '')
+            };
+        });
+    }
+
+    return blogSchema;
 }
 
 /**

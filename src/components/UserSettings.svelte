@@ -1162,8 +1162,34 @@
                         {#each section.items as item}
                             {#key reactivityTrigger}
                             <div class="mb-4 last:mb-0">
+                                <!-- Special handling for Story Mode Enabled Toggle -->
+                                {#if item.id === 'storyMode.enabled'}
+                                    {@const currentValue = getCurrentValue(item)}
+                                    <ModularInput
+                                        config={{
+                                            type: item.type,
+                                            id: item.id,
+                                            icon: item.icon,
+                                            label: item.title,
+                                            description: item.description,
+                                            placeholder: item.placeholder,
+                                            value: currentValue,
+                                            options: item.options?.map(opt => ({
+                                                value: opt.value,
+                                                label: opt.label
+                                            })) || [],
+                                            min: item.min,
+                                            max: item.max,
+                                            labels: item.labels,
+                                            defaultValue: item.defaultValue,
+                                            class: 'contact-input'
+                                        }}
+                                        currentLanguage={$currentLanguage}
+                                        currentValue={currentValue}
+                                        onValueChange={(value) => handleSettingUpdate(item.id, value)}
+                                    />
                                 <!-- Special handling for AI Provider dropdown with link -->
-                                {#if item.id === 'storyMode.provider'}
+                                {:else if item.id === 'storyMode.provider'}
                                     {@const currentProvider = getCurrentValue(item) || 'apertus'}
                                     
                                     <div>
@@ -1212,6 +1238,7 @@
                                                 claude: 'Anthropic Console',
                                                 apertus: 'Apertus API'
                                             }}
+                                            <!-- Note: Links can be added here if needed in the future -->
                                         {/if}
                                     </div>
                                     
@@ -1404,14 +1431,13 @@
                                     </div>
                                 {:else if item.id === 'storyMode.temperature'}
                                     <!-- Special handling for Temperature Slider with 0.1 steps, synced with EmojiDisplay -->
-                                    <!-- Use reactive statement to get current value - updates when store changes -->
-                                    $: currentTemperatureRaw = getCurrentValue(item);
-                                    $: currentTemperature = typeof currentTemperatureRaw === 'number' 
+                                    {@const currentTemperatureRaw = getCurrentValue(item)}
+                                    {@const currentTemperature = typeof currentTemperatureRaw === 'number' 
                                         ? currentTemperatureRaw 
-                                        : (currentTemperatureRaw ? parseFloat(currentTemperatureRaw) : 0);
-                                    $: safeTemperature = typeof currentTemperature === 'number' && !isNaN(currentTemperature) 
+                                        : (currentTemperatureRaw ? parseFloat(currentTemperatureRaw) : 0)}
+                                    {@const safeTemperature = typeof currentTemperature === 'number' && !isNaN(currentTemperature) 
                                         ? Math.max(0, Math.min(1, currentTemperature)) 
-                                        : 0;
+                                        : 0}
                                     
                                     <div class="space-y-3">
                                         <div class="flex items-center space-x-2">

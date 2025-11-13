@@ -67,8 +67,8 @@
     {:else}
         <div 
             class="{classes.container} rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg {onClick ? 'cursor-pointer' : ''}"
-            role={onClick ? 'button' : null}
-            tabindex={onClick ? '0' : null}
+            role={onClick ? 'button' : undefined}
+            tabindex={onClick ? 0 : undefined}
             on:click={handleClick}
             on:keydown={(e) => onClick && e.key === 'Enter' && handleClick(e)}
         >
