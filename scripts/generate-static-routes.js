@@ -112,17 +112,25 @@ function generateRouteHTML(route, lang = 'en') {
     <!-- Canonical -->
     <link rel="canonical" href="${canonicalUrl}">
     
-    <!-- Language Alternates -->
+    <!-- Language Alternates (hreflang) - Required for SEO -->
     ${supportedLanguages
         .map(l => {
-            const altUrl =
+            const altPath = route.path === '/' ? '' : route.path;
+            let altUrl =
                 l === 'en'
-                    ? `${baseUrl}${route.path}`
-                    : `${baseUrl}/${l}${route.path}`;
+                    ? `${baseUrl}${altPath}`
+                    : `${baseUrl}/${l}${altPath}`;
+            // Ensure trailing slash for directories (home pages)
+            if (altUrl === baseUrl || altUrl.endsWith('/')) {
+                // Already has trailing slash or is root
+            } else if (!altUrl.includes('.')) {
+                // No file extension, add trailing slash
+                altUrl = `${altUrl}/`;
+            }
             return `<link rel="alternate" hreflang="${l}" href="${altUrl}">`;
         })
         .join('\n    ')}
-    <link rel="alternate" hreflang="x-default" href="${baseUrl}${route.path}">
+    <link rel="alternate" hreflang="x-default" href="${baseUrl}${route.path === '/' ? '/' : route.path}">
     
     <!-- Structured Data -->
     <script type="application/ld+json">
