@@ -15,8 +15,12 @@
     import { updateSeo } from '../../stores/seoStore.js';
     import BlogPostImage from './BlogPostImage.svelte';
     import BlogPostMeta from './BlogPostMeta.svelte';
+    import HeartAnimation from './HeartAnimation.svelte';
+    import Pagination from '../UI/Pagination.svelte';
     
     let posts = [];
+    let showHeartAnimation = false;
+    let heartAnimationPostId = null;
     let loading = true;
     let error = null;
     let selectedCategory = 'all';
@@ -76,6 +80,16 @@
         return filtered;
     })();
     
+    // Calculate total pages
+    // Page 1: Featured post (1)
+    // Page 2+: 3 regular posts per page
+    $: totalPages = (() => {
+        if (filteredPosts.length === 0) return 0;
+        if (filteredPosts.length === 1) return 1; // Only featured
+        const regularPosts = filteredPosts.length - 1; // Exclude featured
+        return Math.ceil(regularPosts / 3) + 1; // +1 for featured page
+    })();
+    
     // Get displayed posts (featured + paginated)
     $: displayedPosts = (() => {
         if (filteredPosts.length === 0) {
@@ -84,10 +98,21 @@
         
         const featured = filteredPosts[0];
         const regular = filteredPosts.slice(1);
-        const paginatedRegular = regular.slice(0, currentPage * 3);
         
+        // Page 1: Featured post only
+        if (currentPage === 1) {
+            return [featured];
+        }
+        
+        // Page 2+: Featured + paginated regular posts
+        // Page 2: featured + posts 0-2 (3 posts)
+        // Page 3: featured + posts 0-5 (6 posts)
+        // Page 4: featured + posts 0-8 (9 posts)
+        // etc.
+        const regularToShow = (currentPage - 1) * 3;
+        const paginatedRegular = regular.slice(0, regularToShow);
         return [featured, ...paginatedRegular];
-    })()
+    })();
     
     // Check if there are more posts to load
     $: hasMore = filteredPosts.length > displayedPosts.length;
@@ -143,12 +168,25 @@
         // Call API
         const result = await likeBlogPost(postId, { optimistic: true });
         
-        if (result && result.likes !== undefined) {
+        if (result && result.success) {
             // Update with server response
             posts[postIndex] = {
                 ...posts[postIndex],
-                likes: result.likes
+                likes: result.likes !== undefined ? result.likes : (originalLikes + 1),
+                liked: true
             };
+            
+            // Trigger heart animation
+            heartAnimationPostId = postId;
+            showHeartAnimation = true;
+            
+            // Reset animation flag after a short delay to allow re-triggering
+            setTimeout(() => {
+                showHeartAnimation = false;
+            }, 100);
+            
+            // Refresh likes from backend to ensure we have the latest value
+            await refreshLikesFromBackend();
         } else {
             // Rollback on error
             posts[postIndex] = {
@@ -162,23 +200,98 @@
         posts = posts; // Trigger reactivity
     }
     
+    async function refreshLikesFromBackend() {
+        // Fetch latest posts to get updated likes from backend
+        try {
+            const allPosts = await fetchBlogPosts({ useCache: false, forceRefresh: true }); // Force fresh fetch
+            
+            // Update likes for all posts
+            posts = posts.map(post => {
+                const updatedPost = allPosts.find(p => 
+                    (p.id === post.id || p.row_number === post.row_number) ||
+                    (p.slug === post.slug)
+                );
+                
+                if (updatedPost && updatedPost.likes !== undefined) {
+                    return {
+                        ...post,
+                        likes: updatedPost.likes
+                    };
+                }
+                return post;
+            });
+            
+            posts = posts; // Trigger reactivity
+            console.log('✅ [BlogGrid] Likes refreshed from backend');
+        } catch (error) {
+            console.warn('⚠️ [BlogGrid] Error refreshing likes:', error);
+        }
+    }
+    
     function loadMore() {
         if (isLoadingMore || !hasMore) return;
         
         isLoadingMore = true;
-        setTimeout(() => {
+        // Use requestAnimationFrame for smoother updates
+        requestAnimationFrame(() => {
             currentPage++;
             isLoadingMore = false;
+            // Scroll to top of new content smoothly
+            if (loadMoreTrigger) {
+                loadMoreTrigger.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+    
+    function goToPage(page) {
+        if (page < 1 || page > totalPages || page === currentPage) return;
+        
+        currentPage = page;
+        isLoadingMore = true;
+        
+        // Smooth scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Reset loading state after a short delay
+        setTimeout(() => {
+            isLoadingMore = false;
+            // Re-setup infinite scroll after page change
+            setTimeout(() => {
+                setupInfiniteScroll();
+            }, 100);
         }, 300);
+    }
+    
+    function handlePageChange(page) {
+        goToPage(page);
+    }
+    
+    function previousPage() {
+        if (currentPage > 1) {
+            goToPage(currentPage - 1);
+        }
+    }
+    
+    function nextPage() {
+        if (currentPage < totalPages) {
+            goToPage(currentPage + 1);
+        }
     }
     
     function setupInfiniteScroll() {
         if (typeof IntersectionObserver === 'undefined') return;
         
+        // Disconnect existing observer
+        if (observer) {
+            observer.disconnect();
+        }
+        
         observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting && hasMore && !isLoadingMore) {
+                        // Prevent duplicate loads
+                        isLoadingMore = true;
                         loadMore();
                     }
                 });
@@ -315,8 +428,18 @@
             <p class="text-gray-500 dark:text-gray-400">No blog posts available yet.</p>
         </div>
 {:else}
+        <!-- Pagination (Reusable Component) -->
+        {#if filteredPosts.length > 4 && totalPages > 1}
+            <Pagination 
+                {currentPage}
+                {totalPages}
+                onPageChange={handlePageChange}
+                isLoading={isLoadingMore}
+            />
+        {/if}
+
         <!-- Category Filter Dropdown -->
-        <div class="w-full mb-8 flex justify-center">
+        <div class="w-full mb-6 flex justify-center">
             <div class="relative inline-block w-full max-w-md">
                 <button
                     id="category-toggle-button"
@@ -413,6 +536,21 @@
             </div>
         </div>
 
+        <!-- Infinite Scroll Trigger (Hidden) -->
+        {#if hasMore}
+            <div 
+                bind:this={loadMoreTrigger}
+                class="w-full h-1 opacity-0 pointer-events-none"
+                aria-hidden="true"
+            >
+                {#if isLoadingMore}
+                    <div class="flex justify-center py-4">
+                        <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-yellow"></div>
+                    </div>
+                {/if}
+            </div>
+        {/if}
+
         <!-- Blog Posts Grid -->
         <div class="w-full space-y-8">
             {#each displayedPosts as post, index (post.row_number)}
@@ -446,6 +584,7 @@
                                     readingTime={post.readingTime}
                                     content={post.content}
                                     showCreator={true}
+                                    showCategory={false}
                                     variant="grid"
                                     truncateAuthor={truncateAuthor}
                                 />
@@ -482,6 +621,7 @@
                                     readingTime={post.readingTime}
                                     content={post.content}
                                     showCreator={true}
+                                    showCategory={false}
                                     variant="grid"
                                     truncateAuthor={truncateAuthor}
                                 />
@@ -551,38 +691,8 @@
         </article>
     {/each}
         </div>
-
-        <!-- Pagination / Infinite Scroll -->
-        {#if filteredPosts.length > 4}
-            <div class="w-full py-8 flex flex-col items-center gap-4">
-                <!-- Page Info -->
-                <div class="text-sm text-gray-600 dark:text-gray-400">
-                    Showing <span class="font-medium text-black dark:text-white">{displayedPosts.length}</span> of <span class="font-medium text-black dark:text-white">{filteredPosts.length}</span> posts
-                </div>
-                
-                <!-- Load More Button / Infinite Scroll Trigger -->
-                {#if hasMore}
-                    <div 
-                        bind:this={loadMoreTrigger}
-                        class="w-full flex justify-center"
-                    >
-                        {#if isLoadingMore}
-                            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow"></div>
-                        {:else}
-                            <button
-                                on:click={loadMore}
-                                class="px-6 py-3 bg-yellow-500 text-black rounded-full font-medium hover:scale-105 focus:scale-105 active:scale-95 transition-all transform focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 shadow-md hover:shadow-lg"
-                            >
-                                Load More Posts
-                            </button>
-                        {/if}
-                    </div>
-                {:else}
-                    <div class="text-sm text-gray-500 dark:text-gray-400 italic">
-                        All posts loaded
-                    </div>
-                {/if}
-            </div>
-        {/if}
 {/if}
+
+<!-- Heart Animation -->
+<HeartAnimation show={showHeartAnimation} count={3} />
 </PageLayout>

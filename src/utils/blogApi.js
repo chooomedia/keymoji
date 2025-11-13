@@ -100,28 +100,53 @@ export function formatDate(isodate, locale = 'en') {
  * @returns {Promise<Array>} Array von Blog-Posts
  */
 export async function fetchBlogPosts(options = {}) {
-    const { useCache = true } = options;
+    const { useCache = true, forceRefresh = false } = options;
     
     try {
-        // Lade aus localStorage als Fallback
+        // Lade aus localStorage als Fallback (immer, auch bei forceRefresh, für Fallback)
         let cachedPosts = [];
-        if (useCache) {
-            try {
-                const stored = storageHelpers.get(STORAGE_KEYS_BLOG.POSTS, []);
-                cachedPosts = Array.isArray(stored) ? stored : [];
-            } catch (error) {
-                console.warn('⚠️ [blogApi] Error reading cached posts:', error);
-            }
+        try {
+            const stored = storageHelpers.get(STORAGE_KEYS_BLOG.POSTS, []);
+            cachedPosts = Array.isArray(stored) ? stored : [];
+        } catch (error) {
+            console.warn('⚠️ [blogApi] Error reading cached posts:', error);
         }
         
-        // Fetch von API mit Caching
+        // Fetch von API mit Caching (oder ohne Cache wenn forceRefresh)
         const url = WEBHOOKS.BLOG.POSTS;
-        const posts = await cachedFetch(
-            url,
-            { method: 'GET' },
-            CACHE_TTL.POSTS_LIST,
-            true // stale-while-revalidate
-        );
+        let posts;
+        
+        if (forceRefresh) {
+            // Force fresh fetch from API (bypass cache)
+            console.log('🔄 [blogApi] Force refreshing posts from backend...');
+            const response = await fetch(url, { method: 'GET' });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            // Read response as text first to handle empty responses
+            const responseText = await response.text();
+            if (!responseText || responseText.trim().length === 0) {
+                console.warn('⚠️ [blogApi] Empty response from API, using cached data');
+                return cachedPosts.length > 0 ? cachedPosts : [];
+            }
+            
+            // Parse JSON
+            try {
+                posts = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('❌ [blogApi] Failed to parse JSON response:', parseError);
+                throw new Error(`Invalid JSON response: ${parseError.message}`);
+            }
+        } else {
+            // Use cached fetch
+            posts = await cachedFetch(
+                url,
+                { method: 'GET' },
+                CACHE_TTL.POSTS_LIST,
+                true // stale-while-revalidate
+            );
+        }
         
         // Handle empty or invalid responses
         if (!posts) {

@@ -23,10 +23,17 @@
     export let showCategory = true;
     export let showFeaturedBadge = false;
     
+    let imageError = false;
+    
     // Bestimme Bild-URL: thumbnail > image > null
     // Unterstützt beide Felder vom Backend (image und thumbnail)
     $: imageUrl = thumbnail || image || null;
-    $: hasImage = imageUrl && imageUrl !== '[empty]' && imageUrl !== '' && imageUrl.trim() !== '';
+    $: hasImage = imageUrl && imageUrl !== '[empty]' && imageUrl !== '' && imageUrl.trim() !== '' && !imageError;
+    
+    // Reset imageError wenn sich die URL ändert
+    $: if (imageUrl) {
+        imageError = false;
+    }
     
     // Bestimme Höhe basierend auf size
     $: heightClass = (() => {
@@ -52,6 +59,11 @@
             loading="lazy"
             decoding="async"
             fetchpriority={isFeatured ? 'high' : 'auto'}
+            referrerpolicy="no-referrer"
+            on:error={() => {
+                // Silently handle CORS/loading errors - don't spam console
+                imageError = true;
+            }}
         />
     {:else}
         <!-- Fallback: Placeholder mit Emoji -->
@@ -69,7 +81,7 @@
     
     <!-- Featured Badge -->
     {#if showFeaturedBadge && isFeatured}
-        <div class="absolute top-4 left-4 bg-yellow-500 text-black px-2 py-1 rounded-full text-xs font-medium z-10">
+        <div class="absolute top-4 left-4 bg-orange-500/90 dark:bg-orange-600/90 backdrop-blur-md backdrop-saturate-150 text-white dark:text-white px-2 py-1 rounded-full text-xs font-semibold z-10 shadow-lg border border-orange-400/60 dark:border-orange-500/60 ring-1 ring-orange-300/30 dark:ring-orange-400/30">
             ⭐ Newest
         </div>
     {/if}

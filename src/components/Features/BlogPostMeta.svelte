@@ -27,6 +27,7 @@
     export let showCreator = true;
     export let variant = 'grid'; // 'grid' oder 'detail'
     export let truncateAuthor = null;
+    export let showCategory = true; // Ob Category angezeigt werden soll (default: true)
     
     // Berechne Lesezeit falls nicht vorhanden
     $: finalReadingTime = readingTime || (content ? calculateReadTime(content) : null);
@@ -34,12 +35,12 @@
     // Formatiere Datum
     $: formattedDate = formatDate(isodate || date, $currentLanguage);
     
-    // Standard-Truncation-Funktion (max. 24 Zeichen)
+    // Standard-Truncation-Funktion (max. 20 Zeichen)
     function defaultTruncateAuthor(author) {
         if (!author) return 'Unknown';
         const text = String(author);
-        // If text is longer than 24 chars, show first 21 chars + "..." = 24 total
-        return text.length > 24 ? text.substring(0, 21) + '...' : text;
+        // If text is longer than 20 chars, show first 17 chars + "..." = 20 total
+        return text.length > 20 ? text.substring(0, 17) + '...' : text;
     }
     
     // Kürze Autor-Name: verwende übergebene Funktion oder Standard
@@ -54,12 +55,12 @@
     $: paddingClass = variant === 'detail' ? 'py-3' : '';
 </script>
 
-<div class="flex flex-wrap items-center justify-center gap-2 {textSizeClass} {textColorClass} {paddingClass}">
+<div class="pb-3 px-2 flex items-center justify-center gap-2 {textSizeClass} {textColorClass} {paddingClass} whitespace-nowrap">
     {#if formattedDate}
         <time datetime={isodate || date} class="flex items-center whitespace-nowrap">
             📅 {formattedDate}
         </time>
-        {#if (showCreator && creator) || category || finalReadingTime}
+        {#if (showCreator && creator) || (showCategory && category) || finalReadingTime}
             <span class="text-gray-400 dark:text-gray-500">·</span>
         {/if}
     {/if}
@@ -68,12 +69,12 @@
         <span class="flex items-center whitespace-nowrap" title={creator || 'Unknown'}>
             👤 {displayCreator}
         </span>
-        {#if category || finalReadingTime}
+        {#if (showCategory && category) || finalReadingTime}
             <span class="text-gray-400 dark:text-gray-500">·</span>
         {/if}
     {/if}
     
-    {#if category}
+    {#if showCategory && category}
         <span class="bg-yellow-500 text-black px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap">
             {category || 'uncategorized'}
         </span>

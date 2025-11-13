@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import { Link, navigate } from 'svelte-routing';
     import { updateSeo } from '../../stores/seoStore.js';
-    import { fetchBlogPost, likeBlogPost } from '../../utils/blogApi.js';
+    import { fetchBlogPost, likeBlogPost, fetchBlogPosts } from '../../utils/blogApi.js';
     import { getBlogUrl, getBlogShareUrl, getHomeUrl } from '../../utils/blogNavigation.js';
     import { isLoggedIn } from '../../stores/appStores.js';
     import { get } from 'svelte/store';
@@ -11,6 +11,7 @@
     import { linkedinIcon, whatsappIcon, emailIcon, redditIcon } from '../../assets/shapes.js';
     import BlogPostImage from './BlogPostImage.svelte';
     import BlogPostMeta from './BlogPostMeta.svelte';
+    import HeartAnimation from './HeartAnimation.svelte';
   
     export let slug;
     
@@ -18,6 +19,7 @@
     let loading = true;
     let error = null;
     let shareUrl = '';
+    let showHeartAnimation = false;
   
     // Translations for "Back to Posts" button
     $: backToPostsText = (() => {
@@ -134,6 +136,17 @@
             liked: true
           };
           console.log('✅ [BlogPost] Like saved successfully:', { likes: post.likes });
+          
+          // Trigger heart animation
+          showHeartAnimation = true;
+          
+          // Reset animation flag after a short delay to allow re-triggering
+          setTimeout(() => {
+            showHeartAnimation = false;
+          }, 100);
+          
+          // Refresh likes from backend to ensure we have the latest value
+          await refreshLikesFromBackend();
         } else {
           // Rollback on error
           post = {
@@ -151,6 +164,27 @@
           likes: originalLikes,
           liked: originalLiked
         };
+      }
+    }
+    
+    async function refreshLikesFromBackend() {
+      // Fetch latest posts to get updated likes from backend
+      try {
+        const allPosts = await fetchBlogPosts({ useCache: false, forceRefresh: true }); // Force fresh fetch
+        const updatedPost = allPosts.find(p => 
+          (p.id === post.id || p.row_number === post.row_number) ||
+          (p.slug === post.slug)
+        );
+        
+        if (updatedPost && updatedPost.likes !== undefined) {
+          post = {
+            ...post,
+            likes: updatedPost.likes
+          };
+          console.log('✅ [BlogPost] Likes refreshed from backend:', updatedPost.likes);
+        }
+      } catch (error) {
+        console.warn('⚠️ [BlogPost] Error refreshing likes:', error);
       }
     }
 </script>
@@ -317,4 +351,7 @@
             </div>
         </div>
     {/if}
+    
+    <!-- Heart Animation -->
+    <HeartAnimation show={showHeartAnimation} count={3} />
 </PageLayout>
