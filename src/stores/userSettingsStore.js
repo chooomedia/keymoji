@@ -517,38 +517,75 @@ async function updateAccountName(userId, name) {
         
         // CRITICAL: Load current dailyUsage to preserve it during name update!
         // dailyUsage is in its own column and must be explicitly sent to preserve it
+        // IMPORTANT: We MUST load dailyUsage from API if not available locally to ensure we have the latest data!
         let currentDailyUsage = null;
         try {
-            // Try to get from account.dailyUsage (if already loaded)
-            if (account?.dailyUsage) {
+            // Priority 1: Try to get from account.dailyUsage (if already loaded)
+            if (account?.dailyUsage && typeof account.dailyUsage === 'object' && account.dailyUsage.date) {
                 currentDailyUsage = account.dailyUsage;
-                console.log('✅ [NAME UPDATE] Using dailyUsage from account store');
+                console.log('✅ [NAME UPDATE] Using dailyUsage from account store:', {
+                    date: currentDailyUsage.date,
+                    used: currentDailyUsage.used,
+                    limit: currentDailyUsage.limit
+                });
             } else {
-                // Load from localStorage or API
-                const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+                // Priority 2: Load from dailyLimit store (most up-to-date)
                 const dailyLimitStore = get(dailyLimit);
                 if (dailyLimitStore && dailyLimitStore.date) {
                     currentDailyUsage = dailyLimitStore;
-                    console.log('✅ [NAME UPDATE] Using dailyUsage from dailyLimit store');
-                } else if (prefs.dailyUsage) {
-                    currentDailyUsage = typeof prefs.dailyUsage === 'string' 
-                        ? JSON.parse(prefs.dailyUsage) 
-                        : prefs.dailyUsage;
-                    console.log('✅ [NAME UPDATE] Using dailyUsage from localStorage');
+                    console.log('✅ [NAME UPDATE] Using dailyUsage from dailyLimit store:', {
+                        date: currentDailyUsage.date,
+                        used: currentDailyUsage.used,
+                        limit: currentDailyUsage.limit
+                    });
                 } else {
-                    // Try to load from API
+                    // Priority 3: Try to load from API FIRST (most reliable source!)
                     const { loadUsageFromAPI } = await import('./dailyUsageStore.js');
-                    if (loadUsageFromAPI) {
+                    if (loadUsageFromAPI && account) {
                         const apiUsage = await loadUsageFromAPI(account).catch(() => null);
-                        if (apiUsage) {
+                        if (apiUsage && apiUsage.date) {
                             currentDailyUsage = apiUsage;
-                            console.log('✅ [NAME UPDATE] Loaded dailyUsage from API');
+                            console.log('✅ [NAME UPDATE] Loaded dailyUsage from API:', {
+                                date: currentDailyUsage.date,
+                                used: currentDailyUsage.used,
+                                limit: currentDailyUsage.limit
+                            });
+                        }
+                    }
+                    
+                    // Priority 4: Fallback to localStorage if API failed
+                    if (!currentDailyUsage) {
+                        const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+                        if (prefs.dailyUsage) {
+                            currentDailyUsage = typeof prefs.dailyUsage === 'string' 
+                                ? JSON.parse(prefs.dailyUsage) 
+                                : prefs.dailyUsage;
+                            if (currentDailyUsage && currentDailyUsage.date) {
+                                console.log('✅ [NAME UPDATE] Using dailyUsage from localStorage:', {
+                                    date: currentDailyUsage.date,
+                                    used: currentDailyUsage.used,
+                                    limit: currentDailyUsage.limit
+                                });
+                            } else {
+                                currentDailyUsage = null;
+                            }
                         }
                     }
                 }
             }
+            
+            // CRITICAL: Validate that dailyUsage has required fields
+            if (currentDailyUsage && (!currentDailyUsage.date || currentDailyUsage.date === '')) {
+                console.warn('⚠️ [NAME UPDATE] dailyUsage missing date field - treating as invalid');
+                currentDailyUsage = null;
+            }
         } catch (error) {
-            console.warn('⚠️ [NAME UPDATE] Could not load dailyUsage, n8n will preserve from Google Sheets:', error);
+            console.error('❌ [NAME UPDATE] Error loading dailyUsage:', error);
+            currentDailyUsage = null;
+        }
+        
+        if (!currentDailyUsage) {
+            console.warn('⚠️ [NAME UPDATE] No valid dailyUsage found - n8n MUST preserve from Google Sheets!');
         }
         
         // CRITICAL: Build clean metadata without duplicate fields (fields with own columns!)
@@ -566,25 +603,40 @@ async function updateAccountName(userId, name) {
         // Validate (warns in dev if duplicates found)
         validateMetadataNoDuplicates(cleanedMetadata, 'updateAccountName');
 
+        // CRITICAL: Build request body with dailyUsage if available
+        // If dailyUsage is not available, n8n MUST preserve it from lookupData!
+        const requestBody = {
+            action: 'update', // Required for n8n
+            userId: userId,
+            email: account?.email || '',
+            profile: {
+                ...(account?.profile || {}),
+                name: name
+            },
+            lastLogin: new Date().toISOString(), // Update lastLogin
+            metadata: cleanedMetadata // Clean metadata without duplicates!
+        };
+        
+        // CRITICAL: Include dailyUsage ONLY if we have valid data!
+        // If not included, n8n will preserve from lookupData (Google Sheets)
+        if (currentDailyUsage && currentDailyUsage.date) {
+            requestBody.dailyUsage = currentDailyUsage;
+            console.log('✅ [NAME UPDATE] Including dailyUsage in request:', {
+                date: currentDailyUsage.date,
+                used: currentDailyUsage.used,
+                limit: currentDailyUsage.limit
+            });
+        } else {
+            console.warn('⚠️ [NAME UPDATE] NOT including dailyUsage in request - n8n MUST preserve from Google Sheets!');
+        }
+        
         const response = await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify({
-                action: 'update', // Required for n8n
-                userId: userId,
-                email: account?.email || '',
-                // CRITICAL: Include dailyUsage to preserve it during name update!
-                ...(currentDailyUsage ? { dailyUsage: currentDailyUsage } : {}),
-                profile: {
-                    ...(account?.profile || {}),
-                    name: name
-                },
-                lastLogin: new Date().toISOString(), // Update lastLogin
-                metadata: cleanedMetadata // Clean metadata without duplicates!
-            })
+            body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {
