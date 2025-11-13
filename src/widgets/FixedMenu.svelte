@@ -34,34 +34,69 @@
   let selectedLink = undefined;
   let showDebugModal = false;
 
-  // Click-Outside Handler hinzufügen
+  // Click-Outside Handler - consistent with LanguageSwitcher
   onMount(() => {
     // Initialize account from cookies
     initializeAccountFromCookies();
     
+    // Click-outside handler - consistent with LanguageSwitcher and BlogGrid
+    // Use capture phase to ensure it runs before other handlers
     const handleClickOutside = (event) => {
-      const fixedMenu = document.getElementById('fixed-menu');
-      const donateButton = document.querySelector('[data-menu-type="donate"]');
-      const languageDropdown = document.getElementById('language-dropdown-menu');
-      const languageToggle = document.getElementById('language-toggle-button');
+      const target = event.target;
       
-      // Prüfen ob der Click außerhalb ALLER Menüs war
-      if (!event.target.closest('#fixed-menu') && 
-          !event.target.closest('[data-menu-type="donate"]') &&
-          !event.target.closest('#language-dropdown-menu') &&
-          !event.target.closest('#language-toggle-button')) {
-        // Schließe alle Menüs
+      // Check if click is on the share menu button
+      const shareMenuButton = document.getElementById('share-menu-button');
+      const isInsideShareButton = shareMenuButton && (shareMenuButton.contains(target) || shareMenuButton === target);
+      
+      // Check if click is on a clickable menu item (link) inside the share menu
+      const isInsideShareMenuItem = target.closest('#fixed-menu [role="menuitem"]');
+      
+      // Check if click is on the donate button
+      const donateButton = document.querySelector('[data-menu-type="donate"]');
+      const isInsideDonateButton = donateButton && (donateButton.contains(target) || donateButton === target);
+      
+      // Check if click is on a clickable menu item inside the donate menu
+      const isInsideDonateMenuItem = target.closest('[data-menu-type="donate"] + div [role="menuitem"]');
+      
+      // Also check other menus to avoid conflicts
+      const isInsideLanguageMenu = target.closest('#language-dropdown-menu [role="menuitem"]');
+      const isInsideLanguageButton = target.closest('#language-toggle-button');
+      const isInsideCategoryMenu = target.closest('#category-dropdown-menu [role="menuitem"]');
+      const isInsideCategoryButton = target.closest('#category-toggle-button');
+      
+      // Close share menu if click is outside all relevant elements
+      if (showMenu && 
+          !isInsideShareButton && 
+          !isInsideShareMenuItem && 
+          !isInsideDonateButton && 
+          !isInsideDonateMenuItem && 
+          !isInsideLanguageMenu && 
+          !isInsideLanguageButton && 
+          !isInsideCategoryMenu && 
+          !isInsideCategoryButton) {
         showMenu = false;
-        showDonateMenu.set(false);
-        showLanguageMenu.set(false);
         selectedLink = undefined;
       }
+      
+      // Close donate menu if click is outside all relevant elements
+      if (get(showDonateMenu) && 
+          !isInsideDonateButton && 
+          !isInsideDonateMenuItem && 
+          !isInsideShareButton && 
+          !isInsideShareMenuItem && 
+          !isInsideLanguageMenu && 
+          !isInsideLanguageButton && 
+          !isInsideCategoryMenu && 
+          !isInsideCategoryButton) {
+        showDonateMenu.set(false);
+      }
     };
-
-    document.addEventListener('click', handleClickOutside);
+    
+    // Use capture phase for better reliability
+    document.addEventListener('click', handleClickOutside, true);
 
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('click', handleClickOutside, true);
     };
   });
 
@@ -101,13 +136,40 @@
     }
   }
 
-  function toggleMenu(menuType) {
+  function toggleMenu(menuType, event) {
+    // Prevent event from bubbling to click-outside handler
+    if (event) {
+      event.stopPropagation();
+    }
+    
     if (menuType === 'donate') {
       showDonateMenu.update(value => !value);
       showMenu = false;
+      
+      // Schließe Language Dropdown, wenn Donate Dropdown geöffnet wird
+      if (get(showDonateMenu)) {
+        const languageButton = document.querySelector('#language-toggle-button');
+        if (languageButton && languageButton.getAttribute('aria-expanded') === 'true') {
+          languageButton.click(); // Toggle schließt das Dropdown
+        }
+      }
     } else if (menuType === 'share') {
       showMenu = !showMenu;
       showDonateMenu.set(false);
+      
+      // Schließe Language Dropdown, wenn Share Menu geöffnet wird
+      if (showMenu) {
+        const languageButton = document.querySelector('#language-toggle-button');
+        if (languageButton && languageButton.getAttribute('aria-expanded') === 'true') {
+          languageButton.click(); // Toggle schließt das Dropdown
+        }
+        
+        // Schließe Category Dropdown falls geöffnet
+        const categoryButton = document.querySelector('#category-toggle-button');
+        if (categoryButton && categoryButton.getAttribute('aria-expanded') === 'true') {
+          categoryButton.click(); // Toggle schließt das Dropdown
+        }
+      }
     }
 
     dispatch('toggleMenu', { menuType });
@@ -221,10 +283,11 @@
 <div id="fixed-menu" class="main-footer pb-4 flex flex-col justify-center items-center w-full bg-transparent backdrop-blur-md">
   {#if showMenu && shareLinks.length > 0}
     <ul 
+    id="share-menu-list"
     class="w-34 mx-auto rounded-t-xl bg-creme-500 dark:bg-aubergine-900 ring-1 ring-black ring-opacity-5 z-auto pt-2 shadow-lg" 
     role="menu" 
     aria-orientation="vertical" 
-    aria-labelledby="menu-button">
+    aria-labelledby="share-menu-button">
       {#each shareLinks as link (link.id)}
       <li 
         in:slide={{ y: -5, duration: 400, easing: cubicInOut }} 
@@ -262,10 +325,14 @@
         {#if $darkMode}🌙{:else}🌞{/if}
       </button>
       <button 
+        id="share-menu-button"
         aria-label={showMenu ? ($translations?.fixedMenu?.tooltips?.closeShare || 'Close share menu') : ($translations?.fixedMenu?.tooltips?.openShare || 'Share Keymoji')}
-        on:click={() => toggleMenu('share')} 
+        on:click={(e) => toggleMenu('share', e)} 
         class="{showMenu ? 'opened' : 'closed'} btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
         title={showMenu ? ($translations?.fixedMenu?.tooltips?.closeShare || 'Close share menu') : ($translations?.fixedMenu?.tooltips?.openShare || 'Share Keymoji')}
+        aria-expanded={showMenu}
+        aria-haspopup="true"
+        aria-controls="share-menu-list"
       >
         {#if showMenu}💔{:else}❤️{/if}
       </button>
@@ -300,7 +367,7 @@
       {/if}
       <button 
         aria-label={$showDonateMenu ? ($translations?.fixedMenu?.tooltips?.closeDonate || 'Close donation menu') : ($translations?.fixedMenu?.tooltips?.donate || 'Support us')}
-        on:click={() => toggleMenu('donate')} 
+        on:click={(e) => toggleMenu('donate', e)} 
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl md:hidden transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
         title={$showDonateMenu ? ($translations?.fixedMenu?.tooltips?.closeDonate || 'Close donation menu') : ($translations?.fixedMenu?.tooltips?.donate || 'Support us')}
       >
@@ -314,7 +381,7 @@
     <button 
       data-menu-type="donate"
       aria-label={$showDonateMenu ? ($translations?.fixedMenu?.tooltips?.closeDonate || 'Close donation menu') : ($translations?.fixedMenu?.tooltips?.donate || 'Support us')}
-      on:click={() => toggleMenu('donate')} 
+      on:click={(e) => toggleMenu('donate', e)} 
       class="hidden md:flex items-center btn border-4 p-3.5 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-lg relative z-50 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
       title={$showDonateMenu ? ($translations?.donateButton?.openText || 'Close') : ($translations?.donateButton?.text || 'Support us')}
     >

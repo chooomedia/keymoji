@@ -73,6 +73,7 @@ export function navigateToVersions(replace = false) {
 /**
  * Navigiert zur Blog-Seite
  * @param {boolean} replace - Ob die aktuelle Route ersetzt werden soll
+ * @deprecated Use blogNavigation.navigateToBlog instead
  */
 export function navigateToBlog(replace = false) {
     navigateToRoute('blog', replace);
@@ -82,6 +83,7 @@ export function navigateToBlog(replace = false) {
  * Navigiert zu einem spezifischen Blog-Post
  * @param {string} slug - Der Blog-Post Slug
  * @param {boolean} replace - Ob die aktuelle Route ersetzt werden soll
+ * @deprecated Use blogNavigation.navigateToBlogPost instead
  */
 export function navigateToBlogPost(slug, replace = false) {
     try {

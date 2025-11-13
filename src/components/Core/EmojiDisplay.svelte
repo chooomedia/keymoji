@@ -1115,7 +1115,7 @@
         id="story-input"
           bind:value={storyInput} 
           placeholder={$translations.emojiDisplay.placeholderText} 
-          class="story-textarea-scrollbar overflow-y-auto appearance-none block w-full pr-12 pb-8 text-gray-900 dark:text-white py-3 px-4 leading-tight transition duration-300 ease-in-out bg-white dark:bg-aubergine-900 border-0 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed placeholder-gray-400 dark:placeholder-gray-500 resize-none" 
+          class="custom-scrollbar overflow-y-auto appearance-none block w-full pr-12 pb-8 text-gray-900 dark:text-white py-3 px-4 leading-tight transition duration-300 ease-in-out bg-white dark:bg-aubergine-900 border-0 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed placeholder-gray-400 dark:placeholder-gray-500 resize-none" 
           on:keydown={handleTextareaKeydown}
           on:input={(e) => {
             // Enforce max length
@@ -1529,78 +1529,4 @@
     100% { transform: scale(1); }
   }
   
-  /* Story Textarea Scrollbar - Maximale Spezifität direkt im Component */
-  /* Firefox */
-  :global(textarea#story-input.story-textarea-scrollbar),
-  :global(textarea.story-textarea-scrollbar) {
-    scrollbar-width: thin !important;
-    -ms-overflow-style: auto !important;
-    scrollbar-color: rgb(249, 115, 22) rgb(229, 231, 235) !important;
-  }
-  
-  /* WebKit (Chrome, Brave, Safari, Edge) */
-  /* z-index niedriger als Border, damit Border darüber liegt */
-  :global(textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar),
-  :global(textarea.story-textarea-scrollbar::-webkit-scrollbar) {
-    display: block !important;
-    width: 8px !important;
-    height: 8px !important;
-    -webkit-appearance: none !important;
-    appearance: none !important;
-    z-index: 0 !important;
-  }
-  
-  :global(textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-track),
-  :global(textarea.story-textarea-scrollbar::-webkit-scrollbar-track) {
-    background: transparent !important;
-    border-radius: 0 !important;
-    -webkit-border-radius: 0 !important;
-    margin: 16px 4px !important; /* Abstand zu border-radius (rounded-2xl = 16px) */
-  }
-  
-  :global(textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb),
-  :global(textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb) {
-    background: rgb(249, 115, 22) !important;
-    border-radius: 4px !important;
-    -webkit-border-radius: 4px !important;
-    transition: background 0.2s ease !important;
-    -webkit-transition: background 0.2s ease !important;
-    border: none !important;
-  }
-  
-  :global(textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb:hover),
-  :global(textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb:hover) {
-    background: rgb(234, 88, 12) !important;
-  }
-  
-  :global(textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb:active),
-  :global(textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb:active) {
-    background: rgb(194, 65, 12) !important;
-  }
-  
-  /* Dark mode */
-  :global(.dark textarea#story-input.story-textarea-scrollbar),
-  :global(.dark textarea.story-textarea-scrollbar) {
-    scrollbar-color: rgb(249, 115, 22) rgb(37, 56, 82) !important;
-  }
-  
-  :global(.dark textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-track),
-  :global(.dark textarea.story-textarea-scrollbar::-webkit-scrollbar-track) {
-    background: transparent !important;
-  }
-  
-  :global(.dark textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb),
-  :global(.dark textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb) {
-    background: rgb(249, 115, 22) !important;
-  }
-  
-  :global(.dark textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb:hover),
-  :global(.dark textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb:hover) {
-    background: rgb(234, 88, 12) !important;
-  }
-  
-  :global(.dark textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb:active),
-  :global(.dark textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb:active) {
-    background: rgb(194, 65, 12) !important;
-  }
 </style>

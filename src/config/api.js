@@ -208,6 +208,13 @@ export const WEBHOOKS = {
         get SECURITY_LOG() { return buildN8NUrl('/xn--moji-pb73c-accounting-security-log'); },
         get VALIDATION() { return buildN8NUrl('/xn--moji-pb73c-accounting-validation'); },
         get RATE_LIMIT() { return buildN8NUrl('/xn--moji-pb73c-accounting-rate-limit'); }
+    },
+
+    // Blog Posts
+    BLOG: {
+        get POSTS() { return buildN8NUrl('/xn--moji-pb73c-blog-posts'); },
+        get POST() { return buildN8NUrl('/xn--moji-pb73c-blog-post'); },
+        LIKE: `${API_URL}/blog/like` // Vercel API → n8n webhook
     }
 };
 
@@ -253,6 +260,11 @@ export const API_ENDPOINTS = {
     // Email Testing
     EMAIL: {
         TEST: `${API_URL}/test-emails`
+    },
+
+    // Blog Management
+    BLOG: {
+        LIKE: `${API_URL}/blog/like`
     }
 };
 

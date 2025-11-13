@@ -2,6 +2,7 @@
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { onMount, createEventDispatcher } from 'svelte';
+    import { get } from 'svelte/store';
     import { currentLanguage, changeLanguage, showLanguageMenu, translations } from '../stores/contentStore.js';
     import { supportedLanguages } from '../utils/languages.js';
     import { navigate } from "svelte-routing";
@@ -16,6 +17,7 @@
     let elvishFontLoaded = false;
     let menuRef;
     let buttonRef;
+    let dropdownTop = 0;
     
     // Direkter Zugriff auf die supportedLanguages aus languageUtils
     const languages = supportedLanguages;
@@ -61,11 +63,30 @@
         }
     }
     
-    function toggleLanguageMenu() {
+    function toggleLanguageMenu(event) {
+        // Prevent event from bubbling to click-outside handler
+        if (event) {
+            event.stopPropagation();
+        }
+        
         $showLanguageMenu = !$showLanguageMenu;
         
-        // Font vorladen, wenn das Menü geöffnet wird (für schnelleres Umschalten)
+        // Schließe Category Dropdown, wenn Language Dropdown geöffnet wird
         if ($showLanguageMenu) {
+            // Calculate dropdown position once when opening
+            if (buttonRef) {
+                dropdownTop = buttonRef.getBoundingClientRect().bottom + 4;
+            }
+            
+            // Schließe Category Dropdown falls geöffnet
+            const categoryDropdown = document.querySelector('#category-dropdown-menu');
+            if (categoryDropdown) {
+                // Trigger close event für Category Dropdown
+                const categoryButton = document.querySelector('#category-toggle-button');
+                if (categoryButton && categoryButton.getAttribute('aria-expanded') === 'true') {
+                    categoryButton.click(); // Toggle schließt das Dropdown
+                }
+            }
             preloadElvishFont();
         }
     }
@@ -163,12 +184,13 @@
         return code.toUpperCase();
     }
     
-    // Keyboard navigation
+    // Keyboard navigation - consistent with BlogGrid category dropdown
     function handleKeydown(event) {
         if (!$showLanguageMenu) return;
         
         switch (event.key) {
             case 'Escape':
+                event.preventDefault();
                 $showLanguageMenu = false;
                 buttonRef?.focus();
                 break;
@@ -209,22 +231,48 @@
             document.body.classList.add('font-elvish');
         }
         
+        // Click-outside handler - consistent with BlogGrid category dropdown
+        // Use capture phase to ensure it runs before other handlers
         const handleClickOutside = (event) => {
-            // Prüfen ob der Click außerhalb ALLER Menüs war
-            if ($showLanguageMenu && 
-                !event.target.closest('#language-dropdown-menu') && 
-                !event.target.closest('#language-toggle-button') &&
-                !event.target.closest('#fixed-menu') &&
-                !event.target.closest('[data-menu-type="donate"]')) {
-                $showLanguageMenu = false;
+            // Get current state from store (reactive)
+            const isMenuOpen = get(showLanguageMenu);
+            
+            if (!isMenuOpen) return;
+            
+            const target = event.target;
+            
+            // Check if click is on the language toggle button
+            const languageButton = document.getElementById('language-toggle-button');
+            const isInsideButton = languageButton && (languageButton.contains(target) || languageButton === target);
+            
+            // Check if click is on a clickable menu item (button) inside the dropdown
+            // NOT on the empty space of the fixed container
+            const isInsideClickableMenuItem = target.closest('#language-dropdown-menu [role="menuitem"]');
+            
+            // Also check other menus to avoid conflicts
+            const isInsideCategoryMenu = target.closest('#category-dropdown-menu [role="menuitem"]');
+            const isInsideCategoryButton = target.closest('#category-toggle-button');
+            const isInsideFixedMenu = target.closest('#fixed-menu');
+            const isInsideDonateMenu = target.closest('[data-menu-type="donate"]');
+            
+            // Close dropdown if click is outside all clickable elements
+            // This includes clicks on the empty space of the fixed container
+            if (!isInsideButton && 
+                !isInsideClickableMenuItem && 
+                !isInsideCategoryMenu && 
+                !isInsideCategoryButton && 
+                !isInsideFixedMenu && 
+                !isInsideDonateMenu) {
+                showLanguageMenu.set(false);
             }
         };
         
-        document.addEventListener('click', handleClickOutside);
+        // Use capture phase for better reliability
+        document.addEventListener('click', handleClickOutside, true);
         document.addEventListener('keydown', handleKeydown);
         
         return () => {
-            document.removeEventListener('click', handleClickOutside);
+            document.removeEventListener('click', handleClickOutside, true);
             document.removeEventListener('keydown', handleKeydown);
         };
     });
@@ -271,23 +319,24 @@
         </div>
     </button>
     
-    <!-- Dropdown Menu -->
+    <!-- Dropdown Menu - Consistent with Category Dropdown -->
     {#if $showLanguageMenu}
         <div 
             id="language-dropdown-menu"
             bind:this={menuRef}
             class="fixed w-full flex flex-wrap justify-center z-50 right-0 left-0"
-            style="top: {buttonRef?.getBoundingClientRect().bottom + 4}px;"
+            style="top: {dropdownTop}px;"
             role="menu"
             aria-orientation="vertical"
             aria-labelledby="language-toggle-button"
             aria-label="Language selection menu"
         >
             <div 
-                class="w-48 mx-auto max-h-96 overflow-y-auto language-dialog-scrollbar scroll-smooth rounded-b-xl shadow-lg bg-creme-500 dark:bg-aubergine-900 ring-1 ring-black ring-opacity-5 z-50 transform pb-2"
+                class="w-48 mx-auto bg-white dark:bg-aubergine-900 rounded-xl shadow-xl overflow-hidden"
                 in:slide={{ y: -5, duration: 400, easing: cubicInOut }}
                 out:slide={{ y: 5, duration: 400, easing: cubicInOut }}
             >
+                <div class="max-h-96 overflow-y-auto custom-scrollbar">
                 <ul class="py-2" role="none">
                     {#each languages as lang}
                         <li role="none" lang={lang.ogLocale}>
@@ -314,6 +363,7 @@
                         </li>
                     {/each}
                 </ul>
+                </div>
             </div>
         </div>
     {/if}

@@ -117,16 +117,8 @@
     }
 
     onMount(() => {
-        const handleClickOutside = (event) => {
-            if ($showLanguageMenu && !event.target.closest('#language-dropdown-menu') && !event.target.closest('#language-toggle-button')) {
-                showLanguageMenu.set(false);
-            }
-        };
-
-        document.addEventListener('click', handleClickOutside);
-
+        // Badge timeout cleanup only - LanguageSwitcher handles its own click-outside
         return () => {
-            document.removeEventListener('click', handleClickOutside);
             if (badgeTimeout) clearTimeout(badgeTimeout);
         };
     });

@@ -401,7 +401,38 @@ async function executeFetch(url, options, cacheKey, ttl) {
             );
         }
 
-        const data = await response.json();
+        // Check if response has content
+        const contentType = response.headers.get('content-type');
+        let text;
+        
+        try {
+            text = await response.text();
+        } catch (textError) {
+            console.error('❌ [apiCache] Failed to read response text:', textError);
+            throw new Error(`Failed to read response: ${textError.message}`);
+        }
+        
+        // Handle empty responses
+        if (!text || text.trim().length === 0) {
+            console.warn('⚠️ [apiCache] Empty response from:', url);
+            return null;
+        }
+        
+        // Try to parse JSON
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (parseError) {
+            console.error('❌ [apiCache] Failed to parse JSON response:', {
+                url,
+                status: response.status,
+                contentType,
+                textPreview: text.substring(0, 200),
+                textLength: text.length,
+                error: parseError.message
+            });
+            throw new Error(`Invalid JSON response: ${parseError.message}`);
+        }
 
         // Save to cache
         saveToCache(cacheKey, data, ttl);

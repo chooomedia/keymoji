@@ -1402,8 +1402,58 @@
                                             </div>
                                         {/if}
                                     </div>
-                                {:else}
-                                    <!-- Normal input without special handling (skip provider as it's handled above) -->
+                                {:else if item.id === 'storyMode.temperature'}
+                                    <!-- Special handling for Temperature Slider with 0.1 steps, synced with EmojiDisplay -->
+                                    <!-- Use reactive statement to get current value - updates when store changes -->
+                                    $: currentTemperatureRaw = getCurrentValue(item);
+                                    $: currentTemperature = typeof currentTemperatureRaw === 'number' 
+                                        ? currentTemperatureRaw 
+                                        : (currentTemperatureRaw ? parseFloat(currentTemperatureRaw) : 0);
+                                    $: safeTemperature = typeof currentTemperature === 'number' && !isNaN(currentTemperature) 
+                                        ? Math.max(0, Math.min(1, currentTemperature)) 
+                                        : 0;
+                                    
+                                    <div class="space-y-3">
+                                        <div class="flex items-center space-x-2">
+                                            {#if item.icon}
+                                                <span class="text-lg">{item.icon}</span>
+                                            {/if}
+                                            <label for={item.id} class="text-sm font-semibold text-gray-900 dark:text-white">
+                                                {getLocalizedText(item.title)}
+                                            </label>
+                                        </div>
+                                        <p class="sr-only">{getLocalizedText(item.description)}</p>
+                                        <div class="relative">
+                                            <div class="flex items-center gap-2">
+                                                <input
+                                                    id={item.id}
+                                                    type="range"
+                                                    min={item.min || 0}
+                                                    max={item.max || 1}
+                                                    step={item.step || 0.1}
+                                                    value={safeTemperature}
+                                                    on:input={(e) => {
+                                                        const newValue = parseFloat(e.target.value);
+                                                        if (!isNaN(newValue) && newValue >= 0 && newValue <= 1) {
+                                                            console.log('🌡️ Temperature slider changed:', newValue);
+                                                            handleSettingUpdate(item.id, newValue);
+                                                        }
+                                                    }}
+                                                    class="flex-1 h-1.5 appearance-none rounded-full bg-gray-300 dark:bg-gray-600 transition-all hover:bg-yellow-400 dark:hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    style="--range-thumb-color: rgb(234, 179, 8);"
+                                                    aria-label={getLocalizedText(item.title)}
+                                                    aria-valuemin={item.min || 0}
+                                                    aria-valuemax={item.max || 1}
+                                                    aria-valuenow={safeTemperature}
+                                                />
+                                                <span class="text-xs font-semibold text-yellow-600 dark:text-yellow-400 w-8 text-right tabular-nums shrink-0">
+                                                    {safeTemperature.toFixed(1)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {:else if item.id !== 'storyMode.enabled' && item.id !== 'storyMode.provider' && item.id !== 'storyMode.apiKeys'}
+                                    <!-- Normal input without special handling (skip items that are handled above) -->
                                     <ModularInput
                                         config={{
                                             type: item.type,
@@ -1419,6 +1469,7 @@
                                             })) || [],
                                             min: item.min,
                                             max: item.max,
+                                            step: item.step, // Wichtig für Temperature Slider mit 0.1 Steps
                                             labels: item.labels,
                                             defaultValue: item.defaultValue,
                                             class: 'contact-input'

@@ -363,7 +363,7 @@
             </div>
 
             <!-- Content -->
-            <div class="flex-1 overflow-y-auto p-4">
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-4">
                 {#if activeTab === 'account'}
                     <!-- Account Tab -->
                     <div class="space-y-4">
