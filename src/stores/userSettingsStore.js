@@ -1323,49 +1323,17 @@ export async function saveSettingsToAPI(settings) {
         );
 
         // CRITICAL: Load current dailyUsage to preserve it during settings save!
-        // dailyUsage is in its own column and must be explicitly sent to preserve it
+        // Use centralized loadDailyUsage utility (single source of truth)
         let currentDailyUsage = null;
         try {
-            // Priority 1: Try to get from account.dailyUsage (if already loaded)
-            if (account?.dailyUsage) {
-                currentDailyUsage = account.dailyUsage;
-                console.log('✅ [SETTINGS SAVE] Using dailyUsage from account store');
-            } else {
-                // Priority 2: Load from dailyLimit store (most up-to-date)
-                const dailyLimitStore = get(dailyLimit);
-                // CRITICAL: dailyLimit store has {limit, used, storyUsed} but NOT date
-                // We need to construct dailyUsage object with today's date
-                if (dailyLimitStore && (dailyLimitStore.used > 0 || dailyLimitStore.storyUsed > 0 || dailyLimitStore.limit > 0)) {
-                    // Construct dailyUsage object from dailyLimit store
-                    const today = new Date().toISOString().split('T')[0];
-                    currentDailyUsage = {
-                        date: today,
-                        used: dailyLimitStore.used || 0,
-                        storyUsed: dailyLimitStore.storyUsed || 0,
-                        limit: dailyLimitStore.limit || 0,
-                        lastReset: today
-                    };
-                    console.log('✅ [SETTINGS SAVE] Using dailyUsage from dailyLimit store:', currentDailyUsage);
-                } else {
-                    // Priority 3: Load from localStorage
-                    const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
-                    if (prefs.dailyUsage) {
-                        currentDailyUsage = typeof prefs.dailyUsage === 'string' 
-                            ? JSON.parse(prefs.dailyUsage) 
-                            : prefs.dailyUsage;
-                        console.log('✅ [SETTINGS SAVE] Using dailyUsage from localStorage');
-                    } else {
-                        // Priority 4: Try to load from API
-                        const { loadUsageFromAPI } = await import('./dailyUsageStore.js');
-                        if (loadUsageFromAPI) {
-                            const apiUsage = await loadUsageFromAPI(account).catch(() => null);
-                            if (apiUsage) {
-                                currentDailyUsage = apiUsage;
-                                console.log('✅ [SETTINGS SAVE] Loaded dailyUsage from API');
-                            }
-                        }
-                    }
-                }
+            const { loadDailyUsage } = await import('../utils/dailyUsageLoader.js');
+            currentDailyUsage = await loadDailyUsage(account, { includeAPI: true });
+            if (currentDailyUsage) {
+                console.log('✅ [SETTINGS SAVE] Loaded dailyUsage using centralized loader:', {
+                    date: currentDailyUsage.date,
+                    used: currentDailyUsage.used,
+                    limit: currentDailyUsage.limit
+                });
             }
         } catch (error) {
             console.warn('⚠️ [SETTINGS SAVE] Could not load dailyUsage, n8n will preserve from Google Sheets:', error);
