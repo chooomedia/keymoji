@@ -10,13 +10,13 @@
  */
 
 // Aktuelle Version der Anwendung
-export const appVersion = '0.7.2';
+export const appVersion = '0.7.3';
 
 // Versionsinformationen mit Datum der letzten Aktualisierung
 export const versionInfo = {
     version: appVersion,
-    updated: '2025-11-07',
-    codename: 'Security & Configuration'
+    updated: '2025-11-13',
+    codename: 'Data Integrity & Settings Fix'
 };
 
 // Diese Funktion formatiert die Versionsnummer für die Anzeige

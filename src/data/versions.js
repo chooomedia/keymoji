@@ -1,4 +1,78 @@
 export const versions = {
+    '0.7.3': {
+        date: 'November 13, 2025',
+        core: {
+            dataIntegrity: {
+                title: '🔐 Data Integrity & Single Source of Truth',
+                improvements: [
+                    'Metadata Cleaner: Prevents duplicate fields in metadata (createdAt, dailyUsage, profile, tier, etc.)',
+                    'Single Source of Truth: Fields with own columns (userId, email, tier, createdAt, lastLogin, profile, dailyUsage, status) are NOT in metadata',
+                    'dailyUsage Preservation: Explicitly preserved when updating name or settings',
+                    'createdAt Preservation: Never overwritten after initial account creation',
+                    'updatedHistory Order: Fixed ReferenceError by ensuring correct initialization order',
+                    'Metadata cleaning in frontend and backend (metadataCleaner.js)',
+                    'ES6 Module exports for Vercel compatibility'
+                ]
+            },
+            magicLink: {
+                title: '🔗 Magic-Link Settings Fix',
+                improvements: [
+                    'refreshUserSettings() function created in userDataStore.js (analog to refreshUsageHistory)',
+                    'initializeSettingsForUser() called immediately after syncAccountData() in verifyMagicLinkFrontend',
+                    'Settings priority corrected: extractSettingsFromAccount() as Priority 1 (from currentAccount.metadata.settings)',
+                    'Settings now load correctly after Magic-Link login',
+                    'Robust fallback chain: account.metadata.settings → API → localStorage → tier defaults',
+                    'User settings displayed correctly after login'
+                ]
+            },
+            backend: {
+                title: '⚙️ Backend & n8n Workflow Improvements',
+                improvements: [
+                    'n8n Process Update: Enhanced dailyUsage preservation logic (checks case variations: dailyUsage/DailyUsage)',
+                    'n8n Process Update: Explicit metadata cleaning to exclude column fields',
+                    'Vercel API: Improved CORS handling with try-catch for robust OPTIONS requests',
+                    'Vercel API: Metadata cleaning integrated in account/update.js and account.js',
+                    'Timeout handling: 30-second timeout for n8n webhook requests',
+                    'Error logging: Enhanced error messages with status, status text, and response preview'
+                ]
+            }
+        },
+        fixes: {
+            critical: {
+                title: '🐛 Critical Bug Fixes',
+                improvements: [
+                    'Fixed: dailyUsage deleted when updating name or settings',
+                    'Fixed: createdAt overwritten after login or account updates',
+                    'Fixed: Settings not displayed after Magic-Link login',
+                    'Fixed: ReferenceError: Cannot access updatedHistory before initialization',
+                    'Fixed: CORS preflight requests failing with 500 status',
+                    'Fixed: SyntaxError: ES6 module exports in Vercel backend'
+                ]
+            },
+            dataFlow: {
+                title: '🔄 Data Flow Optimization',
+                improvements: [
+                    'updateAccountName: Loads dailyUsage from multiple sources (account → dailyLimit → API → localStorage)',
+                    'saveSettingsToAPI: Preserves dailyUsage when saving settings',
+                    'saveUsageToAPI: Correct initialization order for updatedHistory',
+                    'syncAccountData: Parses metadata and profile correctly (handles string and object formats)',
+                    'initializeSettingsForUser: Priority-based settings loading (account → API → localStorage)',
+                    'refreshUserSettings: Caches settings and updates userSettings store'
+                ]
+            },
+            codeQuality: {
+                title: '⚡ Code Quality & Best Practices',
+                improvements: [
+                    'Centralized metadata cleaning utility (metadataCleaner.js) for frontend and backend',
+                    'Consistent error handling across all account update operations',
+                    'Comprehensive logging for debugging data flow issues',
+                    'Robust validation for dailyUsage (checks for date field)',
+                    'Improved CORS handling with proper error recovery',
+                    'ES6 Module syntax for better Vercel compatibility'
+                ]
+            }
+        }
+    },
     '0.7.2': {
         date: 'November 7, 2025',
         core: {
