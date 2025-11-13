@@ -42,7 +42,25 @@
     $: tierText = tier === 'pro' ? '💎 PRO' : '✨ FREE';
     $: tierBgClass = tier === 'pro' ? 'bg-purple-700' : 'bg-yellow-600';
     // Tooltip zeigt die Account-Age (z.B. "Seit 7 Tagen!")
-    $: tierTooltipText = accountAgeLabel || (translations?.accountCreated || 'Account erstellt');
+    // CRITICAL: accountAgeLabel sollte bereits formatiert sein (z.B. "Seit 11 Tagen!")
+    // Falls leer, verwende Fallback
+    $: tierTooltipText = (() => {
+        if (accountAgeLabel && accountAgeLabel.trim() !== '') {
+            return accountAgeLabel;
+        }
+        // Fallback: Verwende accountCreated oder generischen Text
+        return translations?.accountCreated || 'Account erstellt';
+    })();
+    
+    // Debug logging
+    $: if (isTierBadge) {
+        console.log('🔍 [ContextBadge] Tier Badge Tooltip:', {
+            accountAgeLabel,
+            tierTooltipText,
+            hasTranslations: !!translations,
+            accountCreated: translations?.accountCreated
+        });
+    }
     
     // SVG Arrow color based on variant - use background color for the arrow
     $: arrowColor = variantClasses[variant].bg;
@@ -208,6 +226,7 @@
     });
     
     // Reactive classes
+    // CRITICAL: For tier badges, use auto width (fit content), not fixed width
     $: badgeClasses = [
         'absolute z-50 rounded-xl border shadow-xl',
         sizeClasses[size].spacing,
@@ -219,7 +238,8 @@
         'pointer-events-none',
         'transition-all duration-200 ease-out',
         'backdrop-blur-sm',
-        width ? widthClasses[width] : 'max-w-xs'
+        // For tier badges, use auto width (fit content), otherwise use specified width or max-w-xs
+        isTierBadge ? 'whitespace-nowrap' : (width ? widthClasses[width] : 'max-w-xs')
     ].filter(Boolean).join(' ');
     
     $: arrowClassesFinal = [

@@ -260,7 +260,7 @@ async function callOpenAIWithModel(
                     { role: 'user', content: prompt }
                 ],
                 max_tokens: maxTokens || 150,
-                temperature: temperature || 0.7,
+                temperature: temperature ?? 0,
                 n: 1, // Single response (Best Practice)
                 stream: false, // No streaming (Best Practice)
                 presence_penalty: 0.0, // No penalty for repetition
@@ -340,7 +340,7 @@ async function callClaudeWithModel(
             body: JSON.stringify({
                 model: finalModel,
                 max_tokens: maxTokens || 150, // REQUIRED field
-                temperature: temperature || 0.7,
+                temperature: temperature ?? 0,
                 system: 'You are an emoji generator. Respond ONLY with emojis, no explanations.', // System message (Best Practice)
                 messages: [
                     {
@@ -488,7 +488,7 @@ async function callApertus(apiKey, prompt, model, maxTokens, temperature) {
                 prompt: prompt,
                 model: finalModel,
                 max_tokens: maxTokens || 512,
-                temperature: temperature || 0.7,
+                temperature: temperature ?? 0,
                 language: 'Deutsch', // Default language
                 token: n8nToken // n8n webhook authentication token (required for security)
             })
@@ -909,7 +909,7 @@ async function callGeminiWithVersion(
                     }
                 ],
                 generationConfig: {
-                    temperature: temperature || 0.7,
+                    temperature: temperature ?? 0,
                     maxOutputTokens: maxTokens || 150,
                     candidateCount: 1, // Single response (Best Practice)
                     topP: 0.95,
@@ -1023,7 +1023,7 @@ async function callMistralWithModel(
                     { role: 'user', content: prompt }
                 ],
                 max_tokens: maxTokens || 150,
-                temperature: temperature || 0.7,
+                temperature: temperature ?? 0,
                 top_p: 0.95, // Nucleus sampling (Best Practice)
                 safe_prompt: false, // No content filtering for emojis (Best Practice)
                 stream: false // No streaming (Best Practice)
@@ -1098,7 +1098,7 @@ async function callCustomAPI(config) {
             body = {
                 model: model || 'claude-3-haiku-20240307',
                 max_tokens: maxTokens || 150,
-                temperature: temperature || 0.7,
+                temperature: temperature ?? 0,
                 messages: [
                     {
                         role: 'user',
@@ -1628,11 +1628,19 @@ export async function testAIProvider(storyModeConfig) {
                 throw new Error(`Unknown provider: ${provider}`);
         }
 
+        // Final validation: Ensure response is not empty before returning success
+        if (!response || (typeof response === 'string' && response.trim().length === 0)) {
+            throw new Error(
+                'AI provider returned empty response. The API call succeeded but no content was returned. ' +
+                'Please check the API response format and ensure the content is properly extracted.'
+            );
+        }
+
         return {
             success: true,
             provider,
             model: usedModel,
-            response: response.substring(0, 100) // First 100 chars
+            response: typeof response === 'string' ? response.substring(0, 100) : String(response).substring(0, 100) // First 100 chars
         };
     } catch (error) {
         return {

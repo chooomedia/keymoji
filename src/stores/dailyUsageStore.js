@@ -228,6 +228,7 @@ export async function initializeDailyUsage() {
             usageData = {
                 date: getTodayDateString(),
                 used: 0,
+                storyUsed: 0, // Reset story usage too
                 limit: limit,
                 lastReset: getTodayDateString()
             };
@@ -290,21 +291,52 @@ async function saveToUsageHistory(account, usageData) {
             entry => entry.date === today
         );
 
-        const newEntry = {
-            date: today,
-            used: usageData.used,
-            limit: usageData.limit,
-            timestamp: new Date().toISOString()
+        // CRITICAL: Always use the LATEST values from dailyLimit store to ensure both used AND storyUsed are preserved
+        // This ensures that if story was created first, then random, both values are preserved
+        const currentLimit = get(dailyLimit);
+        const latestUsageData = {
+            used: currentLimit.used || usageData.used || 0,
+            storyUsed: currentLimit.storyUsed || usageData.storyUsed || 0,
+            limit: usageData.limit || currentLimit.limit || 0
         };
+
+        let mergedEntry;
+        if (existingIndex >= 0) {
+            const existingEntry = existingHistory[existingIndex];
+            // Merge: Keep the HIGHER value for each field (preserves both increments)
+            // This handles edge cases where API might have stale data
+            mergedEntry = {
+                date: today,
+                used: Math.max(existingEntry.used || 0, latestUsageData.used),
+                storyUsed: Math.max(existingEntry.storyUsed || 0, latestUsageData.storyUsed),
+                limit: latestUsageData.limit || existingEntry.limit || 0,
+                timestamp: new Date().toISOString()
+            };
+            console.log('🔄 [HISTORY] Merging existing entry:', {
+                existing: existingEntry,
+                fromStore: currentLimit,
+                fromUsageData: usageData,
+                merged: mergedEntry
+            });
+        } else {
+            // New entry - use latest values from store
+            mergedEntry = {
+                date: today,
+                used: latestUsageData.used,
+                storyUsed: latestUsageData.storyUsed,
+                limit: latestUsageData.limit,
+                timestamp: new Date().toISOString()
+            };
+        }
 
         let updatedHistory;
         if (existingIndex >= 0) {
-            // Update existing entry
+            // Update existing entry with merged values
             updatedHistory = [...existingHistory];
-            updatedHistory[existingIndex] = newEntry;
+            updatedHistory[existingIndex] = mergedEntry;
         } else {
             // Add new entry
-            updatedHistory = [...existingHistory, newEntry];
+            updatedHistory = [...existingHistory, mergedEntry];
         }
 
         // Keep only last 365 days
@@ -328,8 +360,9 @@ async function saveToUsageHistory(account, usageData) {
 /**
  * Increment usage counter (called after successful generation)
  * CRITICAL: This MUST persist the increment to survive page reloads
+ * @param {boolean} isStoryMode - If true, increments story usage instead of random usage
  */
-export async function incrementDailyUsage() {
+export async function incrementDailyUsage(isStoryMode = false) {
     try {
         usageStatus.update(s => ({ ...s, isSaving: true }));
 
@@ -338,8 +371,8 @@ export async function incrementDailyUsage() {
         const loggedIn = get(isLoggedIn) || false;
         const currentLimit = get(dailyLimit);
 
-        // CRITICAL: Validate we're not exceeding limit
-        if (currentLimit.used >= currentLimit.limit) {
+        // CRITICAL: Validate we're not exceeding limit (only for random emoji, story has separate tracking)
+        if (!isStoryMode && currentLimit.used >= currentLimit.limit) {
             console.error(
                 '❌ Cannot increment: Daily limit already reached!',
                 currentLimit
@@ -348,13 +381,22 @@ export async function incrementDailyUsage() {
             throw new Error('Daily limit reached');
         }
 
-        // Calculate new usage
-        const newUsed = currentLimit.used + 1;
+        // Calculate new usage (separate tracking for random vs story)
+        let newUsed = currentLimit.used;
+        let newStoryUsed = currentLimit.storyUsed || 0;
+        
+        if (isStoryMode) {
+            newStoryUsed = newStoryUsed + 1;
+        } else {
+            newUsed = newUsed + 1;
+        }
+        
         const limit = getDailyLimitForUser(loggedIn, tier);
 
         const usageData = {
             date: getTodayDateString(),
             used: newUsed,
+            storyUsed: newStoryUsed,
             limit: limit,
             lastReset: getTodayDateString(),
             lastIncrement: new Date().toISOString()
@@ -483,19 +525,22 @@ async function loadUsageFromAPI(account) {
 
         if (result.success && result.account) {
             // NEW STRUCTURE: Priority order for loading dailyUsage
-            // Priority 1: Own column dailyUsage (NEW structure)
+            // Priority 1: Own column dailyUsage (NEW structure - preferred!)
             let dailyUsage = result.account.dailyUsage;
             
-            // Priority 2: Fallback to profile.dailyUsage (backward compatibility)
-            if (!dailyUsage) {
-                dailyUsage = result.account.profile?.dailyUsage;
-            }
-            
-            // Priority 3: Fallback to metadata.dailyUsage (migration support)
-            if (!dailyUsage) {
-                dailyUsage = result.account.metadata?.dailyUsage;
-                if (dailyUsage) {
-                    console.log('⚠️ [MIGRATION] Loading dailyUsage from metadata (should be migrated to own column)');
+            if (dailyUsage) {
+                console.log('✅ [NEW STRUCTURE] Loading dailyUsage from separate column');
+            } else {
+                // Priority 2: Fallback to profile.dailyUsage (backward compatibility - deprecated)
+                if (result.account.profile?.dailyUsage) {
+                    dailyUsage = result.account.profile.dailyUsage;
+                    console.warn('⚠️ [DEPRECATED] Loading dailyUsage from profile (should be in own column)');
+                }
+                
+                // Priority 3: Fallback to metadata.dailyUsage (migration support - deprecated)
+                if (!dailyUsage && result.account.metadata?.dailyUsage) {
+                    dailyUsage = result.account.metadata.dailyUsage;
+                    console.warn('⚠️ [DEPRECATED] Loading dailyUsage from metadata (should be migrated to own column)');
                 }
             }
 
@@ -536,15 +581,19 @@ async function saveUsageToAPI(account, usageData) {
         );
         const freshMetadata = currentPrefs.metadata || account?.metadata || {};
 
-        // CRITICAL: Remove dailyUsage from metadata before sending
-        // It should now be in its own column in Google Sheets!
-        const metadataWithoutDailyUsage = { ...freshMetadata };
-        delete metadataWithoutDailyUsage.dailyUsage; // Remove from metadata
+        // CRITICAL: Remove dailyUsage AND createdAt from metadata before sending
+        // dailyUsage should be in its own column in Google Sheets
+        // createdAt should NEVER be sent in update requests - only on CREATE
+        const { dailyUsage, createdAt, ...metadataWithoutDailyUsageAndCreatedAt } = freshMetadata || {};
+        
+        if (createdAt) {
+            console.warn('⚠️ [USAGE SAVE] createdAt found in metadata - removing it (should not be sent in updates)');
+        }
 
-        // Update account with fresh metadata (without dailyUsage)
+        // Update account with fresh metadata (without dailyUsage AND createdAt)
         const freshAccount = {
             ...account,
-            metadata: metadataWithoutDailyUsage
+            metadata: metadataWithoutDailyUsageAndCreatedAt
         };
 
         // Update usage history with FRESH data
@@ -561,7 +610,7 @@ async function saveUsageToAPI(account, usageData) {
 
         // CRITICAL: Use SAME webhook URL for consistency!
         let apiUrl = isLocalhost
-            ? 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account' // Direct n8n for localhost
+            ? WEBHOOKS.ACCOUNT.UPDATE_DIRECT || 'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account-update' // Direct n8n for localhost
             : WEBHOOKS.ACCOUNT.UPDATE; // Vercel proxy for production
 
         if (isLocalhost) {
@@ -594,7 +643,7 @@ async function saveUsageToAPI(account, usageData) {
                     // REMOVED: dailyUsage from profile (now in own column)
                 },
                 metadata: {
-                    ...metadataWithoutDailyUsage, // ← WITHOUT dailyUsage!
+                    ...metadataWithoutDailyUsageAndCreatedAt, // ← WITHOUT dailyUsage AND createdAt!
                     usageHistory: updatedHistory, // History for charts (last 365 days)
                     lastActivity: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
@@ -605,10 +654,38 @@ async function saveUsageToAPI(account, usageData) {
         });
 
         if (!response.ok) {
-            throw new Error(`API returned ${response.status}`);
+            const errorText = await response.text().catch(() => 'Unknown error');
+            throw new Error(`API returned ${response.status}: ${errorText}`);
         }
 
-        const result = await response.json();
+        // Handle empty response (n8n might return empty response)
+        const responseText = await response.text();
+        let result;
+        
+        if (!responseText || responseText.trim().length === 0) {
+            console.log('⚠️ [API] Empty response from n8n (non-critical, usage saved)');
+            // Return success object even if response is empty
+            // The important part is that the request succeeded (status 200)
+            result = {
+                success: true,
+                message: 'Usage saved successfully (empty response)'
+            };
+        } else {
+            try {
+                result = JSON.parse(responseText);
+            } catch (parseError) {
+                console.warn('⚠️ [API] Failed to parse JSON response:', parseError);
+                console.warn('⚠️ [API] Response text:', responseText.substring(0, 200));
+                // Return success object even if JSON parsing fails
+                // The important part is that the request succeeded (status 200)
+                result = {
+                    success: true,
+                    message: 'Usage saved successfully (invalid JSON response)',
+                    rawResponse: responseText.substring(0, 200)
+                };
+            }
+        }
+        
         console.log('✅ Daily usage saved to API:', result);
 
         // MODERN SYNC PATTERN: Sync backend response back to local stores!
@@ -689,7 +766,8 @@ async function saveUsageToAPI(account, usageData) {
 function updateDailyLimitStore(usageData) {
     dailyLimit.set({
         limit: usageData.limit,
-        used: usageData.used
+        used: usageData.used,
+        storyUsed: usageData.storyUsed || 0
     });
     console.log('✅ dailyLimit store updated:', usageData);
 }

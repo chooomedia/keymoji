@@ -64,6 +64,28 @@
     export let onValidation;
     export let onAction;
     
+    // Local state for input value - prevents focus loss during re-renders
+    let localValue = currentValue;
+    let isFocused = false;
+    
+    // Update local value only when currentValue prop changes from outside (not during typing)
+    $: if (currentValue !== localValue && !isFocused) {
+        localValue = currentValue;
+    }
+    
+    // Track focus state to prevent updates during typing
+    function handleFocus() {
+        isFocused = true;
+    }
+    
+    function handleBlur() {
+        isFocused = false;
+        // Sync local value with prop on blur
+        if (currentValue !== localValue) {
+            localValue = currentValue;
+        }
+    }
+    
     // Event dispatcher for custom events
     const dispatch = createEventDispatcher();
     
@@ -157,7 +179,10 @@
         isValid = validation.isValid;
         validationErrors = validation.errors;
         
-        // IMPORTANT: Notify parent BEFORE updating local state
+        // Update local value immediately for responsive UI (prevents focus loss)
+        localValue = value;
+        
+        // IMPORTANT: Notify parent AFTER updating local state
         // This allows parent to control the value (Controlled Component Pattern)
         if (onValueChange) {
             onValueChange(value);
@@ -223,7 +248,7 @@
             return `${baseClasses} border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-100 focus:ring-1 focus:ring-red-500 focus:border-red-500`;
         }
         
-        if (isValid && currentValue && config.validation) {
+        if (isValid && localValue && config.validation) {
             return `${baseClasses} border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-900/20 text-green-900 dark:text-green-100 focus:ring-1 focus:ring-green-500 focus:border-green-500`;
         }
         
@@ -312,13 +337,15 @@
             <!-- Select Input -->
             <select
                 id={config.id}
-                bind:value={currentValue}
+                value={localValue}
                 on:change={handleValueChange}
+                on:focus={handleFocus}
+                on:blur={handleBlur}
                 disabled={config.disabled}
                 class={`${getInputClasses()} ${config.class} appearance-none bg-no-repeat pr-12`}
                 style="background-image: url('data:image/svg+xml,%3Csvg viewBox=\'0 0 20 20\' fill=\'none\' stroke=\'%23666\' stroke-width=\'2\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M6 8l4 4 4-4\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E'); background-position: right 1rem center; background-size: 1.25rem;"
                 aria-invalid={!isValid && validationErrors.length > 0}
-                aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
                 autocomplete={getAutocompleteValue()}
             >
                 {#each config.options || [] as option}
@@ -331,8 +358,10 @@
             <!-- Textarea Input -->
             <textarea
                 id={config.id}
-                bind:value={currentValue}
+                value={localValue}
                 on:input={handleValueChange}
+                on:focus={handleFocus}
+                on:blur={handleBlur}
                 placeholder={getLocalizedText(config.placeholder)}
                 disabled={config.disabled}
                 rows={config.rows || 4}
@@ -340,7 +369,7 @@
                 maxlength={config.maxLength}
                 class={`${getInputClasses()} ${config.class}`}
                 aria-invalid={!isValid && validationErrors.length > 0}
-                aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
                 autocomplete={getAutocompleteValue()}
             ></textarea>
         {:else if config.type === 'checkbox'}
@@ -354,7 +383,7 @@
                     disabled={config.disabled}
                     class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-invalid={!isValid && validationErrors.length > 0}
-                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
                 />
                 <label for={config.id} class="text-sm text-gray-900 dark:text-white">
                     {getLocalizedText(config.label)}
@@ -375,7 +404,7 @@
                             disabled={config.disabled}
                             class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             aria-invalid={!isValid && validationErrors.length > 0}
-                            aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                            aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
                         />
                         <label for="{config.id}_{option.value}" class="text-sm text-gray-900 dark:text-white">
                             {getLocalizedText(option.label)}
@@ -384,26 +413,25 @@
                 {/each}
             </div>
         {:else if config.type === 'range'}
-            <!-- Range Input -->
-            <div class="space-y-2">
+            <!-- Range Input (same styling as Story Mode View) -->
+            <div class="flex items-center gap-2">
                 <input
                     id={config.id}
                     type="range"
-                    bind:value={currentValue}
+                    bind:value={localValue}
                     on:input={handleRangeChange}
                     min={config.min || 0}
                     max={config.max || 100}
-                    step={config.step || 1}
+                    step={config.step || 0.1}
                     disabled={config.disabled}
-                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="flex-1 h-1.5 appearance-none rounded-full bg-gray-300 dark:bg-gray-600 transition-all hover:bg-yellow-400 dark:hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style="--range-thumb-color: rgb(234, 179, 8);"
                     aria-invalid={!isValid && validationErrors.length > 0}
-                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
                 />
-                <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400">
-                    <span>{config.min || 0}</span>
-                    <span class="font-medium">{currentValue}</span>
-                    <span>{config.max || 100}</span>
-                </div>
+                <span class="text-xs font-semibold text-yellow-600 dark:text-yellow-400 w-8 text-right tabular-nums shrink-0">
+                    {typeof currentValue === 'number' ? currentValue.toFixed(1) : currentValue}
+                </span>
             </div>
         {:else if config.type === 'toggle'}
             <!-- Modern Toggle Input -->
@@ -433,38 +461,44 @@
                 <input
                     id={config.id}
                     type="email"
-                    value={currentValue}
+                    value={localValue}
                     on:input={handleValueChange}
+                    on:focus={handleFocus}
+                    on:blur={handleBlur}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}
                     required={config.required}
                     maxlength={config.maxLength}
                     class={`${getInputClasses()} ${config.class}`}
                     aria-invalid={!isValid && validationErrors.length > 0}
-                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
                     autocomplete={getAutocompleteValue()}
                 />
             {:else if config.type === 'password'}
                 <input
                     id={config.id}
                     type="password"
-                    value={currentValue}
+                    value={localValue}
                     on:input={handleValueChange}
+                    on:focus={handleFocus}
+                    on:blur={handleBlur}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}
                     required={config.required}
                     maxlength={config.maxLength}
                     class={`${getInputClasses()} ${config.class}`}
                     aria-invalid={!isValid && validationErrors.length > 0}
-                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
                     autocomplete={getAutocompleteValue()}
                 />
             {:else if config.type === 'number'}
                 <input
                     id={config.id}
                     type="number"
-                    value={currentValue}
+                    value={localValue}
                     on:input={handleValueChange}
+                    on:focus={handleFocus}
+                    on:blur={handleBlur}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}
                     required={config.required}
@@ -473,22 +507,24 @@
                     step={config.step}
                     class={`${getInputClasses()} ${config.class}`}
                     aria-invalid={!isValid && validationErrors.length > 0}
-                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
                     autocomplete={getAutocompleteValue()}
                 />
             {:else}
                 <input
                     id={config.id}
                     type="text"
-                    value={currentValue}
+                    value={localValue}
                     on:input={handleValueChange}
+                    on:focus={handleFocus}
+                    on:blur={handleBlur}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}
                     required={config.required}
                     maxlength={config.maxLength}
                     class={`${getInputClasses()} ${config.class}`}
                     aria-invalid={!isValid && validationErrors.length > 0}
-                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && currentValue && config.validation ? `${config.id}-success` : undefined}
+                    aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
                     autocomplete={getAutocompleteValue()}
                 />
             {/if}
@@ -505,7 +541,7 @@
     {/if}
 
     <!-- Validation Success -->
-    {#if isValid && currentValue && config.validation}
+    {#if isValid && localValue && config.validation}
         <div id={`${config.id}-success`} class="text-sm text-green-600 dark:text-green-400">
             ✓ {getLocalizedText({ en: 'Valid input', de: 'Gültige Eingabe' })}
         </div>

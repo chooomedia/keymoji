@@ -35,23 +35,16 @@ export function getDaysSinceAccountCreation(currentAccount = null) {
         }
     }
 
-    // PRIORITÄT 3: Wenn immer noch nichts gefunden - setze auf heute (nur als letzter Fallback)
+    // PRIORITÄT 3: Wenn immer noch nichts gefunden - NUR als letzter Fallback
+    // WICHTIG: createdAt sollte NUR beim Erstellen eines neuen Accounts gesetzt werden!
+    // Wenn kein createdAt gefunden wird, bedeutet das, dass der Account noch nicht vollständig erstellt wurde
+    // oder dass die Daten noch nicht synchronisiert wurden
     if (!createdAtValue) {
-        console.log('⚠️ No creation date found - setting to current date');
+        console.warn('⚠️ No creation date found - this should only happen for new accounts');
+        // DON'T set createdAt to current date here - it should come from the backend/API!
+        // Only return current date for calculation purposes, but don't save it
         createdAtValue = new Date().toISOString();
-
-        // Speichere es sofort im localStorage
-        const userPrefs =
-            storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES) || {};
-        const updatedPrefs = {
-            ...userPrefs,
-            createdAt: createdAtValue
-        };
-        storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
-        console.log(
-            '✅ CreatedAt set to current date and saved:',
-            createdAtValue
-        );
+        console.log('⚠️ Using current date as fallback for calculation only (not saved)');
     }
 
     try {
@@ -75,14 +68,30 @@ export function getDaysSinceAccountCreation(currentAccount = null) {
             return diffDays;
         }
 
-        const diffTime = Math.abs(now - createdAt);
+        // Calculate difference in days
+        // Use UTC dates to avoid timezone issues
+        const createdAtUTC = new Date(Date.UTC(
+            createdAt.getUTCFullYear(),
+            createdAt.getUTCMonth(),
+            createdAt.getUTCDate()
+        ));
+        const nowUTC = new Date(Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate()
+        ));
+        
+        const diffTime = nowUTC - createdAtUTC;
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
         console.log('✅ Days since creation calculated:', {
             createdAtValue,
             createdAt,
+            createdAtUTC: createdAtUTC.toISOString(),
+            nowUTC: nowUTC.toISOString(),
+            diffTime,
             diffDays,
-            source: 'localStorage'
+            source: currentAccount ? 'currentAccount' : 'localStorage'
         });
 
         return diffDays;
@@ -93,38 +102,65 @@ export function getDaysSinceAccountCreation(currentAccount = null) {
 }
 
 /**
- * Formatiert die Account-Age in einen benutzerfreundlichen String (NUR Text, OHNE Prefix)
- * @param {number} days - Anzahl der Tage
- * @param {object} translations - Übersetzungsobjekt
- * @returns {string} Formatierter String (z.B. "Seit heute!", "Seit 7 Tagen!")
+ * Formatiert die Account-Age in einen benutzerfreundlichen String
+ * @param {number} days - Anzahl der Tage seit Account-Erstellung
+ * @param {object} translations - Übersetzungsobjekt aus accountManager.accountAge
+ * @returns {string} Formatierter String (z.B. "Seit heute!", "Seit 7 Tagen!", "Seit 2 Monaten!")
+ * NOTE: Entfernt "FREE:" Prefix aus Übersetzungen für eingeloggte User
  */
 export function formatAccountAge(days, translations = {}) {
+    // Ensure days is a valid number
+    if (typeof days !== 'number' || isNaN(days) || days < 0) {
+        console.warn('⚠️ formatAccountAge: Invalid days value, defaulting to 0:', days);
+        days = 0;
+    }
+    
+    // Helper function to remove "FREE:" or "PRO:" prefix from translations
+    const cleanTranslation = (text) => {
+        if (!text) return text;
+        // Remove common prefixes: "✨ FREE:", "🔥 FREE:", "💎 PRO:", etc.
+        return text.replace(/^[✨🔥⚡💪🏆🚀]*\s*(FREE|PRO):\s*/i, '').trim();
+    };
+    
+    let result;
+    
     if (days === 0) {
-        return translations?.today || 'Seit heute!';
+        result = translations?.today || 'Seit heute!';
     } else if (days === 1) {
-        return translations?.yesterday || 'Seit gestern!';
+        result = translations?.yesterday || 'Seit gestern!';
     } else if (days < 7) {
-        const baseText = translations?.days || 'Seit {days} Tagen!';
-        return baseText.replace('{days}', days);
+        // CRITICAL: Check if translations.days contains the format template (has {days})
+        // In some language files, there might be two "days" entries - the second overwrites the first
+        // We need the format template, not the word "Tage"
+        let baseText = translations?.days;
+        if (!baseText || !baseText.includes('{days}')) {
+            // translations.days is the word "Tage" (plural), not the format template
+            // Use fallback format
+            baseText = 'Seit {days} Tagen!';
+        }
+        result = baseText.replace('{days}', days);
     } else if (days < 30) {
         const weeks = Math.floor(days / 7);
         const baseText = translations?.weeks || 'Seit {weeks} Woche{plural}!';
-        return baseText
+        result = baseText
             .replace('{weeks}', weeks)
             .replace('{plural}', weeks > 1 ? 'n' : '');
     } else if (days < 365) {
         const months = Math.floor(days / 30);
         const baseText = translations?.months || 'Seit {months} Monat{plural}!';
-        return baseText
+        result = baseText
             .replace('{months}', months)
             .replace('{plural}', months > 1 ? 'en' : '');
     } else {
         const years = Math.floor(days / 365);
         const baseText = translations?.years || 'Seit {years} Jahr{plural}!';
-        return baseText
+        result = baseText
             .replace('{years}', years)
             .replace('{plural}', years > 1 ? 'en' : '');
     }
+    
+    // Remove "FREE:" or "PRO:" prefix for logged-in users
+    return cleanTranslation(result);
 }
 
 /**

@@ -2119,26 +2119,26 @@
                         "de-CH": "Temperatur (Kreativität)"
                     },
                     "description": {
-                        "en": "Control AI creativity: Precise (0.0) to Chaotic (2.0)",
-                        "de": "Steuere KI-Kreativität: Präzise (0.0) bis Chaotisch (2.0)",
-                        "fr": "Contrôler la créativité de l'IA: Précision (0.0) à Chaotique (2.0)",
-                        "es": "Controlar la creatividad de la IA: Precisión (0.0) a Caótico (2.0)",
-                        "it": "Controllare la creatività dell'IA: Precisione (0.0) a Caotico (2.0)",
-                        "ja": "AIの創造性を制御: 精密（0.0）から混沌（2.0）",
-                        "ko": "AI 창의성 제어: 정밀(0.0)에서 혼돈(2.0)",
-                        "nl": "Controleer AI creativiteit: Precisie (0.0) tot Chaotisch (2.0)",
-                        "pl": "Kontrola kreatywności AI: Precyzja (0.0) do Chaotyczna (2.0)",
-                        "ru": "Управление креативностью ИИ: Точность (0.0) до Хаоса (2.0)",
-                        "tr": "AI yaratıcılığını kontrol et: Hassas (0.0) Kargaşalı (2.0)",
-                        "af": "Beheer AI kreatiwiteit: Presies (0.0) tot Chaos (2.0)",
-                        "sjn": "Control AI creativity: Precise (0.0) to Chaotic (2.0)",
-                        "tlh": "Control AI creativity: Precise (0.0) to Chaotic (2.0)",
-                        "de-CH": "Steuere KI-Kreativität: Präzise (0.0) bis Chaotisch (2.0)"
+                        "en": "Control AI creativity: Precise (0.0) to Creative (1.0)",
+                        "de": "Steuere KI-Kreativität: Präzise (0.0) bis Kreativ (1.0)",
+                        "fr": "Contrôler la créativité de l'IA: Précision (0.0) à Créatif (1.0)",
+                        "es": "Controlar la creatividad de la IA: Precisión (0.0) a Creativo (1.0)",
+                        "it": "Controllare la creatività dell'IA: Precisione (0.0) a Creativo (1.0)",
+                        "ja": "AIの創造性を制御: 精密（0.0）から創造的（1.0）",
+                        "ko": "AI 창의성 제어: 정밀(0.0)에서 창의적(1.0)",
+                        "nl": "Controleer AI creativiteit: Precisie (0.0) tot Creatief (1.0)",
+                        "pl": "Kontrola kreatywności AI: Precyzja (0.0) do Kreatywna (1.0)",
+                        "ru": "Управление креативностью ИИ: Точность (0.0) до Креативность (1.0)",
+                        "tr": "AI yaratıcılığını kontrol et: Hassas (0.0) Yaratıcı (1.0)",
+                        "af": "Beheer AI kreatiwiteit: Presies (0.0) tot Kreatief (1.0)",
+                        "sjn": "Control AI creativity: Precise (0.0) to Creative (1.0)",
+                        "tlh": "Control AI creativity: Precise (0.0) to Creative (1.0)",
+                        "de-CH": "Steuere KI-Kreativität: Präzise (0.0) bis Kreativ (1.0)"
                     },
                     "min": 0,
-                    "max": 2,
+                    "max": 1,
                     "step": 0.1,
-                    "defaultValue": 0.7
+                    "defaultValue": 0
                 }
             ]
         },

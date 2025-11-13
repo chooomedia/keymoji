@@ -64,8 +64,8 @@ export function debugDailyUsage() {
         account: {
             userId: account?.userId,
             email: account?.email,
-            dailyUsage:
-                account?.profile?.dailyUsage || account?.metadata?.dailyUsage
+            // NEW STRUCTURE: dailyUsage from separate column (preferred!)
+            dailyUsage: account?.dailyUsage || account?.profile?.dailyUsage || account?.metadata?.dailyUsage
         }
     };
 }
@@ -191,12 +191,18 @@ export function checkConsistency() {
 
     console.log('Store (dailyLimit):', storeData);
     console.log('localStorage (DAILY_USAGE):', localData);
+    // NEW STRUCTURE: dailyUsage from separate column (preferred!)
     console.log(
-        'Account (profile.dailyUsage):',
+        'Account (dailyUsage - separate column):',
+        accountData?.dailyUsage
+    );
+    // DEPRECATED: Fallbacks for backward compatibility
+    console.log(
+        'Account (profile.dailyUsage - deprecated):',
         accountData?.profile?.dailyUsage
     );
     console.log(
-        'Account (metadata.dailyUsage):',
+        'Account (metadata.dailyUsage - deprecated):',
         accountData?.metadata?.dailyUsage
     );
 

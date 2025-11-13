@@ -153,7 +153,9 @@ export const WEBHOOKS = {
     ACCOUNT: {
         CRUD: `${API_URL}/account`,
         READ: `${API_URL}/account`, // READ account data from Google Sheets
-        UPDATE: `${API_URL}/account/update`,
+        UPDATE: `${API_URL}/account/update`, // Vercel proxy → n8n webhook
+        // Direct n8n webhook for UPDATE (used in localhost/dev mode)
+        get UPDATE_DIRECT() { return buildN8NUrl('/xn--moji-pb73c-account-update'); },
         MAGIC_LINK_SEND: `${API_URL}/magic-link/send`,
         MAGIC_LINK_VERIFY: `${API_URL}/magic-link/verify`,
         get CHECK_EXISTS() { return buildN8NUrl('/xn--moji-pb73c-account-check'); }, // n8n workflow endpoint

@@ -1111,6 +1111,21 @@ export async function saveSettingsToAPI(settings) {
         if (!account || !account.userId) {
             throw new Error('No user account found');
         }
+        
+        // CRITICAL: Ensure email is always present (required for n8n workflow)
+        // For updates, email can be empty string, but n8n will use existing email from Google Sheets
+        // However, it's better to always send a valid email if available
+        if (!account.email || account.email.trim() === '') {
+            console.warn('⚠️ Account email is missing, trying to get from localStorage...');
+            const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+            const storedEmail = prefs.email || account.email || '';
+            if (storedEmail && storedEmail.trim() !== '') {
+                // Update account with email from localStorage
+                account.email = storedEmail;
+            } else {
+                console.warn('⚠️ No email found - n8n will use existing email from Google Sheets');
+            }
+        }
 
         // CRITICAL: Get LATEST usageHistory from localStorage/store
         const currentPrefs = storageHelpers.get(
@@ -1155,6 +1170,14 @@ export async function saveSettingsToAPI(settings) {
             'entries'
         );
 
+        // CRITICAL: Remove createdAt from metadata before sending UPDATE request!
+        // createdAt should NEVER be sent in update requests - only on CREATE
+        const { createdAt, ...metadataWithoutCreatedAt } = currentMetadata || {};
+        
+        if (createdAt) {
+            console.warn('⚠️ [SETTINGS SAVE] createdAt found in metadata - removing it (should not be sent in updates)');
+        }
+        
         const response = await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
             method: 'POST',
             headers: {
@@ -1171,7 +1194,7 @@ export async function saveSettingsToAPI(settings) {
                 },
                 lastLogin: new Date().toISOString(), // Update lastLogin on settings save
                 metadata: {
-                    ...currentMetadata, // Use current metadata from localStorage
+                    ...metadataWithoutCreatedAt, // Use metadata WITHOUT createdAt!
                     usageHistory: latestUsageHistory, // CRITICAL: Include latest usageHistory!
                     settings: settings, // UserSettings → Google Sheets metadata column
                     updatedAt: new Date().toISOString(),

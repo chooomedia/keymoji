@@ -598,7 +598,7 @@ export default {
             accountSince: 'Account seit {days} {unit}',
             since: 'seit {days} {unit}',
             day: 'Tag',
-            days: 'Tage',
+            daysWord: 'Tage', // Word "days" (plural) - renamed from "days" to avoid conflict with format template
             accountCreated: 'Account erstellt',
             createdTodayFree: '✨ Dein brandneuer FREE Account ist startklar!',
             createdTodayPro: '💎 Willkommen im PRO Club – exklusiv seit heute!',

@@ -65,7 +65,7 @@
     import FooterInfo from '../widgets/FooterInfo.svelte';
     import FeatureCard from '../components/Features/FeatureCard.svelte';
     import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers.js';
-    import { getUsageHistory, calculateUsageStats } from '../utils/usageHistoryHelpers.js';
+    // REMOVED: getUsageHistory, calculateUsageStats - now using usageHistory store from userDataStore.js
     import { DEMO_USAGE_HISTORY_4W, getDemoDataForPeriod, isDemoData } from '../utils/demoChartData.js';
     import { generateBenefitsStructuredData, injectStructuredData } from '../utils/seo.js';
     import { formatCanonicalUrl } from '../utils/seo.js';
@@ -157,7 +157,15 @@
     
     // Debug: Log when daysSinceCreation changes
     $: if (daysSinceCreation !== undefined) {
-        console.log('🔄 daysSinceCreation updated:', daysSinceCreation, 'from account:', $currentAccount?.createdAt);
+        console.log('🔄 [AccountManager] daysSinceCreation updated:', {
+            daysSinceCreation,
+            createdAt: $currentAccount?.createdAt,
+            createdAtType: typeof $currentAccount?.createdAt,
+            hasCurrentAccount: !!$currentAccount,
+            isLoggedIn: $isLoggedIn
+        });
+        const label = $isLoggedIn ? formatAccountAge(daysSinceCreation, $translations?.accountManager?.accountAge) : '';
+        console.log('🔄 [AccountManager] accountAgeLabel will be:', label);
     }
     
     // Return user view state
@@ -316,6 +324,26 @@
     // Reactive: Generate chart data from final history
     $: finalChartData = generateChartData(selectedTimePeriod, finalUsageHistory);
     
+    // Reactive: Generate story chart data (second line)
+    $: finalStoryChartData = (() => {
+        if (!finalChartData || finalChartData.length === 0) return [];
+        
+        const storyData = finalChartData.map(point => ({
+            date: point.date,
+            value: point.storyValue || 0
+        }));
+        
+        console.log('📊 [CHART] Generated story chart data:', {
+            length: storyData.length,
+            firstPoint: storyData[0],
+            lastPoint: storyData[storyData.length - 1],
+            nonZeroValues: storyData.filter(p => p.value > 0).length,
+            allValues: storyData.map(p => p.value)
+        });
+        
+        return storyData;
+    })();
+    
     /**
      * Calculate optimal maxValue for chart Y-axis
      * Dynamically adjusts based on actual data, with a maximum of 100
@@ -327,8 +355,10 @@
             return $accountTier === 'pro' ? 35 : 9;
         }
         
-        // Find maximum value in data
-        const maxDataValue = Math.max(...chartData.map(point => point.value || 0));
+        // Find maximum value in data (consider both random and story usage)
+        const maxDataValue = Math.max(
+            ...chartData.map(point => Math.max(point.value || 0, point.storyValue || 0))
+        );
         
         // If no data values, use default
         if (maxDataValue === 0) {
@@ -428,10 +458,12 @@
             // Find usage for this date in history
             const historyEntry = history.find(h => h.date === dateStr);
             const value = historyEntry?.used || 0;
+            const storyValue = historyEntry?.storyUsed || 0;
 
             data.push({
                 date: dateStr,
-                value: value
+                value: value,
+                storyValue: storyValue
             });
         }
 
@@ -439,7 +471,9 @@
             dataPoints: data.length,
             firstPoint: data[0],
             lastPoint: data[data.length - 1],
-            nonZeroPoints: data.filter(d => d.value > 0).length
+            nonZeroPoints: data.filter(d => d.value > 0).length,
+            nonZeroStoryPoints: data.filter(d => (d.storyValue || 0) > 0).length,
+            storyValues: data.map(d => ({ date: d.date, storyValue: d.storyValue || 0 }))
         });
 
         return data;
@@ -548,10 +582,13 @@
     })();
     
     // Account age label for tooltip - zeigt wie lange User den Account hat (NUR Zeitangabe)
-    $: accountAgeLabel = formatAccountAge(
-        daysSinceCreation, 
-        $translations?.accountManager?.accountAge
-    );
+    // CRITICAL: Nur für eingeloggte User - berechnet aus createdAt
+    $: accountAgeLabel = $isLoggedIn 
+        ? formatAccountAge(
+            daysSinceCreation, 
+            $translations?.accountManager?.accountAge
+        )
+        : ''; // Nicht eingeloggte User verwenden freeDescription/proDescription
     
     // Tier badge text - zeigt NUR den Tier-Status
     $: tierBadgeText = getTierBadgeText($accountTier);
@@ -1040,7 +1077,7 @@
                                     variant="standard"
                                     trigger="hover"
                                     size="sm"
-                                    width="lg"
+                                    width={null}
                                     intro={true}
                                     introDelay={2000}
                                     introDuration={4000}
@@ -1220,9 +1257,13 @@
                                         <!-- Background Chart -->
                                         <LineChart 
                                             data={finalChartData}
+                                            data2={finalStoryChartData}
                                             maxValue={chartMaxValue}
                                             height={240}
                                             color={isDemoDataShown ? '#f97316' : ($accountTier === 'pro' ? '#a855f7' : '#eab308')}
+                                            color2="#2563eb"
+                                            label="Random Emoji"
+                                            label2="Story Generations"
                                             animate={true}
                                         />
                                         
@@ -1683,7 +1724,7 @@
                                         FREE
                                     </span>
                                     <span class="text-xs transition-colors duration-300 text-yellow-600">
-                                        {accountAgeLabel}
+                                        {$isLoggedIn ? accountAgeLabel : ($translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit')}
                                     </span>
                                 </button>
                                 <button
@@ -1694,7 +1735,7 @@
                                         {$translations?.accountManager?.tiers?.pro || 'PRO'}
                                     </span>
                                     <span class="text-sm transition-colors duration-300 text-purple-600">
-                                        {accountAgeLabel}
+                                        {$isLoggedIn ? accountAgeLabel : ($translations?.accountManager?.proDescription || '💎 Enterprise Security')}
                                     </span>
                                 </button>
                             </div>

@@ -27,6 +27,7 @@
         showAccountLoginSuccess,
         showAccountLogoutSuccess
     } from '../../stores/modalStore.js';
+    import { incrementDailyUsage } from '../../stores/dailyUsageStore.js';
     
     // Import translations
     import { translations } from '../../stores/contentStore.js';
@@ -236,6 +237,66 @@
         });
         showInfo('Account data set!', 2000);
     }
+
+    // Test Random Usage Increment (saves to API)
+    async function testRandomUsage() {
+        try {
+            await incrementDailyUsage(false); // false = random emoji
+            const current = $dailyLimit;
+            showSuccess(`Random usage incremented! (${current.used}/${current.limit})`, 2000);
+            console.log('✅ Random usage incremented:', current);
+        } catch (error) {
+            showError('Failed to increment random usage: ' + error.message, 3000);
+            console.error('❌ Random usage increment failed:', error);
+        }
+    }
+
+    // Test Story Usage Increment (saves to API)
+    async function testStoryUsage() {
+        try {
+            await incrementDailyUsage(true); // true = story mode
+            const current = $dailyLimit;
+            showSuccess(`Story usage incremented! (${current.storyUsed || 0} stories)`, 2000);
+            console.log('✅ Story usage incremented:', current);
+        } catch (error) {
+            showError('Failed to increment story usage: ' + error.message, 3000);
+            console.error('❌ Story usage increment failed:', error);
+        }
+    }
+
+    // Test Multiple Random Usages
+    async function testMultipleRandomUsages() {
+        try {
+            const count = 3;
+            for (let i = 0; i < count; i++) {
+                await incrementDailyUsage(false);
+                await new Promise(resolve => setTimeout(resolve, 500)); // Small delay
+            }
+            const current = $dailyLimit;
+            showSuccess(`Incremented ${count} random usages! (${current.used}/${current.limit})`, 3000);
+            console.log('✅ Multiple random usages incremented:', current);
+        } catch (error) {
+            showError('Failed to increment multiple random usages: ' + error.message, 3000);
+            console.error('❌ Multiple random usages increment failed:', error);
+        }
+    }
+
+    // Test Multiple Story Usages
+    async function testMultipleStoryUsages() {
+        try {
+            const count = 3;
+            for (let i = 0; i < count; i++) {
+                await incrementDailyUsage(true);
+                await new Promise(resolve => setTimeout(resolve, 500)); // Small delay
+            }
+            const current = $dailyLimit;
+            showSuccess(`Incremented ${count} story usages! (${current.storyUsed || 0} stories)`, 3000);
+            console.log('✅ Multiple story usages incremented:', current);
+        } catch (error) {
+            showError('Failed to increment multiple story usages: ' + error.message, 3000);
+            console.error('❌ Multiple story usages increment failed:', error);
+        }
+    }
 </script>
 
 {#if isVisible}
@@ -336,8 +397,12 @@
                                 <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Daily Limit</h3>
                                 <div class="space-y-2 text-xs">
                                     <div class="flex justify-between">
-                                        <span class="text-gray-600 dark:text-gray-400">Used:</span>
+                                        <span class="text-gray-600 dark:text-gray-400">Random Used:</span>
                                         <span class="font-mono text-red-600">{$dailyLimit?.used || 0}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600 dark:text-gray-400">Story Used:</span>
+                                        <span class="font-mono text-blue-600">{$dailyLimit?.storyUsed || 0}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-600 dark:text-gray-400">Limit:</span>
@@ -371,6 +436,28 @@
                             <button on:click={testDailyLimitExceeded} class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 ⚠️ Exceed Limit
                             </button>
+                        </div>
+
+                        <!-- Usage Test Buttons (saves to API) -->
+                        <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4 border border-indigo-200 dark:border-indigo-800">
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Usage Testing (saves to API)</h3>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button on:click={testRandomUsage} class="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                    ➕ Random +1
+                                </button>
+                                <button on:click={testStoryUsage} class="px-3 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                    📝 Story +1
+                                </button>
+                                <button on:click={testMultipleRandomUsages} class="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-medium transition-colors">
+                                    ➕➕➕ Random +3
+                                </button>
+                                <button on:click={testMultipleStoryUsages} class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition-colors">
+                                    📝📝📝 Story +3
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                ⚠️ These functions save to API and update usage history!
+                            </p>
                         </div>
                     </div>
 

@@ -10,7 +10,7 @@ import {
     dailyLimit,
     updateDailyLimit
 } from './appStores.js';
-import { showExistingAccountFound } from './modalStore.js';
+import { showExistingAccountFound, showNewAccountCreated } from './modalStore.js';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 import { WEBHOOKS } from '../config/api.js';
 import { isDevelopment } from '../utils/environment.js';
@@ -358,8 +358,13 @@ export async function checkAccountExists(email, name = '') {
                                     new Date().toISOString(),
                                 profile: parsedProfile,
                                 metadata: parsedMetadata,
-                                createdAt: createdAt || new Date().toISOString() // Add createdAt directly to userPrefsData
+                                // CRITICAL: Only use createdAt from backend - no fallback on check!
+                                createdAt: createdAt || null // Don't create new createdAt on account check!
                             };
+                            
+                            if (!userPrefsData.createdAt) {
+                                console.warn('⚠️ [CHECK] No createdAt found in account data - will not overwrite existing value');
+                            }
 
                             // Save to localStorage
                             storageHelpers.set(
@@ -586,6 +591,9 @@ export async function verifyMagicLinkFrontend(token, email) {
             email.split('@')[0]
         );
 
+        // CRITICAL: Track if account is new or existing for correct modal display
+        let isNewAccount = !accountCheck.exists;
+        
         let verificationResult;
 
         if (accountCheck.exists) {
@@ -642,6 +650,49 @@ export async function verifyMagicLinkFrontend(token, email) {
                         try {
                             const errorData = JSON.parse(responseText);
                             errorMessage = errorData.error || errorMessage;
+                            
+                            // CRITICAL: If account already exists error, try to get existing account
+                            if (errorMessage.includes('already exists') || errorMessage.includes('Account already exists')) {
+                                console.log('⚠️ Account already exists, trying to fetch existing account...');
+                                // CRITICAL: Account exists, so it's not a new account!
+                                isNewAccount = false;
+                                
+                                const existingCheck = await checkAccountExists(email, email.split('@')[0]);
+                                if (existingCheck.exists && existingCheck.account) {
+                                    console.log('✅ Found existing account, using it instead');
+                                    const parsedAccount = safeJSONParse(existingCheck.account, existingCheck.account);
+                                    verificationResult = {
+                                        success: true,
+                                        account: parsedAccount,
+                                        message: 'Account already exists, using existing account'
+                                    };
+                                    // Build accountData from existing account
+                                    // CRITICAL: createdAt ONLY from backend - never create new on login!
+                                    accountData = {
+                                        email: parsedAccount.email || email,
+                                        userId: parsedAccount.userId || `user_${Date.now()}`,
+                                        name: parsedAccount.name || parsedAccount.profile?.name || email.split('@')[0],
+                                        tier: parsedAccount.tier || 'free',
+                                        lastLogin: new Date().toISOString(),
+                                        profile: parsedAccount.profile || {},
+                                        metadata: parsedAccount.metadata || {},
+                                        // CRITICAL: Only use createdAt from backend - no fallback!
+                                        createdAt: parsedAccount.createdAt || getCreatedAtFromAccount(parsedAccount) || null
+                                    };
+                                    
+                                    if (!accountData.createdAt) {
+                                        console.warn('⚠️ [LOGIN] No createdAt found in existing account - preserving existing value');
+                                    } else {
+                                        console.log('✅ [LOGIN] Using createdAt from existing account:', accountData.createdAt);
+                                    }
+                                    // Skip rest of account creation - jump to account data processing
+                                    // We'll handle this after the try-catch block
+                                } else {
+                                    throw new Error(errorMessage);
+                                }
+                            } else {
+                                throw new Error(errorMessage);
+                            }
                         } catch (parseError) {
                             console.log(
                                 '❌ Failed to parse error response as JSON:',
@@ -649,7 +700,11 @@ export async function verifyMagicLinkFrontend(token, email) {
                             );
                         }
                     }
-                    throw new Error(errorMessage);
+                    
+                    // Only throw if we didn't handle the "already exists" case
+                    if (!verificationResult) {
+                        throw new Error(errorMessage);
+                    }
                 }
 
                 const responseText = await response.text();
@@ -708,6 +763,14 @@ export async function verifyMagicLinkFrontend(token, email) {
         console.log('🔗 Verification result:', verificationResult);
 
         // Extract account data from n8n response or localStorage fallback
+        // CRITICAL: Extract createdAt FIRST from verificationResult (backend) - NEVER create new on login!
+        const backendCreatedAt = 
+            verificationResult.account?.createdAt ||
+            getCreatedAtFromAccount(verificationResult.account) ||
+            null;
+        
+        console.log('🔍 [LOGIN] Extracted createdAt from verificationResult:', backendCreatedAt);
+        
         const accountData = {
             email: email,
             name: verificationResult.account?.name || email.split('@')[0],
@@ -725,8 +788,16 @@ export async function verifyMagicLinkFrontend(token, email) {
             metadata: verificationResult.account?.metadata || {
                 source: 'magic_link_verification',
                 tier: 'free'
-            }
+            },
+            // CRITICAL: createdAt ONLY from backend - never create new on login!
+            createdAt: backendCreatedAt || null
         };
+        
+        if (!accountData.createdAt) {
+            console.warn('⚠️ [LOGIN] No createdAt in verificationResult - will try to get from full account data or preserve existing');
+        } else {
+            console.log('✅ [LOGIN] Using createdAt from verificationResult:', accountData.createdAt);
+        }
 
         console.log('🔗 Setting account data:', accountData);
 
@@ -752,7 +823,7 @@ export async function verifyMagicLinkFrontend(token, email) {
             const fullAccountResult = await cachedFetchAccount(
                 accountData.userId,
                 accountData.email,
-                'read'
+                'get' // CRITICAL: Use 'get' not 'read' for n8n webhook!
             );
 
             console.log('✅ [LOGIN] Full account data loaded (cached):', {
@@ -765,6 +836,8 @@ export async function verifyMagicLinkFrontend(token, email) {
 
             if (fullAccountResult.success && fullAccountResult.account) {
                 // Parse the full account data from backend
+                // CRITICAL: fullAccountResult.account is already an object (not a string)
+                // The n8n webhook returns: { success: true, account: { createdAt: "...", ... } }
                 const parsedFullAccount = safeJSONParse(
                     fullAccountResult.account,
                     fullAccountResult.account
@@ -772,14 +845,24 @@ export async function verifyMagicLinkFrontend(token, email) {
                 console.log('🔍 DEBUG: Parsed full account from backend:', {
                     hasCreatedAt: !!parsedFullAccount.createdAt,
                     createdAt: parsedFullAccount.createdAt,
+                    createdAtType: typeof parsedFullAccount.createdAt,
+                    rawAccountCreatedAt: fullAccountResult.account?.createdAt,
                     hasMetadata: !!parsedFullAccount.metadata,
                     hasProfile: !!parsedFullAccount.profile
                 });
 
                 // Use FULL account data with usageHistory
+                // CRITICAL: createdAt priority: 1. Backend (if exists), 2. Existing accountData, 3. localStorage (preserve!)
+                const existingCreatedAt = accountData.createdAt || (() => {
+                    const existingPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+                    return existingPrefs.createdAt || null;
+                })();
+                
                 accountData = {
                     ...accountData,
                     ...parsedFullAccount,
+                    // CRITICAL: Only use backend createdAt if it exists, otherwise preserve existing!
+                    createdAt: parsedFullAccount.createdAt || existingCreatedAt,
                     // Preserve session data from verification
                     sessionId: accountData.sessionId,
                     sessionExpires: accountData.sessionExpires,
@@ -793,8 +876,8 @@ export async function verifyMagicLinkFrontend(token, email) {
                     parsedFullAccount?.metadata?.usageHistory?.length || 0
                 );
                 console.log(
-                    '✅ [LOGIN] CreatedAt from backend:',
-                    parsedFullAccount.createdAt
+                    '✅ [LOGIN] CreatedAt from backend (FINAL):',
+                    accountData.createdAt
                 );
             } else {
                 console.warn(
@@ -856,14 +939,19 @@ export async function verifyMagicLinkFrontend(token, email) {
                                 }
                             }
 
+                            // CRITICAL: Preserve existing createdAt from localStorage if backend doesn't provide it!
+                            const existingCreatedAt = accountData.createdAt || (() => {
+                                const existingPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+                                return existingPrefs.createdAt || null;
+                            })();
+                            
                             // Merge with accountData
                             accountData = {
                                 ...accountData,
                                 metadata: metadata,
                                 profile: n8nResult.account.profile,
-                                createdAt:
-                                    n8nResult.account.createdAt ||
-                                    accountData.createdAt,
+                                // CRITICAL: Only use backend createdAt if it exists, otherwise preserve existing!
+                                createdAt: n8nResult.account.createdAt || existingCreatedAt,
                                 tier: n8nResult.account.tier || accountData.tier
                             };
 
@@ -896,21 +984,54 @@ export async function verifyMagicLinkFrontend(token, email) {
             console.log('💡 [LOGIN] Continuing with available data');
         }
 
-        // Use syncAccountData to properly update all stores
-        syncAccountData(accountData);
-
-        // Extract createdAt from the MERGED accountData (not from verificationResult!)
-        const createdAt =
-            accountData.createdAt || // First: from merged backend data
+        // CRITICAL: Extract createdAt BEFORE syncAccountData to preserve it!
+        // Priority: 1. accountData.createdAt (from API), 2. getCreatedAtFromAccount, 3. localStorage (PRESERVE!), 4. null
+        let createdAt =
+            accountData.createdAt || // First: from merged backend data (highest priority!)
             getCreatedAtFromAccount(accountData) || // Second: extract from account structure
-            new Date().toISOString(); // Fallback: current date
+            null; // Will check localStorage next
+
+        // If still not found, try localStorage as last resort (PRESERVE existing!)
+        if (!createdAt) {
+            const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+            createdAt = userPrefs.createdAt || null;
+            if (createdAt) {
+                console.log('🔍 [LOGIN] Using createdAt from localStorage (preserved):', createdAt);
+                // CRITICAL: Update accountData with preserved createdAt BEFORE syncAccountData!
+                accountData.createdAt = createdAt;
+            } else {
+                console.warn('⚠️ [LOGIN] No createdAt found anywhere - will not create new one');
+            }
+        }
+
+        // CRITICAL: Ensure accountData has createdAt before syncing!
+        if (createdAt && !accountData.createdAt) {
+            accountData.createdAt = createdAt;
+        }
+
+        // Use syncAccountData to properly update all stores (now with preserved createdAt!)
+        syncAccountData(accountData);
 
         console.log(
             '🔍 DEBUG: Final createdAt for verifyMagicLinkFrontend:',
-            createdAt
+            createdAt || 'NOT FOUND - will not be set (preserves existing value)'
         );
 
+        // CRITICAL: Get existing createdAt from localStorage BEFORE building userPrefsData!
+        // This ensures we NEVER lose existing createdAt even if backend doesn't provide it
+        const existingPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+        const finalCreatedAt = createdAt || existingPrefs.createdAt || null;
+        
+        if (!finalCreatedAt) {
+            console.warn('⚠️ [LOGIN] No createdAt found anywhere - localStorage will not have createdAt field');
+        } else if (!createdAt && existingPrefs.createdAt) {
+            console.log('✅ [LOGIN] Preserving existing createdAt from localStorage:', finalCreatedAt);
+        } else if (createdAt) {
+            console.log('✅ [LOGIN] Using createdAt from backend/accountData:', finalCreatedAt);
+        }
+        
         // Build userPrefsData from the MERGED accountData
+        // CRITICAL: Always include createdAt if it exists (from backend OR localStorage)!
         const userPrefsData = {
             email: accountData.email,
             name: accountData.name,
@@ -922,7 +1043,8 @@ export async function verifyMagicLinkFrontend(token, email) {
             lastActivity: accountData.lastActivity,
             profile: accountData.profile,
             metadata: accountData.metadata,
-            createdAt: createdAt // Extracted createdAt
+            // CRITICAL: Always include createdAt if we have it (from backend OR localStorage)!
+            ...(finalCreatedAt ? { createdAt: finalCreatedAt } : {}) // Conditional spread - only add if exists
         };
 
         console.log('💾 [LOGIN] Saving userPrefsData to localStorage:', {
@@ -939,6 +1061,11 @@ export async function verifyMagicLinkFrontend(token, email) {
         // Update lastLogin in Google Sheets via API
         try {
             console.log('📡 Updating lastLogin in database...');
+            
+            // CRITICAL: Remove createdAt from accountData before sending UPDATE request!
+            // createdAt should NEVER be sent in update requests - only on CREATE
+            const cleanedAccountData = removeCreatedAtFromObject(accountData);
+            
             await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
                 method: 'POST',
                 headers: {
@@ -946,15 +1073,15 @@ export async function verifyMagicLinkFrontend(token, email) {
                     'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify({
-                    userId: accountData.userId,
-                    email: accountData.email,
-                    profile: accountData.profile,
-                    lastLogin: accountData.lastLogin, // Top-level lastLogin for Google Sheets
+                    userId: cleanedAccountData.userId,
+                    email: cleanedAccountData.email,
+                    profile: cleanedAccountData.profile,
+                    lastLogin: cleanedAccountData.lastLogin, // Top-level lastLogin for Google Sheets
                     metadata: {
-                        ...accountData.metadata,
-                        lastLogin: accountData.lastLogin,
-                        lastActivity: accountData.lastActivity,
-                        sessionId: accountData.sessionId
+                        ...cleanedAccountData.metadata,
+                        lastLogin: cleanedAccountData.lastLogin,
+                        lastActivity: cleanedAccountData.lastActivity,
+                        sessionId: cleanedAccountData.sessionId
                     }
                 })
             });
@@ -974,11 +1101,20 @@ export async function verifyMagicLinkFrontend(token, email) {
             hasProfile: !!savedPrefs?.profile
         });
 
-        // Save createdAt separately if found (for backward compatibility)
-        if (createdAt) {
-            saveCreatedAtToUserPreferences(createdAt);
+        // CRITICAL: Save createdAt if we have it (from backend OR localStorage)
+        // This ensures createdAt is always saved to localStorage if it exists
+        if (finalCreatedAt) {
+            saveCreatedAtToUserPreferences(finalCreatedAt);
+            console.log('✅ [LOGIN] Saved createdAt to user preferences:', finalCreatedAt);
+            
+            // CRITICAL: Ensure accountData and store have createdAt!
+            if (!accountData.createdAt) {
+                accountData.createdAt = finalCreatedAt;
+                currentAccount.update(acc => acc ? { ...acc, createdAt: finalCreatedAt } : null);
+            }
         } else {
-            console.warn('⚠️ No createdAt found in verifyMagicLinkFrontend');
+            console.warn('⚠️ [LOGIN] No createdAt found anywhere - cannot save to user preferences');
+            // Don't create new createdAt - just log warning
         }
 
         // Also store sessionId separately for easier access
@@ -989,8 +1125,15 @@ export async function verifyMagicLinkFrontend(token, email) {
         // Notify all tabs about the verification
         notifyMagicLinkVerification(accountData);
 
-        // Show success modal
-        showExistingAccountFound(accountData.email);
+        // Show appropriate modal based on whether account is new or existing
+        // CRITICAL: Show different modals for new vs existing accounts!
+        if (isNewAccount) {
+            console.log('🆕 New account created - showing new account created modal');
+            showNewAccountCreated(accountData.email, accountData.name);
+        } else {
+            console.log('✅ Existing account found - showing account found modal');
+            showExistingAccountFound(accountData.email, accountData.name);
+        }
 
         // Log security event
         logSecurityEvent('LOGIN_SUCCESS', {
@@ -1375,7 +1518,7 @@ export async function initializeAccountFromCookies(forceRestore = false) {
                     fullAccountResult = await cachedFetchAccount(
                         userPrefs.userId,
                         userPrefs.email,
-                        'read'
+                        'get' // CRITICAL: Use 'get' not 'read' for n8n webhook!
                     );
                 }
 
@@ -1551,17 +1694,75 @@ function getCreatedAtFromAccount(account) {
     return foundCreatedAt;
 }
 
+/**
+ * CRITICAL: Remove createdAt from objects before sending to API
+ * Best Practice: createdAt should ONLY be set on CREATE, never in UPDATE requests
+ * This ensures createdAt is preserved in the database and never overwritten
+ */
+function removeCreatedAtFromObject(obj) {
+    if (!obj || typeof obj !== 'object') return obj;
+    
+    // Create a copy to avoid mutating the original
+    const cleaned = { ...obj };
+    
+    // Remove createdAt from top level
+    if ('createdAt' in cleaned) {
+        delete cleaned.createdAt;
+    }
+    
+    // Remove createdAt from nested metadata if it exists
+    if (cleaned.metadata && typeof cleaned.metadata === 'object') {
+        const { createdAt, ...metadataWithoutCreatedAt } = cleaned.metadata;
+        cleaned.metadata = metadataWithoutCreatedAt;
+    }
+    
+    // Remove createdAt from nested profile if it exists
+    if (cleaned.profile && typeof cleaned.profile === 'object') {
+        const { createdAt, ...profileWithoutCreatedAt } = cleaned.profile;
+        cleaned.profile = profileWithoutCreatedAt;
+    }
+    
+    return cleaned;
+}
+
 // Centralized function to save createdAt to user preferences
+// CRITICAL: Only save if createdAt is valid AND different from existing (or doesn't exist)
 function saveCreatedAtToUserPreferences(createdAt) {
     if (!createdAt) {
         console.log('⚠️ No createdAt provided to save');
+        return;
+    }
+    
+    // Validate createdAt is a valid date string
+    if (createdAt === 'null' || createdAt === 'undefined' || (createdAt.trim && createdAt.trim() === '')) {
+        console.warn('⚠️ Invalid createdAt value - not saving:', createdAt);
         return;
     }
 
     console.log('🔍 DEBUG: Saving createdAt to USER_PREFERENCES:', createdAt);
 
     const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
-    console.log('🔍 DEBUG: Current userPrefs:', userPrefs);
+    console.log('🔍 DEBUG: Current userPrefs createdAt:', userPrefs.createdAt);
+    
+    // CRITICAL: Only update if createdAt is different from existing OR doesn't exist
+    // This prevents overwriting with the same value or invalid values
+    if (userPrefs.createdAt && userPrefs.createdAt === createdAt) {
+        console.log('✅ createdAt already exists in localStorage with same value - no update needed');
+        return;
+    }
+    
+    // CRITICAL: If localStorage has a createdAt but backend doesn't, preserve localStorage!
+    // Only update if backend has a valid createdAt and localStorage doesn't, OR if they're different
+    if (userPrefs.createdAt && userPrefs.createdAt !== createdAt) {
+        console.warn('⚠️ createdAt mismatch - localStorage has:', userPrefs.createdAt, 'backend has:', createdAt);
+        // CRITICAL: Preserve existing localStorage createdAt if backend value seems invalid
+        // Only update if backend value is clearly newer/valid
+        if (!createdAt || createdAt === 'null' || createdAt === 'undefined') {
+            console.log('🔄 Backend createdAt is invalid - preserving localStorage value:', userPrefs.createdAt);
+            return;
+        }
+        console.log('✅ Updating createdAt from backend (backend takes precedence):', createdAt);
+    }
 
     const updatedPrefs = {
         ...userPrefs,
@@ -1674,19 +1875,41 @@ async function syncAccountData(accountData) {
             metadata: parsedMetadata
         };
 
-        // Ensure createdAt is present - get from localStorage if not in accountData
-        if (!cleanAccountData.createdAt) {
+        // CRITICAL: Ensure createdAt is present - prioritize accountData.createdAt from API
+        // The n8n webhook returns createdAt directly in account.createdAt
+        // NEVER create new createdAt - only use from backend or preserve existing!
+        // CRITICAL: Only use backend createdAt if it's a valid value (not null, not undefined, not empty string)!
+        const hasValidBackendCreatedAt = cleanAccountData.createdAt && 
+                                         cleanAccountData.createdAt !== 'null' && 
+                                         cleanAccountData.createdAt !== 'undefined' &&
+                                         cleanAccountData.createdAt.trim && cleanAccountData.createdAt.trim() !== '';
+        
+        if (!hasValidBackendCreatedAt) {
+            // Backend doesn't have valid createdAt - preserve from localStorage!
             const userPrefs = storageHelpers.get(
                 STORAGE_KEYS.USER_PREFERENCES,
                 {}
             );
             if (userPrefs.createdAt) {
+                // Use existing createdAt from localStorage (preserve it!)
                 cleanAccountData.createdAt = userPrefs.createdAt;
                 console.log(
-                    '🔄 syncAccountData: Added createdAt from localStorage:',
+                    '🔄 syncAccountData: Backend has no valid createdAt - preserving existing from localStorage:',
                     cleanAccountData.createdAt
                 );
+            } else {
+                console.warn('⚠️ syncAccountData: No createdAt found in accountData or localStorage - will not create new one');
+                // CRITICAL: Don't set createdAt to current date - preserve null/undefined
+                // Only create createdAt when actually creating a NEW account!
             }
+        } else {
+            // Backend has valid createdAt - use it and save to localStorage!
+            console.log(
+                '✅ syncAccountData: Using valid createdAt from accountData (API/Backend):',
+                cleanAccountData.createdAt
+            );
+            // CRITICAL: Save to localStorage to preserve it for future logins
+            saveCreatedAtToUserPreferences(cleanAccountData.createdAt);
         }
 
         // Update all account-related stores with PARSED data
@@ -1710,6 +1933,24 @@ async function syncAccountData(accountData) {
             );
             await initializeDailyUsage();
             console.log('✅ Daily usage initialized from API/localStorage');
+            
+            // CRITICAL: Refresh usage history AFTER dailyUsage is initialized
+            // This ensures today's usage is merged into history
+            try {
+                const { refreshUsageHistory } = await import(
+                    './userDataStore.js'
+                );
+                // Use a small delay to ensure dailyUsage store is fully updated
+                setTimeout(async () => {
+                    await refreshUsageHistory(true); // Force refresh to get latest data
+                    console.log('✅ Usage history refreshed after account sync (with today merge)');
+                }, 200);
+            } catch (error) {
+                console.warn(
+                    '⚠️ Failed to refresh usage history after sync:',
+                    error
+                );
+            }
         } catch (error) {
             console.warn(
                 '⚠️ Failed to initialize daily usage, using fallback:',
@@ -1723,24 +1964,19 @@ async function syncAccountData(accountData) {
                     cleanAccountData.usedGenerations ||
                     0
             );
-        }
-
-        // CRITICAL: Refresh usage history after account sync
-        // This ensures usage data is loaded immediately after login
-        try {
-            const { refreshUsageHistory } = await import(
-                './userDataStore.js'
-            );
-            // Use a small delay to ensure stores are fully updated
-            setTimeout(async () => {
-                await refreshUsageHistory(true); // Force refresh to get latest data
-                console.log('✅ Usage history refreshed after account sync');
-            }, 100);
-        } catch (error) {
-            console.warn(
-                '⚠️ Failed to refresh usage history after sync:',
-                error
-            );
+            
+            // Still try to refresh history even if dailyUsage init failed
+            try {
+                const { refreshUsageHistory } = await import(
+                    './userDataStore.js'
+                );
+                setTimeout(async () => {
+                    await refreshUsageHistory(true);
+                    console.log('✅ Usage history refreshed after account sync (fallback)');
+                }, 200);
+            } catch (err) {
+                console.warn('⚠️ Failed to refresh usage history:', err);
+            }
         }
 
         console.log(
@@ -1802,17 +2038,25 @@ export async function createAccount(
 ) {
     try {
         // CRITICAL: Initialize usageHistory if not provided
+        // CRITICAL: createdAt should NOT be set in metadata - it will be created by n8n workflow!
+        // Remove createdAt from metadata if present (should not be sent in create requests)
+        const { createdAt, ...metadataWithoutCreatedAt } = metadata || {};
+        
+        if (createdAt) {
+            console.warn('⚠️ [CREATE] createdAt found in metadata - removing it (will be created by n8n workflow)');
+        }
+        
         const initialMetadata = {
-            ...metadata,
-            usageHistory: metadata.usageHistory || [], // Empty array for new accounts
-            createdAt: metadata.createdAt || new Date().toISOString(),
-            tier: metadata.tier || 'free'
+            ...metadataWithoutCreatedAt,
+            usageHistory: metadata?.usageHistory || [], // Empty array for new accounts
+            tier: metadata?.tier || 'free'
         };
 
         console.log('🆕 Creating account with initial metadata:', {
             hasUsageHistory: !!initialMetadata.usageHistory,
             usageHistoryLength: initialMetadata.usageHistory?.length || 0,
-            tier: initialMetadata.tier
+            tier: initialMetadata.tier,
+            createdAtRemoved: !!createdAt
         });
 
         const response = await fetch(WEBHOOKS.ACCOUNT.CRUD, {
@@ -1883,6 +2127,10 @@ export async function getAccount(userId) {
 
 export async function updateAccount(userId, updates = {}) {
     try {
+        // CRITICAL: Remove createdAt from updates before sending UPDATE request!
+        // createdAt should NEVER be sent in update requests - only on CREATE
+        const cleanedUpdates = removeCreatedAtFromObject(updates);
+        
         const response = await fetch(WEBHOOKS.ACCOUNT.CRUD, {
             method: 'POST',
             headers: {
@@ -1892,7 +2140,7 @@ export async function updateAccount(userId, updates = {}) {
             body: JSON.stringify({
                 action: 'update',
                 userId,
-                updates,
+                updates: cleanedUpdates,
                 timestamp: new Date().toISOString(),
                 clientFingerprint: generateClientFingerprint()
             })
@@ -1998,12 +2246,18 @@ export function setupMagicLinkListener() {
 
             // Update account state
             if (event.data.success && event.data.email) {
+                // CRITICAL: Preserve createdAt from existing localStorage or event.data
+                const existingPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+                const createdAt = event.data.createdAt || existingPrefs.createdAt || null;
+                
                 const accountData = {
                     email: event.data.email,
                     name: event.data.name || '',
                     userId: event.data.userId || `user_${Date.now()}`,
                     tier: event.data.tier || 'free',
-                    lastLogin: new Date().toISOString()
+                    lastLogin: new Date().toISOString(),
+                    // CRITICAL: Only use createdAt from event or existing localStorage - never create new!
+                    ...(createdAt ? { createdAt } : {})
                 };
 
                 console.log(
@@ -2014,14 +2268,23 @@ export function setupMagicLinkListener() {
                 currentAccount.set(accountData);
                 isLoggedIn.set(true);
 
-                // Update localStorage preferences
-                storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
+                // Update localStorage preferences - preserve createdAt!
+                const userPrefsUpdate = {
                     email: accountData.email,
                     name: accountData.name,
                     userId: accountData.userId,
                     tier: accountData.tier,
-                    lastLogin: accountData.lastLogin
-                });
+                    lastLogin: accountData.lastLogin,
+                    ...(createdAt ? { createdAt } : {}) // Only add if exists
+                };
+                
+                // Preserve existing createdAt if not in update
+                if (!userPrefsUpdate.createdAt && existingPrefs.createdAt) {
+                    userPrefsUpdate.createdAt = existingPrefs.createdAt;
+                    console.log('✅ [CROSS-TAB] Preserved existing createdAt:', existingPrefs.createdAt);
+                }
+                
+                storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, userPrefsUpdate);
 
                 // Show success modal
                 showExistingAccountFound(accountData.email);
@@ -2118,6 +2381,10 @@ export function notifyMagicLinkVerification(accountData) {
         console.error('❌ Failed to send postMessage:', error);
     }
 
+    // CRITICAL: Preserve createdAt when updating localStorage for cross-tab communication!
+    const existingPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+    const preservedCreatedAt = accountData.createdAt || existingPrefs.createdAt || null;
+    
     // Also update localStorage to trigger storage event with session data
     storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
         email: accountData.email,
@@ -2127,8 +2394,14 @@ export function notifyMagicLinkVerification(accountData) {
         lastLogin: accountData.lastLogin,
         sessionId: accountData.sessionId,
         sessionExpires: accountData.sessionExpires,
-        lastActivity: accountData.lastActivity
+        lastActivity: accountData.lastActivity,
+        // CRITICAL: Always preserve createdAt if it exists!
+        ...(preservedCreatedAt ? { createdAt: preservedCreatedAt } : {})
     });
+    
+    if (preservedCreatedAt) {
+        console.log('✅ [CROSS-TAB] Preserved createdAt in localStorage update:', preservedCreatedAt);
+    }
 
     console.log('🔗 localStorage updated to trigger storage event');
 }
@@ -2337,3 +2610,4 @@ export async function secureVerifyMagicLink(token, email) {
         email
     });
 }
+

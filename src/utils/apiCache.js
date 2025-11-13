@@ -459,7 +459,7 @@ export function getTTLForDataType(dataType) {
 /**
  * Specialized fetch for account data
  */
-export async function cachedFetchAccount(userId, email, action = 'read') {
+export async function cachedFetchAccount(userId, email, action = 'get') {
     const url = '/api/account';
     const options = {
         method: 'POST',
@@ -500,23 +500,11 @@ export async function cachedFetchDailyUsage(userId, email) {
 
 /**
  * Specialized fetch for usage history
+ * @deprecated Use cachedFetchAccount() instead - same functionality, better naming
  */
 export async function cachedFetchUsageHistory(userId, email) {
-    const url = '/api/account';
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({
-            action: 'read',
-            userId,
-            email
-        })
-    };
-
-    return cachedFetch(url, options, CACHE_TTL.USAGE_HISTORY, true); // Use stale-while-revalidate
+    // Delegate to cachedFetchAccount for consistency
+    return cachedFetchAccount(userId, email, 'get');
 }
 
 /**

@@ -539,6 +539,47 @@ export function showExistingAccountFound(email, name) {
     isModalVisible.set(true);
 }
 
+// Show new account created modal
+export function showNewAccountCreated(email, name) {
+    // Use email username as fallback if name is undefined
+    const displayName = name || email?.split('@')[0] || 'User';
+
+    modalMessage.set(`Account erstellt! Willkommen, ${displayName}! 🎉`);
+    modalType.set('success');
+    modalData.set({
+        icon: '🎉',
+        title: 'Account erstellt',
+        message: `Ihr Account wurde erfolgreich erstellt. Sie sind jetzt angemeldet und können loslegen!`,
+        primaryButton: {
+            text: 'Zum Account',
+            action: () => {
+                // Navigate to account page using Svelte routing (language-aware!)
+                Promise.all([
+                    import('svelte-routing'),
+                    import('./contentStore.js')
+                ]).then(([{ navigate }, { currentLanguage }]) => {
+                    import('svelte/store').then(({ get }) => {
+                        const lang = get(currentLanguage) || 'en';
+                        const accountPath =
+                            lang === 'en' ? '/account' : `/${lang}/account`;
+                        closeModal();
+                        setTimeout(() => {
+                            navigate(accountPath, { replace: true });
+                        }, 100);
+                    });
+                });
+            }
+        },
+        secondaryButton: {
+            text: 'Schließen',
+            action: () => {
+                closeModal();
+            }
+        }
+    });
+    isModalVisible.set(true);
+}
+
 /**
  * Info-Nachricht anzeigen
  */

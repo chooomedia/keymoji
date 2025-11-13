@@ -85,8 +85,8 @@
     $: isValidLength = currentLength >= MIN_CHARS && currentLength <= MAX_CHARS;
     $: canGenerate = isValidLength && storyInput.trim().length >= MIN_CHARS;
   
-    // Temperature for Story Mode (0.0-2.0 range)
-    let storyTemperature = 0.7; // Default
+    // Temperature for Story Mode (0.0-1.0 range)
+    let storyTemperature = 0; // Default: start at 0 (Precise)
     let temperatureInitialized = false; // Prevent override after user adjustment
     
     // Model display variables
@@ -128,8 +128,15 @@
             storyModeConfigured = configured;
             
             // Update temperature from settings ONLY on first load
+            // Load from store if available, otherwise use 0 as default
             if (!temperatureInitialized) {
-                storyTemperature = storyModeSettings.temperature ?? 0.7;
+                const savedTemperature = storyModeSettings.temperature;
+                // Validate: must be between 0 and 1, default to 0 if invalid
+                if (typeof savedTemperature === 'number' && savedTemperature >= 0 && savedTemperature <= 1) {
+                    storyTemperature = savedTemperature;
+                } else {
+                    storyTemperature = 0; // Default to 0 (Precise)
+                }
                 temperatureInitialized = true;
             }
         }
@@ -420,6 +427,13 @@
           errorMessage = '⏱️ Timeout\n\nThe AI took too long to respond. Please try again.';
         } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
           errorMessage = '🌐 Network Error\n\nPlease check your internet connection.';
+        } else if (error.message?.includes('empty response') || error.message?.includes('no content') || 
+                   error.message?.includes('success but empty') || error.message?.includes('returned empty')) {
+          // Apertus n8n workflow issue - empty response
+          errorMessage = '🤖 Empty Response\n\nThe AI provider returned an empty response. ' +
+                        'The workflow executed successfully but no content was generated.\n\n' +
+                        '💡 This is usually a n8n workflow configuration issue. ' +
+                        'Please check the "Format Response" node in your n8n workflow.';
         } else {
           errorMessage = `🤖 AI Error\n\n${error.message || 'Unknown error'}`;
         }
@@ -498,8 +512,9 @@
       // showTextArea stays true for better UX
       
       // Use new centralized daily usage tracking (API + localStorage)
-      console.log('➕ [STORY MODE] Incrementing usage after successful generation');
-      await incrementDailyUsage().catch(error => {
+      // Pass true to indicate this is story mode usage
+      console.log('➕ [STORY MODE] Incrementing story usage after successful generation');
+      await incrementDailyUsage(true).catch(error => {
         console.warn('⚠️ Failed to increment daily usage:', error);
       });
       
@@ -827,17 +842,18 @@
     // Temperature handler
     function handleTemperatureChange(event) {
       const newTemp = parseFloat(event.target.value);
-      storyTemperature = newTemp;
-      // Save to settings
-      updateSetting('storyMode.temperature', newTemp);
+      // Validate: ensure value is between 0 and 1
+      const validatedTemp = Math.max(0, Math.min(1, newTemp));
+      storyTemperature = validatedTemp;
+      // Save to settings (will be synced to account via saveAllSettings)
+      updateSetting('storyMode.temperature', validatedTemp);
     }
   
-    // Get temperature label based on value
+    // Get temperature label based on value (0.0-1.0 range)
     function getTemperatureLabel(value) {
-      if (value <= 0.5) return 'Precise';
-      if (value <= 1.0) return 'Balanced';
-      if (value <= 1.5) return 'Creative';
-      return 'Chaotic';
+      if (value <= 0.3) return 'Precise';
+      if (value <= 0.7) return 'Balanced';
+      return 'Creative';
     }
     
     // Get short model name for chip display (max 12 chars, smart truncation)
@@ -935,7 +951,7 @@
   
     <!-- Instructions Section -->
     <div class="flex flex-wrap justify-center items-center">
-      <h2 class="mt-1 text-xs text-center dark:text-white z-10 space-y-2 ">
+      <h2 class="mt-1 text-xs text-center dark:text-white z-10 ">
         {#each $translations.index.pageInstruction as instruction, i}
           {#if i === 0 && storyModeEnabled && storyModeConfigured}
             <!-- Show AI ready message when fully configured -->
@@ -1087,19 +1103,19 @@
   
     <!-- Story Input Section -->
     {#if showTextArea}
-      <div class="relative w-full">
+      <div class="relative w-full rounded-2xl overflow-hidden border-2 transition duration-300 ease-in-out focus-within:ring-2 focus-within:ring-offset-0
+        {isOverLimit 
+          ? 'border-red-500 dark:border-red-500 focus-within:border-red-500 focus-within:ring-red-400/50' 
+          : isUnderLimit 
+            ? 'border-orange-400 dark:border-orange-400 focus-within:border-orange-400 focus-within:ring-orange-400/50'
+            : isValidLength
+              ? 'border-green-400 dark:border-green-500 focus-within:border-green-400 focus-within:ring-green-400/50'
+              : 'border-gray-200 dark:border-gray-700 focus-within:border-yellow-400 dark:focus-within:border-yellow-500 focus-within:ring-1 focus-within:ring-yellow-400/50 dark:focus-within:ring-yellow-500/50'}">
         <textarea 
         id="story-input"
           bind:value={storyInput} 
           placeholder={$translations.emojiDisplay.placeholderText} 
-          class="appearance-none block w-full pr-12 pb-8 text-gray-900 dark:text-white rounded-2xl py-3 px-4 leading-tight transition duration-300 ease-in-out bg-white dark:bg-aubergine-900 border-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed placeholder-gray-400 dark:placeholder-gray-500 resize-none
-            {isOverLimit 
-              ? 'border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-400/50' 
-              : isUnderLimit 
-                ? 'border-orange-400 dark:border-orange-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/50'
-                : isValidLength
-                  ? 'border-green-400 dark:border-green-500 focus:border-green-400 focus:ring-2 focus:ring-green-400/50'
-                  : 'border-gray-200 dark:border-gray-700 focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50'}" 
+          class="story-textarea-scrollbar overflow-y-auto appearance-none block w-full pr-12 pb-8 text-gray-900 dark:text-white py-3 px-4 leading-tight transition duration-300 ease-in-out bg-white dark:bg-aubergine-900 border-0 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed placeholder-gray-400 dark:placeholder-gray-500 resize-none" 
           on:keydown={handleTextareaKeydown}
           on:input={(e) => {
             // Enforce max length
@@ -1118,9 +1134,9 @@
         
         <!-- Loading Overlay für Story Generation (Fancy UX) -->
         {#if isGeneratingStory}
-          <div class="absolute inset-0 rounded-2xl bg-creme-700 dark:bg-aubergine-900 backdrop-blur-2xl flex flex-col items-center justify-center z-20 pointer-events-none overflow-hidden">
+          <div class="absolute inset-0 bg-creme-700 dark:bg-aubergine-900 backdrop-blur-2xl flex flex-col items-center justify-center z-20 pointer-events-none overflow-hidden">
             <!-- Colored background with backdrop blur -->
-            <div class="absolute inset-0 rounded-2xl"></div>
+            <div class="absolute inset-0"></div>
             
             <!-- Animated Emoji lanes - Universe effect moving RIGHT to match body background -->
             <div class="absolute inset-0 flex flex-col justify-around z-10 py-6">
@@ -1195,10 +1211,10 @@
           </div>
         {/if}
         
-        <!-- Character Counter (inside textarea, bottom-left) -->
+        <!-- Character Counter (inside textarea, bottom-left) - Chip Style mit Background -->
         <div 
           id="char-counter"
-          class="absolute bottom-2 left-3 inline-flex items-center gap-1.5 py-1 rounded-md text-xs font-medium pointer-events-none transition-all duration-200
+          class="absolute bottom-2 left-2 z-20 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium pointer-events-none transition-all duration-200 backdrop-blur-sm bg-white dark:bg-aubergine-900 shadow-md
             {isOverLimit 
               ? ' text-red-700 dark:text-red-400' 
               : isUnderLimit 
@@ -1245,16 +1261,16 @@
         {/if}
       </div>
       
-      <!-- Temperature Slider -->
+      <!-- Temperature Slider and LLM Chip in one line -->
       <div class="flex items-center mt-3 mb-1 gap-2">
-        <label for="storyTemperature" class="text-xs text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap w-20 shrink-0">
+        <label for="storyTemperature" class="text-xs text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap shrink-0">
           {getTemperatureLabel(storyTemperature)}
         </label>
         <input 
           type="range" 
           id="storyTemperature" 
           min="0" 
-          max="2" 
+          max="1" 
           step="0.1"
           bind:value={storyTemperature}
           on:input={handleTemperatureChange}
@@ -1267,7 +1283,6 @@
         <span class="text-xs font-semibold text-yellow-600 dark:text-yellow-400 w-8 text-right tabular-nums shrink-0">
           {storyTemperature.toFixed(1)}
         </span>
-
         <button
           on:click={() => {
             // Navigate to account page
@@ -1512,5 +1527,80 @@
     0% { transform: scale(1); }
     50% { transform: scale(1.12); }
     100% { transform: scale(1); }
+  }
+  
+  /* Story Textarea Scrollbar - Maximale Spezifität direkt im Component */
+  /* Firefox */
+  :global(textarea#story-input.story-textarea-scrollbar),
+  :global(textarea.story-textarea-scrollbar) {
+    scrollbar-width: thin !important;
+    -ms-overflow-style: auto !important;
+    scrollbar-color: rgb(249, 115, 22) rgb(229, 231, 235) !important;
+  }
+  
+  /* WebKit (Chrome, Brave, Safari, Edge) */
+  /* z-index niedriger als Border, damit Border darüber liegt */
+  :global(textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar),
+  :global(textarea.story-textarea-scrollbar::-webkit-scrollbar) {
+    display: block !important;
+    width: 8px !important;
+    height: 8px !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    z-index: 0 !important;
+  }
+  
+  :global(textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-track),
+  :global(textarea.story-textarea-scrollbar::-webkit-scrollbar-track) {
+    background: transparent !important;
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    margin: 16px 4px !important; /* Abstand zu border-radius (rounded-2xl = 16px) */
+  }
+  
+  :global(textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb),
+  :global(textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb) {
+    background: rgb(249, 115, 22) !important;
+    border-radius: 4px !important;
+    -webkit-border-radius: 4px !important;
+    transition: background 0.2s ease !important;
+    -webkit-transition: background 0.2s ease !important;
+    border: none !important;
+  }
+  
+  :global(textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb:hover),
+  :global(textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb:hover) {
+    background: rgb(234, 88, 12) !important;
+  }
+  
+  :global(textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb:active),
+  :global(textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb:active) {
+    background: rgb(194, 65, 12) !important;
+  }
+  
+  /* Dark mode */
+  :global(.dark textarea#story-input.story-textarea-scrollbar),
+  :global(.dark textarea.story-textarea-scrollbar) {
+    scrollbar-color: rgb(249, 115, 22) rgb(37, 56, 82) !important;
+  }
+  
+  :global(.dark textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-track),
+  :global(.dark textarea.story-textarea-scrollbar::-webkit-scrollbar-track) {
+    background: transparent !important;
+  }
+  
+  :global(.dark textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb),
+  :global(.dark textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb) {
+    background: rgb(249, 115, 22) !important;
+  }
+  
+  :global(.dark textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb:hover),
+  :global(.dark textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb:hover) {
+    background: rgb(234, 88, 12) !important;
+  }
+  
+  :global(.dark textarea#story-input.story-textarea-scrollbar::-webkit-scrollbar-thumb:active),
+  :global(.dark textarea.story-textarea-scrollbar::-webkit-scrollbar-thumb:active) {
+    background: rgb(194, 65, 12) !important;
   }
 </style>

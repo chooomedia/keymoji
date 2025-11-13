@@ -120,10 +120,12 @@
     $: requiresAPITest = storyModeEnabled && !apiTestSuccess;
     
     // REACTIVE: Force re-evaluation when these stores change
+    // BUT: Only for non-input fields to avoid focus loss during typing
     $: reactivityTrigger = {
         account: $currentAccount,
         settings: $userSettings,
-        pending: $pendingChanges,
+        // NOTE: pendingChanges is NOT included here to prevent re-renders during typing
+        // pending: $pendingChanges, // REMOVED: Causes focus loss during typing!
         language: $currentLanguage
     };
 
@@ -151,25 +153,26 @@
         
         // Special handling for critical fields that sync with other stores
         
-        // Name: REACTIVE - prefer currentAccount, then pending, then userSettings
+        // Name: Use get() instead of $ to avoid reactive re-renders during typing
         if (itemId === 'name') {
-            // Priority 1: Pending changes (user is typing)
+            // Priority 1: Pending changes (user is typing) - CRITICAL: Check this first!
             const pending = get(pendingChanges)[itemId];
-            if (pending) {
+            if (pending !== undefined && pending !== null) {
                 console.log(`👤 getCurrentValue(name): Using pending:`, pending);
                 return pending;
             }
             
-            // Priority 2: currentAccount store (after successful save)
-            const account = $currentAccount; // REACTIVE!
+            // Priority 2: currentAccount store (after successful save) - Use get() not $!
+            const account = get(currentAccount); // NOT REACTIVE - prevents re-render during typing!
             const accountName = account?.name || account?.profile?.name;
             if (accountName) {
                 console.log(`👤 getCurrentValue(name): Using currentAccount:`, accountName);
                 return accountName;
             }
             
-            // Priority 3: userSettings
-            const settingsName = $userSettings?.name; // REACTIVE!
+            // Priority 3: userSettings - Use get() not $!
+            const settings = get(userSettings); // NOT REACTIVE - prevents re-render during typing!
+            const settingsName = settings?.name;
             if (settingsName) {
                 console.log(`👤 getCurrentValue(name): Using userSettings:`, settingsName);
                 return settingsName;
@@ -701,7 +704,17 @@
             
             console.log('📥 Received test result:', result);
             
+            // Validate result: success must be true AND response must not be empty
             if (result.success) {
+                // Additional validation: Check if response exists and is not empty
+                if (!result.response || (typeof result.response === 'string' && result.response.trim().length === 0)) {
+                    // Response is empty even though success is true - treat as error
+                    throw new Error(
+                        'API test returned success but empty response. The workflow executed successfully but the AI model returned no content. ' +
+                        'Please check the n8n workflow "Format Response" node - it should extract the content from choices[0].message.content or the API response field.'
+                    );
+                }
+
                 // ✅ Mark test as successful
                 apiTestSuccess = true;
                 testedProvider = provider;
@@ -725,11 +738,15 @@
                 console.log('💾 Verification status saved for provider:', provider, verifiedProviders[provider]);
                 
                 const providerInfo = getProviderInfo(provider);
+                const responsePreview = typeof result.response === 'string' 
+                    ? result.response.substring(0, 50) 
+                    : String(result.response || '').substring(0, 50);
+                
                 showSuccess(
                     `✅ Verbindung erfolgreich!\n\n` +
                     `Provider: ${providerInfo.name}\n` +
                     `Model: ${result.model || 'default'}\n` +
-                    `Response: ${result.response.substring(0, 50)}...`,
+                    `Response: ${responsePreview}${responsePreview.length >= 50 ? '...' : ''}`,
                     5000
                 );
                 console.log('✅ API test successful:', result);
@@ -751,15 +768,17 @@
             let errorMessage = error.message || 'Unbekannter Fehler';
             let helpText = '';
             
-            if (errorMessage.includes('empty response') || errorMessage.includes('no content')) {
+            if (errorMessage.includes('empty response') || errorMessage.includes('no content') || 
+                errorMessage.includes('success but empty') || errorMessage.includes('returned empty')) {
                 // Apertus n8n workflow issue - empty response
                 helpText = `\n\n💡 n8n Workflow Problem:\n` +
-                    `Das n8n Workflow hat erfolgreich ausgeführt, aber keine Content zurückgegeben.\n\n` +
+                    `Das n8n Workflow hat erfolgreich ausgeführt (success: true), aber keine Content zurückgegeben (response: "").\n\n` +
                     `Lösung:\n` +
                     `1. Öffne das n8n Workflow "Format Response" Node\n` +
                     `2. Stelle sicher, dass es den Content aus \`choices[0].message.content\` extrahiert\n` +
                     `3. Oder aus dem API Response Feld, falls die API direkt den Content zurückgibt\n` +
-                    `4. Das Response-Feld sollte nicht leer sein\n\n` +
+                    `4. Das Response-Feld sollte nicht leer sein\n` +
+                    `5. Prüfe die n8n Execution Logs für Details\n\n` +
                     `Aktuelle Response-Struktur wurde in der Console geloggt.`;
             } else if (errorMessage.includes('CORS_ERROR')) {
                 helpText = `\n\n💡 CORS-Lösung für lokale API:\n` +
