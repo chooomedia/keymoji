@@ -792,14 +792,24 @@ async function saveUsageToAPI(account, usageData) {
 
 /**
  * Update the dailyLimit store (from appStores.js)
+ * EXPORTED: Can be called from other stores to sync dailyUsage
  */
-function updateDailyLimitStore(usageData) {
+export function updateDailyLimitStore(usageData) {
+    if (!usageData) {
+        console.warn('⚠️ updateDailyLimitStore: No usageData provided');
+        return;
+    }
+    
     dailyLimit.set({
+        limit: usageData.limit || 0,
+        used: usageData.used || 0,
+        storyUsed: usageData.storyUsed || 0
+    });
+    console.log('✅ dailyLimit store updated:', {
         limit: usageData.limit,
         used: usageData.used,
         storyUsed: usageData.storyUsed || 0
     });
-    console.log('✅ dailyLimit store updated:', usageData);
 }
 
 /**

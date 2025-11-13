@@ -1970,40 +1970,51 @@ async function syncAccountData(accountData) {
             hasSettings: !!parsedMetadata?.settings
         });
 
-        // Initialize daily usage from API + localStorage
+        // CRITICAL: Initialize daily usage - PRIORITY: accountData.dailyUsage > initializeDailyUsage()
+        // This prevents duplicate API calls and race conditions
         try {
-            const { initializeDailyUsage } = await import(
-                './dailyUsageStore.js'
-            );
-            const loadedDailyUsage = await initializeDailyUsage();
-            console.log('✅ Daily usage initialized from API/localStorage');
+            let finalDailyUsage = parsedDailyUsage; // Use dailyUsage from accountData if available
             
-            // CRITICAL: Update currentAccount with loaded dailyUsage!
-            // This ensures dailyUsage is available in account store for updates
-            if (loadedDailyUsage) {
-                currentAccount.update(acc => {
-                    if (acc) {
-                        return {
-                            ...acc,
-                            dailyUsage: loadedDailyUsage
-                        };
-                    }
-                    return acc;
-                });
-                console.log('✅ [ACCOUNT DEBUG] dailyUsage synced to currentAccount store');
+            if (!finalDailyUsage) {
+                // Only load from API/localStorage if not already in accountData
+                console.log('ℹ️ [ACCOUNT DEBUG] No dailyUsage in accountData - loading from API/localStorage...');
+                const { initializeDailyUsage } = await import(
+                    './dailyUsageStore.js'
+                );
+                finalDailyUsage = await initializeDailyUsage();
+                console.log('✅ Daily usage initialized from API/localStorage');
+            } else {
+                // dailyUsage already in accountData - sync to dailyUsageStore
+                console.log('✅ [ACCOUNT DEBUG] Using dailyUsage from accountData, syncing to dailyUsageStore...');
+                const { updateDailyLimitStore } = await import('./dailyUsageStore.js');
+                // Update dailyLimit store with accountData.dailyUsage
+                if (updateDailyLimitStore) {
+                    updateDailyLimitStore(finalDailyUsage);
+                    console.log('✅ [ACCOUNT DEBUG] dailyUsage synced to dailyLimit store');
+                }
             }
             
-            // CRITICAL: Refresh usage history AFTER dailyUsage is initialized
+            // CRITICAL: Always update currentAccount with finalDailyUsage (from accountData OR initializeDailyUsage)
+            // This ensures dailyUsage is available in account store for updates
+            if (finalDailyUsage) {
+                // Update cleanAccountData with final dailyUsage
+                cleanAccountData.dailyUsage = finalDailyUsage;
+                console.log('✅ [ACCOUNT DEBUG] dailyUsage synced to currentAccount store:', {
+                    date: finalDailyUsage.date,
+                    used: finalDailyUsage.used,
+                    limit: finalDailyUsage.limit
+                });
+            }
+            
+            // CRITICAL: Refresh usage history AFTER dailyUsage is synced (NO setTimeout - use await!)
             // This ensures today's usage is merged into history
             try {
                 const { refreshUsageHistory } = await import(
                     './userDataStore.js'
                 );
-                // Use a small delay to ensure dailyUsage store is fully updated
-                setTimeout(async () => {
-                    await refreshUsageHistory(true); // Force refresh to get latest data
-                    console.log('✅ Usage history refreshed after account sync (with today merge)');
-                }, 200);
+                // NO setTimeout - await directly after dailyUsage is synced!
+                await refreshUsageHistory(true); // Force refresh to get latest data
+                console.log('✅ Usage history refreshed after account sync (with today merge)');
             } catch (error) {
                 console.warn(
                     '⚠️ Failed to refresh usage history after sync:',

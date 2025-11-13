@@ -530,8 +530,18 @@ async function updateAccountName(userId, name) {
             } else {
                 // Priority 2: Load from dailyLimit store (most up-to-date)
                 const dailyLimitStore = get(dailyLimit);
-                if (dailyLimitStore && dailyLimitStore.date) {
-                    currentDailyUsage = dailyLimitStore;
+                // CRITICAL: dailyLimit store has {limit, used, storyUsed} but NOT date
+                // We need to construct dailyUsage object with today's date
+                if (dailyLimitStore && (dailyLimitStore.used > 0 || dailyLimitStore.storyUsed > 0 || dailyLimitStore.limit > 0)) {
+                    // Construct dailyUsage object from dailyLimit store
+                    const today = new Date().toISOString().split('T')[0];
+                    currentDailyUsage = {
+                        date: today,
+                        used: dailyLimitStore.used || 0,
+                        storyUsed: dailyLimitStore.storyUsed || 0,
+                        limit: dailyLimitStore.limit || 0,
+                        lastReset: today
+                    };
                     console.log('✅ [NAME UPDATE] Using dailyUsage from dailyLimit store:', {
                         date: currentDailyUsage.date,
                         used: currentDailyUsage.used,
@@ -1323,9 +1333,19 @@ export async function saveSettingsToAPI(settings) {
             } else {
                 // Priority 2: Load from dailyLimit store (most up-to-date)
                 const dailyLimitStore = get(dailyLimit);
-                if (dailyLimitStore && dailyLimitStore.date) {
-                    currentDailyUsage = dailyLimitStore;
-                    console.log('✅ [SETTINGS SAVE] Using dailyUsage from dailyLimit store');
+                // CRITICAL: dailyLimit store has {limit, used, storyUsed} but NOT date
+                // We need to construct dailyUsage object with today's date
+                if (dailyLimitStore && (dailyLimitStore.used > 0 || dailyLimitStore.storyUsed > 0 || dailyLimitStore.limit > 0)) {
+                    // Construct dailyUsage object from dailyLimit store
+                    const today = new Date().toISOString().split('T')[0];
+                    currentDailyUsage = {
+                        date: today,
+                        used: dailyLimitStore.used || 0,
+                        storyUsed: dailyLimitStore.storyUsed || 0,
+                        limit: dailyLimitStore.limit || 0,
+                        lastReset: today
+                    };
+                    console.log('✅ [SETTINGS SAVE] Using dailyUsage from dailyLimit store:', currentDailyUsage);
                 } else {
                     // Priority 3: Load from localStorage
                     const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
