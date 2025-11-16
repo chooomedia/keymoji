@@ -5,7 +5,7 @@
     import { updateSeo } from './stores/seoStore';
     import { navigate } from 'svelte-routing';
     import { closeModal, isModalVisible } from './stores/modalStore';
-    import { isLoggedIn, currentAccount } from './stores/appStores.js';
+    import { isLoggedIn, currentAccount } from './stores/appStores';
     import PageLayout from './components/Layout/PageLayout.svelte';
     import EmojiDisplay from './components/Core/EmojiDisplay.svelte';
 
@@ -14,7 +14,7 @@
     import { initializeAccountFromCookies, setupMagicLinkListener } from './stores/accountStore.js';
     import { initializeSettingsForUser } from './stores/userSettingsStore.js';
     import { testLimitConfiguration, testLimitConsistency } from './utils/test-limits.js';
-    import { sendAnalyticsEvent } from './stores/appStores.js';
+    import { sendAnalyticsEvent } from './stores/appStores'
     import FooterInfo from './widgets/FooterInfo.svelte';
   
     // Debug-Flag - für die Produktion entfernen

@@ -3,7 +3,7 @@
 // Pattern inspired by userCounter - Same sexy architecture!
 
 import { writable, derived, get } from 'svelte/store';
-import { currentAccount, isLoggedIn, accountTier } from './appStores.js';
+import { currentAccount, isLoggedIn, accountTier } from './appStores';
 import { STORAGE_KEYS, storageHelpers } from '../config/storage.js';
 import { WEBHOOKS } from '../config/api.js';
 import { cachedFetchAccount } from '../utils/apiCache';
@@ -134,7 +134,7 @@ async function mergeTodayIntoHistory(history) {
     // Priority 1: Try dailyLimit store (synchronous)
     try {
         // Dynamic import to avoid circular dependencies
-        const appStores = await import('./appStores.js');
+        const appStores = await import('./appStores');
         const { get } = await import('svelte/store');
         todayUsage = get(appStores.dailyLimit);
     } catch (e) {

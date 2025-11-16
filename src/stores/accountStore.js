@@ -9,7 +9,7 @@ import {
     accountTier,
     dailyLimit,
     updateDailyLimit
-} from './appStores.js';
+} from './appStores';
 import { showExistingAccountFound, showNewAccountCreated } from './modalStore';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 import { WEBHOOKS } from '../config/api.js';
@@ -248,7 +248,7 @@ function generateFantasyName() {
     return fantasyNames[Math.floor(Math.random() * fantasyNames.length)];
 }
 
-// Account stores - use currentAccount from appStores.js instead of redundant accountData
+// Account stores - use currentAccount from './appStores' instead of redundant accountData
 export const isLoggingIn = writable(false);
 export const loginError = writable(null);
 

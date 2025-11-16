@@ -25,7 +25,7 @@ export async function loadDailyUsage(account = null, options = {}) {
     // Priority 2: dailyLimit store (synchronous, most up-to-date)
     try {
         const { get } = await import('svelte/store');
-        const { dailyLimit } = await import('../stores/appStores.js');
+        const { dailyLimit } = await import from '../stores/appStores);
         const dailyLimitStore = get(dailyLimit);
         
         // CRITICAL: dailyLimit store has {limit, used, storyUsed} but NOT date

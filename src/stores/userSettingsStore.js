@@ -1,6 +1,6 @@
 // src/stores/userSettingsStore.js
 import { writable, derived, get } from 'svelte/store';
-import { accountTier, isLoggedIn, currentAccount } from './appStores.js';
+import { accountTier, isLoggedIn, currentAccount } from './appStores';
 import { WEBHOOKS } from '../config/api.js';
 import {
     setUserPreferences,
@@ -16,8 +16,8 @@ import {
     mergeWithDefaults
 } from '../utils/settingsValidation';
 // Import dailyLimit store for dailyUsage preservation
-// Note: dailyLimit is exported from appStores.js, not dailyUsageStore.js
-import { dailyLimit } from './appStores.js';
+// Note: dailyLimit is exported from './appStores', not dailyUsageStore.js
+import { dailyLimit } from './appStores';
 // Import metadata cleaner to prevent duplicate fields
 import {
     prepareMetadataForAPI,
@@ -224,7 +224,7 @@ export async function applyThemeReactive(theme) {
     const root = document.documentElement;
 
     // Import darkMode store
-    const { darkMode } = await import('./appStores.js');
+    const { darkMode } = await import('./appStores');
 
     let isDark = false;
 
@@ -960,7 +960,7 @@ export async function initializeSettingsForUser() {
 
         // Import current language and darkMode stores
         const { currentLanguage } = await import('./contentStore.js');
-        const { darkMode } = await import('./appStores.js');
+        const { darkMode } = await import('./appStores');
 
         let loadedSettings = null;
 
@@ -1184,7 +1184,7 @@ export async function initializeSettingsForUser() {
         // CRITICAL: Sync language and theme from active stores
         try {
             const { currentLanguage } = await import('./contentStore.js');
-            const { darkMode } = await import('./appStores.js');
+            const { darkMode } = await import('./appStores');
 
             // Language: Always use currentLanguage store
             fallbackSettings.language = get(currentLanguage) || 'en';

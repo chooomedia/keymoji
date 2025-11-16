@@ -6,7 +6,7 @@ import {
     currentAccount,
     isLoggedIn,
     accountTier
-} from '../stores/appStores.js';
+} from '../stores/appStores'
 
 /**
  * Complete chart data flow debugger

@@ -16,7 +16,7 @@
         accountTier,
         successfulStoryRequests,
         isDisabled
-    } from '../stores/appStores.js';
+    } from '../../stores/appStores'
     import { remainingGenerations as remainingGenerationsStore } from '../stores/dailyUsageStore.js';
     import { translations, currentLanguage } from '../stores/contentStore.js';
     import { 
@@ -56,7 +56,7 @@
     import ContextMenu from '../components/UI/ContextMenu.svelte';
     import { isDevelopment } from '../utils/environment';
     import { validateUserLimits } from '../config/limits.js';
-    import { sendAnalyticsEvent } from '../stores/appStores.js';
+    import { sendAnalyticsEvent } from '../../stores/appStores'
     import Input from '../components/UI/Input.svelte';
     import Button from '../components/UI/Button.svelte';
     import ContextBadge from '../components/UI/ContextBadge.svelte';

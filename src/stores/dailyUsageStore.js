@@ -7,7 +7,7 @@ import {
     isLoggedIn,
     accountTier,
     dailyLimit
-} from './appStores.js';
+} from './appStores';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 import { WEBHOOKS } from '../config/api.js';
 import {
@@ -869,7 +869,7 @@ async function saveUsageToAPI(account, usageData) {
 }
 
 /**
- * Update the dailyLimit store (from appStores.js)
+ * Update the dailyLimit store (from './appStores')
  * EXPORTED: Can be called from other stores to sync dailyUsage
  */
 export function updateDailyLimitStore(usageData) {

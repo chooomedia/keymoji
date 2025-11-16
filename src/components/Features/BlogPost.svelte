@@ -7,7 +7,7 @@
     import { updateSeo } from '../../stores/seoStore';
     import { fetchBlogPost, likeBlogPost, fetchBlogPosts } from '../../utils/blogApi';
     import { getBlogUrl, getBlogShareUrl, getHomeUrl } from '../../utils/blogNavigation';
-    import { isLoggedIn } from '../../stores/appStores.js';
+    import { isLoggedIn } from '../../stores/appStores'
     import { blogLikesStore } from '../../stores/blogLikesStore';
     import { get } from 'svelte/store';
     import PageLayout from '../Layout/PageLayout.svelte';

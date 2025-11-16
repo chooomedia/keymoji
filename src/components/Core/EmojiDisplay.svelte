@@ -10,7 +10,7 @@
         isLoggedIn,
         currentAccount,
         accountTier
-    } from '../../stores/appStores.js';
+    } from '../../stores/appStores'
     import { 
         showSuccess, 
         showError, 

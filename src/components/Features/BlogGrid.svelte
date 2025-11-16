@@ -8,7 +8,7 @@
     } from '../../utils/blogApi';
     import { getBlogUrl, getBlogShareUrl } from '../../utils/blogNavigation';
     import { currentLanguage, translations } from '../../stores/contentStore.js';
-    import { isLoggedIn } from '../../stores/appStores.js';
+    import { isLoggedIn } from '../../stores/appStores'
     import { get } from 'svelte/store';
     import PageLayout from '../Layout/PageLayout.svelte';
     import { updateSeo } from '../../stores/seoStore';

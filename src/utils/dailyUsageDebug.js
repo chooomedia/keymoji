@@ -7,7 +7,7 @@ import {
     isLoggedIn,
     accountTier,
     currentAccount
-} from '../stores/appStores.js';
+} from '../stores/appStores'
 import {
     initializeDailyUsage,
     incrementDailyUsage,

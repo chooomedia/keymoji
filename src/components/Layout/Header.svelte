@@ -3,7 +3,7 @@
     import { slide, fly } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { hamburger, logo } from "../../assets/shapes.js";
-    import { isDisabled, showDonateMenu, isLoggedIn, currentAccount, dailyLimit, accountTier } from '../../stores/appStores.js';
+    import { isDisabled, showDonateMenu, isLoggedIn, currentAccount, dailyLimit, accountTier } from '../../stores/appStores'
     import { currentLanguage, t, showLanguageMenu, changeLanguage } from '../../stores/contentStore.js';
     import GitButton from '../../widgets/GitButton.svelte';
     import { createEventDispatcher } from 'svelte';

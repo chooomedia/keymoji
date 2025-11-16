@@ -1,7 +1,7 @@
 <!-- src/Layout.svelte -->
 <script>
     import { onMount, afterUpdate } from 'svelte';
-    import { darkMode } from '../../stores/appStores.js';
+    import { darkMode } from '../stores/appStores'
     import { currentLanguage } from '../../stores/contentStore.js';
 import { updatedTime } from '../../utils/timestamp';
     import SkipLink from '../A11y/SkipLink.svelte';
