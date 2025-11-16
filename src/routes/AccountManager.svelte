@@ -426,7 +426,6 @@ Manages session state, chart data, and user preferences.
         storageHelpers.set(STORAGE_KEYS.LOGIN_HISTORY, history);
     }
     
-    // Intelligent button text based on user state (Svelte 5 Runes)
     let intelligentButtonText = $derived.by(() => {
         const t = get(translations);
         const isLoggingInValue = get(isLoggingIn);
@@ -705,15 +704,12 @@ Manages session state, chart data, and user preferences.
                 email = userEmailFromPrefs;
             }
         } else {
-            // No existing preferences
             hasValidSession = false;
             sessionExpired = false;
         }
         
-        // Fallback to cookie-based session if no localStorage data
         if (account && loggedIn && !hasExistingPrefs) {
             hasValidSession = true;
-            // Check if session is expired (7 days)
             const lastLogin = new Date(account.lastLogin || 0);
             const now = new Date();
             const daysSinceLogin = (now - lastLogin) / (1000 * 60 * 60 * 24);
@@ -725,8 +721,6 @@ Manages session state, chart data, and user preferences.
         }
     }
 
-    // Get dynamic button text based on state
-    // Login button text (Svelte 5 Runes)
     let loginButtonText = $derived.by(() => {
         const t = get(translations);
         if (isSubmitting) {
