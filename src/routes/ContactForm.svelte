@@ -1,4 +1,8 @@
-<!-- src/routes/ContactForm.svelte -->
+<!--
+Contact form page component for user inquiries and feedback.
+Handles form submission, validation, and newsletter opt-in.
+Manages form state and API communication.
+-->
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { currentLanguage, translations } from '../stores/contentStore';
@@ -20,36 +24,31 @@
     import InputComponent from '../components/UI/Input.svelte';
     import ButtonComponent from '../components/UI/Button.svelte';
     import CheckboxComponent from '../components/UI/Checkbox.svelte';
-    import { isTestMode } from '../utils/environment';
+    import { isTestMode, isDebugMode } from '../utils/environment';
     import { initializeAccountFromCookies } from '../stores/accountStore';
     import { get } from 'svelte/store';
-    
-    // Svelte 5 / Webpack: stabile Komponenten-Referenzen
+
+    function debugContactForm() {
+        if (!isDebugMode()) return;
+        console.group('🔍 ContactForm Debug');
+        console.log('Form State:', {
+            name: name ? '***' : '',
+            email: email ? '***' : '',
+            messageLength: message.length,
+            newsletterOptIn,
+            isSubmitting
+        });
+        console.log('Language:', get(currentLanguage));
+        console.groupEnd();
+    }
+
     const PageLayout = PageLayoutComponent;
     const Input = InputComponent;
     const Button = ButtonComponent;
     const Checkbox = CheckboxComponent;
     
-    // Reaktive Übersetzungen - optimiert (Svelte 5 Runes)
-    // PERFORMANCE: $derived() statt $derived.by() für einfache Store-Zugriffe
     let pageTitle = $derived(() => get(translations)?.contactForm?.pageTitle || 'Contact');
     let pageDescription = $derived(() => get(translations)?.contactForm?.pageDescription || 'Get in touch with us');
-
-    // Debug-Logging für Reaktivität - nur in Development (Svelte 5 Runes)
-    $effect(() => {
-        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-            const lang = get(currentLanguage);
-            const t = get(translations);
-            console.log('🔄 ContactForm: Language changed to:', lang);
-            console.log('🔄 ContactForm: Translations updated:', {
-                pageTitle: t?.contactForm?.pageTitle,
-                pageDescription: t?.contactForm?.pageDescription,
-                nameLabel: t?.contactForm?.nameLabel,
-                emailLabel: t?.contactForm?.emailLabel,
-                messageLabel: t?.contactForm?.messageLabel
-            });
-        }
-    });
     
     // Form state (Svelte 5 Runes)
     let name = $state('');
@@ -199,9 +198,6 @@
             }, REDIRECT_DELAY);
             
         } catch (error) {
-            console.error('Submission error:', error);
-            
-            // Show error message with new modal system
             showError(t.contactForm.requestErrorMessage);
         } finally {
             isSubmitting = false;
@@ -229,13 +225,12 @@
             closeModal();
         }
         
-        // Only in development mode: Test modal system
         if (isTestMode()) {
-            console.log('Testing modal system in development mode');
             setTimeout(() => {
                 showSuccess('Modal system test', 2000);
             }, 500);
         }
+        debugContactForm();
 
         // Initialize account from cookies
         initializeAccountFromCookies();
@@ -263,8 +258,8 @@
             class="relative w-32 h-32 cursor-pointer rounded-full overflow-hidden border-4 border-yellow-200 dark:border-yellow-600 shadow-lg transform-gpu"
             role="img"
             aria-label="Contact form image"
-            onmouseenter={() => {showRealImage = true; console.log('Mouse enter - showing real image');}}
-            onmouseleave={() => {showRealImage = false; console.log('Mouse leave - showing GIF');}}
+            onmouseenter={() => {showRealImage = true;}}
+            onmouseleave={() => {showRealImage = false;}}
         >
             <!-- Animated GIF (default layer) -->
             <img 
@@ -272,8 +267,8 @@
                 alt={$translations.contactForm.smirkingFaceImageAlt}
                 class="w-full h-full object-cover rounded-full absolute inset-0 z-0 transition-opacity duration-500 ease-in-out"
                 class:opacity-0={showRealImage}
-                onload={() => {handleImageLoad(); console.log('GIF loaded successfully');}}
-                onerror={() => console.log('Error loading GIF')}
+                onload={handleImageLoad}
+                onerror={() => {}}
             />
             
             <!-- Real Image (hover layer) -->
@@ -283,7 +278,7 @@
                 class="w-full h-full object-cover rounded-full absolute inset-0 z-10 transition-all duration-500 ease-in-out"
                 class:opacity-0={!showRealImage}
                 class:scale-105={showRealImage}
-                onerror={() => console.log('Error loading real author image')}
+                onerror={() => {}}
             />
         </div>
     </div>
