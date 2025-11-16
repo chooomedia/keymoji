@@ -21,7 +21,7 @@
     import Button from './UI/Button.svelte';
     import Modal from './UI/Modal.svelte';
     import { showSuccess, showError, showWarning, showModal } from '../stores/modalStore.js';
-    import { testAIProvider, getProviderInfo } from '../utils/storyModeAI.js';
+    import { testAIProvider, getProviderInfo } from '../utils/storyModeAI';
 
     // Load settings configuration
     let settingsConfig = {};

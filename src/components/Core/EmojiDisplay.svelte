@@ -26,7 +26,7 @@
     import { WEBHOOKS } from '../../../src/config/api.js';
     import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js';
     import { incrementDailyUsage, initializeDailyUsage } from '../../stores/dailyUsageStore.js';
-    import { generateStoryEmojis, getDefaultModel } from '../../utils/storyModeAI.js';
+    import { generateStoryEmojis, getDefaultModel } from '../../utils/storyModeAI';
     import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers';
 
     // Props
