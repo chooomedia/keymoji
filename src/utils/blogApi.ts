@@ -1,30 +1,99 @@
-// src/utils/blogApi.js
+// src/utils/blogApi.ts
 // Blog API Utilities - Centralized blog data fetching with caching and error handling
+//
+// TypeScript Migration: v0.7.7
 
-import { WEBHOOKS } from '../config/api.js';
+import { WEBHOOKS } from '../config/api';
 import { cachedFetch } from './apiCache';
-import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
+import { storageHelpers, STORAGE_KEYS } from '../config/storage';
 import { normalizeSlug, sanitizeSlug } from './slug';
+
+/**
+ * Blog Post Interface
+ */
+export interface BlogPost {
+    id?: string | number;
+    row_number?: string | number;
+    slug: string;
+    title: string;
+    content: string;
+    excerpt?: string;
+    author?: string;
+    creator?: string;
+    isodate?: string;
+    date?: string;
+    publishedAt?: string;
+    updatedAt?: string;
+    tags?: string[];
+    language?: string;
+    image?: string;
+    likes?: number | string;
+    liked?: boolean;
+    readingTime?: number;
+    category?: string;
+    [key: string]: unknown;
+}
+
+/**
+ * Blog Post Options Interface
+ */
+export interface BlogPostOptions {
+    useCache?: boolean;
+    forceRefresh?: boolean;
+}
+
+/**
+ * Like Blog Post Options Interface
+ */
+export interface LikeBlogPostOptions {
+    optimistic?: boolean;
+    unlike?: boolean;
+}
+
+/**
+ * Like Blog Post Response Interface
+ */
+export interface LikeBlogPostResponse {
+    success: boolean;
+    likes?: number | null;
+    postId?: string | number;
+    error?: string;
+    statusCode?: number;
+    parseError?: string;
+}
+
+/**
+ * Cached Like Interface
+ */
+interface CachedLike {
+    liked: boolean;
+    likes: number;
+}
+
+/**
+ * Cached Likes Storage Type
+ */
+type CachedLikesStorage = Record<string, CachedLike>;
 
 // Cache TTL für Blog-Daten
 const CACHE_TTL = {
     POSTS_LIST: 10 * 60 * 1000, // 10 Minuten (Posts ändern sich selten)
     POST_DETAIL: 30 * 60 * 1000, // 30 Minuten (noch seltener)
     LIKES: 0 // Kein Cache für Likes (immer aktuell)
-};
+} as const;
 
 // Storage Keys
 const STORAGE_KEYS_BLOG = {
     POSTS: 'keymoji_blog_posts',
     LIKES: 'keymoji_blog_likes'
-};
+} as const;
 
 /**
  * Berechnet Lesezeit basierend auf Content
- * @param {string} content - HTML oder Text-Content
- * @returns {number} Geschätzte Lesezeit in Minuten
+ * @param content - HTML oder Text-Content
+ * @returns Geschätzte Lesezeit in Minuten
  */
-export function calculateReadTime(content) {
+export function calculateReadTime(content: string | null | undefined): number {
     if (!content) return 1;
     
     // Entferne HTML-Tags für Wortzählung
@@ -39,10 +108,10 @@ export function calculateReadTime(content) {
 
 /**
  * Formatiert Content für Preview (kürzt auf max. 270 Zeichen)
- * @param {string} content - Vollständiger Content
- * @returns {string} Formatierter Preview-Text
+ * @param content - Vollständiger Content
+ * @returns Formatierter Preview-Text
  */
-export function formatContentPreview(content) {
+export function formatContentPreview(content: string | null | undefined): string {
     if (!content) return '';
     
     // Entferne HTML-Tags
@@ -70,11 +139,11 @@ export function formatContentPreview(content) {
 
 /**
  * Formatiert Datum für Anzeige
- * @param {string} isodate - ISO 8601 Datum
- * @param {string} locale - Locale für Formatierung
- * @returns {string} Formatiertes Datum
+ * @param isodate - ISO 8601 Datum
+ * @param locale - Locale für Formatierung
+ * @returns Formatiertes Datum
  */
-export function formatDate(isodate, locale = 'en') {
+export function formatDate(isodate: string | null | undefined, locale: string = 'en'): string {
     if (!isodate) return '';
     
     try {
@@ -95,18 +164,18 @@ export function formatDate(isodate, locale = 'en') {
 
 /**
  * Lädt alle Blog-Posts
- * @param {object} options - Optionen
- * @param {boolean} options.useCache - Ob Cache verwendet werden soll (default: true)
- * @returns {Promise<Array>} Array von Blog-Posts
+ * @param options - Optionen
+ * @param options.useCache - Ob Cache verwendet werden soll (default: true)
+ * @returns Promise mit Array von Blog-Posts
  */
-export async function fetchBlogPosts(options = {}) {
+export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<BlogPost[]> {
     const { useCache = true, forceRefresh = false } = options;
     
     try {
         // Lade aus localStorage als Fallback (immer, auch bei forceRefresh, für Fallback)
-        let cachedPosts = [];
+        let cachedPosts: BlogPost[] = [];
         try {
-            const stored = storageHelpers.get(STORAGE_KEYS_BLOG.POSTS, []);
+            const stored = storageHelpers.get(STORAGE_KEYS_BLOG.POSTS, []) as BlogPost[] | unknown;
             cachedPosts = Array.isArray(stored) ? stored : [];
             console.log('📦 [blogApi] Cached posts in localStorage:', cachedPosts.length);
         } catch (error) {
@@ -116,7 +185,7 @@ export async function fetchBlogPosts(options = {}) {
         // Fetch von API mit Caching (oder ohne Cache wenn forceRefresh)
         const url = WEBHOOKS.BLOG.POSTS;
         console.log('🔗 [blogApi] Fetching blog posts from:', url);
-        let posts;
+        let posts: unknown;
         
         if (forceRefresh) {
             // Force fresh fetch from API (bypass cache)
@@ -153,13 +222,14 @@ export async function fetchBlogPosts(options = {}) {
             try {
                 posts = JSON.parse(responseText);
             } catch (parseError) {
-                console.error('❌ [blogApi] Failed to parse JSON response:', parseError);
+                const error = parseError instanceof Error ? parseError : new Error(String(parseError));
+                console.error('❌ [blogApi] Failed to parse JSON response:', error);
                 console.error('❌ [blogApi] Response text (first 200 chars):', responseText.substring(0, 200));
                 if (cachedPosts.length > 0) {
                     console.warn('⚠️ [blogApi] Using cached data due to parse error');
                     return cachedPosts;
                 }
-                throw new Error(`Invalid JSON response: ${parseError.message}`);
+                throw new Error(`Invalid JSON response: ${error.message}`);
             }
         } else {
             // Use cached fetch
@@ -206,26 +276,28 @@ export async function fetchBlogPosts(options = {}) {
         
         // DEBUG: Log Backend-Daten für ersten Post
         if (posts.length > 0 && forceRefresh) {
+            const firstPost = posts[0] as BlogPost;
             console.log('🔍 [blogApi] DEBUG - First post from backend:', {
-                id: posts[0].id || posts[0].row_number,
-                title: posts[0].title?.substring(0, 30),
-                likes: posts[0].likes,
-                likesType: typeof posts[0].likes,
-                liked: posts[0].liked,
-                likedType: typeof posts[0].liked,
-                fullPost: posts[0]
+                id: firstPost.id || firstPost.row_number,
+                title: firstPost.title?.substring(0, 30),
+                likes: firstPost.likes,
+                likesType: typeof firstPost.likes,
+                liked: firstPost.liked,
+                likedType: typeof firstPost.liked,
+                fullPost: firstPost
             });
         }
         
-        const mergedPosts = posts.map(post => {
-            const postId = post.id || post.row_number;
-            const cachedLike = cachedLikes[postId];
+        const mergedPosts: BlogPost[] = posts.map((post: unknown) => {
+            const blogPost = post as BlogPost;
+            const postId = blogPost.id || blogPost.row_number;
+            const cachedLike = postId ? cachedLikes[String(postId)] : undefined;
             
             // Stelle sicher, dass jeder Post einen Slug hat
-            let slug = post.slug;
+            let slug = blogPost.slug;
             if (!slug || !slug.trim()) {
                 // Generiere Slug aus Titel oder verwende Fallback
-                slug = normalizeSlug(post.title, postId || 'post');
+                slug = normalizeSlug(blogPost.title, String(postId || 'post'));
             } else {
                 // Sanitize vorhandenen Slug
                 slug = sanitizeSlug(slug);
@@ -237,17 +309,19 @@ export async function fetchBlogPosts(options = {}) {
             // post.likes sollte bereits vom Backend kommen
             // CRITICAL: post.likes ist die korrekte Quelle
             // post.liked ist ein Boolean (User-spezifisch), NICHT die Anzahl!
-            const backendLikesRaw = post.likes;
+            const backendLikesRaw = blogPost.likes;
             
             // DEBUG: Log für ersten Post
-            if (postId === (posts[0]?.id || posts[0]?.row_number) && forceRefresh) {
-                console.log('🔍 [blogApi] DEBUG - Processing likes for first post:', {
-                    postId,
-                    backendLikesRaw,
-                    backendLikesRawType: typeof backendLikesRaw,
-                    cachedLike,
-                    cachedLikesValue: cachedLike?.likes
-                });
+            if (postId === (posts[0] as BlogPost)?.id || postId === (posts[0] as BlogPost)?.row_number) {
+                if (forceRefresh) {
+                    console.log('🔍 [blogApi] DEBUG - Processing likes for first post:', {
+                        postId,
+                        backendLikesRaw,
+                        backendLikesRawType: typeof backendLikesRaw,
+                        cachedLike,
+                        cachedLikesValue: cachedLike?.likes
+                    });
+                }
             }
             
             // BACKEND FIRST: Parse Backend-Wert (auch 0 ist gültig!)
@@ -256,7 +330,7 @@ export async function fetchBlogPosts(options = {}) {
                 : null;
             
             const cachedLikesValue = cachedLike?.likes !== undefined && cachedLike.likes !== null 
-                ? parseInt(cachedLike.likes, 10) 
+                ? parseInt(String(cachedLike.likes), 10) 
                 : null;
             
             // BACKEND FIRST: Backend hat IMMER Priorität, auch wenn 0
@@ -269,8 +343,8 @@ export async function fetchBlogPosts(options = {}) {
             if (backendLikes === null || backendLikes === undefined || isNaN(backendLikes)) {
                 console.warn('⚠️ [blogApi] Missing/invalid likes from backend for post:', {
                     id: postId,
-                    title: post.title?.substring(0, 30),
-                    postLikes: post.likes,
+                    title: blogPost.title?.substring(0, 30),
+                    postLikes: blogPost.likes,
                     backendLikesRaw,
                     backendLikes,
                     cachedLikesValue,
@@ -279,7 +353,7 @@ export async function fetchBlogPosts(options = {}) {
             }
             
             // DEBUG: Log für ersten Post (immer bei forceRefresh)
-            if (postId === (posts[0]?.id || posts[0]?.row_number) && forceRefresh) {
+            if (postId === ((posts[0] as BlogPost)?.id || (posts[0] as BlogPost)?.row_number) && forceRefresh) {
                 console.log('✅ [blogApi] DEBUG - Final likes for first post:', {
                     postId,
                     backendLikes,
@@ -290,12 +364,12 @@ export async function fetchBlogPosts(options = {}) {
             }
             
             return {
-                ...post,
+                ...blogPost,
                 slug, // Stelle sicher, dass slug immer gesetzt ist
                 likes: finalLikes, // Verwende Backend-Likes als Priorität
                 liked: cachedLike?.liked || false, // liked-Status kommt nur aus Cache (User-spezifisch)
                 // Berechne readingTime falls nicht vorhanden
-                readingTime: post.readingTime || calculateReadTime(post.content)
+                readingTime: blogPost.readingTime || calculateReadTime(blogPost.content)
             };
         });
         
@@ -312,7 +386,7 @@ export async function fetchBlogPosts(options = {}) {
         
         // Fallback: Return cached posts
         try {
-            const stored = storageHelpers.get(STORAGE_KEYS_BLOG.POSTS, []);
+            const stored = storageHelpers.get(STORAGE_KEYS_BLOG.POSTS, []) as BlogPost[] | unknown;
             if (Array.isArray(stored) && stored.length > 0) {
                 console.log('✅ [blogApi] Using cached posts as fallback:', stored.length, 'posts');
                 return stored;
@@ -330,12 +404,15 @@ export async function fetchBlogPosts(options = {}) {
 /**
  * Lädt einen einzelnen Blog-Post per Slug
  * Da der n8n Workflow nur eine Posts-Liste liefert, suchen wir in dieser Liste
- * @param {string} slug - Post-Slug
- * @param {object} options - Optionen
- * @param {boolean} options.useCache - Ob Cache verwendet werden soll (default: true)
- * @returns {Promise<object|null>} Blog-Post oder null
+ * @param slug - Post-Slug
+ * @param options - Optionen
+ * @param options.useCache - Ob Cache verwendet werden soll (default: true)
+ * @returns Promise mit Blog-Post oder null
  */
-export async function fetchBlogPost(slug, options = {}) {
+export async function fetchBlogPost(
+    slug: string,
+    options: BlogPostOptions = {}
+): Promise<BlogPost | null> {
     const { useCache = true } = options;
     
     if (!slug) {
@@ -390,12 +467,15 @@ export async function fetchBlogPost(slug, options = {}) {
 
 /**
  * Like einen Blog-Post
- * @param {string|number} postId - Post-ID oder row_number
- * @param {object} options - Optionen
- * @param {boolean} options.optimistic - Optimistic update (default: true)
- * @returns {Promise<object|null>} Updated post data oder null
+ * @param postId - Post-ID oder row_number
+ * @param options - Optionen
+ * @param options.optimistic - Optimistic update (default: true)
+ * @returns Promise mit Updated post data oder null
  */
-export async function likeBlogPost(postId, options = {}) {
+export async function likeBlogPost(
+    postId: string | number,
+    options: LikeBlogPostOptions = {}
+): Promise<LikeBlogPostResponse | null> {
     const { optimistic = true, unlike = false } = options;
     
     if (!postId) {
@@ -434,7 +514,7 @@ export async function likeBlogPost(postId, options = {}) {
             }
             
             try {
-                const errorData = await response.json();
+                const errorData = await response.json() as { message?: string; error?: string; hint?: string };
                 errorMessage = errorData.message || errorData.error || errorMessage;
                 if (errorData.hint) {
                     console.warn('💡 [blogApi] Hint:', errorData.hint);
@@ -456,7 +536,7 @@ export async function likeBlogPost(postId, options = {}) {
             };
         }
         
-        let result;
+        let result: { success?: boolean; likes?: number | string | null } | null = null;
         try {
             const responseText = await response.text();
             
@@ -469,23 +549,24 @@ export async function likeBlogPost(postId, options = {}) {
                 };
             }
             
-            result = JSON.parse(responseText);
+            result = JSON.parse(responseText) as { success?: boolean; likes?: number | string | null };
         } catch (parseError) {
-            console.error('❌ [blogApi] Failed to parse response as JSON:', parseError);
+            const error = parseError instanceof Error ? parseError : new Error(String(parseError));
+            console.error('❌ [blogApi] Failed to parse response as JSON:', error);
             if (optimistic) {
                 updateCachedLike(postId, unlike);
             }
             return {
                 success: false,
                 error: 'Failed to parse response',
-                parseError: parseError.message
+                parseError: error.message
             };
         }
         
         if (result && (result.success !== false)) {
             // PRIORITÄT: Backend-Wert hat immer höchste Priorität
             const backendLikes = result.likes !== undefined && result.likes !== null 
-                ? parseInt(result.likes, 10) 
+                ? parseInt(String(result.likes), 10) 
                 : null;
             updateCachedLike(postId, !unlike, backendLikes);
             return {
@@ -510,12 +591,12 @@ export async function likeBlogPost(postId, options = {}) {
 
 /**
  * Holt gecachte Likes aus localStorage
- * @returns {object} Object mit postId -> { liked, likes }
+ * @returns Object mit postId -> { liked, likes }
  */
-function getCachedLikes() {
+function getCachedLikes(): CachedLikesStorage {
     try {
-        const stored = storageHelpers.get(STORAGE_KEYS_BLOG.LIKES, {});
-        return typeof stored === 'object' && stored !== null ? stored : {};
+        const stored = storageHelpers.get(STORAGE_KEYS_BLOG.LIKES, {}) as CachedLikesStorage | unknown;
+        return typeof stored === 'object' && stored !== null ? stored as CachedLikesStorage : {};
     } catch (error) {
         console.warn('⚠️ [blogApi] Error reading cached likes:', error);
         return {};
@@ -524,11 +605,11 @@ function getCachedLikes() {
 
 /**
  * Aktualisiert gecachte Like-Information
- * @param {string|number} postId - Post-ID
- * @param {boolean} liked - Ob geliked
- * @param {number} likes - Anzahl Likes (optional)
+ * @param postId - Post-ID
+ * @param liked - Ob geliked
+ * @param likes - Anzahl Likes (optional)
  */
-function updateCachedLike(postId, liked, likes = null) {
+function updateCachedLike(postId: string | number, liked: boolean, likes: number | null = null): void {
     try {
         const cachedLikes = getCachedLikes();
         const key = String(postId);
@@ -560,15 +641,15 @@ function updateCachedLike(postId, liked, likes = null) {
 
 /**
  * Findet den Featured Post (Post mit meisten Likes)
- * @param {Array} posts - Array von Posts
- * @returns {object|null} Featured Post oder null
+ * @param posts - Array von Posts
+ * @returns Featured Post oder null
  */
-export function getFeaturedPost(posts) {
+export function getFeaturedPost(posts: BlogPost[] | null | undefined): BlogPost | null {
     if (!Array.isArray(posts) || posts.length === 0) return null;
     
     return posts.reduce((max, post) => {
         const maxLikes = max?.likes || 0;
-        const postLikes = post?.likes || 0;
+        const postLikes = typeof post?.likes === 'number' ? post.likes : 0;
         return postLikes > maxLikes ? post : max;
     }, posts[0] || null);
 }

@@ -5,8 +5,8 @@
     import { cubicInOut } from 'svelte/easing';
     import { Link, navigate } from 'svelte-routing';
     import { updateSeo } from '../../stores/seoStore.js';
-    import { fetchBlogPost, likeBlogPost, fetchBlogPosts } from '../../utils/blogApi.js';
-    import { getBlogUrl, getBlogShareUrl, getHomeUrl } from '../../utils/blogNavigation.js';
+    import { fetchBlogPost, likeBlogPost, fetchBlogPosts } from '../../utils/blogApi';
+    import { getBlogUrl, getBlogShareUrl, getHomeUrl } from '../../utils/blogNavigation';
     import { isLoggedIn } from '../../stores/appStores.js';
     import { blogLikesStore } from '../../stores/blogLikesStore.js';
     import { get } from 'svelte/store';
@@ -17,7 +17,7 @@
     import ShareButtons from './ShareButtons.svelte';
     import { generateBlogPostStructuredData, formatCanonicalUrl, injectStructuredData } from '../../utils/seo';
     import BlogPostSkeleton from './BlogPostSkeleton.svelte';
-    import { navigateToBlogPost } from '../../utils/blogNavigation.js';
+    import { navigateToBlogPost } from '../../utils/blogNavigation';
   
     export let slug;
     

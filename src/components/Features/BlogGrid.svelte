@@ -5,8 +5,8 @@
         fetchBlogPosts, 
         likeBlogPost, 
         formatContentPreview
-    } from '../../utils/blogApi.js';
-    import { getBlogUrl, getBlogShareUrl } from '../../utils/blogNavigation.js';
+    } from '../../utils/blogApi';
+    import { getBlogUrl, getBlogShareUrl } from '../../utils/blogNavigation';
     import { currentLanguage, translations } from '../../stores/contentStore.js';
     import { isLoggedIn } from '../../stores/appStores.js';
     import { get } from 'svelte/store';

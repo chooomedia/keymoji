@@ -2,7 +2,7 @@
 <!-- Wiederverwendbare Komponente für Blog-Post-Meta-Informationen -->
 
 <script>
-    import { formatDate, calculateReadTime } from '../../utils/blogApi.js';
+    import { formatDate, calculateReadTime } from '../../utils/blogApi';
     import { currentLanguage } from '../../stores/contentStore.js';
     
     /**

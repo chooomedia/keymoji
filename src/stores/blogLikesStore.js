@@ -3,7 +3,7 @@
 // Initiales Laden vom Backend, Store Update bei Like mit logischem Fallback
 
 import { writable, derived, get } from 'svelte/store';
-import { fetchBlogPosts, likeBlogPost } from '../utils/blogApi.js';
+import { fetchBlogPosts, likeBlogPost } from '../utils/blogApi';
 
 /**
  * Store für Blog Post Likes
