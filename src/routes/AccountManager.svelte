@@ -1,10 +1,13 @@
-<!-- src/routes/AccountManager.svelte -->
+<!--
+Account manager page component for user authentication and account management.
+Handles magic link login, account creation, settings management, and usage statistics.
+Manages session state, chart data, and user preferences.
+-->
 <script lang="ts">
     import { onMount } from 'svelte';
     import { navigate } from '../utils/routing';
     import { fade, fly, slide } from 'svelte/transition';
     import PageLayoutComponent from '../components/Layout/PageLayout.svelte';
-    // Footer wird automatisch über Layout-Konfiguration gerendert
     import { 
         isLoggedIn, 
         dailyLimit, 
@@ -24,7 +27,6 @@
         hasValidUserSession,
         getUserEmailFromPreferences,
         checkAccountExists,
-        // Sichere Accounting-Funktionen
         secureLoginWithMagicLink,
         secureVerifyMagicLink,
         logAccountingEvent
@@ -41,7 +43,33 @@
     } from '../stores/userSettingsStore';
     import { storageHelpers, STORAGE_KEYS } from '../config/storage';
     import UserSettingsComponent from '../components/UserSettings.svelte';
-    import { isDevelopment } from '../utils/environment';
+    import { isDevelopment, isDebugMode } from '../utils/environment';
+
+    function debugAccountManager() {
+        if (!isDebugMode()) return;
+        console.group('🔍 AccountManager Debug');
+        console.log('State:', {
+            isLoggedIn: get(isLoggedIn),
+            accountTier: get(accountTier),
+            accountExists,
+            hasValidSession,
+            sessionExpired,
+            accountCreationStep,
+            shouldShowSimplifiedView
+        });
+        console.log('Account:', {
+            email: get(currentAccount)?.email,
+            tier: get(accountTier),
+            dailyLimit: get(dailyLimit)
+        });
+        console.log('Chart:', {
+            selectedTimePeriod,
+            chartUsageHistoryLength: chartUsageHistory.length,
+            isLoadingChartData,
+            chartDataError
+        });
+        console.groupEnd();
+    }
     // Feature Components
     import AccountHeaderComponent from '../components/Features/AccountHeader.svelte';
     import DailyLimitChartComponent from '../components/Features/DailyLimitChart.svelte';
@@ -157,29 +185,10 @@
                 canonicalUrl
             );
             injectStructuredData(benefitsStructuredData);
-        } catch (error) {
-            console.warn('⚠️ Failed to inject benefits structured data:', error);
-        }
+        } catch (error) {}
         }
     });
     
-    // Debug: Log when daysSinceCreation changes (Svelte 5 Runes)
-    $effect(() => {
-        if (daysSinceCreation !== undefined) {
-            const currentAccountValue = get(currentAccount);
-            const isLoggedInValue = get(isLoggedIn);
-            console.log('🔄 [AccountManager] daysSinceCreation updated:', {
-                daysSinceCreation,
-                createdAt: currentAccountValue?.createdAt,
-                createdAtType: typeof currentAccountValue?.createdAt,
-                hasCurrentAccount: !!currentAccountValue,
-                isLoggedIn: isLoggedInValue
-            });
-            const t = get(translations);
-            const label = isLoggedInValue ? formatAccountAge(daysSinceCreation, t?.accountManager?.accountAge) : '';
-            console.log('🔄 [AccountManager] accountAgeLabel will be:', label);
-        }
-    });
     
     // Return user view state (Svelte 5 Runes)
     let hasLoggedInBefore = $state(false);
@@ -201,20 +210,7 @@
             return false;
         }
         
-        // Show simplified view only if user hasn't navigated away
         const shouldShow = !!(history && history.email && !loggedIn && !hasNavigatedAway);
-        
-        console.log('🔄 shouldShowSimplifiedView reactive check:', {
-            history: history,
-            loggedIn: loggedIn,
-            hasHistory: !!(history && history.email),
-            shouldShow: shouldShow,
-            showExpandedView: showExpandedView,
-            historyEmail: history?.email,
-            isLoggedIn: loggedIn,
-            hasNavigatedAway: hasNavigatedAway
-        });
-        
         return shouldShow;
     });
     
@@ -290,91 +286,51 @@
         return 0;
     });
     
-    // ROBUST: Watch currentAccount changes and trigger load
-    // This works for BOTH soft reload AND hard reload!
     function watchAccountChanges() {
-        console.log('👀 [CHART] Setting up currentAccount watcher...');
-        
         currentAccount.subscribe(async (account) => {
-            // Only proceed if logged in and account exists
             const isLoggedInValue = get(isLoggedIn);
             if (!account || !isLoggedInValue) {
-                console.log('👀 [CHART WATCH] No account or not logged in, skipping');
                 return;
             }
-            
-            console.log('👀 [CHART WATCH] Account changed, refreshing usage history...');
-            
-            // Use new robust pattern (like userCounter!)
             await refreshUsageHistory();
         });
     }
     
-    // CRITICAL: Setup watcher on mount, cleanup on destroy
     onMount(async () => {
-        console.log('🔄 [CHART] Component mounted, setting up watchers...');
+        debugAccountManager();
         watchAccountChanges();
-        
-        // Initial load (uses cache if valid!)
         const isLoggedInValue = get(isLoggedIn);
         if (isLoggedInValue) {
-            console.log('🔄 [CHART] Initial data load on mount...');
             await refreshUsageHistory();
         }
-    });
     
-    // Reactive: Determine final usage history to display (real or demo) (Svelte 5 Runes)
     let finalUsageHistory = $derived.by(() => {
-        // If we have real data, use it!
         if (chartUsageHistory.length > 0) {
             isDemoDataShown = false;
-            console.log('✅ Using real usage data:', chartUsageHistory.length, 'entries');
             return chartUsageHistory;
         }
-        
-        // If logged in but no data AND not loading, show empty (will show "No Data" message)
-        // Only show demo if explicitly enabled (for testing)
         const isLoggedInValue = get(isLoggedIn);
         if (isLoggedInValue && chartUsageHistory.length === 0 && !isLoadingChartData) {
             isDemoDataShown = false;
-            console.log('📊 Logged in but no usage data available yet');
             return [];
         }
-        
-        // Still loading - return empty to show loading state
         if (isLoggedInValue && isLoadingChartData) {
             isDemoDataShown = false;
-            console.log('⏳ Loading usage data...');
             return [];
         }
-        
-        // Not logged in - empty
         isDemoDataShown = false;
-        console.log('📊 Not logged in, no chart data');
         return [];
     });
     
     // Reactive: Generate chart data from final history (Svelte 5 Runes)
     let finalChartData = $derived(generateChartData(selectedTimePeriod, finalUsageHistory));
     
-    // Reactive: Generate story chart data (second line) (Svelte 5 Runes)
     let finalStoryChartData = $derived.by(() => {
         if (!finalChartData || finalChartData.length === 0) return [];
-        
-        const storyData = finalChartData.map(point => ({
+        return finalChartData.map(point => ({
             date: point.date,
             value: point.storyValue || 0
         }));
-        
-        console.log('📊 [CHART] Generated story chart data:', {
-            length: storyData.length,
-            firstPoint: storyData[0],
-            lastPoint: storyData[storyData.length - 1],
-            nonZeroValues: storyData.filter(p => p.value > 0).length,
-            allValues: storyData.map(p => p.value)
-        });
-        
-        return storyData;
     });
     
     /**
@@ -413,106 +369,46 @@
     // Reactive: Calculate dynamic maxValue based on chart data (Svelte 5 Runes)
     let chartMaxValue = $derived(calculateMaxValue(finalChartData));
     
-    // Debug: Log final state (Svelte 5 Runes)
-    $effect(() => {
-        console.log('📊 [CHART STATE]', {
-            isLoggedIn: get(isLoggedIn),
-            chartUsageHistoryLength: chartUsageHistory.length,
-            finalUsageHistoryLength: finalUsageHistory.length,
-            isDemoDataShown,
-            finalChartDataLength: finalChartData?.length || 0,
-            chartMaxValue,
-            maxDataValue: finalChartData?.length > 0 ? Math.max(...finalChartData.map(p => p.value || 0)) : 0,
-            isLoadingChartData,
-            chartDataError
-        });
-    });
     
-    /**
-     * Handle manual refresh of chart data from backend
-     * NEW: Uses robust userDataStore pattern (like userCounter!)
-     */
     async function handleRefreshChartData() {
-        console.log('🔄 [CHART REFRESH] Manual refresh triggered by user');
-        
         try {
-            // Force refresh (bypass cache!)
             await refreshUsageHistory(true);
-            
+            const t = get(translations);
             if (chartUsageHistory.length > 0) {
-                console.log('✅ [CHART REFRESH] Loaded fresh data:', chartUsageHistory.length, 'entries');
-                const t = get(translations);
                 showSuccess(t?.accountManager?.messages?.chartDataRefreshed || 'Chart data refreshed!', 2000);
             } else {
-                console.warn('⚠️ [CHART REFRESH] No new data available');
                 showInfo(t?.accountManager?.messages?.noNewData || 'No new data available', 2000);
             }
         } catch (error) {
-            console.error('❌ [CHART REFRESH] Failed to refresh:', error);
             const t = get(translations);
             showError(t?.accountManager?.messages?.refreshFailed || 'Failed to refresh data', 2000);
         }
     }
     
-    /**
-     * Retry loading chart data
-     */
     async function retryLoadChartData() {
-        console.log('🔄 Retrying chart data load...');
         await refreshUsageHistory(true);
     }
     
-    /**
-     * Generate chart data for selected time period
-     * @param {string} period - '7d', '14d', '4w', '3m'
-     * @param {Array} history - Usage history array
-     * @returns {Array} Filtered data for chart
-     */
     function generateChartData(period: string, history: Array<{ date: string; used?: number; storyUsed?: number }>) {
-        console.log('📊 [CHART DEBUG] generateChartData() called:', {
-            period,
-            historyLength: history?.length,
-            historyIsArray: Array.isArray(history)
-        });
-        
         const today = new Date();
         const data = [];
-
-    // Determine number of days to show
-    let days = 7;
-    if (period === '14d') days = 14;
-    if (period === '4w') days = 28;
-    if (period === '3m') days = 90; // 3 months (~90 days)
-
-        console.log('📊 [CHART DEBUG] Generating data for', days, 'days');
-
-        // Generate data points for each day (reverse order for chart)
+        let days = 7;
+        if (period === '14d') days = 14;
+        if (period === '4w') days = 28;
+        if (period === '3m') days = 90;
         for (let i = days - 1; i >= 0; i--) {
             const date = new Date(today);
             date.setDate(date.getDate() - i);
             const dateStr = date.toISOString().split('T')[0];
-
-            // Find usage for this date in history
             const historyEntry = history.find(h => h.date === dateStr);
             const value = historyEntry?.used || 0;
             const storyValue = historyEntry?.storyUsed || 0;
-
             data.push({
                 date: dateStr,
                 value: value,
                 storyValue: storyValue
             });
         }
-
-        console.log('📊 [CHART DEBUG] Generated chart data:', {
-            dataPoints: data.length,
-            firstPoint: data[0],
-            lastPoint: data[data.length - 1],
-            nonZeroPoints: data.filter(d => d.value > 0).length,
-            nonZeroStoryPoints: data.filter(d => (d.storyValue || 0) > 0).length,
-            storyValues: data.map(d => ({ date: d.date, storyValue: d.storyValue || 0 }))
-        });
-
         return data;
     }
 
@@ -568,31 +464,19 @@
 
 
     function navigateToHome() {
-        // Mark that user has navigated away from initial load
         hasNavigatedAway = true;
         sessionStorage.setItem('hasNavigatedAway', 'true');
-        console.log('🔄 User navigated away - hasNavigatedAway set to true');
         navigate('/', { replace: true });
     }
     
-    // Return user view functions
     function checkUserLoginHistory() {
         const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
         const loggedIn = isLoggedIn;
-        console.log('🔍 Login history check:', {
-            history: history,
-            loggedIn: loggedIn,
-            hasHistory: !!(history && history.email),
-            shouldShow: !!(history && history.email && !loggedIn)
-        });
-
         if (history && history.email && !loggedIn) {
             hasLoggedInBefore = true;
             email = history.email;
-            console.log('👤 Return user erkannt:', history.email);
         } else {
             hasLoggedInBefore = false;
-            console.log('👤 Kein Return user');
         }
     }
     
@@ -605,7 +489,6 @@
             count: existingHistory.count + 1
         };
         storageHelpers.set(STORAGE_KEYS.LOGIN_HISTORY, history);
-        console.log('✅ Login history gesetzt:', history);
     }
     
     // Intelligent button text based on user state (Svelte 5 Runes)
@@ -736,10 +619,6 @@
         
         // Chart state is handled by userDataStore (no manual reset needed)
         
-        // Keep login history for return user functionality
-        console.log('🔐 Login history preserved for return user functionality');
-        
-        // shouldShowSimplifiedView is now reactive, no need to set it manually
         const t = get(translations);
         showSuccess(t?.accountManager?.messages?.logoutSuccess || 'Successfully logged out', 3000);
         closeContextMenu();
@@ -756,34 +635,15 @@
         checkingAccount = true;
 
         try {
-            // Check if account already exists before creating
-            console.log('🔍 Checking if account already exists...');
             const accountCheck = await checkAccountExists(email, name);
-            
+            const t = get(translations);
             if (accountCheck.exists) {
-                console.log('✅ Account already exists, proceeding with magic link');
-                // Account exists, proceed with magic link
-                const t = get(translations);
                 showInfo(t?.accountManager?.messages?.accountFoundSendingLink || 'Account found! Sending magic link to existing account.', 3000);
             } else {
-                console.log('🆕 No existing account found, will create new account');
-                // Account doesn't exist, will be created during magic link verification
-                const t = get(translations);
                 showInfo(t?.accountManager?.messages?.creatingNewAccount || 'Creating new account and sending magic link.', 3000);
             }
-
-            // Determine if we're in development mode
             const isDevMode = isDevelopment();
-            
-            console.log('🔧 Development mode detected:', isDevMode);
-
-            console.log('🔒 Starting secure magic link login...');
             const loginResult = await secureLoginWithMagicLink(email, name, isDevMode);
-            
-            // Log the API response
-            if (loginResult?.result?.isDevMode !== undefined) {
-                console.log('🔧 Backend dev mode confirmation:', loginResult.result.isDevMode);
-            }
             
             // Log accounting event
             logAccountingEvent('LOGIN_ATTEMPT_SUCCESS', {
@@ -804,11 +664,8 @@
             // Show success message
             const t = get(translations);
             showSuccess(t?.accountManager?.messages?.magicLinkSent || 'Magic link sent! Check your email to complete login.', 5000);
-            
-            // Move to verification step
             accountCreationStep = 'verification';
         } catch (error) {
-            console.error('Login error:', error);
             const t = get(translations);
             showError(t?.accountManager?.messages?.magicLinkSendFailed || 'Failed to send magic link. Please try again.', 5000);
         } finally {
@@ -823,76 +680,21 @@
 
     onMount(async () => {
         try {
-            console.log('🔄 AccountManager: Component mounted');
-            
-            // Initialize account from cookies
-            console.log('🔐 AccountManager: Initializing account from cookies...');
             const accountRestored = await initializeAccountFromCookies();
-            console.log('🔐 AccountManager: Account restoration result:', accountRestored);
-            
-            // REMOVED: Daily limit initialization (now handled centrally by dailyUsageStore.js in LanguageRouter)
-            // The dailyLimit store is now managed by initializeDailyUsage() which runs on app start
-            console.log('✅ AccountManager: Using centralized daily usage tracking');
-            console.log('📊 Current daily limits:', $dailyLimit);
-            
-            // Chart loading is handled by watchAccountChanges() and onMount refreshUsageHistory()
-            // No manual forcing needed with new robust pattern!
-            
-            // Check for magic link verification - this works for both direct URL access and new tabs
             const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token') || urlParams.get('t'); // Support both long and short parameter
-            const magicLinkEmail = urlParams.get('email') || urlParams.get('e'); // Support both long and short parameter
+            const token = urlParams.get('token') || urlParams.get('t');
+            const magicLinkEmail = urlParams.get('email') || urlParams.get('e');
             const isDevMode = urlParams.get('dev') === 'true';
             
-            // Debug: Log all URL parameters
-            console.log('🔍 All URL parameters:', {
-                search: window.location.search,
-                href: window.location.href,
-                pathname: window.location.pathname,
-                hash: window.location.hash
-            });
-            
-            // Debug: Log all search params
-            for (const [key, value] of urlParams.entries()) {
-                console.log(`🔍 URL param: ${key} = ${value}`);
-            }
-            
-            console.log('🔍 URL Parameters check:', {
-                search: window.location.search,
-                token: token,
-                email: magicLinkEmail,
-                isDevMode: isDevMode,
-                pathname: window.location.pathname
-            });
-            
-            // Handle magic link with language prefix redirect
             if (token && magicLinkEmail) {
-                console.log('🔗 Magic link verification detected:', { token, email: magicLinkEmail, isDevMode });
-                
-                // Check if user is already logged in with the same email
                 const currentLoggedIn = isLoggedIn;
                 const currentAccountEmail = currentAccount?.email;
                 const isAlreadyLoggedIn = currentLoggedIn && currentAccountEmail === magicLinkEmail;
-                
-                console.log('🔍 Login status check:', {
-                    currentLoggedIn,
-                    currentAccountEmail,
-                    magicLinkEmail,
-                    isAlreadyLoggedIn
-                });
-                
-                // If already logged in with same email, just refresh session and clean URL
                 if (isAlreadyLoggedIn) {
-                    console.log('✅ User already logged in with same email, refreshing session...');
                     magicLinkStatus = 'success';
-                    
-                    // Mark successful login for return user tracking
                     markSuccessfulLogin(magicLinkEmail);
-                    
-                    // Clean up URL parameters but keep the account page
                     const newUrl = window.location.pathname;
                     window.history.replaceState({}, '', newUrl);
-                    console.log('🧹 URL parameters cleaned up:', newUrl);
                     
                     // Refresh session status
                     checkSessionStatus();
@@ -903,81 +705,45 @@
                     return; // Exit early, no need to verify again
                 }
                 
-                // Check if we're on a language-prefixed route (e.g., /de/account)
                 const currentPath = window.location.pathname;
                 const pathSegments = currentPath.split('/').filter(segment => segment !== '');
                 const hasLanguagePrefix = pathSegments.length > 1 && pathSegments[0] && pathSegments[1] === 'account';
-                
-                console.log('🔍 Route analysis:', {
-                    currentPath: currentPath,
-                    pathSegments: pathSegments,
-                    hasLanguagePrefix: hasLanguagePrefix,
-                    currentLanguage: currentLanguage
-                });
-                
-                // If we're on /account (without language prefix), redirect to /de/account (or current language)
                 if (currentPath === '/account') {
                     const currentLang = currentLanguage;
                     const redirectPath = `/${currentLang}/account?t=${token}&e=${magicLinkEmail}${isDevMode ? '&dev=true' : ''}`;
-                    console.log('🔄 Redirecting magic link to language-prefixed route:', redirectPath);
                     navigate(redirectPath, { replace: true });
-                    return; // Exit early, let the redirect handle the verification
+                    return;
                 }
-                
-                // If we're already on a language-prefixed route, proceed with verification
                 if (hasLanguagePrefix || currentPath === '/account') {
-                    console.log('✅ Proceeding with magic link verification');
                     isVerifyingMagicLink = true;
                     magicLinkStatus = 'verifying';
-                    
                     try {
-                        console.log('🔒 Starting secure magic link verification...');
                         await secureVerifyMagicLink(token, magicLinkEmail);
                         magicLinkStatus = 'success';
                         const t = get(translations);
                         showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 3000);
-                        
-                        // Mark successful login for return user tracking (only on successful verification)
                         markSuccessfulLogin(magicLinkEmail);
-                        
-                        // Clean up URL parameters but keep the account page
                         const newUrl = window.location.pathname;
                         window.history.replaceState({}, '', newUrl);
-                        console.log('🧹 URL parameters cleaned up:', newUrl);
-                        
-                        // Update the account view to show logged-in state
                         checkSessionStatus();
-                        
                     } catch (error) {
-                        console.error('❌ Magic link verification failed:', error);
                         magicLinkStatus = 'error';
                         magicLinkError = error.message || 'Verification failed';
-                        
-                        // Check if error is due to already logged in or account exists
                         const errorMessage = error.message || '';
                         if (errorMessage.includes('already') || errorMessage.includes('exists') || errorMessage.includes('logged in')) {
-                            // User is already logged in or account exists - treat as success
-                            console.log('⚠️ Account already exists or user already logged in, treating as success');
                             magicLinkStatus = 'success';
                             magicLinkError = '';
-                            
-                            // Refresh session
                             checkSessionStatus();
                             const t = get(translations);
                             showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
                         } else {
-                            // Real error - show error message
-                        const t = get(translations);
-                        showError(t?.accountManager?.messages?.magicLinkVerificationFailed || 'Magic link verification failed', 5000);
+                            const t = get(translations);
+                            showError(t?.accountManager?.messages?.magicLinkVerificationFailed || 'Magic link verification failed', 5000);
                         }
                     } finally {
                         isVerifyingMagicLink = false;
                     }
-                } else {
-                    console.log('❌ Invalid route for magic link verification:', currentPath);
                 }
-            } else {
-                console.log('🔍 No magic link parameters found in URL');
             }
             
             // Check session status
@@ -986,35 +752,16 @@
             // Initialize user login history for return user view
             checkUserLoginHistory();
             
-            // Pre-fill email from login history if available
             const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
             if (history && history.email && !isLoggedIn) {
                 email = history.email;
-                console.log('👤 Pre-filled email from login history:', history.email);
             }
-            
-            // Force initial reactive update
             shouldShowSimplifiedView = !!(history && history.email && !get(isLoggedIn) && !hasNavigatedAway);
-            
-            // Initialize accountCreationStep based on user state
             if (shouldShowSimplifiedView) {
-                accountCreationStep = null; // Show simplified view
+                accountCreationStep = null;
             } else {
-                accountCreationStep = 'benefits'; // Show benefits view
+                accountCreationStep = 'benefits';
             }
-            
-            // hasNavigatedAway remains false on initial load
-            console.log('🔄 Initial load - hasNavigatedAway remains false');
-            
-            // Debug: Log initial state
-            console.log('🔍 Initial AccountManager state:', {
-                shouldShowSimplifiedView: shouldShowSimplifiedView,
-                isLoggedIn: isLoggedIn,
-                history: history,
-                email: email,
-                showExpandedView: showExpandedView,
-                accountCreationStep: accountCreationStep
-            });
             
             // Initialize with current account data if available
             const currentAccountValue = get(currentAccount);
@@ -1029,10 +776,7 @@
             return () => {
                 document.removeEventListener('click', handleClickOutside);
             };
-            
-        } catch (error) {
-            console.error('❌ AccountManager onMount error:', error);
-        }
+        } catch (error) {}
     });
 
     // Reactive statement to show error as modal
@@ -1049,37 +793,13 @@
     // dailyLimit is now ONLY managed by dailyUsageStore.js - DO NOT SET IT HERE!
     // Old code read from STORAGE_KEYS.DAILY_REQUEST_COUNT which is deprecated
     
-    // For debugging, just log when user state changes (Svelte 5 Runes)
-    $effect(() => {
-        const isLoggedInValue = get(isLoggedIn);
-        const accountTierValue = get(accountTier);
-        const dailyLimitValue = get(dailyLimit);
-        if (isLoggedInValue !== undefined && accountTierValue !== undefined) {
-            console.log('🔄 AccountManager: User state changed:', {
-                isLoggedIn: isLoggedInValue,
-                accountTier: accountTierValue,
-                dailyLimit: dailyLimitValue
-            });
-        }
-    });
 
-    // Check if user has a valid session
     function checkSessionStatus() {
         const account = currentAccount;
         const loggedIn = isLoggedIn;
-        
-        // Check localStorage-based session first
         const hasExistingPrefs = hasExistingUserPreferences();
         const localStorageValidSession = hasValidUserSession();
         const userEmailFromPrefs = getUserEmailFromPreferences();
-        
-        console.log('🔍 Session status check:', {
-            hasExistingPrefs,
-            localStorageValidSession,
-            userEmailFromPrefs,
-            currentAccount: account,
-            isLoggedIn: loggedIn
-        });
         
         if (hasExistingPrefs && localStorageValidSession && userEmailFromPrefs) {
             hasValidSession = true;
@@ -1141,21 +861,9 @@
         return t?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
     });
 
-    // Context menu actions
-    function handleExport() {
-        // Export functionality
-        console.log('Export clicked');
-    }
-
-    function handleImport() {
-        // Import functionality
-        console.log('Import clicked');
-    }
-
-    function handleReset() {
-        // Reset functionality
-        console.log('Reset clicked');
-    }
+    function handleExport() {}
+    function handleImport() {}
+    function handleReset() {}
 
     // Reaktive SEO Meta-Tags (Svelte 5 Runes)
     let seoTitle = $derived.by(() => {
