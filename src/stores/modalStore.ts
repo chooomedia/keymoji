@@ -1,7 +1,4 @@
-// src/stores/modalStore.js
-import { writable, get } from 'svelte/store';
-import { isDevelopment, devLog } from '../utils/environment';
-
+// src/stores/modalStore.ts
 /**
  * Enhanced Modal-System mit pausierbaren async Funktionen (Apple/Airbnb UX-Style)
  * - Einheitliche Notification-Verwaltung
@@ -9,36 +6,136 @@ import { isDevelopment, devLog } from '../utils/environment';
  * - Smooth UX mit Context Management
  * - Event Bubbling Support
  * - Debugging und Logging
+ *
+ * TypeScript Migration: v0.7.7
  */
 
+import { writable, get, type Writable } from 'svelte/store';
+import { isDevelopment, devLog } from '../utils/environment';
+
+// Type definitions
+export type ModalType = 'info' | 'success' | 'error' | 'warning' | 'sending' | 'contact' | 'pro-feature';
+
+export interface ModalData {
+    icon?: string;
+    title?: string;
+    message?: string;
+    content?: {
+        title?: string;
+        description?: string;
+        html?: string;
+    };
+    buttons?: Array<{
+        text: string;
+        action: () => void;
+    }>;
+    primaryButton?: {
+        text: string;
+        action: () => void;
+    };
+    secondaryButton?: {
+        text: string;
+        action: () => void;
+    };
+    onClose?: () => void;
+    duration?: number | null;
+    email?: string;
+    name?: string;
+    showSpinner?: boolean;
+    progress?: number;
+    error?: string;
+    action?: string;
+    [key: string]: unknown;
+}
+
+export interface ModalOptions {
+    pauseAsyncOperations?: boolean;
+    smoothTransition?: boolean;
+    hapticFeedback?: boolean;
+    preventBodyScroll?: boolean;
+    [key: string]: unknown;
+}
+
+export interface ModalEntry {
+    id: number;
+    message: string;
+    type: ModalType;
+    duration: number | null;
+    data: ModalData;
+    priority: number;
+    options: ModalOptions;
+    timestamp: string;
+}
+
+export interface ModalContent {
+    title?: string;
+    description?: string;
+    html?: string;
+}
+
+export interface ModalStatus {
+    message: string;
+    isVisible: boolean;
+    type: ModalType;
+    data: ModalData;
+    hasTimeout: boolean;
+    queueLength: number;
+    isProcessingQueue: boolean;
+    currentModalId: number | null;
+}
+
+export interface ConfirmationOptions {
+    confirmText?: string;
+    cancelText?: string;
+    type?: ModalType;
+    icon?: string;
+    onConfirm?: () => void;
+    onCancel?: () => void;
+}
+
+export interface InfoModalOptions {
+    icon?: string;
+    buttons?: Array<{
+        text: string;
+        action: () => void;
+    }>;
+    onClose?: () => void;
+}
+
+export interface OperationInfo {
+    name: string;
+    startTime: number;
+    status: 'running' | 'completed' | 'error';
+}
+
 // Hauptstores für die Modal-Anzeige
-export const modalMessage = writable('');
-export const isModalVisible = writable(false);
-export const modalType = writable('info'); // 'info', 'success', 'error', 'warning', 'sending', 'contact'
-export const modalData = writable({});
+export const modalMessage: Writable<string> = writable('');
+export const isModalVisible: Writable<boolean> = writable(false);
+export const modalType: Writable<ModalType> = writable('info');
+export const modalData: Writable<ModalData> = writable({});
 
 // Enhanced Stores für async Operations
-export const isAsyncOperationPaused = writable(false);
-export const pausedOperations = writable([]);
+export const isAsyncOperationPaused: Writable<boolean> = writable(false);
+export const pausedOperations: Writable<unknown[]> = writable([]);
 
 // Context Manager für pausierbare Operationen
-let pausedCallbacks = new Map();
-let activeOperations = new Map();
+const pausedCallbacks = new Map<number, () => void>();
+const activeOperations = new Map<number, OperationInfo>();
 let operationIdCounter = 0;
 
 // Timeout-Verwaltung
-let modalTimeout = null;
-let modalHistory = [];
+let modalTimeout: ReturnType<typeof setTimeout> | null = null;
+let modalHistory: ModalEntry[] = [];
 let isInitialized = false;
 
 // Modal Queue System für bessere UX
-let modalQueue = [];
+let modalQueue: ModalEntry[] = [];
 let isProcessingQueue = false;
-let currentModalId = null;
+let currentModalId: number | null = null;
 let modalIdCounter = 0;
 
 // Modal Prioritäten (Apple/Airbnb inspiriert)
-const MODAL_PRIORITIES = {
+const MODAL_PRIORITIES: Record<ModalType, number> = {
     error: 1, // Höchste Priorität - sofortige Aufmerksamkeit
     warning: 2, // Hohe Priorität - wichtige Warnungen
     sending: 3, // Mittlere Priorität - Ladezustände
@@ -51,7 +148,7 @@ const MODAL_PRIORITIES = {
 /**
  * Debug-Logging für Modal-Aktionen
  */
-function debugLog(action, data = {}) {
+function debugLog(action: string, data: Record<string, unknown> = {}): void {
     if (isDevelopment()) {
         devLog(`🔔 Modal ${action}:`, {
             timestamp: new Date().toISOString(),
@@ -65,7 +162,10 @@ function debugLog(action, data = {}) {
  * Pausiert async Operationen elegant während Modal-Anzeige
  */
 export class AsyncOperationManager {
-    static async executeWithPause(operation, operationName = 'unknown') {
+    static async executeWithPause<T>(
+        operation: () => Promise<T>,
+        operationName: string = 'unknown'
+    ): Promise<T> {
         const operationId = ++operationIdCounter;
 
         try {
@@ -90,16 +190,17 @@ export class AsyncOperationManager {
             return result;
         } catch (error) {
             activeOperations.delete(operationId);
+            const err = error as Error;
             debugLog('ASYNC_ERROR', {
                 operationId,
                 operationName,
-                error: error.message
+                error: err.message
             });
             throw error;
         }
     }
 
-    static async waitForModalClear() {
+    static async waitForModalClear(): Promise<void> {
         return new Promise(resolve => {
             const checkModal = () => {
                 if (!get(isModalVisible)) {
@@ -113,17 +214,17 @@ export class AsyncOperationManager {
         });
     }
 
-    static pauseAll() {
+    static pauseAll(): void {
         isAsyncOperationPaused.set(true);
         debugLog('ASYNC_PAUSE_ALL');
     }
 
-    static resumeAll() {
+    static resumeAll(): void {
         isAsyncOperationPaused.set(false);
         debugLog('ASYNC_RESUME_ALL');
     }
 
-    static getActiveOperations() {
+    static getActiveOperations(): OperationInfo[] {
         return Array.from(activeOperations.values());
     }
 }
@@ -131,7 +232,7 @@ export class AsyncOperationManager {
 /**
  * Initialisiert das Modal-System smooth
  */
-function initializeModalSystem() {
+function initializeModalSystem(): void {
     if (isInitialized) return;
 
     // Stelle sicher, dass alle Stores im korrekten Zustand sind
@@ -154,19 +255,20 @@ function initializeModalSystem() {
 
 /**
  * Enhanced Modal Display mit pausierbaren async Operations
- * @param {string} message - Der anzuzeigende Text
- * @param {string} type - Typ der Nachricht
- * @param {number} duration - Anzeigedauer in ms, null für manuelle Schließung
- * @param {object} data - Zusätzliche Daten
- * @param {object} options - Erweiterte Optionen für UX
+ * @param message - Der anzuzeigende Text
+ * @param type - Typ der Nachricht
+ * @param duration - Anzeigedauer in ms, null für manuelle Schließung
+ * @param data - Zusätzliche Daten
+ * @param options - Erweiterte Optionen für UX
+ * @returns Funktion zum manuellen Schließen oder null
  */
 export function showModal(
-    message,
-    type = 'info',
-    duration = 4000,
-    data = {},
-    options = {}
-) {
+    message: string,
+    type: ModalType = 'info',
+    duration: number | null = 4000,
+    data: ModalData = {},
+    options: ModalOptions = {}
+): (() => void) | null {
     // Stelle sicher, dass das System initialisiert ist
     if (!isInitialized) {
         initializeModalSystem();
@@ -195,7 +297,7 @@ export function showModal(
     }
 
     // Enhanced Options (Apple/Airbnb Style)
-    const enhancedOptions = {
+    const enhancedOptions: ModalOptions = {
         pauseAsyncOperations: true,
         smoothTransition: true,
         hapticFeedback: false, // für mobile devices
@@ -207,7 +309,7 @@ export function showModal(
     const modalId = ++modalIdCounter;
     const priority = MODAL_PRIORITIES[type] || MODAL_PRIORITIES.info;
 
-    const modalEntry = {
+    const modalEntry: ModalEntry = {
         id: modalId,
         message,
         type,
@@ -244,7 +346,7 @@ export function showModal(
 /**
  * Enhanced Queue Processing mit UX-Optimierungen
  */
-function processModalQueue() {
+function processModalQueue(): void {
     if (isProcessingQueue || modalQueue.length === 0) {
         return;
     }
@@ -253,6 +355,11 @@ function processModalQueue() {
 
     // Nimm das nächste Modal aus der Queue
     const nextModal = modalQueue.shift();
+    if (!nextModal) {
+        isProcessingQueue = false;
+        return;
+    }
+    
     currentModalId = nextModal.id;
 
     // Bestehenden Timeout löschen
@@ -276,7 +383,7 @@ function processModalQueue() {
     }
 
     // Body scroll prevention (Apple Style)
-    if (nextModal.options?.preventBodyScroll) {
+    if (typeof document !== 'undefined' && nextModal.options?.preventBodyScroll) {
         document.body.style.overflow = 'hidden';
     }
 
@@ -298,7 +405,7 @@ function processModalQueue() {
 /**
  * Schließt ein spezifisches Modal anhand der ID
  */
-function closeModalById(modalId) {
+function closeModalById(modalId: number): void {
     // Entferne Modal aus der Queue, falls es noch dort ist
     modalQueue = modalQueue.filter(modal => modal.id !== modalId);
 
@@ -311,7 +418,7 @@ function closeModalById(modalId) {
 /**
  * Enhanced Modal Close mit UX-Optimierungen
  */
-export function closeModal() {
+export function closeModal(): void {
     debugLog('CLOSE', {
         currentMessage: get(modalMessage),
         currentType: get(modalType)
@@ -328,7 +435,9 @@ export function closeModal() {
     }
 
     // Restore body scroll (Apple Style)
-    document.body.style.overflow = '';
+    if (typeof document !== 'undefined') {
+        document.body.style.overflow = '';
+    }
 
     // Resume async operations
     AsyncOperationManager.resumeAll();
@@ -348,7 +457,7 @@ export function closeModal() {
 /**
  * Erfolgs-Nachricht anzeigen
  */
-export function showSuccess(message, duration = 5000, data = {}) {
+export function showSuccess(message: string, duration: number = 5000, data: ModalData = {}): (() => void) | null {
     // Vermeide Duplikate von Erfolgs-Nachrichten
     if (
         isModalInQueue(message, 'success') ||
@@ -365,7 +474,7 @@ export function showSuccess(message, duration = 5000, data = {}) {
 /**
  * Fehler-Nachricht anzeigen
  */
-export function showError(message, duration = null, data = {}) {
+export function showError(message: string, duration: number | null = null, data: ModalData = {}): (() => void) | null {
     // Fehler-Nachrichten haben höchste Priorität, keine Duplikat-Prüfung
     return showModal(message, 'error', duration, data);
 }
@@ -373,7 +482,7 @@ export function showError(message, duration = null, data = {}) {
 /**
  * Warn-Nachricht anzeigen
  */
-export function showWarning(message, duration = 8000, data = {}) {
+export function showWarning(message: string, duration: number = 8000, data: ModalData = {}): (() => void) | null {
     // Vermeide Duplikate von Warn-Nachrichten
     if (
         isModalInQueue(message, 'warning') ||
@@ -390,7 +499,7 @@ export function showWarning(message, duration = 8000, data = {}) {
 /**
  * "Wird gesendet"-Nachricht anzeigen
  */
-export function showSending(message = 'Sending...', data = {}) {
+export function showSending(message: string = 'Sending...', data: ModalData = {}): (() => void) | null {
     // Sending-Nachrichten können dupliziert werden (für verschiedene Prozesse)
     return showModal(message, 'sending', null, data);
 }
@@ -398,7 +507,7 @@ export function showSending(message = 'Sending...', data = {}) {
 /**
  * Magic Link wird gesendet
  */
-export function showMagicLinkSending(email) {
+export function showMagicLinkSending(email: string): (() => void) | null {
     return showModal(`Sending magic link to ${email}...`, 'sending', null, {
         email,
         showSpinner: true,
@@ -409,7 +518,7 @@ export function showMagicLinkSending(email) {
 /**
  * Magic Link wurde gesendet
  */
-export function showMagicLinkSent(email) {
+export function showMagicLinkSent(email: string): (() => void) | null {
     return showModal(
         `Magic link sent to ${email}! Check your inbox and click the link to verify your account.`,
         'success',
@@ -425,7 +534,7 @@ export function showMagicLinkSent(email) {
 /**
  * Magic Link Verifikation läuft
  */
-export function showMagicLinkVerifying(email) {
+export function showMagicLinkVerifying(email: string): (() => void) | null {
     return showModal(`Verifying your magic link...`, 'sending', null, {
         email,
         showSpinner: true,
@@ -436,7 +545,7 @@ export function showMagicLinkVerifying(email) {
 /**
  * Magic Link Verifikation erfolgreich
  */
-export function showMagicLinkVerified(email, name) {
+export function showMagicLinkVerified(email: string, name?: string): (() => void) | null {
     // Smart name fallback
     const displayName = name || (email ? email.split('@')[0] : 'there');
 
@@ -456,7 +565,7 @@ export function showMagicLinkVerified(email, name) {
 /**
  * Magic Link Verifikation fehlgeschlagen
  */
-export function showMagicLinkVerificationFailed(error) {
+export function showMagicLinkVerificationFailed(error: string): (() => void) | null {
     return showModal(
         `Verification failed: ${error}. Please try again.`,
         'error',
@@ -472,7 +581,7 @@ export function showMagicLinkVerificationFailed(error) {
 /**
  * Account Login erfolgreich
  */
-export function showAccountLoginSuccess(name, email = null) {
+export function showAccountLoginSuccess(name?: string, email: string | null = null): (() => void) | null {
     // Smart name fallback
     const displayName = name || (email ? email.split('@')[0] : 'there');
 
@@ -491,7 +600,7 @@ export function showAccountLoginSuccess(name, email = null) {
 /**
  * Account Logout erfolgreich
  */
-export function showAccountLogoutSuccess() {
+export function showAccountLogoutSuccess(): void {
     showModal('Successfully logged out! 👋', 'success', 3000, {
         icon: '🚪',
         action: 'logout'
@@ -499,7 +608,7 @@ export function showAccountLogoutSuccess() {
 }
 
 // Show existing account found modal
-export function showExistingAccountFound(email, name) {
+export function showExistingAccountFound(email: string, name?: string): void {
     // Use email username as fallback if name is undefined
     const displayName = name || email?.split('@')[0] || 'User';
 
@@ -540,7 +649,7 @@ export function showExistingAccountFound(email, name) {
 }
 
 // Show new account created modal
-export function showNewAccountCreated(email, name) {
+export function showNewAccountCreated(email: string, name?: string): void {
     // Use email username as fallback if name is undefined
     const displayName = name || email?.split('@')[0] || 'User';
 
@@ -583,14 +692,14 @@ export function showNewAccountCreated(email, name) {
 /**
  * Info-Nachricht anzeigen
  */
-export function showInfo(message, duration = 4000, data = {}) {
+export function showInfo(message: string, duration: number = 4000, data: ModalData = {}): (() => void) | null {
     return showModal(message, 'info', duration, data);
 }
 
 /**
  * Kontakt-Nachricht anzeigen
  */
-export function showContact(message, duration = 6000, data = {}) {
+export function showContact(message: string, duration: number = 6000, data: ModalData = {}): (() => void) | null {
     return showModal(message, 'contact', duration, data);
 }
 
@@ -601,7 +710,16 @@ export function showContact(message, duration = 6000, data = {}) {
 /**
  * Zeigt ein Modal mit Header, Body und Footer an
  */
-export function showModalWithContent(content, options = {}) {
+export function showModalWithContent(content: ModalContent, options: {
+    title?: string;
+    icon?: string;
+    type?: ModalType;
+    duration?: number | null;
+    buttons?: Array<{ text: string; action: () => void }>;
+    primaryButton?: { text: string; action: () => void };
+    secondaryButton?: { text: string; action: () => void };
+    onClose?: () => void;
+} = {}): (() => void) | null {
     const {
         title = 'Information',
         icon = 'ℹ️',
@@ -613,7 +731,7 @@ export function showModalWithContent(content, options = {}) {
         onClose = null
     } = options;
 
-    const modalData = {
+    const modalData: ModalData = {
         title,
         icon,
         content: {
@@ -622,8 +740,8 @@ export function showModalWithContent(content, options = {}) {
             html: content.html
         },
         buttons,
-        primaryButton,
-        secondaryButton,
+        primaryButton: primaryButton || undefined,
+        secondaryButton: secondaryButton || undefined,
         onClose,
         duration
     };
@@ -638,7 +756,7 @@ export function showModalWithContent(content, options = {}) {
 /**
  * Zeigt ein Bestätigungs-Modal an
  */
-export function showConfirmation(title, message, options = {}) {
+export function showConfirmation(title: string, message: string, options: ConfirmationOptions = {}): (() => void) | null {
     const {
         confirmText = 'Bestätigen',
         cancelText = 'Abbrechen',
@@ -648,7 +766,7 @@ export function showConfirmation(title, message, options = {}) {
         onCancel = null
     } = options;
 
-    const modalData = {
+    const modalData: ModalData = {
         title,
         icon,
         content: {
@@ -676,10 +794,10 @@ export function showConfirmation(title, message, options = {}) {
 /**
  * Zeigt ein Informations-Modal an
  */
-export function showInfoModal(title, message, options = {}) {
+export function showInfoModal(title: string, message: string, options: InfoModalOptions = {}): (() => void) | null {
     const { icon = 'ℹ️', buttons = [], onClose = null } = options;
 
-    const modalData = {
+    const modalData: ModalData = {
         title,
         icon,
         content: {
@@ -695,10 +813,10 @@ export function showInfoModal(title, message, options = {}) {
 /**
  * Zeigt ein Erfolgs-Modal an
  */
-export function showSuccessModal(title, message, options = {}) {
+export function showSuccessModal(title: string, message: string, options: InfoModalOptions = {}): (() => void) | null {
     const { icon = '✅', buttons = [], onClose = null } = options;
 
-    const modalData = {
+    const modalData: ModalData = {
         title,
         icon,
         content: {
@@ -714,10 +832,10 @@ export function showSuccessModal(title, message, options = {}) {
 /**
  * Zeigt ein Fehler-Modal an
  */
-export function showErrorModal(title, message, options = {}) {
+export function showErrorModal(title: string, message: string, options: InfoModalOptions = {}): (() => void) | null {
     const { icon = '❌', buttons = [], onClose = null } = options;
 
-    const modalData = {
+    const modalData: ModalData = {
         title,
         icon,
         content: {
@@ -733,7 +851,7 @@ export function showErrorModal(title, message, options = {}) {
 /**
  * Debug-Funktion: Zeigt Modal-Historie an
  */
-export function getModalHistory() {
+export function getModalHistory(): ModalEntry[] {
     if (isDevelopment()) {
         console.log('📋 Modal History:', modalHistory);
         return modalHistory;
@@ -744,7 +862,7 @@ export function getModalHistory() {
 /**
  * Debug-Funktion: Zeigt aktuellen Modal-Status an
  */
-export function getModalStatus() {
+export function getModalStatus(): ModalStatus {
     return {
         message: get(modalMessage),
         isVisible: get(isModalVisible),
@@ -760,7 +878,7 @@ export function getModalStatus() {
 /**
  * Löscht alle Modals aus der Queue
  */
-export function clearModalQueue() {
+export function clearModalQueue(): void {
     modalQueue = [];
     debugLog('CLEAR_QUEUE');
 }
@@ -768,7 +886,13 @@ export function clearModalQueue() {
 /**
  * Zeigt die aktuelle Modal-Queue an
  */
-export function getModalQueue() {
+export function getModalQueue(): Array<{
+    id: number;
+    message: string;
+    type: ModalType;
+    priority: number;
+    timestamp: string;
+}> {
     return modalQueue.map(modal => ({
         id: modal.id,
         message: modal.message,
@@ -781,7 +905,7 @@ export function getModalQueue() {
 /**
  * Prüft, ob ein Modal mit bestimmter Nachricht bereits in der Queue ist
  */
-export function isModalInQueue(message, type = null) {
+export function isModalInQueue(message: string, type: ModalType | null = null): boolean {
     return modalQueue.some(
         modal =>
             modal.message === message && (type === null || modal.type === type)
@@ -791,7 +915,7 @@ export function isModalInQueue(message, type = null) {
 /**
  * Debug-Funktion: Löscht Modal-Historie
  */
-export function clearModalHistory() {
+export function clearModalHistory(): void {
     modalHistory = [];
     debugLog('CLEAR_HISTORY');
 }
@@ -814,3 +938,4 @@ export default {
     getModalStatus,
     clearModalHistory
 };
+

@@ -1,7 +1,7 @@
 <!-- src/components/ServiceWorkerHandler.svelte -->
 <script>
     import { onMount, onDestroy } from 'svelte';
-    import { showInfo } from '../stores/modalStore.js';
+    import { showInfo } from '../stores/modalStore';
     import { translations } from '../stores/contentStore.js';
     import { isDebugMode } from '../utils/environment';
     import { safeSetTimeout, clearAllTimeouts } from '../utils/sharedHelpers';

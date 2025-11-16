@@ -20,7 +20,7 @@
     import ModularInput from './UI/ModularInput.svelte';
     import Button from './UI/Button.svelte';
     import Modal from './UI/Modal.svelte';
-    import { showSuccess, showError, showWarning, showModal } from '../stores/modalStore.js';
+    import { showSuccess, showError, showWarning, showModal } from '../stores/modalStore';
     import { testAIProvider, getProviderInfo } from '../utils/storyModeAI';
 
     // Load settings configuration
