@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import { fade, scale } from 'svelte/transition';
-    import { currentLanguage } from '../../stores/contentStore.ts';
+    import { currentLanguage } from '../../stores/contentStore';
     import { logout } from '../../stores/accountStore';
 
     const dispatch = createEventDispatcher();

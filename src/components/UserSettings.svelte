@@ -2,7 +2,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { fade, slide } from 'svelte/transition';
-    import { currentLanguage, translations } from '../stores/contentStore.ts';
+    import { currentLanguage, translations } from '../stores/contentStore';
     import { accountTier, currentAccount, darkMode } from '../stores/appStores';
     import { 
         userSettings, 
@@ -19,7 +19,7 @@
     import ModularInput from './UI/ModularInput.svelte';
     import Button from './UI/Button.svelte';
     import Modal from './UI/Modal.svelte';
-    import { showSuccess, showError, showWarning, showModal } from '../stores/modalStore.ts';
+    import { showSuccess, showError, showWarning, showModal } from '../stores/modalStore';
     import { testAIProvider, getProviderInfo } from '../utils/storyModeAI';
 
     // Load settings configuration

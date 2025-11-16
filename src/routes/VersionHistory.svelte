@@ -4,9 +4,9 @@
     import { fly, slide } from 'svelte/transition';
     import { versions } from '../data/versions';
     import { updateSeo } from '../stores/seoStore';
-    import { currentLanguage, translations } from '../stores/contentStore.ts';
+    import { currentLanguage, translations } from '../stores/contentStore';
     import { get } from 'svelte/store';
-    import { navigate } from '../utils/routing.ts';
+    import { navigate } from '../utils/routing';
     import PageLayout from '../components/Layout/PageLayout.svelte';
     import { versionInfo, appVersion } from '../utils/version';
 

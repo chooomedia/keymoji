@@ -10,15 +10,16 @@
     // Assign to variables for template use (helps Webpack resolve)
     const Router = RouterComponent;
     const Route = RouteComponent;
-    import { navigate } from '../utils/routing.ts';
-    import { changeLanguage, currentLanguage } from '../stores/contentStore.ts';
+    import { navigate } from '../utils/routing';
+    import { changeLanguage, currentLanguage } from '../stores/contentStore';
     import { closeModal, isModalVisible } from '../stores/modalStore';
     import { devLog } from '../utils/environment';
-    import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore.ts';
+    import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore';
     import { appVersion } from '../utils/version';
     import { getSupportedLanguageCodes } from '../utils/languages';
     
     // PERFORMANCE: Lazy Loading für Routes (Code Splitting)
+    // Svelte 5 Best Practice: Verwende $state für reaktive Komponenten-Referenzen
     // SvelteKit Pattern: Verwende +page.svelte Komponenten die bereits Layout haben
     let RootPage = $state<any>(null);
     let ContactPage = $state<any>(null);
@@ -30,22 +31,19 @@
     let LegalPage = $state<any>(null);
     let ErrorPage = $state<any>(null);
     let routesLoaded = $state(false);
+    let loadingError = $state<Error | null>(null);
     
-    // Lazy Load Page Components (SvelteKit Pattern)
-    async function loadRoutes() {
+    // Lazy Load Page Components (Svelte 5 Best Practice)
+    // Gemäß Svelte Docs: Dynamische Imports mit Error Handling und Loading States
+    async function loadRoutes(): Promise<void> {
         if (routesLoaded) return;
+        
         try {
-            const [
-                RootPageModule,
-                ContactPageModule,
-                AccountPageModule,
-                VersionsPageModule,
-                BlogPageModule,
-                BlogPostPageModule,
-                PrivacyPageModule,
-                LegalPageModule,
-                ErrorPageModule
-            ] = await Promise.all([
+            devLog('🔄 LanguageRouter: Loading routes...');
+            
+            // Svelte 5 Best Practice: Dynamische Imports mit expliziten Pfaden
+            // Webpack erkennt diese als Code-Splitting-Punkte
+            const routeImports = await Promise.allSettled([
                 import('./+page.svelte'),
                 import('./contact/+page.svelte'),
                 import('./account/+page.svelte'),
@@ -57,18 +55,56 @@
                 import('./+error.svelte')
             ]);
             
-            RootPage = RootPageModule.default;
-            ContactPage = ContactPageModule.default;
-            AccountPage = AccountPageModule.default;
-            VersionsPage = VersionsPageModule.default;
-            BlogPage = BlogPageModule.default;
-            BlogPostPage = BlogPostPageModule.default;
-            PrivacyPage = PrivacyPageModule.default;
-            LegalPage = LegalPageModule.default;
-            ErrorPage = ErrorPageModule.default;
+            // Prüfe auf Fehler beim Laden
+            const errors: string[] = [];
+            routeImports.forEach((result, index) => {
+                if (result.status === 'rejected') {
+                    const routeNames = [
+                        'RootPage', 'ContactPage', 'AccountPage', 'VersionsPage',
+                        'BlogPage', 'BlogPostPage', 'PrivacyPage', 'LegalPage', 'ErrorPage'
+                    ];
+                    errors.push(`${routeNames[index]}: ${result.reason}`);
+                    console.error(`❌ Failed to load ${routeNames[index]}:`, result.reason);
+                }
+            });
+            
+            if (errors.length > 0) {
+                throw new Error(`Failed to load ${errors.length} route(s): ${errors.join(', ')}`);
+            }
+            
+            // Extrahiere Default-Exports (Svelte 5 Best Practice)
+            RootPage = (routeImports[0] as PromiseFulfilledResult<any>).value.default;
+            ContactPage = (routeImports[1] as PromiseFulfilledResult<any>).value.default;
+            AccountPage = (routeImports[2] as PromiseFulfilledResult<any>).value.default;
+            VersionsPage = (routeImports[3] as PromiseFulfilledResult<any>).value.default;
+            BlogPage = (routeImports[4] as PromiseFulfilledResult<any>).value.default;
+            BlogPostPage = (routeImports[5] as PromiseFulfilledResult<any>).value.default;
+            PrivacyPage = (routeImports[6] as PromiseFulfilledResult<any>).value.default;
+            LegalPage = (routeImports[7] as PromiseFulfilledResult<any>).value.default;
+            ErrorPage = (routeImports[8] as PromiseFulfilledResult<any>).value.default;
+            
+            // Validiere, dass alle Komponenten geladen wurden
+            const allLoaded = RootPage && ContactPage && AccountPage && VersionsPage && 
+                            BlogPage && BlogPostPage && PrivacyPage && LegalPage && ErrorPage;
+            
+            if (!allLoaded) {
+                throw new Error('Some route components failed to load (missing default export)');
+            }
+            
             routesLoaded = true;
+            loadingError = null;
+            devLog('✅ LanguageRouter: Routes loaded successfully');
         } catch (err) {
-            console.warn('⚠️ Failed to load routes:', err);
+            const error = err instanceof Error ? err : new Error(String(err));
+            loadingError = error;
+            console.error('❌ LanguageRouter: Failed to load routes:', error);
+            console.error('❌ LanguageRouter: Error details:', {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            });
+            // Set routesLoaded to true anyway to show error page
+            routesLoaded = true;
         }
     }
     
@@ -169,8 +205,8 @@
             resetSessionFlags();
             console.log('✅ LanguageRouter: Session flags reset for new page load');
             
-            // PERFORMANCE: Load routes in background (non-blocking)
-            loadRoutes();
+            // PERFORMANCE: Load routes immediately (blocking for first render)
+            await loadRoutes();
             
             // CRITICAL: Initialize daily usage for ALL users (logged in or guest)
             try {
@@ -251,9 +287,17 @@
     });
 </script>
   
+{#if !routesLoaded}
+    <!-- Loading State -->
+    <div class="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
+            <p class="text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+    </div>
+{:else}
 <Router>
     <!-- PERFORMANCE: Lazy Loaded Routes mit +page.svelte (SvelteKit Pattern) -->
-    {#if routesLoaded}
         <!-- Root Route (Home/Index) -->
         <Route path="/" component={RootPage} />
         <Route path="/:lang" component={RootPage} />
@@ -316,5 +360,5 @@
         
         <!-- 404 Error Route -->
         <Route component={ErrorPage} />
-    {/if}
 </Router>
+{/if}

@@ -3,7 +3,7 @@
 <!-- Verwendet JSON-Konfiguration für Header, Footer und Modals -->
 <script lang="ts">
     import { fade } from 'svelte/transition';
-    import { currentLanguage } from '../../stores/contentStore.ts';
+    import { currentLanguage } from '../../stores/contentStore';
     import { darkMode } from '../../stores/appStores';
     import Header from './Header.svelte';
     import FixedMenu from '../../widgets/FixedMenu.svelte';

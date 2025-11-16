@@ -4,8 +4,8 @@
 // Klassische Stores verwenden (Runes funktionieren nur in .svelte Komponenten)
 
 import { writable, get, type Writable } from 'svelte/store';
-import { navigate } from '../utils/routing.ts';
-import { currentLanguage } from './contentStore.ts';
+import { navigate } from '../utils/routing';
+import { currentLanguage } from './contentStore';
 
 export interface ModalData {
     title?: string;

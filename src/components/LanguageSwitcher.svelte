@@ -2,9 +2,9 @@
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { onMount, createEventDispatcher } from 'svelte';
-    import { currentLanguage, changeLanguage, showLanguageMenu, translations } from '../stores/contentStore.ts';
+    import { currentLanguage, changeLanguage, showLanguageMenu, translations } from '../stores/contentStore';
     import { supportedLanguages } from '../utils/languages';
-    import { navigate } from '../utils/routing.ts';
+    import { navigate } from '../utils/routing';
     
     const dispatch = createEventDispatcher();
     

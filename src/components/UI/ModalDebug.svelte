@@ -29,7 +29,7 @@
         showAccountLogoutSuccess
     } from '../../stores/modalStore';
     import { incrementDailyUsage } from '../../stores/dailyUsageStore';
-    import { translations } from '../../stores/contentStore.ts';
+    import { translations } from '../../stores/contentStore';
     import { get } from 'svelte/store';
     import { isDevelopment } from '../../utils/environment';
 
@@ -192,8 +192,8 @@
         dailyLimit.limit = 3;
         dailyLimit.used = 0;
         successfulStoryRequests.set(0);
-        loginError = null;
-        isLoggingIn = false;
+        loginError.set(null);
+        isLoggingIn.set(false);
         showSuccess('All data cleared! (Dev Mode)', 2000);
     }
 

@@ -3,7 +3,7 @@
 
 <script lang="ts">
     import { formatDate, calculateReadTime } from '../../utils/blogApi';
-    import { currentLanguage } from '../../stores/contentStore.ts';
+    import { currentLanguage } from '../../stores/contentStore';
     
     interface Props {
         isodate?: string | null;

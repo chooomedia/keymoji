@@ -4,16 +4,16 @@
     import { cubicInOut } from 'svelte/easing';
     import { hamburger, logo } from "../../assets/shapes";
     import { isDisabled, showDonateMenu, isLoggedIn, currentAccount, dailyLimit, accountTier } from '../../stores/appStores'
-    import { currentLanguage, t, showLanguageMenu, changeLanguage } from '../../stores/contentStore.ts';
+    import { currentLanguage, t, showLanguageMenu, changeLanguage } from '../../stores/contentStore';
     import { get } from 'svelte/store';
     import GitButton from '../../widgets/GitButton.svelte';
     import { createEventDispatcher } from 'svelte';
-    import { navigate } from '../../utils/routing.ts';
+    import { navigate } from '../../utils/routing';
     import Link from '../../components/Routing/Link.svelte';
     import LanguageSwitcher from '../LanguageSwitcher.svelte';
     import { supportedLanguages } from '../../utils/languages';
-    import { translations } from '../../stores/contentStore.ts';
-    import { navigateToBlog } from '../../utils/navigation';
+    import { translations } from '../../stores/contentStore';
+    import { navigateToBlog } from '../../utils/blogNavigation';
     import Button from '../UI/Button.svelte';
     import { showModal } from '../../stores/modalStore';
 

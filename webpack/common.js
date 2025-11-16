@@ -19,6 +19,10 @@ module.exports = {
                     options: {
                         emitCss: true,
                         hotReload: true,
+                        // Wichtig für dynamische Imports und Code Splitting
+                        resolve: {
+                            fullySpecified: false
+                        },
                         compilerOptions: {
                             runes: true,
                             // Svelte 5: Generiere Code für Browser
@@ -30,7 +34,13 @@ module.exports = {
                                 tsconfigFile: './tsconfig.json',
                                 compilerOptions: {
                                     module: 'ESNext',
-                                    moduleResolution: 'node'
+                                    moduleResolution: 'node',
+                                    skipLibCheck: true,
+                                    transpileOnly: true,
+                                    noEmit: true,
+                                    // Less strict type checking for faster compilation
+                                    strict: false,
+                                    noImplicitAny: false
                                 }
                             },
                             postcss: {
@@ -97,10 +107,12 @@ module.exports = {
             'svelte/internal/disclose-version': path.resolve('node_modules', 'svelte', 'src', 'internal', 'disclose-version.js'),
             'svelte/internal/client': path.resolve('node_modules', 'svelte', 'src', 'internal', 'client', 'index.js')
         },
-        conditionNames: ['svelte', 'browser', 'module', 'main'],
+        conditionNames: ['svelte', 'browser', 'import', 'module', 'main'],
         extensions: ['.ts', '.mjs', '.js', '.svelte', '.jsx'],
         mainFields: ['svelte', 'browser', 'module', 'main'],
         fullySpecified: false,
+        // Unterstützung für dynamische Imports (Code Splitting)
+        preferRelative: false,
         modules: ['node_modules', path.resolve('src'), path.resolve('.')],
         symlinks: false
     },

@@ -2,7 +2,7 @@
 <script lang="ts">
     import { onMount, afterUpdate } from 'svelte';
     import { darkMode } from '../stores/appStores'
-    import { currentLanguage } from '../stores/contentStore.ts';
+    import { currentLanguage } from '../stores/contentStore';
 import { updatedTime } from '../../utils/timestamp';
     import SkipLink from '../A11y/SkipLink.svelte';
 import ServiceWorkerHandler from '../ServiceWorkerHandler.svelte';

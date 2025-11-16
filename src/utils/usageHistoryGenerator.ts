@@ -3,7 +3,7 @@
  * TypeScript Migration: v0.7.7
  */
 
-import { currentAccount, accountTier } from '../stores/appStores.ts';
+import { currentAccount, accountTier } from '../stores/appStores';
 import { WEBHOOKS } from '../config/api';
 import type { Account } from '../types/Account';
 import type { UsageHistoryEntry } from '../types/Account';

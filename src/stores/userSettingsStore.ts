@@ -1,8 +1,8 @@
 // src/stores/userSettingsStore.svelte.ts
 // User Settings Management mit Svelte 5 Runes
-import type { UserSettings } from '../types/Account';
+import { writable, derived, get } from 'svelte/store';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage';
-import { currentAccount, accountTier } from './appStores.ts';
+import { currentAccount, accountTier } from './appStores';
 import { WEBHOOKS } from '../config/api';
 import { cachedFetch } from '../utils/apiCache';
 
@@ -37,27 +37,29 @@ export const currentSettings = derived(
 );
 
 export function updateSetting(key: string, value: unknown): void {
-    pendingChanges[key] = value;
-}
-
-export function discardChanges(): void {
-    Object.keys(pendingChanges).forEach(key => {
-        delete pendingChanges[key];
+    pendingChanges.update(changes => {
+        return { ...changes, [key]: value };
     });
 }
 
+export function discardChanges(): void {
+    pendingChanges.set({});
+}
+
 export function getEffectiveValue(key: string): unknown {
-    if (key in pendingChanges) {
-        return pendingChanges[key];
+    const pending = get(pendingChanges);
+    const settings = get(userSettings);
+    if (key in pending) {
+        return pending[key];
     }
-    if (key in userSettings) {
-        return userSettings[key];
+    if (key in settings) {
+        return settings[key];
     }
     return getDefaultValue(key);
 }
 
 export function getCurrentUserSettings(): Record<string, unknown> {
-    return { ...userSettings, ...pendingChanges };
+    return { ...get(userSettings), ...get(pendingChanges) };
 }
 
 export function invalidateSettingsCache(): void {
@@ -66,18 +68,21 @@ export function invalidateSettingsCache(): void {
 
 export async function saveAllSettings(): Promise<void> {
     try {
-        settingsStatus.isSaving = true;
-        settingsStatus.hasError = false;
-        settingsStatus.errorMessage = null;
+        settingsStatus.update(s => ({
+            ...s,
+            isSaving: true,
+            hasError: false,
+            errorMessage: null
+        }));
 
-        const account = currentAccount;
+        const account = get(currentAccount);
         if (!account || !account.userId) {
             throw new Error('No account found');
         }
 
-        const settingsToSave = { ...userSettings, ...pendingChanges };
+        const settingsToSave = { ...get(userSettings), ...get(pendingChanges) };
 
-        const response = await cachedFetch(WEBHOOKS.UPDATE_ACCOUNT, {
+        const response = (await cachedFetch(WEBHOOKS.ACCOUNT.SECURE_UPDATE, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -89,41 +94,44 @@ export async function saveAllSettings(): Promise<void> {
                     }
                 }
             })
-        });
+        })) as Response | null;
 
-        if (!response.ok) {
+        if (!response || !response.ok) {
             throw new Error('Failed to save settings');
         }
 
-        Object.assign(userSettings, settingsToSave);
+        userSettings.set(settingsToSave);
         discardChanges();
 
         storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, settingsToSave);
 
-        settingsStatus.isSaving = false;
+        settingsStatus.update(s => ({ ...s, isSaving: false }));
     } catch (error) {
-        settingsStatus.isSaving = false;
-        settingsStatus.hasError = true;
-        settingsStatus.errorMessage =
-            error instanceof Error ? error.message : 'Unknown error';
+        settingsStatus.update(s => ({
+            ...s,
+            isSaving: false,
+            hasError: true,
+            errorMessage:
+                error instanceof Error ? error.message : 'Unknown error'
+        }));
         throw error;
     }
 }
 
 export function resetSettings(): void {
-    userSettings = {};
+    userSettings.set({});
     discardChanges();
     invalidateSettingsCache();
 }
 
 export function exportSettings(): string {
-    return JSON.stringify(userSettings, null, 2);
+    return JSON.stringify(get(userSettings), null, 2);
 }
 
 export function importSettings(json: string): void {
     try {
         const imported = JSON.parse(json);
-        Object.assign(userSettings, imported);
+        userSettings.set(imported);
         storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, imported);
     } catch (error) {
         throw new Error('Invalid settings JSON');
@@ -134,24 +142,33 @@ export async function initializeSettingsForUser(): Promise<
     Record<string, unknown>
 > {
     try {
-        settingsStatus.isLoading = true;
-        settingsStatus.hasError = false;
+        settingsStatus.update(s => ({
+            ...s,
+            isLoading: true,
+            hasError: false
+        }));
 
-        const account = currentAccount;
+        const account = get(currentAccount);
         if (!account || !account.userId) {
             const cached = storageHelpers.get<Record<string, unknown>>(
                 STORAGE_KEYS.USER_PREFERENCES
             );
             if (cached) {
-                userSettings = cached;
-                settingsStatus.isInitialized = true;
-                settingsStatus.isLoading = false;
+                userSettings.set(cached);
+                settingsStatus.update(s => ({
+                    ...s,
+                    isInitialized: true,
+                    isLoading: false
+                }));
                 return cached;
             }
             const defaults = getDefaultSettings();
-            userSettings = defaults;
-            settingsStatus.isInitialized = true;
-            settingsStatus.isLoading = false;
+            userSettings.set(defaults);
+            settingsStatus.update(s => ({
+                ...s,
+                isInitialized: true,
+                isLoading: false
+            }));
             return defaults;
         }
 
@@ -159,38 +176,51 @@ export async function initializeSettingsForUser(): Promise<
             STORAGE_KEYS.USER_PREFERENCES
         );
         if (cached) {
-            userSettings = cached;
+            userSettings.set(cached);
         }
 
-        const response = await cachedFetch(
-            `${WEBHOOKS.GET_ACCOUNT}?userId=${account.userId}`
-        );
-        if (response.ok) {
-            const data = await response.json();
+        const response = (await cachedFetch(
+            `${WEBHOOKS.ACCOUNT.SECURE_GET}?userId=${account.userId}`
+        )) as Response | null;
+        if (response && response.ok) {
+            const data = (await response.json()) as {
+                account?: { metadata?: { settings?: unknown } };
+            };
             if (data?.account?.metadata?.settings) {
                 const settings =
                     typeof data.account.metadata.settings === 'string'
                         ? JSON.parse(data.account.metadata.settings)
                         : data.account.metadata.settings;
-                userSettings = settings;
-                storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, settings);
+                userSettings.set(settings as Record<string, unknown>);
+                storageHelpers.set(
+                    STORAGE_KEYS.USER_PREFERENCES,
+                    settings as Record<string, unknown>
+                );
             }
         }
 
-        if (Object.keys(userSettings).length === 0) {
-            userSettings = getDefaultSettings();
+        const currentSettings = get(userSettings);
+        if (Object.keys(currentSettings).length === 0) {
+            const defaults = getDefaultSettings();
+            userSettings.set(defaults);
         }
 
-        settingsStatus.isInitialized = true;
-        settingsStatus.isLoading = false;
-        return userSettings;
+        settingsStatus.update(s => ({
+            ...s,
+            isInitialized: true,
+            isLoading: false
+        }));
+        return get(userSettings);
     } catch (error) {
-        settingsStatus.isLoading = false;
-        settingsStatus.hasError = true;
-        settingsStatus.errorMessage =
-            error instanceof Error ? error.message : 'Unknown error';
+        settingsStatus.update(s => ({
+            ...s,
+            isLoading: false,
+            hasError: true,
+            errorMessage:
+                error instanceof Error ? error.message : 'Unknown error'
+        }));
         const defaults = getDefaultSettings();
-        userSettings = defaults;
+        userSettings.set(defaults);
         return defaults;
     }
 }
@@ -207,7 +237,7 @@ function getDefaultValue(key: string): unknown {
 }
 
 function getDefaultSettings(): Record<string, unknown> {
-    const tier = accountTier || 'free';
+    const tier = get(accountTier) || 'free';
     return {
         name: '',
         language: 'en',

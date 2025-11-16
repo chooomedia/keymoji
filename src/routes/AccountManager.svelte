@@ -1,47 +1,35 @@
 <!-- src/routes/AccountManager.svelte -->
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { navigate } from '../utils/routing.ts';
-    import { fade, fly, slide, crossfade } from 'svelte/transition';
-    import { tick } from 'svelte';
+    import { navigate } from '../utils/routing';
+    import { fade, fly, slide } from 'svelte/transition';
     import PageLayout from '../components/Layout/PageLayout.svelte';
     // Footer wird automatisch über Layout-Konfiguration gerendert
     import { 
         isLoggedIn, 
         dailyLimit, 
-        accountSettings, 
-        isGuestUser, 
-        isProUser, 
         currentAccount, 
         userProfile, 
-        accountTier,
-        successfulStoryRequests,
-        isDisabled
+        accountTier
     } from '../stores/appStores';
     import { remainingGenerations as remainingGenerationsStore } from '../stores/dailyUsageStore';
-    import { translations, currentLanguage } from '../stores/contentStore.ts';
+    import { translations, currentLanguage } from '../stores/contentStore';
     import { get } from 'svelte/store';
     import { 
-        loginWithMagicLink, 
         isLoggingIn, 
         loginError, 
-        createAccount, 
         initializeAccountFromCookies, 
         logout,
         hasExistingUserPreferences,
         hasValidUserSession,
         getUserEmailFromPreferences,
-        verifyMagicLinkFrontend,
         checkAccountExists,
         // Sichere Accounting-Funktionen
-        secureCreateAccount,
-        secureUpdateAccount,
-        secureGetAccount,
         secureLoginWithMagicLink,
         secureVerifyMagicLink,
         logAccountingEvent
     } from '../stores/accountStore';
-    import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore.ts';
+    import { showSuccess, showError, showInfo } from '../stores/modalStore';
     import { 
         currentSettings,
         resetSettings, 
@@ -51,22 +39,21 @@
         saveAllSettings,
         settingsStatus
     } from '../stores/userSettingsStore';
-    import { WEBHOOKS } from '../config/api';
     import { storageHelpers, STORAGE_KEYS } from '../config/storage';
     import UserSettings from '../components/UserSettings.svelte';
-    import ContextMenu from '../components/UI/ContextMenu.svelte';
     import { isDevelopment } from '../utils/environment';
+    // Feature Components
+    import AccountHeader from '../components/Features/AccountHeader.svelte';
+    import DailyLimitChart from '../components/Features/DailyLimitChart.svelte';
+    import AccountStatistics from '../components/Features/AccountStatistics.svelte';
+    import AccountBenefits from '../components/Features/AccountBenefits.svelte';
+    import AccountCreationForm from '../components/Features/AccountCreationForm.svelte';
+    import VerificationStep from '../components/Features/VerificationStep.svelte';
+    import ReturnUserView from '../components/Features/ReturnUserView.svelte';
     import { validateUserLimits } from '../config/limits';
-    import { sendAnalyticsEvent } from '../../stores/appStores.ts';
-    import Input from '../components/UI/Input.svelte';
+    import { sendAnalyticsEvent } from '../stores/appStores';
     import Button from '../components/UI/Button.svelte';
-    import ContextBadge from '../components/UI/ContextBadge.svelte';
-    import LineChart from '../components/UI/LineChart.svelte';
-    import ChartSkeleton from '../components/UI/ChartSkeleton.svelte';
-    import FeatureCard from '../components/Features/FeatureCard.svelte';
-    import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers';
-    // REMOVED: getUsageHistory, calculateUsageStats - now using usageHistory store from userDataStore.js
-    import { DEMO_USAGE_HISTORY_4W, getDemoDataForPeriod, isDemoData } from '../utils/demoChartData';
+    import { getDaysSinceAccountCreation, formatAccountAge } from '../utils/accountHelpers';
     import { generateBenefitsStructuredData, injectStructuredData, formatCanonicalUrl } from '../utils/seo';
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status (Svelte 5 Runes)
@@ -126,23 +113,20 @@
         return t?.accountManager?.pageDescription || 'Manage your security settings and account preferences';
     });
 
-    // Toggle state
-    let showBenefitsToggle = 'free';
-    let email = '';
-    let name = '';
-    let showProfileForm = false;
-    let isSubmitting = false;
-    let showSettings = false;
-    let showUserSettings = false;
-    let accountCreationStep = null; // 'benefits', 'form', 'verification' - null for initial state
-    let selectedAccountType = 'free'; // 'free', 'pro'
-    let showAdvancedOptions = false;
+    // Toggle state (Svelte 5 Runes)
+    let showBenefitsToggle = $state<'free' | 'pro'>('free');
+    let email = $state('');
+    let name = $state('');
+    let showProfileForm = $state(false);
+    let isSubmitting = $state(false);
+    let accountCreationStep = $state<'benefits' | 'form' | 'verification' | null>(null);
+    let selectedAccountType = $state<'free' | 'pro'>('free');
 
     // Session management
-    let accountExists = false;
-    let checkingAccount = false;
-    let sessionExpired = false;
-    let hasValidSession = false;
+    let accountExists = $state(false);
+    let checkingAccount = $state(false);
+    let sessionExpired = $state(false);
+    let hasValidSession = $state(false);
     
     // Reactive calculation for days since account creation (Svelte 5 Runes)
     // Übergebe currentAccount damit API-Daten (Google Sheets) bevorzugt werden!
@@ -185,14 +169,14 @@
         }
     });
     
-    // Return user view state
-    let hasLoggedInBefore = false;
+    // Return user view state (Svelte 5 Runes)
+    let hasLoggedInBefore = $state(false);
     
-    // State for expanded view
-    let showExpandedView = false;
+    // State for expanded view (Svelte 5 Runes)
+    let showExpandedView = $state(false);
     
     // Check if user has navigated away from initial load (stored in sessionStorage)
-    let hasNavigatedAway = sessionStorage.getItem('hasNavigatedAway') === 'true';
+    let hasNavigatedAway = $state(sessionStorage.getItem('hasNavigatedAway') === 'true');
     
     // Reactive simplified view logic (Svelte 5 Runes)
     let shouldShowSimplifiedView = $derived.by(() => {
@@ -238,9 +222,9 @@
             .replace('{limit}', currentUserLimits.limit);
     });
     
-    // Usage Chart State
-    let selectedTimePeriod = '7d';
-    let isDemoDataShown = false; // Track if showing demo data (not real from backend)
+    // Usage Chart State (Svelte 5 Runes)
+    let selectedTimePeriod = $state<'7d' | '14d' | '4w' | '3m'>('7d');
+    let isDemoDataShown = $state(false); // Track if showing demo data (not real from backend)
     
     // NEW: Import userDataStore for robust chart data handling
     import { 
@@ -386,7 +370,7 @@
      * Dynamically adjusts based on actual data, with a maximum of 100
      * Rounds up to nice numbers (9, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100)
      */
-    function calculateMaxValue(chartData) {
+    function calculateMaxValue(chartData: Array<{ value?: number; storyValue?: number }>) {
         if (!chartData || chartData.length === 0) {
             // Default fallback
             const accountTierValue = get(accountTier);
@@ -472,7 +456,7 @@
      * @param {Array} history - Usage history array
      * @returns {Array} Filtered data for chart
      */
-    function generateChartData(period, history) {
+    function generateChartData(period: string, history: Array<{ date: string; used?: number; storyUsed?: number }>) {
         console.log('📊 [CHART DEBUG] generateChartData() called:', {
             period,
             historyLength: history?.length,
@@ -520,15 +504,14 @@
         return data;
     }
 
-    // Magic Link verification state
-    let isVerifyingMagicLink = false;
-    let magicLinkStatus = null; // 'verifying', 'success', 'error'
-    let magicLinkError = '';
+    // Magic Link verification state (Svelte 5 Runes)
+    let isVerifyingMagicLink = $state(false);
+    let magicLinkStatus = $state<'verifying' | 'success' | 'error' | null>(null);
+    let magicLinkError = $state('');
 
-    // Context menu state
-    let showContextMenu = false;
-    let contextMenuPosition = { x: 0, y: 0 };
-    let fileInput;
+    // Context menu state (Svelte 5 Runes)
+    let showContextMenu = $state(false);
+    let fileInput: HTMLInputElement | null = $state(null);
 
     // Email validation
     const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -559,7 +542,7 @@
         return email.split('@')[0] || 'User';
     }
 
-    function anonymizeEmail(email) {
+    function anonymizeEmail(email: string): string {
 		const [local, domain] = email.split('@');
 		if (!local || !domain) return email;
 
@@ -567,7 +550,7 @@
 		return `${local[0]}${stars}@${domain}`;
 	}
 
-    function validateEmail(email) {
+    function validateEmail(email: string): boolean {
         return EMAIL_REGEX.test(email);
     }
 
@@ -601,7 +584,7 @@
         }
     }
     
-    function markSuccessfulLogin(email) {
+    function markSuccessfulLogin(email: string) {
         if (!email) return;
         const existingHistory = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY, { count: 0 });
         const history = {
@@ -644,7 +627,7 @@
     
 
 
-    function selectAccountType(type) {
+    function selectAccountType(type: 'free' | 'pro') {
         selectedAccountType = type;
         showBenefitsToggle = type;
     }
@@ -710,7 +693,7 @@
     }
 
     // Handle settings import
-    function handleImportSettings(event) {
+    function handleImportSettings(event: Event) {
         const file = event.target.files[0];
         if (file) {
             const t = get(translations);
@@ -755,7 +738,7 @@
         }, 1000);
     }
 
-    async function handleLogin(event) {
+    async function handleLogin(event: Event) {
         event.preventDefault();
         isSubmitting = true;
         checkingAccount = true;
@@ -903,7 +886,8 @@
                     checkSessionStatus();
                     
                     // Show success message
-                    showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
+                    const t = get(translations);
+                    showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
                     return; // Exit early, no need to verify again
                 }
                 
@@ -1042,8 +1026,9 @@
     // Reactive statement to show error as modal
     // Handle login errors (Svelte 5 Runes)
     $effect(() => {
-        if ($loginError) {
-            showError($loginError, 5000);
+        const error = get(loginError);
+        if (error) {
+            showError(error, 5000);
         }
     });
     
@@ -1188,286 +1173,38 @@
                 <!-- Account Status -->
                 {#if $isLoggedIn}
                     <div>
-                        <div class="flex items-center justify-between mb-6">
-                            <p class="text-gray-600 dark:text-gray-400">
-                                {get(currentAccount)?.email}
-                            </p>
-
-                            <!-- PRO Badge and Context Menu -->
-                            <div class="flex items-center gap-2">
-                                <ContextBadge 
-                                    tier={$accountTier} 
-                                    accountAgeLabel={accountAgeLabel}
-                                    translations={$translations?.accountManager?.accountAge}
-                                    position="top"
-                                    variant="standard"
-                                    trigger="hover"
-                                    size="sm"
-                                    width={null}
-                                    intro={true}
-                                    introDelay={2000}
-                                    introDuration={4000}
-                                />
-
-                                <div class="relative context-menu">
-                                    <button
-                                        on:click={toggleContextMenu}
-                                        class="p-2 rounded-full bg-powder-300 dark:bg-aubergine-950 text-gray-700 dark:text-white hover:bg-creme-600 dark:hover:bg-aubergine-900 focus:bg-creme-600 dark:focus:bg-aubergine-900 active:bg-creme-700 dark:active:bg-aubergine-800 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-                                        aria-label="{$translations?.accountManager?.contextMenu?.settingsMenu || 'Settings menu'}"
-                                        title="{$translations?.accountManager?.contextMenu?.settingsMenu || 'Settings menu'}"
-                                    >
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                        </svg>
-                                    </button>
-                                    
-                                    <!-- Context Menu Dropdown -->
-                                    {#if showContextMenu}
-                                        <div 
-                                            class="absolute right-0 mt-2 w-48 bg-white dark:bg-aubergine-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
-                                            style="top: 100%;"
-                                            transition:slide={{ duration: 200 }}
-                                        >
-                                            <div class="py-1">
-                                                <button
-                                                    on:click={handleExportSettings}
-                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 focus:bg-gray-100 dark:focus:bg-aubergine-700 active:bg-gray-200 dark:active:bg-aubergine-600 transition-all flex items-center focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1"
-                                                    aria-label={$translations?.accountManager?.contextMenu?.exportSettings || 'Export Settings'}
-                                                >
-                                                    <span class="mr-2">📤</span>
-                                                    {$translations?.accountManager?.contextMenu?.exportSettings || 'Export Settings'}
-                                                </button>
-                                                
-                                                <button
-                                                    on:click={triggerFileInput}
-                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 focus:bg-gray-100 dark:focus:bg-aubergine-700 active:bg-gray-200 dark:active:bg-aubergine-600 transition-all flex items-center focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1"
-                                                    aria-label={$translations?.accountManager?.contextMenu?.importSettings || 'Import Settings'}
-                                                >
-                                                    <span class="mr-2">📥</span>
-                                                    {$translations?.accountManager?.contextMenu?.importSettings || 'Import Settings'}
-                                                </button>
-                                                
-                                                <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                                                
-                                                <button
-                                                    on:click={handleResetSettings}
-                                                    class="w-full text-left px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 focus:bg-orange-50 dark:focus:bg-orange-900/20 active:bg-orange-100 dark:active:bg-orange-900/30 transition-all flex items-center focus:ring-2 focus:ring-orange-300 focus:ring-offset-1"
-                                                    aria-label={$translations?.accountManager?.contextMenu?.resetToDefault || 'Reset to Default'}
-                                                >
-                                                    <span class="mr-2">🔄</span>
-                                                    {$translations?.accountManager?.contextMenu?.resetToDefault || 'Reset to Default'}
-                                                </button>
-                                                
-                                                <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                                                
-                                                <button
-                                                    on:click={handleLogout}
-                                                    class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:bg-red-50 dark:focus:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 transition-all flex items-center focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
-                                                    aria-label={$translations?.accountManager?.contextMenu?.logout || 'Logout'}
-                                                >
-                                                    <span class="mr-2">🚪</span>
-                                                    {$translations?.accountManager?.contextMenu?.logout || 'Logout'}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    {/if}
-                                </div>
-                            </div>
-                        </div>
+                        <AccountHeader
+                            {accountAgeLabel}
+                            onExportSettings={handleExportSettings}
+                            onImportSettings={triggerFileInput}
+                            onResetSettings={handleResetSettings}
+                            onLogout={handleLogout}
+                            onTriggerFileInput={triggerFileInput}
+                        />
 
                         <!-- Daily Limit Status with Chart -->
-                        <div class="bg-powder-300 dark:bg-aubergine-900 rounded-xl p-4 mb-6">
-                            <!-- Header with Time Period Selector & Refresh Button -->
-                            <div class="flex justify-between items-center mb-6 z-10">
-                                <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                                    {$translations?.accountManager?.dailyGenerations || 'Daily Generations'}
-                                </span>
-                                <div class="flex items-center gap-2">
-                                    <!-- Time Period Buttons (rounded-full, optimized colors) -->
-                                    <div class="inline-flex gap-1">
-                                        {#each ['7d', '14d', '4w', '3m'] as period}
-                                            <button
-                                                on:click={() => selectedTimePeriod = period}
-                                                class="px-3 py-1 text-xs font-semibold rounded-full transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-aubergine-900 {
-                                                    selectedTimePeriod === period 
-                                                        ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-aubergine-900 shadow-md' 
-                                                        : 'bg-white/50 dark:bg-aubergine-800/50 text-gray-700 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-aubergine-800/80 shadow-sm'
-                                                }"
-                                                aria-label="Show {period === '7d' ? '7 days' : period === '14d' ? '14 days' : period === '4w' ? '4 weeks' : '3 months'}"
-                                                title="{period === '7d' ? 'Last 7 Days' : period === '14d' ? 'Last 14 Days' : period === '4w' ? 'Last 4 Weeks' : 'Last 3 Months'}"
-                                            >
-                                                {period === '3m' ? '3M' : period.toUpperCase()}
-                                            </button>
-                                        {/each}
-                                    </div>
-                                    
-                                    <!-- Refresh Button (like FREE badge, small, semi-transparent) -->
-                                    <button
-                                        on:click={handleRefreshChartData}
-                                        disabled={isLoadingChartData}
-                                        class="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-bold bg-yellow-600/20 dark:bg-yellow-600/30 text-yellow-700 dark:text-yellow-400 border border-yellow-600/30 dark:border-yellow-600/40 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-aubergine-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-                                        aria-label="Refresh chart data from backend"
-                                        title="Refresh chart data"
-                                    >
-                                        <span class="{isLoadingChartData ? 'animate-spin' : ''}" style="display: inline-block;">
-                                            🔄
-                                </span>
-                                    </button>
-                            </div>
-                            </div>
-                            
-                            <!-- Line Chart Container -->
-                            <div class="w-full">
-                                {#if isLoadingChartData}
-                                    <!-- Loading Skeleton -->
-                                    <ChartSkeleton height={200} />
-                                {:else if chartDataError}
-                                    <!-- Error State -->
-                                    <div 
-                                        class="flex flex-col items-center justify-center h-48 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 p-6"
-                                        in:fade={{ duration: 300 }}
-                                    >
-                                        <div class="text-4xl mb-3">❌</div>
-                                        <h4 class="text-lg font-semibold text-red-800 dark:text-red-300 mb-2">
-                                            Fehler beim Laden
-                                        </h4>
-                                        <p class="text-sm text-red-600 dark:text-red-400 mb-4 text-center">
-                                            {chartDataError}
-                                        </p>
-                                        <Button
-                                            on:click={retryLoadChartData}
-                                            variant="primary"
-                                            size="sm"
-                                        >
-                                            🔄 Erneut versuchen
-                                        </Button>
-                                    </div>
-                                {:else if finalUsageHistory.length === 0 && !isLoadingChartData && get(isLoggedIn)}
-                                    <!-- No Data State (nur wenn wirklich KEINE Daten UND eingeloggt UND nicht am Laden!) -->
-                                    <div 
-                                        class="flex flex-col items-center justify-center h-64 bg-gray-100 dark:bg-aubergine-900 rounded-lg border border-gray-200 dark:border-aubergine-700 p-8"
-                                        in:fade={{ duration: 300 }}
-                                    >
-                                        <div class="text-6xl mb-4">📊</div>
-                                        <h4 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                                            {$translations?.accountManager?.statistics?.noDataTitle || 'No Data'}
-                                        </h4>
-                                        <p class="text-base text-gray-600 dark:text-gray-400 text-center max-w-md mb-6">
-                                            {$translations?.accountManager?.statistics?.noDataMessage || 'Generate emojis to collect your real usage data and display it here.'}
-                                        </p>
-                                        <!-- Refresh Button -->
-                                        <button
-                                            on:click={() => refreshUsageHistory(true)}
-                                            disabled={chartDataError || isLoadingChartData}
-                                            class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-medium rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 shadow-md"
-                                            title="Refresh usage data"
-                                            aria-label="Refresh usage data"
-                                        >
-                                            {#if isLoadingChartData}
-                                                <svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                <span>{$translations?.accountManager?.statistics?.loading || 'Loading...'}</span>
-                                            {:else}
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                </svg>
-                                                <span>{$translations?.accountManager?.statistics?.refreshButton || 'Refresh'}</span>
-                                            {/if}
-                                        </button>
-                                    </div>
-                                {:else}
-                                    <!-- Chart Container (Relative positioning for overlay) -->
-                                    <div class="relative min-h-[280px] flex items-center justify-center -mx-4" in:fade={{ duration: 400 }}>
-                                        <!-- Background Chart -->
-                                        <LineChart 
-                                            data={finalChartData}
-                                            data2={finalStoryChartData}
-                                            maxValue={chartMaxValue}
-                                            height={240}
-                                            color={isDemoDataShown ? '#f97316' : ($accountTier === 'pro' ? '#a855f7' : '#eab308')}
-                                            color2="#2563eb"
-                                            label="Random Emoji"
-                                            label2="Story Generations"
-                                            animate={true}
-                                        />
-                                        
-                                        {#if isDemoDataShown}
-                                            <!-- Demo Data Overlay - Full Height Centered -->
-                                            <div 
-                                                class="absolute w-96 h-48 mx-auto inset-0 flex items-center justify-center backdrop-blur-2xl rounded-lg bg-white/70 dark:bg-aubergine-900/70"
-                                                transition:fade={{ duration: 300 }}
-                                            >
-                                                <!-- Centered Content Card with Strong Shadows -->
-                                                <div class="bg-creme-80 dark:bg-aubergine-80 backdrop-filter backdrop-blur-md rounded-lg text-center px-8 py-9 mt-9 shadow-[0_20px_60px_rgba(0,0,0,0.85),0_8px_24px_rgba(0,0,0,0.45),0_4px_12px_rgba(0,0,0,0.3)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.95),0_10px_30px_rgba(0,0,0,0.65),0_4px_15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]">
-                                                    <!-- Icon -->
-                                                    <div class="text-6xl mb-5">📊</div>
-                                                    
-                                                    <!-- Title -->
-                                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                                                        {$translations?.accountManager?.demoChart?.title || 'Demo Vorschau'}
-                                                    </h3>
-                                                    
-                                                    <!-- Description -->
-                                                    <p class="text-base text-gray-600 dark:text-gray-400 mb-8 leading-relaxed max-w-sm mx-auto">
-                                                        {$translations?.accountManager?.demoChart?.description || 'Dies ist eine Beispiel-Ansicht. Generiere Emojis um deine echten Nutzungsdaten zu sammeln und hier anzuzeigen.'}
-                                                    </p>
-                                                    
-                                                    <!-- CTA Button -->
-                                                    <button
-                                                        on:click={() => navigate('/')}
-                                                        class="inline-flex items-center px-6 py-3 rounded-full text-sm font-bold bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600 focus:from-yellow-600 focus:to-orange-600 active:from-yellow-700 active:to-orange-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-yellow-300/50 dark:focus:ring-yellow-500/50 shadow-lg hover:shadow-xl"
-                                                        aria-label={$translations?.accountManager?.demoChart?.cta || 'Jetzt Emojis generieren'}
-                                                    >
-                                                        <span class="mr-2">🎲</span>
-                                                        {$translations?.accountManager?.demoChart?.cta || 'Jetzt Emojis generieren'}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        {/if}
-                                    </div>
-                                {/if}
-                            </div>
-                            
-                            <!-- Progress Bar with Inline Counter (UX Best Practice) -->
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex-1 mr-3">
-                                    <div class="w-full bg-gray-300 dark:bg-aubergine-600 rounded-full h-3">
-                                <div 
-                                    class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500"
-                                    style="width: {currentUserLimits.limit > 0 ? Math.min(100, (remainingGenerations / currentUserLimits.limit) * 100) : 0}%"
-                                ></div>
-                                    </div>
-                                </div>
-                                <span class="text-sm font-bold text-yellow-600 dark:text-yellow-400 tabular-nums">
-                                    {dailyLimitDisplay}
-                                </span>
-                            </div>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">
-                                {remainingGenerations > 0 ? ($translations?.accountManager?.canStillGenerate || 'You can still generate emojis!') : ($translations?.accountManager?.limitReached || 'Daily limit reached. Upgrade to PRO for unlimited generations.')}
-                            </p>
-                        </div>
+                        <DailyLimitChart
+                            selectedTimePeriod={selectedTimePeriod}
+                            finalChartData={finalChartData}
+                            finalStoryChartData={finalStoryChartData}
+                            finalUsageHistory={finalUsageHistory}
+                            chartMaxValue={chartMaxValue}
+                            isLoadingChartData={isLoadingChartData}
+                            chartDataError={chartDataError}
+                            isDemoDataShown={isDemoDataShown}
+                            currentUserLimits={currentUserLimits}
+                            remainingGenerations={remainingGenerations}
+                            dailyLimitDisplay={dailyLimitDisplay}
+                            onPeriodChange={(period) => selectedTimePeriod = period}
+                            onRefresh={handleRefreshChartData}
+                            onRetry={retryLoadChartData}
+                        />
 
                         <!-- Account Statistics -->
-                        <div class="grid grid-cols-2 gap-4 mb-6">
-                            <div class="text-center p-4 bg-powder-300 dark:bg-aubergine-900 rounded-xl">
-                                <div class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2 tabular-nums">
-                                    {totalStoriesGenerated}
-                                </div>
-                                <div class="text-sm font-medium text-blue-800 dark:text-blue-200">
-                                    {$translations?.accountManager?.statistics?.storiesGenerated || 'Stories Generated'}
-                                </div>
-                            </div>
-                            <div class="text-center p-4 bg-powder-300 dark:bg-aubergine-900 rounded-xl">
-                                <div class="text-3xl font-bold text-green-600 dark:text-green-400 mb-2 tabular-nums">
-                                    {$accountTier === 'pro' ? '∞' : remainingGenerations}
-                                </div>
-                                <div class="text-sm font-medium text-green-800 dark:text-green-200">
-                                    {$translations?.accountManager?.statistics?.remainingGenerations || 'Remaining Generations'}
-                                </div>
-                            </div>
-                        </div>
+                        <AccountStatistics
+                            totalStoriesGenerated={totalStoriesGenerated}
+                            remainingGenerations={remainingGenerations}
+                        />
 
                         <!-- Settings Section -->
                         <div transition:slide={{ duration: 300 }}>
@@ -1481,28 +1218,30 @@
                                 variant="primary"
                                 size="md"
                                 fullWidth={true}
-                                disabled={!$hasUnsavedChanges || $settingsStatus.isSaving}
+                                disabled={!hasUnsavedChangesValue || settingsStatusValue.isSaving}
                                 on:click={async () => {
                                     try {
                                         await saveAllSettings();
-                                        showSuccess($translations?.accountManager?.actions?.settingsSaved || 'Settings saved successfully!', 3000);
+                                        const t = get(translations);
+                                        showSuccess(t?.accountManager?.actions?.settingsSaved || 'Settings saved successfully!', 3000);
                                     } catch (error) {
-                                        showError($translations?.accountManager?.actions?.settingsSaveFailed || 'Failed to save settings', 3000);
+                                        const t = get(translations);
+                                        showError(t?.accountManager?.actions?.settingsSaveFailed || 'Failed to save settings', 3000);
                                     }
                                 }}
                                 ariaLabel={$translations?.accountManager?.actions?.saveSettings || 'Save settings'}
-                                tooltip={$hasUnsavedChanges ? ($translations?.accountManager?.actions?.unsavedChanges || 'You have unsaved changes') : ($translations?.accountManager?.actions?.noChanges || 'No changes to save')}
+                                tooltip={hasUnsavedChangesValue ? ($translations?.accountManager?.actions?.unsavedChanges || 'You have unsaved changes') : ($translations?.accountManager?.actions?.noChanges || 'No changes to save')}
                             >
-                                {#if $settingsStatus.isSaving}
+                                {#if get(settingsStatus).isSaving}
                                     <span class="flex items-center justify-center">
                                         <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        {$translations?.accountManager?.actions?.saving || 'Saving...'}
+                                        {get(translations)?.accountManager?.actions?.saving || 'Saving...'}
                                     </span>
                                 {:else}
-                                {$translations?.accountManager?.actions?.saveSettings || '💾 Save Settings'}
+                                {get(translations)?.accountManager?.actions?.saveSettings || '💾 Save Settings'}
                                 {/if}
                             </Button>
                             
@@ -1514,556 +1253,98 @@
                                 fullWidth={true}
                                 on:click={navigateToHome}
                             >
-                                {$translations?.accountManager?.actions?.backToHome || '🏠 Back to Home'}
+                                {get(translations)?.accountManager?.actions?.backToHome || '🏠 Back to Home'}
                             </Button>
                             {/if}
                         </div>
                     </div>
                 {:else if accountCreationStep === 'verification'}
                     <!-- Verification Step -->
-                    <div class="space-y-4">
-                        <Button
-                            variant="primary"
-                            size="md"
-                            fullWidth={true}
-                            on:click={resendMagicLink}
-                            disabled={isSubmitting}
-                        >
-                            {#if isSubmitting}
-                                <span class="animate-spin mr-1">⏳</span>
-                                {$translations?.accountManager?.buttons?.sendingMagicLink || 'Sending...'}
-                            {:else}
-                                {$translations?.accountManager?.buttons?.resendMagicLink || '🔄 Resend Magic Link'}
-                            {/if}
-                        </Button>
-                        
-                        <Button
-                            variant="secondary"
-                            size="md"
-                            fullWidth={true}
-                            on:click={goBackToBenefits}
-                        >
-                            {$translations?.accountManager?.buttons?.backToAccountOptions || '← Back to Account Options'}
-                        </Button>
-                        
-                        <!-- Help Section -->
-                        <div class="mt-6 p-4 bg-creme-600 dark:bg-aubergine-900 rounded-xl">
-                            <h3 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                                {$translations?.accountManager?.help?.title || '💡 Need Help?'}
-                            </h3>
-                            <ul class="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                                <li>{$translations?.accountManager?.help?.spamFolder || "• Check your spam folder if you don't see the email"}</li>
-                                <li>{$translations?.accountManager?.help?.magicLinkExpiry || '• Magic links expire after 15 minutes'}</li>
-                                <li>{$translations?.accountManager?.help?.requestNewLink || '• You can request a new link anytime'}</li>
-                                <li>{$translations?.accountManager?.help?.noPassword || '• No password required - just click the link'}</li>
-                            </ul>
-                        </div>
-                    </div>
+                    <VerificationStep
+                        {isSubmitting}
+                        onResendMagicLink={resendMagicLink}
+                        onGoBack={goBackToBenefits}
+                    />
 
                 {:else if shouldShowSimplifiedView}
                     <!-- Return User Simplified Form -->
-                    <!-- Pro upgrade hint -->
-                    <div class="bg-creme-600 dark:bg-aubergine-900 rounded-xl p-4 mb-6 border border-purple-200 dark:border-purple-700">
-                        <div class="flex items-center justify-center space-x-2 mb-2">
-                            <span class="text-purple-600 dark:text-purple-400">💎</span>
-                            <span class="font-semibold text-purple-800 dark:text-purple-200">
-                                {$translations?.accountManager?.upgrade?.upgradeToPro || 'Upgrade to PRO'}
-                            </span>
-                        </div>
-                        <p class="text-sm text-purple-700 dark:text-purple-300">
-                            {$translations?.accountManager?.upgrade?.unlimitedGenerations || 'Unlimited generations and advanced security features'}
-                        </p>
-                    </div>
+                    <ReturnUserView
+                        {email}
+                        {isSubmitting}
+                        {isEmailValid}
+                        {intelligentButtonText}
+                        {anonymizeEmail}
+                        onSubmit={handleLogin}
+                        onShowExpandedView={startAccountCreationForReturnUser}
+                    />
 
-                    <!-- Login form -->
-                    <form on:submit|preventDefault={handleLogin} class="space-y-4">
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            size="md"
-                            fullWidth={true}
-                            disabled={isSubmitting || !isEmailValid}
-                        >
-                            <div class="flex flex-col items-center justify-center -m-2">
-                                <span>{intelligentButtonText}</span>
-                                <span class="text-sm text-gray-500">
-                                    ({anonymizeEmail(email)})
-                                </span>
-                            </div>
-                        </Button>
-                        
-                        <!-- Alternative actions -->
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            fullWidth={true}
-                            on:click={() => startAccountCreationForReturnUser()}
-                        >
-                            {$translations?.accountManager?.buttons?.showFullForm || 'Show full form'}
-                        </Button>
-                    </form>
                 {:else if showExpandedView}
                     <!-- Expanded View for Return Users -->
                     <div in:fly={{y: 20, duration: 400}} out:fly={{y: -20, duration: 400}}>
                         <!-- Account Creation Flow -->
-                         <div class="transform -translate-y-3.5 scale-114">
-                            <div class="core-button relative h-20 bg-creme-500 dark:bg-aubergine-900 border-powder-300 dark:border-aubergine-800 shadow-inner overflow-hidden mb-1">
-                                <div
-                                    class="absolute inset-y-1 bg-powder-300 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
-                                    style="width: calc(48% - 2px); left: 4px; transform: translateX({showBenefitsToggle === 'pro' ? 'calc(100% + 11px)' : '0'})"
-                                ></div>
-                                <div class="w-full h-full relative flex justify-around">
-                                    <button
-                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10 hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-                                        on:click={() => selectAccountType('free')}
-                                    aria-label={$translations?.accountManager?.tiers?.free || 'Select Free account'}
-                                    title={$translations?.accountManager?.freeDescription || 'Free account'}
-                                    >
-                                        <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                            {$translations?.accountManager?.tiers?.free || 'FREE'}
-                                        </span>
-                                                                            <span class="text-xs transition-colors duration-300 text-yellow-600">
-                                        {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
-                                    </span>
-                                </button>
-                                <button
-                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10 hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
-                                    on:click={() => selectAccountType('pro')}
-                                    aria-label={$translations?.accountManager?.tiers?.pro || 'Select Pro account'}
-                                    title={$translations?.accountManager?.proDescription || 'Pro account'}
-                                >
-                                    <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                        {$translations?.accountManager?.tiers?.pro || 'PRO'}
-                                    </span>
-                                    <span class="text-xs transition-colors duration-300 text-purple-600">
-                                        {$translations?.accountManager?.proDescription || '💎 Enterprise Security'}
-                                    </span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Benefits Content -->
-                        <div class="relative mb-5 z-10 grid" role="tabpanel" aria-live="polite">
-                            <!-- FREE Benefits -->
-                            {#if showBenefitsToggle === 'free'}
-                                <div 
-                                    class="space-y-4 col-start-1 row-start-1"
-                                    in:fade={{ duration: 350, easing: (t) => t * (2 - t) }}
-                                    out:fade={{ duration: 250, easing: (t) => t * t }}
-                                    role="region"
-                                    aria-label="Free tier benefits"
-                                >
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-yellow-600 dark:text-yellow-400 text-2xl">✓</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.dailyGenerations || '5 daily secure generations'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.dailyGenerationsDesc || 'AI-resistant technology'}</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-yellow-600 dark:text-yellow-400 text-2xl">🔒</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.decentralizedData || 'Decentralized data processing'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.decentralizedDataDesc || 'Your data stays private'}</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-yellow-600 dark:text-yellow-400 text-2xl">📱</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.free?.webApp || 'Available as web app'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.free?.webAppDesc || 'Secure access from anywhere'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            {/if}
+                        <AccountBenefits
+                            selectedTier={selectedAccountType}
+                            onTierChange={(tier: 'free' | 'pro') => selectAccountType(tier)}
+                            {accountAgeLabel}
+                        />
 
-                            <!-- PRO Benefits -->
-                            {#if showBenefitsToggle === 'pro'}
-                                <div 
-                                    class="space-y-4 col-start-1 row-start-1"
-                                    in:fade={{ duration: 350, easing: (t) => t * (2 - t) }}
-                                    out:fade={{ duration: 250, easing: (t) => t * t }}
-                                    role="region"
-                                    aria-label="Pro tier benefits"
-                                >
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-purple-600 dark:text-purple-400 text-2xl">∞</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerations || 'Unlimited secure generations'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.unlimitedGenerationsDesc || 'No daily limits'}</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-purple-600 dark:text-purple-400 text-2xl">🧠</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.aiThreatDetection || 'AI-powered threat detection'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.aiThreatDetectionDesc || 'Proactive security analysis'}</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-purple-600 dark:text-purple-400 text-2xl">⚡</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{$translations?.accountManager?.benefits?.pro?.prioritySupport || 'Priority support'}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.prioritySupportDesc || 'Quick help with questions'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            {/if}
-                        </div>
-
-                                            <!-- Action Buttons for Expanded View -->
-                    <div class="space-y-4">
-                        <!-- Back to simplified view button - Only show if no login history -->
-                        {#if !storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY)?.email}
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                fullWidth={true}
-                                on:click={() => showExpandedView = false}
-                            >
-                                {$translations?.accountManager?.buttons?.compactView || 'Compact view'}
-                            </Button>
-                        {/if}
-                    </div>
-                    
-                    <!-- Login Form for Return Users -->
-                    <div class="bg-transparent mb-2 relative z-20">
-                        <form on:submit|preventDefault={handleLogin} class="space-y-4">
-                            <div>
-                                <label for="email" class="sr-only">{$translations?.accountManager?.emailLabel || 'Email'}</label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    bind:value={email}
-                                    placeholder={$translations?.accountManager?.emailLabel || 'Email'}
-                                    required={true}
-                                    disabled={isSubmitting}
-                                    invalid={!isEmailValid && email.trim()}
-                                    valid={isEmailValid && email.trim()}
-                                    autocomplete="email"
-                                />
-                            </div>
-
-                            {#if showProfileForm}
-                                <div>
-                                    <label for="name-expanded" class="sr-only">{$translations?.accountManager?.nameLabel || 'Name'}</label>
-                                    <Input
-                                        id="name-expanded"
-                                        type="text"
-                                        bind:value={name}
-                                        placeholder={$translations?.accountManager?.nameLabel || 'Name'}
-                                        required={true}
-                                        disabled={isSubmitting}
-                                        invalid={!isNameValid && name.trim()}
-                                        valid={isNameValid && name.trim()}
-                                        autocomplete="name"
-                                    />
-                                </div>
-                            {/if}
-
-                            <!-- Form Validation -->
-                            {#if !isFormValid && email}
-                                <div class="text-sm text-red-600 dark:text-red-400 text-center mt-1">
-                                    {#if !isEmailValid}
-                                        <p id="email-error">⚠️ {$translations?.accountManager?.validation?.emailInvalid || 'Please enter a valid email address'}</p>
-                                    {/if}
-                                    {#if showProfileForm && !isNameValid}
-                                        <p id="name-error">⚠️ {$translations?.accountManager?.validation?.nameInvalid || 'Please enter your name (minimum 2 characters)'}</p>
-                                    {/if}
-                                </div>
-                            {/if}
-
-                            <Button
-                                type="submit"
-                                variant="primary"
-                                size="md"
-                                fullWidth={true}
-                                disabled={!isFormValid || isSubmitting}
-                            >
-                                {#if isSubmitting}
-                                    <span class="flex items-center justify-center">
-                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        {loginButtonText}
-                                    </span>
-                                {:else}
-                                    {magicLinkButtonText}
-                                {/if}
-                            </Button>
-                            
-                            <!-- Small buttons side by side -->
-                            <div class="flex gap-3">
+                        <!-- Action Buttons for Expanded View -->
+                        <div class="space-y-4">
+                            <!-- Back to simplified view button - Only show if no login history -->
+                            {#if !storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY)?.email}
                                 <Button
+                                    type="button"
                                     variant="secondary"
                                     size="sm"
                                     fullWidth={true}
-                                    on:click={() => showProfileForm = !showProfileForm}
+                                    on:click={() => showExpandedView = false}
                                 >
-                                    <span class="mr-1.5">👤</span>{showProfileForm ? ($translations?.accountManager?.buttons?.hideProfile || 'Hide') : ($translations?.accountManager?.buttons?.addProfile || 'Add')} {$translations?.accountManager?.buttons?.name || 'Name'}
+                                    {$translations?.accountManager?.buttons?.compactView || 'Compact view'}
                                 </Button>
-                                
-                                <!-- Only show if no login history -->
-                                {#if !storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY)?.email}
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        fullWidth={true}
-                                        on:click={() => showExpandedView = false}
-                                    >
-                                        {$translations?.accountManager?.buttons?.compactView || 'Compact view'}
-                                    </Button>
-                                {/if}
-                            </div>
-                        </form>
+                            {/if}
+                        </div>
+                        
+                        <!-- Login Form for Return Users -->
+                        <AccountCreationForm
+                            bind:email
+                            bind:name
+                            {showProfileForm}
+                            {isSubmitting}
+                            {isEmailValid}
+                            {isNameValid}
+                            {isFormValid}
+                            {loginButtonText}
+                            {magicLinkButtonText}
+                            {intelligentButtonText}
+                            onToggleProfileForm={() => showProfileForm = !showProfileForm}
+                            onSubmit={handleLogin}
+                            onShowExpandedView={() => showExpandedView = false}
+                            showExpandedViewToggle={!storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY)?.email}
+                        />
                     </div>
-                </div> 
                 {:else}
                     <!-- Account Creation Flow - Styled like EmojiDisplay -->
-                    <div class="transform -translate-y-3.5 scale-114">
-                        <div class="core-button relative h-20 bg-creme-500 dark:bg-aubergine-900 border-powder-300 dark:border-aubergine-800 shadow-inner overflow-hidden mb-1">
-                            <div
-                                class="absolute inset-y-1 bg-powder-300 dark:bg-aubergine-800 rounded-full shadow-lg transition-transform duration-500 ease-in-out"
-                                style="width: calc(48% - 2px); left: 4px; transform: translateX({showBenefitsToggle === 'pro' ? 'calc(100% + 11px)' : '0'})"
-                            ></div>
-                            <div class="w-full h-full relative flex justify-around">
-                                <button
-                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
-                                    on:click={() => selectAccountType('free')}
-                                >
-                                    <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                        FREE
-                                    </span>
-                                    <span class="text-xs transition-colors duration-300 text-yellow-600">
-                                        {get(isLoggedIn) ? accountAgeLabel : (get(translations)?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit')}
-                                    </span>
-                                </button>
-                                <button
-                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10"
-                                    on:click={() => selectAccountType('pro')}
-                                >
-                                    <span class="text-xl font-bold transition-colors duration-300 text-black dark:text-white">
-                                        {$translations?.accountManager?.tiers?.pro || 'PRO'}
-                                    </span>
-                                    <span class="text-sm transition-colors duration-300 text-purple-600">
-                                        {get(isLoggedIn) ? accountAgeLabel : (get(translations)?.accountManager?.proDescription || '💎 Enterprise Security')}
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Benefits Content -->
-                    <div class="relative mb-5 grid" role="tabpanel" aria-live="polite">
-                        <!-- FREE Benefits -->
-                        {#if showBenefitsToggle === 'free'}
-                            <div 
-                                class="space-y-4 col-start-1 row-start-1"
-                                in:fade={{ duration: 350, easing: (t) => t * (2 - t) }}
-                                out:fade={{ duration: 250, easing: (t) => t * t }}
-                                role="region"
-                                aria-label="Free tier benefits"
-                            >
-                                {#each Object.entries($translations?.accountManager?.benefits?.free || {}) as [key, value]}
-                                    {#if !key.endsWith('Desc')}
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-800 dark:to-yellow-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-yellow-600 dark:text-yellow-400 text-2xl">
-                                                {key === 'dailyGenerations' ? '✓' : 
-                                                 key === 'decentralizedData' ? '🤖' : 
-                                                 key === 'webApp' ? '📱' : '✓'}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{value}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">
-                                                {#if key === 'decentralizedData'}
-                                                    {@const desc = $translations?.accountManager?.benefits?.free?.[key + 'Desc'] || ''}
-                                                    {@const parts = desc.split('Apertus')}
-                                                    {#if parts.length > 1}
-                                                        {parts[0]}
-                                                        <a 
-                                                            href="https://publicai.co/apertus" 
-                                                            target="_blank" 
-                                                            rel="noopener noreferrer external"
-                                                            class="inline-flex items-center gap-1 text-yellow-500 dark:text-yellow-400 hover:text-yellow-600 dark:hover:text-yellow-500 underline transition-colors duration-200"
-                                                            aria-label="Apertus LLM Documentation (opens in new tab)"
-                                                            title="Apertus LLM - Official Documentation">
-                                                            <span>Apertus</span>
-                                                            <svg 
-                                                                class="w-3 h-3 inline" 
-                                                                fill="none" 
-                                                                stroke="currentColor" 
-                                                                viewBox="0 0 24 24" 
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                aria-hidden="true">
-                                                                <path 
-                                                                    stroke-linecap="round" 
-                                                                    stroke-linejoin="round" 
-                                                                    stroke-width="2" 
-                                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
-                                                                </path>
-                                                            </svg>
-                                                        </a>
-                                                        {parts[1]}
-                                                    {:else}
-                                                        {desc}
-                                                    {/if}
-                                                {:else}
-                                                    {$translations?.accountManager?.benefits?.free?.[key + 'Desc'] || ''}
-                                                {/if}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {/if}
-                                {/each}
-                            </div>
-                        {/if}
-
-                        <!-- PRO Benefits -->
-                        {#if showBenefitsToggle === 'pro'}
-                            <div 
-                                class="space-y-4 col-start-1 row-start-1"
-                                in:fade={{ duration: 350, easing: (t) => t * (2 - t) }}
-                                out:fade={{ duration: 250, easing: (t) => t * t }}
-                                role="region"
-                                aria-label="Pro tier benefits"
-                            >
-                                {#each Object.entries($translations?.accountManager?.benefits?.pro || {}) as [key, value]}
-                                    {#if !key.endsWith('Desc')}
-                                    <div class="flex items-center p-4 bg-white dark:bg-aubergine-900 rounded-xl transform transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-lg">
-                                        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-100 to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-200 dark:from-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-800 dark:to-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-900 rounded-full flex items-center justify-center mr-5 transition-transform duration-300 hover:rotate-12">
-                                            <span class="text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-600 dark:text-{key === 'unlimitedGenerations' || key === 'aiThreatDetection' || key === 'prioritySupport' ? 'purple' : key === 'browserExtension' ? 'blue' : key === 'apiIntegration' ? 'green' : key === 'advancedAnalytics' ? 'orange' : 'purple'}-400 text-2xl">
-                                                {key === 'unlimitedGenerations' ? '∞' : 
-                                                 key === 'aiThreatDetection' ? '🧠' : 
-                                                 key === 'prioritySupport' ? '⚡' : 
-                                                 key === 'browserExtension' ? '🤖' : 
-                                                 key === 'apiIntegration' ? '🔌' : 
-                                                 key === 'advancedAnalytics' ? '📊' : 
-                                                 key === 'wordpressPlugin' ? '📝' : '✓'}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <span class="text-md font-bold text-black dark:text-white">{value}</span>
-                                            <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.benefits?.pro?.[key + 'Desc'] || ''}</p>
-                                        </div>
-                                    </div>
-                                    {/if}
-                                {/each}
-                            </div>
-                        {/if}
-                    </div>
-
-                    <!-- Create Account Button - ENTFERNT -->
-                    <!-- Button wurde entfernt - Funktionalität wird über direkte Formular-Navigation abgedeckt -->
+                    <AccountBenefits
+                        selectedTier={selectedAccountType}
+                        onTierChange={(tier) => selectAccountType(tier)}
+                        {accountAgeLabel}
+                    />
 
                     <!-- Login Form -->
-                    <div class="bg-transparent mb-2 relative z-20">      
-                        <form on:submit|preventDefault={handleLogin} class="space-y-4">
-                            <div>
-                                <label for="email" class="sr-only">{$translations?.accountManager?.emailLabel || 'Email'}</label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    bind:value={email}
-                                    placeholder={$translations?.accountManager?.emailLabel || 'Email'}
-                                    required={true}
-                                    disabled={isSubmitting}
-                                    invalid={!isEmailValid && email.trim()}
-                                    valid={isEmailValid && email.trim()}
-                                />
-                            </div>
-
-                            {#if showProfileForm}
-                                <div>
-                                    <label for="name" class="sr-only">{$translations?.accountManager?.nameLabel || 'Name'}</label>
-                                    <Input
-                                        id="name"
-                                        type="text"
-                                        bind:value={name}
-                                        placeholder={$translations?.accountManager?.nameLabel || 'Name'}
-                                        required={true}
-                                        disabled={isSubmitting}
-                                        invalid={!isNameValid && name.trim()}
-                                        valid={isNameValid && name.trim()}
-                                    />
-                                </div>
-                            {/if}
-
-                            <!-- Form Validation -->
-                            {#if !isFormValid && email}
-                                <div class="text-sm text-red-600 dark:text-red-400 text-center">
-                                    {#if !isEmailValid}
-                                        <p id="email-error">⚠️ {$translations?.accountManager?.validation?.emailInvalid || 'Please enter a valid email address'}</p>
-                                    {/if}
-                                    {#if showProfileForm && !isNameValid}
-                                        <p id="name-error">⚠️ {$translations?.accountManager?.validation?.nameInvalid || 'Please enter your name (minimum 2 characters)'}</p>
-                                    {/if}
-                                </div>
-                            {/if}
-
-                            <Button
-                                type="submit"
-                                variant="primary"
-                                size="md"
-                                fullWidth={true}
-                                disabled={!isFormValid || isSubmitting}
-                            >
-                                {#if isSubmitting}
-                                    <span class="flex items-center justify-center">
-                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        {loginButtonText}
-                                    </span>
-                                {:else}
-                                    {magicLinkButtonText}
-                                {/if}
-                            </Button>
-
-                            <Button
-                                variant="secondary"
-                                size="md"
-                                fullWidth={true}
-                                on:click={() => showProfileForm = !showProfileForm}
-                                >
-                                <span class="mr-1.5">👤</span>{showProfileForm ? ($translations?.accountManager?.buttons?.hideProfile || 'Hide') : ($translations?.accountManager?.buttons?.addProfile || 'Add')} {$translations?.accountManager?.buttons?.name || 'Name'}
-                            </Button>
-                        </form>
-                    </div>
-
-
-
-                    <!-- Footer -->
-                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-                            <span class="flex items-center">
-                                🔗 {$translations?.accountManager?.footer?.magicLink || 'Magic link'}
-                            </span>
-                            <span class="flex items-center">
-                                ⚡ {$translations?.accountManager?.footer?.instantSetup || 'Instant Setup'}
-                            </span>
-                            <span class="flex items-center">
-                                🛡️ {$translations?.accountManager?.footer?.noSpam || 'No Spam'}
-                            </span>
-                        </div>
-                    </div>
+                    <AccountCreationForm
+                        bind:email
+                        bind:name
+                        {showProfileForm}
+                        {isSubmitting}
+                        {isEmailValid}
+                        {isNameValid}
+                        {isFormValid}
+                        {loginButtonText}
+                        {magicLinkButtonText}
+                        {intelligentButtonText}
+                        onToggleProfileForm={() => showProfileForm = !showProfileForm}
+                        onSubmit={handleLogin}
+                    />
                 {/if}
             </div>
         </section>
@@ -2077,6 +1358,4 @@
         on:change={handleImportSettings}
         class="hidden"
     />
-
-    <!-- Footer Information Component -->
 </PageLayout>

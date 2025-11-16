@@ -7,7 +7,7 @@ import {
     isLoggedIn,
     userProfile,
     accountTier
-} from './appStores.ts';
+} from './appStores';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage';
 import { getActiveSessions, getSessionId } from './accountHelpers';
 import { logSecurityEvent } from './accountSecurity';
@@ -24,7 +24,9 @@ let sessionRestoreTimestamp: number = 0;
 /**
  * Validate session data
  */
-export function validateSession(sessionData: SessionData | null | undefined): boolean {
+export function validateSession(
+    sessionData: SessionData | null | undefined
+): boolean {
     console.log('🔍 [SESSION VALIDATION] Checking session...', {
         hasData: !!sessionData,
         hasEmail: !!sessionData?.email,
@@ -56,7 +58,9 @@ export function validateSession(sessionData: SessionData | null | undefined): bo
         now: now.toISOString(),
         expires: expires.toISOString(),
         isExpired: now > expires,
-        timeUntilExpiry: Math.floor((expires.getTime() - now.getTime()) / 1000 / 60) + ' minutes'
+        timeUntilExpiry:
+            Math.floor((expires.getTime() - now.getTime()) / 1000 / 60) +
+            ' minutes'
     });
 
     if (now > expires) {
@@ -80,13 +84,6 @@ export function validateSession(sessionData: SessionData | null | undefined): bo
 
     console.log('✅ [SESSION VALIDATION] Session is valid');
     return true;
-}
-
-/**
- * Get current account from store
- */
-export function getCurrentAccount() {
-    return get(currentAccount);
 }
 
 /**
@@ -125,18 +122,3 @@ export function setSessionRestoreState(
     sessionRestored = restored;
     sessionRestoreTimestamp = Date.now();
 }
-
-/**
- * Check if session is being restored
- */
-export function isSessionRestoring(): boolean {
-    return isRestoringSession;
-}
-
-/**
- * Check if session was restored
- */
-export function wasSessionRestored(): boolean {
-    return sessionRestored;
-}
-

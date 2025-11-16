@@ -3,7 +3,7 @@
 <!-- Data-Driven Architecture: Content (JSON) + Presentation (Component) -->
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { currentLanguage, translations } from '../stores/contentStore.ts';
+    import { currentLanguage, translations } from '../stores/contentStore';
     import PageLayout from '../components/Layout/PageLayout.svelte';
     import StaticSection from '../components/StaticContent/StaticSection.svelte';
     import { staticPagesData } from '../data/staticPages.json.js';

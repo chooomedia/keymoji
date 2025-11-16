@@ -3,7 +3,7 @@
 
 <script>
     import { linkedinIcon, whatsappIcon, emailIcon, redditIcon } from '../../assets/shapes';
-    import { showShareMenu } from '../../stores/contentStore.ts';
+    import { showShareMenu } from '../../stores/contentStore';
     
     export let shareUrl = '';
     export let shareText = '';

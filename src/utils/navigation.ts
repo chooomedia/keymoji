@@ -6,8 +6,8 @@
  */
 
 import { get } from 'svelte/store';
-import { navigate } from './routing.ts';
-import { currentLanguage } from '../stores/contentStore.ts';
+import { navigate } from './routing';
+import { currentLanguage } from '../stores/contentStore';
 
 /**
  * Markiert dass der User von der initialen Seite navigiert ist
@@ -78,36 +78,8 @@ export function navigateToVersions(replace: boolean = false): void {
     navigateToRoute('versions', replace);
 }
 
-/**
- * Navigiert zur Blog-Seite
- * @param replace - Ob die aktuelle Route ersetzt werden soll
- * @deprecated Use blogNavigation.navigateToBlog instead
- */
-export function navigateToBlog(replace: boolean = false): void {
-    navigateToRoute('blog', replace);
-}
-
-/**
- * Navigiert zu einem spezifischen Blog-Post
- * @param slug - Der Blog-Post Slug
- * @param replace - Ob die aktuelle Route ersetzt werden soll
- * @deprecated Use blogNavigation.navigateToBlogPost instead
- */
-export function navigateToBlogPost(slug: string, replace: boolean = false): void {
-    try {
-        const lang = get(currentLanguage) || 'en';
-        const fullPath = `/${lang}/blog/${slug}`;
-        console.log('🔄 Navigation: navigateToBlogPost', {
-            slug,
-            fullPath,
-            replace
-        });
-        navigate(fullPath, { replace });
-    } catch (error) {
-        console.error('❌ Navigation error:', error);
-        navigateToBlog(replace);
-    }
-}
+// Blog navigation functions moved to blogNavigation.ts
+// Use: import { navigateToBlog, navigateToBlogPost } from '../utils/blogNavigation';
 
 /**
  * Prüft ob die aktuelle Route die Home-Seite ist

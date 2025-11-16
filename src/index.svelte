@@ -1,19 +1,19 @@
 <script>
     import { onMount } from 'svelte';
     import { get } from 'svelte/store';
-    import { currentLanguage } from './stores/contentStore.ts';
-    import { updateSeo } from './stores/seoStore.ts';
-    import { navigate } from './utils/routing.ts';
-    import { closeModal, isModalVisible } from './stores/modalStore.ts';
+    import { currentLanguage } from './stores/contentStore';
+    import { updateSeo } from './stores/seoStore';
+    import { navigate } from './utils/routing';
+    import { closeModal, isModalVisible } from './stores/modalStore';
     import { isLoggedIn, currentAccount } from './stores/appStores';
     // PageLayout wird jetzt von +page.svelte bereitgestellt (SvelteKit Pattern)
     import EmojiDisplay from './components/Core/EmojiDisplay.svelte';
 
-    import { translations } from './stores/contentStore.ts';
+    import { translations } from './stores/contentStore';
     import { isDebugMode } from './utils/environment';
     import { initializeAccountFromCookies, setupMagicLinkListener } from './stores/accountStore';
     import { initializeSettingsForUser } from './stores/userSettingsStore';
-    import { testLimitConfiguration, testLimitConsistency } from './utils/test-limits.ts';
+    import { testLimitConfiguration, testLimitConsistency } from './utils/test-limits';
     import { sendAnalyticsEvent } from './stores/appStores';
   
     // Debug-Flag - für die Produktion entfernen

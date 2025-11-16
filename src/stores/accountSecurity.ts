@@ -2,7 +2,7 @@
 // Security & Logging Functions für Account Management
 // TypeScript Migration: v0.7.7
 import { get } from 'svelte/store';
-import { currentAccount } from './appStores.ts';
+import { currentAccount } from './appStores';
 import { WEBHOOKS } from '../config/api';
 import { generateClientFingerprint } from '../utils/sharedHelpers';
 import { getSessionId } from './accountHelpers';
@@ -136,4 +136,3 @@ export function checkRateLimit(email: string): boolean {
 export function clearLoginAttempts(email: string): void {
     LOGIN_ATTEMPTS.delete(email);
 }
-

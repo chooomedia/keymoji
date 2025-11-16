@@ -4,8 +4,8 @@
 // TypeScript Migration: v0.7.7
 
 import { get } from 'svelte/store';
-import { currentLanguage } from '../stores/contentStore.ts';
-import { navigate } from './routing.ts';
+import { currentLanguage } from '../stores/contentStore';
+import { navigate } from './routing';
 
 /**
  * Generiert eine Blog-URL mit automatischem Language-Prefix

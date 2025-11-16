@@ -1,17 +1,17 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import Link from '../../components/Routing/Link.svelte';
-    import { navigate } from '../../utils/routing.ts';
+    import { navigate } from '../../utils/routing';
     import { 
         fetchBlogPosts, 
         likeBlogPost, 
         formatContentPreview
     } from '../../utils/blogApi';
     import { getBlogUrl, getBlogShareUrl } from '../../utils/blogNavigation';
-    import { currentLanguage, translations } from '../../stores/contentStore.ts';
+    import { currentLanguage, translations } from '../../stores/contentStore';
     import { isLoggedIn } from '../../stores/appStores';
     import PageLayout from '../Layout/PageLayout.svelte';
-    import { updateSeo } from '../../stores/seoStore.ts';
+    import { updateSeo } from '../../stores/seoStore';
     import BlogPostImage from './BlogPostImage.svelte';
     import BlogPostMeta from './BlogPostMeta.svelte';
     import HeartAnimation from './HeartAnimation.svelte';

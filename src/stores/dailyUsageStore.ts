@@ -7,7 +7,7 @@ import {
     isLoggedIn,
     accountTier,
     dailyLimit
-} from './appStores.ts';
+} from './appStores';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage';
 import { WEBHOOKS } from '../config/api';
 import {

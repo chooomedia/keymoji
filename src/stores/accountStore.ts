@@ -9,18 +9,40 @@ import {
     accountTier,
     dailyLimit,
     updateDailyLimit
-} from './appStores.ts';
+} from './appStores';
 import { showExistingAccountFound, showNewAccountCreated } from './modalStore';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage';
 import { WEBHOOKS } from '../config/api';
 import { isDevelopment } from '../utils/environment';
-import {
-    cachedFetchAccount,
-    invalidateCachePattern,
-    initializeCache,
-    clearAllCache
-} from '../utils/apiCache';
+import { cachedFetchAccount, clearAllCache } from '../utils/apiCache';
 import { generateClientFingerprint } from '../utils/sharedHelpers';
+// Import Helper Functions
+import {
+    generateSecureToken,
+    generateFantasyName,
+    getSessionId,
+    getCreatedAtFromAccount,
+    removeCreatedAtFromObject,
+    saveCreatedAtToUserPreferences,
+    getCreatedAtFromUserPreferences,
+    safeJSONParse
+} from './accountHelpers';
+// Import Security Functions
+import {
+    logSecurityEvent,
+    logAccountingEvent,
+    checkRateLimit,
+    clearLoginAttempts
+} from './accountSecurity';
+// Import Session Functions
+import {
+    validateSession,
+    resetSessionFlags,
+    getSessionRestoreState,
+    setSessionRestoreState,
+    SESSION_TIMEOUT,
+    MAX_SESSIONS_PER_USER
+} from './accountSession';
 import type {
     Account,
     UserProfile,
@@ -129,217 +151,17 @@ export type AccountingOperation =
     | 'LOGIN'
     | 'VERIFY_LOGIN';
 
-const SESSION_TIMEOUT = 7 * 24 * 60 * 60 * 1000; // 7 days
-const MAX_SESSIONS_PER_USER = 3;
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOGIN_ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 minutes
-
-const LOGIN_ATTEMPTS = new Map<string, number[]>();
+// Session and rate limit constants moved to respective modules
+// SESSION_TIMEOUT, MAX_SESSIONS_PER_USER -> accountSession.ts
+// MAX_LOGIN_ATTEMPTS, LOGIN_ATTEMPT_WINDOW, LOGIN_ATTEMPTS -> accountSecurity.ts
 
 function showLoginSuccessIfFirstLogin(accountInfo: AccountInfo): void {
     if (accountInfo.isFirstLogin) {
-        showExistingAccountFound(accountInfo.email, accountInfo.name);
+        showExistingAccountFound();
     }
 }
 
-function logSecurityEvent(
-    event: string,
-    details: SecurityEventDetails = {}
-): void {
-    const timestamp = new Date().toISOString();
-    const clientFingerprint = generateClientFingerprint();
-
-    const securityLog: SecurityLog = {
-        event,
-        timestamp,
-        clientFingerprint,
-        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
-        details,
-        accountingEvent:
-            event.startsWith('ACCOUNT_') || event.startsWith('PAYMENT_'),
-        sessionId: getSessionId(),
-        userId: details?.userId || currentAccount?.userId,
-        email: details?.email || currentAccount?.email
-    };
-
-    console.log('🔒 Security Event:', securityLog);
-
-    if (
-        typeof window !== 'undefined' &&
-        window.location.hostname !== 'localhost'
-    ) {
-        fetch('/api/security/log', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(securityLog)
-        }).catch((error: unknown) => {
-            console.warn('Failed to log security event:', error);
-        });
-    }
-}
-
-function logAccountingEvent(
-    event: string,
-    details: SecurityEventDetails = {}
-): void {
-    const accountingDetails: AccountingEventDetails = {
-        ...details,
-        event: event, // Add event field for n8n compatibility
-        accountingType: 'account_management',
-        timestamp: new Date().toISOString(),
-        clientFingerprint: generateClientFingerprint(),
-        sessionId: getSessionId(),
-        userId: details?.userId || currentAccount?.userId,
-        email: details?.email || currentAccount?.email,
-        tier: (details?.tier || currentAccount?.tier || 'free') as
-            | 'free'
-            | 'pro',
-        action: event
-    };
-
-    console.log('💰 Accounting Event:', accountingDetails);
-
-    if (typeof window !== 'undefined') {
-        fetch(WEBHOOKS.ACCOUNTING.AUDIT_LOG, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(accountingDetails)
-        }).catch((error: unknown) => {
-            console.warn('Failed to log accounting event to n8n:', error);
-        });
-    }
-
-    logSecurityEvent(`ACCOUNTING_${event}`, accountingDetails);
-}
-
-function checkRateLimit(email: string): boolean {
-    const now = Date.now();
-    const attempts = LOGIN_ATTEMPTS.get(email) || [];
-
-    const recentAttempts = attempts.filter(
-        timestamp => now - timestamp < LOGIN_ATTEMPT_WINDOW
-    );
-
-    if (recentAttempts.length >= MAX_LOGIN_ATTEMPTS) {
-        const oldestAttempt = Math.min(...recentAttempts);
-        const timeRemaining = LOGIN_ATTEMPT_WINDOW - (now - oldestAttempt);
-
-        logSecurityEvent('RATE_LIMIT_EXCEEDED', {
-            email,
-            attempts: recentAttempts.length,
-            timeRemaining,
-            clientFingerprint: generateClientFingerprint()
-        });
-
-        throw new Error(
-            `Too many login attempts. Please wait ${Math.ceil(
-                timeRemaining / 60000
-            )} minutes.`
-        );
-    }
-
-    recentAttempts.push(now);
-    LOGIN_ATTEMPTS.set(email, recentAttempts);
-
-    return true;
-}
-
-function validateSession(sessionData: SessionData | null | undefined): boolean {
-    console.log('🔍 [SESSION VALIDATION] Checking session...', {
-        hasData: !!sessionData,
-        hasEmail: !!sessionData?.email,
-        hasSessionExpires: !!sessionData?.sessionExpires,
-        sessionExpires: sessionData?.sessionExpires
-    });
-
-    if (!sessionData) {
-        console.log('❌ [SESSION VALIDATION] No session data');
-        return false;
-    }
-
-    if (!sessionData.email) {
-        console.log('❌ [SESSION VALIDATION] No email in session data');
-        return false;
-    }
-
-    if (!sessionData.sessionExpires) {
-        console.log(
-            '⚠️ [SESSION VALIDATION] No sessionExpires found, assuming valid session (backward compat)'
-        );
-        return true;
-    }
-
-    const now = new Date();
-    const expires = new Date(sessionData.sessionExpires!); // Non-null assertion: we checked above
-
-    console.log('🕐 [SESSION VALIDATION] Time check:', {
-        now: now.toISOString(),
-        expires: expires.toISOString(),
-        isExpired: now > expires,
-        timeUntilExpiry: Math.floor((expires - now) / 1000 / 60) + ' minutes'
-    });
-
-    if (now > expires) {
-        console.log('❌ [SESSION VALIDATION] Session expired');
-        logSecurityEvent('SESSION_EXPIRED', { userId: sessionData.userId });
-        return false;
-    }
-
-    const activeSessions = getActiveSessions(sessionData.userId);
-    if (activeSessions.length > MAX_SESSIONS_PER_USER) {
-        console.log(
-            '❌ [SESSION VALIDATION] Too many active sessions:',
-            activeSessions.length
-        );
-        logSecurityEvent('SUSPICIOUS_ACTIVITY', {
-            userId: sessionData.userId,
-            sessionCount: activeSessions.length
-        });
-        return false;
-    }
-
-    console.log('✅ [SESSION VALIDATION] Session is valid');
-    return true;
-}
-
-function generateSecureToken(): string {
-    const timestamp = Date.now().toString(36);
-    const random1 = Math.random().toString(36).substring(2);
-    const random2 = Math.random().toString(36).substring(2);
-    const clientFingerprint = generateClientFingerprint();
-
-    return `${timestamp}_${random1}_${random2}_${clientFingerprint.substring(
-        0,
-        8
-    )}`;
-}
-
-function generateFantasyName(): string {
-    const fantasyNames = [
-        'Aragorn',
-        'Gandalf',
-        'Legolas',
-        'Gimli',
-        'Frodo',
-        'Sam',
-        'Merry',
-        'Pippin',
-        'Gandalf',
-        'Saruman',
-        'Radagast',
-        'Elrond',
-        'Galadriel',
-        'Arwen',
-        'Eowyn',
-        'Theoden',
-        'Denethor',
-        'Boromir',
-        'Faramir',
-        'Gollum',
-        'Smeagol'
-    ];
-    return fantasyNames[Math.floor(Math.random() * fantasyNames.length)];
-}
+// validateSession, generateSecureToken, generateFantasyName moved to helper modules
 
 export const isLoggingIn = writable<boolean>(false);
 export const loginError = writable<string | null>(null);
@@ -1315,12 +1137,12 @@ export async function verifyMagicLinkFrontend(
             console.log(
                 '🆕 New account created - showing new account created modal'
             );
-            showNewAccountCreated(accountData.email, accountData.name);
+            showNewAccountCreated();
         } else {
             console.log(
                 '✅ Existing account found - showing account found modal'
             );
-            showExistingAccountFound(accountData.email, accountData.name);
+            showExistingAccountFound();
         }
 
         logSecurityEvent('LOGIN_SUCCESS', {
@@ -1395,9 +1217,7 @@ export async function logout(): Promise<void> {
         accountTier = 'free';
         console.log('✅ [LOGOUT] Account stores reset');
 
-        const { userSettings, usageHistory } = await import(
-            './userDataStore.ts'
-        );
+        const { userSettings, usageHistory } = await import('./userDataStore');
 
         userSettings.data = null;
         userSettings.isLoading = false;
@@ -1471,7 +1291,7 @@ export async function logout(): Promise<void> {
     }
 
     if (currentAccount?.email) {
-        LOGIN_ATTEMPTS.delete(currentAccount.email);
+        clearLoginAttempts(currentAccount.email);
     }
 
     resetSessionFlags();
@@ -1489,32 +1309,28 @@ export async function logout(): Promise<void> {
 }
 
 export function getCurrentAccount(): Account | null {
-    return currentAccount;
+    return get(currentAccount);
 }
 
-let isRestoringSession: boolean = false;
-let sessionRestored: boolean = false;
-let sessionRestoreTimestamp: number = 0;
-
-export function resetSessionFlags(): void {
-    console.log('🔄 [SESSION] Resetting session flags for new page load');
-    isRestoringSession = false;
-    sessionRestored = false;
-    sessionRestoreTimestamp = 0;
-}
+// Session state flags moved to accountSession.ts
 
 export async function initializeAccountFromCookies(
     forceRestore: boolean = false
 ): Promise<boolean> {
     try {
-        const timeSinceLastRestore = Date.now() - sessionRestoreTimestamp;
+        const restoreState = getSessionRestoreState();
+        const timeSinceLastRestore = Date.now() - restoreState.timestamp;
 
-        if (isRestoringSession && timeSinceLastRestore < 5000) {
+        if (restoreState.isRestoring && timeSinceLastRestore < 5000) {
             console.log('⏳ Session restore already in progress, skipping...');
-            return sessionRestored;
+            return restoreState.restored;
         }
 
-        if (sessionRestored && !forceRestore && timeSinceLastRestore < 5000) {
+        if (
+            restoreState.restored &&
+            !forceRestore &&
+            timeSinceLastRestore < 5000
+        ) {
             console.log('✅ Session already restored (recent), skipping...');
             return true;
         }
@@ -1522,7 +1338,7 @@ export async function initializeAccountFromCookies(
         console.log('🔐 [SESSION RESTORE] Starting session restoration...', {
             forceRestore,
             timeSinceLastRestore,
-            previouslyRestored: sessionRestored,
+            previouslyRestored: restoreState.restored,
             currentStoreState: {
                 isLoggedIn: isLoggedIn,
                 hasAccount: !!currentAccount,
@@ -1530,8 +1346,7 @@ export async function initializeAccountFromCookies(
             }
         });
 
-        isRestoringSession = true;
-        sessionRestoreTimestamp = Date.now();
+        setSessionRestoreState(true, false);
 
         const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
         const sessionId = getSessionId(); // Use local function, not storageHelpers.getSessionId
@@ -1555,7 +1370,7 @@ export async function initializeAccountFromCookies(
                     error
                 );
             }
-            isRestoringSession = false;
+            setSessionRestoreState(false, false);
             return false;
         }
 
@@ -1575,8 +1390,7 @@ export async function initializeAccountFromCookies(
                     storeEmail: currentAccount?.email
                 }
             );
-            isRestoringSession = false;
-            sessionRestored = true;
+            setSessionRestoreState(false, true);
             return true;
         }
 
@@ -1776,208 +1590,24 @@ export async function initializeAccountFromCookies(
                 userId: accountInfo.userId
             });
 
-            sessionRestored = true;
-            isRestoringSession = false;
+            setSessionRestoreState(false, true);
             return true;
         } else {
             console.log('❌ No valid session found in cookies');
-            isRestoringSession = false;
+            setSessionRestoreState(false, false);
         }
     } catch (error) {
         console.warn('Failed to load account from cookies:', error);
-        logSecurityEvent('SESSION_LOAD_ERROR', { error: error.message });
-        isRestoringSession = false;
+        logSecurityEvent('SESSION_LOAD_ERROR', {
+            error: error instanceof Error ? error.message : String(error)
+        });
+        setSessionRestoreState(false, false);
     }
 
     return false;
 }
 
-function getActiveSessions(userId: string | undefined): (string | null)[] {
-    return [getSessionId()].filter(Boolean);
-}
-
-function getSessionId(): string | null {
-    return storageHelpers.get<string>('sessionId') || null;
-}
-
-function setSessionId(sessionId: string): boolean {
-    return storageHelpers.set('sessionId', sessionId);
-}
-
-function getCreatedAtFromAccount(
-    account: Account | Record<string, unknown> | null | undefined
-): string | null {
-    if (!account) {
-        console.log('⚠️ No account provided to getCreatedAtFromAccount');
-        return null;
-    }
-
-    console.log('🔍 DEBUG: getCreatedAtFromAccount called with:', account);
-
-    const possibleSources = [
-        account.createdAt,
-        account.metadata?.createdAt,
-        account.profile?.createdAt
-    ];
-
-    console.log('🔍 DEBUG: Possible createdAt sources:', possibleSources);
-
-    const foundCreatedAt =
-        possibleSources.find(
-            date => date && date !== 'null' && date !== 'undefined'
-        ) || null;
-
-    console.log('🔍 DEBUG: Final createdAt:', foundCreatedAt);
-    return foundCreatedAt;
-}
-
-/**
- * CRITICAL: Remove createdAt from objects before sending to API
- * Best Practice: createdAt should ONLY be set on CREATE, never in UPDATE requests
- * This ensures createdAt is preserved in the database and never overwritten
- */
-function removeCreatedAtFromObject<T extends Record<string, unknown>>(
-    obj: T | null | undefined
-): T {
-    if (!obj || typeof obj !== 'object') return obj;
-
-    const cleaned = { ...obj };
-
-    if ('createdAt' in cleaned) {
-        delete cleaned.createdAt;
-    }
-
-    if (cleaned.metadata && typeof cleaned.metadata === 'object') {
-        const { createdAt, ...metadataWithoutCreatedAt } = cleaned.metadata;
-        cleaned.metadata = metadataWithoutCreatedAt;
-    }
-
-    if (cleaned.profile && typeof cleaned.profile === 'object') {
-        const { createdAt, ...profileWithoutCreatedAt } = cleaned.profile;
-        cleaned.profile = profileWithoutCreatedAt;
-    }
-
-    return cleaned;
-}
-
-function saveCreatedAtToUserPreferences(
-    createdAt: string | null | undefined
-): void {
-    if (!createdAt) {
-        console.log('⚠️ No createdAt provided to save');
-        return;
-    }
-
-    if (
-        createdAt === 'null' ||
-        createdAt === 'undefined' ||
-        (createdAt.trim && createdAt.trim() === '')
-    ) {
-        console.warn('⚠️ Invalid createdAt value - not saving:', createdAt);
-        return;
-    }
-
-    console.log('🔍 DEBUG: Saving createdAt to USER_PREFERENCES:', createdAt);
-
-    const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
-    console.log('🔍 DEBUG: Current userPrefs createdAt:', userPrefs.createdAt);
-
-    if (userPrefs.createdAt && userPrefs.createdAt === createdAt) {
-        console.log(
-            '✅ createdAt already exists in localStorage with same value - no update needed'
-        );
-        return;
-    }
-
-    if (userPrefs.createdAt && userPrefs.createdAt !== createdAt) {
-        console.warn(
-            '⚠️ createdAt mismatch - localStorage has:',
-            userPrefs.createdAt,
-            'backend has:',
-            createdAt
-        );
-        if (!createdAt || createdAt === 'null' || createdAt === 'undefined') {
-            console.log(
-                '🔄 Backend createdAt is invalid - preserving localStorage value:',
-                userPrefs.createdAt
-            );
-            return;
-        }
-        console.log(
-            '✅ Updating createdAt from backend (backend takes precedence):',
-            createdAt
-        );
-    }
-
-    const updatedPrefs = {
-        ...userPrefs,
-        createdAt: createdAt
-    };
-
-    console.log('🔍 DEBUG: Updated userPrefs:', updatedPrefs);
-
-    const success = storageHelpers.set(
-        STORAGE_KEYS.USER_PREFERENCES,
-        updatedPrefs
-    );
-
-    if (success) {
-        console.log('✅ createdAt saved to USER_PREFERENCES:', createdAt);
-    } else {
-        console.error('❌ Failed to save createdAt to USER_PREFERENCES');
-    }
-}
-
-function getCreatedAtFromUserPreferences(): string | null {
-    const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
-    const createdAt = userPrefs.createdAt || null;
-    console.log('🔍 Retrieved createdAt from USER_PREFERENCES:', createdAt);
-    return createdAt;
-}
-
-/**
- * Safe JSON parsing helper
- * Handles both strings and already-parsed objects
- */
-function safeJSONParse<T = Record<string, unknown>>(
-    data: string | T | null | undefined,
-    fallback: T
-): T {
-    if (!data) return fallback;
-
-    if (typeof data === 'object' && data !== null) {
-        return data;
-    }
-
-    if (typeof data === 'string') {
-        try {
-            let parsed = JSON.parse(data);
-
-            if (typeof parsed === 'string') {
-                console.log(
-                    '⚠️ Double-escaped JSON detected, parsing again...'
-                );
-                try {
-                    parsed = JSON.parse(parsed);
-                    console.log('✅ Successfully parsed double-escaped JSON');
-                } catch (secondError) {
-                    console.warn(
-                        '⚠️ Failed second parse:',
-                        secondError.message
-                    );
-                    return fallback;
-                }
-            }
-
-            return parsed;
-        } catch (error) {
-            console.warn('⚠️ Failed to parse JSON:', error.message);
-            return fallback;
-        }
-    }
-
-    return fallback;
-}
+// All helper functions moved to accountHelpers.ts
 
 async function syncAccountData(
     accountData: Account | Partial<Account> | null
@@ -2474,7 +2104,7 @@ export function setupMagicLinkListener(): void {
                     userPrefsUpdate
                 );
 
-                showExistingAccountFound(accountData.email);
+                showExistingAccountFound();
 
                 logSecurityEvent('LOGIN_SUCCESS', {
                     userId: accountData.userId,
@@ -2513,7 +2143,7 @@ export function setupMagicLinkListener(): void {
                     currentAccount = accountData;
                     isLoggedIn = true;
 
-                    showExistingAccountFound(accountData.email);
+                    showExistingAccountFound();
                 }
             } catch (error) {
                 console.warn('Error parsing storage update:', error);

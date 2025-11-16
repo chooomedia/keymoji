@@ -2,7 +2,7 @@
 // User Data Management mit klassischen Svelte-Stores
 // TypeScript Migration: v0.7.7
 import { writable, get } from 'svelte/store';
-import { currentAccount, isLoggedIn, accountTier } from './appStores.ts';
+import { currentAccount, isLoggedIn, accountTier } from './appStores';
 import { STORAGE_KEYS, storageHelpers } from '../config/storage';
 import { WEBHOOKS } from '../config/api';
 import { cachedFetchAccount } from '../utils/apiCache';

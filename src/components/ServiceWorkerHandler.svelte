@@ -2,7 +2,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { showInfo } from '../stores/modalStore';
-    import { translations } from '../stores/contentStore.ts';
+    import { translations } from '../stores/contentStore';
     import { isDebugMode } from '../utils/environment';
     import { safeSetTimeout, clearAllTimeouts } from '../utils/sharedHelpers';
 

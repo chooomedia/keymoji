@@ -4,7 +4,7 @@
 // Klassische Stores verwenden (Runes funktionieren nur in .svelte Komponenten)
 
 import { writable, derived, get, type Writable, type Readable } from 'svelte/store';
-import { currentLanguage, t } from './contentStore.ts';
+import { currentLanguage, t } from './contentStore';
 import { DEFAULT_SEO, formatCanonicalUrl, type SEOConfig } from '../utils/seo';
 
 const seoSettings: Writable<Partial<SEOConfig>> = writable<Partial<SEOConfig>>(DEFAULT_SEO);

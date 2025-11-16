@@ -15,7 +15,7 @@
   
     import { isDebugMode } from '../../utils/environment';
     
-    import { translations } from '../../stores/contentStore.ts';
+    import { translations } from '../../stores/contentStore';
   
     const message = $derived(modalMessage);
     const messageType = $derived(modalType || getMessageType(message));

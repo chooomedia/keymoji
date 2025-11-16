@@ -1,7 +1,7 @@
 <!-- src/routes/ContactForm.svelte -->
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
-    import { currentLanguage, translations } from '../stores/contentStore.ts';
+    import { currentLanguage, translations } from '../stores/contentStore';
     import { 
         showSuccess, 
         showError,
@@ -14,7 +14,7 @@
         showConfirmation,
         showInfo
     } from '../stores/modalStore';
-    import { navigate } from '../utils/routing.ts';
+    import { navigate } from '../utils/routing';
     import { fade, fly, scale } from 'svelte/transition';
     import PageLayout from '../components/Layout/PageLayout.svelte';
     import { WEBHOOKS, API_CONFIG } from '../config/api';

@@ -5,7 +5,7 @@
  */
 
 import { get } from 'svelte/store';
-import { content, currentLanguage } from '../stores/contentStore.ts';
+import { content, currentLanguage } from '../stores/contentStore';
 
 /**
  * Language Interface

@@ -1,6 +1,6 @@
 <!-- src/widgets/FooterInfo.svelte -->
 <script>
-    import { currentLanguage, translations } from '../stores/contentStore.ts';
+    import { currentLanguage, translations } from '../stores/contentStore';
     import { navigateToVersions } from '../utils/navigation';
     import UserCounter from '../components/Core/UserCounter.svelte';
     import { linkedinIcon } from '../assets/shapes';

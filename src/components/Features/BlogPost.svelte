@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { currentLanguage, showShareMenu, translations } from '../../stores/contentStore.ts';
+    import { currentLanguage, showShareMenu, translations } from '../../stores/contentStore';
     import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import Link from '../../components/Routing/Link.svelte';
-    import { navigate } from '../../utils/routing.ts';
-    import { updateSeo } from '../../stores/seoStore.ts';
+    import { navigate } from '../../utils/routing';
+    import { updateSeo } from '../../stores/seoStore';
     import { fetchBlogPost, likeBlogPost, fetchBlogPosts } from '../../utils/blogApi';
     import { getBlogUrl, getBlogShareUrl, getHomeUrl } from '../../utils/blogNavigation';
     import { isLoggedIn } from '../../stores/appStores';

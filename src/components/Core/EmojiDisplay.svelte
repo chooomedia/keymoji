@@ -2,7 +2,7 @@
 <script lang="ts">
     import { fly } from 'svelte/transition';
     import { onMount, onDestroy } from 'svelte';
-    import { navigate } from '../../utils/routing.ts';
+    import { navigate } from '../../utils/routing';
     import { 
         successfulStoryRequests, 
         isDisabled,
@@ -10,7 +10,7 @@
         isLoggedIn,
         currentAccount,
         accountTier
-    } from '../../stores/appStores'
+    } from '../../stores/appStores';
     import { 
         showSuccess, 
         showError, 
@@ -20,7 +20,7 @@
         isModalVisible
     } from '../../stores/modalStore';
     import { get } from 'svelte/store';
-    import { translations, currentLanguage } from '../../stores/contentStore.ts';
+    import { translations, currentLanguage } from '../../stores/contentStore';
     import { getCurrentUserSettings, userSettings, currentSettings, updateSetting } from '../../stores/userSettingsStore';
     import { STORAGE_KEYS, storageHelpers } from '../../config/storage';
     import emojisData from '../../../public/emojisArray.json';
@@ -41,7 +41,7 @@
 
     // State
     let storyInput = $state('');
-    let randomEmojis = $state([]);
+    let randomEmojis = $state<string[]>([]);
     let emojiCount = $state(9); // Updated: Default 9 emojis for FREE users
     let showTextArea = $state(false);
     
@@ -240,11 +240,11 @@
             // Create short version for chip display
             displayModelShort = getShortModelName(displayModel);
         }
-    }
-  
+    });
+
     // Timeout-Tracking für Memory Leak Prevention
-    let activeTimeouts = new Set();
-    let modalVisibilityUnsubscribe;
+    let activeTimeouts = $state<Set<ReturnType<typeof setTimeout>>>(new Set());
+    let modalVisibilityUnsubscribe: (() => void) | undefined = undefined;
 
     const emojis = emojisData.emojis;
   

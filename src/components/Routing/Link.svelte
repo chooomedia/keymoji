@@ -1,7 +1,7 @@
 <!-- src/components/Routing/Link.svelte -->
 <!-- Link-Komponente für Svelte 5 -->
 <script lang="ts">
-    import { navigate } from '../../utils/routing.ts';
+    import { navigate } from '../../utils/routing';
     
     interface Props {
         to: string;

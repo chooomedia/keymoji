@@ -1,7 +1,7 @@
 <!-- src/components/SEO.svelte -->
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
-    import { currentLanguage, t } from '../stores/contentStore.ts';
+    import { currentLanguage, t } from '../stores/contentStore';
     import { 
         DEFAULT_SEO,
         formatCanonicalUrl,

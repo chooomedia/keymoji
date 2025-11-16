@@ -9,7 +9,18 @@ module.exports = merge(common, {
     // DevServer v5 Konfiguration
     devServer: {
         allowedHosts: 'all',
-        historyApiFallback: true,
+        historyApiFallback: {
+            // Alle Routen (inkl. /de, /de/account, etc.) auf index.html umleiten
+            index: '/index.html',
+            rewrites: [
+                // Root route
+                { from: /^\/$/, to: '/index.html' },
+                // Language routes: /de, /de-CH, /de/account, etc.
+                { from: /^\/[a-z]{2}(-[A-Z]{2})?(\/.*)?$/, to: '/index.html' },
+                // All other routes
+                { from: /./, to: '/index.html' }
+            ]
+        },
         client: {
             overlay: false,
             progress: true

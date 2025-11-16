@@ -2,7 +2,7 @@
   import { slide } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
   import { navigate } from '../utils/routing.ts';
-  import { darkMode, showDonateMenu, isLoggedIn, currentAccount } from '../../stores/appStores';
+  import { darkMode, showDonateMenu, isLoggedIn, currentAccount } from '../stores/appStores';
   import { showLanguageMenu, translations, currentLanguage } from '../stores/contentStore.ts';
   import { get } from 'svelte/store';
   import { createEventDispatcher, onMount } from 'svelte';
@@ -33,15 +33,15 @@
   
   let { align }: Props = $props();
 
-  let showMenu = false;
+  let showMenu = $state(false);
   
   // Reactive translations for template use (Svelte 5 Runes)
   let t = $derived.by(() => get(translations));
   let donateButtonText = $derived.by(() => t?.donateButton?.text || 'Support us');
   let donateButtonOpenText = $derived.by(() => t?.donateButton?.openText || 'Close');
   let fixedMenuTooltips = $derived.by(() => t?.fixedMenu?.tooltips || {});
-  let selectedLink = undefined;
-  let showDebugModal = false;
+  let selectedLink: string | undefined = undefined;
+  let showDebugModal = $state(false);
 
   // Toggle body overflow when menu opens/closes
   $effect(() => {
@@ -61,7 +61,7 @@
     
     // Click-outside handler - consistent with LanguageSwitcher and BlogGrid
     // Use capture phase to ensure it runs before other handlers
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: MouseEvent) => {
       const target = event.target;
       
       // Check if click is on the share menu button
@@ -108,7 +108,7 @@
           !isInsideLanguageButton && 
           !isInsideCategoryMenu && 
           !isInsideCategoryButton) {
-        showDonateMenu = false;
+        set(showDonateMenu, false);
       }
     };
     
@@ -163,11 +163,11 @@
     }
     
     if (menuType === 'donate') {
-      showDonateMenu = !showDonateMenu;
+      set(showDonateMenu, !get(showDonateMenu));
       showMenu = false;
       
       // Schließe Language Dropdown, wenn Donate Dropdown geöffnet wird
-      if (showDonateMenu) {
+      if (get(showDonateMenu)) {
         const languageButton = document.querySelector('#language-toggle-button');
         if (languageButton && languageButton.getAttribute('aria-expanded') === 'true') {
           languageButton.click(); // Toggle schließt das Dropdown
@@ -175,7 +175,7 @@
       }
     } else if (menuType === 'share') {
       showMenu = !showMenu;
-        showDonateMenu = false;
+        set(showDonateMenu, false);
       
       // Schließe Language Dropdown, wenn Share Menu geöffnet wird
       if (showMenu) {
@@ -218,11 +218,11 @@
   function closeAll() {
     selectedLink = undefined;
     showMenu = false;
-        showDonateMenu = false;
+        set(showDonateMenu, false);
   }
 
-  // Reaktive Bindungen für Links - jetzt über t() verwaltet
-  $: shareLinks = [
+  // Reaktive Bindungen für Links - jetzt über t() verwaltet (Svelte 5 Runes)
+  let shareLinks = $derived([
     {
       id: 'linkedin',
       name: 'LinkedIn',
@@ -272,7 +272,7 @@
       target: '_blank',
       svgContent: emailIcon
     }
-  ];
+  ]);
   // Reactive donate links (Svelte 5 Runes)
   let donateLinks = $derived.by(() => [
     {
@@ -289,7 +289,7 @@
       target: '_blank',
       svgContent: paypalIcon
     }
-  ];
+  ]);
 </script>
 
 {#if showMenu}
