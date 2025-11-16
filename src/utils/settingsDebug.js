@@ -15,7 +15,7 @@ export function debugSettings() {
     import('../stores/contentStore.js').then(({ currentLanguage }) => {
         console.log('currentLanguage:', get(currentLanguage));
     });
-    import from '../stores/appStores).then(({ darkMode }) => {
+    import('../stores/appStores').then(({ darkMode }) => {
         console.log('darkMode:', get(darkMode));
     });
     import('../stores/userSettingsStore.js').then(({ userSettings, pendingChanges, hasUnsavedChanges }) => {
@@ -23,7 +23,7 @@ export function debugSettings() {
         console.log('pendingChanges:', get(pendingChanges));
         console.log('hasUnsavedChanges:', get(hasUnsavedChanges));
     });
-    import from '../stores/appStores).then(({ currentAccount, accountTier }) => {
+    import('../stores/appStores').then(({ currentAccount, accountTier }) => {
         console.log('currentAccount:', get(currentAccount));
         console.log('accountTier:', get(accountTier));
     });
@@ -88,7 +88,7 @@ export function checkSettingsConsistency() {
     });
 
     // Check theme consistency
-    import from '../stores/appStores).then(({ darkMode }) => {
+    import('../stores/appStores').then(({ darkMode }) => {
         const darkModeStore = get(darkMode);
         const darkModeStorage = localStorage.getItem(STORAGE_KEYS.DARK_MODE) === 'true';
         const themeStorage = localStorage.getItem(STORAGE_KEYS.THEME);
@@ -161,9 +161,9 @@ export async function exportDebugData() {
 
     // Stores
     const { currentLanguage } = await import('../stores/contentStore.js');
-    const { darkMode } = await import from '../stores/appStores);
+    const { darkMode } = await import('../stores/appStores');
     const { userSettings, pendingChanges } = await import('../stores/userSettingsStore.js');
-    const { currentAccount, accountTier } = await import from '../stores/appStores);
+    const { currentAccount, accountTier } = await import('../stores/appStores');
 
     data.stores = {
         currentLanguage: get(currentLanguage),
@@ -226,7 +226,7 @@ export async function autoFixSettings() {
     console.group('🔧 Auto-fixing settings...');
 
     const { currentLanguage } = await import('../stores/contentStore.js');
-    const { darkMode } = await import from '../stores/appStores);
+    const { darkMode } = await import('../stores/appStores');
     const { userSettings, saveAllSettings } = await import('../stores/userSettingsStore.js');
 
     // Fix language consistency

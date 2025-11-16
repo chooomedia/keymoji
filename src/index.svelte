@@ -14,7 +14,7 @@
     import { initializeAccountFromCookies, setupMagicLinkListener } from './stores/accountStore.js';
     import { initializeSettingsForUser } from './stores/userSettingsStore.js';
     import { testLimitConfiguration, testLimitConsistency } from './utils/test-limits.js';
-    import { sendAnalyticsEvent } from './stores/appStores'
+    import { sendAnalyticsEvent } from './stores/appStores';
     import FooterInfo from './widgets/FooterInfo.svelte';
   
     // Debug-Flag - für die Produktion entfernen
