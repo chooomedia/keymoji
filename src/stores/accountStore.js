@@ -1989,7 +1989,8 @@ async function syncAccountData(accountData) {
             const { initializeDailyUsage } = await import(
                 './dailyUsageStore.js'
             );
-                finalDailyUsage = await initializeDailyUsage();
+                // CRITICAL: Pass accountData to prevent duplicate API calls!
+                finalDailyUsage = await initializeDailyUsage(cleanAccountData);
             console.log('✅ Daily usage initialized from API/localStorage');
             } else {
                 // dailyUsage already in accountData - sync to dailyUsageStore
@@ -2016,13 +2017,15 @@ async function syncAccountData(accountData) {
             
             // CRITICAL: Refresh usage history AFTER dailyUsage is synced (NO setTimeout - use await!)
             // This ensures today's usage is merged into history
+            // OPTIMIZED: Pass cleanAccountData to prevent duplicate API calls!
             try {
                 const { refreshUsageHistory } = await import(
                     './userDataStore.js'
                 );
                 // NO setTimeout - await directly after dailyUsage is synced!
-                    await refreshUsageHistory(true); // Force refresh to get latest data
-                    console.log('✅ Usage history refreshed after account sync (with today merge)');
+                // CRITICAL: Pass cleanAccountData to prevent duplicate API calls!
+                    await refreshUsageHistory(true, cleanAccountData); // Force refresh but use accountData if available
+                    console.log('✅ Usage history refreshed after account sync (with today merge, using accountData to prevent duplicate API call)');
             } catch (error) {
                 console.warn(
                     '⚠️ Failed to refresh usage history after sync:',
@@ -2045,12 +2048,13 @@ async function syncAccountData(accountData) {
             
             // Still try to refresh history even if dailyUsage init failed
             // CRITICAL: Use await directly - NO setTimeout delays!
+            // OPTIMIZED: Pass cleanAccountData to prevent duplicate API calls!
             try {
                 const { refreshUsageHistory } = await import(
                     './userDataStore.js'
                 );
-                    await refreshUsageHistory(true);
-                    console.log('✅ Usage history refreshed after account sync (fallback)');
+                    await refreshUsageHistory(true, cleanAccountData); // Use accountData to prevent duplicate API calls
+                    console.log('✅ Usage history refreshed after account sync (fallback, using accountData to prevent duplicate API call)');
             } catch (err) {
                 console.warn('⚠️ Failed to refresh usage history:', err);
             }

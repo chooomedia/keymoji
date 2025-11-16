@@ -132,38 +132,74 @@ function saveUsageToLocalStorage(usageData) {
  * Initialize daily usage from multiple sources (Priority: API > localStorage > default)
  * IMPORTANT: This runs for ALL users (logged in AND guests)
  */
-export async function initializeDailyUsage() {
+/**
+ * Initialize daily usage - OPTIMIZED: Accepts accountData to prevent duplicate API calls
+ * @param {Object} accountData - Optional account data from verifyMagicLinkFrontend (prevents duplicate API calls)
+ */
+export async function initializeDailyUsage(accountData = null) {
     try {
         usageStatus.update(s => ({ ...s, isLoading: true }));
 
-        const account = get(currentAccount);
-        const tier = get(accountTier) || 'free'; // Default to 'free' if not set
-        const loggedIn = get(isLoggedIn) || false; // Default to false if not set
+        const account = accountData || get(currentAccount);
+        const tier = accountData?.tier || get(accountTier) || 'free'; // Default to 'free' if not set
+        const loggedIn = !!accountData || get(isLoggedIn) || false; // Default to false if not set
 
         console.log('🔄 Initializing daily usage for ALL users...', {
             loggedIn,
             tier,
             hasAccount: !!account,
+            hasAccountData: !!accountData,
+            hasDailyUsageInAccountData: !!accountData?.dailyUsage,
             userId: account?.userId
         });
 
         let usageData = null;
 
-        // Priority 1: ALWAYS load from localStorage FIRST (immediate, no async delay!)
-        // This prevents race conditions and gives us instant data
-        usageData = getUsageFromLocalStorage();
-        if (usageData) {
-            console.log(
-                '✅ Daily usage loaded from localStorage (priority 1):',
-                usageData
-            );
-            // Update store IMMEDIATELY for instant UI update
-            updateDailyLimitStore(usageData);
+        // Priority 1: Use dailyUsage from accountData if available (prevents duplicate API call!)
+        // This is the MOST IMPORTANT optimization - accountData comes from verifyMagicLinkFrontend
+        if (accountData?.dailyUsage) {
+            const accountDailyUsage = accountData.dailyUsage;
+            // Parse if string (from n8n/Google Sheets)
+            if (typeof accountDailyUsage === 'string') {
+                try {
+                    usageData = JSON.parse(accountDailyUsage);
+                } catch (e) {
+                    console.warn('⚠️ Failed to parse dailyUsage from accountData:', e);
+                }
+            } else if (typeof accountDailyUsage === 'object' && accountDailyUsage.date) {
+                usageData = accountDailyUsage;
+            }
+            
+            if (usageData) {
+                console.log(
+                    '✅ Daily usage loaded from accountData (priority 1 - prevents duplicate API call!):',
+                    usageData
+                );
+                // Update store IMMEDIATELY for instant UI update
+                updateDailyLimitStore(usageData);
+                // Save to localStorage for future use
+                saveUsageToLocalStorage(usageData);
+            }
         }
 
-        // Priority 2: Load from API (if logged in) and MERGE/UPDATE
+        // Priority 2: ALWAYS load from localStorage SECOND (immediate, no async delay!)
+        // This prevents race conditions and gives us instant data
+        if (!usageData) {
+            usageData = getUsageFromLocalStorage();
+            if (usageData) {
+                console.log(
+                    '✅ Daily usage loaded from localStorage (priority 2):',
+                    usageData
+                );
+                // Update store IMMEDIATELY for instant UI update
+                updateDailyLimitStore(usageData);
+            }
+        }
+
+        // Priority 3: Load from API ONLY if not already loaded from accountData (prevents duplicate API call!)
         // This updates the localStorage data with server truth
-        if (loggedIn && account?.userId) {
+        if (!usageData && loggedIn && account?.userId) {
+            console.log('📡 Loading daily usage from API (accountData had no dailyUsage)...');
             const apiUsageData = await loadUsageFromAPI(account);
             if (apiUsageData) {
                 console.log(
@@ -173,6 +209,8 @@ export async function initializeDailyUsage() {
                 // API data overrides localStorage
                 usageData = apiUsageData;
             }
+        } else if (usageData && accountData?.dailyUsage) {
+            console.log('⏭️ Skipping API call - dailyUsage already loaded from accountData (prevents duplicate!)');
         }
 
         // Priority 3: Create default usage (first time or expired)

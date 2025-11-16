@@ -339,14 +339,21 @@ export async function refreshUserSettings(force = false) {
  * Refresh Usage History (async, cached, robust)
  * SINGLE SOURCE OF TRUTH for usage history loading
  */
-export async function refreshUsageHistory(force = false) {
-    const account = get(currentAccount);
-    const loggedIn = get(isLoggedIn);
+/**
+ * Refresh usage history - OPTIMIZED: Accepts accountData to prevent duplicate API calls
+ * @param {boolean} force - Force refresh even if cache is valid
+ * @param {Object} accountData - Optional account data from verifyMagicLinkFrontend (prevents duplicate API calls)
+ */
+export async function refreshUsageHistory(force = false, accountData = null) {
+    const account = accountData || get(currentAccount);
+    const loggedIn = !!accountData || get(isLoggedIn);
 
     console.log('📊 [USAGE HISTORY] Starting refresh...', {
         loggedIn,
         force,
-        hasAccount: !!account
+        hasAccount: !!account,
+        hasAccountData: !!accountData,
+        hasUsageHistoryInAccountData: !!accountData?.metadata?.usageHistory
     });
 
     // Set loading state
@@ -454,9 +461,45 @@ export async function refreshUsageHistory(force = false) {
             }
         }
 
-        // Priority 3: Fetch from API (if logged in and not localhost)
-        if (loggedIn && account?.userId && !isLocalhost()) {
-            console.log('📡 [USAGE HISTORY] Fetching from API...');
+        // Priority 3: Use usageHistory from accountData if available (prevents duplicate API call!)
+        if (accountData?.metadata?.usageHistory && Array.isArray(accountData.metadata.usageHistory)) {
+            let history = accountData.metadata.usageHistory;
+            
+            // Ensure all history entries have storyUsed field
+            history = history.map(entry => ({
+                ...entry,
+                storyUsed: entry.storyUsed || 0
+            }));
+
+            // CRITICAL: Merge today's dailyUsage into history
+            history = await mergeTodayIntoHistory(history);
+            
+            console.log('✅ [USAGE HISTORY] Loaded from accountData (prevents duplicate API call!):', history.length, 'entries');
+            const stats = calculateUsageStats(history);
+
+            usageHistory.update(state => ({
+                ...state,
+                data: history,
+                stats,
+                isCached: false,
+                isLoading: false,
+                hasError: false,
+                lastUpdate: Date.now()
+            }));
+
+            // Update cache
+            storageHelpers.set(CACHE_KEYS.USAGE_HISTORY, history);
+            storageHelpers.set(
+                CACHE_KEYS.USAGE_HISTORY_TIMESTAMP,
+                Date.now()
+            );
+
+            return history;
+        }
+
+        // Priority 4: Fetch from API ONLY if not already loaded from accountData (prevents duplicate API call!)
+        if (loggedIn && account?.userId && !isLocalhost() && !accountData?.metadata?.usageHistory) {
+            console.log('📡 [USAGE HISTORY] Fetching from API (accountData had no usageHistory)...');
 
             const result = await cachedFetchAccount(
                 account.userId,
