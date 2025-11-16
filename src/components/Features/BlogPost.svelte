@@ -4,7 +4,7 @@
     import { fade } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { Link, navigate } from 'svelte-routing';
-    import { updateSeo } from '../../stores/seoStore.js';
+    import { updateSeo } from '../../stores/seoStore';
     import { fetchBlogPost, likeBlogPost, fetchBlogPosts } from '../../utils/blogApi';
     import { getBlogUrl, getBlogShareUrl, getHomeUrl } from '../../utils/blogNavigation';
     import { isLoggedIn } from '../../stores/appStores.js';

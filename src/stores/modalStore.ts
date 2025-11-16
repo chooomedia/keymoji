@@ -14,7 +14,14 @@ import { writable, get, type Writable } from 'svelte/store';
 import { isDevelopment, devLog } from '../utils/environment';
 
 // Type definitions
-export type ModalType = 'info' | 'success' | 'error' | 'warning' | 'sending' | 'contact' | 'pro-feature';
+export type ModalType =
+    | 'info'
+    | 'success'
+    | 'error'
+    | 'warning'
+    | 'sending'
+    | 'contact'
+    | 'pro-feature';
 
 export interface ModalData {
     icon?: string;
@@ -359,7 +366,7 @@ function processModalQueue(): void {
         isProcessingQueue = false;
         return;
     }
-    
+
     currentModalId = nextModal.id;
 
     // Bestehenden Timeout löschen
@@ -383,7 +390,10 @@ function processModalQueue(): void {
     }
 
     // Body scroll prevention (Apple Style)
-    if (typeof document !== 'undefined' && nextModal.options?.preventBodyScroll) {
+    if (
+        typeof document !== 'undefined' &&
+        nextModal.options?.preventBodyScroll
+    ) {
         document.body.style.overflow = 'hidden';
     }
 
@@ -457,7 +467,11 @@ export function closeModal(): void {
 /**
  * Erfolgs-Nachricht anzeigen
  */
-export function showSuccess(message: string, duration: number = 5000, data: ModalData = {}): (() => void) | null {
+export function showSuccess(
+    message: string,
+    duration: number = 5000,
+    data: ModalData = {}
+): (() => void) | null {
     // Vermeide Duplikate von Erfolgs-Nachrichten
     if (
         isModalInQueue(message, 'success') ||
@@ -474,7 +488,11 @@ export function showSuccess(message: string, duration: number = 5000, data: Moda
 /**
  * Fehler-Nachricht anzeigen
  */
-export function showError(message: string, duration: number | null = null, data: ModalData = {}): (() => void) | null {
+export function showError(
+    message: string,
+    duration: number | null = null,
+    data: ModalData = {}
+): (() => void) | null {
     // Fehler-Nachrichten haben höchste Priorität, keine Duplikat-Prüfung
     return showModal(message, 'error', duration, data);
 }
@@ -482,7 +500,11 @@ export function showError(message: string, duration: number | null = null, data:
 /**
  * Warn-Nachricht anzeigen
  */
-export function showWarning(message: string, duration: number = 8000, data: ModalData = {}): (() => void) | null {
+export function showWarning(
+    message: string,
+    duration: number = 8000,
+    data: ModalData = {}
+): (() => void) | null {
     // Vermeide Duplikate von Warn-Nachrichten
     if (
         isModalInQueue(message, 'warning') ||
@@ -499,7 +521,10 @@ export function showWarning(message: string, duration: number = 8000, data: Moda
 /**
  * "Wird gesendet"-Nachricht anzeigen
  */
-export function showSending(message: string = 'Sending...', data: ModalData = {}): (() => void) | null {
+export function showSending(
+    message: string = 'Sending...',
+    data: ModalData = {}
+): (() => void) | null {
     // Sending-Nachrichten können dupliziert werden (für verschiedene Prozesse)
     return showModal(message, 'sending', null, data);
 }
@@ -545,7 +570,10 @@ export function showMagicLinkVerifying(email: string): (() => void) | null {
 /**
  * Magic Link Verifikation erfolgreich
  */
-export function showMagicLinkVerified(email: string, name?: string): (() => void) | null {
+export function showMagicLinkVerified(
+    email: string,
+    name?: string
+): (() => void) | null {
     // Smart name fallback
     const displayName = name || (email ? email.split('@')[0] : 'there');
 
@@ -565,7 +593,9 @@ export function showMagicLinkVerified(email: string, name?: string): (() => void
 /**
  * Magic Link Verifikation fehlgeschlagen
  */
-export function showMagicLinkVerificationFailed(error: string): (() => void) | null {
+export function showMagicLinkVerificationFailed(
+    error: string
+): (() => void) | null {
     return showModal(
         `Verification failed: ${error}. Please try again.`,
         'error',
@@ -581,7 +611,10 @@ export function showMagicLinkVerificationFailed(error: string): (() => void) | n
 /**
  * Account Login erfolgreich
  */
-export function showAccountLoginSuccess(name?: string, email: string | null = null): (() => void) | null {
+export function showAccountLoginSuccess(
+    name?: string,
+    email: string | null = null
+): (() => void) | null {
     // Smart name fallback
     const displayName = name || (email ? email.split('@')[0] : 'there');
 
@@ -692,14 +725,22 @@ export function showNewAccountCreated(email: string, name?: string): void {
 /**
  * Info-Nachricht anzeigen
  */
-export function showInfo(message: string, duration: number = 4000, data: ModalData = {}): (() => void) | null {
+export function showInfo(
+    message: string,
+    duration: number = 4000,
+    data: ModalData = {}
+): (() => void) | null {
     return showModal(message, 'info', duration, data);
 }
 
 /**
  * Kontakt-Nachricht anzeigen
  */
-export function showContact(message: string, duration: number = 6000, data: ModalData = {}): (() => void) | null {
+export function showContact(
+    message: string,
+    duration: number = 6000,
+    data: ModalData = {}
+): (() => void) | null {
     return showModal(message, 'contact', duration, data);
 }
 
@@ -710,16 +751,19 @@ export function showContact(message: string, duration: number = 6000, data: Moda
 /**
  * Zeigt ein Modal mit Header, Body und Footer an
  */
-export function showModalWithContent(content: ModalContent, options: {
-    title?: string;
-    icon?: string;
-    type?: ModalType;
-    duration?: number | null;
-    buttons?: Array<{ text: string; action: () => void }>;
-    primaryButton?: { text: string; action: () => void };
-    secondaryButton?: { text: string; action: () => void };
-    onClose?: () => void;
-} = {}): (() => void) | null {
+export function showModalWithContent(
+    content: ModalContent,
+    options: {
+        title?: string;
+        icon?: string;
+        type?: ModalType;
+        duration?: number | null;
+        buttons?: Array<{ text: string; action: () => void }>;
+        primaryButton?: { text: string; action: () => void };
+        secondaryButton?: { text: string; action: () => void };
+        onClose?: () => void;
+    } = {}
+): (() => void) | null {
     const {
         title = 'Information',
         icon = 'ℹ️',
@@ -756,7 +800,11 @@ export function showModalWithContent(content: ModalContent, options: {
 /**
  * Zeigt ein Bestätigungs-Modal an
  */
-export function showConfirmation(title: string, message: string, options: ConfirmationOptions = {}): (() => void) | null {
+export function showConfirmation(
+    title: string,
+    message: string,
+    options: ConfirmationOptions = {}
+): (() => void) | null {
     const {
         confirmText = 'Bestätigen',
         cancelText = 'Abbrechen',
@@ -794,7 +842,11 @@ export function showConfirmation(title: string, message: string, options: Confir
 /**
  * Zeigt ein Informations-Modal an
  */
-export function showInfoModal(title: string, message: string, options: InfoModalOptions = {}): (() => void) | null {
+export function showInfoModal(
+    title: string,
+    message: string,
+    options: InfoModalOptions = {}
+): (() => void) | null {
     const { icon = 'ℹ️', buttons = [], onClose = null } = options;
 
     const modalData: ModalData = {
@@ -813,7 +865,11 @@ export function showInfoModal(title: string, message: string, options: InfoModal
 /**
  * Zeigt ein Erfolgs-Modal an
  */
-export function showSuccessModal(title: string, message: string, options: InfoModalOptions = {}): (() => void) | null {
+export function showSuccessModal(
+    title: string,
+    message: string,
+    options: InfoModalOptions = {}
+): (() => void) | null {
     const { icon = '✅', buttons = [], onClose = null } = options;
 
     const modalData: ModalData = {
@@ -832,7 +888,11 @@ export function showSuccessModal(title: string, message: string, options: InfoMo
 /**
  * Zeigt ein Fehler-Modal an
  */
-export function showErrorModal(title: string, message: string, options: InfoModalOptions = {}): (() => void) | null {
+export function showErrorModal(
+    title: string,
+    message: string,
+    options: InfoModalOptions = {}
+): (() => void) | null {
     const { icon = '❌', buttons = [], onClose = null } = options;
 
     const modalData: ModalData = {
@@ -905,7 +965,10 @@ export function getModalQueue(): Array<{
 /**
  * Prüft, ob ein Modal mit bestimmter Nachricht bereits in der Queue ist
  */
-export function isModalInQueue(message: string, type: ModalType | null = null): boolean {
+export function isModalInQueue(
+    message: string,
+    type: ModalType | null = null
+): boolean {
     return modalQueue.some(
         modal =>
             modal.message === message && (type === null || modal.type === type)
@@ -938,4 +1001,3 @@ export default {
     getModalStatus,
     clearModalHistory
 };
-

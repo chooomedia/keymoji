@@ -1,17 +1,23 @@
-// src/stores/seoStore.js
-import { writable, derived } from 'svelte/store';
+// src/stores/seoStore.ts
+/**
+ * SEO Store für dynamische SEO-Verwaltung
+ * 
+ * TypeScript Migration: v0.7.7
+ */
+
+import { writable, derived, type Writable, type Readable } from 'svelte/store';
 import { currentLanguage, t } from './contentStore.js';
-import { DEFAULT_SEO, formatCanonicalUrl } from '../utils/seo';
+import { DEFAULT_SEO, formatCanonicalUrl, type SEOConfig } from '../utils/seo';
 
 // Create the SEO store
-const seoSettings = writable(DEFAULT_SEO);
+const seoSettings: Writable<Partial<SEOConfig>> = writable(DEFAULT_SEO);
 
 // Derived store to include language-specific content
-export const seo = derived(
+export const seo: Readable<SEOConfig> = derived(
     [seoSettings, currentLanguage],
     ([$seoSettings, $currentLanguage]) => {
         // Start with the current settings
-        const settings = { ...$seoSettings };
+        const settings: SEOConfig = { ...DEFAULT_SEO, ...$seoSettings };
 
         // If pageType is set, try to get language-specific content
         if (settings.pageType) {
@@ -44,14 +50,14 @@ export const seo = derived(
 );
 
 // Function to update SEO settings
-export function updateSeo(newSettings) {
+export function updateSeo(newSettings: Partial<SEOConfig>): void {
     seoSettings.update(currentSettings => {
         return { ...currentSettings, ...newSettings };
     });
 }
 
 // Function to reset SEO settings to default
-export function resetSeo() {
+export function resetSeo(): void {
     seoSettings.set(DEFAULT_SEO);
 }
 
@@ -61,3 +67,4 @@ export default {
     updateSeo,
     resetSeo
 };
+

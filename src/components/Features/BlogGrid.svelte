@@ -11,7 +11,7 @@
     import { isLoggedIn } from '../../stores/appStores.js';
     import { get } from 'svelte/store';
     import PageLayout from '../Layout/PageLayout.svelte';
-    import { updateSeo } from '../../stores/seoStore.js';
+    import { updateSeo } from '../../stores/seoStore';
     import BlogPostImage from './BlogPostImage.svelte';
     import BlogPostMeta from './BlogPostMeta.svelte';
     import HeartAnimation from './HeartAnimation.svelte';

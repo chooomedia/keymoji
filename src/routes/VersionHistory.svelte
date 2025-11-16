@@ -3,7 +3,7 @@
     import { onMount, onDestroy } from 'svelte';
     import { fly, slide } from 'svelte/transition';
     import { versions } from '../data/versions.js';
-    import { updateSeo } from '../stores/seoStore.js';
+    import { updateSeo } from '../stores/seoStore';
     import { currentLanguage, translations } from '../stores/contentStore.js';
     import { navigate } from 'svelte-routing';
     import PageLayout from '../components/Layout/PageLayout.svelte';

@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import { get } from 'svelte/store';
     import { currentLanguage } from './stores/contentStore.js'; // modalMessage darkMode
-    import { updateSeo } from './stores/seoStore.js';
+    import { updateSeo } from './stores/seoStore';
     import { navigate } from 'svelte-routing';
     import { closeModal, isModalVisible } from './stores/modalStore';
     import { isLoggedIn, currentAccount } from './stores/appStores.js';
