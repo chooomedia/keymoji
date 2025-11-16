@@ -70,7 +70,6 @@ Manages session state, chart data, and user preferences.
         });
         console.groupEnd();
     }
-    // Feature Components
     import AccountHeaderComponent from '../components/Features/AccountHeader.svelte';
     import DailyLimitChartComponent from '../components/Features/DailyLimitChart.svelte';
     import AccountStatisticsComponent from '../components/Features/AccountStatistics.svelte';
@@ -84,7 +83,6 @@ Manages session state, chart data, and user preferences.
     import { getDaysSinceAccountCreation, formatAccountAge } from '../utils/accountHelpers';
     import { generateBenefitsStructuredData, injectStructuredData, formatCanonicalUrl } from '../utils/seo';
 
-    // Svelte 5 / Webpack: stabile Komponenten-Referenzen
     const PageLayout = PageLayoutComponent;
     const UserSettings = UserSettingsComponent;
     const AccountHeader = AccountHeaderComponent;
@@ -96,7 +94,6 @@ Manages session state, chart data, and user preferences.
     const ReturnUserView = ReturnUserViewComponent;
     const Button = ButtonComponent;
 
-    // Reaktive PageLayout Props - dynamisch basierend auf Account-Status (Svelte 5 Runes)
     let pageTitle = $derived.by(() => {
         const t = get(translations);
         if (isVerifyingMagicLink) {
@@ -107,17 +104,16 @@ Manages session state, chart data, and user preferences.
         }
         const isLoggedInValue = get(isLoggedIn);
         if (isLoggedInValue) {
-            // Get user name from multiple sources with smart fallback (Priority Order!)
             const currentSettingsValue = get(currentSettings);
             const userProfileValue = get(userProfile);
             const currentAccountValue = get(currentAccount);
             const userName = 
-                currentSettingsValue?.name ||        // 1. Current settings (from input, highest priority!)
-                userProfileValue?.name ||            // 2. User profile store
-                currentAccountValue?.name ||         // 3. Current account
-                currentAccountValue?.profile?.name || // 4. Account profile
-                (currentAccountValue?.email ? currentAccountValue.email.split('@')[0] : null) || // 5. Email prefix
-                'there'; // 6. Friendly fallback instead of "User"
+                currentSettingsValue?.name ||
+                userProfileValue?.name ||
+                currentAccountValue?.name ||
+                currentAccountValue?.profile?.name ||
+                (currentAccountValue?.email ? currentAccountValue.email.split('@')[0] : null) ||
+                'there';
             
             return (t?.accountManager?.welcomeBack || 'Welcome back, {name}! 👋').replace('{name}', userName);
         }
@@ -153,7 +149,6 @@ Manages session state, chart data, and user preferences.
         return t?.accountManager?.pageDescription || 'Manage your security settings and account preferences';
     });
 
-    // Toggle state (Svelte 5 Runes)
     let showBenefitsToggle = $state<'free' | 'pro'>('free');
     let email = $state('');
     let name = $state('');
@@ -161,21 +156,15 @@ Manages session state, chart data, and user preferences.
     let isSubmitting = $state(false);
     let accountCreationStep = $state<'benefits' | 'form' | 'verification' | null>(null);
     let selectedAccountType = $state<'free' | 'pro'>('free');
-
-    // Session management
     let accountExists = $state(false);
     let checkingAccount = $state(false);
     let sessionExpired = $state(false);
     let hasValidSession = $state(false);
+    let daysSinceCreation = $derived(getDaysSinceAccountCreation(currentAccount));
     
-    // Reactive calculation for days since account creation (Svelte 5 Runes)
-    // Übergebe currentAccount damit API-Daten (Google Sheets) bevorzugt werden!
-    let daysSinceCreation = $derived(getDaysSinceAccountCreation(get(currentAccount)));
-    
-    // Generate and inject structured data for benefits (Rich Elements for SEO) (Svelte 5 Runes)
     $effect(() => {
         const t = get(translations);
-        const isLoggedInValue = get(isLoggedIn);
+        const isLoggedInValue = isLoggedIn;
         if (t?.accountManager?.benefits && !isLoggedInValue && accountCreationStep === 'benefits') {
         try {
             const canonicalUrl = formatCanonicalUrl(window.location.pathname);
@@ -189,23 +178,13 @@ Manages session state, chart data, and user preferences.
         }
     });
     
-    
-    // Return user view state (Svelte 5 Runes)
     let hasLoggedInBefore = $state(false);
-    
-    // State for expanded view (Svelte 5 Runes)
     let showExpandedView = $state(false);
-    
-    // Check if user has navigated away from initial load (stored in sessionStorage)
     let hasNavigatedAway = $state(sessionStorage.getItem('hasNavigatedAway') === 'true');
     
-    // Reactive simplified view logic (Svelte 5 Runes)
     let shouldShowSimplifiedView = $derived.by(() => {
-        // Check if user is not logged in but has login history
         const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
         const loggedIn = isLoggedIn;
-        
-        // If expanded view is active, don't show simplified view
         if (showExpandedView) {
             return false;
         }
@@ -214,14 +193,12 @@ Manages session state, chart data, and user preferences.
         return shouldShow;
     });
     
-    // Reactive daily limit calculation (Svelte 5 Runes)
     let currentUserLimits = $derived.by(() => {
         const isLoggedInValue = get(isLoggedIn);
         const accountTierValue = get(accountTier);
         const dailyLimitValue = get(dailyLimit);
         return validateUserLimits(isLoggedInValue, accountTierValue, dailyLimitValue?.used || 0);
     });
-    // Use remainingGenerations from dailyUsageStore (single source of truth)
     let remainingGenerations = $derived(get(remainingGenerationsStore));
     let dailyLimitDisplay = $derived.by(() => {
         const t = get(translations);
@@ -230,17 +207,14 @@ Manages session state, chart data, and user preferences.
             .replace('{limit}', currentUserLimits.limit);
     });
     
-    // Usage Chart State (Svelte 5 Runes)
     let selectedTimePeriod = $state<'7d' | '14d' | '4w' | '3m'>('7d');
-    let isDemoDataShown = $state(false); // Track if showing demo data (not real from backend)
+    let isDemoDataShown = $state(false);
     
-    // NEW: Import userDataStore for robust chart data handling
     import { 
         usageHistory as usageHistoryStore, 
         refreshUsageHistory 
     } from '../stores/userDataStore';
     
-    // Reactive: Use store data (auto-updates!) (Svelte 5 Runes)
     let chartUsageHistory = $derived.by(() => {
         const store = get(usageHistoryStore);
         return store?.data || [];
@@ -258,16 +232,10 @@ Manages session state, chart data, and user preferences.
         return store?.stats || null;
     });
     
-    // Calculate total stories generated (from usage history stats or daily limit)
-    // Best Practice: Use multiple sources for accuracy (Svelte 5 Runes)
     let totalStoriesGenerated = $derived.by(() => {
-        // Priority 1: Use usageStats.total if available (sum of all history entries)
-        // This gives the total across all days in history
         if (usageStats && typeof usageStats.total === 'number' && usageStats.total > 0) {
             return usageStats.total;
         }
-        
-        // Priority 2: Sum all entries in usage history if available
         if (chartUsageHistory && Array.isArray(chartUsageHistory) && chartUsageHistory.length > 0) {
             const sum = chartUsageHistory.reduce((total, entry) => {
                 return total + (entry.used || 0);
@@ -276,13 +244,9 @@ Manages session state, chart data, and user preferences.
                 return sum;
             }
         }
-        
-        // Priority 3: Use current dailyLimit.used (today's count as fallback)
         if ($dailyLimit && typeof $dailyLimit.used === 'number') {
             return $dailyLimit.used;
         }
-        
-        // Fallback: 0
         return 0;
     });
     
@@ -322,7 +286,6 @@ Manages session state, chart data, and user preferences.
         return [];
     });
     
-    // Reactive: Generate chart data from final history (Svelte 5 Runes)
     let finalChartData = $derived(generateChartData(selectedTimePeriod, finalUsageHistory));
     
     let finalStoryChartData = $derived.by(() => {
@@ -333,40 +296,23 @@ Manages session state, chart data, and user preferences.
         }));
     });
     
-    /**
-     * Calculate optimal maxValue for chart Y-axis
-     * Dynamically adjusts based on actual data, with a maximum of 100
-     * Rounds up to nice numbers (9, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100)
-     */
     function calculateMaxValue(chartData: Array<{ value?: number; storyValue?: number }>) {
         if (!chartData || chartData.length === 0) {
-            // Default fallback
             const accountTierValue = get(accountTier);
             return accountTierValue === 'pro' ? 35 : 9;
         }
-        
-        // Find maximum value in data (consider both random and story usage)
         const maxDataValue = Math.max(
             ...chartData.map(point => Math.max(point.value || 0, point.storyValue || 0))
         );
-        
-        // If no data values, use default
         if (maxDataValue === 0) {
             const accountTierValue = get(accountTier);
             return accountTierValue === 'pro' ? 35 : 9;
         }
-        
-        // Round up to next nice number, but cap at 100
         const niceNumbers = [9, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100];
-        
-        // Find the smallest nice number that's >= maxDataValue
         const optimalMax = niceNumbers.find(num => num >= maxDataValue) || 100;
-        
-        // Ensure we don't exceed 100
         return Math.min(optimalMax, 100);
     }
     
-    // Reactive: Calculate dynamic maxValue based on chart data (Svelte 5 Runes)
     let chartMaxValue = $derived(calculateMaxValue(finalChartData));
     
     
@@ -412,26 +358,17 @@ Manages session state, chart data, and user preferences.
         return data;
     }
 
-    // Magic Link verification state (Svelte 5 Runes)
     let isVerifyingMagicLink = $state(false);
     let magicLinkStatus = $state<'verifying' | 'success' | 'error' | null>(null);
     let magicLinkError = $state('');
-
-    // Context menu state (Svelte 5 Runes)
     let showContextMenu = $state(false);
     let fileInput: HTMLInputElement | null = $state(null);
-
-    // Email validation
     const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    // Form validation (Svelte 5 Runes)
     let isEmailValid = $derived(validateEmail(email));
     let isNameValid = $derived(name.trim().length >= 2);
     let isFormValid = $derived(isEmailValid && (showProfileForm ? isNameValid : true));
-    
-    // Email validation for Magic Link button - konsistent mit isEmailValid (Svelte 5 Runes)
     let isEmailValidForMagicLink = $derived(isEmailValid);
     
-    // Magic Link button text with emoji (Svelte 5 Runes)
     let magicLinkButtonText = $derived.by(() => {
         const t = get(translations);
         if (hasValidSession) {
@@ -440,13 +377,11 @@ Manages session state, chart data, and user preferences.
         return t?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
     });
 
-    // Ensure we always have a valid name for the API
     function getValidName() {
         const trimmedName = name.trim();
         if (trimmedName.length >= 2) {
             return trimmedName;
         }
-        // Fallback to email username or default
         return email.split('@')[0] || 'User';
     }
 
@@ -504,8 +439,6 @@ Manages session state, chart data, and user preferences.
         return t?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
     });
     
-    // Account age label for tooltip - zeigt wie lange User den Account hat (NUR Zeitangabe)
-    // CRITICAL: Nur für eingeloggte User - berechnet aus createdAt (Svelte 5 Runes)
     let accountAgeLabel = $derived.by(() => {
         const isLoggedInValue = get(isLoggedIn);
         const t = get(translations);
@@ -514,10 +447,9 @@ Manages session state, chart data, and user preferences.
                 daysSinceCreation, 
                 t?.accountManager?.accountAge
             )
-            : ''; // Nicht eingeloggte User verwenden freeDescription/proDescription
+            : '';
     });
     
-    // Tier badge text - zeigt NUR den Tier-Status (Svelte 5 Runes)
     let tierBadgeText = $derived(getTierBadgeText(get(accountTier)));
     
 
@@ -536,16 +468,13 @@ Manages session state, chart data, and user preferences.
     }
     
     function startAccountCreationForReturnUser() {
-        // For return users, show the expanded view
         showExpandedView = true;
-        // shouldShowSimplifiedView will automatically become false due to reactive logic
     }
 
     function goBackToBenefits() {
         accountCreationStep = 'benefits';
     }
 
-    // Context menu functions
     function toggleContextMenu(event) {
         event.stopPropagation();
         showContextMenu = !showContextMenu;
@@ -559,14 +488,12 @@ Manages session state, chart data, and user preferences.
         showContextMenu = false;
     }
 
-    // Close context menu when clicking outside
     function handleClickOutside(event) {
         if (showContextMenu && !event.target.closest('.context-menu')) {
             closeContextMenu();
         }
     }
 
-    // Handle settings reset
     function handleResetSettings() {
         resetSettings();
         const t = get(translations);
@@ -574,7 +501,6 @@ Manages session state, chart data, and user preferences.
         closeContextMenu();
     }
 
-    // Handle settings export
     function handleExportSettings() {
         try {
             exportSettings();
@@ -587,7 +513,6 @@ Manages session state, chart data, and user preferences.
         closeContextMenu();
     }
 
-    // Handle settings import
     function handleImportSettings(event: Event) {
         const file = event.target.files[0];
         if (file) {
@@ -603,27 +528,19 @@ Manages session state, chart data, and user preferences.
         closeContextMenu();
     }
 
-    // Trigger file input
     function triggerFileInput() {
         fileInput.click();
     }
 
-    // Handle logout
     function handleLogout() {
         logout();
         sessionExpired = false;
         hasValidSession = false;
         accountExists = false;
-        // Reset return user view state
         hasLoggedInBefore = false;
-        
-        // Chart state is handled by userDataStore (no manual reset needed)
-        
         const t = get(translations);
         showSuccess(t?.accountManager?.messages?.logoutSuccess || 'Successfully logged out', 3000);
         closeContextMenu();
-        
-        // Route zur Startseite nach Logout
         setTimeout(() => {
             navigateToHome();
         }, 1000);
@@ -644,24 +561,18 @@ Manages session state, chart data, and user preferences.
             }
             const isDevMode = isDevelopment();
             const loginResult = await secureLoginWithMagicLink(email, name, isDevMode);
-            
-            // Log accounting event
             logAccountingEvent('LOGIN_ATTEMPT_SUCCESS', {
                 email,
                 accountType: selectedAccountType,
                 dev: isDevMode,
                 accountExists: accountCheck.exists
             });
-            
-            // Send analytics event
             sendAnalyticsEvent('account_login_attempt', {
                 email: email,
                 accountType: selectedAccountType,
                 accountExists: accountCheck.exists,
                 dev: isDevMode
             });
-            
-            // Show success message
             const t = get(translations);
             showSuccess(t?.accountManager?.messages?.magicLinkSent || 'Magic link sent! Check your email to complete login.', 5000);
             accountCreationStep = 'verification';
@@ -695,14 +606,10 @@ Manages session state, chart data, and user preferences.
                     markSuccessfulLogin(magicLinkEmail);
                     const newUrl = window.location.pathname;
                     window.history.replaceState({}, '', newUrl);
-                    
-                    // Refresh session status
                     checkSessionStatus();
-                    
-                    // Show success message
                     const t = get(translations);
                     showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
-                    return; // Exit early, no need to verify again
+                    return;
                 }
                 
                 const currentPath = window.location.pathname;
@@ -746,12 +653,8 @@ Manages session state, chart data, and user preferences.
                 }
             }
             
-            // Check session status
             checkSessionStatus();
-            
-            // Initialize user login history for return user view
             checkUserLoginHistory();
-            
             const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
             if (history && history.email && !isLoggedIn) {
                 email = history.email;
@@ -762,15 +665,11 @@ Manages session state, chart data, and user preferences.
             } else {
                 accountCreationStep = 'benefits';
             }
-            
-            // Initialize with current account data if available
             const currentAccountValue = get(currentAccount);
             if (currentAccountValue?.email) {
                 email = currentAccountValue.email;
                 name = currentAccountValue.name || '';
             }
-            
-            // Add global click listener for context menu
             document.addEventListener('click', handleClickOutside);
             
             return () => {
@@ -779,20 +678,12 @@ Manages session state, chart data, and user preferences.
         } catch (error) {}
     });
 
-    // Reactive statement to show error as modal
-    // Handle login errors (Svelte 5 Runes)
     $effect(() => {
         const error = get(loginError);
         if (error) {
             showError(error, 5000);
         }
     });
-    
-    // Reactive statement to update daily limits when user state changes
-    // REMOVED: This reactive block was overwriting dailyLimit with old localStorage data
-    // dailyLimit is now ONLY managed by dailyUsageStore.js - DO NOT SET IT HERE!
-    // Old code read from STORAGE_KEYS.DAILY_REQUEST_COUNT which is deprecated
-    
 
     function checkSessionStatus() {
         const account = currentAccount;
@@ -804,17 +695,12 @@ Manages session state, chart data, and user preferences.
         if (hasExistingPrefs && localStorageValidSession && userEmailFromPrefs) {
             hasValidSession = true;
             sessionExpired = false;
-            
-            // Pre-fill email if available
             if (!email && userEmailFromPrefs) {
                 email = userEmailFromPrefs;
             }
         } else if (hasExistingPrefs && !localStorageValidSession) {
-            // User has preferences but session expired
             sessionExpired = true;
             hasValidSession = false;
-            
-            // Pre-fill email if available
             if (!email && userEmailFromPrefs) {
                 email = userEmailFromPrefs;
             }
@@ -865,7 +751,6 @@ Manages session state, chart data, and user preferences.
     function handleImport() {}
     function handleReset() {}
 
-    // Reaktive SEO Meta-Tags (Svelte 5 Runes)
     let seoTitle = $derived.by(() => {
         const t = get(translations);
         return t?.accountManager?.pageTitle || 'Account Manager';
