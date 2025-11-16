@@ -1,14 +1,69 @@
-// src/utils/settingsValidation.js
-// Validation utilities for user settings
+/**
+ * Validation utilities for user settings
+ *
+ * TypeScript Migration: v0.7.7
+ */
 
-import { supportedLanguages, isLanguageSupported } from './languages.js';
+import { supportedLanguages, isLanguageSupported } from './languages';
+import type { UserSettings } from '../types/Account';
+
+/**
+ * Validation result interface
+ */
+export interface ValidationResult {
+    isValid: boolean;
+    errors: string[];
+    warnings: string[];
+}
+
+/**
+ * Story Mode Settings Interface
+ */
+export interface StoryModeSettings {
+    enabled?: boolean;
+    provider?: 'openai' | 'gemini' | 'mistral' | 'claude' | 'apertus' | 'custom';
+    apiKeys?: {
+        openai?: string;
+        gemini?: string;
+        mistral?: string;
+        claude?: string;
+        apertus?: string;
+        custom?: string;
+    };
+    verifiedProviders?: Record<string, {
+        verifiedAt?: string;
+        model?: string;
+        lastTest?: string;
+    }>;
+    customApiUrl?: string;
+    customEndpoint?: string;
+    customFormat?: 'openai' | 'claude' | 'raw';
+    customModel?: string;
+    model?: string;
+    cacheResults?: boolean;
+    maxTokens?: number;
+    temperature?: number;
+}
+
+/**
+ * User Settings Partial (for validation)
+ */
+export type PartialUserSettings = Partial<UserSettings> & {
+    storyMode?: StoryModeSettings;
+    [key: string]: unknown;
+};
+
+/**
+ * Tier type
+ */
+export type Tier = 'free' | 'pro';
 
 /**
  * Validate user settings based on tier
  */
-export function validateSettings(settings, tier = 'free') {
-    const errors = [];
-    const warnings = [];
+export function validateSettings(settings: PartialUserSettings, tier: Tier = 'free'): ValidationResult {
+    const errors: string[] = [];
+    const warnings: string[] = [];
 
     // === Basic Validation ===
 
@@ -34,7 +89,7 @@ export function validateSettings(settings, tier = 'free') {
     }
 
     // Theme
-    const validThemes = ['auto', 'light', 'dark'];
+    const validThemes: readonly string[] = ['auto', 'light', 'dark'] as const;
     if (settings.theme) {
         if (!validThemes.includes(settings.theme)) {
             errors.push(`theme must be one of: ${validThemes.join(', ')}`);
@@ -93,7 +148,7 @@ export function validateSettings(settings, tier = 'free') {
 
     // === Pro-Only Features ===
 
-    const proOnlySettings = [
+    const proOnlySettings: readonly string[] = [
         'includeSpecialChars',
         'excludeSimilarChars',
         'requireUniqueChars',
@@ -115,7 +170,7 @@ export function validateSettings(settings, tier = 'free') {
         'customThemes',
         'keyboardShortcuts',
         'accessibilityMode'
-    ];
+    ] as const;
 
     if (tier === 'free') {
         proOnlySettings.forEach(setting => {
@@ -166,12 +221,12 @@ export function validateSettings(settings, tier = 'free') {
 /**
  * Sanitize settings (remove invalid/pro settings for free users)
  */
-export function sanitizeSettings(settings, tier = 'free') {
+export function sanitizeSettings(settings: PartialUserSettings, tier: Tier = 'free'): PartialUserSettings {
     const sanitized = { ...settings };
 
     // Remove pro-only settings for free users
     if (tier === 'free') {
-        const proOnlySettings = [
+        const proOnlySettings: readonly string[] = [
             'includeSpecialChars',
             'excludeSimilarChars',
             'requireUniqueChars',
@@ -193,7 +248,7 @@ export function sanitizeSettings(settings, tier = 'free') {
             'customThemes',
             'keyboardShortcuts',
             'accessibilityMode'
-        ];
+        ] as const;
 
         proOnlySettings.forEach(setting => {
             delete sanitized[setting];
@@ -214,8 +269,8 @@ export function sanitizeSettings(settings, tier = 'free') {
 /**
  * Get default settings based on tier
  */
-export function getDefaultSettings(tier = 'free') {
-    const baseSettings = {
+export function getDefaultSettings(tier: Tier = 'free'): UserSettings {
+    const baseSettings: UserSettings = {
         name: '',
         language: 'en',
         theme: 'auto',
@@ -268,9 +323,7 @@ export function getDefaultSettings(tier = 'free') {
         shareUsage: false,
 
         // UI State (which sections are expanded)
-        uiState: {
-            expandedSections: ['basic']
-        }
+        expandedSections: ['basic']
     };
 
     if (tier === 'pro') {
@@ -339,14 +392,14 @@ export function getDefaultSettings(tier = 'free') {
 /**
  * Validate Story Mode settings
  */
-export function validateStoryModeSettings(storyMode) {
-    const errors = [];
-    const warnings = [];
+export function validateStoryModeSettings(storyMode: StoryModeSettings | null | undefined): ValidationResult {
+    const errors: string[] = [];
+    const warnings: string[] = [];
 
     if (!storyMode) return { isValid: true, errors, warnings };
 
     // Provider validation
-    const validProviders = ['openai', 'gemini', 'mistral', 'claude', 'apertus', 'custom'];
+    const validProviders: readonly string[] = ['openai', 'gemini', 'mistral', 'claude', 'apertus', 'custom'] as const;
     if (storyMode.provider && !validProviders.includes(storyMode.provider)) {
         errors.push(`provider must be one of: ${validProviders.join(', ')}`);
     }
@@ -358,7 +411,7 @@ export function validateStoryModeSettings(storyMode) {
         
         // Skip API key validation for Apertus (uses environment token)
         if (currentProvider !== 'apertus') {
-            const currentApiKey = storyMode.apiKeys?.[currentProvider];
+            const currentApiKey = storyMode.apiKeys?.[currentProvider as keyof StoryModeSettings['apiKeys']];
 
             if (!currentApiKey) {
                 errors.push(
@@ -388,32 +441,32 @@ export function validateStoryModeSettings(storyMode) {
     }
 
     // Model validation per provider
-    const validModels = {
+    const validModels: Record<string, readonly string[]> = {
         openai: [
             'gpt-3.5-turbo',
             'gpt-4',
             'gpt-4-turbo',
             'gpt-4o',
             'gpt-4o-mini'
-        ],
+        ] as const,
         gemini: [
             'gemini-pro',
             'gemini-1.5-pro',
             'gemini-1.5-flash',
             'gemini-1.0-pro'
-        ],
+        ] as const,
         mistral: [
             'mistral-tiny',
             'mistral-small',
             'mistral-medium',
             'mistral-large'
-        ],
+        ] as const,
         claude: [
             'claude-3-haiku-20240307',
             'claude-3-sonnet-20240229',
             'claude-3-opus-20240229',
             'claude-3-5-sonnet-20241022'
-        ],
+        ] as const,
         custom: [] // No validation for custom
     };
 
@@ -457,8 +510,8 @@ export function validateStoryModeSettings(storyMode) {
 /**
  * Check if a setting is available for the current tier
  */
-export function isSettingAvailableForTier(settingKey, tier = 'free') {
-    const proOnlySettings = [
+export function isSettingAvailableForTier(settingKey: string, tier: Tier = 'free'): boolean {
+    const proOnlySettings: readonly string[] = [
         'includeSpecialChars',
         'excludeSimilarChars',
         'requireUniqueChars',
@@ -480,7 +533,7 @@ export function isSettingAvailableForTier(settingKey, tier = 'free') {
         'customThemes',
         'keyboardShortcuts',
         'accessibilityMode'
-    ];
+    ] as const;
 
     if (tier === 'free' && proOnlySettings.includes(settingKey)) {
         return false;
@@ -492,10 +545,11 @@ export function isSettingAvailableForTier(settingKey, tier = 'free') {
 /**
  * Merge settings with defaults (ensures all required keys exist)
  */
-export function mergeWithDefaults(settings, tier = 'free') {
+export function mergeWithDefaults(settings: PartialUserSettings, tier: Tier = 'free'): UserSettings {
     const defaults = getDefaultSettings(tier);
     return {
         ...defaults,
         ...settings
-    };
+    } as UserSettings;
 }
+

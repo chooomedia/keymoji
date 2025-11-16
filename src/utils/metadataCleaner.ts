@@ -24,13 +24,15 @@
  * 
  * What should NOT be in metadata (have own columns):
  * - createdAt, dailyUsage, profile, tier, email, userId, lastLogin, status
+ *
+ * TypeScript Migration: v0.7.7
  */
 
 /**
  * List of fields that have their own columns in Google Sheets
  * These should NEVER be in metadata to avoid duplication
  */
-const COLUMN_FIELDS = [
+const COLUMN_FIELDS: readonly string[] = [
     'userId',
     'email',
     'tier',
@@ -48,18 +50,35 @@ const COLUMN_FIELDS = [
     'Profile',
     'DailyUsage',
     'Status'
-];
+] as const;
+
+/**
+ * Options for cleaning metadata
+ */
+export interface CleanMetadataOptions {
+    strict?: boolean;
+    additionalFields?: string[];
+}
+
+/**
+ * Context information for logging
+ */
+export interface CleanMetadataContext {
+    source?: string;
+    [key: string]: unknown;
+}
 
 /**
  * Clean metadata object by removing fields that have their own columns
  * 
- * @param {Object} metadata - The metadata object to clean
- * @param {Object} options - Options for cleaning
- * @param {boolean} options.strict - If true, also removes nested duplicates (default: true)
- * @param {Array<string>} options.additionalFields - Additional fields to remove
- * @returns {Object} Cleaned metadata object
+ * @param metadata - The metadata object to clean
+ * @param options - Options for cleaning
+ * @returns Cleaned metadata object
  */
-export function cleanMetadataForUpdate(metadata, options = {}) {
+export function cleanMetadataForUpdate(
+    metadata: Record<string, unknown> | null | undefined,
+    options: CleanMetadataOptions = {}
+): Record<string, unknown> {
     if (!metadata || typeof metadata !== 'object') {
         return {};
     }
@@ -82,7 +101,7 @@ export function cleanMetadataForUpdate(metadata, options = {}) {
         Object.keys(cleaned).forEach(key => {
             if (cleaned[key] && typeof cleaned[key] === 'object' && !Array.isArray(cleaned[key])) {
                 // Recursively clean nested objects (but not too deep to avoid performance issues)
-                const nested = cleaned[key];
+                const nested = cleaned[key] as Record<string, unknown>;
                 fieldsToRemove.forEach(field => {
                     if (field in nested) {
                         delete nested[field];
@@ -99,11 +118,14 @@ export function cleanMetadataForUpdate(metadata, options = {}) {
  * Clean metadata before sending to API
  * This is the main function to use before any UPDATE/CREATE request
  * 
- * @param {Object} metadata - The metadata object to clean
- * @param {Object} context - Context information (for logging)
- * @returns {Object} Cleaned metadata object
+ * @param metadata - The metadata object to clean
+ * @param context - Context information (for logging)
+ * @returns Cleaned metadata object
  */
-export function prepareMetadataForAPI(metadata, context = {}) {
+export function prepareMetadataForAPI(
+    metadata: Record<string, unknown> | null | undefined,
+    context: CleanMetadataContext = {}
+): Record<string, unknown> {
     const cleaned = cleanMetadataForUpdate(metadata, { strict: true });
 
     // Log what was removed (only in development)
@@ -126,11 +148,13 @@ export function prepareMetadataForAPI(metadata, context = {}) {
  * Validate that metadata doesn't contain duplicate fields
  * Throws error in development, warns in production
  * 
- * @param {Object} metadata - The metadata object to validate
- * @param {string} source - Source of the metadata (for error messages)
- * @throws {Error} In development if duplicates found
+ * @param metadata - The metadata object to validate
+ * @param source - Source of the metadata (for error messages)
  */
-export function validateMetadataNoDuplicates(metadata, source = 'unknown') {
+export function validateMetadataNoDuplicates(
+    metadata: Record<string, unknown> | null | undefined,
+    source: string = 'unknown'
+): void {
     if (!metadata || typeof metadata !== 'object') {
         return;
     }

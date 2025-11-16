@@ -6,7 +6,7 @@ import {
     setUserPreferences,
     getUserPreferences,
     getCookieStatus
-} from '../utils/cookies.js';
+} from '../utils/cookies';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 import { invalidateCachePattern } from '../utils/apiCache.js';
 import {
@@ -14,7 +14,7 @@ import {
     sanitizeSettings,
     getDefaultSettings,
     mergeWithDefaults
-} from '../utils/settingsValidation.js';
+} from '../utils/settingsValidation';
 // Import dailyLimit store for dailyUsage preservation
 // Note: dailyLimit is exported from appStores.js, not dailyUsageStore.js
 import { dailyLimit } from './appStores.js';
@@ -22,7 +22,7 @@ import { dailyLimit } from './appStores.js';
 import {
     prepareMetadataForAPI,
     validateMetadataNoDuplicates
-} from '../utils/metadataCleaner.js';
+} from '../utils/metadataCleaner';
 import { generateClientFingerprint } from '../utils/sharedHelpers';
 
 // Store für ungespeicherte Änderungen

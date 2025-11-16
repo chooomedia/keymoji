@@ -1,7 +1,7 @@
 <!-- src/widgets/FooterInfo.svelte -->
 <script>
     import { currentLanguage, translations } from '../stores/contentStore.js';
-    import { navigateToVersions } from '../utils/navigation.js';
+    import { navigateToVersions } from '../utils/navigation';
     import UserCounter from '../components/Core/UserCounter.svelte';
     import { linkedinIcon } from '../assets/shapes.js';
 

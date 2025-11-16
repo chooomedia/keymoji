@@ -5,7 +5,7 @@
     import { translations } from '../stores/contentStore.js';
     import PageLayout from '../components/Layout/PageLayout.svelte';
     import { STORAGE_KEYS, storageHelpers } from '../config/storage.js';
-    import { navigateToRoute, navigateToHome } from '../utils/navigation.js';
+    import { navigateToRoute, navigateToHome } from '../utils/navigation';
     import FooterInfo from '../widgets/FooterInfo.svelte';
     import FeatureCard from '../components/Features/FeatureCard.svelte';
     

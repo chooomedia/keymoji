@@ -4,7 +4,7 @@
 import { WEBHOOKS } from '../config/api.js';
 import { cachedFetch } from './apiCache.js';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
-import { normalizeSlug, sanitizeSlug } from './slug.js';
+import { normalizeSlug, sanitizeSlug } from './slug';
 
 // Cache TTL für Blog-Daten
 const CACHE_TTL = {

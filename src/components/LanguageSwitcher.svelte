@@ -4,7 +4,7 @@
     import { onMount, createEventDispatcher } from 'svelte';
     import { get } from 'svelte/store';
     import { currentLanguage, changeLanguage, showLanguageMenu, translations } from '../stores/contentStore.js';
-    import { supportedLanguages } from '../utils/languages.js';
+    import { supportedLanguages } from '../utils/languages';
     import { navigate } from "svelte-routing";
     
     const dispatch = createEventDispatcher();

@@ -9,9 +9,9 @@
     import { createEventDispatcher } from 'svelte';
     import { navigate, Link } from 'svelte-routing';
     import LanguageSwitcher from '../LanguageSwitcher.svelte';
-    import { supportedLanguages } from '../../utils/languages.js';
+    import { supportedLanguages } from '../../utils/languages';
     import { translations } from '../../stores/contentStore.js';
-    import { navigateToBlog } from '../../utils/navigation.js';
+    import { navigateToBlog } from '../../utils/navigation';
     import Button from '../UI/Button.svelte';
     import { showModal } from '../../stores/modalStore.js';
 

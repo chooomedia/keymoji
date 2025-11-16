@@ -655,7 +655,7 @@ async function saveUsageToAPI(account, usageData) {
         // Single Source of Truth: Fields with own columns should NOT be in metadata
         // Import metadata cleaner
         const { prepareMetadataForAPI, validateMetadataNoDuplicates } =
-            await import('../utils/metadataCleaner.js');
+            await import('../utils/metadataCleaner');
 
         // Build metadata to send (will be cleaned)
         const metadataToSend = {

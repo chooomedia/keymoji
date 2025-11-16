@@ -1070,7 +1070,7 @@ export async function verifyMagicLinkFrontend(token, email) {
             const cleanedAccountData = removeCreatedAtFromObject(accountData);
             
             // CRITICAL: Clean metadata to remove duplicate fields (lastLogin has own column!)
-            const { prepareMetadataForAPI } = await import('../utils/metadataCleaner.js');
+            const { prepareMetadataForAPI } = await import('../utils/metadataCleaner');
             const metadataToClean = {
                 ...(cleanedAccountData.metadata || {}),
                 lastActivity: cleanedAccountData.lastActivity,
@@ -2110,7 +2110,7 @@ export async function createAccount(
     try {
         // CRITICAL: Clean metadata to remove duplicate fields (fields with own columns!)
         // Single Source of Truth: Fields with own columns should NOT be in metadata
-        const { prepareMetadataForAPI, validateMetadataNoDuplicates } = await import('../utils/metadataCleaner.js');
+        const { prepareMetadataForAPI, validateMetadataNoDuplicates } = await import('../utils/metadataCleaner');
         
         // Build metadata to send (will be cleaned)
         const metadataToSend = {
