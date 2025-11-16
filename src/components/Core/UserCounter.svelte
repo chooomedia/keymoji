@@ -1,20 +1,33 @@
-<!-- src/UserCounter.svelte -->
+<!--
+User counter component displaying visitor count with formatting and refresh functionality.
+Handles loading states, error states, and cached value display.
+Manages number formatting based on document language.
+-->
 <script>
     import { userCounter, refreshUserCounter } from '../../stores/appStores';
+    import { isDebugMode } from '../../utils/environment';
+
+    function debugUserCounter() {
+        if (!isDebugMode()) return;
+        console.group('🔍 UserCounter Debug');
+        console.log('State:', {
+            value: $userCounter?.value,
+            isLoading: $userCounter?.isLoading,
+            hasError: $userCounter?.hasError,
+            isCached: $userCounter?.isCached
+        });
+        console.groupEnd();
+    }
     
-    // Formatter basierend auf der Dokumentsprache (Svelte 5 Runes)
     let formatter = $derived(new Intl.NumberFormat(
         document.documentElement.lang || 'en-US'
     ));
-    
-    // Formatierte Zahl mit Fallback - robustere Implementierung (Svelte 5 Runes)
     let formattedCount = $derived($userCounter && $userCounter.value > 0 
         ? formatter.format($userCounter.value)
         : '');
     
-    // Manual refresh function
     async function handleRefresh() {
-        console.log('🔄 Manual counter refresh triggered');
+        debugUserCounter();
         await refreshUserCounter();
     }
 </script>

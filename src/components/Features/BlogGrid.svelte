@@ -1,3 +1,8 @@
+<!--
+Blog grid component displaying paginated blog posts with filtering and liking functionality.
+Handles post loading, category filtering, pagination, and like interactions.
+Manages SEO updates and structured data injection.
+-->
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import Link from '../../components/Routing/Link.svelte';
@@ -22,6 +27,20 @@
     import { blogLikesStore, getPostLikes } from '../../stores/blogLikesStore';
     import { slide, fade } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
+    import { isDebugMode } from '../../utils/environment';
+
+    function debugBlogGrid() {
+        if (!isDebugMode()) return;
+        console.group('🔍 BlogGrid Debug');
+        console.log('State:', {
+            postsCount: posts.length,
+            loading,
+            error,
+            selectedCategory,
+            currentPage
+        });
+        console.groupEnd();
+    }
     
     let posts = $state<any[]>([]);
     let showHeartAnimation = $state(false);
@@ -119,9 +138,7 @@
         const currentLikeStatus = blogLikesStore.getLikeStatus(postId);
         const currentLikes = currentLikeStatus.likes || 0;
         
-        // KEIN TOGGLE: Nur Like wenn likes === 0
         if (currentLikes > 0) {
-            console.log('⚠️ [BlogGrid] Post already liked (likes > 0), skipping');
             return;
         }
         
@@ -204,7 +221,6 @@
                 }, 2000);
             }
         } catch (error) {
-            console.error('❌ [BlogGrid] Error in handleLike:', error);
             likingPostId = null;
             
             // Fehler: Rotes X
@@ -267,9 +283,7 @@
             });
                 posts = posts; // Trigger reactivity
             }
-        } catch (error) {
-            console.warn('⚠️ [BlogGrid] Error refreshing likes:', error);
-        }
+        } catch (error) {}
     }
     
     async function goToPage(page) {
@@ -314,9 +328,7 @@
                 });
                 posts = posts; // Trigger reactivity
             }
-        } catch (error) {
-            console.warn('⚠️ [BlogGrid] Error refreshing data on page change:', error);
-        }
+        } catch (error) {}
         
         // Smooth scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -388,36 +400,9 @@
             // Backend-Wert ist IMMER der initiale Wert beim Laden
             await blogLikesStore.initialize();
             
-            // BACKEND FIRST: Immer frische Posts vom Backend holen
             const fetchedPosts = await fetchBlogPosts({ useCache: false, forceRefresh: true });
             
-            // DEBUG: Log Backend-Daten
-            console.log('🔍 [BlogGrid] DEBUG - Fetched posts:', fetchedPosts.length);
-            if (fetchedPosts.length > 0) {
-                console.log('🔍 [BlogGrid] DEBUG - First post from fetchBlogPosts:', {
-                    id: fetchedPosts[0].id || fetchedPosts[0].row_number,
-                    title: fetchedPosts[0].title?.substring(0, 30),
-                    likes: fetchedPosts[0].likes,
-                    likesType: typeof fetchedPosts[0].likes,
-                    liked: fetchedPosts[0].liked,
-                    likedType: typeof fetchedPosts[0].liked
-                });
-            }
-            
             if (Array.isArray(fetchedPosts) && fetchedPosts.length > 0) {
-                // Debug: Log nur Posts mit fehlenden/ungültigen Likes
-                const postsWithIssues = fetchedPosts.filter(p => 
-                    p.likes === undefined || 
-                    p.likes === null || 
-                    isNaN(parseInt(p.likes, 10))
-                );
-                if (postsWithIssues.length > 0) {
-                    console.warn('⚠️ [BlogGrid] Posts with missing/invalid likes:', postsWithIssues.map(p => ({ 
-                        id: p.id || p.row_number, 
-                        title: p.title?.substring(0, 30), 
-                        likes: p.likes
-                    })));
-                }
                 
                 // BACKEND FIRST: Posts mit Backend-Werten initialisieren
                 // Beim initialen Laden: Backend-Wert SOFORT verwenden (nicht aus Store!)
@@ -430,43 +415,15 @@
                         ? parseInt(String(post.likes), 10)
                         : 0;
                     
-                    // Store-Wert holen (sollte bereits Backend-Wert sein nach initialize)
                     const likeStatus = blogLikesStore.getLikeStatus(postId);
-                    
-                    // DEBUG: Log für ersten Post
-                    if (postId === (fetchedPosts[0]?.id || fetchedPosts[0]?.row_number)) {
-                        console.log('🔍 [BlogGrid] DEBUG - Synchronizing first post:', {
-                            postId,
-                            backendLikes,
-                            storeLikes: likeStatus.likes,
-                            usingBackend: true,
-                            backendLiked: post.liked,
-                            storeLiked: likeStatus.liked
-                        });
-                    }
-                    
-                    // BACKEND FIRST: Beim initialen Laden Backend-Wert DIREKT verwenden
-                    // Store wird nur verwendet wenn Backend-Wert fehlt (Fallback)
-                    // Nach Like-Klick wird Store-Wert verwendet (bereits erhöht)
                     return {
                         ...post,
                         likes: backendLikes !== null && !isNaN(backendLikes) && backendLikes >= 0 
-                            ? backendLikes  // BACKEND-WERT DIREKT - Initial
-                            : (likeStatus.likes || 0), // Fallback: Store-Wert
+                            ? backendLikes
+                            : (likeStatus.likes || 0),
                         liked: post.liked !== undefined ? post.liked : likeStatus.liked
                     };
                 });
-                
-                // DEBUG: Log finales Posts-Array für ersten Post
-                if (posts.length > 0) {
-                    const firstPostId = posts[0].id || posts[0].row_number;
-                    const firstPost = posts.find(p => (p.id || p.row_number) === firstPostId);
-                    console.log('✅ [BlogGrid] DEBUG - Final first post in posts array:', {
-                        postId: firstPostId,
-                        likes: firstPost?.likes,
-                        liked: firstPost?.liked
-                    });
-                }
                 
                 // Reaktivität: Posts-Array wird aktualisiert
                 posts = posts;
@@ -551,7 +508,7 @@
             document.addEventListener('click', handleClickOutside);
             document.addEventListener('keydown', handleKeydown);
         } catch (err) {
-            console.error('❌ [BlogGrid] Error loading posts:', err);
+            debugBlogGrid();
             error = err.message || 'Failed to load blog posts';
             posts = [];
         } finally {
