@@ -20,7 +20,7 @@
     import Pagination from '../UI/Pagination.svelte';
     import BlogPostSkeleton from './BlogPostSkeleton.svelte';
     import ShareButtons from './ShareButtons.svelte';
-    import { generateBlogListStructuredData, formatCanonicalUrl, injectStructuredData } from '../../utils/seo.js';
+    import { generateBlogListStructuredData, formatCanonicalUrl, injectStructuredData } from '../../utils/seo';
     import { blogLikesStore, getPostLikes } from '../../stores/blogLikesStore.js';
     import { slide, fade } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';

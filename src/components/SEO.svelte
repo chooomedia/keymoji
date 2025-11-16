@@ -13,7 +13,7 @@
         getPageTitle,
         getPageDescription,
         getPageKeywords
-    } from '../utils/seo.js';
+    } from '../utils/seo';
   
     export let title = '';
     export let description = '';

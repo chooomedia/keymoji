@@ -1,7 +1,7 @@
 // src/stores/seoStore.js
 import { writable, derived } from 'svelte/store';
 import { currentLanguage, t } from './contentStore.js';
-import { DEFAULT_SEO, formatCanonicalUrl } from '../utils/seo.js';
+import { DEFAULT_SEO, formatCanonicalUrl } from '../utils/seo';
 
 // Create the SEO store
 const seoSettings = writable(DEFAULT_SEO);

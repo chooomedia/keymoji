@@ -4,15 +4,31 @@
  * - Structured data generation
  * - Canonical URL handling
  * - Social media optimization
+ *
+ * TypeScript Migration: v0.7.7
  */
 
-import { updatedTime } from './timestamp.js';
+import { updatedTime } from './timestamp';
 import { appVersion } from './version';
+
+/**
+ * SEO Configuration Interface
+ */
+export interface SEOConfig {
+    title: string;
+    description: string;
+    keywords: string;
+    image: string;
+    type: string;
+    noindex: boolean;
+    canonical: string;
+    pageType: string;
+}
 
 /**
  * Default SEO configuration
  */
-export const DEFAULT_SEO = {
+export const DEFAULT_SEO: SEOConfig = {
     title: 'Keymoji - Emoji Password Generator',
     description:
         'Generate secure, AI-resistant emoji passwords. Create memorable passwords with emojis in 15+ languages.',
@@ -27,10 +43,10 @@ export const DEFAULT_SEO = {
 
 /**
  * Format canonical URL
- * @param {string} url - URL to format
- * @returns {string} Formatted canonical URL
+ * @param url - URL to format
+ * @returns Formatted canonical URL
  */
-export function formatCanonicalUrl(url) {
+export function formatCanonicalUrl(url: string | null | undefined): string {
     if (!url) return '';
 
     let canonical = url.startsWith('http') ? url : `https://keymoji.wtf${url}`;
@@ -50,23 +66,74 @@ export function formatCanonicalUrl(url) {
 
 /**
  * Get full image URL for social sharing
- * @param {string} image - Image path
- * @returns {string} Full image URL
+ * @param image - Image path
+ * @returns Full image URL
  */
-export function getFullImageUrl(image) {
+export function getFullImageUrl(image: string | null | undefined): string {
+    if (!image) return 'https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png';
     return image.startsWith('http') ? image : `https://keymoji.wtf${image}`;
 }
 
 /**
- * Generate structured data based on page type
- * @param {object} seoData - SEO data
- * @param {string} currentLanguage - Current language
- * @returns {object} Structured data
+ * Structured Data Types
  */
-export function generateStructuredData(seoData, currentLanguage) {
+export interface StructuredDataBase {
+    '@context': string;
+    '@type': string;
+    [key: string]: unknown;
+}
+
+export interface Author {
+    '@type': 'Person';
+    name: string;
+    url: string;
+    jobTitle?: string;
+    sameAs?: string[];
+}
+
+export interface Publisher {
+    '@type': 'Organization';
+    name: string;
+    url: string;
+    logo: {
+        '@type': 'ImageObject';
+        url: string;
+        width?: number;
+        height?: number;
+    };
+}
+
+export interface BlogPostData {
+    title: string;
+    content?: string;
+    excerpt?: string;
+    image?: string;
+    isodate?: string;
+    date?: string;
+    creator?: string;
+    category?: string;
+    readingTime?: number;
+    slug?: string;
+}
+
+export interface BenefitsData {
+    free?: Record<string, string>;
+    pro?: Record<string, string>;
+}
+
+/**
+ * Generate structured data based on page type
+ * @param seoData - SEO data
+ * @param currentLanguage - Current language
+ * @returns Structured data
+ */
+export function generateStructuredData(
+    seoData: SEOConfig,
+    currentLanguage: string
+): StructuredDataBase {
     const { pageType, title, description, canonical, image } = seoData;
 
-    const baseStructuredData = {
+    const baseStructuredData: StructuredDataBase = {
         '@context': 'https://schema.org',
         '@type': 'WebApplication',
         name: 'Keymoji',
@@ -109,7 +176,7 @@ export function generateStructuredData(seoData, currentLanguage) {
             url: canonical,
             inLanguage: currentLanguage,
             dateModified: updatedTime,
-            author: baseStructuredData.author,
+            author: (baseStructuredData.author as Author),
             publisher: {
                 '@type': 'Organization',
                 name: 'Keymoji',
@@ -141,19 +208,23 @@ export function generateStructuredData(seoData, currentLanguage) {
 
 /**
  * Generate structured data for account benefits (Rich Elements for SEO)
- * @param {object} benefits - Benefits object with free and pro tiers
- * @param {string} currentLanguage - Current language code
- * @param {string} canonicalUrl - Canonical URL for the account page
- * @returns {object} Structured data for benefits
+ * @param benefits - Benefits object with free and pro tiers
+ * @param currentLanguage - Current language code
+ * @param canonicalUrl - Canonical URL for the account page
+ * @returns Structured data for benefits
  */
-export function generateBenefitsStructuredData(benefits, currentLanguage, canonicalUrl) {
-    const benefitsList = [];
+export function generateBenefitsStructuredData(
+    benefits: BenefitsData,
+    currentLanguage: string,
+    canonicalUrl: string
+): StructuredDataBase {
+    const benefitsList: Array<Record<string, unknown>> = [];
     
     // Add FREE benefits
     if (benefits?.free) {
         Object.entries(benefits.free).forEach(([key, value]) => {
             if (!key.endsWith('Desc')) {
-                const description = benefits.free[key + 'Desc'] || '';
+                const description = benefits.free?.[key + 'Desc'] || '';
                 benefitsList.push({
                     '@type': 'SoftwareApplication',
                     name: value,
@@ -175,7 +246,7 @@ export function generateBenefitsStructuredData(benefits, currentLanguage, canoni
     if (benefits?.pro) {
         Object.entries(benefits.pro).forEach(([key, value]) => {
             if (!key.endsWith('Desc')) {
-                const description = benefits.pro[key + 'Desc'] || '';
+                const description = benefits.pro?.[key + 'Desc'] || '';
                 benefitsList.push({
                     '@type': 'SoftwareApplication',
                     name: value,
@@ -211,12 +282,16 @@ export function generateBenefitsStructuredData(benefits, currentLanguage, canoni
 /**
  * Generate structured data for a single blog post (BlogPosting schema)
  * E-E-A-T-S optimized: Experience, Expertise, Authoritativeness, Trustworthiness, Safety
- * @param {object} postData - Blog post data
- * @param {string} currentLanguage - Current language code
- * @param {string} canonicalUrl - Canonical URL for the post
- * @returns {object} BlogPosting structured data
+ * @param postData - Blog post data
+ * @param currentLanguage - Current language code
+ * @param canonicalUrl - Canonical URL for the post
+ * @returns BlogPosting structured data
  */
-export function generateBlogPostStructuredData(postData, currentLanguage, canonicalUrl) {
+export function generateBlogPostStructuredData(
+    postData: BlogPostData,
+    currentLanguage: string,
+    canonicalUrl: string
+): StructuredDataBase {
     const {
         title,
         content,
@@ -240,7 +315,7 @@ export function generateBlogPostStructuredData(postData, currentLanguage, canoni
     const modifiedDate = isodate || date || publishedDate;
 
     // Author information (E-E-A-T-S: Expertise & Authoritativeness)
-    const author = {
+    const author: Author = {
         '@type': 'Person',
         name: creator || 'Christopher Matt',
         url: 'https://www.linkedin.com/in/chooomedia/',
@@ -252,7 +327,7 @@ export function generateBlogPostStructuredData(postData, currentLanguage, canoni
     };
 
     // Publisher information (E-E-A-T-S: Trustworthiness)
-    const publisher = {
+    const publisher: Publisher = {
         '@type': 'Organization',
         name: 'Keymoji',
         url: 'https://keymoji.wtf',
@@ -305,14 +380,37 @@ export function generateBlogPostStructuredData(postData, currentLanguage, canoni
 }
 
 /**
- * Generate structured data for blog listing page (Blog + ItemList)
- * @param {Array} posts - Array of blog posts
- * @param {string} currentLanguage - Current language code
- * @param {string} canonicalUrl - Canonical URL for the blog page
- * @returns {object} Blog + ItemList structured data
+ * Blog Post Interface
  */
-export function generateBlogListStructuredData(posts, currentLanguage, canonicalUrl) {
-    const blogSchema = {
+export interface BlogPost {
+    title: string;
+    slug?: string;
+    link?: string;
+    isodate?: string;
+    date?: string;
+    creator?: string;
+    image?: string;
+    excerpt?: string;
+    content?: string;
+}
+
+/**
+ * Generate structured data for blog listing page (Blog + ItemList)
+ * @param posts - Array of blog posts
+ * @param currentLanguage - Current language code
+ * @param canonicalUrl - Canonical URL for the blog page
+ * @returns Blog + ItemList structured data
+ */
+export function generateBlogListStructuredData(
+    posts: BlogPost[],
+    currentLanguage: string,
+    canonicalUrl: string
+): StructuredDataBase {
+    const blogSchema: StructuredDataBase & {
+        blogPost?: Array<Record<string, unknown>>;
+        publisher?: Publisher;
+        author?: Author;
+    } = {
         '@context': 'https://schema.org',
         '@type': 'Blog',
         name: 'Keymoji Blog',
@@ -337,7 +435,7 @@ export function generateBlogListStructuredData(posts, currentLanguage, canonical
 
     // ItemList for blog posts (E-E-A-T-S: helps search engines understand content structure)
     if (Array.isArray(posts) && posts.length > 0) {
-        blogSchema.blogPost = posts.slice(0, 10).map((post, index) => {
+        blogSchema.blogPost = posts.slice(0, 10).map((post) => {
             const postUrl = post.slug 
                 ? `${canonicalUrl.replace('/blog', '')}/blog/${post.slug}`
                 : post.link || canonicalUrl;
@@ -351,7 +449,7 @@ export function generateBlogListStructuredData(posts, currentLanguage, canonical
                     '@type': 'Person',
                     name: post.creator || 'Christopher Matt'
                 },
-                image: post.image || blogSchema.publisher.logo.url,
+                image: post.image || (blogSchema.publisher?.logo.url || ''),
                 description: post.excerpt || (post.content ? post.content.replace(/<[^>]*>/g, ' ').substring(0, 200) : '')
             };
         });
@@ -361,13 +459,22 @@ export function generateBlogListStructuredData(posts, currentLanguage, canonical
 }
 
 /**
- * Generate alternate URLs for each language with ABSOLUTE URLs (required for SEO)
- * @param {string} url - Current URL (can be relative or absolute)
- * @returns {Array} Array of alternate URLs with absolute URLs
+ * Alternate URL Interface
  */
-export function generateAlternateUrls(url) {
+export interface AlternateUrl {
+    lang: string;
+    locale: string;
+    url: string;
+}
+
+/**
+ * Generate alternate URLs for each language with ABSOLUTE URLs (required for SEO)
+ * @param url - Current URL (can be relative or absolute)
+ * @returns Array of alternate URLs with absolute URLs
+ */
+export function generateAlternateUrls(url: string): AlternateUrl[] {
     const baseUrl = 'https://keymoji.wtf';
-    const supportedLanguages = [
+    const supportedLanguages: readonly string[] = [
         'en',
         'de',
         'de-CH',
@@ -383,7 +490,7 @@ export function generateAlternateUrls(url) {
         'ko',
         'tlh',
         'sjn'
-    ];
+    ] as const;
 
     // Extract path from URL (remove domain if present, remove language prefix)
     let path = url;
@@ -408,7 +515,7 @@ export function generateAlternateUrls(url) {
         // Build absolute URL for each language
         // English: https://keymoji.wtf/ (or /path)
         // Others: https://keymoji.wtf/{lang}/ (or /{lang}/path)
-        let langPath;
+        let langPath: string;
         if (lang === 'en') {
             // English uses root path
             langPath = cleanPath === '/' ? '/' : cleanPath;
@@ -436,12 +543,17 @@ export function generateAlternateUrls(url) {
 }
 
 /**
- * Get locale string from language code
- * @param {string} lang - Language code
- * @returns {string} Locale string
+ * Locale Map Type
  */
-export function getLocale(lang) {
-    const localeMap = {
+type LocaleMap = Record<string, string>;
+
+/**
+ * Get locale string from language code
+ * @param lang - Language code
+ * @returns Locale string
+ */
+export function getLocale(lang: string): string {
+    const localeMap: LocaleMap = {
         en: 'en_US',
         de: 'de_DE',
         'de-CH': 'de_CH',
@@ -462,13 +574,18 @@ export function getLocale(lang) {
 }
 
 /**
- * Get page title based on page type and language
- * @param {string} pageType - Type of page
- * @param {string} currentLanguage - Current language
- * @returns {string} Page title
+ * Page Titles Type
  */
-export function getPageTitle(pageType, currentLanguage = 'en') {
-    const titles = {
+type PageTitles = Record<string, Record<string, string>>;
+
+/**
+ * Get page title based on page type and language
+ * @param pageType - Type of page
+ * @param currentLanguage - Current language
+ * @returns Page title
+ */
+export function getPageTitle(pageType: string, currentLanguage: string = 'en'): string {
+    const titles: PageTitles = {
         home: {
             en: 'Keymoji - Emoji Password Generator',
             de: 'Keymoji - Emoji Passwort Generator',
@@ -561,13 +678,18 @@ export function getPageTitle(pageType, currentLanguage = 'en') {
 }
 
 /**
- * Get page description based on page type and language
- * @param {string} pageType - Type of page
- * @param {string} currentLanguage - Current language
- * @returns {string} Page description
+ * Page Descriptions Type
  */
-export function getPageDescription(pageType, currentLanguage = 'en') {
-    const descriptions = {
+type PageDescriptions = Record<string, Record<string, string>>;
+
+/**
+ * Get page description based on page type and language
+ * @param pageType - Type of page
+ * @param currentLanguage - Current language
+ * @returns Page description
+ */
+export function getPageDescription(pageType: string, currentLanguage: string = 'en'): string {
+    const descriptions: PageDescriptions = {
         home: {
             en: 'Generate secure, AI-resistant emoji passwords. Create memorable passwords with emojis in 15+ languages.',
             de: 'Generiere sichere, KI-resistente Emoji-Passwörter. Erstelle merkbare Passwörter mit Emojis in 15+ Sprachen.',
@@ -660,13 +782,18 @@ export function getPageDescription(pageType, currentLanguage = 'en') {
 }
 
 /**
- * Get page keywords based on page type and language
- * @param {string} pageType - Type of page
- * @param {string} currentLanguage - Current language
- * @returns {string} Page keywords
+ * Page Keywords Type
  */
-export function getPageKeywords(pageType, currentLanguage = 'en') {
-    const keywords = {
+type PageKeywords = Record<string, Record<string, string>>;
+
+/**
+ * Get page keywords based on page type and language
+ * @param pageType - Type of page
+ * @param currentLanguage - Current language
+ * @returns Page keywords
+ */
+export function getPageKeywords(pageType: string, currentLanguage: string = 'en'): string {
+    const keywords: PageKeywords = {
         home: {
             en: 'emoji password, password generator, secure passwords, AI resistant, keymoji, emoji security',
             de: 'emoji passwort, passwort generator, sichere passwörter, KI resistent, keymoji, emoji sicherheit',
@@ -760,17 +887,19 @@ export function getPageKeywords(pageType, currentLanguage = 'en') {
 
 /**
  * Update meta tags in document head
- * @param {object} seoData - SEO data
- * @param {string} currentLanguage - Current language
+ * @param seoData - SEO data
+ * @param currentLanguage - Current language
  */
-export function updateMetaTags(seoData, currentLanguage) {
+export function updateMetaTags(seoData: SEOConfig, currentLanguage: string): void {
+    if (typeof document === 'undefined') return;
+    
     const { title, description, keywords, canonical, image, type, noindex } =
         seoData;
     const fullImageUrl = getFullImageUrl(image);
     const locale = getLocale(currentLanguage);
 
     // Helper function to update meta tags
-    function updateMetaTag(selector, attribute, value) {
+    function updateMetaTag(selector: string, attribute: string, value: string): void {
         let element = document.querySelector(selector);
 
         if (!element && attribute === 'content') {
@@ -839,7 +968,7 @@ export function updateMetaTags(seoData, currentLanguage) {
     }
 
     // Canonical
-    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!canonicalLink) {
         canonicalLink = document.createElement('link');
         canonicalLink.setAttribute('rel', 'canonical');
@@ -863,7 +992,7 @@ export function updateMetaTags(seoData, currentLanguage) {
 
     // Add/update hreflang links for all languages
     alternateUrls.forEach(alt => {
-        let hreflangLink = document.querySelector(`link[rel="alternate"][hreflang="${alt.lang}"]`);
+        let hreflangLink = document.querySelector(`link[rel="alternate"][hreflang="${alt.lang}"]`) as HTMLLinkElement | null;
         if (!hreflangLink) {
             hreflangLink = document.createElement('link');
             hreflangLink.setAttribute('rel', 'alternate');
@@ -875,7 +1004,7 @@ export function updateMetaTags(seoData, currentLanguage) {
     });
 
     // Ensure x-default link exists
-    let xDefaultLink = document.querySelector('link[rel="alternate"][hreflang="x-default"]');
+    let xDefaultLink = document.querySelector('link[rel="alternate"][hreflang="x-default"]') as HTMLLinkElement | null;
     if (!xDefaultLink) {
         xDefaultLink = document.createElement('link');
         xDefaultLink.setAttribute('rel', 'alternate');
@@ -890,9 +1019,11 @@ export function updateMetaTags(seoData, currentLanguage) {
 
 /**
  * Inject structured data into document head
- * @param {object} structuredData - Structured data object
+ * @param structuredData - Structured data object
  */
-export function injectStructuredData(structuredData) {
+export function injectStructuredData(structuredData: StructuredDataBase): void {
+    if (typeof document === 'undefined') return;
+    
     // Remove existing structured data
     const existingScript = document.querySelector(
         'script[data-seo-structured="true"]'
@@ -908,3 +1039,4 @@ export function injectStructuredData(structuredData) {
     script.setAttribute('data-seo-structured', 'true');
     document.head.appendChild(script);
 }
+

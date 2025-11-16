@@ -15,7 +15,7 @@
     import BlogPostMeta from './BlogPostMeta.svelte';
     import HeartAnimation from './HeartAnimation.svelte';
     import ShareButtons from './ShareButtons.svelte';
-    import { generateBlogPostStructuredData, formatCanonicalUrl, injectStructuredData } from '../../utils/seo.js';
+    import { generateBlogPostStructuredData, formatCanonicalUrl, injectStructuredData } from '../../utils/seo';
     import BlogPostSkeleton from './BlogPostSkeleton.svelte';
     import { navigateToBlogPost } from '../../utils/blogNavigation.js';
   
