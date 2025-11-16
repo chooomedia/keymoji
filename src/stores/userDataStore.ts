@@ -1,12 +1,22 @@
-// src/stores/userDataStore.ts
-// User Data Management mit klassischen Svelte-Stores
-// TypeScript Migration: v0.7.7
+/*
+User data store for managing user settings, usage history, and profile data.
+Handles data fetching, caching, and synchronization with backend services.
+Provides reactive stores for user settings, usage history, and profile information.
+*/
 import { writable, get } from 'svelte/store';
 import { currentAccount, isLoggedIn, accountTier } from './appStores';
 import { STORAGE_KEYS, storageHelpers } from '../config/storage';
 import { WEBHOOKS } from '../config/api';
 import { cachedFetchAccount } from '../utils/apiCache';
+import { isDebugMode } from '../utils/environment';
 import type { Account, UsageHistoryEntry, DailyLimitState } from '../types/Account';
+
+function debugUserDataStore(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 UserDataStore Debug: ${context}`);
+    if (data) debugUserDataStore(data);
+    console.groupEnd();
+}
 
 export interface UsageStats {
     total: number;
@@ -38,8 +48,6 @@ export interface UsageHistoryState {
     errorMessage: string | null;
     stats: UsageStats;
 }
-
-// DailyLimitState is now imported from '../types/Account'
 
 const CACHE_DURATION = {
     SETTINGS: 5 * 60 * 1000, // 5 minutes
@@ -183,7 +191,7 @@ async function mergeTodayIntoHistory(
                 limit: todayUsage.limit || existingEntry.limit || 0,
                 timestamp: new Date().toISOString()
             };
-            console.log('🔄 [MERGE] Merging today into history:', {
+            debugUserDataStore('🔄 [MERGE] Merging today into history:', {
                 existing: existingEntry,
                 fromStore: todayUsage,
                 merged: todayEntry
@@ -277,7 +285,7 @@ export async function refreshUserSettings(
     const account = currentAccount;
     const loggedIn = isLoggedIn;
 
-    console.log('⚙️ [USER SETTINGS] Starting refresh...', {
+    debugUserDataStore('⚙️ [USER SETTINGS] Starting refresh...', {
         loggedIn,
         force,
         hasAccount: !!account
@@ -289,11 +297,11 @@ export async function refreshUserSettings(
         );
 
         if (account && account.userId) {
-            console.log('🔄 [USER SETTINGS] Initializing settings for user...');
+            debugUserDataStore('🔄 [USER SETTINGS] Initializing settings for user...');
             const loadedSettings = await initializeSettingsForUser();
 
             if (loadedSettings && Object.keys(loadedSettings).length > 0) {
-                console.log(
+                debugUserDataStore(
                     '✅ [USER SETTINGS] Settings initialized successfully:',
                     {
                         hasName: !!loadedSettings.name,
@@ -324,7 +332,7 @@ export async function refreshUserSettings(
                 CACHE_KEYS.SETTINGS
             );
             if (cachedSettings) {
-                console.log('📦 [USER SETTINGS] Using cached settings');
+                debugUserDataStore('📦 [USER SETTINGS] Using cached settings');
                 userSettings.data = cachedSettings;
                 userSettings.isCached = true;
                 userSettings.isLoading = false;
@@ -336,12 +344,12 @@ export async function refreshUserSettings(
             }
         }
 
-        console.log('💡 [USER SETTINGS] No settings available');
+        debugUserDataStore('💡 [USER SETTINGS] No settings available');
         return null;
     } catch (error: unknown) {
         const errorMessage =
             error instanceof Error ? error.message : String(error);
-        console.error('❌ [USER SETTINGS] Refresh error:', error);
+        debugUserDataStore('❌ [USER SETTINGS] Refresh error:', error);
 
         userSettings.hasError = true;
         userSettings.isLoading = false;
@@ -351,7 +359,7 @@ export async function refreshUserSettings(
             CACHE_KEYS.SETTINGS
         );
         if (cachedSettings) {
-            console.log(
+            debugUserDataStore(
                 '💡 [USER SETTINGS] Returning stale cache due to error'
             );
             return cachedSettings;
@@ -377,7 +385,7 @@ export async function refreshUsageHistory(
     const account = accountData || currentAccount;
     const loggedIn = !!accountData || isLoggedIn;
 
-    console.log('📊 [USAGE HISTORY] Starting refresh...', {
+    debugUserDataStore('📊 [USAGE HISTORY] Starting refresh...', {
         loggedIn,
         force,
         hasAccount: !!account,
@@ -416,7 +424,7 @@ export async function refreshUsageHistory(
                     storageHelpers.set(CACHE_KEYS.USAGE_HISTORY, cachedData);
                 }
 
-                console.log(
+                debugUserDataStore(
                     '📦 [USAGE HISTORY] Using cached data:',
                     cachedData.length,
                     'entries'
@@ -470,7 +478,7 @@ export async function refreshUsageHistory(
             if (Array.isArray(history) && history.length > 0) {
                 history = await mergeTodayIntoHistory(history);
 
-                console.log(
+                debugUserDataStore(
                     '✅ [USAGE HISTORY] Loaded from currentAccount:',
                     history.length,
                     'entries'
@@ -510,7 +518,7 @@ export async function refreshUsageHistory(
 
                 history = await mergeTodayIntoHistory(history);
 
-                console.log(
+                debugUserDataStore(
                     '✅ [USAGE HISTORY] Loaded from accountData (prevents duplicate API call!):',
                     history.length,
                     'entries'
@@ -547,7 +555,7 @@ export async function refreshUsageHistory(
                 'usageHistory' in accountData.metadata
             )
         ) {
-            console.log(
+            debugUserDataStore(
                 '📡 [USAGE HISTORY] Fetching from API (accountData had no usageHistory)...'
             );
 
@@ -581,7 +589,7 @@ export async function refreshUsageHistory(
 
                 history = await mergeTodayIntoHistory(history);
 
-                console.log(
+                debugUserDataStore(
                     '✅ [USAGE HISTORY] Loaded from API:',
                     history.length,
                     'entries'
@@ -605,7 +613,7 @@ export async function refreshUsageHistory(
             }
         }
 
-        console.log('💡 [USAGE HISTORY] No data available - using empty array');
+        debugUserDataStore('💡 [USAGE HISTORY] No data available - using empty array');
 
         usageHistory.data = [];
         usageHistory.stats = calculateUsageStats([]);
@@ -618,7 +626,7 @@ export async function refreshUsageHistory(
     } catch (error: unknown) {
         const errorMessage =
             error instanceof Error ? error.message : String(error);
-        console.error('❌ [USAGE HISTORY] Refresh error:', error);
+        debugUserDataStore('❌ [USAGE HISTORY] Refresh error:', error);
 
         usageHistory.hasError = true;
         usageHistory.isLoading = false;
@@ -628,7 +636,7 @@ export async function refreshUsageHistory(
             CACHE_KEYS.USAGE_HISTORY
         );
         if (cachedData && Array.isArray(cachedData)) {
-            console.log(
+            debugUserDataStore(
                 '💡 [USAGE HISTORY] Returning stale cache due to error'
             );
             return cachedData;
@@ -642,7 +650,7 @@ export async function refreshUsageHistory(
  * Initialize all user data on app start
  */
 export function initializeUserData(): void {
-    console.log('🚀 [USER DATA] Initializing stores...');
+    debugUserDataStore('🚀 [USER DATA] Initializing stores...');
 
     try {
         const cachedSettings = storageHelpers.get<Record<string, unknown>>(
@@ -661,7 +669,7 @@ export function initializeUserData(): void {
                 isCached: true,
                 lastUpdate: settingsTimestamp
             }));
-            console.log('📦 [USER DATA] Settings loaded from cache');
+            debugUserDataStore('📦 [USER DATA] Settings loaded from cache');
         }
 
         const cachedHistory = storageHelpers.get<UsageHistoryEntry[]>(
@@ -719,15 +727,15 @@ export function initializeUserData(): void {
             usageHistory.stats = stats;
             usageHistory.isCached = true;
             usageHistory.lastUpdate = historyTimestamp;
-            console.log('📦 [USER DATA] Usage history loaded from cache');
+            debugUserDataStore('📦 [USER DATA] Usage history loaded from cache');
         }
     } catch (error: unknown) {
-        console.warn('⚠️ [USER DATA] Failed to load from cache:', error);
+        debugUserDataStore('⚠️ [USER DATA] Failed to load from cache:', error);
     }
 
     if (isLoggedIn) {
         refreshUsageHistory(false).catch((error: unknown) => {
-            console.warn('⚠️ [USER DATA] Failed to refresh on init:', error);
+            debugUserDataStore('⚠️ [USER DATA] Failed to refresh on init:', error);
         });
     }
 }

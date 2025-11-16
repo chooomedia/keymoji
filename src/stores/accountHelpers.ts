@@ -1,9 +1,19 @@
-// src/stores/accountHelpers.ts
-// Helper Functions für Account Management
-// TypeScript Migration: v0.7.7
+/*
+Account helper functions for token generation, session management, and account data manipulation.
+Provides utility functions for secure token creation, fantasy name generation, and account metadata handling.
+Manages session IDs, createdAt timestamps, and account data parsing.
+*/
 import { storageHelpers, STORAGE_KEYS } from '../config/storage';
 import { generateClientFingerprint } from '../utils/sharedHelpers';
+import { isDebugMode } from '../utils/environment';
 import type { Account } from '../types/Account';
+
+function debugAccountHelpers(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 AccountHelpers Debug: ${context}`);
+    if (data) debugAccountHelpers(data);
+    console.groupEnd();
+}
 
 /**
  * Generate secure token for magic links
@@ -78,11 +88,11 @@ export function getCreatedAtFromAccount(
     account: Account | Record<string, unknown> | null | undefined
 ): string | null {
     if (!account) {
-        console.log('⚠️ No account provided to getCreatedAtFromAccount');
+        debugAccountHelpers('⚠️ No account provided to getCreatedAtFromAccount');
         return null;
     }
 
-    console.log('🔍 DEBUG: getCreatedAtFromAccount called with:', account);
+    debugAccountHelpers('🔍 DEBUG: getCreatedAtFromAccount called with:', account);
 
     const possibleSources = [
         account.createdAt,
@@ -90,14 +100,14 @@ export function getCreatedAtFromAccount(
         account.profile?.createdAt
     ];
 
-    console.log('🔍 DEBUG: Possible createdAt sources:', possibleSources);
+    debugAccountHelpers('🔍 DEBUG: Possible createdAt sources:', possibleSources);
 
     const foundCreatedAt =
         possibleSources.find(
             date => date && date !== 'null' && date !== 'undefined'
         ) || null;
 
-    console.log('🔍 DEBUG: Final createdAt:', foundCreatedAt);
+    debugAccountHelpers('🔍 DEBUG: Final createdAt:', foundCreatedAt);
     return foundCreatedAt;
 }
 
@@ -137,7 +147,7 @@ export function saveCreatedAtToUserPreferences(
     createdAt: string | null | undefined
 ): void {
     if (!createdAt) {
-        console.log('⚠️ No createdAt provided to save');
+        debugAccountHelpers('⚠️ No createdAt provided to save');
         return;
     }
 
@@ -146,37 +156,37 @@ export function saveCreatedAtToUserPreferences(
         createdAt === 'undefined' ||
         (createdAt.trim && createdAt.trim() === '')
     ) {
-        console.warn('⚠️ Invalid createdAt value - not saving:', createdAt);
+        debugAccountHelpers('⚠️ Invalid createdAt value - not saving:', createdAt);
         return;
     }
 
-    console.log('🔍 DEBUG: Saving createdAt to USER_PREFERENCES:', createdAt);
+    debugAccountHelpers('🔍 DEBUG: Saving createdAt to USER_PREFERENCES:', createdAt);
 
     const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
-    console.log('🔍 DEBUG: Current userPrefs createdAt:', userPrefs.createdAt);
+    debugAccountHelpers('🔍 DEBUG: Current userPrefs createdAt:', userPrefs.createdAt);
 
     if (userPrefs.createdAt && userPrefs.createdAt === createdAt) {
-        console.log(
+        debugAccountHelpers(
             '✅ createdAt already exists in localStorage with same value - no update needed'
         );
         return;
     }
 
     if (userPrefs.createdAt && userPrefs.createdAt !== createdAt) {
-        console.warn(
+        debugAccountHelpers(
             '⚠️ createdAt mismatch - localStorage has:',
             userPrefs.createdAt,
             'backend has:',
             createdAt
         );
         if (!createdAt || createdAt === 'null' || createdAt === 'undefined') {
-            console.log(
+            debugAccountHelpers(
                 '🔄 Backend createdAt is invalid - preserving localStorage value:',
                 userPrefs.createdAt
             );
             return;
         }
-        console.log(
+        debugAccountHelpers(
             '✅ Updating createdAt from backend (backend takes precedence):',
             createdAt
         );
@@ -187,7 +197,7 @@ export function saveCreatedAtToUserPreferences(
         createdAt: createdAt
     };
 
-    console.log('🔍 DEBUG: Updated userPrefs:', updatedPrefs);
+    debugAccountHelpers('🔍 DEBUG: Updated userPrefs:', updatedPrefs);
 
     const success = storageHelpers.set(
         STORAGE_KEYS.USER_PREFERENCES,
@@ -195,9 +205,9 @@ export function saveCreatedAtToUserPreferences(
     );
 
     if (success) {
-        console.log('✅ createdAt saved to USER_PREFERENCES:', createdAt);
+        debugAccountHelpers('✅ createdAt saved to USER_PREFERENCES:', createdAt);
     } else {
-        console.error('❌ Failed to save createdAt to USER_PREFERENCES');
+        debugAccountHelpers('❌ Failed to save createdAt to USER_PREFERENCES');
     }
 }
 
@@ -207,7 +217,7 @@ export function saveCreatedAtToUserPreferences(
 export function getCreatedAtFromUserPreferences(): string | null {
     const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
     const createdAt = userPrefs.createdAt || null;
-    console.log('🔍 Retrieved createdAt from USER_PREFERENCES:', createdAt);
+    debugAccountHelpers('🔍 Retrieved createdAt from USER_PREFERENCES:', createdAt);
     return createdAt;
 }
 
@@ -230,15 +240,15 @@ export function safeJSONParse<T = Record<string, unknown>>(
             let parsed = JSON.parse(data);
 
             if (typeof parsed === 'string') {
-                console.log(
+                debugAccountHelpers(
                     '⚠️ Double-escaped JSON detected, parsing again...'
                 );
                 try {
                     parsed = JSON.parse(parsed);
-                    console.log('✅ Successfully parsed double-escaped JSON');
+                    debugAccountHelpers('✅ Successfully parsed double-escaped JSON');
                 } catch (secondError) {
                     const error = secondError instanceof Error ? secondError : new Error(String(secondError));
-                    console.warn(
+                    debugAccountHelpers(
                         '⚠️ Failed second parse:',
                         error.message
                     );
@@ -249,7 +259,7 @@ export function safeJSONParse<T = Record<string, unknown>>(
             return parsed as T;
         } catch (error) {
             const err = error instanceof Error ? error : new Error(String(error));
-            console.warn('⚠️ Failed to parse JSON:', err.message);
+            debugAccountHelpers('⚠️ Failed to parse JSON:', err.message);
             return fallback;
         }
     }
