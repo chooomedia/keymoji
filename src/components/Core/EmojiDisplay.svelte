@@ -1,4 +1,8 @@
-<!-- src/EmojiDisplay.svelte (updated) -->
+<!--
+Core emoji display component for generating random and AI-powered emoji passwords.
+Handles user interactions, daily limits, story mode generation, and clipboard operations.
+Manages state for emoji generation, story input, and UI animations.
+-->
 <script lang="ts">
     import { fly } from 'svelte/transition';
     import { onMount, onDestroy } from 'svelte';
@@ -29,6 +33,36 @@
     import { incrementDailyUsage, initializeDailyUsage } from '../../stores/dailyUsageStore';
     import { generateStoryEmojis, getDefaultModel } from '../../utils/storyModeAI';
     import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers';
+    import { isDebugMode } from '../../utils/environment';
+
+    function debugEmojiDisplay() {
+        if (!isDebugMode()) return;
+        console.group('🔍 EmojiDisplay Debug');
+        console.log('Story Mode:', {
+            enabled: storyModeEnabled,
+            configured: storyModeConfigured,
+            isStoryMode,
+            isGeneratingStory
+        });
+        console.log('Daily Limits:', {
+            limit: get(dailyLimit)?.limit,
+            used: get(dailyLimit)?.used,
+            remaining: get(dailyLimit)?.limit - (get(dailyLimit)?.used || 0)
+        });
+        console.log('State:', {
+            emojiCount,
+            randomEmojis: randomEmojis.length,
+            storyInputLength: storyInput.length,
+            showTextArea,
+            isDisabled: get(isDisabled)
+        });
+        console.log('Account:', {
+            isLoggedIn: get(isLoggedIn),
+            tier: get(accountTier),
+            email: get(currentAccount)?.email
+        });
+        console.groupEnd();
+    }
 
     // Props
     interface Props {
@@ -104,7 +138,8 @@
     
     // Model display variables
     let displayModel = $state('Model'); // Initialize with default
-    let displayModelShort = $state('Model'); // Short version for chip
+    // CRITICAL: displayModelShort should be $derived() to prevent infinite loops
+    let displayModelShort = $derived(getShortModelName(displayModel));
     
     // Get short model name for chip display (max 12 chars, smart truncation)
     // Must be defined before $effect() that uses it
@@ -132,7 +167,8 @@
     // REACTIVE: Update Story Mode status when ANY store changes
     // Priority: currentSettings > userSettings > currentAccount
     // FIX: Only update if values actually changed to prevent infinite loops
-    let lastStoryModeSettings = $state<string | null>(null);
+    // CRITICAL: lastStoryModeSettings must NOT be $state() to prevent infinite loops
+    let lastStoryModeSettings: string | null = null;
     $effect(() => {
         let storyModeSettings = null;
         const currentSettingsValue = get(currentSettings);
@@ -203,7 +239,8 @@
 
     // REACTIVE: Display model for AI Model Chip (use same source as temperature)
     // FIX: Only update if model actually changed to prevent infinite loops
-    let lastDisplayModelKey = $state<string | null>(null);
+    // CRITICAL: lastDisplayModelKey must NOT be $state() to prevent infinite loops
+    let lastDisplayModelKey: string | null = null;
     $effect(() => {
         let storyModeSettings = null;
         const currentSettingsValue = get(currentSettings);
@@ -271,7 +308,7 @@
                 // Only update if value actually changed
                 if (displayModel !== newDisplayModel) {
                     displayModel = newDisplayModel;
-            displayModelShort = getShortModelName(displayModel);
+                    // displayModelShort is now $derived(), so it updates automatically
         }
     }
         }
@@ -287,7 +324,7 @@
     const DISABLE_DURATION_MS = 3000;
     
     // Generate static emoji arrays for loading animation (no re-render glitches)
-    function generateEmojiConfig(count) {
+    function generateEmojiConfig(count: number) {
         return Array.from({ length: count }, () => {
             const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
             const randomSize = Math.floor(Math.random() * 8) + 16;
@@ -297,7 +334,7 @@
         });
     }
     
-    function generateMiddleLaneEmojis(count) {
+    function generateMiddleLaneEmojis(count: number) {
         // Choose random position for giant emoji (not always same position)
         const giantEmojiPosition = Math.floor(Math.random() * count);
         return Array.from({ length: count }, (_, i) => {
@@ -310,7 +347,7 @@
         });
     }
     
-    function generateSlowLaneEmojis(count) {
+    function generateSlowLaneEmojis(count: number) {
         return Array.from({ length: count }, () => {
             const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
             const randomSize = Math.floor(Math.random() * 10) + 12;
@@ -326,7 +363,7 @@
     const loadingLane3 = generateSlowLaneEmojis(5);
     
     // Wrapper für safeSetTimeout mit lokalem Tracking (für onDestroy cleanup)
-    function localSafeSetTimeout(callback, delay) {
+    function localSafeSetTimeout(callback: () => void, delay: number) {
         const timeoutId = safeSetTimeout(() => {
             activeTimeouts.delete(timeoutId);
             callback();
@@ -337,75 +374,36 @@
     
     // Lifecycle
     onMount(async () => {
-      // CRITICAL: Migrate old unmasked emojis first!
-      migrateRecentEmojis();
-      
-      // REMOVED: initializeDailyUsage() is now called centrally in LanguageRouter
-      // This prevents duplicate initialization and ensures single source of truth
-      console.log('✅ EmojiDisplay: Using centralized daily usage tracking');
-      const dailyLimitValue = get(dailyLimit);
-      console.log('📊 Current daily limits on mount:', dailyLimitValue);
-      
-      // CRITICAL: Wait for dailyLimit to be initialized before first generation
-      // REMOVED: setTimeout delay - Race Condition behoben
-      // dailyLimit wird jetzt synchron initialisiert, kein Delay nötig
-      console.log('📊 Daily limits on mount:', dailyLimit);
-
-      // Check user settings for Story Mode and Auto-Generate
-      const userSettings = getCurrentUserSettings();
-      const autoGenerateEnabled = userSettings?.autoGenerate ?? false;
-      
-      // Story Mode Configuration - set immediately from getCurrentUserSettings
-      if (userSettings?.storyMode) {
-        storyModeEnabled = userSettings.storyMode.enabled ?? false;
-        const currentProvider = userSettings.storyMode.provider || 'apertus';
-        const apiKeys = userSettings.storyMode.apiKeys || {};
-        const currentApiKey = apiKeys[currentProvider] || '';
-        
-        // For Apertus: configured if enabled (token is loaded from environment)
-        // For other providers: configured if API key exists and is valid
-        storyModeConfigured = currentProvider === 'apertus'
-            ? storyModeEnabled // Apertus is configured if Story Mode is enabled
-            : !!(currentApiKey && currentApiKey.length >= 10);
-        
-        console.log('🎯 Auto-generate setting:', autoGenerateEnabled);
-        console.log('🤖 Story Mode initialized:', {
-          enabled: storyModeEnabled,
-          configured: storyModeConfigured,
-          provider: currentProvider,
-          hasApiKey: !!currentApiKey,
-          keyLength: currentApiKey?.length || 0
-        });
-      } else {
-        console.warn('⚠️ No Story Mode settings found in userSettings');
-      }
-
-      // If logged in and Story Mode is configured, default to Story Mode view
-      if (!initialRenderComplete && isLoggedIn && storyModeEnabled && storyModeConfigured) {
-        console.log('🚀 Logged in user with Story Mode configured - defaulting to Story Mode');
-        isStoryMode = true;
-        showTextArea = true;
-        // Generate placeholders for Story Mode too
-        randomEmojis = getRandomEmojis(emojiCount);
-      } else if (!initialRenderComplete && autoGenerateEnabled) {
-        console.log('🤖 Auto-generating emojis on page load');
-        generateRandomEmojis(true); // count initial load towards daily limit
-      } else if (!initialRenderComplete && !autoGenerateEnabled) {
-        console.log('⏸️ Auto-generate disabled, waiting for user action');
-        // Generate placeholders without counting towards limit
-        randomEmojis = getRandomEmojis(emojiCount);
-      }
-      
-      initialRenderComplete = true;
-      
-      // Subscribe to modal visibility with cleanup tracking
-      modalVisibilityUnsubscribe = isModalVisible.subscribe((visible) => {
-        if (visible) {
-          localSafeSetTimeout(() => {
-            shouldAnimateEmojis = true;
-          }, 1000);
+        migrateRecentEmojis();
+        debugEmojiDisplay();
+        const userSettings = getCurrentUserSettings();
+        const autoGenerateEnabled = userSettings?.autoGenerate ?? false;
+        if (userSettings?.storyMode) {
+            storyModeEnabled = userSettings.storyMode.enabled ?? false;
+            const currentProvider = userSettings.storyMode.provider || 'apertus';
+            const apiKeys = userSettings.storyMode.apiKeys || {};
+            const currentApiKey = apiKeys[currentProvider] || '';
+            storyModeConfigured = currentProvider === 'apertus'
+                ? storyModeEnabled
+                : !!(currentApiKey && currentApiKey.length >= 10);
         }
-      });
+        if (!initialRenderComplete && isLoggedIn && storyModeEnabled && storyModeConfigured) {
+            isStoryMode = true;
+            showTextArea = true;
+            randomEmojis = getRandomEmojis(emojiCount);
+        } else if (!initialRenderComplete && autoGenerateEnabled) {
+            generateRandomEmojis(true);
+        } else if (!initialRenderComplete && !autoGenerateEnabled) {
+            randomEmojis = getRandomEmojis(emojiCount);
+        }
+        initialRenderComplete = true;
+        modalVisibilityUnsubscribe = isModalVisible.subscribe((visible) => {
+            if (visible) {
+                localSafeSetTimeout(() => {
+                    shouldAnimateEmojis = true;
+                }, 1000);
+            }
+        });
     });
     
     onDestroy(() => {
@@ -431,14 +429,11 @@
         const limitCheck = validateUserLimits(isLoggedInValue, accountTierValue, dailyLimitValue?.used || 0);
         
         if (limitCheck.isReached) {
-            console.log('⚠️ Daily limit reached:', limitCheck);
             isDisabled.set(true);
             showDailyLimitModal(translations?.emojiDisplay?.dailyLimitReachedMessage || 'Daily limit reached');
             return;
         }
-
-        if (isDisabled) {
-            console.log('⚠️ Button is disabled, skipping generation');
+        if (get(isDisabled)) {
             return;
         }
   
@@ -460,14 +455,11 @@
         const limitCheck = validateUserLimits(isLoggedInValue, accountTierValue, dailyLimitValue?.used || 0);
         
         if (limitCheck.isReached) {
-            console.log('⚠️ Daily limit reached:', limitCheck);
             isDisabled.set(true);
             showDailyLimitModal(translations?.emojiDisplay?.dailyLimitReachedMessage || 'Daily limit reached');
             return;
         }
-
-        if (isDisabled) {
-            console.log('⚠️ Button is disabled, skipping generation');
+        if (get(isDisabled)) {
             return;
         }
 
@@ -476,16 +468,11 @@
           return;
         }
         
-        // Validate character length
         if (!canGenerate) {
-          console.warn('⚠️ Invalid text length:', { currentLength, MIN_CHARS, MAX_CHARS });
-          showWarning(`Text must be between ${MIN_CHARS} and ${MAX_CHARS} characters`, 3000);
-          return;
+            showWarning(`Text must be between ${MIN_CHARS} and ${MAX_CHARS} characters`, 3000);
+            return;
         }
-  
-        // Set loading state
         isGeneratingStory = true;
-        console.log('🚀 [STORY MODE] Starting generation...', { forceRegenerate });
         
         const response = await fetchEmojiStory(forceRegenerate);
         
@@ -495,9 +482,6 @@
           showErrorMessage(translations?.emojiDisplay?.errorMessage || 'Generation failed');
         }
       } catch (error) {
-        console.error('❌ [STORY MODE] Generation failed:', error);
-        
-        // Better error messages based on error type
         let errorMessage = translations?.emojiDisplay?.errorMessage || 'Story generation failed';
         
         if (error.message?.includes('API key')) {
@@ -533,45 +517,22 @@
       showTextArea = false;
       temporarilyDisableButton();
       
-      // Only increment counter if this is a user-initiated action
       if (countTowardsLimit) {
-        console.log('➕ Incrementing usage after successful generation');
-        // Use new centralized daily usage tracking (API + localStorage)
-        await incrementDailyUsage().catch(error => {
-          console.error('❌ CRITICAL: Failed to increment daily usage:', error);
-          // Still show error to user but don't block UX
-        });
-        console.log('📊 New daily limits after increment:', dailyLimit);
+        await incrementDailyUsage().catch(() => {});
       }
     }
   
     async function handleSuccessfulStoryGeneration(response) {
       randomEmojis = response;
       
-      // CRITICAL: Respect User Settings (same as Random Mode!)
       const userSettings = getCurrentUserSettings();
-      const copyToClipboardEnabled = userSettings?.copyToClipboard ?? true; // Default true
-      const showSuccessMessages = userSettings?.showSuccessMessages ?? true; // Default true
+      const copyToClipboardEnabled = userSettings?.copyToClipboard ?? true;
+      const showSuccessMessages = userSettings?.showSuccessMessages ?? true;
       const provider = userSettings?.storyMode?.provider || 'openai';
-      
-      console.log('📋 [STORY MODE] User Settings applied:', {
-        copyToClipboard: copyToClipboardEnabled,
-        showSuccessMessages,
-        provider,
-        emojiCount: response.length
-      });
-      
-      // Copy to clipboard if enabled
       if (copyToClipboardEnabled) {
         try {
           await copyToClipboard(randomEmojis.join(' '));
-          console.log('📋 Story emojis copied to clipboard');
-        } catch (clipboardError) {
-          // Clipboard error already handled in copyToClipboard() - just log
-          console.log('⏸️ Copy-to-clipboard failed:', clipboardError.message);
-        }
-      } else {
-        console.log('⏸️ Copy-to-clipboard disabled in settings');
+        } catch (_error: unknown) {}
       }
       
       // Show success message if enabled
@@ -592,62 +553,19 @@
       // Keep textarea visible - user can edit and regenerate
       // showTextArea stays true for better UX
       
-      // Use new centralized daily usage tracking (API + localStorage)
-      // Pass true to indicate this is story mode usage
-      console.log('➕ [STORY MODE] Incrementing story usage after successful generation');
-      await incrementDailyUsage(true).catch(error => {
-        console.warn('⚠️ Failed to increment daily usage:', error);
-      });
-      
-      console.log('✅ [STORY MODE] Story generation complete:', {
-        emojis: response.join(' '),
-        provider,
-        count: response.length,
-        dailyUsed: dailyLimit?.used,
-        dailyLimit: dailyLimit?.limit
-      });
+      await incrementDailyUsage(true).catch(() => {});
     }
   
     async function fetchEmojiStory(forceRegenerate = false) {
       try {
-        // CRITICAL: Get FRESH user settings (no cache!)
         const userSettings = getCurrentUserSettings();
-        
-        console.log('🔍 [STORY MODE] Loading settings...', {
-          hasSettings: !!userSettings,
-          hasStoryMode: !!userSettings?.storyMode,
-          settingsSource: 'getCurrentUserSettings()'
-        });
-        
         const storyMode = userSettings?.storyMode || {};
-        
         const provider = storyMode.provider || 'apertus';
         const apiKeys = storyMode.apiKeys || {};
         const apiKey = apiKeys[provider];
-        
-        console.log('🔑 [STORY MODE] API Key check:', {
-          provider,
-          hasApiKeys: !!apiKeys,
-          apiKeysKeys: Object.keys(apiKeys),
-          hasCurrentKey: !!apiKey,
-          keyLength: apiKey?.length || 0,
-          keyPreview: apiKey ? `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 4)}` : 'NONE',
-          isApertus: provider === 'apertus'
-        });
-        
-        // Validate API key (skip for Apertus as it uses n8n token from environment)
         if (provider !== 'apertus' && (!apiKey || apiKey.length < 10)) {
           throw new Error('No valid API key configured. Please add one in settings.');
         }
-        
-        console.log('🤖 [STORY MODE] Generating story emojis:', { 
-          provider, 
-          hasKey: true,
-          keyLength: apiKey.length,
-          text: storyInput.substring(0, 30),
-          count: emojiCount,
-          forceRegenerate
-        });
         
         // Generate emojis using AI
         // For Apertus, use empty string as apiKey (n8n token is handled in callApertus)
@@ -673,14 +591,6 @@
         if (!result.success) {
           throw new Error(result.error || 'Failed to generate story emojis');
         }
-        
-        console.log('✅ [STORY MODE] Story emojis generated:', {
-          count: result.emojis.length,
-          cached: result.cached,
-          provider: result.provider
-        });
-        
-        // Track successful request
         successfulStoryRequests.update(requests => [
           ...requests,
           {
@@ -693,23 +603,19 @@
         ]);
         
         return result.emojis;
-        
       } catch (error) {
-        console.error('❌ Story generation failed:', error);
         throw new Error(`Story generation failed: ${error.message}`);
       }
     }
   
-    // Utility Functions
-    function getRandomEmojis(count) {
+    function getRandomEmojis(count: number): string[] {
       if (!emojis || !Array.isArray(emojis)) {
-        console.error('Emojis array is not properly loaded');
         return [];
       }
       return [...emojis].sort(() => Math.random() - 0.5).slice(0, count);
     }
   
-    async function copyToClipboard(text) {
+    async function copyToClipboard(text: string) {
     const cleanText = text.replace(/ /g, '');
     
     // Save to recent emojis
@@ -719,14 +625,10 @@
         // Fokussiere das Dokument zuerst
         window.focus();
         
-        // Moderne Clipboard API verwenden
         if (navigator.clipboard && window.isSecureContext) {
             await navigator.clipboard.writeText(cleanText);
-            console.log('Clipboard: Success via API');
             return;
         }
-        
-        // Fallback für nicht-secure Contexts
         const textArea = document.createElement('textarea');
         textArea.value = cleanText;
         textArea.style.position = 'fixed';
@@ -740,40 +642,28 @@
         textArea.focus();
         textArea.select();
         
-        // Versuche modernen Ansatz
         try {
             await navigator.clipboard.writeText(cleanText);
-            console.log('Clipboard: Success via fallback API');
-        } catch (clipboardError) {
-            // Letzter Fallback - zeige manuelle Kopier-Option
-            console.log('Clipboard: Manual copy required');
+        } catch (_error: unknown) {
             showInfo(
                 t?.emojiDisplay?.clipboardManual || 
                 'Click the emoji display to copy manually!'
             );
-            
-            // Speichere Text für manuelles Kopieren
             window.lastGeneratedEmojis = cleanText;
         } finally {
             document.body.removeChild(textArea);
         }
     } catch (error) {
-        console.error('Clipboard Error:', error);
-        
-        // Zeige alternative Lösung
         showInfo(
             t?.emojiDisplay?.clipboardError || 
             'Click the emoji display to copy manually!'
         );
-        
-        // Speichere Text für manuelles Kopieren
         window.lastGeneratedEmojis = cleanText;
     }
 }
   
-    function handleError(type, error) {
-      console.error(`${type}:`, error);
-              showErrorMessage(t?.emojiDisplay?.errorMessage || 'Something went wrong. Please try again.');
+    function handleError(type: string, error: unknown) {
+        showErrorMessage(t?.emojiDisplay?.errorMessage || 'Something went wrong. Please try again.');
     }
   
     // State Management Functions
@@ -783,13 +673,10 @@
     }
   
     function showDailyLimitModal(message) {
-      console.log('🔴 DEBUG: Daily Limit Modal triggered!', { message });
-      // Dedicated function for Daily Limit Modal
-      showModal(message, 'warning', null, {
-        showSpinner: false,
-        isDailyLimitModal: true
-      });
-      console.log('🔴 DEBUG: Daily Limit Modal showModal called!');
+        showModal(message, 'warning', null, {
+            showSpinner: false,
+            isDailyLimitModal: true
+        });
     }
 
     function showErrorMessage(message) {
@@ -806,7 +693,7 @@
     
     // Recent Emojis Management - Security: Mask all except first emoji
     // Helper: Mask emojis (keep only first emoji, mask rest with *******)
-    function maskEmojis(emojiString) {
+    function maskEmojis(emojiString: string): string {
       if (!emojiString || typeof emojiString !== 'string') return emojiString;
       
       // Remove spaces for processing
@@ -828,74 +715,45 @@
       return `${first}${masked}`;
     }
     
-    // Migration: Mask old unmasked emojis in localStorage
     function migrateRecentEmojis() {
-      try {
-        const recent = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
-        console.log('🔄 Migration check:', { count: recent.length, items: recent });
-        if (!Array.isArray(recent) || recent.length === 0) {
-          console.log('⏭️ No recent emojis to migrate');
-          return;
-        }
-        
-        // Check if migration is needed (look for unmasked emojis)
-        const needsMigration = recent.some(emoji => {
-          if (!emoji || typeof emoji !== 'string') return false;
-          const emojis = emoji.match(/[\p{Emoji}\u200d]+/gu) || [];
-          // If has more than 1 emoji but no ******* mask, needs masking
-          const needsMasking = emojis.length > 1 && !emoji.includes('*******');
-          if (needsMasking) {
-            console.log('🔍 Found unmasked emoji:', emoji.substring(0, 20) + '...', 'emojis:', emojis.length);
-          }
-          return needsMasking;
-        });
-        
-        if (needsMigration) {
-          console.log('🔄 Migrating recent emojis: masking old data');
-          const migrated = recent.map(maskEmojis).filter(Boolean);
-          storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, migrated);
-          console.log('✅ Recent emojis migrated:', migrated.length, 'Before:', recent.length);
-          console.log('📊 Sample:', migrated.slice(0, 3));
-        } else {
-          console.log('✅ All emojis already masked');
-        }
-      } catch (error) {
-        console.warn('⚠️ Failed to migrate recent emojis:', error);
-      }
+        try {
+            const recent = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
+            if (!Array.isArray(recent) || recent.length === 0) {
+                return;
+            }
+            const needsMigration = recent.some(emoji => {
+                if (!emoji || typeof emoji !== 'string') return false;
+                const emojis = emoji.match(/[\p{Emoji}\u200d]+/gu) || [];
+                return emojis.length > 1 && !emoji.includes('*******');
+            });
+            if (needsMigration) {
+                const migrated = recent.map(maskEmojis).filter(Boolean);
+                storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, migrated);
+            }
+        } catch (error) {}
     }
     
     function saveToRecentEmojis(emojiString) {
-      try {
-        // Always mask before saving
-        const maskedString = maskEmojis(emojiString);
-        
-        if (!maskedString) {
-          console.warn('⚠️ Cannot save empty emoji string');
-          return;
-        }
-        
-        const recent = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
-        
-        // Remove if already exists (to move to front)
-        const filtered = recent.filter(emoji => emoji !== maskedString);
-        
-        // Add to front, limit to 10 items
-        const updated = [maskedString, ...filtered].slice(0, 10);
-        
-        storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, updated);
-      } catch (error) {
-        console.warn('Failed to save recent emoji:', error);
-      }
+        try {
+            const maskedString = maskEmojis(emojiString);
+            if (!maskedString) {
+                return;
+            }
+            const recent = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
+            const filtered = recent.filter(emoji => emoji !== maskedString);
+            const updated = [maskedString, ...filtered].slice(0, 10);
+            storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, updated);
+        } catch (error) {}
     }
   
   
-    function handleKeyPress(event) {
+    function handleKeyPress(event: KeyboardEvent) {
       if (event.key === 'Enter' || event.key === ' ') {
         generateRandomEmojis();
       }
     }
   
-    function handleTextareaKeydown(event) {
+    function handleTextareaKeydown(event: KeyboardEvent) {
       if (event.key === "Enter" && canGenerate) {
         event.preventDefault(); // Prevent default newline
         generateEmojis();
@@ -903,11 +761,11 @@
     }
   
     // UI Helper Functions
-    function getEmojiDisplay(emoji) {
-      return showEmojiCodes ? emoji.codePointAt(0).toString(16) : emoji;
+    function getEmojiDisplay(emoji: string): string {
+      return showEmojiCodes ? emoji.codePointAt(0)?.toString(16) || '' : emoji;
     }
   
-    function isVisible(emoji) {
+    function isVisible(emoji: string): boolean {
       return emoji && emoji.trim() !== '';
     }
   
@@ -920,8 +778,9 @@
     }
   
     // Temperature handler
-    function handleTemperatureChange(event) {
-      const newTemp = parseFloat(event.target.value);
+    function handleTemperatureChange(event: Event) {
+      const target = event.target as HTMLInputElement;
+      const newTemp = parseFloat(target.value);
       // Validate: ensure value is between 0 and 1
       const validatedTemp = Math.max(0, Math.min(1, newTemp));
       storyTemperature = validatedTemp;
@@ -930,49 +789,40 @@
     }
   
     // Get temperature label based on value (0.0-1.0 range)
-    function getTemperatureLabel(value) {
+    function getTemperatureLabel(value: number): string {
       if (value <= 0.3) return 'Precise';
       if (value <= 0.7) return 'Balanced';
       return 'Creative';
     }
     
     // Get short button text for UI (max 16 chars)
-    function getShortButtonText(text) {
+    function getShortButtonText(text: string | undefined): string {
       if (!text) return '';
       return text.length <= 16 ? text : text.substring(0, 15) + '…';
     }
   
     function toggleStoryMode() {
-      // Only allow toggle if Story Mode is properly configured
-      if (!storyModeEnabled || !storyModeConfigured) {
-        console.warn('⚠️ Story Mode not available:', { enabled: storyModeEnabled, configured: storyModeConfigured });
-        showWarning(
-          translations?.emojiDisplay?.storyModeConfigureWarning || 
-          'Please configure Story Mode API key in settings first', 
-          3000
-        );
-        return;
-      }
-      
-      // Check daily usage limit
-      const dailyLimitValue = get(dailyLimit);
-      const remaining = dailyLimitValue.limit - dailyLimitValue.used;
-      if (remaining <= 0) {
-        console.warn('⚠️ Daily limit reached');
-        showDailyLimitModal(
-          translations?.emojiDisplay?.dailyLimitReachedMessage || 
-          'Daily limit reached'
-        );
-        return;
-      }
-      
-      isStoryMode = !isStoryMode;
-      if (isStoryMode) {
-        showTextArea = true;
-        console.log('✨ Story Mode activated');
-      } else {
-        console.log('🎲 Story Mode deactivated');
-      }
+        if (!storyModeEnabled || !storyModeConfigured) {
+            showWarning(
+                translations?.emojiDisplay?.storyModeConfigureWarning || 
+                'Please configure Story Mode API key in settings first', 
+                3000
+            );
+            return;
+        }
+        const dailyLimitValue = get(dailyLimit);
+        const remaining = dailyLimitValue.limit - dailyLimitValue.used;
+        if (remaining <= 0) {
+            showDailyLimitModal(
+                translations?.emojiDisplay?.dailyLimitReachedMessage || 
+                'Daily limit reached'
+            );
+            return;
+        }
+        isStoryMode = !isStoryMode;
+        if (isStoryMode) {
+            showTextArea = true;
+        }
     }
 </script>
   
@@ -1069,7 +919,7 @@
                   }, 600);
                   
                   // Navigation
-                  const lang = currentLanguage || 'en';
+                  const lang = get(currentLanguage) || 'en';
                   const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
                   navigate(accountPath);
                   setTimeout(() => {
@@ -1108,7 +958,7 @@
             <!-- Show "Configure API" chip if enabled but no API key -->
             <button
               onclick={() => {
-                const lang = currentLanguage || 'en';
+                const lang = get(currentLanguage) || 'en';
                 const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
                 navigate(accountPath);
                 setTimeout(() => {
@@ -1149,7 +999,7 @@
         max="9" 
         bind:value={emojiCount} 
         class="md:w-100 w-full mt-3 appearance-none rounded-full bg-gray-600 h-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
-        disabled={isDisabled}
+        disabled={get(isDisabled)}
       />
       <span>{emojiCount}</span>
     </div>
@@ -1178,7 +1028,7 @@
           }}
           minlength={MIN_CHARS}
           maxlength={MAX_CHARS}
-          disabled={isDisabled || isGeneratingStory}
+          disabled={get(isDisabled) || isGeneratingStory}
           autocomplete="off"
           rows="5"
           aria-describedby="char-counter"
@@ -1304,7 +1154,7 @@
             aria-label={t?.emojiDisplay?.clearButton || 'Clear input'}
             onclick={clearInput} 
             class="absolute top-2 right-2 inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white active:text-black dark:active:text-white z-10"
-            disabled={isDisabled}
+            disabled={get(isDisabled)}
             title={t?.emojiDisplay?.clearButton || 'Clear'}
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
@@ -1339,7 +1189,7 @@
         <button
           onclick={() => {
             // Navigate to account page
-            const lang = currentLanguage || 'en';
+            const lang = get(currentLanguage) || 'en';
             const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
             navigate(accountPath);
             
@@ -1389,7 +1239,7 @@
           aria-busy={isGeneratingStory}
           onclick={generateEmojis} 
           class="w-1/2 py-4 rounded-full bg-yellow-500 text-black border-2 border-yellow-500 shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-          disabled={isDisabled || !canGenerate || isGeneratingStory}
+          disabled={get(isDisabled) || !canGenerate || isGeneratingStory}
           title={!canGenerate 
             ? (isOverLimit 
               ? `Text too long (max ${MAX_CHARS} characters)` 
@@ -1418,7 +1268,7 @@
           aria-label={t?.emojiDisplay?.randomButton || 'Switch to random mode'}                                                                        
           onclick={() => { isStoryMode = false; showTextArea = false; }} 
           class="w-1/2 py-4 rounded-full bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm transition-all duration-300 ease-in-out transform hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
-          disabled={isDisabled || isGeneratingStory}
+          disabled={get(isDisabled) || isGeneratingStory}
           title={t?.emojiDisplay?.randomButton}
         >
           {t?.emojiDisplay?.randomButton || 'Random'}
@@ -1436,7 +1286,7 @@
             {storyModeEnabled && storyModeConfigured 
               ? 'bg-yellow-500 text-black border-2 border-yellow-500 shadow-md hover:scale-105 focus:scale-105 active:scale-95 cursor-pointer focus:ring-yellow-50' 
               : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-500 border-2 border-gray-300 dark:border-gray-700 opacity-60 cursor-not-allowed focus:ring-gray-200'}"
-          disabled={!storyModeEnabled || !storyModeConfigured || isDisabled}
+          disabled={!storyModeEnabled || !storyModeConfigured || get(isDisabled)}
           title={storyModeEnabled && storyModeConfigured 
             ? (t?.emojiDisplay?.storyButton || 'Story mode')
             : (!storyModeEnabled 
@@ -1461,7 +1311,7 @@
             {storyModeEnabled && storyModeConfigured
               ? 'bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 focus:ring-yellow-400'
               : 'bg-yellow-500 text-black border-2 border-yellow-500 shadow-md hover:scale-105 focus:scale-105 active:scale-95 focus:ring-yellow-50'}"
-          disabled={isDisabled}
+          disabled={get(isDisabled)}
           title={t?.emojiDisplay?.randomButton}
         >
           {t?.emojiDisplay?.randomButton || 'Random'}
