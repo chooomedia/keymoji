@@ -122,15 +122,31 @@ export async function fetchBlogPosts(options = {}) {
             // Force fresh fetch from API (bypass cache)
             console.log('🔄 [blogApi] Force refreshing posts from backend...');
             const response = await fetch(url, { method: 'GET' });
+            
+            // Handle HTTP errors
             if (!response.ok) {
+                console.error(`❌ [blogApi] HTTP error! status: ${response.status}`);
+                if (cachedPosts.length > 0) {
+                    console.warn('⚠️ [blogApi] Using cached data due to HTTP error');
+                    return cachedPosts;
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            // Read response as text first to handle empty responses
+            // Read response as text first to handle empty responses (HTTP 200 but 0 bytes)
             const responseText = await response.text();
-            if (!responseText || responseText.trim().length === 0) {
-                console.warn('⚠️ [blogApi] Empty response from API, using cached data');
-                return cachedPosts.length > 0 ? cachedPosts : [];
+            const responseLength = responseText ? responseText.trim().length : 0;
+            
+            console.log(`📊 [blogApi] Response status: ${response.status}, size: ${responseLength} bytes`);
+            
+            if (!responseText || responseLength === 0) {
+                console.warn('⚠️ [blogApi] Empty response from API (HTTP 200 but 0 bytes), using cached data');
+                if (cachedPosts.length > 0) {
+                    return cachedPosts;
+                }
+                // Return empty array if no cache available
+                console.warn('⚠️ [blogApi] No cached data available, returning empty array');
+                return [];
             }
             
             // Parse JSON
@@ -138,16 +154,30 @@ export async function fetchBlogPosts(options = {}) {
                 posts = JSON.parse(responseText);
             } catch (parseError) {
                 console.error('❌ [blogApi] Failed to parse JSON response:', parseError);
+                console.error('❌ [blogApi] Response text (first 200 chars):', responseText.substring(0, 200));
+                if (cachedPosts.length > 0) {
+                    console.warn('⚠️ [blogApi] Using cached data due to parse error');
+                    return cachedPosts;
+                }
                 throw new Error(`Invalid JSON response: ${parseError.message}`);
             }
         } else {
             // Use cached fetch
+            try {
             posts = await cachedFetch(
                 url,
                 { method: 'GET' },
                 CACHE_TTL.POSTS_LIST,
                 true // stale-while-revalidate
             );
+            } catch (fetchError) {
+                console.error('❌ [blogApi] Error fetching posts:', fetchError);
+                if (cachedPosts.length > 0) {
+                    console.warn('⚠️ [blogApi] Using cached data due to fetch error');
+                    return cachedPosts;
+                }
+                throw fetchError;
+            }
         }
         
         // Handle empty or invalid responses
@@ -158,10 +188,14 @@ export async function fetchBlogPosts(options = {}) {
         
         if (!Array.isArray(posts)) {
             console.warn('⚠️ [blogApi] Invalid posts response (not an array):', typeof posts, posts);
-            return cachedPosts.length > 0 ? cachedPosts : [];
+            if (cachedPosts.length > 0) {
+                console.warn('⚠️ [blogApi] Using cached data due to invalid response type');
+                return cachedPosts;
+            }
+            return [];
         }
         
-        // Handle empty array
+        // Handle empty array (API returned [] but HTTP 200)
         if (posts.length === 0) {
             console.log('ℹ️ [blogApi] API returned empty array, using cached data if available');
             return cachedPosts.length > 0 ? cachedPosts : [];
@@ -169,45 +203,89 @@ export async function fetchBlogPosts(options = {}) {
         
         // Merge mit cached likes und stelle sicher, dass jeder Post einen Slug hat
         const cachedLikes = getCachedLikes();
+        
+        // DEBUG: Log Backend-Daten für ersten Post
+        if (posts.length > 0 && forceRefresh) {
+            console.log('🔍 [blogApi] DEBUG - First post from backend:', {
+                id: posts[0].id || posts[0].row_number,
+                title: posts[0].title?.substring(0, 30),
+                likes: posts[0].likes,
+                likesType: typeof posts[0].likes,
+                liked: posts[0].liked,
+                likedType: typeof posts[0].liked,
+                fullPost: posts[0]
+            });
+        }
+        
         const mergedPosts = posts.map(post => {
-            const cachedLike = cachedLikes[post.id || post.row_number];
+            const postId = post.id || post.row_number;
+            const cachedLike = cachedLikes[postId];
             
             // Stelle sicher, dass jeder Post einen Slug hat
             let slug = post.slug;
             if (!slug || !slug.trim()) {
                 // Generiere Slug aus Titel oder verwende Fallback
-                slug = normalizeSlug(post.title, post.id || post.row_number || 'post');
+                slug = normalizeSlug(post.title, postId || 'post');
             } else {
                 // Sanitize vorhandenen Slug
                 slug = sanitizeSlug(slug);
             }
             
+            // BACKEND FIRST: Backend-Wert ist IMMER der initiale Wert
             // Priority für likes: Backend (post.likes) > cachedLike.likes > 0
-            // Backend liefert likes aus der "liked" Spalte im Google Sheet (via n8n Merge With Likes)
-            // post.likes sollte bereits vom Backend kommen (nach Merge With Likes)
-            // CRITICAL: post.likes ist die korrekte Quelle (wird im n8n "Clean Post Data" Node gesetzt)
+            // Backend liefert likes aus der "likes" Spalte im Google Sheet (via n8n)
+            // post.likes sollte bereits vom Backend kommen
+            // CRITICAL: post.likes ist die korrekte Quelle
             // post.liked ist ein Boolean (User-spezifisch), NICHT die Anzahl!
             const backendLikesRaw = post.likes;
+            
+            // DEBUG: Log für ersten Post
+            if (postId === (posts[0]?.id || posts[0]?.row_number) && forceRefresh) {
+                console.log('🔍 [blogApi] DEBUG - Processing likes for first post:', {
+                    postId,
+                    backendLikesRaw,
+                    backendLikesRawType: typeof backendLikesRaw,
+                    cachedLike,
+                    cachedLikesValue: cachedLike?.likes
+                });
+            }
+            
+            // BACKEND FIRST: Parse Backend-Wert (auch 0 ist gültig!)
             const backendLikes = backendLikesRaw !== undefined && backendLikesRaw !== null 
                 ? parseInt(String(backendLikesRaw), 10) 
                 : null;
-            const cachedLikesValue = cachedLike?.likes !== undefined && cachedLike.likes !== null ? parseInt(cachedLike.likes, 10) : null;
             
-            // CRITICAL: Backend hat IMMER Priorität, auch wenn 0 (aber nicht wenn null/undefined)
+            const cachedLikesValue = cachedLike?.likes !== undefined && cachedLike.likes !== null 
+                ? parseInt(cachedLike.likes, 10) 
+                : null;
+            
+            // BACKEND FIRST: Backend hat IMMER Priorität, auch wenn 0
             // Nur wenn Backend null/undefined ist, verwende Cache oder 0
             const finalLikes = backendLikes !== null && !isNaN(backendLikes) && backendLikes >= 0 
                 ? backendLikes 
                 : (cachedLikesValue !== null && !isNaN(cachedLikesValue) ? cachedLikesValue : 0);
             
-            // Debug: Log nur wenn likes fehlen oder unerwartet sind
-            if (backendLikes === null || backendLikes === undefined) {
-                console.warn('⚠️ [blogApi] Missing likes from backend for post:', {
-                    id: post.id || post.row_number,
+            // DEBUG: Log wenn Backend-Wert fehlt oder unerwartet ist
+            if (backendLikes === null || backendLikes === undefined || isNaN(backendLikes)) {
+                console.warn('⚠️ [blogApi] Missing/invalid likes from backend for post:', {
+                    id: postId,
                     title: post.title?.substring(0, 30),
                     postLikes: post.likes,
+                    backendLikesRaw,
                     backendLikes,
                     cachedLikesValue,
                     finalLikes
+                });
+            }
+            
+            // DEBUG: Log für ersten Post (immer bei forceRefresh)
+            if (postId === (posts[0]?.id || posts[0]?.row_number) && forceRefresh) {
+                console.log('✅ [blogApi] DEBUG - Final likes for first post:', {
+                    postId,
+                    backendLikes,
+                    cachedLikesValue,
+                    finalLikes,
+                    usedSource: backendLikes !== null && !isNaN(backendLikes) ? 'BACKEND' : 'CACHE'
                 });
             }
             
@@ -347,18 +425,35 @@ export async function likeBlogPost(postId, options = {}) {
         
         if (!response.ok) {
             let errorMessage = response.statusText;
+            const statusCode = response.status;
+            
+            // Handle 404 specifically (webhook not registered)
+            if (statusCode === 404) {
+                console.warn('⚠️ [blogApi] Like webhook not registered (404). Workflow may not be active in n8n.');
+                errorMessage = 'Like webhook not available. Please activate the workflow in n8n.';
+            }
+            
             try {
                 const errorData = await response.json();
                 errorMessage = errorData.message || errorData.error || errorMessage;
+                if (errorData.hint) {
+                    console.warn('💡 [blogApi] Hint:', errorData.hint);
+                }
             } catch (parseError) {
                 const errorText = await response.text().catch(() => 'Unknown error');
-                console.error('❌ [blogApi] Like request failed:', errorText.substring(0, 200));
+                console.error(`❌ [blogApi] Like request failed (${statusCode}):`, errorText.substring(0, 200));
             }
             
             if (optimistic) {
                 updateCachedLike(postId, unlike);
             }
-            return null;
+            
+            // Return error info for better error handling
+            return {
+                success: false,
+                error: errorMessage,
+                statusCode: statusCode
+            };
         }
         
         let result;
@@ -380,7 +475,11 @@ export async function likeBlogPost(postId, options = {}) {
             if (optimistic) {
                 updateCachedLike(postId, unlike);
             }
-            return null;
+            return {
+                success: false,
+                error: 'Failed to parse response',
+                parseError: parseError.message
+            };
         }
         
         if (result && (result.success !== false)) {

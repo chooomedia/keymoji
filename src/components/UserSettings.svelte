@@ -46,6 +46,10 @@
     let apiTestSuccess = false; // ✅ Test successful for current provider
     let testedProvider = null; // Track which provider was tested
     let settingsInitialized = false; // Track if settings are fully initialized
+    
+    // Local state for API key input to prevent reset during typing
+    let localApiKeyValue = '';
+    let isApiKeyFocused = false;
 
     // Check if user is pro - optimiert mit $: um zu viele Aufrufe zu vermeiden
     $: isProUser = $accountTier === 'pro';
@@ -62,21 +66,22 @@
             const currentSettings = getCurrentUserSettings();
             const storyMode = currentSettings?.storyMode || {};
             const verifiedProviders = storyMode.verifiedProviders || {};
-            const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
+            // Use currentProvider (reactive) as Single Source of Truth
+            const provider = currentProvider || 'apertus';
             
             // Check if current provider is verified
-            if (verifiedProviders[currentProvider]?.success) {
-                const verification = verifiedProviders[currentProvider];
+            if (verifiedProviders[provider]?.success) {
+                const verification = verifiedProviders[provider];
                 apiTestSuccess = true;
-                testedProvider = currentProvider;
-                console.log('✅ Verification status restored for provider:', currentProvider, {
+                testedProvider = provider;
+                console.log('✅ Verification status restored for provider:', provider, {
                     verifiedAt: verification.verifiedAt,
                     model: verification.model
                 });
             } else {
                 apiTestSuccess = false;
                 testedProvider = null;
-                console.log('ℹ️ No verification status found for provider:', currentProvider);
+                console.log('ℹ️ No verification status found for provider:', provider);
             }
         } catch (error) {
             console.warn('⚠️ Error loading verification status:', error);
@@ -88,8 +93,8 @@
     
     // REACTIVE: Reset test status when provider or API key changes (only after initialization)
     // Guard: Only run reactive block if settings are initialized
+    // Use currentProvider (derived from activeProvider) as Single Source of Truth
     $: if (settingsInitialized) {
-        const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
         const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
         const currentApiKey = apiKeys[currentProvider] || '';
         
@@ -121,13 +126,38 @@
     
     // REACTIVE: Force re-evaluation when these stores change
     // BUT: Only for non-input fields to avoid focus loss during typing
-    $: reactivityTrigger = {
-        account: $currentAccount,
-        settings: $userSettings,
-        // NOTE: pendingChanges is NOT included here to prevent re-renders during typing
-        // pending: $pendingChanges, // REMOVED: Causes focus loss during typing!
-        language: $currentLanguage
-    };
+    // ============================================
+    // STORY MODE AI PROVIDER: Single Source of Truth
+    // ============================================
+    // Priority: pendingChanges > userSettings > default
+    // CRITICAL: These reactive statements ensure immediate updates when stores change
+    $: pendingProviderValue = $pendingChanges['storyMode.provider'];
+    $: settingsProviderValue = $userSettings?.storyMode?.provider;
+    $: currentStoryModeProvider = getEffectiveValue('storyMode.provider') || 'apertus';
+    
+    // Active provider: prioritize pendingChanges (user is changing), then saved settings, then default
+    $: activeProvider = pendingProviderValue !== undefined 
+        ? pendingProviderValue 
+        : (settingsProviderValue !== undefined ? settingsProviderValue : currentStoryModeProvider);
+    
+    // Derive currentProvider for template use (always reactive, always has a value)
+    $: currentProvider = activeProvider || 'apertus';
+    
+    // Reset UI state when provider changes
+    let previousProvider = currentProvider;
+    $: if (currentProvider !== previousProvider) {
+        showApiKey = false;
+        isApiKeyFocused = false;
+        localApiKeyValue = '';
+        if (testedProvider !== currentProvider) {
+            apiTestSuccess = false;
+            testedProvider = null;
+        }
+        previousProvider = currentProvider;
+    }
+    
+    // NOTE: reactivityTrigger removed - using direct reactive statements instead
+    // This prevents unnecessary re-renders that cause input resets
 
     // Helper function to get localized text
     function getLocalizedText(textObj, fallback = '') {
@@ -138,58 +168,45 @@
     function getCurrentValue(item) {
         const itemId = item.id;
         
-        // Use getEffectiveValue from store (handles pending + userSettings + tier defaults)
-        let effectiveValue = getEffectiveValue(itemId);
+        // CRITICAL: Always check pendingChanges FIRST - this is what user is currently typing!
+        // Use get() instead of $ to avoid reactive re-renders during typing
+        const pending = get(pendingChanges);
+        const pendingValue = pending[itemId];
         
-        // DEBUG: Log for critical fields
-        if (['language', 'theme', 'name'].includes(itemId)) {
-            console.log(`🔍 getCurrentValue(${itemId}):`, {
-                effectiveValue,
-                userSettings: get(userSettings)[itemId],
-                pending: get(pendingChanges)[itemId],
-                currentAccount: get(currentAccount)
-            });
+        // If there's a pending value, use it immediately (user is typing or just typed)
+        if (pendingValue !== undefined && pendingValue !== null) {
+            return pendingValue;
         }
+        
+        // Use getEffectiveValue from store (handles userSettings + tier defaults)
+        let effectiveValue = getEffectiveValue(itemId);
         
         // Special handling for critical fields that sync with other stores
         
         // Name: Use get() instead of $ to avoid reactive re-renders during typing
         if (itemId === 'name') {
-            // Priority 1: Pending changes (user is typing) - CRITICAL: Check this first!
-            const pending = get(pendingChanges)[itemId];
-            if (pending !== undefined && pending !== null) {
-                console.log(`👤 getCurrentValue(name): Using pending:`, pending);
-                return pending;
-            }
-            
-            // Priority 2: currentAccount store (after successful save) - Use get() not $!
+            // Priority 1: currentAccount store (after successful save) - Use get() not $!
             const account = get(currentAccount); // NOT REACTIVE - prevents re-render during typing!
             const accountName = account?.name || account?.profile?.name;
             if (accountName) {
-                console.log(`👤 getCurrentValue(name): Using currentAccount:`, accountName);
                 return accountName;
             }
             
-            // Priority 3: userSettings - Use get() not $!
+            // Priority 2: userSettings - Use get() not $!
             const settings = get(userSettings); // NOT REACTIVE - prevents re-render during typing!
             const settingsName = settings?.name;
             if (settingsName) {
-                console.log(`👤 getCurrentValue(name): Using userSettings:`, settingsName);
                 return settingsName;
             }
             
-            // Priority 4: Default value
-            const finalName = item.defaultValue || '';
-            console.log(`👤 getCurrentValue(name): Using default:`, finalName);
-            return finalName;
+            // Priority 3: Default value
+            return item.defaultValue || '';
         }
         
         // Language: Always sync from currentLanguage store (source of truth)
         if (itemId === 'language') {
             const lang = get(currentLanguage);
-            const finalLang = lang || effectiveValue || item.defaultValue || 'en';
-            console.log(`🌍 getCurrentValue(language): Final value:`, finalLang);
-            return finalLang;
+            return lang || effectiveValue || item.defaultValue || 'en';
         }
         
         // Theme: Support "auto" + sync from storage
@@ -197,31 +214,21 @@
             // Check explicit storage first (supports "auto")
             const storedTheme = localStorage.getItem('keymoji_theme');
             if (storedTheme && ['auto', 'light', 'dark'].includes(storedTheme)) {
-                console.log(`🎨 getCurrentValue(theme): Using stored theme:`, storedTheme);
                 return storedTheme;
             }
             
             // Then check effectiveValue
             if (effectiveValue) {
-                console.log(`🎨 getCurrentValue(theme): Using effective value:`, effectiveValue);
                 return effectiveValue;
             }
             
             // Fallback: Derive from darkMode
             const isDark = get(darkMode);
-            const derivedTheme = isDark ? 'dark' : 'light';
-            console.log(`🎨 getCurrentValue(theme): Derived from darkMode:`, derivedTheme);
-            return derivedTheme;
+            return isDark ? 'dark' : 'light';
         }
         
         // For all other fields: Use effectiveValue (handles tier-appropriate defaults)
-        const finalValue = effectiveValue !== undefined ? effectiveValue : item.defaultValue;
-        
-        if (effectiveValue === undefined) {
-            console.log(`⚙️ getCurrentValue(${itemId}): Using fallback default:`, item.defaultValue);
-        }
-        
-        return finalValue;
+        return effectiveValue !== undefined ? effectiveValue : item.defaultValue;
     }
 
     // Get available sections based on user tier
@@ -290,13 +297,16 @@
     }
 
     function handleSettingUpdate(key, value) {
-        console.log('🔧 handleSettingUpdate:', { key, value, type: typeof value });
+        // CRITICAL: For provider changes, update immediately for reactivity
+        if (key === 'storyMode.provider') {
+            updateSetting(key, value);
+            return; // Early return to avoid double update
+        }
         
         // Special validation for Story Mode enabled toggle
         if (key === 'storyMode.enabled') {
-            // CRITICAL: Use getCurrentUserSettings() as fallback for API key detection
+            // CRITICAL: Use activeProvider (reactive) as Single Source of Truth
             const currentSettings = getCurrentUserSettings();
-            const currentProvider = getEffectiveValue('storyMode.provider') || currentSettings?.storyMode?.provider || 'apertus';
             const isApertus = currentProvider === 'apertus';
             
             // CRITICAL: Apertus uses VITE_N8N_APERTUS_TOKEN from environment, NOT apiKeys.apertus!
@@ -361,8 +371,8 @@
         }
         
         // Reset test status when API keys are modified
+        // Use currentProvider (reactive) as Single Source of Truth
         if (key === 'storyMode.apiKeys') {
-            const currentProvider = getEffectiveValue('storyMode.provider') || 'apertus';
             const oldApiKeys = getEffectiveValue('storyMode.apiKeys') || {};
             const oldKey = oldApiKeys[currentProvider] || '';
             const newKey = (value[currentProvider] || '');
@@ -384,9 +394,11 @@
             }
         }
         
-        // Update the setting
-        updateSetting(key, value);
-        console.log('✅ Setting updated in store:', { key, value });
+        // Update the setting (skip if already updated above)
+        if (key !== 'storyMode.provider') {
+            updateSetting(key, value);
+            console.log('✅ Setting updated in store:', { key, value });
+        }
         
         // Apply some settings immediately for preview
         if (key === 'theme') {
@@ -691,9 +703,9 @@
         isTestingAPI = true;
         
         // Get current Story Mode settings (OUTSIDE try block for error handler access)
-        // CRITICAL: Use getCurrentUserSettings() as fallback if getEffectiveValue fails
+        // CRITICAL: Use currentProvider (reactive) as Single Source of Truth
         const currentSettings = getCurrentUserSettings();
-        const provider = getEffectiveValue('storyMode.provider') || currentSettings?.storyMode?.provider || 'openai';
+        const provider = currentProvider || 'apertus';
         
         // CRITICAL: Try multiple sources for apiKeys
         let apiKeys = getEffectiveValue('storyMode.apiKeys');
@@ -728,17 +740,34 @@
             });
             
             // Validate API key exists for current provider (skip for Apertus as it uses n8n token)
-            if (provider !== 'apertus' && (!apiKey || apiKey.length < 10)) {
-            console.error('❌ [TEST] API Key validation failed:', {
-                provider,
-                hasApiKey: !!apiKey,
-                apiKeyLength: apiKey?.length || 0,
-                apiKeysObject: apiKeys,
-                allApiKeys: Object.keys(apiKeys || {}).map(k => ({ key: k, length: apiKeys[k]?.length || 0 }))
-            });
-                showWarning(`⚠️ Bitte gib zuerst einen API-Key für ${provider} ein`, 3000);
-            isTestingAPI = false;
-                return;
+            // For other providers, require minimum length based on provider type
+            if (provider !== 'apertus') {
+                const providerInfo = getProviderInfo(provider);
+                if (!providerInfo) {
+                    console.error('❌ [TEST] Provider info not found for:', provider);
+                    showWarning(`⚠️ Unbekannter Provider: ${provider}`, 3000);
+                    isTestingAPI = false;
+                    return;
+                }
+                
+                const minKeyLength = providerInfo.apiKeyPrefix 
+                    ? providerInfo.apiKeyPrefix.length + 10  // Prefix + minimum key length
+                    : 10; // Default minimum
+                
+                if (!apiKey || apiKey.length < minKeyLength) {
+                    console.error('❌ [TEST] API Key validation failed:', {
+                        provider,
+                        hasApiKey: !!apiKey,
+                        apiKeyLength: apiKey?.length || 0,
+                        minKeyLength,
+                        apiKeyPrefix: providerInfo.apiKeyPrefix,
+                        apiKeysObject: apiKeys,
+                        allApiKeys: Object.keys(apiKeys || {}).map(k => ({ key: k, length: apiKeys[k]?.length || 0 }))
+                    });
+                    showWarning(`⚠️ Bitte gib zuerst einen gültigen API-Key für ${providerInfo.name} ein (mindestens ${minKeyLength} Zeichen)`, 3000);
+                    isTestingAPI = false;
+                    return;
+                }
             }
             
             // For Apertus, use empty string as apiKey (n8n token is handled in callApertus)
@@ -1159,12 +1188,10 @@
                 {#if activeSection === section.id}
                     <div class="p-4" transition:slide={{ duration: 300 }}>
                         <!-- Regular Items -->
-                        {#each section.items as item}
-                            {#key reactivityTrigger}
+                        {#each section.items as item (item.id)}
                             <div class="mb-4 last:mb-0">
                                 <!-- Special handling for Story Mode Enabled Toggle -->
                                 {#if item.id === 'storyMode.enabled'}
-                                    {@const currentValue = getCurrentValue(item)}
                                     <ModularInput
                                         config={{
                                             type: item.type,
@@ -1173,7 +1200,7 @@
                                             label: item.title,
                                             description: item.description,
                                             placeholder: item.placeholder,
-                                            value: currentValue,
+                                            value: getCurrentValue(item),
                                             options: item.options?.map(opt => ({
                                                 value: opt.value,
                                                 label: opt.label
@@ -1185,250 +1212,286 @@
                                             class: 'contact-input'
                                         }}
                                         currentLanguage={$currentLanguage}
-                                        currentValue={currentValue}
+                                        currentValue={getCurrentValue(item)}
                                         onValueChange={(value) => handleSettingUpdate(item.id, value)}
                                     />
-                                <!-- Special handling for AI Provider dropdown with link -->
+                                <!-- Story Mode AI Provider: Complete Configuration -->
                                 {:else if item.id === 'storyMode.provider'}
-                                    {@const currentProvider = getCurrentValue(item) || 'apertus'}
-                                    
-                                    <div>
-                                        <!-- Provider Dropdown with Success Icon -->
-                                        <div class="relative">
-                                            <div class="relative">
-                                                <ModularInput
-                                                    config={{
-                                                        type: item.type,
-                                                        id: item.id,
-                                                        icon: item.icon,
-                                                        label: item.title,
-                                                        description: item.description,
-                                                        placeholder: item.placeholder,
-                                                        value: getCurrentValue(item),
-                                                        options: item.options?.map(opt => ({
-                                                            value: opt.value,
-                                                            label: opt.label
-                                                        })) || [],
-                                                        min: item.min,
-                                                        max: item.max,
-                                                        labels: item.labels,
-                                                        defaultValue: item.defaultValue,
-                                                        class: 'contact-input'
-                                                    }}
-                                                    currentLanguage={$currentLanguage}
-                                                    currentValue={getCurrentValue(item)}
-                                                    onValueChange={(value) => handleSettingUpdate(item.id, value)}
-                                                />
-                                            </div>
-                                        </div>
+                                    <div class="space-y-4">
+                                        <!-- Provider Dropdown -->
+                                        <ModularInput
+                                            config={{
+                                                type: item.type,
+                                                id: item.id,
+                                                icon: item.icon,
+                                                label: item.title,
+                                                description: item.description,
+                                                placeholder: item.placeholder,
+                                                value: currentProvider,
+                                                options: item.options?.map(opt => ({
+                                                    value: opt.value,
+                                                    label: opt.label
+                                                })) || [],
+                                                min: item.min,
+                                                max: item.max,
+                                                labels: item.labels,
+                                                defaultValue: item.defaultValue,
+                                                class: 'contact-input'
+                                            }}
+                                            currentLanguage={$currentLanguage}
+                                            currentValue={currentProvider}
+                                            onValueChange={(value) => handleSettingUpdate(item.id, value)}
+                                        />
                                         
-                                        <!-- API Key creation link below provider dropdown -->
-                                        {#if currentProvider !== 'custom'}
-                                            {@const apiKeyUrls = {
-                                                openai: 'https://platform.openai.com/api-keys',
-                                                gemini: 'https://makersuite.google.com/app/apikey',
-                                                mistral: 'https://console.mistral.ai/api-keys',
-                                                claude: 'https://console.anthropic.com/settings/keys',
-                                                apertus: 'https://aimi.matt-interfaces.ch/api'
-                                            }}
-                                            {@const providerNames = {
-                                                openai: 'OpenAI Platform',
-                                                gemini: 'Google AI Studio',
-                                                mistral: 'Mistral Console',
-                                                claude: 'Anthropic Console',
-                                                apertus: 'Apertus API'
-                                            }}
-                                            <!-- Note: Links can be added here if needed in the future -->
-                                        {/if}
+                                        <!-- API Key Configuration (Reactive based on Provider) -->
+                                        {#key currentProvider}
+                                            {#if currentProvider}
+                                                {@const apiKeysItem = section.items.find(i => i.id === 'storyMode.apiKeys')}
+                                                {#if apiKeysItem}
+                                                    <!-- API Key Data (Reactive) -->
+                                                    {@const apiKeys = getCurrentValue({ id: 'storyMode.apiKeys' }) || {}}
+                                                    {@const currentApiKeyFromStore = (apiKeys && typeof apiKeys === 'object' ? apiKeys[currentProvider] : '') || ''}
+                                                    {@const currentApiKey = isApiKeyFocused ? localApiKeyValue : currentApiKeyFromStore}
+                                                    {@const hasValidKey = currentApiKey && currentApiKey.length >= 10}
+                                                    {@const hasAnyKey = currentApiKey && currentApiKey.length > 0}
+                                                    {@const savedProviders = Object.entries(apiKeys).filter(([provider, key]) => provider !== currentProvider && key && key.length >= 10).map(([provider]) => provider)}
+                                                    {@const isApertus = currentProvider === 'apertus'}
+                                                    {@const isCustom = currentProvider === 'custom'}
+                                                    {@const providerInfo = getProviderInfo(currentProvider)}
+                                                    {@const providerPlaceholders = {
+                                                        apertus: 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                                                        openai: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                                                        gemini: 'AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                                                        claude: 'sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                                                        mistral: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                                                        custom: 'Enter your API key...'
+                                                    }}
+                                                    {@const currentPlaceholder = providerPlaceholders[currentProvider] || getLocalizedText(apiKeysItem.placeholder) || 'Enter your API key...'}
+                                                    {@const isTestSuccessful = apiTestSuccess && testedProvider === currentProvider}
+                                                        
+                                                    <!-- API Key Configuration Card -->
+                                                    <div class="space-y-3 bg-powder-100 dark:bg-aubergine-950 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                                                        <!-- Label -->
+                                                        <div class="flex items-center space-x-2">
+                                                            {#if apiKeysItem.icon}
+                                                                <span class="text-lg">{apiKeysItem.icon}</span>
+                                                            {/if}
+                                                            <label for="storyMode.apiKeys" class="text-sm font-semibold text-gray-900 dark:text-white">
+                                                                {getLocalizedText(apiKeysItem.title)}
+                                                                <span class="ml-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+                                                                    ({currentProvider.charAt(0).toUpperCase() + currentProvider.slice(1)})
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                            
+                                                        <!-- Input Container -->
+                                                        <div class="relative">
+                                                            {#if isApertus}
+                                                                <!-- Apertus: Disabled (uses environment token) -->
+                                                                <input
+                                                                    id="storyMode.apiKeys"
+                                                                    type="password"
+                                                                    value={currentPlaceholder}
+                                                                    disabled
+                                                                    readonly
+                                                                    placeholder={currentPlaceholder}
+                                                                    class="w-full p-4 pr-4 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-500 border border-gray-300 dark:border-gray-600 rounded-xl transition-all duration-200 cursor-not-allowed opacity-60"
+                                                                    aria-label={getLocalizedText(apiKeysItem.title)}
+                                                                    aria-describedby="apertus-token-info"
+                                                                />
+                                                            {:else}
+                                                                <!-- Other Providers: Editable -->
+                                                                <input
+                                                                    id="storyMode.apiKeys"
+                                                                    type={showApiKey ? 'text' : 'password'}
+                                                                    value={currentApiKey || ''}
+                                                                    on:input={(e) => {
+                                                                        localApiKeyValue = e.target.value;
+                                                                        const newApiKeys = { ...apiKeys, [currentProvider]: e.target.value };
+                                                                        handleSettingUpdate('storyMode.apiKeys', newApiKeys);
+                                                                    }}
+                                                                    on:focus={() => {
+                                                                        isApiKeyFocused = true;
+                                                                        const apiKeys = getCurrentValue({ id: 'storyMode.apiKeys' }) || {};
+                                                                        const keyFromStore = (apiKeys && typeof apiKeys === 'object' ? apiKeys[currentProvider] : '') || '';
+                                                                        localApiKeyValue = keyFromStore;
+                                                                    }}
+                                                                    on:blur={() => {
+                                                                        isApiKeyFocused = false;
+                                                                        localApiKeyValue = currentApiKeyFromStore || '';
+                                                                    }}
+                                                                    placeholder={currentPlaceholder}
+                                                                    class="w-full p-4 {hasValidKey ? 'pr-32' : hasAnyKey ? 'pr-14' : 'pr-4'} bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50 placeholder-gray-400 dark:placeholder-gray-500"
+                                                                    aria-label={getLocalizedText(apiKeysItem.title)}
+                                                                />
+                                                            {/if}
+                                                            
+                                                            <!-- Gradient Overlay (for long keys) -->
+                                                            {#if !isApertus && hasAnyKey}
+                                                                <div 
+                                                                    class="absolute {hasValidKey ? 'right-[7.25rem]' : 'right-[3.25rem]'} inset-y-[1px] {hasValidKey ? 'w-32' : 'w-20'} z-5 pointer-events-none rounded-r-[11px]"
+                                                                    style="background: linear-gradient(to right, 
+                                                                        transparent 0%, 
+                                                                        {$darkMode ? 'rgba(14, 30, 48, 0.6)' : 'rgba(255, 255, 255, 0.6)'} 25%,
+                                                                        {$darkMode ? 'rgba(14, 30, 48, 0.95)' : 'rgba(255, 255, 255, 0.95)'} 60%,
+                                                                        {$darkMode ? '#0e1e30' : '#ffffff'} 100%);"
+                                                                    aria-hidden="true"
+                                                                ></div>
+                                                            {/if}
+                                                            
+                                                            <!-- Action Buttons -->
+                                                            <div class="absolute right-2 inset-y-0 flex items-center gap-1 z-10">
+                                                                {#if !isApertus && hasAnyKey}
+                                                                    <button
+                                                                        type="button"
+                                                                        on:click={() => showApiKey = !showApiKey}
+                                                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
+                                                                        aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
+                                                                        title={showApiKey ? 'Hide' : 'Show'}
+                                                                    >
+                                                                        {#if showApiKey}
+                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                                                            </svg>
+                                                                        {:else}
+                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                                            </svg>
+                                                                        {/if}
+                                                                    </button>
+                                                                {/if}
+                                                                
+                                                                <!-- Test Button -->
+                                                                <button
+                                                                    type="button"
+                                                                    disabled={isTestingAPI}
+                                                                    on:click={testAPIConnection}
+                                                                    class="inline-flex items-center justify-center gap-1 px-2.5 h-8 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed
+                                                                        {isTestSuccessful
+                                                                            ? 'bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700'
+                                                                            : 'hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white'}"
+                                                                    aria-label={isTestingAPI ? 'Testing API connection' : isTestSuccessful ? 'API connection verified' : 'Test API connection'}
+                                                                    title={isTestingAPI ? 'Testing...' : isTestSuccessful ? 'API connection verified ✅' : 'Test'}
+                                                                >
+                                                                    {#if isTestingAPI}
+                                                                        <svg class="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                        </svg>
+                                                                    {:else if isTestSuccessful}
+                                                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                                        </svg>
+                                                                    {:else}
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                                        </svg>
+                                                                    {/if}
+                                                                    <span class="hidden sm:inline">{isTestSuccessful ? 'Verified' : 'Test'}</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- Provider Info & Documentation -->
+                                                        <div class="text-xs text-gray-600 dark:text-gray-400 mt-1 space-y-1">
+                                                            {#if isApertus}
+                                                                <p id="apertus-token-info" class="text-gray-700 dark:text-gray-300 font-medium mb-2">
+                                                                    {$translations?.accountManager?.apertusInfo || 'Exclusive on Keymoji: Apertus – the Swiss LLM. First time available for users. Hosted on HuggingFace, delivered via n8n workflow.'}
+                                                                </p>
+                                                                <div class="flex flex-wrap items-center gap-3 mt-2">
+                                                                    <a href="https://huggingface.co/swiss-ai/Apertus-8B-Instruct-2509" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+                                                                        <span>{$translations?.accountManager?.apertusHuggingFaceLink || 'Apertus-8B auf HuggingFace'}</span>
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                        </svg>
+                                                                    </a>
+                                                                    <a href="http://matt-interfaces.ch/n8n" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+                                                                        <span>n8n Workflow Tool</span>
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                        </svg>
+                                                                    </a>
+                                                                </div>
+                                                            {:else if providerInfo}
+                                                                <p class="text-gray-700 dark:text-gray-300 font-medium mb-1">
+                                                                    {#if currentProvider === 'openai'}
+                                                                        {$translations?.accountManager?.openaiHint || 'OpenAI API Key: Create an API key in your OpenAI account. Paid service, but very powerful.'}
+                                                                    {:else if currentProvider === 'gemini'}
+                                                                        {$translations?.accountManager?.geminiHint || 'Google Gemini API Key: Create an API key in Google AI Studio. Free for moderate usage.'}
+                                                                    {:else if currentProvider === 'claude'}
+                                                                        {$translations?.accountManager?.claudeHint || 'Anthropic Claude API Key: Create an API key in your Anthropic account. High-quality responses with focus on security.'}
+                                                                    {:else if currentProvider === 'mistral'}
+                                                                        {$translations?.accountManager?.mistralHint || 'Mistral AI API Key: Create an API key in your Mistral account. European provider with good prices.'}
+                                                                    {:else if currentProvider === 'custom'}
+                                                                        {$translations?.accountManager?.customHint || 'Custom API: Configure your own API endpoint. Supports OpenAI-compatible APIs.'}
+                                                                    {:else}
+                                                                        {getLocalizedText(apiKeysItem.description)}
+                                                                    {/if}
+                                                                </p>
+                                                                {#if providerInfo.docsUrl}
+                                                                    <p class="mt-1">
+                                                                        <a href={providerInfo.docsUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+                                                                            <span>{providerInfo.name} Documentation</span>
+                                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                            </svg>
+                                                                        </a>
+                                                                    </p>
+                                                                {/if}
+                                                            {/if}
+                                                            
+                                                            {#if !isApertus && savedProviders.length > 0}
+                                                                <p class="text-green-600 dark:text-green-400 inline-flex items-center gap-1 mt-1">
+                                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                                    </svg>
+                                                                    Saved keys for: {savedProviders.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ')}
+                                                                </p>
+                                                            {/if}
+                                                        </div>
+                                                        
+                                                        <!-- Custom API Fields (only when custom provider selected) -->
+                                                        {#if isCustom && section.proItems}
+                                                            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+                                                                {#each section.proItems as customItem (customItem.id)}
+                                                                    {#if customItem.id?.startsWith('storyMode.custom')}
+                                                                        <ModularInput
+                                                                            config={{
+                                                                                type: customItem.type,
+                                                                                id: customItem.id,
+                                                                                icon: customItem.icon,
+                                                                                label: customItem.title,
+                                                                                description: customItem.description,
+                                                                                placeholder: customItem.placeholder,
+                                                                                value: getCurrentValue(customItem),
+                                                                                options: customItem.options?.map(opt => ({
+                                                                                    value: opt.value,
+                                                                                    label: opt.label
+                                                                                })) || [],
+                                                                                min: customItem.min,
+                                                                                max: customItem.max,
+                                                                                labels: customItem.labels,
+                                                                                defaultValue: customItem.defaultValue,
+                                                                                class: 'contact-input'
+                                                                            }}
+                                                                            currentLanguage={$currentLanguage}
+                                                                            currentValue={getCurrentValue(customItem)}
+                                                                            onValueChange={(value) => handleSettingUpdate(customItem.id, value)}
+                                                                        />
+                                                                    {/if}
+                                                                {/each}
+                                                            </div>
+                                                        {/if}
+                                                    </div>
+                                                {/if}
+                                            {/if}
+                                        {/key}
                                     </div>
                                     
                                 {:else if item.id === 'storyMode.apiKeys'}
-                                    <!-- Special handling for API Keys field with inline buttons -->
-                                    {@const currentProvider = getCurrentValue({ id: 'storyMode.provider' }) || 'apertus'}
-                                    {@const apiKeys = getCurrentValue({ id: 'storyMode.apiKeys' }) || {}}
-                                    {@const currentApiKey = apiKeys[currentProvider] || ''}
-                                    {@const hasValidKey = currentApiKey && currentApiKey.length >= 10}
-                                    {@const hasAnyKey = currentApiKey && currentApiKey.length > 0}
-                                    {@const savedProviders = Object.entries(apiKeys).filter(([provider, key]) => provider !== currentProvider && key && key.length >= 10).map(([provider]) => provider)}
-                                    {@const isApertus = currentProvider === 'apertus'}
-                                    {@const apertusPlaceholder = 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'}
-                                    
-                                    <div class="space-y-3">
-                                        <!-- Label and Icon with Provider Info -->
-                                        <div class="flex items-center space-x-2">
-                                            {#if item.icon}
-                                                <span class="text-lg">{item.icon}</span>
-                                            {/if}
-                                            <label for={item.id} class="text-sm font-semibold text-gray-900 dark:text-white">
-                                                {getLocalizedText(item.title)}
-                                                <span class="ml-1 text-xs font-normal text-gray-500 dark:text-gray-400">
-                                                    ({currentProvider.charAt(0).toUpperCase() + currentProvider.slice(1)})
-                                                </span>
-                                            </label>
-                                        </div>
-                                        
-                                        <!-- Input Container with inline Buttons -->
-                                        <div class="relative">
-                                            {#if isApertus}
-                                                <!-- Apertus: Disabled input with placeholder -->
-                                                <input
-                                                    id={item.id}
-                                                    type="password"
-                                                    value={apertusPlaceholder}
-                                                    disabled={true}
-                                                    readonly={true}
-                                                    placeholder={apertusPlaceholder}
-                                                    class="w-full p-4 pr-4 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-500 border border-gray-300 dark:border-gray-600 rounded-xl transition-all duration-200 cursor-not-allowed opacity-60"
-                                                    aria-label={getLocalizedText(item.title)}
-                                                />
-                                            {:else}
-                                                <!-- Other providers: Normal input -->
-                                            <input
-                                                id={item.id}
-                                                type={showApiKey ? 'text' : 'password'}
-                                                value={currentApiKey || ''}
-                                                on:input={(e) => {
-                                                    // Update the specific provider's API key
-                                                    const newApiKeys = { ...apiKeys, [currentProvider]: e.target.value };
-                                                    handleSettingUpdate('storyMode.apiKeys', newApiKeys);
-                                                }}
-                                                    on:keydown={(e) => {
-                                                        // Prevent focus loss on keydown - only prevent default for specific problematic keys
-                                                        // Allow normal typing, but prevent focus-stealing behaviors
-                                                        if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
-                                                            // Allow Tab for navigation
-                                                            return;
-                                                        }
-                                                    }}
-                                                placeholder={getLocalizedText(item.placeholder)}
-                                                class="w-full p-4 {hasValidKey ? 'pr-32' : hasAnyKey ? 'pr-14' : 'pr-4'} bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50 placeholder-gray-400 dark:placeholder-gray-500"
-                                                aria-label={getLocalizedText(item.title)}
-                                            />
-                                            {/if}
-                                            
-                                            <!-- Gradient Fade-out Overlay VOR Buttons (z-5, innerhalb Border) -->
-                                            {#if !isApertus && hasAnyKey}
-                                                <div 
-                                                    class="absolute {hasValidKey ? 'right-[7.25rem]' : 'right-[3.25rem]'} inset-y-[1px] {hasValidKey ? 'w-32' : 'w-20'} z-5 pointer-events-none rounded-r-[11px]"
-                                                    style="background: linear-gradient(to right, 
-                                                        transparent 0%, 
-                                                        {$darkMode ? 'rgba(14, 30, 48, 0.6)' : 'rgba(255, 255, 255, 0.6)'} 25%,
-                                                        {$darkMode ? 'rgba(14, 30, 48, 0.95)' : 'rgba(255, 255, 255, 0.95)'} 60%,
-                                                        {$darkMode ? '#0e1e30' : '#ffffff'} 100%);"
-                                                    aria-hidden="true"
-                                                ></div>
-                                            {/if}
-                                            
-                                            <!-- Inline Buttons Container - Perfect centering (z-10, über Gradient) -->
-                                            {#if isApertus || hasAnyKey}
-                                                <div class="absolute right-2 inset-y-0 flex items-center gap-1 z-10">
-                                                    {#if !isApertus}
-                                                        <!-- Show/Hide Button (only for non-Apertus providers) -->
-                                                    <button
-                                                        type="button"
-                                                        on:click={() => showApiKey = !showApiKey}
-                                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white active:text-black dark:active:text-white"
-                                                        aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
-                                                        title={showApiKey ? 'Hide' : 'Show'}
-                                                    >
-                                                        {#if showApiKey}
-                                                            <!-- Eye Slash Icon (Hide) -->
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                                            </svg>
-                                                        {:else}
-                                                            <!-- Eye Icon (Show) -->
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                            </svg>
-                                                        {/if}
-                                                    </button>
-                                                    {/if}
-                                                    
-                                                    <!-- Test Connection Button (always available for Apertus, or if hasValidKey for others) -->
-                                                    {#if isApertus || hasValidKey}
-                                                        {@const isTestSuccessful = apiTestSuccess && testedProvider === currentProvider}
-                                                        <button
-                                                            type="button"
-                                                            disabled={isTestingAPI}
-                                                            on:click={testAPIConnection}
-                                                            class="inline-flex items-center justify-center gap-1 px-2.5 h-8 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed
-                                                                {isTestSuccessful
-                                                                    ? 'bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700 active:bg-green-700 dark:active:bg-green-800'
-                                                                    : 'hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white active:text-black dark:active:text-white'}"
-                                                            aria-label={isTestingAPI ? 'Testing API connection' : isTestSuccessful ? 'API connection verified' : 'Test API connection'}
-                                                            title={isTestingAPI ? 'Testing...' : isTestSuccessful ? 'API connection verified ✅' : 'Test'}
-                                                        >
-                                                            {#if isTestingAPI}
-                                                                <svg class="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                </svg>
-                                                            {:else if isTestSuccessful}
-                                                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                                                </svg>
-                                                            {:else}
-                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                                </svg>
-                                                            {/if}
-                                                            <span class="hidden sm:inline">{isTestSuccessful ? 'Verified' : 'Test'}</span>
-                                                        </button>
-                                                    {/if}
-                                                </div>
-                                            {/if}
-                                        </div>
-                                        
-                                        <!-- Description with saved keys indicator -->
-                                        {#if item.description}
-                                            <div class="text-xs text-gray-600 dark:text-gray-400 mt-1 space-y-1">
-                                                {#if isApertus}
-                                                    <!-- Apertus-specific info -->
-                                                    <p class="text-gray-700 dark:text-gray-300 font-medium mb-2">
-                                                        {$translations?.accountManager?.apertusInfo || 'Derzeit wird ein auf HuggingFace gehostetes LLM-Modell (Apertus) verwendet, das über einen n8n Workflow bereitgestellt wird.'}
-                                                    </p>
-                                                    <div class="flex flex-wrap items-center gap-3 mt-2">
-                                                        <a 
-                                                            href="https://huggingface.co/swiss-ai/Apertus-8B-Instruct-2509" 
-                                                            target="_blank" 
-                                                            rel="noopener noreferrer"
-                                                            class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-                                                        >
-                                                            <span>{$translations?.accountManager?.apertusHuggingFaceLink || 'Apertus-8B auf HuggingFace'}</span>
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                            </svg>
-                                                        </a>
-                                                        <a 
-                                                            href="http://matt-interfaces.ch/n8n" 
-                                                            target="_blank" 
-                                                            rel="noopener noreferrer"
-                                                            class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-                                                        >
-                                                            <span>n8n Workflow Tool</span>
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                            </svg>
-                                                        </a>
-                                                    </div>
-                                                {:else}
-                                                <p>{getLocalizedText(item.description)}</p>
-                                                {/if}
-                                                
-                                                <!-- Show saved keys for other providers -->
-                                                {#if savedProviders.length > 0}
-                                                    <p class="text-green-600 dark:text-green-400 inline-flex items-center gap-1">
-                                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                                        </svg>
-                                                        Saved keys for: {savedProviders.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ')}
-                                                    </p>
-                                                {/if}
-                                            </div>
-                                        {/if}
-                                    </div>
+                                    <!-- API Keys field is now integrated into storyMode.provider section above -->
+                                    <!-- This block is intentionally left empty to skip rendering -->
                                 {:else if item.id === 'storyMode.temperature'}
                                     <!-- Special handling for Temperature Slider with 0.1 steps, synced with EmojiDisplay -->
                                     {@const currentTemperatureRaw = getCurrentValue(item)}
@@ -1506,19 +1569,14 @@
                                     />
                                 {/if}
                             </div>
-                            {/key}
                         {/each}
 
-                        <!-- Pro Items (now functional for all users) -->
+                        <!-- Pro Items (Custom API fields are now integrated into storyMode.provider section) -->
                         {#if section.proItems}
-                                {#each section.proItems as item}
-                                    <!-- Conditional rendering for Custom API fields -->
-                                    {@const isCustomField = item.id?.startsWith('storyMode.custom')}
-                                    {@const currentProvider = getCurrentValue({ id: 'storyMode.provider' })}
-                                    {@const shouldShowCustomField = !isCustomField || currentProvider === 'custom'}
-                                    
-                                    {#if shouldShowCustomField}
-                                    {#key reactivityTrigger}
+                            {#each section.proItems as item (item.id)}
+                                <!-- Skip custom API fields - they are now in the provider section -->
+                                {@const isCustomField = item.id?.startsWith('storyMode.custom')}
+                                {#if !isCustomField}
                                     <div class="mb-4 last:mb-0">
                                         <ModularInput
                                             config={{
@@ -1544,9 +1602,8 @@
                                             onValueChange={(value) => handleSettingUpdate(item.id, value)}
                                         />
                                     </div>
-                                    {/key}
-                                    {/if}
-                                {/each}
+                                {/if}
+                            {/each}
                         {/if}
                     </div>
                 {/if}

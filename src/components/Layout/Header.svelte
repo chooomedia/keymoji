@@ -21,6 +21,10 @@
     $: remaining = Math.max(0, ($dailyLimit?.limit || 0) - ($dailyLimit?.used || 0));
     $: isProUser = $accountTier === 'pro';
     
+    // Format display value: max 99, everything above shows as "99+"
+    $: displayValue = remaining > 99 ? '99+' : remaining;
+    $: displayText = typeof displayValue === 'number' ? String(displayValue) : displayValue;
+    
     // IMPROVED: Only show badge when logged in AND dailyLimit is initialized
     $: showBadge = $isLoggedIn && $dailyLimit && typeof $dailyLimit.limit === 'number';
     
@@ -125,7 +129,7 @@
 </script>
 
 <!-- Header mit Logo links, Buttons rechts -->
-<div class="main-header w-full flex flex-wrap justify-center pt-5 mx-auto bg-transparent backdrop-blur-md">
+<div class="main-header w-full flex flex-wrap justify-center pt-5 mx-auto bg-transparent backdrop-blur-md" style="z-index: 50;">
     <nav class="md:w-1/3 w-full mx-3 bg-creme-500 dark:bg-aubergine-800 justify-center rounded-full p-1 relative z-30 shadow-lg">
         <div class="max-w-screen-2xl flex items-center justify-between">
             <!-- Logo und Titel links -->
@@ -159,10 +163,10 @@
                 </div>
                 
                 <!-- Account Button with Badge -->
-                <div class="relative z-40">
+                <div class="relative z-[70]">
                     <button
                         type="button"
-                        class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center relative z-40"
+                        class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center relative"
                         on:click={navigateToAccount}
                         aria-label={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
                         title={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
@@ -170,28 +174,29 @@
                         <span class="text-xl">{#if $isLoggedIn}👤{:else}🔐{/if}</span>
                     </button>
                     
-                    <!-- Badge für verbleibende Generierungen (debounced for smooth UX) -->
+                    <!-- Badge für verbleibende Generierungen - Sauberer Wrapper ohne Flicker, immer über Header -->
                     {#if stableBadgeState}
-                        {#key remaining}
+                        {#key displayValue}
                             <button
                                 type="button"
                                 on:click={handleBadgeClick}
                                 in:fly={{y: isCountingDown ? 10 : -10, duration: 300, easing: cubicInOut}}
                                 out:fly={{y: isCountingDown ? -10 : 10, duration: 300, easing: cubicInOut}}
-                                class="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center rounded-full text-[0.65rem] font-bold shadow-lg border border-white dark:border-aubergine-900 transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 focus:outline-none z-50 {
+                                class="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center rounded-full text-[0.65rem] font-bold shadow-lg border border-white dark:border-aubergine-900 transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 focus:outline-none z-[80] {
                                     remaining > 0 
                                         ? 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-300' 
                                         : isProUser 
                                             ? 'bg-purple-500 dark:bg-purple-600 text-white focus:ring-purple-300'
                                             : 'bg-yellow-500 dark:bg-yellow-500 text-aubergine-900 focus:ring-yellow-300 animate-pulse'
                                 }"
+                                style="position: absolute; will-change: transform;"
                                 aria-label={remaining > 0 ? `${remaining} generations remaining` : isProUser ? 'Unlimited generations' : 'Upgrade to Pro for more'}
                                 title={remaining > 0 ? `${remaining} Story-Generierungen verbleibend heute` : isProUser ? '∞ Unlimited Pro' : '💎 Upgrade zu Pro für mehr'}
                             >
                                 {#if isProUser}
                                     <span class="text-[0.7rem]">∞</span>
                                 {:else if remaining > 0}
-                                    <span class="tabular-nums">{remaining}</span>
+                                    <span class="tabular-nums">{displayText}</span>
                                 {:else}
                                     <span class="text-[0.65rem]">💎</span>
                                 {/if}

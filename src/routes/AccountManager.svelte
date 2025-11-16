@@ -816,6 +816,39 @@
             if (token && magicLinkEmail) {
                 console.log('🔗 Magic link verification detected:', { token, email: magicLinkEmail, isDevMode });
                 
+                // Check if user is already logged in with the same email
+                const currentLoggedIn = get(isLoggedIn);
+                const currentAccountEmail = get(currentAccount)?.email;
+                const isAlreadyLoggedIn = currentLoggedIn && currentAccountEmail === magicLinkEmail;
+                
+                console.log('🔍 Login status check:', {
+                    currentLoggedIn,
+                    currentAccountEmail,
+                    magicLinkEmail,
+                    isAlreadyLoggedIn
+                });
+                
+                // If already logged in with same email, just refresh session and clean URL
+                if (isAlreadyLoggedIn) {
+                    console.log('✅ User already logged in with same email, refreshing session...');
+                    magicLinkStatus = 'success';
+                    
+                    // Mark successful login for return user tracking
+                    markSuccessfulLogin(magicLinkEmail);
+                    
+                    // Clean up URL parameters but keep the account page
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, '', newUrl);
+                    console.log('🧹 URL parameters cleaned up:', newUrl);
+                    
+                    // Refresh session status
+                    checkSessionStatus();
+                    
+                    // Show success message
+                    showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
+                    return; // Exit early, no need to verify again
+                }
+                
                 // Check if we're on a language-prefixed route (e.g., /de/account)
                 const currentPath = window.location.pathname;
                 const pathSegments = currentPath.split('/').filter(segment => segment !== '');
@@ -864,7 +897,22 @@
                         console.error('❌ Magic link verification failed:', error);
                         magicLinkStatus = 'error';
                         magicLinkError = error.message || 'Verification failed';
+                        
+                        // Check if error is due to already logged in or account exists
+                        const errorMessage = error.message || '';
+                        if (errorMessage.includes('already') || errorMessage.includes('exists') || errorMessage.includes('logged in')) {
+                            // User is already logged in or account exists - treat as success
+                            console.log('⚠️ Account already exists or user already logged in, treating as success');
+                            magicLinkStatus = 'success';
+                            magicLinkError = '';
+                            
+                            // Refresh session
+                            checkSessionStatus();
+                            showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
+                        } else {
+                            // Real error - show error message
                         showError($translations?.accountManager?.messages?.magicLinkVerificationFailed || 'Magic link verification failed', 5000);
+                        }
                     } finally {
                         isVerifyingMagicLink = false;
                     }

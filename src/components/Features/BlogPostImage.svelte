@@ -4,8 +4,7 @@
 <script>
     /**
      * Props:
-     * @param {string} image - Bild-URL (kann post.image oder post.thumbnail sein)
-     * @param {string} thumbnail - Alternative Bild-URL (post.thumbnail)
+     * @param {string} image - Bild-URL (post.image)
      * @param {string} title - Post-Titel für alt-Text
      * @param {string} category - Post-Kategorie (optional, für Fallback)
      * @param {boolean} isFeatured - Ob Featured Post (für Größe)
@@ -15,7 +14,6 @@
      */
     
     export let image = null;
-    export let thumbnail = null;
     export let title = '';
     export let category = '';
     export let isFeatured = false;
@@ -25,10 +23,34 @@
     
     let imageError = false;
     
-    // Bestimme Bild-URL: thumbnail > image > null
-    // Unterstützt beide Felder vom Backend (image und thumbnail)
-    $: imageUrl = thumbnail || image || null;
-    $: hasImage = imageUrl && imageUrl !== '[empty]' && imageUrl !== '' && imageUrl.trim() !== '' && !imageError;
+    /**
+     * Normalisiert Bild-URL: 
+     * - Relative URLs bleiben relativ (für public/images/)
+     * - Absolute URLs bleiben absolut
+     * - Leere/null/undefined werden zu null
+     */
+    function normalizeImageUrl(url) {
+        if (!url || url === '[empty]' || url.trim() === '') {
+            return null;
+        }
+        
+        // Absolute URLs (http/https) bleiben unverändert
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
+        
+        // Relative URLs: Stelle sicher, dass sie mit / beginnen
+        if (url.startsWith('/')) {
+            return url;
+        }
+        
+        // Relative URLs ohne führendes /: Füge / hinzu
+        return `/${url}`;
+    }
+    
+    // Bestimme Bild-URL: image > null (normalisiert)
+    $: imageUrl = normalizeImageUrl(image);
+    $: hasImage = imageUrl && !imageError;
     
     // Reset imageError wenn sich die URL ändert
     $: if (imageUrl) {

@@ -47,7 +47,7 @@
     let autoSlideInterval = null;
     let currentIndex = 0;
     
-    // Helper: Mask emojis (keep first and last, mask middle)
+    // Helper: Mask emojis (keep only first emoji, mask rest with *******)
     function maskEmojis(emojiString) {
         if (!emojiString || typeof emojiString !== 'string') return emojiString;
         
@@ -57,18 +57,14 @@
         // Extract individual emojis using regex to handle multi-byte characters
         const emojis = cleanString.match(/[\p{Emoji}\u200d]+/gu) || [];
         
-        // If less than 2 emojis, return as-is
-        if (emojis.length < 2) {
+        // If no emojis or only one, return as-is
+        if (emojis.length <= 1) {
             return cleanString;
         }
         
-        // Mask middle emojis
+        // Only keep first emoji, mask rest with *******
         const first = emojis[0];
-        const last = emojis[emojis.length - 1];
-        const middleCount = emojis.length - 2;
-        const masked = '✨'.repeat(Math.max(0, middleCount));
-        
-        return `${first}${masked}${last}`;
+        return `${first}*******`;
     }
     
     function loadRecentEmojis() {

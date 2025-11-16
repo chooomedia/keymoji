@@ -723,8 +723,8 @@
     // These are now handled by dailyUsageStore.js
     // TODO: Remove these functions in next release after migration period
     
-    // Recent Emojis Management - Security: Mask middle emojis
-    // Helper: Mask emojis (keep first and last, mask middle)
+    // Recent Emojis Management - Security: Mask all except first emoji
+    // Helper: Mask emojis (keep only first emoji, mask rest with *******)
     function maskEmojis(emojiString) {
       if (!emojiString || typeof emojiString !== 'string') return emojiString;
       
@@ -734,18 +734,17 @@
       // Extract individual emojis using regex to handle multi-byte characters
       const emojis = cleanString.match(/[\p{Emoji}\u200d]+/gu) || [];
       
-      // If less than 2 emojis, return as-is
-      if (emojis.length < 2) {
+      // If no emojis or only one, return as-is
+      if (emojis.length <= 1) {
         return cleanString;
       }
       
-      // Mask middle emojis
+      // Only keep first emoji, mask rest with *******
       const first = emojis[0];
-      const last = emojis[emojis.length - 1];
-      const middleCount = emojis.length - 2;
-      const masked = '✨'.repeat(Math.max(0, middleCount));
+      const restCount = emojis.length - 1;
+      const masked = '*******';
       
-      return `${first}${masked}${last}`;
+      return `${first}${masked}`;
     }
     
     // Migration: Mask old unmasked emojis in localStorage
@@ -762,8 +761,8 @@
         const needsMigration = recent.some(emoji => {
           if (!emoji || typeof emoji !== 'string') return false;
           const emojis = emoji.match(/[\p{Emoji}\u200d]+/gu) || [];
-          // If has more than 2 emojis but no ✨ in middle, needs masking
-          const needsMasking = emojis.length > 2 && !emoji.includes('✨');
+          // If has more than 1 emoji but no ******* mask, needs masking
+          const needsMasking = emojis.length > 1 && !emoji.includes('*******');
           if (needsMasking) {
             console.log('🔍 Found unmasked emoji:', emoji.substring(0, 20) + '...', 'emojis:', emojis.length);
           }

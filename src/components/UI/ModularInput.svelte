@@ -67,10 +67,34 @@
     // Local state for input value - prevents focus loss during re-renders
     let localValue = currentValue;
     let isFocused = false;
+    let lastUserInput = null; // Track the last value the user typed
     
-    // Update local value only when currentValue prop changes from outside (not during typing)
+    // Update local value when currentValue prop changes from outside
+    // CRITICAL: Only update if:
+    // 1. Value actually changed
+    // 2. User is not currently focused (not typing)
+    // 3. For text inputs: currentValue matches what user typed (prevents reset)
     $: if (currentValue !== localValue && !isFocused) {
-        localValue = currentValue;
+        // For select/checkbox/range: always update immediately
+        if (config.type === 'select' || config.type === 'checkbox' || config.type === 'range') {
+            localValue = currentValue;
+        } else {
+            // For text inputs: only update if currentValue matches what user typed
+            // OR if lastUserInput is null (initial load)
+            // This prevents reset when user clicks away after typing
+            if (lastUserInput === null) {
+                // Initial load - update from prop
+                localValue = currentValue;
+            } else if (currentValue === lastUserInput) {
+                // currentValue matches what user typed - keep localValue (don't reset!)
+                // This is the key: if parent sends back what user typed, don't change it
+            } else {
+                // currentValue is different from what user typed (external change)
+                // Only update if it's truly different
+                localValue = currentValue;
+                lastUserInput = currentValue; // Update tracking
+            }
+        }
     }
     
     // Track focus state to prevent updates during typing
@@ -80,10 +104,8 @@
     
     function handleBlur() {
         isFocused = false;
-        // Sync local value with prop on blur
-        if (currentValue !== localValue) {
-            localValue = currentValue;
-        }
+        // Remember what user typed - this prevents reset on blur
+        lastUserInput = localValue;
     }
     
     // Event dispatcher for custom events
@@ -181,6 +203,7 @@
         
         // Update local value immediately for responsive UI (prevents focus loss)
         localValue = value;
+        lastUserInput = value; // Remember what user typed - prevents reset on blur
         
         // IMPORTANT: Notify parent AFTER updating local state
         // This allows parent to control the value (Controlled Component Pattern)

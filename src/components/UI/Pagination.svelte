@@ -74,9 +74,9 @@
                                 on:click={() => handlePageClick(page)}
                                 disabled={isLoading}
                                 aria-current={page === currentPage ? 'page' : undefined}
-                                class="flex items-center justify-center w-10 h-10 rounded-full text-sm font-bold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
+                                class="flex items-center justify-center w-10 h-10 rounded-full text-md font-bold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
                                     {page === currentPage
-                                        ? 'bg-yellow-500 dark:bg-yellow-600 text-aubergine-900 '
+                                        ? 'bg-yellow-500 dark:bg-yellow-600 text-aubergine-900'
                                         : 'text-gray-700 hover:text-gray-900 dark:hover:text-gray-200'}"
                                 aria-label="Go to page {page}"
                                 title="Page {page}"

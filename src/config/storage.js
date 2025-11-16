@@ -270,29 +270,29 @@ export function migrateAndCleanupLocalStorage() {
         );
     }
 
-    // 4. Migrate recent emojis (mask middle emojis for privacy)
+    // 4. Migrate recent emojis (mask all except first emoji for privacy)
     const recentEmojis = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
     if (Array.isArray(recentEmojis) && recentEmojis.length > 0) {
         console.log('🔄 [MIGRATION] Checking recent emojis for masking...');
 
-        // Helper function to mask emojis
+        // Helper function to mask emojis - Only keep first emoji, mask rest with *******
         const maskEmojis = emojiString => {
             if (!emojiString || typeof emojiString !== 'string')
                 return emojiString;
             const cleanString = emojiString.replace(/\s/g, '');
             const emojis = cleanString.match(/[\p{Emoji}\u200d]+/gu) || [];
-            if (emojis.length < 2) return cleanString;
+            // If no emojis or only one, return as-is
+            if (emojis.length <= 1) return cleanString;
+            // Only keep first emoji, mask rest with *******
             const first = emojis[0];
-            const last = emojis[emojis.length - 1];
-            const middleCount = emojis.length - 2;
-            const masked = '✨'.repeat(Math.max(0, middleCount));
-            return `${first}${masked}${last}`;
+            return `${first}*******`;
         };
 
         const needsMigration = recentEmojis.some(emoji => {
             if (!emoji || typeof emoji !== 'string') return false;
             const emojis = emoji.match(/[\p{Emoji}\u200d]+/gu) || [];
-            return emojis.length > 2 && !emoji.includes('✨');
+            // If has more than 1 emoji but no ******* mask, needs masking
+            return emojis.length > 1 && !emoji.includes('*******');
         });
 
         if (needsMigration) {

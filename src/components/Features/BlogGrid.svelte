@@ -15,10 +15,15 @@
     import BlogPostImage from './BlogPostImage.svelte';
     import BlogPostMeta from './BlogPostMeta.svelte';
     import HeartAnimation from './HeartAnimation.svelte';
+    import BigHeartAnimation from './BigHeartAnimation.svelte';
+    import ButtonHeartParticles from './ButtonHeartParticles.svelte';
     import Pagination from '../UI/Pagination.svelte';
     import BlogPostSkeleton from './BlogPostSkeleton.svelte';
     import ShareButtons from './ShareButtons.svelte';
     import { generateBlogListStructuredData, formatCanonicalUrl, injectStructuredData } from '../../utils/seo.js';
+    import { blogLikesStore, getPostLikes } from '../../stores/blogLikesStore.js';
+    import { slide, fade } from 'svelte/transition';
+    import { cubicInOut } from 'svelte/easing';
     
     let posts = [];
     let showHeartAnimation = false;
@@ -32,6 +37,9 @@
     let dropdownRef = null;
     let buttonRef = null;
     let likingPostId = null; // Track which post is being liked
+    let animatingHearts = new Set(); // Track which posts are showing heart animation
+    let showBigHeartAnimation = false; // Große zentrierte Herz-Animation für Success
+    let buttonParticles = new Map(); // Map: postId -> { show: boolean, buttonElement: HTMLElement }
     
     $: categoriesWithCounts = (() => {
         const categoryMap = new Map();
@@ -99,6 +107,8 @@
         return text.length > 24 ? text.substring(0, 21) + '...' : text;
     }
     
+    let likeStatusMap = new Map(); // Map für Erfolgs-/Fehler-Status: { postId: 'success' | 'error' | null }
+    
     async function handleLike(postId) {
         if (!get(isLoggedIn)) {
             const lang = $currentLanguage || 'en';
@@ -112,96 +122,208 @@
         const postIndex = posts.findIndex(p => (p.id === postId || p.row_number === postId));
         if (postIndex === -1) return;
         
-        const originalPost = posts[postIndex];
-        const originalLikes = originalPost.likes || 0;
-        const originalLiked = originalPost.liked || false;
-        const isUnlike = originalLiked;
+        // Get current like status
+        const currentLikeStatus = blogLikesStore.getLikeStatus(postId);
+        const currentLikes = currentLikeStatus.likes || 0;
+        
+        // KEIN TOGGLE: Nur Like wenn likes === 0
+        if (currentLikes > 0) {
+            console.log('⚠️ [BlogGrid] Post already liked (likes > 0), skipping');
+            return;
+        }
+        
+        // Clear previous status
+        likeStatusMap.delete(postId);
+        likeStatusMap = likeStatusMap;
+        
+        // Button Bounce Animation
+        animatingHearts.add(postId);
+        setTimeout(() => {
+            animatingHearts.delete(postId);
+            animatingHearts = animatingHearts; // Trigger reactivity
+        }, 600);
+        
+        // Button Particles Animation (kleine fliegende Herzen)
+        const buttonElement = document.querySelector(`[data-like-button-id="${postId}"]`);
+        if (buttonElement) {
+            buttonParticles.set(postId, { show: true, buttonElement });
+            setTimeout(() => {
+                const current = buttonParticles.get(postId);
+                if (current) {
+                    buttonParticles.set(postId, { ...current, show: false });
+                    buttonParticles = buttonParticles; // Trigger reactivity
+                }
+            }, 1100);
+        }
         
         // Set loading state
         likingPostId = postId;
         
-        // Optimistic update
-        posts[postIndex] = {
-            ...originalPost,
-            likes: isUnlike ? Math.max(0, originalLikes - 1) : originalLikes + 1,
-            liked: !isUnlike
-        };
-        posts = posts;
-        
-        const result = await likeBlogPost(postId, { optimistic: true, unlike: isUnlike });
+        try {
+            // Use store to add like (no toggle)
+            const result = await blogLikesStore.addLike(postId, true);
         
         // Clear loading state
         likingPostId = null;
         
         if (result && result.success) {
-            // CRITICAL: Backend-Wert (result.likes) hat IMMER höchste Priorität
-            const backendLikes = result.likes !== undefined && result.likes !== null 
-                ? parseInt(result.likes, 10) 
-                : null;
+                // Erfolg: Grünes Häkchen
+                likeStatusMap.set(postId, 'success');
+                likeStatusMap = likeStatusMap;
             
-            // Verwende Backend-Wert wenn vorhanden, sonst optimistischen Wert
-            const finalLikes = backendLikes !== null && !isNaN(backendLikes) && backendLikes >= 0
-                ? backendLikes
-                : (isUnlike ? Math.max(0, originalLikes - 1) : originalLikes + 1);
-            
+                // Nach Like-Klick: Store-Wert verwenden (bereits erhöht durch addLike)
+                const likeStatus = blogLikesStore.getLikeStatus(postId);
+                
+                // Store-Wert verwenden (bereits erhöht nach Backend-Response)
             posts[postIndex] = {
                 ...posts[postIndex],
-                likes: finalLikes,
-                liked: !isUnlike
+                    likes: likeStatus.likes, // Store-Wert (bereits erhöht nach Backend-Response)
+                    liked: true // Immer true wenn likes > 0
             };
             posts = posts; // Trigger reactivity
             
-            // Animation nur bei Like (nicht bei Unlike)
-            if (!isUnlike) {
+                // Große fliegende Herzen
                 showHeartAnimation = true;
                 setTimeout(() => {
                     showHeartAnimation = false;
                 }, 1200);
-            }
-            
-            // Refresh likes from backend after successful like
-            if (result.likes === undefined || result.likes === null) {
-                await refreshLikesFromBackend();
-            }
+                
+                // Große zentrierte Herz-Animation für Success
+                showBigHeartAnimation = true;
+                setTimeout(() => {
+                    showBigHeartAnimation = false;
+                }, 2000);
+                
+                // Clear success status after animation
+                setTimeout(() => {
+                    likeStatusMap.delete(postId);
+                    likeStatusMap = likeStatusMap;
+                }, 2000);
         } else {
-            posts[postIndex] = {
-                ...originalPost,
-                likes: originalLikes,
-                liked: originalLiked
-            };
+                // Fehler: Rotes X
+                likeStatusMap.set(postId, 'error');
+                likeStatusMap = likeStatusMap;
+                
+                // Clear error status after animation
+                setTimeout(() => {
+                    likeStatusMap.delete(postId);
+                    likeStatusMap = likeStatusMap;
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('❌ [BlogGrid] Error in handleLike:', error);
+            likingPostId = null;
+            
+            // Fehler: Rotes X
+            likeStatusMap.set(postId, 'error');
+            likeStatusMap = likeStatusMap;
+            
+            // Clear error status after animation
+            setTimeout(() => {
+                likeStatusMap.delete(postId);
+                likeStatusMap = likeStatusMap;
+            }, 2000);
         }
-        
-        posts = posts;
     }
     
     async function refreshLikesFromBackend() {
         try {
-            const allPosts = await fetchBlogPosts({ useCache: false, forceRefresh: true });
+            // BACKEND FIRST: Store mit neuesten Backend-Daten aktualisieren
+            // Backend-Wert ist IMMER der initiale Wert
+            await blogLikesStore.refreshFromBackend();
             
-            posts = posts.map(post => {
-                const updatedPost = allPosts.find(p => 
-                    (p.id === post.id || p.row_number === post.row_number) ||
-                    (p.slug === post.slug)
-                );
+            // BACKEND FIRST: Posts auch vom Backend holen (falls sich geändert haben)
+            const fetchedPosts = await fetchBlogPosts({ useCache: false, forceRefresh: true });
+            
+            if (Array.isArray(fetchedPosts) && fetchedPosts.length > 0) {
+                // BACKEND FIRST: Posts mit Backend-Werten synchronisieren
+                // Beim Refresh: Backend-Wert DIREKT verwenden (nicht aus Store!)
+                posts = fetchedPosts.map(post => {
+                    const postId = post.id || post.row_number;
+                    
+                    // BACKEND-WERT IST IMMER DER INITIALE WERT - DIREKT VOM BACKEND
+                    const backendLikes = post.likes !== undefined && post.likes !== null
+                        ? parseInt(String(post.likes), 10)
+                        : 0;
+                    
+                    // Store-Wert holen (sollte Backend-Wert sein nach refreshFromBackend)
+                    const likeStatus = blogLikesStore.getLikeStatus(postId);
+                    
+                    // BACKEND FIRST: Backend-Wert DIREKT verwenden beim Refresh
+                    // Store wird nur verwendet wenn Backend-Wert fehlt (Fallback)
+                    return {
+                        ...post,
+                        likes: backendLikes !== null && !isNaN(backendLikes) && backendLikes >= 0 
+                            ? backendLikes  // BACKEND-WERT DIREKT
+                            : (likeStatus.likes || 0), // Fallback: Store-Wert
+                        liked: post.liked !== undefined ? post.liked : likeStatus.liked
+                    };
+                });
                 
-                if (updatedPost && updatedPost.likes !== undefined) {
-                    return { ...post, likes: updatedPost.likes };
-                }
-                return post;
+                posts = posts; // Trigger reactivity - Svelte reaktives Update
+            } else {
+                // Fallback: Nur Store-Daten verwenden wenn keine Posts vom Backend
+                posts = posts.map(post => {
+                    const postId = post.id || post.row_number;
+                    const likeStatus = blogLikesStore.getLikeStatus(postId);
+                    return {
+                        ...post,
+                        likes: likeStatus.likes,
+                        liked: likeStatus.liked
+                    };
             });
-            
-            posts = posts;
+                posts = posts; // Trigger reactivity
+            }
         } catch (error) {
             console.warn('⚠️ [BlogGrid] Error refreshing likes:', error);
         }
     }
     
-    function goToPage(page) {
-        if (page < 1 || page > totalPages || page === currentPage || isLoading || isTransitioning) return;
+    async function goToPage(page) {
+        if (page < 1 || page > totalPages || page === currentPage || loading || isTransitioning) return;
         
         isTransitioning = true;
         isLoadingMore = true;
         currentPage = page;
+        
+        // BACKEND FIRST: Likes vom Backend refreshen für aktuelle Seite
+        // Backend-Wert ist IMMER der initiale Wert
+        try {
+            // Store mit Backend-Daten aktualisieren (Backend-Wert hat Priorität)
+            await blogLikesStore.refreshFromBackend();
+            
+            // BACKEND FIRST: Posts auch vom Backend holen für aktuelle Seite
+            // (falls sich Posts geändert haben)
+            const fetchedPosts = await fetchBlogPosts({ useCache: false, forceRefresh: true });
+            
+            if (Array.isArray(fetchedPosts) && fetchedPosts.length > 0) {
+                // BACKEND FIRST: Posts mit Store-Daten synchronisieren
+                // Store hat Backend-Werte (Backend-Wert hat Priorität, erhöht Store wenn höher)
+                posts = fetchedPosts.map(post => {
+                    const postId = post.id || post.row_number;
+                    
+                    // BACKEND-WERT IST IMMER DER INITIALE WERT
+                    const backendLikes = post.likes !== undefined && post.likes !== null
+                        ? parseInt(post.likes, 10)
+                        : 0;
+                    
+                    // Store-Wert holen (sollte Backend-Wert sein nach refreshFromBackend)
+                    const likeStatus = blogLikesStore.getLikeStatus(postId);
+                    
+                    // BACKEND FIRST: Backend-Wert hat IMMER Priorität
+                    // Store-Wert wird nur verwendet wenn Backend-Wert fehlt
+                    // Math.max: Backend-Wert hat Priorität, aber Store kann höher sein (optimistic update)
+                    return {
+                        ...post,
+                        likes: Math.max(backendLikes, likeStatus.likes), // Backend-Wert hat Priorität
+                        liked: post.liked !== undefined ? post.liked : likeStatus.liked
+                    };
+                });
+                posts = posts; // Trigger reactivity
+            }
+        } catch (error) {
+            console.warn('⚠️ [BlogGrid] Error refreshing data on page change:', error);
+        }
         
         // Smooth scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -269,7 +391,25 @@
             loading = true;
             error = null;
             
-            const fetchedPosts = await fetchBlogPosts({ useCache: true });
+            // BACKEND FIRST: Store initialisieren mit Backend-Daten
+            // Backend-Wert ist IMMER der initiale Wert beim Laden
+            await blogLikesStore.initialize();
+            
+            // BACKEND FIRST: Immer frische Posts vom Backend holen
+            const fetchedPosts = await fetchBlogPosts({ useCache: false, forceRefresh: true });
+            
+            // DEBUG: Log Backend-Daten
+            console.log('🔍 [BlogGrid] DEBUG - Fetched posts:', fetchedPosts.length);
+            if (fetchedPosts.length > 0) {
+                console.log('🔍 [BlogGrid] DEBUG - First post from fetchBlogPosts:', {
+                    id: fetchedPosts[0].id || fetchedPosts[0].row_number,
+                    title: fetchedPosts[0].title?.substring(0, 30),
+                    likes: fetchedPosts[0].likes,
+                    likesType: typeof fetchedPosts[0].likes,
+                    liked: fetchedPosts[0].liked,
+                    likedType: typeof fetchedPosts[0].liked
+                });
+            }
             
             if (Array.isArray(fetchedPosts) && fetchedPosts.length > 0) {
                 // Debug: Log nur Posts mit fehlenden/ungültigen Likes
@@ -286,10 +426,60 @@
                     })));
                 }
                 
-                posts = fetchedPosts;
+                // BACKEND FIRST: Posts mit Backend-Werten initialisieren
+                // Beim initialen Laden: Backend-Wert SOFORT verwenden (nicht aus Store!)
+                // Store wurde bereits mit Backend-Werten initialisiert, aber für Anzeige Backend-Wert verwenden
+                posts = fetchedPosts.map(post => {
+                    const postId = post.id || post.row_number;
+                    
+                    // BACKEND-WERT IST IMMER DER INITIALE WERT - DIREKT VOM BACKEND
+                    const backendLikes = post.likes !== undefined && post.likes !== null
+                        ? parseInt(String(post.likes), 10)
+                        : 0;
+                    
+                    // Store-Wert holen (sollte bereits Backend-Wert sein nach initialize)
+                    const likeStatus = blogLikesStore.getLikeStatus(postId);
+                    
+                    // DEBUG: Log für ersten Post
+                    if (postId === (fetchedPosts[0]?.id || fetchedPosts[0]?.row_number)) {
+                        console.log('🔍 [BlogGrid] DEBUG - Synchronizing first post:', {
+                            postId,
+                            backendLikes,
+                            storeLikes: likeStatus.likes,
+                            usingBackend: true,
+                            backendLiked: post.liked,
+                            storeLiked: likeStatus.liked
+                        });
+                    }
+                    
+                    // BACKEND FIRST: Beim initialen Laden Backend-Wert DIREKT verwenden
+                    // Store wird nur verwendet wenn Backend-Wert fehlt (Fallback)
+                    // Nach Like-Klick wird Store-Wert verwendet (bereits erhöht)
+                    return {
+                        ...post,
+                        likes: backendLikes !== null && !isNaN(backendLikes) && backendLikes >= 0 
+                            ? backendLikes  // BACKEND-WERT DIREKT - Initial
+                            : (likeStatus.likes || 0), // Fallback: Store-Wert
+                        liked: post.liked !== undefined ? post.liked : likeStatus.liked
+                    };
+                });
+                
+                // DEBUG: Log finales Posts-Array für ersten Post
+                if (posts.length > 0) {
+                    const firstPostId = posts[0].id || posts[0].row_number;
+                    const firstPost = posts.find(p => (p.id || p.row_number) === firstPostId);
+                    console.log('✅ [BlogGrid] DEBUG - Final first post in posts array:', {
+                        postId: firstPostId,
+                        likes: firstPost?.likes,
+                        liked: firstPost?.liked
+                    });
+                }
+                
+                // Reaktivität: Posts-Array wird aktualisiert
+                posts = posts;
             } else {
                 // Demo-Daten für Entwicklung
-                posts = [
+                    const demoPosts = [
                     {
                         id: 1,
                         row_number: 1,
@@ -297,8 +487,7 @@
                         slug: 'willkommen-zu-keymoji',
                         content: '<p>Keymoji revolutioniert die Passwort-Sicherheit durch die Verwendung von Emojis. Erfahren Sie, wie Sie starke, einprägsame Passwörter erstellen können, die sowohl sicher als auch benutzerfreundlich sind.</p><p>Unsere innovative Technologie kombiniert die Stärke von alphanumerischen Zeichen mit der visuellen Einprägsamkeit von Emojis, um Passwörter zu erstellen, die schwer zu knacken, aber einfach zu merken sind.</p>',
                         excerpt: 'Erfahren Sie, wie Keymoji die Passwort-Sicherheit durch Emojis revolutioniert.',
-                        image: '/images/blog/keymoji-intro.jpg',
-                        thumbnail: '/images/blog/keymoji-intro-thumb.jpg',
+                        image: null, // Kein Bild - Placeholder wird angezeigt
                         isodate: '2025-11-10T10:00:00Z',
                         date: '2025-11-10',
                         creator: 'Keymoji Team',
@@ -313,8 +502,7 @@
                         slug: 'wissenschaft-emoji-passwoerter',
                         content: '<p>Emoji-Passwörter nutzen die kognitive Psychologie, um sowohl Sicherheit als auch Benutzerfreundlichkeit zu gewährleisten. Studien zeigen, dass visuelle Elemente wie Emojis besser im Gedächtnis bleiben als reine Textzeichen.</p><p>Durch die Kombination von Unicode-Zeichen mit traditionellen Passwort-Elementen schaffen wir eine neue Generation von Passwörtern, die sowohl sicher als auch benutzerfreundlich sind.</p>',
                         excerpt: 'Entdecken Sie die wissenschaftlichen Grundlagen von Emoji-Passwörtern und wie sie die Sicherheit verbessern.',
-                        image: '/images/blog/emoji-science.jpg',
-                        thumbnail: '/images/blog/emoji-science-thumb.jpg',
+                        image: null, // Kein Bild - Placeholder wird angezeigt
                         isodate: '2025-11-08T14:30:00Z',
                         date: '2025-11-08',
                         creator: 'Dr. Security Expert',
@@ -329,8 +517,7 @@
                         slug: 'best-practices-sichere-passwoerter-2025',
                         content: '<p>In einer Zeit zunehmender Cyber-Bedrohungen ist es wichtiger denn je, starke Passwörter zu verwenden. Dieser Artikel zeigt Ihnen die besten Praktiken für die Erstellung und Verwaltung sicherer Passwörter.</p><p>Wir behandeln Themen wie Passwort-Länge, Komplexität, Einzigartigkeit und die Verwendung von Passwort-Managern. Erfahren Sie, wie Sie Ihre Online-Sicherheit maximieren können.</p>',
                         excerpt: 'Lernen Sie die wichtigsten Best Practices für sichere Passwörter im Jahr 2025 kennen.',
-                        image: '/images/blog/password-best-practices.jpg',
-                        thumbnail: '/images/blog/password-best-practices-thumb.jpg',
+                        image: null, // Kein Bild - Placeholder wird angezeigt
                         isodate: '2025-11-05T09:15:00Z',
                         date: '2025-11-05',
                         creator: 'Security Team',
@@ -339,6 +526,17 @@
                         liked: false
                     }
                 ];
+                
+                // Sync demo posts with store
+                posts = demoPosts.map(post => {
+                    const postId = post.id || post.row_number;
+                    const likeStatus = blogLikesStore.getLikeStatus(postId);
+                    return {
+                        ...post,
+                        likes: likeStatus.likes,
+                        liked: likeStatus.liked
+                    };
+                });
                 
                 if (!Array.isArray(fetchedPosts)) {
                     error = `Failed to load blog posts. (Invalid response: ${typeof fetchedPosts})`;
@@ -378,8 +576,10 @@
 </script>
 
 <PageLayout {pageTitle} {pageDescription}>
-{#if loading}
+{#if loading || isTransitioning}
+    <div in:fade={{duration: 200, easing: cubicInOut}} out:fade={{duration: 150, easing: cubicInOut}}>
     <BlogPostSkeleton count={6} />
+    </div>
     {:else if error}
         <div class="flex flex-col justify-center items-center py-12">
             <p class="text-red-500 dark:text-red-400 mb-4">❌ {error}</p>
@@ -403,34 +603,6 @@
             />
         {/if}
         
-        <!-- Fixed Navigation Buttons (Left/Right) -->
-        {#if totalPages > 1}
-            <!-- Fixed Previous Button (Left) -->
-            <button
-                on:click={previousPage}
-                disabled={currentPage === 1 || isLoadingMore || isTransitioning}
-                class="fixed left-4 top-1/2 -translate-y-1/2 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-creme-500 dark:bg-aubergine-800 border-4 border-powder-300 dark:border-aubergine-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-creme-400 dark:hover:bg-aubergine-700 shadow-lg font-medium text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95"
-                aria-label="Previous page"
-                title="Previous page"
-            >
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-            
-            <!-- Fixed Next Button (Right) -->
-            <button
-                on:click={nextPage}
-                disabled={currentPage === totalPages || isLoadingMore || isTransitioning}
-                class="fixed right-4 top-1/2 -translate-y-1/2 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-creme-500 dark:bg-aubergine-800 border-4 border-powder-300 dark:border-aubergine-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-creme-400 dark:hover:bg-aubergine-700 shadow-lg font-medium text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95"
-                aria-label="Next page"
-                title="Next page"
-            >
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </button>
-        {/if}
 
         <div class="w-full mb-6 flex justify-center">
             <div class="relative inline-block w-full max-w-md">
@@ -531,13 +703,16 @@
 
         <!-- Posts Container mit Transition -->
         <div class="w-full max-w-7xl mx-auto space-y-8 relative">
-            {#if isTransitioning}
-                <!-- Skeleton während Transition -->
-                <BlogPostSkeleton count={4} />
-            {:else}
-                <!-- Newest Post (prominent, nur auf Seite 1) -->
-                {#if newestPosts.length > 0}
-                    <div class="w-full space-y-8 mb-8">
+            {#key currentPage}
+                {#if isTransitioning && isLoadingMore}
+                    <!-- Skeleton während Transition -->
+                    <div in:fade={{ duration: 200, easing: cubicInOut }} out:fade={{ duration: 150, easing: cubicInOut }}>
+                        <BlogPostSkeleton count={4} />
+                    </div>
+                {:else}
+                    <!-- Newest Post (prominent, nur auf Seite 1) -->
+        {#if newestPosts.length > 0}
+                        <div class="w-full space-y-8 mb-8" in:slide={{ duration: 400, easing: cubicInOut }} out:slide={{ duration: 300, easing: cubicInOut }}>
                 {#each newestPosts as post, index (post.row_number)}
                     {@const shareUrl = post.slug ? getBlogShareUrl(post.slug) : (post.link || (typeof window !== 'undefined' ? window.location.href : ''))}
                     {@const shareText = `${post.title} - ${shareUrl}`}
@@ -553,7 +728,6 @@
                         <Link to={getBlogUrl(post.slug)} class="block">
                             <BlogPostImage
                                 image={post.image}
-                                thumbnail={post.thumbnail}
                                 title={post.title}
                                 category={post.category}
                                 isFeatured={isNewest}
@@ -594,11 +768,10 @@
                         <a href={post.link || '#'} target="_blank" rel="noopener noreferrer" class="block">
                             <BlogPostImage
                                 image={post.image}
-                                thumbnail={post.thumbnail}
                                 title={post.title}
                                 category={post.category}
-                                isFeatured={isFeatured}
-                                size={isFeatured ? 'featured' : 'regular'}
+                                isFeatured={false}
+                                size="regular"
                                 showCategory={true}
                                 showFeaturedBadge={false}
                             />
@@ -618,34 +791,52 @@
                                     truncateAuthor={truncateAuthor}
                                 />
                                 
-                                <h2 class="{isFeatured ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'} font-bold mb-3 text-black dark:text-white group-hover:text-yellow transition-colors">
+                                <h2 class="text-xl md:text-2xl font-bold mb-3 text-black dark:text-white group-hover:text-yellow transition-colors">
                                     {post.title}
                                 </h2>
                                 
-                                <p class="text-gray-600 dark:text-gray-300 {isFeatured ? 'text-base md:text-lg' : 'text-sm md:text-base'} leading-relaxed">
+                                <p class="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed">
                                     {formatContentPreview(post.content)}
                                 </p>
                             </div>
                         </a>
                     {/if}
                     
-                    <!-- Like and Share Buttons as Chips -->
-                    <div class="px-6 md:px-8 lg:px-10 pb-6 md:pb-8 lg:pb-10 flex justify-between items-center border-t border-gray-100 dark:border-gray-800 mt-4 pt-4">
+                    <!-- Like and Share Buttons as Chips - Same style as Detail View -->
+                    <div class="px-4 md:px-4 lg:px-5 pb-2 md:pb-6 flex justify-between items-center border-t border-gray-100 dark:border-gray-800 pt-6 mt-8">
+                        {#if post}
+                            {@const likeStatus = blogLikesStore.getLikeStatus(post.id || post.row_number)}
+                            {@const displayLikes = post.likes !== undefined && post.likes !== null ? parseInt(String(post.likes), 10) : likeStatus.likes}
+                            {@const hasLikes = displayLikes > 0}
+                            {@const postId = post.id || post.row_number}
+                            {@const status = likeStatusMap.get(postId)}
                         <button 
-                            aria-label={post.liked ? 'Unlike the blog post' : 'Like the blog post'}
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                            on:click|stopPropagation={() => handleLike(post.id || post.row_number)}
-                            title={post.liked ? 'Unlike' : 'Like'}
-                            disabled={likingPostId === (post.id || post.row_number)}
+                            data-like-button-id={postId}
+                            aria-label={hasLikes ? 'Post already liked' : 'Like the blog post'}
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 h-8 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-visible"
+                            on:click|stopPropagation={() => handleLike(postId)}
+                            title={hasLikes ? 'Already liked' : 'Like'}
+                            disabled={likingPostId === postId || hasLikes}
                         >
-                            <span class="text-base">{post.liked ? '❤️' : '🤍'}</span>
-                            {#if likingPostId === (post.id || post.row_number)}
+                            <span class="text-base relative inline-block {animatingHearts.has(postId) ? 'animate-heart-bounce' : ''}">{hasLikes ? '❤️' : '🤍'}</span>
+                            {#if likingPostId === postId}
+                                <!-- Loading Spinner -->
                                 <svg class="animate-spin h-4 w-4 text-gray-700 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
+                            {:else if status === 'success'}
+                                <!-- Success Checkmark -->
+                                <svg class="h-4 w-4 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            {:else if status === 'error'}
+                                <!-- Error X -->
+                                <svg class="h-4 w-4 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
                             {:else}
-                                <span class="text-gray-700 dark:text-gray-300">{post.likes || 0}</span>
+                                <span class="text-gray-700 dark:text-gray-300">{displayLikes || 0}</span>
                             {/if}
                         </button>
                 
@@ -653,135 +844,208 @@
                             {shareUrl}
                             {shareText}
                             title={post.title}
+                            showNativeShare={true}
                         />
+                        {/if}
             </div>
         </article>
     {/each}
-                    </div>
-                {/if}
-                
-                <!-- Other Posts -->
-                {#if otherPosts.length > 0}
-                    <div class="w-full space-y-8">
-                        {#each otherPosts as post, index (post.row_number)}
-                            {@const shareUrl = post.slug ? getBlogShareUrl(post.slug) : (post.link || (typeof window !== 'undefined' ? window.location.href : ''))}
-                            {@const shareText = `${post.title} - ${shareUrl}`}
-                            
-                            <article 
-                                itemscope 
-                                itemtype="https://schema.org/BlogPosting"
-                                class="bg-white dark:bg-aubergine-900 rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl group"
-                            >
-                                {#if post.slug}
-                                    <Link to={getBlogUrl(post.slug)} class="block">
-                                        <BlogPostImage
-                                            image={post.image}
-                                            thumbnail={post.thumbnail}
-                                            title={post.title}
-                                            category={post.category}
-                                            isFeatured={false}
-                                            size="regular"
-                                            showCategory={true}
-                                            showFeaturedBadge={false}
-                                        />
-                                        
-                                        <div class="p-6">
-                                            <BlogPostMeta
-                                                isodate={post.isodate}
-                                                date={post.date}
-                                                creator={post.creator}
-                                                category={post.category}
-                                                readingTime={post.readingTime}
-                                                content={post.content}
-                                                showCreator={true}
-                                                showCategory={false}
-                                                variant="grid"
-                                                truncateAuthor={truncateAuthor}
-                                            />
-                                            
-                                            <h2 
-                                                itemprop="headline"
-                                                class="text-xl md:text-2xl font-bold mb-3 text-black dark:text-white group-hover:text-yellow transition-colors">
-                                                {post.title}
-                                            </h2>
-                                            
-                                            <p 
-                                                itemprop="description"
-                                                class="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed">
-                                                {formatContentPreview(post.content)}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                {:else}
-                                    <a href={post.link || '#'} target="_blank" rel="noopener noreferrer" class="block">
-                                        <BlogPostImage
-                                            image={post.image}
-                                            thumbnail={post.thumbnail}
-                                            title={post.title}
-                                            category={post.category}
-                                            isFeatured={false}
-                                            size="regular"
-                                            showCategory={true}
-                                            showFeaturedBadge={false}
-                                        />
-                                        
-                                        <div class="p-6">
-                                            <BlogPostMeta
-                                                isodate={post.isodate}
-                                                date={post.date}
-                                                creator={post.creator}
-                                                category={post.category}
-                                                readingTime={post.readingTime}
-                                                content={post.content}
-                                                showCreator={true}
-                                                showCategory={false}
-                                                variant="grid"
-                                                truncateAuthor={truncateAuthor}
-                                            />
-                                            
-                                            <h2 class="text-xl md:text-2xl font-bold mb-3 text-black dark:text-white group-hover:text-yellow transition-colors">
-                                                {post.title}
-                                            </h2>
-                                            
-                                            <p class="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed">
-                                                {formatContentPreview(post.content)}
-                                            </p>
-                                        </div>
-                                    </a>
-                                {/if}
+            </div>
+        {/if}
+        
+                    <!-- Other Posts -->
+                    {#if otherPosts.length > 0}
+                        <div class="w-full space-y-8" in:slide={{ duration: 400, easing: cubicInOut }} out:slide={{ duration: 300, easing: cubicInOut }}>
+            {#each otherPosts as post, index (post.row_number)}
+                    {@const shareUrl = post.slug ? getBlogShareUrl(post.slug) : (post.link || (typeof window !== 'undefined' ? window.location.href : ''))}
+                    {@const shareText = `${post.title} - ${shareUrl}`}
+                    
+                    <article 
+                        itemscope 
+                        itemtype="https://schema.org/BlogPosting"
+                        class="bg-white dark:bg-aubergine-900 rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl group"
+                    >
+                        {#if post.slug}
+                            <Link to={getBlogUrl(post.slug)} class="block">
+                                <BlogPostImage
+                                    image={post.image}
+                                    title={post.title}
+                                    category={post.category}
+                                    isFeatured={false}
+                                    size="regular"
+                                    showCategory={true}
+                                    showFeaturedBadge={false}
+                                />
                                 
-                                <div class="px-6 pb-6 flex justify-between items-center border-t border-gray-100 dark:border-gray-800 mt-4 pt-4">
-                                    <button 
-                                        aria-label={post.liked ? 'Unlike the blog post' : 'Like the blog post'}
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        on:click|stopPropagation={() => handleLike(post.id || post.row_number)}
-                                        title={post.liked ? 'Unlike' : 'Like'}
-                                        disabled={likingPostId === (post.id || post.row_number)}
-                                    >
-                                        <span class="text-base">{post.liked ? '❤️' : '🤍'}</span>
-                                        {#if likingPostId === (post.id || post.row_number)}
-                                            <svg class="animate-spin h-4 w-4 text-gray-700 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                        {:else}
-                                            <span class="text-gray-700 dark:text-gray-300">{post.likes || 0}</span>
-                                        {/if}
-                                    </button>
-                            
+                                <div class="p-6">
+                                    <BlogPostMeta
+                                        isodate={post.isodate}
+                                        date={post.date}
+                                        creator={post.creator}
+                                        category={post.category}
+                                        readingTime={post.readingTime}
+                                        content={post.content}
+                                        showCreator={true}
+                                        showCategory={false}
+                                        variant="grid"
+                                        truncateAuthor={truncateAuthor}
+                                    />
+                                    
+                                    <h2 
+                                        itemprop="headline"
+                                        class="text-xl md:text-2xl font-bold mb-3 text-black dark:text-white group-hover:text-yellow transition-colors">
+                                        {post.title}
+                                    </h2>
+                                    
+                                    <p 
+                                        itemprop="description"
+                                        class="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed">
+                                        {formatContentPreview(post.content)}
+                                    </p>
+                                </div>
+                            </Link>
+                        {:else}
+                            <a href={post.link || '#'} target="_blank" rel="noopener noreferrer" class="block">
+                                <BlogPostImage
+                                    image={post.image}
+                                    title={post.title}
+                                    category={post.category}
+                                    isFeatured={false}
+                                    size="regular"
+                                    showCategory={true}
+                                    showFeaturedBadge={false}
+                                />
+                                
+                                <div class="p-6">
+                                    <BlogPostMeta
+                                        isodate={post.isodate}
+                                        date={post.date}
+                                        creator={post.creator}
+                                        category={post.category}
+                                        readingTime={post.readingTime}
+                                        content={post.content}
+                                        showCreator={true}
+                                        showCategory={false}
+                                        variant="grid"
+                                        truncateAuthor={truncateAuthor}
+                                    />
+                                    
+                                    <h2 class="text-xl md:text-2xl font-bold mb-3 text-black dark:text-white group-hover:text-yellow transition-colors">
+                                        {post.title}
+                                    </h2>
+                                    
+                                    <p class="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed">
+                                        {formatContentPreview(post.content)}
+                                    </p>
+                                </div>
+                            </a>
+                        {/if}
+                        
+                                <div class="px-6 pb-6 flex justify-between items-center border-t border-gray-100 dark:border-gray-800 pt-6 mt-2">
+                                    {#if post}
+                                        {@const likeStatus = blogLikesStore.getLikeStatus(post.id || post.row_number)}
+                                        {@const displayLikes = post.likes !== undefined && post.likes !== null ? parseInt(String(post.likes), 10) : likeStatus.likes}
+                                        {@const displayLiked = post.liked !== undefined ? post.liked : likeStatus.liked}
+                            <button 
+                                        data-like-button-id={post.id || post.row_number}
+                                        aria-label={displayLiked ? 'Unlike the blog post' : 'Like the blog post'}
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 h-8 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-visible"
+                                on:click|stopPropagation={() => handleLike(post.id || post.row_number)}
+                                        title={displayLiked ? 'Unlike' : 'Like'}
+                                disabled={likingPostId === (post.id || post.row_number)}
+                            >
+                                        <span class="text-base relative inline-block {animatingHearts.has(post.id || post.row_number) ? 'animate-heart-bounce' : ''}">{displayLiked ? '❤️' : '🤍'}</span>
+                                {#if likingPostId === (post.id || post.row_number)}
+                                    <svg class="animate-spin h-4 w-4 text-gray-700 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                {:else}
+                                            <span class="text-gray-700 dark:text-gray-300">{displayLikes || 0}</span>
+                                {/if}
+                            </button>
+                    
                                     <ShareButtons 
                                         {shareUrl}
                                         {shareText}
                                         title={post.title}
+                                        showNativeShare={true}
                                     />
-                                </div>
-                            </article>
-                        {/each}
-                    </div>
-                {/if}
+                                    {/if}
+                        </div>
+                    </article>
+            {/each}
+                        </div>
             {/if}
+                {/if}
+            {/key}
         </div>
 {/if}
 
 <HeartAnimation show={showHeartAnimation} count={5} />
 </PageLayout>
+
+<!-- Fixed Navigation Buttons (Left/Right) - Outside PageLayout like FixedMenu -->
+{#if totalPages > 1 && !loading && !error}
+<nav 
+    itemscope 
+    itemtype="https://schema.org/SiteNavigationElement"
+    aria-label="Blog pagination navigation"
+    class="fixed left-4 top-1/2 -translate-y-1/2 z-50 hidden md:block"
+>
+    <span itemprop="name" class="sr-only">Previous page navigation</span>
+    <button
+        on:click={previousPage}
+        disabled={currentPage === 1 || isLoadingMore || isTransitioning}
+        class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
+        aria-label="Go to previous page, page {currentPage - 1} of {totalPages}"
+        aria-disabled={currentPage === 1 || isLoadingMore || isTransitioning}
+        title="Previous page (Page {currentPage - 1} of {totalPages})"
+        type="button"
+    >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+    </button>
+</nav>
+
+<nav 
+    itemscope 
+    itemtype="https://schema.org/SiteNavigationElement"
+    aria-label="Blog pagination navigation"
+    class="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:block"
+>
+    <span itemprop="name" class="sr-only">Next page navigation</span>
+    <button
+        on:click={nextPage}
+        disabled={currentPage === totalPages || isLoadingMore || isTransitioning}
+        class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
+        aria-label="Go to next page, page {currentPage + 1} of {totalPages}"
+        aria-disabled={currentPage === totalPages || isLoadingMore || isTransitioning}
+        title="Next page (Page {currentPage + 1} of {totalPages})"
+        type="button"
+    >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+    </button>
+</nav>
+{/if}
+
+<!-- Heart Animations -->
+<!-- Große fliegende Herzen (wie in BlogPost) -->
+<HeartAnimation show={showHeartAnimation} count={5} />
+
+<!-- Große zentrierte Herz-Animation für Success -->
+<BigHeartAnimation show={showBigHeartAnimation} />
+
+<!-- Button Heart Particles - Kleine fliegende Herzen um jeden Button -->
+{#each Array.from(buttonParticles.entries()) as [postId, particleData]}
+    {#if particleData.show && particleData.buttonElement}
+        <ButtonHeartParticles 
+            show={particleData.show} 
+            buttonElement={particleData.buttonElement}
+            count={6}
+        />
+    {/if}
+{/each}

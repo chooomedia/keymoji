@@ -222,7 +222,6 @@ export function generateBlogPostStructuredData(postData, currentLanguage, canoni
         content,
         excerpt,
         image,
-        thumbnail,
         isodate,
         date,
         creator,
@@ -266,7 +265,7 @@ export function generateBlogPostStructuredData(postData, currentLanguage, canoni
     };
 
     // Main image for the post
-    const mainImage = thumbnail || image || publisher.logo.url;
+    const mainImage = image || publisher.logo.url;
 
     // BlogPosting schema (E-E-A-T-S optimized)
     return {
@@ -352,7 +351,7 @@ export function generateBlogListStructuredData(posts, currentLanguage, canonical
                     '@type': 'Person',
                     name: post.creator || 'Christopher Matt'
                 },
-                image: post.thumbnail || post.image || blogSchema.publisher.logo.url,
+                image: post.image || blogSchema.publisher.logo.url,
                 description: post.excerpt || (post.content ? post.content.replace(/<[^>]*>/g, ' ').substring(0, 200) : '')
             };
         });

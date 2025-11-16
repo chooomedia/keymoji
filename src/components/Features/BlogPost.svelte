@@ -1,11 +1,14 @@
 <script>
     import { currentLanguage, showShareMenu, translations } from '../../stores/contentStore.js';
     import { onMount } from 'svelte';
+    import { fade } from 'svelte/transition';
+    import { cubicInOut } from 'svelte/easing';
     import { Link, navigate } from 'svelte-routing';
     import { updateSeo } from '../../stores/seoStore.js';
     import { fetchBlogPost, likeBlogPost, fetchBlogPosts } from '../../utils/blogApi.js';
     import { getBlogUrl, getBlogShareUrl, getHomeUrl } from '../../utils/blogNavigation.js';
     import { isLoggedIn } from '../../stores/appStores.js';
+    import { blogLikesStore } from '../../stores/blogLikesStore.js';
     import { get } from 'svelte/store';
     import PageLayout from '../Layout/PageLayout.svelte';
     import BlogPostImage from './BlogPostImage.svelte';
@@ -13,6 +16,8 @@
     import HeartAnimation from './HeartAnimation.svelte';
     import ShareButtons from './ShareButtons.svelte';
     import { generateBlogPostStructuredData, formatCanonicalUrl, injectStructuredData } from '../../utils/seo.js';
+    import BlogPostSkeleton from './BlogPostSkeleton.svelte';
+    import { navigateToBlogPost } from '../../utils/blogNavigation.js';
   
     export let slug;
     
@@ -22,13 +27,25 @@
     let shareUrl = '';
     let showHeartAnimation = false;
     let isLiking = false;
+    let allPosts = [];
+    let previousPost = null;
+    let nextPost = null;
+    let isTransitioning = false;
+    let isMounted = false;
   
-    // Translations for "Back to Posts" button
+    // Translations for 404 page
     $: backToPostsText = (() => {
         const lang = $currentLanguage || 'en';
         if (lang === 'de') return 'Zurück zu Posts';
         if (lang === 'en') return 'Back to Posts';
         return 'Back to Posts'; // Fallback for all other languages
+    })();
+    
+    $: postNotFoundText = (() => {
+        const lang = $currentLanguage || 'en';
+        if (lang === 'de') return 'Post nicht gefunden';
+        if (lang === 'en') return 'Post not found';
+        return 'Post not found'; // Fallback for all other languages
     })();
   
     function navigateBack() {
@@ -37,9 +54,34 @@
         navigate(blogPath, { replace: true });
     }
   
-    onMount(async () => {
+    onMount(() => {
+        isMounted = true;
+        loadPost();
+    });
+    
+    function navigateToPrevious() {
+        if (!previousPost || !previousPost.slug || isTransitioning || loading) return;
+        isTransitioning = true;
+        loading = true; // Show skeleton during navigation
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        navigateToBlogPost(previousPost.slug, false);
+    }
+    
+    function navigateToNext() {
+        if (!nextPost || !nextPost.slug || isTransitioning || loading) return;
+        isTransitioning = true;
+        loading = true; // Show skeleton during navigation
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        navigateToBlogPost(nextPost.slug, false);
+    }
+    
+    // Reload post when slug changes (for navigation between posts)
+    $: if (slug && isMounted) {
+        loadPost();
+    }
+    
+    async function loadPost() {
       if (!slug) {
-        console.error('❌ [BlogPost] No slug provided');
         error = 'Invalid post slug';
         loading = false;
         return;
@@ -48,12 +90,30 @@
       try {
         loading = true;
         error = null;
+            isTransitioning = false;
+            
+            // Lade alle Posts für Navigation
+            allPosts = await fetchBlogPosts({ useCache: true });
         
         const fetchedPost = await fetchBlogPost(slug, { useCache: true });
         
         if (fetchedPost) {
           post = fetchedPost;
           shareUrl = getBlogShareUrl(post.slug || slug);
+                
+                // Finde Previous/Next Post im Array
+                const currentIndex = allPosts.findIndex(p => 
+                    (p.slug && p.slug === post.slug) || 
+                    (p.id === post.id) || 
+                    (p.row_number === post.row_number)
+                );
+                
+                if (currentIndex !== -1) {
+                    // Previous Post (höherer Index = neuer)
+                    previousPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
+                    // Next Post (niedrigerer Index = älter)
+                    nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+                }
         
         // Update SEO for blog post
           const canonicalUrl = formatCanonicalUrl(window.location.pathname);
@@ -62,7 +122,7 @@
             description: post.excerpt || (post.content ? post.content.replace(/<[^>]*>/g, '').substring(0, 160) : ''),
             url: window.location.pathname,
             pageType: 'blog',
-            image: post.thumbnail || post.image,
+            image: post.image,
             canonical: canonicalUrl
           });
           
@@ -70,15 +130,30 @@
           const structuredData = generateBlogPostStructuredData(post, $currentLanguage, canonicalUrl);
           injectStructuredData(structuredData);
         } else {
-          error = 'Post not found';
+          // Post nicht gefunden - 404
+          post = null;
+          error = postNotFoundText; // Verwende übersetzten Text
+          console.warn('⚠️ [BlogPost] Post not found with slug:', slug);
+          
+          // Update SEO for 404 page
+          updateSeo({
+            title: postNotFoundText,
+            description: postNotFoundText,
+            url: window.location.pathname,
+            pageType: 'blog',
+            canonical: formatCanonicalUrl(window.location.pathname)
+          });
         }
       } catch (err) {
         console.error('❌ [BlogPost] Error fetching post:', err);
-        error = err.message || 'Failed to load blog post';
+        post = null;
+        error = err.message || postNotFoundText; // Verwende übersetzten Text als Fallback
       } finally {
         loading = false;
       }
-    });
+    }
+  
+    let likeStatus = null; // 'success' | 'error' | null
   
     async function handleLike() {
         if (!get(isLoggedIn)) {
@@ -91,74 +166,72 @@
         const postId = post?.id || post?.row_number;
         if (!post || !postId || isLiking) return;
         
-        const originalLikes = post.likes || 0;
-        const originalLiked = post.liked || false;
-        const isUnlike = originalLiked;
+        const currentLikes = post.likes || 0;
+        
+        // KEIN TOGGLE: Nur Like wenn likes === 0
+        if (currentLikes > 0) {
+            console.log('⚠️ [BlogPost] Post already liked (likes > 0), skipping');
+            return;
+        }
+        
+        // Clear previous status
+        likeStatus = null;
         
         // Set loading state
         isLiking = true;
         
-        // Optimistic update
-        post = {
-            ...post,
-            likes: isUnlike ? Math.max(0, originalLikes - 1) : originalLikes + 1,
-            liked: !isUnlike
-        };
-        
         try {
-            const result = await likeBlogPost(postId, { optimistic: true, unlike: isUnlike });
+            // Use store to add like (no toggle)
+            const result = await blogLikesStore.addLike(postId, true);
             
             // Clear loading state
             isLiking = false;
             
             if (result && result.success) {
+                // Erfolg: Grünes Häkchen
+                likeStatus = 'success';
+                
                 // PRIORITÄT: Backend-Wert (result.likes) hat immer höchste Priorität
                 const backendLikes = result.likes !== undefined && result.likes !== null 
                     ? parseInt(result.likes, 10) 
-                    : null;
-                const optimisticLikes = isUnlike 
-                    ? Math.max(0, originalLikes - 1) 
-                    : originalLikes + 1;
-                
-                // Verwende immer den höheren Wert (Backend hat Priorität)
-                const finalLikes = backendLikes !== null 
-                    ? Math.max(backendLikes, optimisticLikes) 
-                    : optimisticLikes;
+                    : 1;
                 
                 post = {
                     ...post,
-                    likes: finalLikes,
-                    liked: !isUnlike
+                    likes: backendLikes,
+                    liked: true // Immer true wenn likes > 0
                 };
-                post = post;
                 
-                // Animation nur bei Like (nicht bei Unlike)
-                if (!isUnlike) {
+                // Große fliegende Herzen
                     showHeartAnimation = true;
                     setTimeout(() => {
                         showHeartAnimation = false;
-                    }, 50);
-                }
+                }, 1200);
                 
-                if (result.likes === undefined || result.likes === null) {
-                    await refreshLikesFromBackend();
-                }
+                // Clear success status after animation
+                setTimeout(() => {
+                    likeStatus = null;
+                }, 2000);
             } else {
-                // Rollback on error
-                post = {
-                    ...post,
-                    likes: originalLikes,
-                    liked: originalLiked
-                };
+                // Fehler: Rotes X
+                likeStatus = 'error';
+                
+                // Clear error status after animation
+                setTimeout(() => {
+                    likeStatus = null;
+                }, 2000);
             }
         } catch (error) {
             console.error('❌ [BlogPost] Error liking post:', error);
             isLiking = false;
-            post = {
-                ...post,
-                likes: originalLikes,
-                liked: originalLiked
-            };
+            
+            // Fehler: Rotes X
+            likeStatus = 'error';
+            
+            // Clear error status after animation
+            setTimeout(() => {
+                likeStatus = null;
+            }, 2000);
         }
     }
     
@@ -200,48 +273,25 @@
         {/if}
     </div>
 
-    {#if loading}
-        <div class="container mx-auto py-4">
-            <div class="max-w-4xl mx-auto">
-                <!-- Skeleton Loading -->
-                <article class="bg-white dark:bg-aubergine-900 rounded-xl shadow-md overflow-hidden animate-pulse">
-                    <!-- Meta Skeleton -->
-                    <div class="p-6 space-y-4">
-                        <div class="flex items-center gap-3">
-                            <div class="h-3 w-20 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
-                            <div class="h-3 w-16 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Image Skeleton -->
-                    <div class="w-full h-64 md:h-96 bg-gray-300 dark:bg-aubergine-800"></div>
-                    
-                    <!-- Content Skeleton -->
-                    <div class="p-6 md:p-8 space-y-4">
-                        <div class="space-y-2">
-                            <div class="h-8 w-3/4 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
-                            <div class="h-8 w-1/2 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
-                        </div>
-                        
-                        <div class="space-y-3 mt-6">
-                            <div class="h-4 w-full bg-gray-300 dark:bg-aubergine-800 rounded"></div>
-                            <div class="h-4 w-full bg-gray-300 dark:bg-aubergine-800 rounded"></div>
-                            <div class="h-4 w-5/6 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
-                            <div class="h-4 w-full bg-gray-300 dark:bg-aubergine-800 rounded"></div>
-                            <div class="h-4 w-4/5 bg-gray-300 dark:bg-aubergine-800 rounded"></div>
-                        </div>
-                    </div>
-                </article>
-            </div>
+    {#if loading || isTransitioning}
+        <div in:fade={{duration: 200, easing: cubicInOut}} out:fade={{duration: 150, easing: cubicInOut}}>
+            <BlogPostSkeleton count={1} />
         </div>
     {:else if error || !post}
-        <div class="flex flex-col justify-center items-center py-12">
-            <p class="text-red-500 dark:text-red-400 mb-4">❌ {error || 'Post not found'}</p>
+        <!-- 404 Error Page - Übersetzt -->
+        <div class="flex flex-col justify-center items-center py-12 min-h-[60vh]">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">404</h1>
+                <p class="text-red-500 dark:text-red-400 mb-6 text-lg">❌ {error || postNotFoundText}</p>
             <Link 
                 to={getBlogUrl()} 
-                class="px-4 py-2 bg-yellow text-black rounded-full hover:scale-105 focus:scale-105 active:scale-95 transition-all transform focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2">
-                {backToPostsText}
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
+                    aria-label={backToPostsText}
+                    title={backToPostsText}>
+                    <span class="text-lg">←</span>
+                    <span>{backToPostsText}</span>
             </Link>
+            </div>
         </div>
     {:else}
         <!-- Content Container - Filigranes Spacing oben -->
@@ -263,7 +313,6 @@
                 <div class="mb-8">
                     <BlogPostImage
                         image={post.image}
-                        thumbnail={post.thumbnail}
                         title={post.title}
                         category={post.category}
                         size="detail"
@@ -300,19 +349,31 @@
             <!-- Like and Share Buttons as Chips - Same Style as BlogGrid -->
             {#if !loading && !error && post}
                 {@const shareText = `${post.title} - ${shareUrl}`}
+                {@const hasLikes = (post.likes || 0) > 0}
                 <div class="flex justify-between items-center border-t border-gray-100 dark:border-gray-800 pt-6 mt-8">
                     <button 
-                        aria-label={post.liked ? 'Unlike the blog post' : 'Like the blog post'}
+                        aria-label={hasLikes ? 'Post already liked' : 'Like the blog post'}
                         on:click={handleLike}
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                        title={post.liked ? 'Unlike' : 'Like'}
-                        disabled={isLiking}
+                        title={hasLikes ? 'Already liked' : 'Like'}
+                        disabled={isLiking || hasLikes}
                     >
-                        <span class="text-base">{post.liked ? '❤️' : '🤍'}</span>
+                        <span class="text-base">{hasLikes ? '❤️' : '🤍'}</span>
                         {#if isLiking}
+                            <!-- Loading Spinner -->
                             <svg class="animate-spin h-4 w-4 text-gray-700 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        {:else if likeStatus === 'success'}
+                            <!-- Success Checkmark -->
+                            <svg class="h-4 w-4 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        {:else if likeStatus === 'error'}
+                            <!-- Error X -->
+                            <svg class="h-4 w-4 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         {:else}
                             <span class="text-gray-700 dark:text-gray-300">{post.likes || 0}</span>
@@ -334,3 +395,54 @@
     <!-- Heart Animation -->
     <HeartAnimation show={showHeartAnimation} count={5} />
 </PageLayout>
+
+<!-- Fixed Navigation Buttons (Previous/Next Post) - Outside PageLayout -->
+{#if !loading && !error && post && (previousPost || nextPost)}
+<nav 
+    itemscope 
+    itemtype="https://schema.org/SiteNavigationElement"
+    aria-label="Blog post navigation"
+    class="fixed left-4 top-1/2 -translate-y-1/2 z-50 hidden md:block"
+>
+    {#if previousPost}
+        <span itemprop="name" class="sr-only">Previous blog post navigation</span>
+        <button
+            on:click={navigateToPrevious}
+            disabled={isTransitioning}
+            class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
+            aria-label="Go to previous blog post: {previousPost.title}"
+            aria-disabled={isTransitioning}
+            title="Previous post: {previousPost.title}"
+            type="button"
+        >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+    {/if}
+</nav>
+
+<nav 
+    itemscope 
+    itemtype="https://schema.org/SiteNavigationElement"
+    aria-label="Blog post navigation"
+    class="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:block"
+>
+    {#if nextPost}
+        <span itemprop="name" class="sr-only">Next blog post navigation</span>
+        <button
+            on:click={navigateToNext}
+            disabled={isTransitioning}
+            class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
+            aria-label="Go to next blog post: {nextPost.title}"
+            aria-disabled={isTransitioning}
+            title="Next post: {nextPost.title}"
+            type="button"
+        >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+    {/if}
+</nav>
+{/if}
