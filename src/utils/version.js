@@ -10,12 +10,12 @@
  */
 
 // Aktuelle Version der Anwendung
-export const appVersion = '0.7.4';
+export const appVersion = '0.7.7';
 
 // Versionsinformationen mit Datum der letzten Aktualisierung
 export const versionInfo = {
     version: appVersion,
-    updated: '2025-11-13',
+    updated: '2025-11-16',
     codename: 'Performance & Code Quality'
 };
 

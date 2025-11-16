@@ -1,6 +1,6 @@
 {
     "name": "keymoji",
-    "version": "0.7.4",
+    "version": "0.7.7",
     "description": "Secure emoji password generator with AI Story Mode - Security & Configuration",
     "private": true,
     "license": "MIT",
@@ -31,11 +31,11 @@
         "setup:apertus": "bash scripts/setup-apertus-token.sh"
     },
     "devDependencies": {
-        "@babel/cli": "^7.12.1",
-        "@babel/core": "^7.14.3",
-        "@babel/preset-env": "^7.14.2",
+        "@babel/cli": "^7.28.3",
+        "@babel/core": "^7.28.5",
+        "@babel/preset-env": "^7.28.5",
         "@types/node": "^22.19.1",
-        "autoprefixer": "^10.4.20",
+        "autoprefixer": "^10.4.22",
         "babel-loader": "^8.2.2",
         "clean-webpack-plugin": "^3.0.0",
         "copy-webpack-plugin": "^6.4.1",
@@ -44,7 +44,7 @@
         "cssnano": "^5.1.15",
         "file-loader": "^6.2.0",
         "html-entities": "^2.6.0",
-        "html-webpack-plugin": "^5.3.1",
+        "html-webpack-plugin": "^5.6.4",
         "mini-css-extract-plugin": "^1.6.2",
         "postcss": "^8.4.47",
         "postcss-loader": "^5.3.0",
@@ -56,7 +56,7 @@
         "terser-webpack-plugin": "^5.3.10",
         "ts-loader": "^9.5.4",
         "typescript": "^5.9.3",
-        "webpack": "^5.88.2",
+        "webpack": "^5.102.1",
         "webpack-cli": "^5.1.4",
         "webpack-dev-server": "^5.2.2",
         "webpack-merge": "^5.7.3"
