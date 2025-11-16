@@ -41,10 +41,8 @@ function svelteResolvePrePlugin() {
             // Normalisiere ID (Windows/Unix Pfad-Unterschiede)
             const normalizedId = id.replace(/\\/g, '/');
 
-            // DEBUG: Logge ALLE resolveId Aufrufe für svelte/* Module
+            // DEBUG: Logge ALLE resolveId Aufrufe für svelte/* Module (NICHT svelte/store - wird von Vite normal aufgelöst)
             if (
-                normalizedId === 'svelte/store' ||
-                normalizedId.startsWith('svelte/store/') ||
                 normalizedId === 'svelte/internal/client' ||
                 normalizedId === 'svelte/internal/disclose-version' ||
                 normalizedId.startsWith('svelte/internal/')
@@ -59,30 +57,8 @@ function svelteResolvePrePlugin() {
             // Verwende normalizedId für alle Prüfungen
             id = normalizedId;
             
-            // Webpack common.js: resolve.alias Einstellungen
-            // Entspricht vite.config.example.js resolve.alias
-            // svelte/store Resolution
-            if (id === 'svelte/store' || id.startsWith('svelte/store/')) {
-                const resolved = path.resolve(
-                    __dirname,
-                    'node_modules/svelte/src/store/index-client.js'
-                );
-                if (fs.existsSync(resolved)) {
-                    console.log(
-                        `[svelte-resolve] ✅ resolveId: ${id} → ${resolved
-                            .split('/')
-                            .pop()} from ${
-                            importer ? importer.split('/').pop() : 'unknown'
-                        }`
-                    );
-                    resolvedModules.set(id, resolved);
-                    return resolved;
-                }
-                console.log(
-                    `[svelte-resolve] ❌ resolveId: ${id} → Datei nicht gefunden: ${resolved}`
-                );
-                return undefined;
-            }
+            // HINWEIS: svelte/store wird NICHT hier aufgelöst - Vite macht das automatisch korrekt
+            // Nur interne Module benötigen spezielle Auflösung
             // Svelte 5 interne Module
             if (id === 'svelte/internal/disclose-version') {
                 const resolved = path.resolve(
@@ -168,21 +144,7 @@ function svelteResolvePrePlugin() {
                     return fs.readFileSync(resolvedPath, 'utf-8');
                 }
             }
-            // Prüfe ob es ein svelte/store Import ist (Fallback)
-            if (id === 'svelte/store' || id.includes('svelte/store')) {
-                const resolved = path.resolve(
-                    __dirname,
-                    'node_modules/svelte/src/store/index-client.js'
-                );
-                if (fs.existsSync(resolved)) {
-                    console.log(
-                        `[svelte-resolve] ✅ load (fallback): ${id} → ${resolved
-                            .split('/')
-                            .pop()}`
-                    );
-                    return fs.readFileSync(resolved, 'utf-8');
-                }
-            }
+            // HINWEIS: svelte/store wird NICHT hier geladen - Vite macht das automatisch korrekt
             // Prüfe ob es ein svelte/internal/client Import ist (Fallback)
             if (id === 'svelte/internal/client') {
                 const resolved = path.resolve(
@@ -222,47 +184,20 @@ function svelteResolvePrePlugin() {
                 let hasChanges = false;
                 let newCode = code;
 
-                // DEBUG: Logge wenn wir eine .svelte Datei mit svelte/* Imports finden
+                // DEBUG: Logge wenn wir eine .svelte Datei mit svelte/* Imports finden (NICHT svelte/store)
                 if (
                     id.endsWith('.svelte') &&
                     (code.includes('svelte/internal/disclose-version') ||
-                        code.includes('svelte/internal/client') ||
-                        code.includes('svelte/store'))
+                        code.includes('svelte/internal/client'))
                 ) {
                     console.log(
                         `[svelte-resolve] 🔍 load: ${id
                             .split('/')
-                            .pop()} enthält svelte/* Imports`
+                            .pop()} enthält svelte/internal/* Imports`
                     );
                 }
 
-                // Ersetze svelte/store
-                if (
-                    code.includes("from 'svelte/store'") ||
-                    code.includes('from "svelte/store"')
-                ) {
-                    const resolved = path.resolve(
-                        __dirname,
-                        'node_modules/svelte/src/store/index-client.js'
-                    );
-                    if (fs.existsSync(resolved)) {
-                        const relativePath = path.relative(
-                            path.dirname(id),
-                            resolved
-                        );
-                        const normalizedPath = relativePath.startsWith('.')
-                            ? relativePath
-                            : './' + relativePath;
-                        newCode = newCode.replace(
-                            /from ['"]svelte\/store['"]/g,
-                            match => {
-                                const quote = match.includes("'") ? "'" : '"';
-                                return `from ${quote}${normalizedPath}${quote}`;
-                            }
-                        );
-                        hasChanges = true;
-                    }
-                }
+                // HINWEIS: svelte/store wird NICHT hier ersetzt - Vite macht das automatisch korrekt
 
                 // Ersetze svelte/internal/client
                 if (
@@ -540,25 +475,7 @@ function svelteResolveTransformPlugin() {
                     return resolved;
                 }
             }
-            if (
-                normalizedId === 'svelte/store' ||
-                normalizedId.startsWith('svelte/store/')
-            ) {
-                const resolved = path.resolve(
-                    __dirname,
-                    'node_modules/svelte/src/store/index-client.js'
-                );
-                if (fs.existsSync(resolved)) {
-                    console.log(
-                        `[svelte-resolve-transform] ✅ resolveId: ${normalizedId} → ${resolved
-                            .split('/')
-                            .pop()} from ${
-                            importer ? importer.split('/').pop() : 'unknown'
-                        }`
-                    );
-                    return resolved;
-                }
-            }
+            // HINWEIS: svelte/store wird NICHT hier aufgelöst - Vite macht das automatisch korrekt
             return undefined;
         },
         transform(code, id) {
