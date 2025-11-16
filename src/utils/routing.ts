@@ -5,9 +5,6 @@ Handles browser history management and link interception.
 */
 let _currentLocation = typeof window !== 'undefined' ? window.location.pathname : '/';
 let routeListeners: Array<() => void> = [];
-
-// Export als Variable für direkten Zugriff
-// Komponenten sollten subscribe() verwenden, um auf Änderungen zu reagieren
 export let currentLocation: string = _currentLocation;
 
 function updateCurrentLocation(newLocation: string): void {
