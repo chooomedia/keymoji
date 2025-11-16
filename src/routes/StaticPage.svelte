@@ -1,46 +1,53 @@
 <!-- src/routes/StaticPage.svelte -->
 <!-- Generische Komponente für statische Seiten mit Slug-Support -->
 <!-- Data-Driven Architecture: Content (JSON) + Presentation (Component) -->
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
-    import { currentLanguage, translations } from '../stores/contentStore.js';
+    import { currentLanguage, translations } from '../stores/contentStore.ts';
     import PageLayout from '../components/Layout/PageLayout.svelte';
     import StaticSection from '../components/StaticContent/StaticSection.svelte';
     import { staticPagesData } from '../data/staticPages.json.js';
     import { navigateToHome } from '../utils/navigation';
     import { appVersion } from '../utils/version';
-    import FooterInfo from '../widgets/FooterInfo.svelte';
+    import { get } from 'svelte/store';
     
-    // Props
-    export let slug = 'privacy'; // 'privacy' | 'legal'
+    // Props (Svelte 5 Runes)
+    interface Props {
+        slug?: 'privacy' | 'legal';
+    }
+    
+    let { slug = 'privacy' }: Props = $props();
     
     let loading = true;
     
-    // Get content based on slug and language (reactive)
-    $: pageData = (() => {
+    // Get content based on slug and language (reactive) - Svelte 5 Runes
+    let pageData = $derived.by(() => {
         loading = true;
         const content = staticPagesData[slug];
         if (!content) return null;
         
-        // Language fallback: current → en
-        const data = content[$currentLanguage] || content['en'];
+        // Language fallback: current → en (use get() for stores in $derived.by)
+        const lang = get(currentLanguage);
+        const data = content[lang] || content['en'];
         loading = false;
         return data;
-    })();
+    });
     
-    // Reactive Props für PageLayout
-    $: pageTitle = pageData?.title || '';
-    $: pageDescription = pageData?.description || '';
-    $: sections = pageData?.sections || [];
+    // Reactive Props für PageLayout (Svelte 5 Runes)
+    let pageTitle = $derived(pageData?.title || '');
+    let pageDescription = $derived(pageData?.description || '');
+    let sections = $derived(pageData?.sections || []);
     
-    // Format last updated date
-    $: formattedDate = pageData?.lastUpdated 
-        ? new Date(pageData.lastUpdated).toLocaleDateString($translations?.meta?.locale || 'de-DE', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })
-        : '';
+    // Format last updated date (Svelte 5 Runes)
+    let formattedDate = $derived.by(() => {
+        const t = get(translations);
+        return pageData?.lastUpdated 
+            ? new Date(pageData.lastUpdated).toLocaleDateString(t?.meta?.locale || 'de-DE', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }) : '';
+    });
 </script>
 
 {#if loading}
@@ -50,7 +57,7 @@
         </div>
     </PageLayout>
 {:else if pageData}
-    <PageLayout {pageTitle} {pageDescription}>
+    <PageLayout {pageTitle} {pageDescription} routeSlug="static">
         <!-- Back Button - Liegt ZUR HÄLFTE auf content-wrapper Rand -->
         <div slot="before-content" class="relative w-full flex justify-center -mb-14">
             <button 
@@ -141,10 +148,6 @@
         </div>
         </div>
 
-        <!-- Footer -->
-        <div slot="footer" class="w-full">
-            <FooterInfo />
-        </div>
     </PageLayout>
 {:else}
     <PageLayout pageTitle="404" pageDescription="Page not found">

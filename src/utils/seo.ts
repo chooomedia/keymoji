@@ -1040,3 +1040,76 @@ export function injectStructuredData(structuredData: StructuredDataBase): void {
     document.head.appendChild(script);
 }
 
+/**
+ * Update SEO for a page (replaces SEO.svelte component)
+ * @param options - SEO options
+ * @param currentLanguage - Current language
+ */
+export interface SEOOptions {
+    title?: string;
+    description?: string;
+    url?: string;
+    image?: string;
+    type?: string;
+    noindex?: boolean;
+    keywords?: string;
+    canonical?: string;
+    pageType?: string;
+}
+
+export function updateSEO(options: SEOOptions, currentLanguage: string): () => void {
+    if (typeof document === 'undefined') {
+        return () => {}; // No-op cleanup
+    }
+
+    const {
+        title = '',
+        description = '',
+        url = '',
+        image = DEFAULT_SEO.image,
+        type = DEFAULT_SEO.type,
+        noindex = DEFAULT_SEO.noindex,
+        keywords = '',
+        canonical = '',
+        pageType = DEFAULT_SEO.pageType
+    } = options;
+
+    // Get page-specific SEO data
+    const pageTitle = title || getPageTitle(pageType, currentLanguage) || DEFAULT_SEO.title;
+    const pageDescription = description || getPageDescription(pageType, currentLanguage) || DEFAULT_SEO.description;
+    const pageKeywords = keywords || getPageKeywords(pageType, currentLanguage) || DEFAULT_SEO.keywords;
+
+    // Generate structured data
+    const seoData = {
+        pageType,
+        title: pageTitle,
+        description: pageDescription,
+        canonical: canonical || formatCanonicalUrl(url),
+        image
+    };
+    const structuredData = generateStructuredData(seoData, currentLanguage);
+
+    // Update meta tags (includes hreflang links)
+    const seoConfig: SEOConfig = {
+        title: pageTitle,
+        description: pageDescription,
+        keywords: pageKeywords,
+        canonical: canonical || formatCanonicalUrl(url),
+        image,
+        type,
+        noindex,
+        pageType
+    };
+
+    updateMetaTags(seoConfig, currentLanguage);
+    injectStructuredData(structuredData);
+
+    // Return cleanup function
+    return () => {
+        const oldScript = document.querySelector('script[data-seo-structured="true"]');
+        if (oldScript && oldScript.parentNode) {
+            oldScript.parentNode.removeChild(oldScript);
+        }
+    };
+}
+

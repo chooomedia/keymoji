@@ -1,5 +1,5 @@
 <script>
-import { isDebugMode } from './utils/environment.js';
+import { isDebugMode } from './utils/environment';
 
 function clearLocalStorage() {
   localStorage.clear();

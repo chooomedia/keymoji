@@ -1,7 +1,7 @@
 // src/data/content.js
 // Zentrale Content-Datei für wiederkehrende Inhalte und Best Practices
 
-import { appVersion } from '../utils/version.js';
+import { appVersion } from '../utils/version';
 import {
     emailIcon,
     fbmessengerIcon,
@@ -12,7 +12,7 @@ import {
     redditIcon,
     whatsappIcon,
     instagramIcon
-} from '../assets/shapes.js';
+} from '../assets/shapes';
 
 /**
  * Gemeinsame Inhalte für alle Sprachen

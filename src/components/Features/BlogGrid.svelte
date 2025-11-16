@@ -1,17 +1,17 @@
-<script>
+<script lang="ts">
     import { onMount, onDestroy } from 'svelte';
-    import { Link, navigate } from 'svelte-routing';
+    import Link from '../../components/Routing/Link.svelte';
+    import { navigate } from '../../utils/routing.ts';
     import { 
         fetchBlogPosts, 
         likeBlogPost, 
         formatContentPreview
     } from '../../utils/blogApi';
     import { getBlogUrl, getBlogShareUrl } from '../../utils/blogNavigation';
-    import { currentLanguage, translations } from '../../stores/contentStore.js';
-    import { isLoggedIn } from '../../stores/appStores'
-    import { get } from 'svelte/store';
+    import { currentLanguage, translations } from '../../stores/contentStore.ts';
+    import { isLoggedIn } from '../../stores/appStores';
     import PageLayout from '../Layout/PageLayout.svelte';
-    import { updateSeo } from '../../stores/seoStore';
+    import { updateSeo } from '../../stores/seoStore.ts';
     import BlogPostImage from './BlogPostImage.svelte';
     import BlogPostMeta from './BlogPostMeta.svelte';
     import HeartAnimation from './HeartAnimation.svelte';
@@ -25,24 +25,24 @@
     import { slide, fade } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     
-    let posts = [];
-    let showHeartAnimation = false;
-    let loading = true;
-    let error = null;
-    let selectedCategory = 'all';
-    let currentPage = 1;
-    let isLoadingMore = false;
-    let isTransitioning = false;
-    let isDropdownOpen = false;
-    let dropdownRef = null;
-    let buttonRef = null;
-    let likingPostId = null; // Track which post is being liked
-    let animatingHearts = new Set(); // Track which posts are showing heart animation
-    let showBigHeartAnimation = false; // Große zentrierte Herz-Animation für Success
-    let buttonParticles = new Map(); // Map: postId -> { show: boolean, buttonElement: HTMLElement }
+    let posts = $state<any[]>([]);
+    let showHeartAnimation = $state(false);
+    let loading = $state(true);
+    let error = $state<string | null>(null);
+    let selectedCategory = $state('all');
+    let currentPage = $state(1);
+    let isLoadingMore = $state(false);
+    let isTransitioning = $state(false);
+    let isDropdownOpen = $state(false);
+    let dropdownRef: HTMLElement | null = $state(null);
+    let buttonRef: HTMLElement | null = $state(null);
+    let likingPostId: number | null = $state(null);
+    let animatingHearts = $state<Set<number>>(new Set());
+    let showBigHeartAnimation = $state(false);
+    let buttonParticles = $state<Map<number, { show: boolean; buttonElement: HTMLElement }>>(new Map());
     
-    $: categoriesWithCounts = (() => {
-        const categoryMap = new Map();
+    const categoriesWithCounts = $derived.by(() => {
+        const categoryMap = new Map<string, number>();
         categoryMap.set('all', posts.length);
         
         posts.forEach(post => {
@@ -60,11 +60,11 @@
             if (b.category === 'all') return 1;
             return b.count - a.count;
         });
-    })();
+    });
     
-    $: categories = categoriesWithCounts.map(c => c.category);
+    const categories = $derived(categoriesWithCounts.map(c => c.category));
     
-    $: filteredPosts = (() => {
+    const filteredPosts = $derived.by(() => {
         let filtered = posts;
         
         if (selectedCategory !== 'all') {
@@ -74,32 +74,27 @@
         filtered = [...filtered].sort((a, b) => {
             const dateA = new Date(a.isodate || a.date || 0);
             const dateB = new Date(b.isodate || b.date || 0);
-            return dateB - dateA;
+            return dateB.getTime() - dateA.getTime();
         });
         
         return filtered;
-    })();
+    });
     
-    // 1 Newest Post + 3 weitere Posts = 4 Posts pro Seite
     const POSTS_PER_PAGE = 4;
-    const INITIAL_POSTS = 1; // 1 Newest Post immer prominent
+    const INITIAL_POSTS = 1;
     
-    $: totalPages = (() => {
-        if (filteredPosts.length === 0) return 0;
-        return Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
-    })();
+    const totalPages = $derived(filteredPosts.length === 0 ? 0 : Math.ceil(filteredPosts.length / POSTS_PER_PAGE));
     
-    $: displayedPosts = (() => {
+    const displayedPosts = $derived.by(() => {
         if (filteredPosts.length === 0) return [];
         
         const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
         const endIndex = startIndex + POSTS_PER_PAGE;
         return filteredPosts.slice(startIndex, endIndex);
-    })();
+    });
     
-    // Trenne newest Post von anderen Posts für besseres Layout
-    $: newestPosts = currentPage === 1 ? displayedPosts.slice(0, INITIAL_POSTS) : [];
-    $: otherPosts = currentPage === 1 ? displayedPosts.slice(INITIAL_POSTS) : displayedPosts;
+    const newestPosts = $derived(currentPage === 1 ? displayedPosts.slice(0, INITIAL_POSTS) : []);
+    const otherPosts = $derived(currentPage === 1 ? displayedPosts.slice(INITIAL_POSTS) : displayedPosts);
     
     function truncateAuthor(author) {
         if (!author) return 'Unknown';
@@ -109,9 +104,9 @@
     
     let likeStatusMap = new Map(); // Map für Erfolgs-/Fehler-Status: { postId: 'success' | 'error' | null }
     
-    async function handleLike(postId) {
-        if (!get(isLoggedIn)) {
-            const lang = $currentLanguage || 'en';
+    async function handleLike(postId: number): Promise<void> {
+        if (!isLoggedIn) {
+            const lang = currentLanguage || 'en';
             const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
             navigate(accountPath, { replace: false });
             return;
@@ -379,12 +374,12 @@
         }
     }
     
-    $: if (selectedCategory) {
-        currentPage = 1;
-        isDropdownOpen = false;
-        setTimeout(() => {
-        }, 100);
-    }
+    $effect(() => {
+        if (selectedCategory) {
+            currentPage = 1;
+            isDropdownOpen = false;
+        }
+    });
     
     onMount(async () => {
         try {
@@ -545,14 +540,14 @@
             
             const canonicalUrl = formatCanonicalUrl(window.location.pathname);
             updateSeo({
-                title: $translations?.blog?.title || 'Blog',
-                description: $translations?.blog?.description || 'Read our latest blog posts about emoji passwords, security, and more.',
+                title: translations?.blog?.title || 'Blog',
+                description: translations?.blog?.description || 'Read our latest blog posts about emoji passwords, security, and more.',
                 url: window.location.pathname,
                 pageType: 'blog',
                 canonical: canonicalUrl
             });
             
-            const structuredData = generateBlogListStructuredData(posts, $currentLanguage, canonicalUrl);
+            const structuredData = generateBlogListStructuredData(posts, currentLanguage, canonicalUrl);
             injectStructuredData(structuredData);
             
             document.addEventListener('click', handleClickOutside);
@@ -571,11 +566,11 @@
         document.removeEventListener('keydown', handleKeydown);
     });
     
-    $: pageTitle = $translations?.blog?.title || 'Blog';
-    $: pageDescription = $translations?.blog?.description || 'Read our latest blog posts about emoji passwords, security, and more.';
+    const pageTitle = $derived(translations?.blog?.title || 'Blog');
+    const pageDescription = $derived(translations?.blog?.description || 'Read our latest blog posts about emoji passwords, security, and more.');
 </script>
 
-<PageLayout {pageTitle} {pageDescription}>
+<PageLayout {pageTitle} {pageDescription} routeSlug="blog">
 {#if loading || isTransitioning}
     <div in:fade={{duration: 200, easing: cubicInOut}} out:fade={{duration: 150, easing: cubicInOut}}>
     <BlogPostSkeleton count={6} />

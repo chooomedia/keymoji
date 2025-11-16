@@ -4,8 +4,8 @@
  * TypeScript Migration: v0.7.7
  */
 
-import { get, type Readable } from 'svelte/store';
-import { content, currentLanguage } from '../stores/contentStore.js';
+import { get } from 'svelte/store';
+import { content, currentLanguage } from '../stores/contentStore.ts';
 
 /**
  * Language Interface

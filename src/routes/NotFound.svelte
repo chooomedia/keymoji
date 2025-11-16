@@ -1,17 +1,17 @@
 <!-- src/routes/NotFound.svelte -->
-<script>
+<script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { fade, fly, scale } from 'svelte/transition';
-    import { translations } from '../stores/contentStore.js';
+    import { translations } from '../stores/contentStore.ts';
+    import { get } from 'svelte/store';
     import PageLayout from '../components/Layout/PageLayout.svelte';
-    import { STORAGE_KEYS, storageHelpers } from '../config/storage.js';
+    import { STORAGE_KEYS, storageHelpers } from '../config/storage';
     import { navigateToRoute, navigateToHome } from '../utils/navigation';
-    import FooterInfo from '../widgets/FooterInfo.svelte';
     import FeatureCard from '../components/Features/FeatureCard.svelte';
     
-    // Reaktive PageLayout Props
-    $: pageTitle = $translations?.notFound?.pageTitle || '404 - Page Not Found';
-    $: pageDescription = $translations?.notFound?.pageDescription || 'The page you are looking for does not exist.';
+    // Reaktive PageLayout Props (Svelte 5 Runes)
+    let pageTitle = $derived.by(() => get(translations)?.notFound?.pageTitle || '404 - Page Not Found');
+    let pageDescription = $derived.by(() => get(translations)?.notFound?.pageDescription || 'The page you are looking for does not exist.');
     
     // Site Navigation Data
     const siteNavigation = [
@@ -294,7 +294,7 @@
     <meta name="description" content={pageDescription} />
 </svelte:head>
 
-<PageLayout {pageTitle} {pageDescription}>
+<PageLayout {pageTitle} {pageDescription} routeSlug="notFound">
     <!-- Bouncing Emoji in before-header slot (like ContactForm) -->
     <div slot="before-header" class="flex justify-center">
         <div class="text-8xl animate-bounce">😵‍💫</div>
@@ -315,14 +315,14 @@
                     <!-- Slider Container with Gradient Overlays -->
                     <div class="relative w-full overflow-hidden rounded-xl">
                         <!-- Left Gradient Overlay -->
-                        <div class="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white dark:from-aubergine-900 via-white/80 dark:via-aubergine-900/80 to-transparent z-10 pointer-events-none gradient-overlay"></div>
+                        <div class="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white dark:from-aubergine-900 via-white/80 dark:via-aubergine-900/80 to-transparent z-10 pointer-events-none transition-opacity duration-300 ease-in-out"></div>
                         
                         <!-- Right Gradient Overlay -->
-                        <div class="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white dark:from-aubergine-900 via-white/80 dark:via-aubergine-900/80 to-transparent z-10 pointer-events-none gradient-overlay"></div>
+                        <div class="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white dark:from-aubergine-900 via-white/80 dark:via-aubergine-900/80 to-transparent z-10 pointer-events-none transition-opacity duration-300 ease-in-out"></div>
                         
                         <!-- Left Arrow -->
                         <button
-                            class="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-white dark:bg-aubergine-900 rounded-full shadow-lg flex items-center justify-center hover:scale-105 focus:scale-105 active:scale-95 transition-all cursor-pointer border border-gray-200 dark:border-gray-700 arrow-button focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+                            class="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-white dark:bg-aubergine-900 rounded-full shadow-lg flex items-center justify-center hover:scale-105 focus:scale-105 active:scale-95 transition-all duration-200 ease-out cursor-pointer border border-gray-200 dark:border-gray-700 hover:shadow-xl focus:shadow-xl focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                             on:click={slideLeft}
                             aria-label={$translations?.notFound?.prevEmoji || 'Previous emoji'}
                             title={$translations?.notFound?.prevEmoji || 'Previous emoji'}
@@ -334,7 +334,7 @@
                         
                         <!-- Right Arrow -->
                         <button
-                            class="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-white dark:bg-aubergine-900 rounded-full shadow-lg flex items-center justify-center hover:scale-105 focus:scale-105 active:scale-95 transition-all cursor-pointer border border-gray-200 dark:border-gray-700 arrow-button focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-white dark:bg-aubergine-900 rounded-full shadow-lg flex items-center justify-center hover:scale-105 focus:scale-105 active:scale-95 transition-all duration-200 ease-out cursor-pointer border border-gray-200 dark:border-gray-700 hover:shadow-xl focus:shadow-xl focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                             on:click={slideRight}
                             aria-label={$translations?.notFound?.nextEmoji || 'Next emoji'}
                             title={$translations?.notFound?.nextEmoji || 'Next emoji'}
@@ -347,7 +347,7 @@
                         <!-- Slider Content -->
                         <div 
                             bind:this={emojiSliderContainer}
-                            class="flex overflow-x-auto scroll-smooth gap-2 py-4 px-10 emoji-slider cursor-grab select-none border border-gray-200 dark:border-gray-700 rounded-xl"
+                            class="flex overflow-x-auto scroll-smooth snap-x snap-proximity overscroll-x-contain gap-2 py-4 px-10 emoji-slider cursor-grab select-none border border-gray-200 dark:border-gray-700 rounded-xl [&>div]:snap-center [&>div]:transition-transform [&>div]:duration-300 [&>div]:ease-out"
                             style="scrollbar-width: none; -ms-overflow-style: none;"
                             on:mousedown={handleMouseDown}
                             on:mousemove={handleMouseMove}
@@ -416,80 +416,26 @@
     </div>
 
     <!-- Footer Information Component -->
-    <FooterInfo slot="footer" />
 </PageLayout>
 
 <style>
-    /* Hide scrollbar for emoji slider */
+    /* Hide scrollbar for emoji slider (Webkit only - Firefox/Edge use inline style) */
     :global(.emoji-slider::-webkit-scrollbar) {
         display: none;
     }
     
-    /* Smooth scrolling for emoji slider */
-    .emoji-slider {
-        scroll-behavior: smooth;
+    /* iOS smooth scrolling */
+    :global(.emoji-slider) {
         -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x proximity;
-        overscroll-behavior-x: contain;
-    }
-    
-    /* Individual emoji items */
-    .emoji-slider > div {
-        scroll-snap-align: center;
-        transition: transform 0.3s ease-out;
-    }
-    
-    /* Gradient overlay animations */
-    .gradient-overlay {
-        transition: opacity 0.3s ease-in-out;
-    }
-    
-    /* Slider container hover effects */
-    .emoji-slider:hover {
-        cursor: grab;
-    }
-    
-    .emoji-slider:active {
-        cursor: grabbing;
-    }
-    
-    /* Prevent text selection during drag */
-    .emoji-slider {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-    
-    /* Arrow button styles */
-    .arrow-button {
-        transition: all 0.2s ease-out;
-    }
-    
-    .arrow-button:hover {
-        transform: translateY(-50%) scale(1.05);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-    
-    .arrow-button:focus {
-        transform: translateY(-50%) scale(1.05);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-    
-    .arrow-button:active {
-        transform: translateY(-50%) scale(0.95);
     }
     
     /* Reduce motion for accessibility */
     @media (prefers-reduced-motion: reduce) {
-        .emoji-slider {
+        :global(.emoji-slider) {
             scroll-behavior: auto;
         }
-        .emoji-slider > div {
-            transition: none;
-        }
-        .arrow-button {
-            transition: none;
+        :global(.emoji-slider > div) {
+            transition: none !important;
         }
     }
 </style>

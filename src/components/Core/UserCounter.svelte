@@ -2,15 +2,15 @@
 <script>
     import { userCounter, refreshUserCounter } from '../../stores/appStores'
     
-    // Formatter basierend auf der Dokumentsprache
-    $: formatter = new Intl.NumberFormat(
+    // Formatter basierend auf der Dokumentsprache (Svelte 5 Runes)
+    let formatter = $derived(new Intl.NumberFormat(
         document.documentElement.lang || 'en-US'
-    );
+    ));
     
-    // Formatierte Zahl mit Fallback - robustere Implementierung
-    $: formattedCount = $userCounter && $userCounter.value > 0 
+    // Formatierte Zahl mit Fallback - robustere Implementierung (Svelte 5 Runes)
+    let formattedCount = $derived($userCounter && $userCounter.value > 0 
         ? formatter.format($userCounter.value)
-        : '';
+        : '');
     
     // Manual refresh function
     async function handleRefresh() {

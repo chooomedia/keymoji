@@ -161,11 +161,23 @@ Reusable UI layer for all forms:
 
 ## 🔭 Roadmap
 
+### Short-term
 -   Clean up CSRF helper functions & exports in `accountStore.js`
 -   Refactor `UserSettings.svelte` + CSS selectors
 -   Cache account existence checks & throttle API calls
 -   Improve error boundaries & generic error flows
 -   Complete email template translations for all languages
+
+### Medium-term
+-   **Svelte 5 Migration** – Migrate stores to Runes (`$state`, `$derived`, `$effect`)
+-   **TypeScript Migration** – Full type coverage for better maintainability
+-   **Tailwind CSS 3+ Migration** – Optimize CSS bundle size (currently 6MB → target ~50-100KB)
+-   **Service Layer** – Extract API calls into dedicated services for better separation of concerns
+
+### Long-term
+-   **Performance Optimization** – Further reduce API calls, optimize bundle size
+-   **A11y Improvements** – Enhanced accessibility features
+-   **Testing** – Unit tests, integration tests, E2E tests
 
 ---
 
@@ -187,6 +199,47 @@ Key Files:
 -   `src/stores/accountStore.js` – Session & authentication
 -   `src/components/Core/EmojiDisplay.svelte` – Main generator
 -   `src/routes/AccountManager.svelte` – Account page with charts
+
+---
+
+## 💡 Best Practices & Code Quality
+
+### API Calls
+-   **Always use `cachedFetch`** from `src/utils/apiCache.js` – Never use direct `fetch()` calls
+-   **Pass data between functions** – Avoid duplicate API calls by passing `accountData` instead of re-fetching
+-   **Implement proper error handling** – Use try/catch blocks and user-friendly error messages
+
+### State Management
+-   **Use Svelte Stores** – For global/shared state (migrating to Svelte 5 Runes)
+-   **Avoid race conditions** – Remove `setTimeout` delays in async flows, use proper `async/await`
+-   **Single Source of Truth** – Each data source should have exactly one location
+
+### Code Organization
+-   **DRY Principle** – Consolidate duplicate code (e.g., `safeSetTimeout`, `generateClientFingerprint` in `sharedHelpers.js`)
+-   **Separation of Concerns** – Components for UI, Stores for state, Utils for helpers, Services for business logic
+-   **TypeScript** – Use TypeScript where possible, add JSDoc comments for functions
+
+### Performance
+-   **API Call Optimization** – Reduced API calls by 50-70% during login flow
+-   **Lazy Loading** – Routes are dynamically loaded for faster initial load
+-   **Code Splitting** – Optimized Webpack config with separate chunks (maxSize: 200KB)
+-   **CSS Optimization** – Tailwind CSS 2.2.19 generates large bundles (~6MB), migration to Tailwind 3+ planned
+
+### Storage
+-   **Use `storageHelpers`** from `src/config/storage.js` – Never access localStorage directly
+-   **Use `STORAGE_KEYS` constants** – Never hardcode storage keys
+-   **Migration Support** – Always handle storage migrations when changing data structures
+
+### Security
+-   **Input Validation** – Always validate user input
+-   **Magic Links** – Token expiry checks, single-use tokens, rate limiting
+-   **Environment Variables** – Never commit secrets, use `.env.local` for development
+
+### Accessibility
+-   **ARIA Labels** – Always use `aria-label` for icon buttons
+-   **Keyboard Navigation** – Support keyboard navigation for all interactive elements
+-   **Focus Management** – Use `FocusManager.svelte` for modals/dialogs
+-   **Semantic HTML** – Use proper semantic HTML elements
 
 ---
 

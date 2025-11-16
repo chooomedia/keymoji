@@ -2,7 +2,12 @@
 // Validiert die Structured Data gegen Schema.org Standards
 
 const https = require('https');
-const { generateStructuredData } = require('../src/utils/seo.js');
+// Dynamisch importieren von TypeScript-Modul
+let generateStructuredData;
+(async () => {
+    const seoModule = await import('../src/utils/seo.ts');
+    generateStructuredData = seoModule.generateStructuredData;
+})();
 
 // ANSI color codes for terminal output
 const colors = {
@@ -14,6 +19,11 @@ const colors = {
 };
 
 async function validateStructuredData() {
+    // Warte auf Modul-Import
+    if (!generateStructuredData) {
+        const seoModule = await import('../src/utils/seo.ts');
+        generateStructuredData = seoModule.generateStructuredData;
+    }
     console.log(
         `${colors.blue}🔍 Validating Structured Data...${colors.reset}\n`
     );
@@ -71,13 +81,17 @@ async function validateStructuredData() {
         }
     }
 
-    // Check FAQ Schema
-    const faq = structuredData['@graph'].find(
-        item => item['@type'] === 'FAQPage'
-    );
-    if (faq) {
-        console.log(`${colors.green}✅ FAQPage Schema found${colors.reset}`);
-        console.log(`   - ${faq.mainEntity.length} questions configured`);
+    // Check FAQ Schema (nur wenn @graph vorhanden)
+    if (structuredData['@graph'] && Array.isArray(structuredData['@graph'])) {
+        const faq = structuredData['@graph'].find(
+            item => item['@type'] === 'FAQPage'
+        );
+        if (faq) {
+            console.log(`${colors.green}✅ FAQPage Schema found${colors.reset}`);
+            if (faq.mainEntity) {
+                console.log(`   - ${faq.mainEntity.length} questions configured`);
+            }
+        }
     }
 
     // Validate against Schema.org API (optional - requires internet)
@@ -146,12 +160,18 @@ async function validateStructuredData() {
 
     // Local validation summary
     console.log(`\n${colors.blue}📊 Local Validation Summary:${colors.reset}`);
-    console.log(
-        `- Schema types: ${structuredData['@graph']
-            .map(item => item['@type'])
-            .join(', ')}`
-    );
-    console.log(`- Total nodes: ${structuredData['@graph'].length}`);
+    if (structuredData['@graph'] && Array.isArray(structuredData['@graph'])) {
+        console.log(
+            `- Schema types: ${structuredData['@graph']
+                .map(item => item['@type'])
+                .join(', ')}`
+        );
+        console.log(`- Total nodes: ${structuredData['@graph'].length}`);
+    } else {
+        console.log(`- Schema type: ${structuredData['@type']}`);
+    }
+    const faq = structuredData['@graph']?.find(item => item['@type'] === 'FAQPage');
+    const webApp = structuredData['@type'] === 'WebApplication' ? structuredData : null;
     console.log(`- Has FAQ: ${faq ? 'Yes' : 'No'}`);
     console.log(`- Has Rating: ${webApp?.aggregateRating ? 'Yes' : 'No'}`);
 

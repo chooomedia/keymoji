@@ -3,8 +3,8 @@
  * Alle Types werden hier exportiert für einfachen Import
  */
 
-export * from './Account.js';
-export * from './API.js';
+export * from './Account';
+export * from './API';
 
 // Re-export commonly used types
 export type {
@@ -15,7 +15,7 @@ export type {
     UsageEntry,
     UserSettings,
     StoryModeSettings
-} from './Account.js';
+} from './Account';
 
 export type {
     APIResponse,
@@ -30,5 +30,5 @@ export type {
     BlogPost,
     BlogAPIResponse,
     AnalyticsEvent
-} from './API.js';
+} from './API';
 

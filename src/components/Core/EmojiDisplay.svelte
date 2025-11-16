@@ -1,8 +1,8 @@
 <!-- src/EmojiDisplay.svelte (updated) -->
-<script>
+<script lang="ts">
     import { fly } from 'svelte/transition';
     import { onMount, onDestroy } from 'svelte';
-    import { navigate } from 'svelte-routing';
+    import { navigate } from '../../utils/routing.ts';
     import { 
         successfulStoryRequests, 
         isDisabled,
@@ -19,30 +19,37 @@
         showInfo,
         isModalVisible
     } from '../../stores/modalStore';
-    import { translations, currentLanguage } from '../../stores/contentStore.js';
-    import { getCurrentUserSettings, userSettings, effectiveSettings, updateSetting } from '../../stores/userSettingsStore.js';
-    import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
+    import { get } from 'svelte/store';
+    import { translations, currentLanguage } from '../../stores/contentStore.ts';
+    import { getCurrentUserSettings, userSettings, currentSettings, updateSetting } from '../../stores/userSettingsStore';
+    import { STORAGE_KEYS, storageHelpers } from '../../config/storage';
     import emojisData from '../../../public/emojisArray.json';
-    import { WEBHOOKS } from '../../../src/config/api.js';
-    import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js';
-    import { incrementDailyUsage, initializeDailyUsage } from '../../stores/dailyUsageStore.js';
+    import { WEBHOOKS } from '../../config/api';
+    import { getDailyLimitForUser, validateUserLimits } from '../../config/limits';
+    import { incrementDailyUsage, initializeDailyUsage } from '../../stores/dailyUsageStore';
     import { generateStoryEmojis, getDefaultModel } from '../../utils/storyModeAI';
     import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers';
 
     // Props
-    export let showEmojiCodes = false;
+    interface Props {
+        showEmojiCodes?: boolean;
+    }
+    
+    let {
+        showEmojiCodes = false
+    }: Props = $props();
 
     // State
-    let storyInput = '';
-    let randomEmojis = [];
-    let emojiCount = 9; // Updated: Default 9 emojis for FREE users
-    let showTextArea = false;
+    let storyInput = $state('');
+    let randomEmojis = $state([]);
+    let emojiCount = $state(9); // Updated: Default 9 emojis for FREE users
+    let showTextArea = $state(false);
     
     // Button animation state
-    let swissButtonHover = false;
-    let swissButtonClick = false;
-    let yellowButtonHover = false;
-    let yellowButtonClick = false;
+    let swissButtonHover = $state(false);
+    let swissButtonClick = $state(false);
+    let yellowButtonHover = $state(false);
+    let yellowButtonClick = $state(false);
   
     // Story Mode - Persistent text input
     const STORY_INPUT_KEY = 'keymoji_story_input';
@@ -56,35 +63,37 @@
     }
   
     // Save story input to localStorage on every change (reactive)
-    $: if (typeof window !== 'undefined') {
-        if (storyInput && storyInput.trim()) {
-            localStorage.setItem(STORY_INPUT_KEY, storyInput);
-        } else if (storyInput === '') {
-            localStorage.removeItem(STORY_INPUT_KEY);
+    $effect(() => {
+        if (typeof window !== 'undefined') {
+            if (storyInput && storyInput.trim()) {
+                localStorage.setItem(STORY_INPUT_KEY, storyInput);
+            } else if (storyInput === '') {
+                localStorage.removeItem(STORY_INPUT_KEY);
+            }
         }
-    }
-    let shouldAnimateEmojis = false;
-    let isStoryMode = false;
-    let initialRenderComplete = false;
+    });
+    let shouldAnimateEmojis = $state(false);
+    let isStoryMode = $state(false);
+    let initialRenderComplete = $state(false);
   
     // Story Mode Settings (reactive)
-    let storyModeEnabled = false;
-    let storyModeConfigured = false; // Has API key
+    let storyModeEnabled = $state(false);
+    let storyModeConfigured = $state(false); // Has API key
   
     // Story Mode Loading State
-    let isGeneratingStory = false;
+    let isGeneratingStory = $state(false);
   
     // Character Validation Constants (for Story Mode)
     const MAX_CHARS = 400;
     const MIN_CHARS = 10;
   
     // Reactive Character Validation
-    $: currentLength = storyInput?.length || 0;
-    $: remaining = MAX_CHARS - currentLength;
-    $: isOverLimit = currentLength > MAX_CHARS;
-    $: isUnderLimit = currentLength > 0 && currentLength < MIN_CHARS;
-    $: isValidLength = currentLength >= MIN_CHARS && currentLength <= MAX_CHARS;
-    $: canGenerate = isValidLength && storyInput.trim().length >= MIN_CHARS;
+    let currentLength = $derived(storyInput?.length || 0);
+    let remaining = $derived(MAX_CHARS - currentLength);
+    let isOverLimit = $derived(currentLength > MAX_CHARS);
+    let isUnderLimit = $derived(currentLength > 0 && currentLength < MIN_CHARS);
+    let isValidLength = $derived(currentLength >= MIN_CHARS && currentLength <= MAX_CHARS);
+    let canGenerate = $derived(isValidLength && storyInput.trim().length >= MIN_CHARS);
   
     // Temperature for Story Mode (0.0-1.0 range)
     let storyTemperature = 0; // Default: start at 0 (Precise)
@@ -93,23 +102,49 @@
     // Model display variables
     let displayModel = 'Model'; // Initialize with default
     let displayModelShort = 'Model'; // Short version for chip
+    
+    // Get short model name for chip display (max 12 chars, smart truncation)
+    // Must be defined before $effect() that uses it
+    function getShortModelName(modelName: string): string {
+        if (!modelName) return 'Model';
+        
+        // If already short enough, return as-is
+        if (modelName.length <= 12) return modelName;
+        
+        // Smart truncation: try to preserve meaningful parts
+        // Examples: "apertus-8b-instruct-2509" -> "Apertus", "GPT-3.5-turbo" -> "GPT-3.5-tur"
+        
+        // Try to get first word or meaningful prefix
+        const parts = modelName.split(/[-_\s]/);
+        
+        // If first part is good length and capitalized, use it
+        if (parts[0] && parts[0].length <= 12 && parts[0][0] === parts[0][0].toUpperCase()) {
+            return parts[0];
+        }
+        
+        // Otherwise, truncate to 12 chars
+        return modelName.substring(0, 12);
+    }
   
     // REACTIVE: Update Story Mode status when ANY store changes
-    // Priority: effectiveSettings > userSettings > currentAccount
-    $: {
+    // Priority: currentSettings > userSettings > currentAccount
+    $effect(() => {
         let storyModeSettings = null;
+        const currentSettingsValue = get(currentSettings);
+        const userSettingsValue = get(userSettings);
+        const currentAccountValue = get(currentAccount);
         
-        // Try effectiveSettings first (most up-to-date)
-        if ($effectiveSettings?.storyMode) {
-            storyModeSettings = $effectiveSettings.storyMode;
+        // Try currentSettings first (most up-to-date)
+        if (currentSettingsValue?.storyMode) {
+            storyModeSettings = currentSettingsValue.storyMode;
         }
         // Fallback to userSettings
-        else if ($userSettings?.storyMode) {
-            storyModeSettings = $userSettings.storyMode;
+        else if (userSettingsValue?.storyMode) {
+            storyModeSettings = userSettingsValue.storyMode;
         }
         // Fallback to currentAccount
-        else if ($currentAccount?.metadata?.settings?.storyMode) {
-            storyModeSettings = $currentAccount.metadata.settings.storyMode;
+        else if (currentAccountValue?.metadata?.settings?.storyMode) {
+            storyModeSettings = currentAccountValue.metadata.settings.storyMode;
         }
         
         if (storyModeSettings) {
@@ -141,23 +176,26 @@
                 temperatureInitialized = true;
             }
         }
-    }
+    });
 
     // REACTIVE: Display model for AI Model Chip (use same source as temperature)
-    $: {
+    $effect(() => {
         let storyModeSettings = null;
+        const currentSettingsValue = get(currentSettings);
+        const userSettingsValue = get(userSettings);
+        const currentAccountValue = get(currentAccount);
         
-        // Try effectiveSettings first (most up-to-date)
-        if ($effectiveSettings?.storyMode) {
-            storyModeSettings = $effectiveSettings.storyMode;
+        // Try currentSettings first (most up-to-date)
+        if (currentSettingsValue?.storyMode) {
+            storyModeSettings = currentSettingsValue.storyMode;
         }
         // Fallback to userSettings
-        else if ($userSettings?.storyMode) {
-            storyModeSettings = $userSettings.storyMode;
+        else if (userSettingsValue?.storyMode) {
+            storyModeSettings = userSettingsValue.storyMode;
         }
         // Fallback to currentAccount
-        else if ($currentAccount?.metadata?.settings?.storyMode) {
-            storyModeSettings = $currentAccount.metadata.settings.storyMode;
+        else if (currentAccountValue?.metadata?.settings?.storyMode) {
+            storyModeSettings = currentAccountValue.metadata.settings.storyMode;
         }
         
         if (storyModeSettings) {
@@ -166,7 +204,7 @@
             const customModel = storyModeSettings.customModel || '';
             
             // Get user tier for default model selection
-            const userTier = $accountTier || 'free';
+            const userTier = get(accountTier) || 'free';
             
             // For custom provider, use customModel; for others, use model or default
             if (provider === 'custom') {
@@ -270,12 +308,13 @@
       // REMOVED: initializeDailyUsage() is now called centrally in LanguageRouter
       // This prevents duplicate initialization and ensures single source of truth
       console.log('✅ EmojiDisplay: Using centralized daily usage tracking');
-      console.log('📊 Current daily limits on mount:', $dailyLimit);
+      const dailyLimitValue = get(dailyLimit);
+      console.log('📊 Current daily limits on mount:', dailyLimitValue);
       
       // CRITICAL: Wait for dailyLimit to be initialized before first generation
       // REMOVED: setTimeout delay - Race Condition behoben
       // dailyLimit wird jetzt synchron initialisiert, kein Delay nötig
-      console.log('📊 Daily limits on mount:', $dailyLimit);
+      console.log('📊 Daily limits on mount:', dailyLimit);
 
       // Check user settings for Story Mode and Auto-Generate
       const userSettings = getCurrentUserSettings();
@@ -307,7 +346,7 @@
       }
 
       // If logged in and Story Mode is configured, default to Story Mode view
-      if (!initialRenderComplete && $isLoggedIn && storyModeEnabled && storyModeConfigured) {
+      if (!initialRenderComplete && isLoggedIn && storyModeEnabled && storyModeConfigured) {
         console.log('🚀 Logged in user with Story Mode configured - defaulting to Story Mode');
         isStoryMode = true;
         showTextArea = true;
@@ -351,16 +390,19 @@
     async function generateRandomEmojis(countTowardsLimit = true) {
       try {
         // UNIFIED Limit Check (single source of truth!)
-        const limitCheck = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
+        const isLoggedInValue = get(isLoggedIn);
+        const accountTierValue = get(accountTier);
+        const dailyLimitValue = get(dailyLimit);
+        const limitCheck = validateUserLimits(isLoggedInValue, accountTierValue, dailyLimitValue?.used || 0);
         
         if (limitCheck.isReached) {
             console.log('⚠️ Daily limit reached:', limitCheck);
             isDisabled.set(true);
-            showDailyLimitModal($translations?.emojiDisplay?.dailyLimitReachedMessage || 'Daily limit reached');
+            showDailyLimitModal(translations?.emojiDisplay?.dailyLimitReachedMessage || 'Daily limit reached');
             return;
         }
 
-        if ($isDisabled) {
+        if (isDisabled) {
             console.log('⚠️ Button is disabled, skipping generation');
             return;
         }
@@ -377,16 +419,19 @@
     async function generateEmojis(forceRegenerate = true) {
       try {
         // UNIFIED Limit Check (same as generateRandomEmojis!)
-        const limitCheck = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
+        const isLoggedInValue = get(isLoggedIn);
+        const accountTierValue = get(accountTier);
+        const dailyLimitValue = get(dailyLimit);
+        const limitCheck = validateUserLimits(isLoggedInValue, accountTierValue, dailyLimitValue?.used || 0);
         
         if (limitCheck.isReached) {
             console.log('⚠️ Daily limit reached:', limitCheck);
             isDisabled.set(true);
-            showDailyLimitModal($translations?.emojiDisplay?.dailyLimitReachedMessage || 'Daily limit reached');
+            showDailyLimitModal(translations?.emojiDisplay?.dailyLimitReachedMessage || 'Daily limit reached');
             return;
         }
 
-        if ($isDisabled) {
+        if (isDisabled) {
             console.log('⚠️ Button is disabled, skipping generation');
             return;
         }
@@ -412,13 +457,13 @@
         if (response?.length > 0) {
           await handleSuccessfulStoryGeneration(response);
         } else {
-          showErrorMessage($translations?.emojiDisplay?.errorMessage || 'Generation failed');
+          showErrorMessage(translations?.emojiDisplay?.errorMessage || 'Generation failed');
         }
       } catch (error) {
         console.error('❌ [STORY MODE] Generation failed:', error);
         
         // Better error messages based on error type
-        let errorMessage = $translations?.emojiDisplay?.errorMessage || 'Story generation failed';
+        let errorMessage = translations?.emojiDisplay?.errorMessage || 'Story generation failed';
         
         if (error.message?.includes('API key')) {
           errorMessage = '🔑 API Key Error\n\nPlease check your API key in Settings.';
@@ -449,7 +494,7 @@
     // Helper Functions
     async function handleSuccessfulGeneration(countTowardsLimit = true) {
       await copyToClipboard(randomEmojis.join(' '));
-      showSuccessMessage($translations.emojiDisplay.successMessage);
+      showSuccessMessage(translations.emojiDisplay.successMessage);
       showTextArea = false;
       temporarilyDisableButton();
       
@@ -461,7 +506,7 @@
           console.error('❌ CRITICAL: Failed to increment daily usage:', error);
           // Still show error to user but don't block UX
         });
-        console.log('📊 New daily limits after increment:', $dailyLimit);
+        console.log('📊 New daily limits after increment:', dailyLimit);
       }
     }
   
@@ -504,7 +549,7 @@
           custom: 'Custom API'
         };
         
-        const successMsg = `✅ ${$translations.emojiDisplay.successStoryMessage}\n\n🤖 Generated with ${providerNames[provider]}`;
+        const successMsg = `✅ ${translations.emojiDisplay.successStoryMessage}\n\n🤖 Generated with ${providerNames[provider]}`;
         showSuccess(successMsg, 3000);
       }
       
@@ -523,8 +568,8 @@
         emojis: response.join(' '),
         provider,
         count: response.length,
-        dailyUsed: $dailyLimit?.used,
-        dailyLimit: $dailyLimit?.limit
+        dailyUsed: dailyLimit?.used,
+        dailyLimit: dailyLimit?.limit
       });
     }
   
@@ -668,7 +713,7 @@
             // Letzter Fallback - zeige manuelle Kopier-Option
             console.log('Clipboard: Manual copy required');
             showInfo(
-                $translations.emojiDisplay.clipboardManual || 
+                translations.emojiDisplay.clipboardManual || 
                 'Click the emoji display to copy manually!'
             );
             
@@ -682,7 +727,7 @@
         
         // Zeige alternative Lösung
         showInfo(
-            $translations.emojiDisplay.clipboardError || 
+            translations.emojiDisplay.clipboardError || 
             'Click the emoji display to copy manually!'
         );
         
@@ -693,7 +738,7 @@
   
     function handleError(type, error) {
       console.error(`${type}:`, error);
-              showErrorMessage($translations.emojiDisplay.errorMessage);
+              showErrorMessage(translations.emojiDisplay.errorMessage);
     }
   
     // State Management Functions
@@ -856,36 +901,6 @@
       return 'Creative';
     }
     
-    // Get short model name for chip display (max 12 chars, smart truncation)
-    function getShortModelName(modelName) {
-      if (!modelName) return 'Model';
-      
-      // If already short enough, return as-is
-      if (modelName.length <= 12) return modelName;
-      
-      // Smart truncation: try to preserve meaningful parts
-      // Examples: "apertus-8b-instruct-2509" -> "Apertus", "GPT-3.5-turbo" -> "GPT-3.5-tur"
-      
-      // Try to get first word or meaningful prefix
-      const parts = modelName.split(/[-_\s]/);
-      
-      // If first part is good length and capitalized, use it
-      if (parts[0] && parts[0].length <= 12 && parts[0][0] === parts[0][0].toUpperCase()) {
-        return parts[0];
-      }
-      
-      // Otherwise truncate intelligently at word boundaries
-      let result = '';
-      for (const part of parts) {
-        if ((result + '-' + part).length > 12) break;
-        if (result) result += '-';
-        result += part;
-      }
-      
-      // If still too long or empty, just truncate
-      return result || modelName.substring(0, 12);
-    }
-    
     // Get short button text for UI (max 16 chars)
     function getShortButtonText(text) {
       if (!text) return '';
@@ -897,7 +912,7 @@
       if (!storyModeEnabled || !storyModeConfigured) {
         console.warn('⚠️ Story Mode not available:', { enabled: storyModeEnabled, configured: storyModeConfigured });
         showWarning(
-          $translations?.emojiDisplay?.storyModeConfigureWarning || 
+          translations?.emojiDisplay?.storyModeConfigureWarning || 
           'Please configure Story Mode API key in settings first', 
           3000
         );
@@ -905,11 +920,12 @@
       }
       
       // Check daily usage limit
-      const remaining = $dailyLimit.limit - $dailyLimit.used;
+      const dailyLimitValue = get(dailyLimit);
+      const remaining = dailyLimitValue.limit - dailyLimitValue.used;
       if (remaining <= 0) {
         console.warn('⚠️ Daily limit reached');
         showDailyLimitModal(
-          $translations?.emojiDisplay?.dailyLimitReachedMessage || 
+          translations?.emojiDisplay?.dailyLimitReachedMessage || 
           'Daily limit reached'
         );
         return;
@@ -933,10 +949,10 @@
       class="core-button text-white bg-black border-gray-400 px-3 mb-2 md:pt-1 md:pb-1 pb-1 transform -translate-y-2.5 transition-all hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2" 
       on:click={() => isStoryMode ? generateEmojis() : generateRandomEmojis()} 
       on:keydown={e => e.key === 'Enter' && (isStoryMode ? generateEmojis() : generateRandomEmojis())} 
-      aria-label={$translations.emojiDisplay.clickToCopy} 
+      aria-label={translations.emojiDisplay.clickToCopy} 
       aria-live="polite"
       aria-pressed="false"
-      title={$translations.emojiDisplay.clickToCopy}
+      title={translations.emojiDisplay.clickToCopy}
     >
       <div class="mt-1 md:mt-0 flex gap-2 overflow-visible justify-center items-center">
         {#if randomEmojis && randomEmojis.length > 0}
@@ -952,17 +968,17 @@
     <!-- Instructions Section -->
     <div class="flex flex-wrap justify-center items-center">
       <h2 class="mt-1 text-xs text-center dark:text-white z-10 ">
-        {#each $translations.index.pageInstruction as instruction, i}
+        {#each translations.index.pageInstruction as instruction, i}
           {#if i === 0 && storyModeEnabled && storyModeConfigured}
             <!-- Show AI ready message when fully configured -->
-            <p>{$translations.index.storyModeReady || 'AI-generated emoji passwords ready 🤖'}</p>
+            <p>{translations.index.storyModeReady || 'AI-generated emoji passwords ready 🤖'}</p>
           {:else if i === 0 && !storyModeEnabled}
             <!-- Show setup chips when Story Mode is NOT enabled -->
             <div class="flex flex-wrap items-center justify-center gap-2">
               <!-- Swiss LLM Button - Primary recommendation -->
               <button
                 on:click={() => {
-                  const lang = $currentLanguage || 'en';
+                  const lang = currentLanguage || 'en';
                   const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
                   navigate(accountPath);
                   setTimeout(() => {
@@ -978,8 +994,8 @@
                 }}
                 class="swiss-ai-button inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 cursor-pointer relative overflow-hidden h-8 transition-all duration-300 ease-in-out {swissButtonHover ? 'swiss-hover' : ''} {swissButtonClick ? 'swiss-click' : ''}"
                 style="background: linear-gradient(135deg, rgba(218, 41, 28, 0.15) 0%, rgba(218, 41, 28, 0.1) 100%); border: 1px solid rgba(218, 41, 28, 0.25); color: rgb(218, 41, 28);"
-                title={$translations.index.setupStoryModeSwissTooltip || 'Swiss AI (Apertus) - Privacy-first AI hosted in Switzerland'}
-                aria-label={$translations.index.setupStoryModeSwiss || 'Use Swiss AI'}
+                title={translations.index.setupStoryModeSwissTooltip || 'Swiss AI (Apertus) - Privacy-first AI hosted in Switzerland'}
+                aria-label={translations.index.setupStoryModeSwiss || 'Use Swiss AI'}
                 on:mouseenter={() => {
                   swissButtonHover = true;
                 }}
@@ -999,18 +1015,18 @@
                 <div class="swiss-hover-bg absolute inset-0 bg-red-600 rounded-full pointer-events-none {swissButtonHover || swissButtonClick ? 'opacity-100' : 'opacity-0'}" style="background-color: rgb(218, 41, 28); transition: opacity 0.3s ease-in-out;"></div>
                 <!-- Content -->
                 <span class="swiss-text text-sm relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;" aria-hidden="true">🇨🇭</span>
-                <span class="swiss-text relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;">{$translations.index.setupStoryModeSwiss || 'Use Swiss AI 🇨🇭'}</span>
+                <span class="swiss-text relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;">{translations.index.setupStoryModeSwiss || 'Use Swiss AI 🇨🇭'}</span>
               </button>
               
               <!-- "or" separator -->
               <span class="text-xs text-gray-500 dark:text-gray-400 px-1 relative z-10">
-                {$translations.index.setupStoryModeOr || 'oder'}
+                {translations.index.setupStoryModeOr || 'oder'}
               </span>
               
               <!-- Standard LLM Setup Button -->
               <button
                 on:click={() => {
-                  const lang = $currentLanguage || 'en';
+                  const lang = currentLanguage || 'en';
                   const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
                   navigate(accountPath);
                   setTimeout(() => {
@@ -1026,8 +1042,8 @@
                 }}
                 class="standard-ai-button inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer relative overflow-hidden h-8 transition-all duration-300 ease-in-out {yellowButtonHover ? 'yellow-hover' : ''} {yellowButtonClick ? 'yellow-click' : ''}"
                 style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"
-                title={$translations.index.setupStoryModeDescription || 'Setup your AI for AI-generated emoji passwords'}
-                aria-label={$translations.index.setupStoryMode || 'Setup your AI'}
+                title={translations.index.setupStoryModeDescription || 'Setup your AI for AI-generated emoji passwords'}
+                aria-label={translations.index.setupStoryMode || 'Setup your AI'}
                 on:mouseenter={() => {
                   yellowButtonHover = true;
                 }}
@@ -1048,14 +1064,14 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span class="yellow-text relative z-20 {yellowButtonHover || yellowButtonClick ? 'text-black' : ''}" style="transition: color 0.3s ease-in-out;">{$translations.index.setupStoryMode || 'Setup your AI'}</span>
+                <span class="yellow-text relative z-20 {yellowButtonHover || yellowButtonClick ? 'text-black' : ''}" style="transition: color 0.3s ease-in-out;">{translations.index.setupStoryMode || 'Setup your AI'}</span>
               </button>
             </div>
           {:else if i === 0 && storyModeEnabled && !storyModeConfigured}
             <!-- Show "Configure API" chip if enabled but no API key -->
             <button
               on:click={() => {
-                const lang = $currentLanguage || 'en';
+                const lang = currentLanguage || 'en';
                 const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
                 navigate(accountPath);
                 setTimeout(() => {
@@ -1077,7 +1093,7 @@
               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
-              <span>{$translations.index.setupStoryMode || 'Setup your LLM'}</span>
+              <span>{translations.index.setupStoryMode || 'Setup your LLM'}</span>
             </button>
           {:else}
             <p>{instruction}</p>
@@ -1096,7 +1112,7 @@
         max="9" 
         bind:value={emojiCount} 
         class="md:w-100 w-full mt-3 appearance-none rounded-full bg-gray-600 h-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
-        disabled={$isDisabled}
+        disabled={isDisabled}
       />
       <span>{emojiCount}</span>
     </div>
@@ -1114,7 +1130,7 @@
         <textarea 
         id="story-input"
           bind:value={storyInput} 
-          placeholder={$translations.emojiDisplay.placeholderText} 
+          placeholder={translations.emojiDisplay.placeholderText} 
           class="custom-scrollbar overflow-y-auto appearance-none block w-full pr-12 pb-8 text-gray-900 dark:text-white py-3 px-4 leading-tight transition duration-300 ease-in-out bg-white dark:bg-aubergine-900 border-0 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed placeholder-gray-400 dark:placeholder-gray-500 resize-none" 
           on:keydown={handleTextareaKeydown}
           on:input={(e) => {
@@ -1125,7 +1141,7 @@
           }}
           minlength={MIN_CHARS}
           maxlength={MAX_CHARS}
-          disabled={$isDisabled || isGeneratingStory}
+          disabled={isDisabled || isGeneratingStory}
           autocomplete="off"
           rows="5"
           aria-describedby="char-counter"
@@ -1248,11 +1264,11 @@
         {#if storyInput && storyInput.length > 0}
           <button 
             type="button"
-            aria-label={$translations.emojiDisplay.clearButton || 'Clear input'}
+            aria-label={translations.emojiDisplay.clearButton || 'Clear input'}
             on:click={clearInput} 
             class="absolute top-2 right-2 inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white active:text-black dark:active:text-white z-10"
-            disabled={$isDisabled}
-            title={$translations.emojiDisplay.clearButton || 'Clear'}
+            disabled={isDisabled}
+            title={translations.emojiDisplay.clearButton || 'Clear'}
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -1286,7 +1302,7 @@
         <button
           on:click={() => {
             // Navigate to account page
-            const lang = $currentLanguage || 'en';
+            const lang = currentLanguage || 'en';
             const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
             navigate(accountPath);
             
@@ -1326,17 +1342,17 @@
     <!-- Action Buttons -->
     <div 
       role="main"
-      aria-label={$translations.emojiDisplay.emojiDisplayTitle} 
+      aria-label={translations.emojiDisplay.emojiDisplayTitle} 
       class="flex space-x-4 mt-3 mb-2"
     >
       {#if isStoryMode}
         <!-- Story Mode Generate Button (gelb, aktiv) -->
         <button 
-          aria-label={$translations.emojiDisplay.storyButtonClicked || 'Generate story emojis'}
+          aria-label={translations.emojiDisplay.storyButtonClicked || 'Generate story emojis'}
           aria-busy={isGeneratingStory}
           on:click={generateEmojis} 
           class="w-1/2 py-4 rounded-full bg-yellow-500 text-black border-2 border-yellow-500 shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-          disabled={$isDisabled || !canGenerate || isGeneratingStory}
+          disabled={isDisabled || !canGenerate || isGeneratingStory}
           title={!canGenerate 
             ? (isOverLimit 
               ? `Text too long (max ${MAX_CHARS} characters)` 
@@ -1345,7 +1361,7 @@
                 : `Enter at least ${MIN_CHARS} characters`)
             : isGeneratingStory
               ? 'Generating...'
-              : $translations.emojiDisplay.storyButtonClicked}
+              : translations.emojiDisplay.storyButtonClicked}
         >
           {#if isGeneratingStory}
             <span class="flex items-center justify-center">
@@ -1356,25 +1372,25 @@
               <span>Creating...</span>
             </span>
           {:else}
-            {getShortButtonText($translations.emojiDisplay.storyButtonClicked)}
+            {getShortButtonText(translations.emojiDisplay.storyButtonClicked)}
           {/if}
         </button>
         
         <!-- Back to Random Button: gedämpft mit gelbem Border -->
         <button
-          aria-label={$translations.emojiDisplay.randomButton || 'Switch to random mode'}
+          aria-label={translations.emojiDisplay.randomButton || 'Switch to random mode'}
           on:click={() => { isStoryMode = false; showTextArea = false; }} 
           class="w-1/2 py-4 rounded-full bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm transition-all duration-300 ease-in-out transform hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
-          disabled={$isDisabled || isGeneratingStory}
-          title={$translations.emojiDisplay.randomButton}
+          disabled={isDisabled || isGeneratingStory}
+          title={translations.emojiDisplay.randomButton}
         >
-          {$translations.emojiDisplay.randomButton}
+          {translations.emojiDisplay.randomButton}
         </button>
       {:else}
         <!-- Story Mode Toggle Button: gelb wenn in Settings aktiviert -->
         <button 
           aria-label={storyModeEnabled && storyModeConfigured 
-            ? ($translations.emojiDisplay.storyButton || 'Story mode')
+            ? (translations.emojiDisplay.storyButton || 'Story mode')
             : (!storyModeEnabled 
               ? 'Story mode - Enable in settings'
               : 'Story mode - Configure API key in settings')}
@@ -1383,15 +1399,15 @@
             {storyModeEnabled && storyModeConfigured 
               ? 'bg-yellow-500 text-black border-2 border-yellow-500 shadow-md hover:scale-105 focus:scale-105 active:scale-95 cursor-pointer focus:ring-yellow-50' 
               : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-500 border-2 border-gray-300 dark:border-gray-700 opacity-60 cursor-not-allowed focus:ring-gray-200'}"
-          disabled={!storyModeEnabled || !storyModeConfigured || $isDisabled}
+          disabled={!storyModeEnabled || !storyModeConfigured || isDisabled}
           title={storyModeEnabled && storyModeConfigured 
-            ? ($translations.emojiDisplay.storyButton || 'Story mode')
+            ? (translations.emojiDisplay.storyButton || 'Story mode')
             : (!storyModeEnabled 
               ? 'Enable Story Mode in settings'
               : 'Configure API key in settings')}
         >
           {#if storyModeEnabled && storyModeConfigured}
-            {$translations.emojiDisplay.storyButton}
+            {translations.emojiDisplay.storyButton}
           {:else if !storyModeEnabled}
             🔒 Story Mode
           {:else}
@@ -1401,17 +1417,17 @@
         
         <!-- Random Button: gedämpft mit gelbem Border wenn Story aktiviert -->
         <button
-          aria-label={$translations.emojiDisplay.randomButton || 'Generate random emojis'}
+          aria-label={translations.emojiDisplay.randomButton || 'Generate random emojis'}
           on:click={() => generateRandomEmojis(true)} 
           on:keydown={handleKeyPress} 
           class="w-1/2 py-4 rounded-full transition-all duration-300 ease-in-out transform focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100
             {storyModeEnabled && storyModeConfigured
               ? 'bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 focus:ring-yellow-400'
               : 'bg-yellow-500 text-black border-2 border-yellow-500 shadow-md hover:scale-105 focus:scale-105 active:scale-95 focus:ring-yellow-50'}"
-          disabled={$isDisabled}
-          title={$translations.emojiDisplay.randomButton}
+          disabled={isDisabled}
+          title={translations.emojiDisplay.randomButton}
         >
-          {$translations.emojiDisplay.randomButton}
+          {translations.emojiDisplay.randomButton}
         </button>
       {/if}
     </div>

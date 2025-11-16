@@ -1,14 +1,22 @@
 <!-- src/components/UI/Pagination.svelte -->
 <!-- Klassische Pagination mit sichtbaren Seitenzahlen -->
 
-<script>
-    export let currentPage = 1;
-    export let totalPages = 1;
-    export let onPageChange = () => {};
-    export let isLoading = false;
+<script lang="ts">
+    interface Props {
+        currentPage?: number;
+        totalPages?: number;
+        onPageChange?: (page: number) => void;
+        isLoading?: boolean;
+    }
     
-    // Berechne sichtbare Seitenzahlen mit Ellipsis
-    $: visiblePages = (() => {
+    let {
+        currentPage = 1,
+        totalPages = 1,
+        onPageChange = () => {},
+        isLoading = false
+    }: Props = $props();
+    
+    const visiblePages = $derived.by(() => {
         if (totalPages <= 7) {
             // Zeige alle Seiten wenn <= 7
             return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -25,20 +33,23 @@
             // Mitte: 1, ..., current-1, current, current+1, ..., last
             return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
         }
-    })();
+    });
     
-    function handlePageClick(page) {
-        if (page === '...' || page === currentPage || isLoading || page < 1 || page > totalPages) return;
-        onPageChange(page);
+    function handlePageClick(page: number | string): void {
+        if (page === '...' || page === currentPage || isLoading) return;
+        if (typeof page === 'number' && (page < 1 || page > totalPages)) return;
+        if (typeof page === 'number') {
+            onPageChange(page);
+        }
     }
     
-    function handlePrevious() {
+    function handlePrevious(): void {
         if (currentPage > 1 && !isLoading) {
             onPageChange(currentPage - 1);
         }
     }
     
-    function handleNext() {
+    function handleNext(): void {
         if (currentPage < totalPages && !isLoading) {
             onPageChange(currentPage + 1);
         }

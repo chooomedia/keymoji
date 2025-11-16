@@ -1,18 +1,23 @@
 <!-- src/components/UI/Toggle.svelte -->
-<script>
-    import { createEventDispatcher } from 'svelte';
+<script lang="ts">
+    interface Props {
+        id?: string;
+        checked?: boolean;
+        disabled?: boolean;
+        color?: 'yellow' | 'green' | 'blue' | 'purple' | 'red' | 'pink' | 'indigo' | 'teal' | 'orange' | 'emerald' | 'cyan' | 'lime' | 'amber' | 'rose' | 'violet' | 'sky' | 'slate';
+    }
 
-    const dispatch = createEventDispatcher();
+    let {
+        id = '',
+        checked = $bindable(false),
+        disabled = false,
+        color = 'yellow'
+    }: Props = $props();
 
-    export let id = '';
-    export let checked = false;
-    export let disabled = false;
-    export let color = 'yellow'; // yellow, green, blue, purple, red, etc.
-
-    function handleChange(event) {
+    function handleChange(event: Event): void {
         if (!disabled) {
-            checked = event.target.checked;
-            dispatch('change', { checked, id });
+            const target = event.target as HTMLInputElement;
+            checked = target.checked;
         }
     }
 
@@ -54,7 +59,7 @@
             {id}
             class="sr-only" 
             bind:checked
-            on:change={handleChange}
+            onchange={handleChange}
             {disabled}
             role="switch"
             aria-checked={checked}

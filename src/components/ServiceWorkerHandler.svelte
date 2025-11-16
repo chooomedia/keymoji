@@ -1,16 +1,14 @@
 <!-- src/components/ServiceWorkerHandler.svelte -->
-<script>
+<script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { showInfo } from '../stores/modalStore';
-    import { translations } from '../stores/contentStore.js';
+    import { translations } from '../stores/contentStore.ts';
     import { isDebugMode } from '../utils/environment';
     import { safeSetTimeout, clearAllTimeouts } from '../utils/sharedHelpers';
 
-    // Timeout-Tracking für Memory Leak Prevention
-    let activeTimeouts = new Set();
+    let activeTimeouts = $state<Set<ReturnType<typeof setTimeout>>>(new Set());
     
-    // Wrapper für safeSetTimeout mit lokalem Tracking (für onDestroy cleanup)
-    function localSafeSetTimeout(callback, delay) {
+    function localSafeSetTimeout(callback: () => void, delay: number): ReturnType<typeof setTimeout> {
         const timeoutId = safeSetTimeout(() => {
             activeTimeouts.delete(timeoutId);
             callback();
@@ -27,11 +25,10 @@
         activeTimeouts.clear();
     });
   
-    // State
-    let updateAvailable = false;
-    let registration = null;
-    let newWorker = null;
-    let debugMode = isDebugMode();
+    let updateAvailable = $state(false);
+    let registration: ServiceWorkerRegistration | null = $state(null);
+    let newWorker: ServiceWorker | null = $state(null);
+    let debugMode = $state(isDebugMode());
 
     onMount(async () => {
         if (!('serviceWorker' in navigator)) return;
@@ -52,7 +49,7 @@
                 // If a reload hasn't happened within 5 seconds since the controllerchange,
                 // show a notification with a manual reload option
                 localSafeSetTimeout(() => {
-                    const refreshPrompt = $translations.serviceWorker?.manualRefreshNeeded || 'Manual refresh needed';
+                    const refreshPrompt = translations?.serviceWorker?.manualRefreshNeeded || 'Manual refresh needed';
                     
                     showInfo(refreshPrompt, 8000);
                 }, 5000);

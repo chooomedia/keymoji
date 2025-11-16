@@ -1,18 +1,33 @@
 <!-- src/components/UI/Checkbox.svelte -->
-<script>
-    import { createEventDispatcher } from 'svelte';
+<script lang="ts">
+    interface Props {
+        checked?: boolean;
+        disabled?: boolean;
+        id?: string;
+        name?: string;
+        label?: string;
+        labelHtml?: string;
+        labelClass?: string;
+        size?: 'sm' | 'md' | 'lg';
+        variant?: 'default' | 'primary' | 'success' | 'warning' | 'error';
+    }
     
-    const dispatch = createEventDispatcher();
+    let {
+        checked = $bindable(false),
+        disabled = false,
+        id = '',
+        name = '',
+        label = '',
+        labelHtml = '',
+        labelClass = 'text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none',
+        size = 'md',
+        variant = 'default'
+    }: Props = $props();
     
-    export let checked = false;
-    export let disabled = false;
-    export let id = '';
-    export let name = '';
-    export let label = '';
-    export let labelHtml = '';
-    export let labelClass = 'text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none';
-    export let size = 'md'; // sm, md, lg
-    export let variant = 'default'; // default, primary, success, warning, error
+    function dispatchChange(event: Event): void {
+        const target = event.target as HTMLInputElement;
+        checked = target.checked;
+    }
     
     // Size classes
     const sizeClasses = {
@@ -50,24 +65,19 @@
         }
     };
     
-    function handleChange(event) {
-        checked = event.target.checked;
-        dispatch('change', { checked, event });
-    }
-    
-    $: checkboxClasses = [
+    const checkboxClasses = $derived([
         sizeClasses[size],
         'rounded border transition-colors duration-200 appearance-none cursor-pointer',
         disabled ? 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600' : '',
         checked ? variantClasses[variant].checked : variantClasses[variant].unchecked,
         disabled ? '' : variantClasses[variant].focus
-    ].filter(Boolean).join(' ');
+    ].filter(Boolean).join(' '));
     
-    $: iconSize = {
+    const iconSize = $derived({
         sm: 'h-2.5 w-2.5',
         md: 'h-4 w-4',
         lg: 'h-5 w-5'
-    }[size];
+    }[size]);
 </script>
 
 <div class="flex items-start space-x-3">
@@ -78,7 +88,7 @@
             type="checkbox"
             bind:checked
             {disabled}
-            on:change={handleChange}
+            onchange={dispatchChange}
             class={checkboxClasses}
             aria-describedby="{id}-description"
         />

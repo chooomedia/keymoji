@@ -1,21 +1,20 @@
 <script>
     import { onMount } from 'svelte';
     import { get } from 'svelte/store';
-    import { currentLanguage } from './stores/contentStore.js'; // modalMessage darkMode
-    import { updateSeo } from './stores/seoStore';
-    import { navigate } from 'svelte-routing';
-    import { closeModal, isModalVisible } from './stores/modalStore';
+    import { currentLanguage } from './stores/contentStore.ts';
+    import { updateSeo } from './stores/seoStore.ts';
+    import { navigate } from './utils/routing.ts';
+    import { closeModal, isModalVisible } from './stores/modalStore.ts';
     import { isLoggedIn, currentAccount } from './stores/appStores';
-    import PageLayout from './components/Layout/PageLayout.svelte';
+    // PageLayout wird jetzt von +page.svelte bereitgestellt (SvelteKit Pattern)
     import EmojiDisplay from './components/Core/EmojiDisplay.svelte';
 
-    import { translations } from './stores/contentStore.js';
+    import { translations } from './stores/contentStore.ts';
     import { isDebugMode } from './utils/environment';
-    import { initializeAccountFromCookies, setupMagicLinkListener } from './stores/accountStore.js';
-    import { initializeSettingsForUser } from './stores/userSettingsStore.js';
-    import { testLimitConfiguration, testLimitConsistency } from './utils/test-limits.js';
+    import { initializeAccountFromCookies, setupMagicLinkListener } from './stores/accountStore';
+    import { initializeSettingsForUser } from './stores/userSettingsStore';
+    import { testLimitConfiguration, testLimitConsistency } from './utils/test-limits.ts';
     import { sendAnalyticsEvent } from './stores/appStores';
-    import FooterInfo from './widgets/FooterInfo.svelte';
   
     // Debug-Flag - für die Produktion entfernen
     let showDebug = isDebugMode();
@@ -38,8 +37,8 @@
       // The session is already restored before this component mounts
       
       // Just verify the current state
-      const accountData = get(currentAccount);
-      const loggedIn = get(isLoggedIn);
+      const accountData = currentAccount;
+      const loggedIn = isLoggedIn;
       console.log('🏠 Index: Current state:', {
           hasAccount: !!accountData,
           isLoggedIn: loggedIn,
@@ -53,7 +52,7 @@
       setupMagicLinkListener();
       
       // Clean up any modals when arriving at home page
-      if ($isModalVisible) {
+      if (get(isModalVisible)) {
         closeModal();
       }
       
@@ -78,31 +77,40 @@
       });
     });
 
-    // Reaktive Übersetzungen für Home-Seite
-    $: pageTitle = $translations?.index?.pageTitle || 'Emoji Passwort Generator';
-    $: pageDescription = $translations?.index?.pageDescription || '🔑 Passwörter neu gedacht. 🎯 Unknackbare Emoji-Passwörter. 🌈 Kostenlos. Sicher. Innovativ.';
+    // Reaktive Übersetzungen für Home-Seite (Svelte 5 Runes)
+    let pageTitle = $derived.by(() => {
+        const t = get(translations);
+        return t?.index?.pageTitle || 'Emoji Passwort Generator';
+    });
+    let pageDescription = $derived.by(() => {
+        const t = get(translations);
+        return t?.index?.pageDescription || '🔑 Passwörter neu gedacht. 🎯 Unknackbare Emoji-Passwörter. 🌈 Kostenlos. Sicher. Innovativ.';
+    });
     
-    // Reaktive SEO-Updates bei Sprachänderungen
-    $: if (isRendered) {
-      updateSeo({
-        title: pageTitle,
-        description: pageDescription,
-        url: window.location.pathname,
-        pageType: "index"
-      });
-    }
+    // Reaktive SEO-Updates bei Sprachänderungen (Svelte 5 Runes)
+    $effect(() => {
+      if (isRendered) {
+        updateSeo({
+          title: pageTitle,
+          description: pageDescription,
+          url: window.location.pathname,
+          pageType: "index"
+        });
+      }
+    });
 </script>
   
 {#if showDebug}
 <div style="position: fixed; top: 0; left: 0; background: rgba(0,0,0,0.8); color: white; z-index: 9999; padding: 10px;">
-    Current Path: {window.location.pathname} | Language: {$currentLanguage} | Rendered: {isRendered}
+    Current Path: {window.location.pathname} | Language: {get(currentLanguage)} | Rendered: {isRendered}
 </div>
 {/if}
   
-<PageLayout {pageTitle} {pageDescription}>
+<!-- 
+    SvelteKit Pattern: Diese Komponente rendert nur den Content
+    Das Layout wird von +page.svelte bereitgestellt
+-->
+<div class="w-full">
     <!-- Emoji Display Component -->
     <EmojiDisplay />
-    
-    <!-- Footer Information Component -->
-    <FooterInfo slot="footer" />
-</PageLayout>
+</div>

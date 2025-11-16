@@ -1,7 +1,8 @@
 <!-- src/components/UI/ModalDebug.svelte -->
-<script>
+<script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import { slide, fade } from 'svelte/transition';
+    import { get } from 'svelte/store';
     import { 
         isLoggedIn, 
         dailyLimit, 
@@ -13,7 +14,7 @@
         currentLanguage,
         darkMode
     } from '../../stores/appStores'
-    import { isLoggingIn, loginError, loginWithMagicLink } from '../../stores/accountStore.js';
+    import { isLoggingIn, loginError, loginWithMagicLink } from '../../stores/accountStore';
     import { 
         showSuccess, 
         showError, 
@@ -27,24 +28,29 @@
         showAccountLoginSuccess,
         showAccountLogoutSuccess
     } from '../../stores/modalStore';
-    import { incrementDailyUsage } from '../../stores/dailyUsageStore.js';
-    
-    // Import translations
-    import { translations } from '../../stores/contentStore.js';
+    import { incrementDailyUsage } from '../../stores/dailyUsageStore';
+    import { translations } from '../../stores/contentStore.ts';
+    import { get } from 'svelte/store';
     import { isDevelopment } from '../../utils/environment';
 
     const dispatch = createEventDispatcher();
 
-    export let isVisible = false;
+    interface Props {
+        isVisible?: boolean;
+    }
 
-    // Active tab state
-    let activeTab = 'account';
+    let { isVisible = false }: Props = $props();
 
-    function closeModal() {
+    let activeTab = $state('account');
+    
+    // Derived state for isDisabled (Svelte 5 Runes)
+    let isDisabledValue = $derived(get(isDisabled));
+
+    function closeModal(): void {
         dispatch('close');
     }
 
-    function handleBackdropClick(event) {
+    function handleBackdropClick(event: MouseEvent): void {
         if (event.target === event.currentTarget) {
             closeModal();
         }
@@ -61,7 +67,8 @@
     }
 
     function testDailyLimit() {
-        dailyLimit.set({ limit: 9, used: 3 });
+        dailyLimit.limit = 9;
+        dailyLimit.used = 3;
         showInfo('Daily limit set to 3/9 (FREE tier)', 2000);
     }
 
@@ -84,19 +91,21 @@
             name: 'Free User',
             verified: true
         });
-                    showSuccess($translations?.accountManager?.messages?.freeAccountActivated || 'Free account activated!', 2000);
+        showSuccess(get(translations)?.accountManager?.messages?.freeAccountActivated || 'Free account activated!', 2000);
     }
 
     function testGuestAccount() {
         isLoggedIn.set(false);
         currentAccount.set(null);
         accountTier.set('free');
-        dailyLimit.set({ limit: 5, used: 0 }); // GUEST: 5 generations
+        dailyLimit.limit = 5;
+        dailyLimit.used = 0; // GUEST: 5 generations
         showInfo('Guest account activated!', 2000);
     }
 
     function testDailyLimitExceeded() {
-        dailyLimit.set({ limit: 9, used: 9 });
+        dailyLimit.limit = 9;
+        dailyLimit.used = 9;
         showWarning('Daily limit exceeded (FREE: 9/9)!', 3000);
     }
 
@@ -106,7 +115,7 @@
     }
 
     function testDarkMode() {
-        darkMode.update(value => !value);
+        darkMode.set(!get(darkMode));
         showInfo('Dark mode toggled!', 2000);
     }
 
@@ -180,10 +189,11 @@
         isLoggedIn.set(false);
         currentAccount.set(null);
         accountTier.set('free');
-        dailyLimit.set({ limit: 3, used: 0 });
+        dailyLimit.limit = 3;
+        dailyLimit.used = 0;
         successfulStoryRequests.set(0);
-        loginError.set(null);
-        isLoggingIn.set(false);
+        loginError = null;
+        isLoggingIn = false;
         showSuccess('All data cleared! (Dev Mode)', 2000);
     }
 
@@ -375,18 +385,18 @@
                                 <div class="space-y-2 text-xs">
                                     <div class="flex justify-between">
                                         <span class="text-gray-600 dark:text-gray-400">Logged In:</span>
-                                        <span class="font-mono {$isLoggedIn ? 'text-green-600' : 'text-red-600'}">
-                                            {$isLoggedIn ? '✓' : '✗'}
+                                        <span class="font-mono {isLoggedIn ? 'text-green-600' : 'text-red-600'}">
+                                            {isLoggedIn ? '✓' : '✗'}
                                         </span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-600 dark:text-gray-400">Tier:</span>
-                                        <span class="font-mono text-blue-600">{$accountTier}</span>
+                                        <span class="font-mono text-blue-600">{accountTier}</span>
                                     </div>
-                                    {#if $currentAccount}
+                                    {#if currentAccount}
                                     <div class="flex justify-between">
                                         <span class="text-gray-600 dark:text-gray-400">Email:</span>
-                                        <span class="font-mono text-gray-800 dark:text-gray-200 truncate">{$currentAccount.email}</span>
+                                        <span class="font-mono text-gray-800 dark:text-gray-200 truncate">{currentAccount.email}</span>
                                     </div>
                                     {/if}
                                 </div>
@@ -422,10 +432,10 @@
                                 🔐 Test Login
                             </button>
                             <button on:click={testProAccount} class="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-xs font-medium transition-colors">
-                                💎 {$translations?.accountManager?.tiers?.proAccount || 'Pro Account'}
+                                💎 {translations?.accountManager?.tiers?.proAccount || 'Pro Account'}
                             </button>
                             <button on:click={testFreeAccount} class="px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium transition-colors">
-                                ✨ {$translations?.accountManager?.tiers?.freeAccount || 'Free Account'}
+                                ✨ {translations?.accountManager?.tiers?.freeAccount || 'Free Account'}
                             </button>
                             <button on:click={testGuestAccount} class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 👤 Guest Account
@@ -487,8 +497,8 @@
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-600 dark:text-gray-400">Disabled:</span>
-                                        <span class="font-mono {$isDisabled ? 'text-red-600' : 'text-green-600'}">
-                                            {$isDisabled ? '✓' : '✗'}
+                                        <span class="font-mono {isDisabledValue ? 'text-red-600' : 'text-green-600'}">
+                                            {isDisabledValue ? '✓' : '✗'}
                                         </span>
                                     </div>
                                 </div>
@@ -583,20 +593,20 @@
                         {/if}
 
                         <!-- Account Data -->
-                        {#if $currentAccount}
+                        {#if currentAccount}
                         <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Account Data</h3>
                             <div class="space-y-2 text-xs">
                                 <div class="flex justify-between">
                                     <span class="text-gray-600 dark:text-gray-400">Magic Link Sent:</span>
-                                    <span class="font-mono {$currentAccount.magicLinkSent ? 'text-green-600' : 'text-red-600'}">
-                                        {$currentAccount.magicLinkSent ? '✓' : '✗'}
+                                    <span class="font-mono {currentAccount.magicLinkSent ? 'text-green-600' : 'text-red-600'}">
+                                        {currentAccount.magicLinkSent ? '✓' : '✗'}
                                     </span>
                                 </div>
-                                {#if $currentAccount.sentAt}
+                                {#if currentAccount.sentAt}
                                 <div class="flex justify-between">
                                     <span class="text-gray-600 dark:text-gray-400">Sent At:</span>
-                                    <span class="font-mono text-gray-800 dark:text-gray-200 text-xs">{$currentAccount.sentAt}</span>
+                                    <span class="font-mono text-gray-800 dark:text-gray-200 text-xs">{currentAccount.sentAt}</span>
                                 </div>
                                 {/if}
                             </div>

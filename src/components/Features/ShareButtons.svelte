@@ -2,8 +2,8 @@
 <!-- Wiederverwendbare Share-Buttons Komponente -->
 
 <script>
-    import { linkedinIcon, whatsappIcon, emailIcon, redditIcon } from '../../assets/shapes.js';
-    import { showShareMenu } from '../../stores/contentStore.js';
+    import { linkedinIcon, whatsappIcon, emailIcon, redditIcon } from '../../assets/shapes';
+    import { showShareMenu } from '../../stores/contentStore.ts';
     
     export let shareUrl = '';
     export let shareText = '';

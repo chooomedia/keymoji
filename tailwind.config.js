@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: ['./src/**/*.{html,js,svelte}', './public/index.html'],
+    content: ['./src/**/*.{html,js,ts,svelte}', './public/index.html'],
     darkMode: 'class',
-    // JIT Mode ist in Tailwind CSS 2.2+ Standard, PurgeCSS ist integriert
+    // JIT Mode ist in Tailwind CSS 3 Standard
     theme: {
         screens: {
             sm: '380px',
@@ -330,28 +330,22 @@ module.exports = {
         }
     },
     plugins: [
-        require('tailwindcss'),
-        require('autoprefixer'),
-        // Custom Plugin für Scrollbar Styles (ohne @apply, da Tailwind CSS 2.2.19 @apply-Limitations hat)
+        // Custom Plugin für Scrollbar Styles
         function({ addUtilities, theme }) {
             const newUtilities = {
-                // Scrollbar Styles (Dark Mode) - direkte CSS-Regeln ohne @apply
+                // Scrollbar Styles (Dark Mode) - direkte CSS-Regeln
                 '.scrollbar-thin': {
                     'scrollbar-width': 'thin',
-                    'scrollbar-color': theme('colors.gray.400') + ' ' + theme('colors.gray.100'),
+                    'scrollbar-color': `${theme('colors.gray.400')} ${theme('colors.gray.100')}`,
                 },
                 '.scrollbar-thin-dark': {
                     'scrollbar-width': 'thin',
-                    'scrollbar-color': theme('colors.gray.600') + ' ' + theme('colors.aubergine.800'),
+                    'scrollbar-color': `${theme('colors.gray.600')} ${theme('colors.aubergine.800')}`,
                 },
             };
             addUtilities(newUtilities);
         }
     ],
-    future: {
-        purgeLayersByDefault: true,
-        removeDeprecatedGapUtilities: true
-    },
     // PERFORMANCE: Optimierte Safelist - nur wirklich benötigte Klassen
     // WICHTIG: Pattern-Matching für alle Farb-Varianten wurde entfernt (6MB → <100KB)
     // Dynamische Klassen werden jetzt nur bei tatsächlicher Verwendung generiert

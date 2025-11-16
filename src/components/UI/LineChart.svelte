@@ -1,47 +1,65 @@
 <!-- src/components/UI/LineChart.svelte -->
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
     import { fade, draw, fly } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     
-    // Props
-    export let data = []; // Array of { date: '2025-10-10', value: 5 }
-    export let data2 = null; // Optional second dataset: Array of { date: '2025-10-10', value: 3 }
-    export let label = 'Daily Generations';
-    // Note: label2 is reserved for future use when displaying legend for second line
-    // export let label2 = 'Story Generations'; // Label for second line (currently unused)
-    export let maxValue = 9; // FREE tier default
-    export let height = 200;
-    export let color = '#eab308'; // yellow-500
-    export let color2 = '#2563eb'; // blue-600
-    export let gridColor = '#e5e7eb'; // gray-200
-    export let darkGridColor = '#374151'; // gray-700
-    export let labelColor = '#6b7280'; // gray-500 (light mode)
-    export let darkLabelColor = '#9ca3af'; // gray-400 (dark mode)
-    export let showGrid = true;
-    export let showPoints = true;
-    export let showLabels = true;
-    export let animate = true;
+    interface DataPoint {
+        date: string;
+        value: number;
+    }
     
-    // Responsive width (100% of container)
-    let containerWidth = 0;
+    interface Props {
+        data?: DataPoint[];
+        data2?: DataPoint[] | null;
+        label?: string;
+        maxValue?: number;
+        height?: number;
+        color?: string;
+        color2?: string;
+        gridColor?: string;
+        darkGridColor?: string;
+        labelColor?: string;
+        darkLabelColor?: string;
+        showGrid?: boolean;
+        showPoints?: boolean;
+        showLabels?: boolean;
+        animate?: boolean;
+    }
     
-    // Calculated values (responsive)
-    $: svgWidth = containerWidth || 400;
-    $: svgHeight = height;
-    $: padding = { top: 20, right: 15, bottom: 40, left: 35 }; // Optimized: minimal side padding for maximum chart width
-    $: chartWidth = svgWidth - padding.left - padding.right;
-    $: chartHeight = svgHeight - padding.top - padding.bottom;
+    let {
+        data = [],
+        data2 = null,
+        label = 'Daily Generations',
+        maxValue = 9,
+        height = 200,
+        color = '#eab308',
+        color2 = '#2563eb',
+        gridColor = '#e5e7eb',
+        darkGridColor = '#374151',
+        labelColor = '#6b7280',
+        darkLabelColor = '#9ca3af',
+        showGrid = true,
+        showPoints = true,
+        showLabels = true,
+        animate = true
+    }: Props = $props();
     
-    // Theme awareness
-    let isDarkMode = false;
+    let containerWidth = $state(0);
     
-    // Tooltip state
-    let hoveredPoint = null;
-    let tooltipPosition = { x: 0, y: 0, placement: 'top' }; // 'top' or 'bottom'
-    let svgElement;
-    let containerElement;
-    let tooltipElement;
+    const svgWidth = $derived(containerWidth || 400);
+    const svgHeight = $derived(height);
+    const padding = $derived({ top: 20, right: 15, bottom: 40, left: 35 });
+    const chartWidth = $derived(svgWidth - padding.left - padding.right);
+    const chartHeight = $derived(svgHeight - padding.top - padding.bottom);
+    
+    let isDarkMode = $state(false);
+    
+    let hoveredPoint = $state<DataPoint | null>(null);
+    let tooltipPosition = $state({ x: 0, y: 0, placement: 'top' as 'top' | 'bottom' });
+    let svgElement: SVGSVGElement | null = $state(null);
+    let containerElement: HTMLElement | null = $state(null);
+    let tooltipElement: HTMLElement | null = $state(null);
     
     onMount(() => {
         // Check initial theme
@@ -93,26 +111,27 @@
         };
     });
     
-    // Reactive calculations
-    $: validData = Array.isArray(data) && data.length > 0 ? data : [];
-    $: validData2 = data2 && Array.isArray(data2) && data2.length > 0 ? data2 : null;
-    $: dataPoints = validData.length;
-    $: hasData = dataPoints > 0;
-    $: hasData2 = validData2 !== null && validData2.length > 0;
+    const validData = $derived(Array.isArray(data) && data.length > 0 ? data : []);
+    const validData2 = $derived(data2 && Array.isArray(data2) && data2.length > 0 ? data2 : null);
+    const dataPoints = $derived(validData.length);
+    const hasData = $derived(dataPoints > 0);
+    const hasData2 = $derived(validData2 !== null && validData2.length > 0);
     
-    // Scale calculations
-    $: yScale = (value) => {
-        const ratio = value / maxValue;
-        return chartHeight - (ratio * chartHeight);
-    };
+    const yScale = $derived.by(() => {
+        return (value: number) => {
+            const ratio = value / maxValue;
+            return chartHeight - (ratio * chartHeight);
+        };
+    });
     
-    $: xScale = (index) => {
-        if (dataPoints <= 1) return chartWidth / 2;
-        return (index / (dataPoints - 1)) * chartWidth;
-    };
+    const xScale = $derived.by(() => {
+        return (index: number) => {
+            if (dataPoints <= 1) return chartWidth / 2;
+            return (index / (dataPoints - 1)) * chartWidth;
+        };
+    });
     
-    // Generate SVG path for first line
-    $: linePath = (() => {
+    const linePath = $derived.by(() => {
         if (!hasData) return '';
         
         return validData.map((point, i) => {
@@ -120,10 +139,9 @@
             const y = yScale(point.value);
             return i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
         }).join(' ');
-    })();
+    });
     
-    // Generate SVG path for second line (Story Usage)
-    $: linePath2 = (() => {
+    const linePath2 = $derived.by(() => {
         if (!hasData2 || !validData2 || validData2.length === 0) {
             console.log('⚠️ [LineChart] Story line path empty - no data:', { hasData2, validData2Length: validData2?.length, data2 });
             return '';
@@ -135,7 +153,6 @@
             return i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
         }).join(' ');
         
-        // Debug: Log path generation
         if (path) {
             console.log('✅ [LineChart] Story line path generated:', {
                 pathLength: path.length,
@@ -148,10 +165,9 @@
         }
         
         return path;
-    })();
+    });
     
-    // Generate area path (filled area under line) for first line
-    $: areaPath = (() => {
+    const areaPath = $derived.by(() => {
         if (!hasData) return '';
         
         const line = validData.map((point, i) => {
@@ -164,10 +180,9 @@
         const firstX = xScale(0);
         
         return `M ${firstX} ${chartHeight} L ${line} L ${lastX} ${chartHeight} Z`;
-    })();
+    });
     
-    // Generate area path (filled area under line) for second line (Story Usage)
-    $: areaPath2 = (() => {
+    const areaPath2 = $derived.by(() => {
         if (!hasData2 || !validData2 || validData2.length === 0) return '';
         
         const line = validData2.map((point, i) => {
@@ -182,28 +197,28 @@
         const firstX = xScale(0);
         
         return `M ${firstX} ${chartHeight} L ${line} L ${lastX} ${chartHeight} Z`;
-    })();
+    });
     
-    // Debug: Log story data state
-    $: if (data2 !== null && data2 !== undefined) {
-        console.log('📊 [LineChart] Story data state:', {
-            data2Type: typeof data2,
-            data2IsArray: Array.isArray(data2),
-            data2Length: data2?.length || 0,
-            hasData2,
-            validData2Length: validData2?.length || 0,
-            linePath2Length: linePath2?.length || 0,
-            areaPath2Length: areaPath2?.length || 0,
-            firstPoint: validData2?.[0],
-            lastPoint: validData2?.[validData2?.length - 1],
-            sampleData2: data2?.slice(0, 3)
-        });
-    } else {
-        console.log('⚠️ [LineChart] No story data (data2 is null/undefined)');
-    }
+    $effect(() => {
+        if (data2 !== null && data2 !== undefined) {
+            console.log('📊 [LineChart] Story data state:', {
+                data2Type: typeof data2,
+                data2IsArray: Array.isArray(data2),
+                data2Length: data2?.length || 0,
+                hasData2,
+                validData2Length: validData2?.length || 0,
+                linePath2Length: linePath2?.length || 0,
+                areaPath2Length: areaPath2?.length || 0,
+                firstPoint: validData2?.[0],
+                lastPoint: validData2?.[validData2?.length - 1],
+                sampleData2: data2?.slice(0, 3)
+            });
+        } else {
+            console.log('⚠️ [LineChart] No story data (data2 is null/undefined)');
+        }
+    });
     
-    // Grid lines (horizontal)
-    $: gridLines = (() => {
+    const gridLines = $derived.by(() => {
         const lines = [];
         const steps = 5;
         for (let i = 0; i <= steps; i++) {
@@ -212,10 +227,9 @@
             lines.push({ y, label: Math.round(value) });
         }
         return lines;
-    })();
+    });
     
-    // Format date label
-    function formatDate(dateStr) {
+    function formatDate(dateStr: string): string {
         try {
             const date = new Date(dateStr);
             const month = date.getMonth() + 1;
@@ -226,8 +240,7 @@
         }
     }
     
-    // Format date for tooltip (full date)
-    function formatDateFull(dateStr) {
+    function formatDateFull(dateStr: string): string {
         try {
             const date = new Date(dateStr);
             const year = date.getFullYear();
@@ -328,7 +341,7 @@
     }
 </script>
 
-<div class="line-chart-container relative w-full" bind:this={containerElement} in:fade={{ duration: 300 }}>
+<div class="select-none relative w-full" bind:this={containerElement} in:fade={{ duration: 300 }}>
     {#if hasData}
         <svg 
             bind:this={svgElement}
@@ -619,10 +632,4 @@
     {/if}
 </div>
 
-<style>
-    .line-chart-container {
-        user-select: none;
-        -webkit-user-select: none;
-    }
-</style>
 

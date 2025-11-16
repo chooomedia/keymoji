@@ -1,14 +1,19 @@
-<script>
+<script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import { fade, scale } from 'svelte/transition';
-    import { currentLanguage } from '../../stores/contentStore.js';
-    import { logout } from '../../stores/accountStore.js';
+    import { currentLanguage } from '../../stores/contentStore.ts';
+    import { logout } from '../../stores/accountStore';
 
     const dispatch = createEventDispatcher();
 
-    export let isVisible = false;
-    export let x = 0;
-    export let y = 0;
+    // Props (Svelte 5 Runes)
+    interface Props {
+        isVisible?: boolean;
+        x?: number;
+        y?: number;
+    }
+    
+    let { isVisible = false, x = 0, y = 0 }: Props = $props();
 
     function handleLogout() {
         logout();

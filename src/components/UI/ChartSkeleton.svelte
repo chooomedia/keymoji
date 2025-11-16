@@ -1,12 +1,17 @@
 <!-- src/components/UI/ChartSkeleton.svelte -->
-<script>
+<script lang="ts">
     import { fade } from 'svelte/transition';
 
-    export let height = 200;
+    // Props (Svelte 5 Runes)
+    interface Props {
+        height?: number;
+    }
+    
+    let { height = 200 }: Props = $props();
 </script>
 
 <div 
-    class="chart-skeleton w-full bg-gray-100 dark:bg-aubergine-900 rounded-lg p-4"
+    class="relative overflow-hidden w-full bg-gray-100 dark:bg-aubergine-900 rounded-lg p-4"
     style="height: {height}px"
     in:fade={{ duration: 200 }}
     role="status"
@@ -47,36 +52,4 @@
     </div>
 </div>
 
-<style>
-    .chart-skeleton {
-        position: relative;
-        overflow: hidden;
-    }
-
-    @keyframes pulse {
-        0%, 100% {
-            opacity: 1;
-        }
-        50% {
-            opacity: 0.4;
-        }
-    }
-
-    .animate-pulse {
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    .animate-spin {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        from {
-            transform: rotate(0deg);
-        }
-        to {
-            transform: rotate(360deg);
-        }
-    }
-</style>
 

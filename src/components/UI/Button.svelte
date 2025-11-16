@@ -1,16 +1,31 @@
-<script>
+<script lang="ts">
   import Tooltip from './Tooltip.svelte';
   
-  export let variant = 'default';
-  export let size = 'md';
-  export let disabled = false;
-  export let type = 'button';
-  export let href = null;
-  export let fullWidth = false;
-  export let tooltip = ''; // Tooltip text
-  export let tooltipPosition = 'auto'; // auto, top, bottom, left, right
-  export let ariaLabel = ''; // Explicit aria-label
-  export let emojiOnly = false; // Set true if button only contains emoji (for centering)
+  interface Props {
+    variant?: 'default' | 'primary' | 'secondary' | 'fixed' | 'yellow';
+    size?: 'sm' | 'md' | 'menu' | 'lg';
+    disabled?: boolean;
+    type?: 'button' | 'submit' | 'reset';
+    href?: string | null;
+    fullWidth?: boolean;
+    tooltip?: string;
+    tooltipPosition?: 'auto' | 'top' | 'bottom' | 'left' | 'right';
+    ariaLabel?: string;
+    emojiOnly?: boolean;
+  }
+  
+  let {
+    variant = 'default',
+    size = 'md',
+    disabled = false,
+    type = 'button',
+    href = null,
+    fullWidth = false,
+    tooltip = '',
+    tooltipPosition = 'auto',
+    ariaLabel = '',
+    emojiOnly = false
+  }: Props = $props();
   
   const variants = {
     primary: 'bg-yellow-500 hover:bg-yellow-600 focus:bg-yellow-600 active:bg-yellow-700 text-black disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:active:bg-gray-400',
@@ -29,10 +44,9 @@
   
   const baseClasses = 'transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 disabled:focus:ring-0';
   
-  // Add centering classes for emoji-only buttons
   const emojiOnlyClasses = 'flex items-center justify-center';
   
-  $: buttonClasses = `${baseClasses} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${emojiOnly ? emojiOnlyClasses : ''}`;
+  const buttonClasses = $derived(`${baseClasses} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${emojiOnly ? emojiOnlyClasses : ''}`);
 </script>
 
 {#if href}

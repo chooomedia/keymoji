@@ -11,7 +11,7 @@ module.exports = {
     ROOT: ROOT,
     APP_HTML: resolveTo('public/index.html'),
     APP_SRC: resolveTo('src'),
-    APP_ENTRY_POINT: resolveTo('src/index.js'),
+    APP_ENTRY_POINT: resolveTo('src/index.ts'),
     APP_BUILD_SRC: resolveTo('build'),
     NODE_MODULES: resolveTo('node_modules'),
     APP_PUBLIC: path.relative(ROOT, 'public'),

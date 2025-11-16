@@ -1,14 +1,13 @@
-<script>
+<script lang="ts">
   import { slide } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
-  import { navigate } from 'svelte-routing';
-  import { get } from 'svelte/store';
-
+  import { navigate } from '../utils/routing.ts';
   import { darkMode, showDonateMenu, isLoggedIn, currentAccount } from '../../stores/appStores';
-  import { showLanguageMenu, translations } from '../stores/contentStore.js';
+  import { showLanguageMenu, translations, currentLanguage } from '../stores/contentStore.ts';
+  import { get } from 'svelte/store';
   import { createEventDispatcher, onMount } from 'svelte';
   import ModalDebug from '../components/UI/ModalDebug.svelte';
-  import { initializeAccountFromCookies } from '../stores/accountStore.js';
+  import { initializeAccountFromCookies } from '../stores/accountStore';
   import { 
     whatsappIcon, 
     linkedinIcon, 
@@ -20,19 +19,40 @@
     paypalIcon,
     redditIcon,
     instagramIcon
-  } from '../assets/shapes.js';
-  import { currentLanguage } from '../stores/contentStore.js';
+  } from '../assets/shapes';
   import { navigateToContact } from '../utils/navigation';
-  import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
+  import { storageHelpers, STORAGE_KEYS } from '../config/storage';
   import { isDevelopment } from '../utils/environment';
 
   const dispatch = createEventDispatcher();
 
-  export let align;
+  // Props (Svelte 5 Runes)
+  interface Props {
+    align?: string;
+  }
+  
+  let { align }: Props = $props();
 
   let showMenu = false;
+  
+  // Reactive translations for template use (Svelte 5 Runes)
+  let t = $derived.by(() => get(translations));
+  let donateButtonText = $derived.by(() => t?.donateButton?.text || 'Support us');
+  let donateButtonOpenText = $derived.by(() => t?.donateButton?.openText || 'Close');
+  let fixedMenuTooltips = $derived.by(() => t?.fixedMenu?.tooltips || {});
   let selectedLink = undefined;
   let showDebugModal = false;
+
+  // Toggle body overflow when menu opens/closes
+  $effect(() => {
+    if (typeof document !== 'undefined') {
+      if (showMenu) {
+        document.body.classList.add('overflow-hidden');
+      } else {
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+  });
 
   // Click-Outside Handler - consistent with LanguageSwitcher
   onMount(() => {
@@ -79,7 +99,7 @@
       }
       
       // Close donate menu if click is outside all relevant elements
-      if (get(showDonateMenu) && 
+      if (showDonateMenu && 
           !isInsideDonateButton && 
           !isInsideDonateMenuItem && 
           !isInsideShareButton && 
@@ -88,7 +108,7 @@
           !isInsideLanguageButton && 
           !isInsideCategoryMenu && 
           !isInsideCategoryButton) {
-        showDonateMenu.set(false);
+        showDonateMenu = false;
       }
     };
     
@@ -123,10 +143,10 @@
     
     // CRITICAL: Sync with userSettings store
     try {
-      const { updateSetting, userSettings } = await import('../stores/userSettingsStore.js');
+      const { updateSetting, userSettings: userSettingsStore } = await import('../stores/userSettingsStore.ts');
       
       // Update userSettings.theme to stay in sync
-      const currentSettings = get(userSettings);
+      const currentSettings = userSettingsStore;
       if (currentSettings.theme !== newTheme) {
         updateSetting('theme', newTheme);
         console.log('✅ userSettings.theme synced:', newTheme);
@@ -143,11 +163,11 @@
     }
     
     if (menuType === 'donate') {
-      showDonateMenu.update(value => !value);
+      showDonateMenu = !showDonateMenu;
       showMenu = false;
       
       // Schließe Language Dropdown, wenn Donate Dropdown geöffnet wird
-      if (get(showDonateMenu)) {
+      if (showDonateMenu) {
         const languageButton = document.querySelector('#language-toggle-button');
         if (languageButton && languageButton.getAttribute('aria-expanded') === 'true') {
           languageButton.click(); // Toggle schließt das Dropdown
@@ -155,7 +175,7 @@
       }
     } else if (menuType === 'share') {
       showMenu = !showMenu;
-      showDonateMenu.set(false);
+        showDonateMenu = false;
       
       // Schließe Language Dropdown, wenn Share Menu geöffnet wird
       if (showMenu) {
@@ -198,7 +218,7 @@
   function closeAll() {
     selectedLink = undefined;
     showMenu = false;
-    showDonateMenu.set(false);
+        showDonateMenu = false;
   }
 
   // Reaktive Bindungen für Links - jetzt über t() verwaltet
@@ -253,10 +273,11 @@
       svgContent: emailIcon
     }
   ];
-  $: donateLinks = [
+  // Reactive donate links (Svelte 5 Runes)
+  let donateLinks = $derived.by(() => [
     {
       id: 'ko-fi',
-      name: $translations?.donateButton?.text || 'Buy me a coffee',
+      name: get(translations)?.donateButton?.text || 'Buy me a coffee',
       href: 'https://ko-fi.com/chooomedia',
       target: '_blank',
       svgContent: kofiIcon
@@ -317,19 +338,19 @@
   <nav id="fixed-menu-nav" class="bg-creme-500 dark:bg-aubergine-800 rounded-full transition duration-300 ease-in-out transform shadow-lg {align}-0 flex {showMenu ? 'opened' : 'closed'}" aria-label="Main">
     <div class="w-auto justify-center flex gap-2 rounded-full">
       <button 
-        aria-label={$darkMode ? ($translations?.fixedMenu?.tooltips?.lightMode || 'Switch to light mode') : ($translations?.fixedMenu?.tooltips?.darkMode || 'Switch to dark mode')}
+        aria-label={$darkMode ? (fixedMenuTooltips?.lightMode || 'Switch to light mode') : (fixedMenuTooltips?.darkMode || 'Switch to dark mode')}
         on:click={toggleDarkMode} 
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-        title={$darkMode ? ($translations?.fixedMenu?.tooltips?.lightMode || 'Switch to light mode') : ($translations?.fixedMenu?.tooltips?.darkMode || 'Switch to dark mode')}
+        title={$darkMode ? (fixedMenuTooltips?.lightMode || 'Switch to light mode') : (fixedMenuTooltips?.darkMode || 'Switch to dark mode')}
       >
         {#if $darkMode}🌙{:else}🌞{/if}
       </button>
       <button 
         id="share-menu-button"
-        aria-label={showMenu ? ($translations?.fixedMenu?.tooltips?.closeShare || 'Close share menu') : ($translations?.fixedMenu?.tooltips?.openShare || 'Share Keymoji')}
+        aria-label={showMenu ? (fixedMenuTooltips?.closeShare || 'Close share menu') : (fixedMenuTooltips?.openShare || 'Share Keymoji')}
         on:click={(e) => toggleMenu('share', e)} 
         class="{showMenu ? 'opened' : 'closed'} btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-        title={showMenu ? ($translations?.fixedMenu?.tooltips?.closeShare || 'Close share menu') : ($translations?.fixedMenu?.tooltips?.openShare || 'Share Keymoji')}
+        title={showMenu ? (fixedMenuTooltips?.closeShare || 'Close share menu') : (fixedMenuTooltips?.openShare || 'Share Keymoji')}
         aria-expanded={showMenu}
         aria-haspopup="true"
         aria-controls="share-menu-list"
@@ -337,20 +358,20 @@
         {#if showMenu}💔{:else}❤️{/if}
       </button>
       <button 
-        aria-label={$translations?.fixedMenu?.tooltips?.contact || 'Contact us'}
+        aria-label={fixedMenuTooltips?.contact || 'Contact us'}
         on:click={navigateToContact} 
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-        title={$translations?.fixedMenu?.tooltips?.contact || 'Contact us'}
+        title={fixedMenuTooltips?.contact || 'Contact us'}
       >
         💌
       </button>
       <!-- Debug Button (DEV MODE ONLY!) -->
       {#if isDevelopment()}
       <button 
-        aria-label={$translations?.fixedMenu?.tooltips?.debug || 'Open debug info (Dev only)'}
+        aria-label={fixedMenuTooltips?.debug || 'Open debug info (Dev only)'}
         on:click={toggleDebugModal} 
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-        title={$translations?.fixedMenu?.tooltips?.debug || 'Open debug info (Dev only)'}
+        title={fixedMenuTooltips?.debug || 'Open debug info (Dev only)'}
       >
         🐛
       </button>
@@ -366,10 +387,10 @@
       </button>
       {/if}
       <button 
-        aria-label={$showDonateMenu ? ($translations?.fixedMenu?.tooltips?.closeDonate || 'Close donation menu') : ($translations?.fixedMenu?.tooltips?.donate || 'Support us')}
+        aria-label={$showDonateMenu ? (fixedMenuTooltips?.closeDonate || 'Close donation menu') : (fixedMenuTooltips?.donate || 'Support us')}
         on:click={(e) => toggleMenu('donate', e)} 
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl md:hidden transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-        title={$showDonateMenu ? ($translations?.fixedMenu?.tooltips?.closeDonate || 'Close donation menu') : ($translations?.fixedMenu?.tooltips?.donate || 'Support us')}
+        title={$showDonateMenu ? (fixedMenuTooltips?.closeDonate || 'Close donation menu') : (fixedMenuTooltips?.donate || 'Support us')}
       >
         {#if $showDonateMenu}❌{:else}☕{/if}
       </button>
@@ -380,14 +401,14 @@
   <div class="fixed bottom-4 right-4 z-50">
     <button 
       data-menu-type="donate"
-      aria-label={$showDonateMenu ? ($translations?.fixedMenu?.tooltips?.closeDonate || 'Close donation menu') : ($translations?.fixedMenu?.tooltips?.donate || 'Support us')}
+      aria-label={$showDonateMenu ? (fixedMenuTooltips?.closeDonate || 'Close donation menu') : (fixedMenuTooltips?.donate || 'Support us')}
       on:click={(e) => toggleMenu('donate', e)} 
       class="hidden md:flex items-center btn border-4 p-3.5 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-lg relative z-50 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-      title={$showDonateMenu ? ($translations?.donateButton?.openText || 'Close') : ($translations?.donateButton?.text || 'Support us')}
+      title={$showDonateMenu ? donateButtonOpenText : donateButtonText}
     >
       <span class="text-xl mr-2">{#if $showDonateMenu}❌{:else}☕{/if}</span>
       <span class="text-sm font-semibold">
-          {$showDonateMenu ? $translations.donateButton.openText : $translations.donateButton.text}
+          {$showDonateMenu ? donateButtonOpenText : donateButtonText}
       </span>
     </button>
     
@@ -430,11 +451,3 @@
 
 <!-- Debug Modal -->
 <ModalDebug isVisible={showDebugModal} on:close={() => showDebugModal = false} />
-
-<svelte:head>
-  {#if showMenu}
-    <style>
-      body { overflow: hidden; }
-    </style>
-  {/if}
-</svelte:head>

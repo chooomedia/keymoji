@@ -34,23 +34,46 @@
  * />
  -->
 
-<script>
+<script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import ModularInput from './ModularInput.svelte';
     
-    // Props
-    export let item;
-    export let currentLanguage = 'en';
-    export let currentValue;
-    export let onValueChange;
-    export let onAction;
+    interface SettingsItemConfig {
+        id: string;
+        type: 'toggle' | 'select' | 'range' | 'button';
+        icon?: string;
+        title?: Record<string, string>;
+        description?: Record<string, string>;
+        defaultValue?: unknown;
+        color?: string;
+        options?: Array<{ value: string; label: Record<string, string> }>;
+        labels?: { min?: string; max?: string };
+        min?: number;
+        max?: number;
+        validation?: unknown;
+        buttonText?: string;
+    }
     
-    // Event dispatcher for custom events
+    interface Props {
+        item: SettingsItemConfig;
+        currentLanguage?: string;
+        currentValue?: unknown;
+        onValueChange?: (value: unknown) => void;
+        onAction?: (action: string) => void;
+    }
+    
+    let {
+        item,
+        currentLanguage = 'en',
+        currentValue,
+        onValueChange,
+        onAction
+    }: Props = $props();
+    
     const dispatch = createEventDispatcher();
     
-    // Helper function to get localized text
-    function getLocalizedText(textObj, fallback = '') {
-        return textObj?.[$currentLanguage] || textObj?.en || fallback;
+    function getLocalizedText(textObj: Record<string, string> | undefined, fallback = ''): string {
+        return textObj?.[currentLanguage] || textObj?.en || fallback;
     }
     
 

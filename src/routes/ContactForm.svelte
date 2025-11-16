@@ -1,7 +1,7 @@
 <!-- src/routes/ContactForm.svelte -->
-<script>
+<script lang="ts">
     import { onMount, onDestroy } from 'svelte';
-    import { currentLanguage, translations } from '../stores/contentStore.js';
+    import { currentLanguage, translations } from '../stores/contentStore.ts';
     import { 
         showSuccess, 
         showError,
@@ -14,34 +14,38 @@
         showConfirmation,
         showInfo
     } from '../stores/modalStore';
-    import { navigate } from "svelte-routing";
+    import { navigate } from '../utils/routing.ts';
     import { fade, fly, scale } from 'svelte/transition';
     import PageLayout from '../components/Layout/PageLayout.svelte';
-    import { WEBHOOKS, API_CONFIG } from '../config/api.js';
+    import { WEBHOOKS, API_CONFIG } from '../config/api';
     import { appVersion } from '../utils/version';
     import { navigateToHome } from '../utils/navigation';
     import Input from '../components/UI/Input.svelte';
     import Button from '../components/UI/Button.svelte';
     import Checkbox from '../components/UI/Checkbox.svelte';
     import { isTestMode } from '../utils/environment';
-    import { initializeAccountFromCookies } from '../stores/accountStore.js';
-    import FooterInfo from '../widgets/FooterInfo.svelte';
+    import { initializeAccountFromCookies } from '../stores/accountStore';
+    import { get } from 'svelte/store';
     
-    // Reaktive Übersetzungen - optimiert
-    $: pageTitle = $translations?.contactForm?.pageTitle || 'Contact';
-    $: pageDescription = $translations?.contactForm?.pageDescription || 'Get in touch with us';
+    // Reaktive Übersetzungen - optimiert (Svelte 5 Runes)
+    let pageTitle = $derived.by(() => get(translations)?.contactForm?.pageTitle || 'Contact');
+    let pageDescription = $derived.by(() => get(translations)?.contactForm?.pageDescription || 'Get in touch with us');
 
-    // Debug-Logging für Reaktivität - nur in Development
-    $: if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        console.log('🔄 ContactForm: Language changed to:', $currentLanguage);
-        console.log('🔄 ContactForm: Translations updated:', {
-            pageTitle: $translations?.contactForm?.pageTitle,
-            pageDescription: $translations?.contactForm?.pageDescription,
-            nameLabel: $translations?.contactForm?.nameLabel,
-            emailLabel: $translations?.contactForm?.emailLabel,
-            messageLabel: $translations?.contactForm?.messageLabel
-        });
-    }
+    // Debug-Logging für Reaktivität - nur in Development (Svelte 5 Runes)
+    $effect(() => {
+        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+            const lang = get(currentLanguage);
+            const t = get(translations);
+            console.log('🔄 ContactForm: Language changed to:', lang);
+            console.log('🔄 ContactForm: Translations updated:', {
+                pageTitle: t?.contactForm?.pageTitle,
+                pageDescription: t?.contactForm?.pageDescription,
+                nameLabel: t?.contactForm?.nameLabel,
+                emailLabel: t?.contactForm?.emailLabel,
+                messageLabel: t?.contactForm?.messageLabel
+            });
+        }
+    });
     
     // Form state
     let name = '';
@@ -110,9 +114,10 @@
     const handleSubmit = async () => {
         if (isSubmitting) return;
         
+        const t = get(translations);
         if (!validateForm()) {
             // Zeige Validierungsfehler mit dem neuen Modal-System
-            showWarning($translations.contactForm.validationErrorMessage);
+            showWarning(t.contactForm.validationErrorMessage);
             return;
         }
 
@@ -125,15 +130,15 @@
         }
         
         // Zeige "Sending"-Nachricht mit dem neuen Modal-System
-        showSending($translations.contactForm.sendingMessage);
+        showSending(t.contactForm.sendingMessage);
         
         // Prepare email content with translations
         const emailText = {
-            greeting: $translations.contactForm.emailText.greeting,
-            intro: $translations.contactForm.emailText.intro,
-            confirmationText: $translations.contactForm.emailText.confirmationText,
-            doubleCheck: $translations.contactForm.emailText.doubleCheck,
-            button: $translations.contactForm.emailText.button
+            greeting: t.contactForm.emailText.greeting,
+            intro: t.contactForm.emailText.intro,
+            confirmationText: t.contactForm.emailText.confirmationText,
+            doubleCheck: t.contactForm.emailText.doubleCheck,
+            button: t.contactForm.emailText.button
         };
         
         const emailContent = {
@@ -141,9 +146,9 @@
             intro: emailText.intro || 'Thank you for contacting us.',
             doubleCheck: emailText.doubleCheck || "We've received your message with the following details:",
             button: emailText.button || 'Confirm Your Email',
-            subject: $translations.contactForm.emailText.subject || `Your message to Keymoji has been received`,
-            privacy: $translations.contactForm.emailText.privacy || 'Your data is handled securely.',
-            footer: $translations.contactForm.footerText,
+            subject: t.contactForm.emailText.subject || `Your message to Keymoji has been received`,
+            privacy: t.contactForm.emailText.privacy || 'Your data is handled securely.',
+            footer: t.contactForm.footerText,
             newsletterOptIn // Pass newsletter option to email template
         };
 
@@ -161,7 +166,7 @@
                     newsletterOptIn,
                     honeypot,
                     emailContent,
-                    langCode: $currentLanguage,
+                    langCode: get(currentLanguage),
                     appVersion
                 })
             });
@@ -173,7 +178,7 @@
 
             // Success message with new modal system
             showSuccess(
-                $translations.contactForm.successMessage,
+                t.contactForm.successMessage,
                 REDIRECT_DELAY // Auto-close after redirect delay
             );
             
@@ -184,14 +189,14 @@
             // Set a timer for redirect to home page after success
             redirectTimeout = setTimeout(() => {
                 // Navigate back to homepage with current language
-                navigate(`/${$currentLanguage}`);
+                navigate(`/${get(currentLanguage)}`);
             }, REDIRECT_DELAY);
             
         } catch (error) {
             console.error('Submission error:', error);
             
             // Show error message with new modal system
-            showError($translations.contactForm.requestErrorMessage);
+            showError(t.contactForm.requestErrorMessage);
         } finally {
             isSubmitting = false;
         }
@@ -205,7 +210,7 @@
         
         // Force close modal immediately when leaving the page
         // This prevents the modal from briefly appearing during route transitions
-        if ($isModalVisible) {
+        if (get(isModalVisible)) {
             closeModal();
         }
     });
@@ -214,7 +219,7 @@
     onMount(() => {
         // Clear any existing modal state from previous routes
         // This ensures no leftover modals from other pages
-        if ($isModalVisible) {
+        if (get(isModalVisible)) {
             closeModal();
         }
         
@@ -258,14 +263,15 @@
         });
     }
 
-    $: isFormValid = name.trim().length >= 2 && 
+    // Form validation (Svelte 5 Runes)
+    let isFormValid = $derived(name.trim().length >= 2 && 
                      validateEmail(email) && 
-                     message.trim().length >= MIN_MESSAGE_LENGTH;
+                     message.trim().length >= MIN_MESSAGE_LENGTH);
 
 
 </script>
 
-<PageLayout {pageTitle} {pageDescription}>
+<PageLayout {pageTitle} {pageDescription} routeSlug="contact">
     <!-- GIF Image in before-header slot -->
     <div slot="before-header" class="flex justify-center">
         <div 
@@ -432,5 +438,4 @@
     </form>
 
     <!-- Footer Information Component -->
-    <FooterInfo slot="footer" />
 </PageLayout>

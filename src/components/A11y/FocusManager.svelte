@@ -1,27 +1,35 @@
 <!-- src/components/A11y/FocusManager.svelte -->
-<script>
+<script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers';
     
-    // Props
-    export let active = true; // Whether focus trapping is active
-    export let initialFocus = null; // Element or selector to focus when trap activates
-    export let finalFocus = null; // Element to focus when trap deactivates
-    export let restoreFocus = true; // Whether to restore focus when trap deactivates
-    export let returnFocusOnEscape = true; // Whether to release trap on Escape key
-    export let autoFocus = true; // Whether to auto-focus the first focusable element
-    export let loop = true; // Whether to loop focus at edges
+    interface Props {
+        active?: boolean;
+        initialFocus?: HTMLElement | string | null;
+        finalFocus?: HTMLElement | null;
+        restoreFocus?: boolean;
+        returnFocusOnEscape?: boolean;
+        autoFocus?: boolean;
+        loop?: boolean;
+    }
     
-    // Internal state
-    let trapElement;
-    let previouslyFocused = null;
-    let focusableElements = [];
+    let {
+        active = true,
+        initialFocus = null,
+        finalFocus = null,
+        restoreFocus = true,
+        returnFocusOnEscape = true,
+        autoFocus = true,
+        loop = true
+    }: Props = $props();
+    
+    let trapElement: HTMLElement | null = $state(null);
+    let previouslyFocused: HTMLElement | null = $state(null);
+    let focusableElements: HTMLElement[] = $state([]);
 
-    // Timeout-Tracking für Memory Leak Prevention
-    let activeTimeouts = new Set();
+    let activeTimeouts = $state(new Set<ReturnType<typeof setTimeout>>());
     
-    // Wrapper für safeSetTimeout mit lokalem Tracking (für onDestroy cleanup)
-    function localSafeSetTimeout(callback, delay) {
+    function localSafeSetTimeout(callback: () => void, delay: number): ReturnType<typeof setTimeout> {
         const timeoutId = safeSetTimeout(() => {
             activeTimeouts.delete(timeoutId);
             callback();

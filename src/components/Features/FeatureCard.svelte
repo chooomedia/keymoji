@@ -1,15 +1,32 @@
 <!-- src/components/Features/FeatureCard.svelte -->
-<script>
-    // Props
-    export let icon = '📝';
-    export let title = 'Feature Title';
-    export let description = 'Feature description';
-    export let variant = 'default'; // default, coming-soon, beta, pro
-    export let href = null; // Optional link
-    export let onClick = null; // Optional click handler
+<script lang="ts">
+    interface VariantClasses {
+        container: string;
+        iconBg: string;
+        iconColor: string;
+        titleColor: string;
+        descriptionColor: string;
+    }
     
-    // Variant classes
-    const variantClasses = {
+    interface Props {
+        icon?: string;
+        title?: string;
+        description?: string;
+        variant?: 'default' | 'coming-soon' | 'beta' | 'pro';
+        href?: string | null;
+        onClick?: (() => void) | null;
+    }
+    
+    let {
+        icon = '📝',
+        title = 'Feature Title',
+        description = 'Feature description',
+        variant = 'default',
+        href = null,
+        onClick = null
+    }: Props = $props();
+    
+    const variantClasses: Record<string, VariantClasses> = {
         default: {
             container: 'bg-white dark:bg-aubergine-900',
             iconBg: 'bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900',
@@ -40,9 +57,9 @@
         }
     };
     
-    $: classes = variantClasses[variant];
+    const classes = $derived(variantClasses[variant]);
     
-    function handleClick() {
+    function handleClick(): void {
         if (onClick) onClick();
     }
 </script>

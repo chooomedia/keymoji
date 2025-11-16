@@ -1,80 +1,82 @@
-<script>
-    import { onMount } from 'svelte';
+<script lang="ts">
+    import { onMount, onDestroy } from 'svelte';
     import { slide, fly } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
-    import { hamburger, logo } from "../../assets/shapes.js";
+    import { hamburger, logo } from "../../assets/shapes";
     import { isDisabled, showDonateMenu, isLoggedIn, currentAccount, dailyLimit, accountTier } from '../../stores/appStores'
-    import { currentLanguage, t, showLanguageMenu, changeLanguage } from '../../stores/contentStore.js';
+    import { currentLanguage, t, showLanguageMenu, changeLanguage } from '../../stores/contentStore.ts';
+    import { get } from 'svelte/store';
     import GitButton from '../../widgets/GitButton.svelte';
     import { createEventDispatcher } from 'svelte';
-    import { navigate, Link } from 'svelte-routing';
+    import { navigate } from '../../utils/routing.ts';
+    import Link from '../../components/Routing/Link.svelte';
     import LanguageSwitcher from '../LanguageSwitcher.svelte';
     import { supportedLanguages } from '../../utils/languages';
-    import { translations } from '../../stores/contentStore.js';
+    import { translations } from '../../stores/contentStore.ts';
     import { navigateToBlog } from '../../utils/navigation';
     import Button from '../UI/Button.svelte';
     import { showModal } from '../../stores/modalStore';
 
     const dispatch = createEventDispatcher();
     
-    // Calculate remaining generations - REACTIVE
-    $: remaining = Math.max(0, ($dailyLimit?.limit || 0) - ($dailyLimit?.used || 0));
-    $: isProUser = $accountTier === 'pro';
+    const remaining = $derived(Math.max(0, (dailyLimit?.limit || 0) - (dailyLimit?.used || 0)));
+    const isProUser = $derived(accountTier === 'pro');
     
-    // Format display value: max 99, everything above shows as "99+"
-    $: displayValue = remaining > 99 ? '99+' : remaining;
-    $: displayText = typeof displayValue === 'number' ? String(displayValue) : displayValue;
+    const displayValue = $derived(remaining > 99 ? '99+' : remaining);
+    const displayText = $derived(typeof displayValue === 'number' ? String(displayValue) : displayValue);
     
-    // IMPROVED: Only show badge when logged in AND dailyLimit is initialized
-    $: showBadge = $isLoggedIn && $dailyLimit && typeof $dailyLimit.limit === 'number';
+    const showBadge = $derived(isLoggedIn && dailyLimit && typeof dailyLimit.limit === 'number');
     
-    // IMPROVED: Debounce badge state changes to prevent flicker
-    let stableBadgeState = false;
-    let badgeTimeout;
-    let previousRemaining = 0;
-    let isCountingDown = true; // Default to counting down
+    let stableBadgeState = $state(false);
+    let badgeTimeout: ReturnType<typeof setTimeout> | null = $state(null);
+    let previousRemaining = $state(0);
+    let isCountingDown = $state(true);
     
-    $: {
+    $effect(() => {
         if (badgeTimeout) clearTimeout(badgeTimeout);
         badgeTimeout = setTimeout(() => {
             stableBadgeState = showBadge;
-        }, 100); // 100ms debounce
-    }
-    
-    // Track direction of change for animation (only on actual change)
-    $: if (remaining !== previousRemaining) {
-        isCountingDown = remaining < previousRemaining;
-        previousRemaining = remaining;
-    }
-    
-    // DEBUG: Log badge state (only on significant changes)
-    let lastLoggedState = null;
-    $: if (typeof window !== 'undefined') {
-        const currentState = JSON.stringify({
-            showBadge,
-            isLoggedIn: $isLoggedIn,
-            remaining,
-            isProUser
-        });
+        }, 100);
         
-        if (currentState !== lastLoggedState) {
-            lastLoggedState = currentState;
-            console.log('🏷️ Header Badge State:', {
-                showBadge,
-                stableBadgeState,
-                isLoggedIn: $isLoggedIn,
-                remaining,
-                dailyLimit: $dailyLimit,
-                isProUser,
-                accountTier: $accountTier
-            });
+        return () => {
+            if (badgeTimeout) clearTimeout(badgeTimeout);
+        };
+    });
+    
+    $effect(() => {
+        if (remaining !== previousRemaining) {
+            isCountingDown = remaining < previousRemaining;
+            previousRemaining = remaining;
         }
-    }
+    });
+    
+    let lastLoggedState = $state<string | null>(null);
+    
+    $effect(() => {
+        if (typeof window !== 'undefined') {
+            const currentState = JSON.stringify({
+                showBadge,
+                isLoggedIn,
+                remaining,
+                isProUser
+            });
+            
+            if (currentState !== lastLoggedState) {
+                lastLoggedState = currentState;
+                console.log('🏷️ Header Badge State:', {
+                    showBadge,
+                    stableBadgeState,
+                    isLoggedIn,
+                    remaining,
+                    dailyLimit,
+                    isProUser,
+                    accountTier
+                });
+            }
+        }
+    });
 
-    // Reaktive Übersetzungen mit robuster Fehlerbehandlung
-    $: headerTitle = $translations && $translations.header && $translations.header.pageTitle 
-        ? $translations.header.pageTitle 
-        : 'Keymoji';
+    const headerTitle = $derived(translations?.header?.pageTitle || 'Keymoji');
     
     function handleBlogNavigation() {
         navigateToBlog(false);
@@ -82,7 +84,7 @@
 
     function navigateToAccount() {
         // Use language-aware navigation
-        const lang = $currentLanguage || 'en';
+        const lang = currentLanguage || 'en';
         const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
         navigate(accountPath, { replace: true });
     }
@@ -101,16 +103,15 @@
             
             // Show PRO upgrade modal
             showModal('Pro Feature', 'pro-feature', null, {
-                featureName: $translations?.accountManager?.proFeatureModal?.unlimitedGenerations || 'Unlimited Story Generations',
-                featureDescription: $translations?.accountManager?.proFeatureModal?.unlimitedGenerationsDesc || 'Upgrade to Pro for unlimited daily story generations and access to all premium features.',
+                featureName: translations?.accountManager?.proFeatureModal?.unlimitedGenerations || 'Unlimited Story Generations',
+                featureDescription: translations?.accountManager?.proFeatureModal?.unlimitedGenerationsDesc || 'Upgrade to Pro for unlimited daily story generations and access to all premium features.',
                 onUpgrade: handleProUpgrade
             });
         }
     }
     
-    function handleProUpgrade() {
-        // Navigate to account page for upgrade (language-aware)
-        const lang = $currentLanguage || 'en';
+    function handleProUpgrade(): void {
+        const lang = currentLanguage || 'en';
         const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
         navigate(accountPath, { replace: true });
     }
@@ -136,7 +137,7 @@
             <div class="flex items-center">
                 <h2 class="flex flex-wrap md:text-2xl font-semibold items-center whitespace-nowrap dark:text-white">
                     <Link 
-                        to={$currentLanguage === 'en' ? '/' : `/${$currentLanguage}`}
+                        to={currentLanguage === 'en' ? '/' : `/${currentLanguage}`}
                         class="flex items-center hover:text-yellow transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-aubergine-800 rounded-lg"
                         aria-label={headerTitle}
                     >
@@ -168,10 +169,10 @@
                         type="button"
                         class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center relative"
                         on:click={navigateToAccount}
-                        aria-label={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
-                        title={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
+                        aria-label={isLoggedIn ? (translations?.header?.accountTooltip || 'Account Settings') : (translations?.header?.loginTooltip || 'Login / Create Account')}
+                        title={isLoggedIn ? (translations?.header?.accountTooltip || 'Account Settings') : (translations?.header?.loginTooltip || 'Login / Create Account')}
                     >
-                        <span class="text-xl">{#if $isLoggedIn}👤{:else}🔐{/if}</span>
+                        <span class="text-xl">{#if isLoggedIn}👤{:else}🔐{/if}</span>
                     </button>
                     
                     <!-- Badge für verbleibende Generierungen - Sauberer Wrapper ohne Flicker, immer über Header -->
@@ -211,8 +212,8 @@
                     target="_blank"
                     rel="noopener noreferrer"
                     class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center"
-                    aria-label={$translations?.header?.githubTooltip || 'Star us on GitHub'}
-                    title={$translations?.header?.githubTooltip || 'Star us on GitHub'}
+                    aria-label={translations?.header?.githubTooltip || 'Star us on GitHub'}
+                    title={translations?.header?.githubTooltip || 'Star us on GitHub'}
                 >
                     <span class="text-xl">⭐</span>
                 </a>

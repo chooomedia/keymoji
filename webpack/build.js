@@ -177,7 +177,7 @@ module.exports = merge(common, {
                 // SEO-optimierte Chunks
                 seo: {
                     name: 'seo',
-                    test: /[\\/]src[\\/]utils[\\/]seo\.js/,
+                    test: /[\\/]src[\\/]utils[\\/]seo\.ts/,
                     priority: 30,
                     reuseExistingChunk: true
                 }
@@ -219,7 +219,7 @@ module.exports = merge(common, {
                 removeEmptyAttributes: true,
                 removeStyleLinkTypeAttributes: true,
                 keepClosingSlash: true,
-                minifyJS: true,
+                minifyJS: false, // Disabled to prevent localStorage access during build
                 minifyCSS: true,
                 minifyURLs: true,
                 // SEO-optimierte HTML-Komprimierung

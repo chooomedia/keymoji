@@ -1,50 +1,62 @@
 <!-- src/components/UI/ContextBadge.svelte -->
-<script>
+<script lang="ts">
     import { createEventDispatcher, onMount } from 'svelte';
     import { fade, fly, scale } from 'svelte/transition';
     import { cubicOut } from 'svelte/easing';
     
-    const dispatch = createEventDispatcher();
-    
-    // Props
-    export let text = '';
-    export let position = 'top'; // top, bottom, left, right
-    export let variant = 'info'; // info, warning, success, error
-    export let size = 'md'; // sm, md, lg - beeinflusst sowohl Spacing als auch Text-Größe
-    export let width = null; // null, 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl', '7xl', 'full' - Tailwind width classes
-    export let trigger = 'hover'; // hover, click, both
-    export let intro = false; // Auto-show/hide animation
-    export let introDelay = 2000; // Delay before showing (ms)
-    export let introDuration = 3000; // How long to show (ms)
-    export let disabled = false;
-    export let alwaysVisible = false; // Always show the badge
-    
-    // Tier Badge specific props
-    export let tier = null; // 'free' or 'pro'
-    export let accountAgeLabel = ''; // Pre-formatted age label
-    export let translations = null;
-    
-    // Internal state
-    let isVisible = false;
-    let isIntroActive = false;
-    let introTimeout;
-    let hideTimeout;
-    let badgeElement;
-    
-    // Reactive visibility based on alwaysVisible prop
-    $: if (alwaysVisible) {
-        isVisible = true;
+    interface Props {
+        text?: string;
+        position?: 'top' | 'bottom' | 'left' | 'right';
+        variant?: 'info' | 'warning' | 'success' | 'error';
+        size?: 'sm' | 'md' | 'lg';
+        width?: string | null;
+        trigger?: 'hover' | 'click' | 'both';
+        intro?: boolean;
+        introDelay?: number;
+        introDuration?: number;
+        disabled?: boolean;
+        alwaysVisible?: boolean;
+        tier?: 'free' | 'pro' | null;
+        accountAgeLabel?: string;
+        translations?: Record<string, string> | null;
     }
     
-    // Tier Badge specific logic
-    $: isTierBadge = tier !== null;
-    // Badge zeigt NUR den Tier-Status
-    $: tierText = tier === 'pro' ? '💎 PRO' : '✨ FREE';
-    $: tierBgClass = tier === 'pro' ? 'bg-purple-700' : 'bg-yellow-600';
-    // Tooltip zeigt die Account-Age (z.B. "Seit 7 Tagen!")
-    // CRITICAL: accountAgeLabel sollte bereits formatiert sein (z.B. "Seit 11 Tagen!")
-    // Falls leer, verwende Fallback
-    $: tierTooltipText = (() => {
+    let {
+        text = '',
+        position = 'top',
+        variant = 'info',
+        size = 'md',
+        width = null,
+        trigger = 'hover',
+        intro = false,
+        introDelay = 2000,
+        introDuration = 3000,
+        disabled = false,
+        alwaysVisible = false,
+        tier = null,
+        accountAgeLabel = '',
+        translations = null
+    }: Props = $props();
+    
+    const dispatch = createEventDispatcher();
+    
+    let isVisible = $state(false);
+    let isIntroActive = $state(false);
+    let introTimeout: ReturnType<typeof setTimeout> | null = $state(null);
+    let hideTimeout: ReturnType<typeof setTimeout> | null = $state(null);
+    let badgeElement: HTMLElement | null = $state(null);
+    
+    $effect(() => {
+        if (alwaysVisible) {
+            isVisible = true;
+        }
+    });
+    
+    const isTierBadge = $derived(tier !== null);
+    const tierText = $derived(tier === 'pro' ? '💎 PRO' : '✨ FREE');
+    const tierBgClass = $derived(tier === 'pro' ? 'bg-purple-700' : 'bg-yellow-600');
+    
+    let tierTooltipText = $derived.by(() => {
         if (accountAgeLabel && accountAgeLabel.trim() !== '') {
             return accountAgeLabel;
         }
@@ -52,23 +64,22 @@
         return translations?.accountCreated || 'Account erstellt';
     })();
     
-    // Debug logging
-    $: if (isTierBadge) {
-        console.log('🔍 [ContextBadge] Tier Badge Tooltip:', {
-            accountAgeLabel,
-            tierTooltipText,
-            hasTranslations: !!translations,
-            accountCreated: translations?.accountCreated
-        });
-    }
+    $effect(() => {
+        if (isTierBadge) {
+            console.log('🔍 [ContextBadge] Tier Badge Tooltip:', {
+                accountAgeLabel,
+                tierTooltipText,
+                hasTranslations: !!translations,
+                accountCreated: translations?.accountCreated
+            });
+        }
+    });
     
-    // SVG Arrow color based on variant - use background color for the arrow
-    $: arrowColor = variantClasses[variant].bg;
-    $: arrowBorderColor = variantClasses[variant].border;
+    const arrowColor = $derived(variantClasses[variant].bg);
+    const arrowBorderColor = $derived(variantClasses[variant].border);
     
-    // Special colors for standard variant triangle
-    $: standardArrowColor = variant === 'standard' ? 'bg-creme-500 dark:bg-aubergine-950' : arrowColor;
-    $: standardArrowBorderColor = variant === 'standard' ? 'border-gray-200 dark:border-gray-600' : arrowBorderColor;
+    const standardArrowColor = $derived(variant === 'standard' ? 'bg-creme-500 dark:bg-aubergine-950' : arrowColor);
+    const standardArrowBorderColor = $derived(variant === 'standard' ? 'border-gray-200 dark:border-gray-600' : arrowBorderColor);
     
     // Size classes - erweitert um Text-Größe und Spacing
     const sizeClasses = {
@@ -225,9 +236,7 @@
         };
     });
     
-    // Reactive classes
-    // CRITICAL: For tier badges, use auto width (fit content), not fixed width
-    $: badgeClasses = [
+    const badgeClasses = $derived([
         'absolute z-50 rounded-xl border shadow-xl',
         sizeClasses[size].spacing,
         sizeClasses[size].text,
@@ -238,20 +247,19 @@
         'pointer-events-none',
         'transition-all duration-200 ease-out',
         'backdrop-blur-sm',
-        // For tier badges, use auto width (fit content), otherwise use specified width or max-w-xs
         isTierBadge ? 'whitespace-nowrap' : (width ? widthClasses[width] : 'max-w-xs')
-    ].filter(Boolean).join(' ');
+    ].filter(Boolean).join(' '));
     
-    $: arrowClassesFinal = [
+    const arrowClassesFinal = $derived([
         'absolute',
         arrowClasses[position]
-    ].filter(Boolean).join(' ');
+    ].filter(Boolean).join(' '));
     
-    $: containerClasses = [
+    const containerClasses = $derived([
         'relative inline-block',
         !alwaysVisible && (trigger === 'hover' || trigger === 'both') ? 'cursor-help' : '',
         !alwaysVisible && (trigger === 'click' || trigger === 'both') ? 'cursor-pointer' : ''
-    ].filter(Boolean).join(' ');
+    ].filter(Boolean).join(' '));
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -304,33 +312,3 @@
         </div>
     {/if}
 </div>
-
-<style>
-    /* Ensure proper positioning */
-    :global(.context-badge-container) {
-        position: relative;
-    }
-    
-    /* Smooth transitions */
-    .badge-enter {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    
-    .badge-enter-active {
-        opacity: 1;
-        transform: scale(1);
-        transition: opacity 200ms ease-out, transform 200ms ease-out;
-    }
-    
-    .badge-exit {
-        opacity: 1;
-        transform: scale(1);
-    }
-    
-    .badge-exit-active {
-        opacity: 0;
-        transform: scale(0.9);
-        transition: opacity 200ms ease-out, transform 200ms ease-out;
-    }
-</style> 

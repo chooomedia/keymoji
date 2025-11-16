@@ -11,7 +11,7 @@
  */
 
 import emojisData from '../../public/emojisArray.json';
-import { storageHelpers } from '../config/storage.js';
+import { storageHelpers } from '../config/storage';
 import { isDevelopment } from './environment';
 
 // Type definitions
@@ -515,7 +515,7 @@ async function callApertus(
     const finalModel = model || 'swiss-ai/apertus-70b-instruct';
 
     // Import WEBHOOKS dynamically to avoid circular dependencies
-    const { WEBHOOKS } = await import('../config/api.js');
+    const { WEBHOOKS } = await import('../config/api');
 
     // Get n8n token from environment (fallback to empty string for dev)
     // In production, this should be set in .env files as VITE_N8N_APERTUS_TOKEN

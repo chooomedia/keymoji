@@ -2,12 +2,18 @@
 const fs = require('fs');
 const path = require('path');
 
-// Import SEO utilities
-const {
-    DEFAULT_SEO,
-    formatCanonicalUrl,
-    getLocale
-} = require('../src/utils/seo.js');
+// Dynamisch importieren von TypeScript-Modul
+let DEFAULT_SEO, formatCanonicalUrl, getLocale;
+
+async function loadSeoModule() {
+    if (!DEFAULT_SEO) {
+        const seoModule = await import('../src/utils/seo.ts');
+        DEFAULT_SEO = seoModule.DEFAULT_SEO;
+        formatCanonicalUrl = seoModule.formatCanonicalUrl;
+        getLocale = seoModule.getLocale;
+    }
+    return { DEFAULT_SEO, formatCanonicalUrl, getLocale };
+}
 
 // Language configurations
 const supportedLanguages = [
@@ -62,7 +68,8 @@ const metaTemplates = {
 };
 
 // Generate meta tags HTML
-function generateMetaTags(route, lang = 'en') {
+async function generateMetaTags(route, lang = 'en') {
+    await loadSeoModule();
     const meta = metaTemplates[route] || metaTemplates['/'];
     const baseUrl = 'https://keymoji.wtf';
     const url =
@@ -118,7 +125,8 @@ function generateMetaTags(route, lang = 'en') {
 }
 
 // Update index.html with proper meta tags
-function updateIndexHtml() {
+async function updateIndexHtml() {
+    await loadSeoModule();
     const indexPath = path.join(__dirname, '../build/index.html');
 
     if (!fs.existsSync(indexPath)) {
@@ -129,7 +137,7 @@ function updateIndexHtml() {
     let html = fs.readFileSync(indexPath, 'utf8');
 
     // Default meta tags for root
-    const defaultMeta = generateMetaTags('/', 'en');
+    const defaultMeta = await generateMetaTags('/', 'en');
 
     // Replace or insert meta tags
     if (html.includes('</head>')) {
@@ -140,11 +148,13 @@ function updateIndexHtml() {
 }
 
 // Create route-specific HTML files with proper meta tags
-function createRouteFiles() {
+async function createRouteFiles() {
+    await loadSeoModule();
     const buildDir = path.join(__dirname, '../build');
 
-    supportedLanguages.forEach(lang => {
-        routes.forEach(route => {
+    // Verwende for...of statt forEach für async/await Support
+    for (const lang of supportedLanguages) {
+        for (const route of routes) {
             const routePath = route === '/' ? '' : route;
             const dir = path.join(buildDir, lang, routePath);
 
@@ -160,7 +170,7 @@ function createRouteFiles() {
             );
 
             // Generate meta tags for this route
-            const metaTags = generateMetaTags(route, lang);
+            const metaTags = await generateMetaTags(route, lang);
 
             // Replace meta tags
             let html = baseHtml;
@@ -177,14 +187,15 @@ function createRouteFiles() {
 
             // Write file
             fs.writeFileSync(path.join(dir, 'index.html'), html);
-        });
-    });
+        }
+    }
 
     console.log('✅ Created route-specific HTML files with meta tags');
 }
 
 // Run the script
-updateIndexHtml();
-createRouteFiles();
-
-console.log('✅ Meta tags pre-rendering complete!');
+(async () => {
+    await updateIndexHtml();
+    await createRouteFiles();
+    console.log('✅ Meta tags pre-rendering complete!');
+})();

@@ -1,21 +1,29 @@
 <!-- src/components/UI/Tooltip.svelte -->
-<script>
+<script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   
-  export let text = '';
-  export let position = 'top'; // top, bottom, left, right
-  export let delay = 300; // Delay in ms before showing tooltip
-  export let disabled = false;
+  interface Props {
+    text?: string;
+    position?: 'top' | 'bottom' | 'left' | 'right' | 'auto';
+    delay?: number;
+    disabled?: boolean;
+  }
   
-  let showTooltip = false;
-  let timeoutId = null;
-  let triggerElement;
-  let tooltipElement;
-  let tooltipPosition = { x: 0, y: 0 };
+  let {
+    text = '',
+    position = 'top',
+    delay = 300,
+    disabled = false
+  }: Props = $props();
   
-  // Calculate tooltip position based on trigger element
-  function calculatePosition() {
+  let showTooltip = $state(false);
+  let timeoutId: ReturnType<typeof setTimeout> | null = $state(null);
+  let triggerElement: HTMLElement | null = $state(null);
+  let tooltipElement: HTMLElement | null = $state(null);
+  let tooltipPosition = $state({ x: 0, y: 0 });
+  
+  function calculatePosition(): void {
     if (!triggerElement || !tooltipElement) return;
     
     const triggerRect = triggerElement.getBoundingClientRect();
@@ -138,7 +146,7 @@
 </script>
 
 <!-- Hidden reference element for positioning -->
-<span bind:this={tooltipElement} class="tooltip-container" aria-hidden="true"></span>
+<span bind:this={tooltipElement} class="absolute pointer-events-none w-0 h-0" aria-hidden="true"></span>
 
 {#if showTooltip && text}
   <div
@@ -160,13 +168,7 @@
 {/if}
 
 <style>
-  .tooltip-container {
-    position: absolute;
-    pointer-events: none;
-    width: 0;
-    height: 0;
-  }
-  
+  /* Tooltip fade-in animation */
   .tooltip {
     animation: tooltipFadeIn 0.2s ease-out;
   }

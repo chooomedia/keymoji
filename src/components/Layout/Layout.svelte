@@ -1,8 +1,8 @@
 <!-- src/Layout.svelte -->
-<script>
+<script lang="ts">
     import { onMount, afterUpdate } from 'svelte';
     import { darkMode } from '../stores/appStores'
-    import { currentLanguage } from '../../stores/contentStore.js';
+    import { currentLanguage } from '../stores/contentStore.ts';
 import { updatedTime } from '../../utils/timestamp';
     import SkipLink from '../A11y/SkipLink.svelte';
 import ServiceWorkerHandler from '../ServiceWorkerHandler.svelte';
@@ -24,10 +24,9 @@ import ModalDebug from '../UI/ModalDebug.svelte';
     let backgroundLoaded = false;
     let supportsWebP = false;
     
-    // Reactive background properties mit WebP-Support
-    $: finalBgSrc = supportsWebP ? hieroglyphicEmojisWebP : hieroglyphicEmojisSrc;
-    $: bgImage = `background-image: url("${finalBgSrc}"), ${$darkMode ? darkGradient : lightGradient}`;
-    $: bgBlendMode = $darkMode ? 'multiply' : 'hue';
+    const finalBgSrc = $derived(supportsWebP ? hieroglyphicEmojisWebP : hieroglyphicEmojisSrc);
+    const bgImage = $derived(`background-image: url("${finalBgSrc}"), ${darkMode ? darkGradient : lightGradient}`);
+    const bgBlendMode = $derived(darkMode ? 'multiply' : 'hue');
     
     let mounted = false;
     
@@ -67,22 +66,18 @@ import ModalDebug from '../UI/ModalDebug.svelte';
         }
     }
     
-    // Sync the document attributes with store values
-    function syncDocumentWithStores() {
-        // Set language attribute
-        if (document.documentElement.lang !== $currentLanguage) {
-            document.documentElement.lang = $currentLanguage;
+    function syncDocumentWithStores(): void {
+        if (document.documentElement.lang !== currentLanguage) {
+            document.documentElement.lang = currentLanguage;
         }
         
-        // Set dark mode class on HTML element for CSS 
-        if ($darkMode) {
+        if (darkMode) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
         }
         
-        // Handle special fonts (Elvish/Sindarin)
-        if ($currentLanguage === 'sjn') {
+        if (currentLanguage === 'sjn') {
             document.body.classList.add('font-elvish');
             
             // Preload font if not already done
@@ -126,8 +121,8 @@ import ModalDebug from '../UI/ModalDebug.svelte';
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.attributeName === 'lang' && 
-                    document.documentElement.lang !== $currentLanguage) {
-                    document.documentElement.lang = $currentLanguage;
+                    document.documentElement.lang !== currentLanguage) {
+                    document.documentElement.lang = currentLanguage;
                 }
             });
         });
@@ -154,11 +149,11 @@ import ModalDebug from '../UI/ModalDebug.svelte';
 <SkipLink target="#main-content" />
   
 <div 
-    class="wrapper hieroglyphemojis {$darkMode ? 'dark' : ''} {backgroundLoaded ? 'bg-loaded' : 'bg-loading'}" 
+    class="wrapper hieroglyphemojis {darkMode ? 'dark' : ''} {backgroundLoaded ? 'bg-loaded' : 'bg-loading'}" 
     style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}; will-change: background-position;"
     aria-hidden="false"
     data-url={url}
-    data-lang={$currentLanguage}
+    data-lang={currentLanguage}
 >
     <main id="main-content" class="main-content">
         <!-- Direktes Einfügen aller Komponenten von Router -->

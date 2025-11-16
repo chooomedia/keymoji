@@ -1,5 +1,5 @@
 <script>
-    import { accountStore } from '../../stores/accountStore.js';
+    import { accountStore } from '../../stores/accountStore';
     import { goto } from '$app/navigation';
 
     // Reactive variables from store

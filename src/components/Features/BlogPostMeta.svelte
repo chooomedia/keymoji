@@ -1,58 +1,55 @@
 <!-- src/components/Features/BlogPostMeta.svelte -->
 <!-- Wiederverwendbare Komponente für Blog-Post-Meta-Informationen -->
 
-<script>
+<script lang="ts">
     import { formatDate, calculateReadTime } from '../../utils/blogApi';
-    import { currentLanguage } from '../../stores/contentStore.js';
+    import { currentLanguage } from '../../stores/contentStore.ts';
     
-    /**
-     * Props:
-     * @param {string} isodate - ISO-Datum des Posts
-     * @param {string} date - Alternative Datumsformat
-     * @param {string} creator - Autor/Ersteller des Posts
-     * @param {string} category - Kategorie des Posts
-     * @param {number} readingTime - Lesezeit in Minuten
-     * @param {string} content - Post-Content (für Lesezeit-Berechnung)
-     * @param {boolean} showCreator - Ob Creator angezeigt werden soll (default: true)
-     * @param {string} variant - Variante: 'grid' oder 'detail' (default: 'grid')
-     * @param {function} truncateAuthor - Funktion zum Kürzen des Autor-Namens (optional)
-     */
+    interface Props {
+        isodate?: string | null;
+        date?: string | null;
+        creator?: string;
+        category?: string;
+        readingTime?: number | null;
+        content?: string;
+        showCreator?: boolean;
+        variant?: 'grid' | 'detail';
+        truncateAuthor?: ((author: string) => string) | null;
+        showCategory?: boolean;
+    }
     
-    export let isodate = null;
-    export let date = null;
-    export let creator = '';
-    export let category = '';
-    export let readingTime = null;
-    export let content = '';
-    export let showCreator = true;
-    export let variant = 'grid'; // 'grid' oder 'detail'
-    export let truncateAuthor = null;
-    export let showCategory = true; // Ob Category angezeigt werden soll (default: true)
+    let {
+        isodate = null,
+        date = null,
+        creator = '',
+        category = '',
+        readingTime = null,
+        content = '',
+        showCreator = true,
+        variant = 'grid',
+        truncateAuthor = null,
+        showCategory = true
+    }: Props = $props();
     
-    // Berechne Lesezeit falls nicht vorhanden
-    $: finalReadingTime = readingTime || (content ? calculateReadTime(content) : null);
-    
-    // Formatiere Datum
-    $: formattedDate = formatDate(isodate || date, $currentLanguage);
-    
-    // Standard-Truncation-Funktion (max. 20 Zeichen)
-    function defaultTruncateAuthor(author) {
+    function defaultTruncateAuthor(author: string | null | undefined): string {
         if (!author) return 'Unknown';
         const text = String(author);
-        // If text is longer than 20 chars, show first 17 chars + "..." = 20 total
         return text.length > 20 ? text.substring(0, 17) + '...' : text;
     }
     
-    // Kürze Autor-Name: verwende übergebene Funktion oder Standard
-    $: displayCreator = truncateAuthor && creator 
-        ? truncateAuthor(creator) 
-        : (creator ? defaultTruncateAuthor(creator) : 'Unknown');
+    const finalReadingTime = $derived(readingTime || (content ? calculateReadTime(content) : null));
     
-    // Bestimme Text-Größe und -Farbe basierend auf Variante
-    $: textSizeClass = 'text-xs'; // Beide Varianten verwenden text-xs
-    $: textColorClass = variant === 'detail' ? 'text-gray-600 dark:text-gray-300' : 'text-gray-500 dark:text-gray-400';
-    // Padding für Detail-Variante: oben und unten jeweils 0.75rem (py-3)
-    $: paddingClass = variant === 'detail' ? 'py-3' : '';
+    const formattedDate = $derived(formatDate(isodate || date, currentLanguage));
+    
+    const displayCreator = $derived(
+        truncateAuthor && creator 
+            ? truncateAuthor(creator) 
+            : (creator ? defaultTruncateAuthor(creator) : 'Unknown')
+    );
+    
+    const textSizeClass = $derived('text-xs');
+    const textColorClass = $derived(variant === 'detail' ? 'text-gray-600 dark:text-gray-300' : 'text-gray-500 dark:text-gray-400');
+    const paddingClass = $derived(variant === 'detail' ? 'py-3' : '');
 </script>
 
 <div class="pb-3 px-2 flex items-center justify-center gap-2 {textSizeClass} {textColorClass} {paddingClass} whitespace-nowrap">

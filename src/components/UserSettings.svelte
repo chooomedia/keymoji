@@ -1,10 +1,9 @@
 <!-- src/components/UserSettings.svelte -->
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
     import { fade, slide } from 'svelte/transition';
-    import { get } from 'svelte/store';
-    import { currentLanguage, translations } from '../stores/contentStore.js';
-    import { accountTier, currentAccount, darkMode } from '../stores/appStores'
+    import { currentLanguage, translations } from '../stores/contentStore.ts';
+    import { accountTier, currentAccount, darkMode } from '../stores/appStores';
     import { 
         userSettings, 
         pendingChanges, 
@@ -16,43 +15,43 @@
         getEffectiveValue,
         getCurrentUserSettings,
         invalidateSettingsCache
-    } from '../stores/userSettingsStore.js';
+    } from '../stores/userSettingsStore';
     import ModularInput from './UI/ModularInput.svelte';
     import Button from './UI/Button.svelte';
     import Modal from './UI/Modal.svelte';
-    import { showSuccess, showError, showWarning, showModal } from '../stores/modalStore';
+    import { showSuccess, showError, showWarning, showModal } from '../stores/modalStore.ts';
     import { testAIProvider, getProviderInfo } from '../utils/storyModeAI';
 
     // Load settings configuration
-    let settingsConfig = {};
-    let activeSection = 'basic';
-    let showProModal = false;
-    let proFeatureName = '';
-    let proFeatureDescription = '';
+    let settingsConfig = $state<Record<string, unknown>>({});
+    let activeSection = $state('basic');
+    let showProModal = $state(false);
+    let proFeatureName = $state('');
+    let proFeatureDescription = $state('');
     
     // UI State (which sections are expanded/collapsed)
-    let uiState = {
+    let uiState = $state({
         expandedSections: ['basic'] // Default: basic section open
-    };
+    });
 
     // PRO Banner State (dismissable for 3 days)
-    let showProBanner = true;
+    let showProBanner = $state(true);
     const PRO_BANNER_KEY = 'keymoji_pro_banner_dismissed';
     const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
     
     // API Test State
-    let isTestingAPI = false;
-    let showApiKey = false; // Toggle for showing/hiding API key
-    let apiTestSuccess = false; // ✅ Test successful for current provider
-    let testedProvider = null; // Track which provider was tested
-    let settingsInitialized = false; // Track if settings are fully initialized
+    let isTestingAPI = $state(false);
+    let showApiKey = $state(false); // Toggle for showing/hiding API key
+    let apiTestSuccess = $state(false); // ✅ Test successful for current provider
+    let testedProvider = $state<string | null>(null); // Track which provider was tested
+    let settingsInitialized = $state(false); // Track if settings are fully initialized
     
     // Local state for API key input to prevent reset during typing
-    let localApiKeyValue = '';
-    let isApiKeyFocused = false;
+    let localApiKeyValue = $state('');
+    let isApiKeyFocused = $state(false);
 
-    // Check if user is pro - optimiert mit $: um zu viele Aufrufe zu vermeiden
-    $: isProUser = $accountTier === 'pro';
+    // Check if user is pro - optimiert mit $derived um zu viele Aufrufe zu vermeiden
+    let isProUser = $derived(accountTier === 'pro');
     
     // Load verification status from settings (only if settings are initialized)
     function loadVerificationStatus() {
@@ -92,37 +91,39 @@
     }
     
     // REACTIVE: Reset test status when provider or API key changes (only after initialization)
-    // Guard: Only run reactive block if settings are initialized
+    // Guard: Only run reactive block if settings are initialized (Svelte 5 Runes)
     // Use currentProvider (derived from activeProvider) as Single Source of Truth
-    $: if (settingsInitialized) {
-        const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
-        const currentApiKey = apiKeys[currentProvider] || '';
-        
-        // Load verification status when provider changes
-        if (currentProvider) {
-            loadVerificationStatus();
+    $effect(() => {
+        if (settingsInitialized) {
+            const apiKeys = getEffectiveValue('storyMode.apiKeys') || {};
+            const currentApiKey = apiKeys[currentProvider] || '';
+            
+            // Load verification status when provider changes
+            if (currentProvider) {
+                loadVerificationStatus();
+            }
+            
+            // Reset if provider changed
+            if (testedProvider && currentProvider !== testedProvider) {
+                apiTestSuccess = false;
+                testedProvider = null;
+                console.log('🔄 Provider changed, resetting test status');
+                // Reload verification status for new provider
+                loadVerificationStatus();
+            }
+            
+            // Reset if API key was modified after successful test
+            if (apiTestSuccess && testedProvider === currentProvider) {
+                // We can't easily detect if the key changed, so we assume it's still valid
+                // The user must re-test if they change the key
+                console.log('✅ Test status maintained for current provider:', currentProvider);
+            }
         }
-        
-        // Reset if provider changed
-        if (testedProvider && currentProvider !== testedProvider) {
-            apiTestSuccess = false;
-            testedProvider = null;
-            console.log('🔄 Provider changed, resetting test status');
-            // Reload verification status for new provider
-            loadVerificationStatus();
-        }
-        
-        // Reset if API key was modified after successful test
-        if (apiTestSuccess && testedProvider === currentProvider) {
-            // We can't easily detect if the key changed, so we assume it's still valid
-            // The user must re-test if they change the key
-            console.log('✅ Test status maintained for current provider:', currentProvider);
-        }
-    }
+    });
     
     // REACTIVE: Check if Story Mode is enabled and requires testing
-    $: storyModeEnabled = getEffectiveValue('storyMode.enabled') || false;
-    $: requiresAPITest = storyModeEnabled && !apiTestSuccess;
+    let storyModeEnabled = $derived(getEffectiveValue('storyMode.enabled') || false);
+    let requiresAPITest = $derived(storyModeEnabled && !apiTestSuccess);
     
     // REACTIVE: Force re-evaluation when these stores change
     // BUT: Only for non-input fields to avoid focus loss during typing
@@ -131,37 +132,39 @@
     // ============================================
     // Priority: pendingChanges > userSettings > default
     // CRITICAL: These reactive statements ensure immediate updates when stores change
-    $: pendingProviderValue = $pendingChanges['storyMode.provider'];
-    $: settingsProviderValue = $userSettings?.storyMode?.provider;
-    $: currentStoryModeProvider = getEffectiveValue('storyMode.provider') || 'apertus';
+    let pendingProviderValue = $derived(pendingChanges['storyMode.provider']);
+    let settingsProviderValue = $derived(userSettings?.storyMode?.provider);
+    let currentStoryModeProvider = $derived(getEffectiveValue('storyMode.provider') || 'apertus');
     
     // Active provider: prioritize pendingChanges (user is changing), then saved settings, then default
-    $: activeProvider = pendingProviderValue !== undefined 
+    let activeProvider = $derived(pendingProviderValue !== undefined 
         ? pendingProviderValue 
-        : (settingsProviderValue !== undefined ? settingsProviderValue : currentStoryModeProvider);
+        : (settingsProviderValue !== undefined ? settingsProviderValue : currentStoryModeProvider));
     
     // Derive currentProvider for template use (always reactive, always has a value)
-    $: currentProvider = activeProvider || 'apertus';
+    let currentProvider = $derived(activeProvider || 'apertus');
     
     // Reset UI state when provider changes
-    let previousProvider = currentProvider;
-    $: if (currentProvider !== previousProvider) {
-        showApiKey = false;
-        isApiKeyFocused = false;
-        localApiKeyValue = '';
-        if (testedProvider !== currentProvider) {
-            apiTestSuccess = false;
-            testedProvider = null;
+    let previousProvider = $state(currentProvider);
+    $effect(() => {
+        if (currentProvider !== previousProvider) {
+            showApiKey = false;
+            isApiKeyFocused = false;
+            localApiKeyValue = '';
+            if (testedProvider !== currentProvider) {
+                apiTestSuccess = false;
+                testedProvider = null;
+            }
+            previousProvider = currentProvider;
         }
-        previousProvider = currentProvider;
-    }
+    });
     
     // NOTE: reactivityTrigger removed - using direct reactive statements instead
     // This prevents unnecessary re-renders that cause input resets
 
     // Helper function to get localized text
     function getLocalizedText(textObj, fallback = '') {
-        return textObj?.[$currentLanguage] || textObj?.en || fallback;
+        return textObj?.[currentLanguage] || textObj?.en || fallback;
     }
 
     // Get effective value for a setting (includes pending changes) - ROBUST & REACTIVE
@@ -169,8 +172,8 @@
         const itemId = item.id;
         
         // CRITICAL: Always check pendingChanges FIRST - this is what user is currently typing!
-        // Use get() instead of $ to avoid reactive re-renders during typing
-        const pending = get(pendingChanges);
+        // Direct access to avoid reactive re-renders during typing
+        const pending = pendingChanges;
         const pendingValue = pending[itemId];
         
         // If there's a pending value, use it immediately (user is typing or just typed)
@@ -183,17 +186,17 @@
         
         // Special handling for critical fields that sync with other stores
         
-        // Name: Use get() instead of $ to avoid reactive re-renders during typing
+        // Name: Direct access to avoid reactive re-renders during typing
         if (itemId === 'name') {
-            // Priority 1: currentAccount store (after successful save) - Use get() not $!
-            const account = get(currentAccount); // NOT REACTIVE - prevents re-render during typing!
+            // Priority 1: currentAccount store (after successful save) - Direct access prevents re-render during typing!
+            const account = currentAccount;
             const accountName = account?.name || account?.profile?.name;
             if (accountName) {
                 return accountName;
             }
             
-            // Priority 2: userSettings - Use get() not $!
-            const settings = get(userSettings); // NOT REACTIVE - prevents re-render during typing!
+            // Priority 2: userSettings - Direct access prevents re-render during typing!
+            const settings = userSettings;
             const settingsName = settings?.name;
             if (settingsName) {
                 return settingsName;
@@ -205,7 +208,7 @@
         
         // Language: Always sync from currentLanguage store (source of truth)
         if (itemId === 'language') {
-            const lang = get(currentLanguage);
+            const lang = currentLanguage;
             return lang || effectiveValue || item.defaultValue || 'en';
         }
         
@@ -223,7 +226,7 @@
             }
             
             // Fallback: Derive from darkMode
-            const isDark = get(darkMode);
+            const isDark = darkMode;
             return isDark ? 'dark' : 'light';
         }
         
@@ -232,28 +235,30 @@
     }
 
     // Get available sections based on user tier
-    $: availableSections = Object.values(settingsConfig.sections || {}).filter(section => {
+    let availableSections = $derived(Object.values(settingsConfig.sections || {}).filter(section => {
         // Free users: basic, emoji, and story sections
         if (!isProUser) {
             return section.id === 'basic' || section.id === 'emoji' || section.id === 'story';
         }
         // Pro users: all sections
         return true;
-    });
+    }));
 
     // Debug logging for reactivity
-    $: if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        console.log('🔄 UserSettings: availableSections updated:', availableSections);
-        console.log('🔄 UserSettings: isProUser:', isProUser);
-        console.log('🔄 UserSettings: settingsConfig:', settingsConfig);
-    }
+    $effect(() => {
+        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+            console.log('🔄 UserSettings: availableSections updated:', availableSections);
+            console.log('🔄 UserSettings: isProUser:', isProUser);
+            console.log('🔄 UserSettings: settingsConfig:', settingsConfig);
+        }
+    });
 
     // Track if user is trying to leave the page
     let isLeavingPage = false;
 
     // Handle page leave attempts
     function handlePageLeaveAttempt() {
-        if ($hasUnsavedChanges && !isLeavingPage) {
+        if (hasUnsavedChanges && !isLeavingPage) {
             isLeavingPage = true;
             handlePageLeave();
         }
@@ -533,7 +538,7 @@
 
     // Function for page leave confirmation
     function handlePageLeave() {
-        if ($hasUnsavedChanges) {
+        if (hasUnsavedChanges) {
             showModal('Do you want to save your changes?', 'info', {
                 primaryButton: {
                     text: 'Save Changes',
@@ -600,8 +605,8 @@
     function handleUpgrade() {
         // Show PRO feature modal with upgrade details
         handleProFeature(
-            $translations?.accountManager?.proFeatureModal?.proUpgrade || 'Pro Upgrade',
-            $translations?.accountManager?.proFeatureModal?.unlockAdvancedFeatures || 'Unlock all advanced features and settings'
+            translations?.accountManager?.proFeatureModal?.proUpgrade || 'Pro Upgrade',
+            translations?.accountManager?.proFeatureModal?.unlockAdvancedFeatures || 'Unlock all advanced features and settings'
         );
     }
 
@@ -974,7 +979,7 @@
         showProBanner = !isDismissed;
 
         // Initialize settings from account and API
-        const { initializeSettingsForUser } = await import('../stores/userSettingsStore.js');
+        const { initializeSettingsForUser } = await import('../stores/userSettingsStore');
         await initializeSettingsForUser();
         console.log('✅ UserSettings: Settings initialized for user');
         
@@ -1035,7 +1040,7 @@
 
         // Add beforeunload event listener for page leave confirmation
         const handleBeforeUnload = (event) => {
-            if ($hasUnsavedChanges) {
+            if (hasUnsavedChanges) {
                 event.preventDefault();
                 event.returnValue = '';
                 handlePageLeaveAttempt();
@@ -1047,7 +1052,7 @@
         const handleKeydown = (event) => {
             if ((event.ctrlKey || event.metaKey) && event.key === 's') {
                 event.preventDefault();
-                if ($hasUnsavedChanges) {
+                if (hasUnsavedChanges) {
                     handleSaveSettings();
                 }
             }
@@ -1067,7 +1072,7 @@
 <div class="user-settings">
     <!-- Header -->
     <p class="sr-only">
-        {getLocalizedText($translations?.userSettings?.title, 'User Settings')}
+        {getLocalizedText(translations?.userSettings?.title, 'User Settings')}
     </p>
 
     <!-- Account Tier Info (Dismissable for FREE users) -->
@@ -1094,20 +1099,20 @@
                         <span class="text-2xl">🆓</span>
                         <div>
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                {$translations?.accountManager?.tiers?.freeAccount || 'Kostenloser Account'}
+                                {translations?.accountManager?.tiers?.freeAccount || 'Kostenloser Account'}
                             </h2>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                {$translations?.accountManager?.upgrade?.upgradeToProForFeatures || 'Upgrade auf Pro für erweiterte Features'}
+                                {translations?.accountManager?.upgrade?.upgradeToProForFeatures || 'Upgrade auf Pro für erweiterte Features'}
                             </p>
                         </div>
                     </div>
                     <button
                         on:click={handleUpgrade}
                         class="w-full inline-flex justify-center items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-800 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
-                        aria-label="{$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}"
-                        title="{$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}"
+                        aria-label="{translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}"
+                        title="{translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}"
                     >
-                        {$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}
+                        {translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}
                     </button>
                 </div>
             </div>
@@ -1153,7 +1158,7 @@
                                 </h3>
                                 {#if !isProUser && (section.id === 'security' || section.id === 'generation' || section.id === 'privacy' || section.id === 'pro')}
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                                        {$translations?.accountManager?.tiers?.proAccount || '💎 Pro'}
+                                        {translations?.accountManager?.tiers?.proAccount || '💎 Pro'}
                                     </span>
                                 {/if}
                             </div>
@@ -1211,7 +1216,7 @@
                                             defaultValue: item.defaultValue,
                                             class: 'contact-input'
                                         }}
-                                        currentLanguage={$currentLanguage}
+                                        currentLanguage={currentLanguage}
                                         currentValue={getCurrentValue(item)}
                                         onValueChange={(value) => handleSettingUpdate(item.id, value)}
                                     />
@@ -1238,7 +1243,7 @@
                                                 defaultValue: item.defaultValue,
                                                 class: 'contact-input'
                                             }}
-                                            currentLanguage={$currentLanguage}
+                                            currentLanguage={currentLanguage}
                                             currentValue={currentProvider}
                                             onValueChange={(value) => handleSettingUpdate(item.id, value)}
                                         />
@@ -1397,11 +1402,11 @@
                                                         <div class="text-xs text-gray-600 dark:text-gray-400 mt-1 space-y-1">
                                                             {#if isApertus}
                                                                 <p id="apertus-token-info" class="text-gray-700 dark:text-gray-300 font-medium mb-2">
-                                                                    {$translations?.accountManager?.apertusInfo || 'Exclusive on Keymoji: Apertus – the Swiss LLM. First time available for users. Hosted on HuggingFace, delivered via n8n workflow.'}
+                                                                    {translations?.accountManager?.apertusInfo || 'Exclusive on Keymoji: Apertus – the Swiss LLM. First time available for users. Hosted on HuggingFace, delivered via n8n workflow.'}
                                                                 </p>
                                                                 <div class="flex flex-wrap items-center gap-3 mt-2">
                                                                     <a href="https://huggingface.co/swiss-ai/Apertus-8B-Instruct-2509" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
-                                                                        <span>{$translations?.accountManager?.apertusHuggingFaceLink || 'Apertus-8B auf HuggingFace'}</span>
+                                                                        <span>{translations?.accountManager?.apertusHuggingFaceLink || 'Apertus-8B auf HuggingFace'}</span>
                                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                                                         </svg>
@@ -1416,15 +1421,15 @@
                                                             {:else if providerInfo}
                                                                 <p class="text-gray-700 dark:text-gray-300 font-medium mb-1">
                                                                     {#if currentProvider === 'openai'}
-                                                                        {$translations?.accountManager?.openaiHint || 'OpenAI API Key: Create an API key in your OpenAI account. Paid service, but very powerful.'}
+                                                                        {translations?.accountManager?.openaiHint || 'OpenAI API Key: Create an API key in your OpenAI account. Paid service, but very powerful.'}
                                                                     {:else if currentProvider === 'gemini'}
-                                                                        {$translations?.accountManager?.geminiHint || 'Google Gemini API Key: Create an API key in Google AI Studio. Free for moderate usage.'}
+                                                                        {translations?.accountManager?.geminiHint || 'Google Gemini API Key: Create an API key in Google AI Studio. Free for moderate usage.'}
                                                                     {:else if currentProvider === 'claude'}
-                                                                        {$translations?.accountManager?.claudeHint || 'Anthropic Claude API Key: Create an API key in your Anthropic account. High-quality responses with focus on security.'}
+                                                                        {translations?.accountManager?.claudeHint || 'Anthropic Claude API Key: Create an API key in your Anthropic account. High-quality responses with focus on security.'}
                                                                     {:else if currentProvider === 'mistral'}
-                                                                        {$translations?.accountManager?.mistralHint || 'Mistral AI API Key: Create an API key in your Mistral account. European provider with good prices.'}
+                                                                        {translations?.accountManager?.mistralHint || 'Mistral AI API Key: Create an API key in your Mistral account. European provider with good prices.'}
                                                                     {:else if currentProvider === 'custom'}
-                                                                        {$translations?.accountManager?.customHint || 'Custom API: Configure your own API endpoint. Supports OpenAI-compatible APIs.'}
+                                                                        {translations?.accountManager?.customHint || 'Custom API: Configure your own API endpoint. Supports OpenAI-compatible APIs.'}
                                                                     {:else}
                                                                         {getLocalizedText(apiKeysItem.description)}
                                                                     {/if}
@@ -1475,7 +1480,7 @@
                                                                                 defaultValue: customItem.defaultValue,
                                                                                 class: 'contact-input'
                                                                             }}
-                                                                            currentLanguage={$currentLanguage}
+                                                                            currentLanguage={currentLanguage}
                                                                             currentValue={getCurrentValue(customItem)}
                                                                             onValueChange={(value) => handleSettingUpdate(customItem.id, value)}
                                                                         />
@@ -1563,7 +1568,7 @@
                                             defaultValue: item.defaultValue,
                                             class: 'contact-input'
                                         }}
-                                        currentLanguage={$currentLanguage}
+                                        currentLanguage={currentLanguage}
                                         currentValue={getCurrentValue(item)}
                                         onValueChange={(value) => handleSettingUpdate(item.id, value)}
                                     />
@@ -1597,7 +1602,7 @@
                                                 defaultValue: item.defaultValue,
                                                 class: 'contact-input'
                                             }}
-                                            currentLanguage={$currentLanguage}
+                                            currentLanguage={currentLanguage}
                                             currentValue={getCurrentValue(item)}
                                             onValueChange={(value) => handleSettingUpdate(item.id, value)}
                                         />

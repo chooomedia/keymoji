@@ -5,9 +5,20 @@
  * TypeScript Migration: v0.7.7
  */
 
-import { navigate } from 'svelte-routing';
-import { get, type Readable } from 'svelte/store';
-import { currentLanguage } from '../stores/contentStore.js';
+import { get } from 'svelte/store';
+import { navigate } from './routing.ts';
+import { currentLanguage } from '../stores/contentStore.ts';
+
+/**
+ * Markiert dass der User von der initialen Seite navigiert ist
+ * DRY: Wiederverwendbare Funktion für hasNavigatedAway Flag
+ */
+function markNavigatedAway(): void {
+    if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('hasNavigatedAway', 'true');
+        console.log('🔄 User navigated away - hasNavigatedAway set to true');
+    }
+}
 
 /**
  * Navigiert zu einer Route mit korrekter Sprachunterstützung
@@ -16,11 +27,7 @@ import { currentLanguage } from '../stores/contentStore.js';
  */
 export function navigateToRoute(path: string, replace: boolean = false): void {
     try {
-        // Mark that user has navigated away from initial load
-        if (typeof sessionStorage !== 'undefined') {
-            sessionStorage.setItem('hasNavigatedAway', 'true');
-            console.log('🔄 User navigated away - hasNavigatedAway set to true');
-        }
+        markNavigatedAway();
 
         const lang = get(currentLanguage) || 'en';
         const fullPath = path ? `/${lang}/${path}` : `/${lang}`;
@@ -43,11 +50,7 @@ export function navigateToRoute(path: string, replace: boolean = false): void {
  */
 export function navigateToHome(replace: boolean = false): void {
     try {
-        // Mark that user has navigated away from initial load
-        if (typeof sessionStorage !== 'undefined') {
-            sessionStorage.setItem('hasNavigatedAway', 'true');
-            console.log('🔄 User navigated away - hasNavigatedAway set to true');
-        }
+        markNavigatedAway();
 
         const lang = get(currentLanguage) || 'en';
         const fullPath = lang === 'en' ? '/' : `/${lang}`;

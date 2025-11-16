@@ -1,15 +1,20 @@
-<script>
+<script lang="ts">
   import { onDestroy } from 'svelte';
   import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers';
   
-  export let targetId = 'main-content';
-  export let label = 'Skip to main content';
+  interface Props {
+    targetId?: string;
+    label?: string;
+  }
   
-  // Timeout-Tracking für Memory Leak Prevention
-  let activeTimeouts = new Set();
+  let {
+    targetId = 'main-content',
+    label = 'Skip to main content'
+  }: Props = $props();
   
-  // Wrapper für safeSetTimeout mit lokalem Tracking (für onDestroy cleanup)
-  function localSafeSetTimeout(callback, delay) {
+  let activeTimeouts = $state(new Set<ReturnType<typeof setTimeout>>());
+  
+  function localSafeSetTimeout(callback: () => void, delay: number): ReturnType<typeof setTimeout> {
     const timeoutId = safeSetTimeout(() => {
       activeTimeouts.delete(timeoutId);
       callback();
@@ -26,7 +31,7 @@
     activeTimeouts.clear();
   });
 
-  function handleSkip() {
+  function handleSkip(): void {
     const targetElement = document.getElementById(targetId);
     
     if (targetElement) {

@@ -1,18 +1,18 @@
 <!-- src/routes/VersionHistory.svelte -->
-<script>
+<script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { fly, slide } from 'svelte/transition';
-    import { versions } from '../data/versions.js';
+    import { versions } from '../data/versions';
     import { updateSeo } from '../stores/seoStore';
-    import { currentLanguage, translations } from '../stores/contentStore.js';
-    import { navigate } from 'svelte-routing';
+    import { currentLanguage, translations } from '../stores/contentStore.ts';
+    import { get } from 'svelte/store';
+    import { navigate } from '../utils/routing.ts';
     import PageLayout from '../components/Layout/PageLayout.svelte';
     import { versionInfo, appVersion } from '../utils/version';
-    import FooterInfo from '../widgets/FooterInfo.svelte';
 
-    // Reaktive PageLayout Props
-    $: pageTitle = $translations?.versions?.pageTitle || 'Version History';
-    $: pageDescription = $translations?.versions?.pageDescription || 'Check out the development history and changelog of Keymoji.';
+    // Reaktive PageLayout Props (Svelte 5 Runes)
+    let pageTitle = $derived.by(() => get(translations)?.versions?.pageTitle || 'Version History');
+    let pageDescription = $derived.by(() => get(translations)?.versions?.pageDescription || 'Check out the development history and changelog of Keymoji.');
    
     // Verwende appVersion statt currentVersion Prop
     let currentVersion = appVersion;
@@ -60,7 +60,7 @@
 
     // Navigation zur Home-Seite
     function navigateBack() {
-        const lang = $currentLanguage || 'en';
+        const lang = get(currentLanguage) || 'en';
         const fullPath = lang === 'en' ? '/' : `/${lang}`;
         navigate(fullPath, { replace: true });
     }
@@ -125,7 +125,7 @@
     <meta name="description" content={pageDescription} />
 </svelte:head>
 
-<PageLayout {pageTitle} {pageDescription}>
+<PageLayout {pageTitle} {pageDescription} routeSlug="versions">
     
     <!-- Back Button - Liegt ZUR HÄLFTE auf content-wrapper Rand -->
     <div slot="before-content" class="relative w-full flex justify-center -mb-14">
@@ -234,9 +234,9 @@
                                                             {#if data.improvements && data.improvements.length > 0}
                                                                 <ul class="space-y-1.5">
                                                                     {#each data.improvements as improvement}
-                                                                        <li class="flex items-start {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-item' : ''}">
+                                                                        <li class="flex items-start {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-item bg-orange-500/8 dark:bg-orange-500/8 rounded px-1.5 py-1 my-0.5 border-l-2 border-orange-600 transition-all duration-200 hover:bg-orange-500/12 dark:hover:bg-orange-500/12 hover:translate-x-0.5 hover:border-orange-400 cursor-pointer' : ''}">
                                                                             <span class="mr-2 text-yellow-500 text-xs mt-0.5">•</span>
-                                                                            <span class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                                                                            <span class="text-xs text-black dark:text-white leading-relaxed">
                                                                                 {improvement}
                                                                             </span>
                                                                         </li>
@@ -304,7 +304,6 @@
     </div>
 
     <!-- Footer Information Component -->
-    <FooterInfo slot="footer" />
 </PageLayout>
 
 <style>
@@ -319,30 +318,6 @@
     .critical-title {
         text-shadow: 0 0 6px rgba(217, 119, 6, 0.3);
         animation: criticalGlow 3s ease-in-out infinite alternate;
-    }
-
-    .critical-item {
-        background: rgba(217, 119, 6, 0.08);
-        border-radius: 4px;
-        padding: 4px 6px;
-        margin: 2px 0;
-        border-left: 2px solid #d97706;
-        transition: all 0.2s ease;
-    }
-
-    .critical-item > span {
-        color: #000000 !important;
-    }
-
-    :global(.dark) .critical-item > span {
-        color: #ffffff !important;
-    }
-
-    .critical-item:hover {
-        background: rgba(217, 119, 6, 0.12);
-        transform: translateX(2px);
-        border-left: 2px solid #f59e0b;
-        cursor: pointer;
     }
 
     @keyframes criticalPulse {

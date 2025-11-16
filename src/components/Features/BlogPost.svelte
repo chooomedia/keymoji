@@ -1,15 +1,15 @@
-<script>
-    import { currentLanguage, showShareMenu, translations } from '../../stores/contentStore.js';
+<script lang="ts">
+    import { currentLanguage, showShareMenu, translations } from '../../stores/contentStore.ts';
     import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
-    import { Link, navigate } from 'svelte-routing';
-    import { updateSeo } from '../../stores/seoStore';
+    import Link from '../../components/Routing/Link.svelte';
+    import { navigate } from '../../utils/routing.ts';
+    import { updateSeo } from '../../stores/seoStore.ts';
     import { fetchBlogPost, likeBlogPost, fetchBlogPosts } from '../../utils/blogApi';
     import { getBlogUrl, getBlogShareUrl, getHomeUrl } from '../../utils/blogNavigation';
-    import { isLoggedIn } from '../../stores/appStores'
+    import { isLoggedIn } from '../../stores/appStores';
     import { blogLikesStore } from '../../stores/blogLikesStore';
-    import { get } from 'svelte/store';
     import PageLayout from '../Layout/PageLayout.svelte';
     import BlogPostImage from './BlogPostImage.svelte';
     import BlogPostMeta from './BlogPostMeta.svelte';
@@ -19,7 +19,11 @@
     import BlogPostSkeleton from './BlogPostSkeleton.svelte';
     import { navigateToBlogPost } from '../../utils/blogNavigation';
   
-    export let slug;
+    interface Props {
+        slug: string;
+    }
+    
+    let { slug }: Props = $props();
     
     let post = null;
     let loading = true;
@@ -33,23 +37,22 @@
     let isTransitioning = false;
     let isMounted = false;
   
-    // Translations for 404 page
-    $: backToPostsText = (() => {
-        const lang = $currentLanguage || 'en';
+    const backToPostsText = $derived.by(() => {
+        const lang = currentLanguage || 'en';
         if (lang === 'de') return 'Zurück zu Posts';
         if (lang === 'en') return 'Back to Posts';
-        return 'Back to Posts'; // Fallback for all other languages
-    })();
+        return 'Back to Posts';
+    });
     
-    $: postNotFoundText = (() => {
-        const lang = $currentLanguage || 'en';
+    const postNotFoundText = $derived.by(() => {
+        const lang = currentLanguage || 'en';
         if (lang === 'de') return 'Post nicht gefunden';
         if (lang === 'en') return 'Post not found';
-        return 'Post not found'; // Fallback for all other languages
-    })();
+        return 'Post not found';
+    });
   
-    function navigateBack() {
-        const lang = $currentLanguage || 'en';
+    function navigateBack(): void {
+        const lang = currentLanguage || 'en';
         const blogPath = lang === 'en' ? '/blog' : `/${lang}/blog`;
         navigate(blogPath, { replace: true });
     }
@@ -75,10 +78,11 @@
         navigateToBlogPost(nextPost.slug, false);
     }
     
-    // Reload post when slug changes (for navigation between posts)
-    $: if (slug && isMounted) {
-        loadPost();
-    }
+    $effect(() => {
+        if (slug && isMounted) {
+            loadPost();
+        }
+    });
     
     async function loadPost() {
       if (!slug) {
@@ -127,7 +131,7 @@
           });
           
           // Inject BlogPosting structured data (E-E-A-T-S optimized)
-          const structuredData = generateBlogPostStructuredData(post, $currentLanguage, canonicalUrl);
+          const structuredData = generateBlogPostStructuredData(post, currentLanguage, canonicalUrl);
           injectStructuredData(structuredData);
         } else {
           // Post nicht gefunden - 404
@@ -155,9 +159,9 @@
   
     let likeStatus = null; // 'success' | 'error' | null
   
-    async function handleLike() {
-        if (!get(isLoggedIn)) {
-            const lang = $currentLanguage || 'en';
+    async function handleLike(): Promise<void> {
+        if (!isLoggedIn) {
+            const lang = currentLanguage || 'en';
             const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
             navigate(accountPath, { replace: false });
             return;
@@ -257,7 +261,7 @@
     }
 </script>
   
-    <PageLayout pageTitle={post?.title || ''} pageDescription={post?.excerpt || ''}>
+    <PageLayout pageTitle={post?.title || ''} pageDescription={post?.excerpt || ''} routeSlug="blog">
     <!-- Back Button - Liegt ZUR HÄLFTE auf content-wrapper Rand -->
     <div slot="before-content" class="relative w-full flex justify-center -mb-14">
         {#if !loading && !error && post}

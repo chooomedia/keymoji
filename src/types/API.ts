@@ -104,5 +104,5 @@ export interface AnalyticsEvent {
 }
 
 // Import Account types
-import type { Account } from './Account.js';
+import type { Account } from './Account';
 

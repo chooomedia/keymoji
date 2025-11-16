@@ -1,7 +1,7 @@
 <!-- src/components/SEO.svelte -->
-<script>
+<script lang="ts">
     import { onMount, onDestroy } from 'svelte';
-    import { currentLanguage, t } from '../stores/contentStore.js';
+    import { currentLanguage, t } from '../stores/contentStore.ts';
     import { 
         DEFAULT_SEO,
         formatCanonicalUrl,
@@ -15,38 +15,48 @@
         getPageKeywords
     } from '../utils/seo';
   
-    export let title = '';
-    export let description = '';
-    export let url = '';
-    export let image = DEFAULT_SEO.image;
-    export let type = DEFAULT_SEO.type;
-    export let noindex = DEFAULT_SEO.noindex;
-    export let keywords = '';
-    export let canonical = '';
-    export let pageType = DEFAULT_SEO.pageType;
-  
-    let pageTitle = '';
-    let pageDescription = '';
-    let pageKeywords = '';
-    let structuredData = {};
-    let alternateUrls = [];
-    let cleanup = null;
+    interface Props {
+        title?: string;
+        description?: string;
+        url?: string;
+        image?: string;
+        type?: string;
+        noindex?: boolean;
+        keywords?: string;
+        canonical?: string;
+        pageType?: string;
+    }
     
-    // Get language-specific meta content with fallbacks
-    $: {
-        // SEO-optimierte Titel mit Fallbacks - jetzt mit Sprachunterstützung
-        pageTitle = title || getPageTitle(pageType, $currentLanguage) || DEFAULT_SEO.title;
-        pageDescription = description || getPageDescription(pageType, $currentLanguage) || DEFAULT_SEO.description;
-        pageKeywords = keywords || getPageKeywords(pageType, $currentLanguage) || DEFAULT_SEO.keywords;
-    }
+    let {
+        title = '',
+        description = '',
+        url = '',
+        image = DEFAULT_SEO.image,
+        type = DEFAULT_SEO.type,
+        noindex = DEFAULT_SEO.noindex,
+        keywords = '',
+        canonical = '',
+        pageType = DEFAULT_SEO.pageType
+    }: Props = $props();
   
-    // Generate alternate URLs for each language
-    $: {
+    let pageTitle = $state('');
+    let pageDescription = $state('');
+    let pageKeywords = $state('');
+    let structuredData = $state<Record<string, unknown>>({});
+    let alternateUrls = $state<Array<{ lang: string; url: string }>>([]);
+    let cleanup: (() => void) | null = $state(null);
+    
+    $effect(() => {
+        pageTitle = title || getPageTitle(pageType, currentLanguage) || DEFAULT_SEO.title;
+        pageDescription = description || getPageDescription(pageType, currentLanguage) || DEFAULT_SEO.description;
+        pageKeywords = keywords || getPageKeywords(pageType, currentLanguage) || DEFAULT_SEO.keywords;
+    });
+  
+    $effect(() => {
         alternateUrls = generateAlternateUrls(url);
-    }
+    });
   
-    // Generate structured data based on page type
-    $: {
+    $effect(() => {
         const seoData = {
             pageType,
             title: pageTitle,
@@ -54,11 +64,10 @@
             canonical: canonical || formatCanonicalUrl(url),
             image
         };
-        structuredData = generateStructuredData(seoData, $currentLanguage);
-    }
+        structuredData = generateStructuredData(seoData, currentLanguage);
+    });
   
     onMount(() => {
-        // Update meta tags with dynamic title based on page type and language
         const seoData = {
             title: pageTitle,
             description: pageDescription,
@@ -69,12 +78,9 @@
             noindex
         };
         
-        updateMetaTags(seoData, $currentLanguage);
-        
-        // Inject structured data
+        updateMetaTags(seoData, currentLanguage);
         injectStructuredData(structuredData);
         
-        // Cleanup function
         cleanup = () => {
             const oldScript = document.querySelector('script[data-seo-structured="true"]');
             if (oldScript && oldScript.parentNode) {
@@ -87,21 +93,22 @@
         if (cleanup) cleanup();
     });
     
-    // React to language changes
-    $: if (typeof document !== 'undefined') {
-        const seoData = {
-            title: pageTitle,
-            description: pageDescription,
-            keywords: pageKeywords,
-            canonical: canonical || formatCanonicalUrl(url),
-            image,
-            type,
-            noindex
-        };
-        
-        updateMetaTags(seoData, $currentLanguage);
-        injectStructuredData(structuredData);
-    }
+    $effect(() => {
+        if (typeof document !== 'undefined') {
+            const seoData = {
+                title: pageTitle,
+                description: pageDescription,
+                keywords: pageKeywords,
+                canonical: canonical || formatCanonicalUrl(url),
+                image,
+                type,
+                noindex
+            };
+            
+            updateMetaTags(seoData, currentLanguage);
+            injectStructuredData(structuredData);
+        }
+    });
 </script>
   
 <svelte:head>

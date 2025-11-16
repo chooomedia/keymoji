@@ -1,118 +1,88 @@
 <!-- src/routes/LanguageRouter.svelte -->
-<script>
-    import { Router, Route, navigate } from 'svelte-routing';
-    import { onMount, onDestroy } from 'svelte';
-    import { changeLanguage, currentLanguage } from '../stores/contentStore.js';
-    import { getBrowserLanguage, isLanguageSupported } from '../utils/languages';
+<script lang="ts">
+    import { onMount } from 'svelte';
+    import { get } from 'svelte/store';
+    
+    // Import components with explicit variable assignment (Webpack fix)
+    import RouterComponent from '../components/Routing/Router.svelte';
+    import RouteComponent from '../components/Routing/Route.svelte';
+    
+    // Assign to variables for template use (helps Webpack resolve)
+    const Router = RouterComponent;
+    const Route = RouteComponent;
+    import { navigate } from '../utils/routing.ts';
+    import { changeLanguage, currentLanguage } from '../stores/contentStore.ts';
     import { closeModal, isModalVisible } from '../stores/modalStore';
     import { devLog } from '../utils/environment';
-    import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore.js';
-    // PERFORMANCE: Index bleibt synchron (Hauptseite, muss schnell laden)
-    import Index from '../index.svelte';
+    import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore.ts';
+    import { appVersion } from '../utils/version';
+    import { getSupportedLanguageCodes } from '../utils/languages';
     
     // PERFORMANCE: Lazy Loading für Routes (Code Splitting)
-    // Diese Komponenten werden nur geladen, wenn die Route besucht wird
-    let BlogGrid, BlogPost, VersionHistory, ContactForm, AccountManager, StaticPage, NotFound;
-    let routesLoaded = false;
+    // SvelteKit Pattern: Verwende +page.svelte Komponenten die bereits Layout haben
+    let RootPage = $state<any>(null);
+    let ContactPage = $state<any>(null);
+    let AccountPage = $state<any>(null);
+    let VersionsPage = $state<any>(null);
+    let BlogPage = $state<any>(null);
+    let BlogPostPage = $state<any>(null);
+    let PrivacyPage = $state<any>(null);
+    let LegalPage = $state<any>(null);
+    let ErrorPage = $state<any>(null);
+    let routesLoaded = $state(false);
     
-    // Lazy Load Components on mount (Preload für bessere UX)
+    // Lazy Load Page Components (SvelteKit Pattern)
     async function loadRoutes() {
         if (routesLoaded) return;
         try {
             const [
-                BlogGridModule,
-                BlogPostModule,
-                VersionHistoryModule,
-                ContactFormModule,
-                AccountManagerModule,
-                StaticPageModule,
-                NotFoundModule
+                RootPageModule,
+                ContactPageModule,
+                AccountPageModule,
+                VersionsPageModule,
+                BlogPageModule,
+                BlogPostPageModule,
+                PrivacyPageModule,
+                LegalPageModule,
+                ErrorPageModule
             ] = await Promise.all([
-                import('../components/Features/BlogGrid.svelte'),
-                import('../components/Features/BlogPost.svelte'),
-                import('./VersionHistory.svelte'),
-                import('./ContactForm.svelte'),
-                import('./AccountManager.svelte'),
-                import('./StaticPage.svelte'),
-                import('./NotFound.svelte')
+                import('./+page.svelte'),
+                import('./contact/+page.svelte'),
+                import('./account/+page.svelte'),
+                import('./versions/+page.svelte'),
+                import('./blog/+page.svelte'),
+                import('./blog/[slug]/+page.svelte'),
+                import('./privacy/+page.svelte'),
+                import('./legal/+page.svelte'),
+                import('./+error.svelte')
             ]);
             
-            BlogGrid = BlogGridModule.default;
-            BlogPost = BlogPostModule.default;
-            VersionHistory = VersionHistoryModule.default;
-            ContactForm = ContactFormModule.default;
-            AccountManager = AccountManagerModule.default;
-            StaticPage = StaticPageModule.default;
-            NotFound = NotFoundModule.default;
+            RootPage = RootPageModule.default;
+            ContactPage = ContactPageModule.default;
+            AccountPage = AccountPageModule.default;
+            VersionsPage = VersionsPageModule.default;
+            BlogPage = BlogPageModule.default;
+            BlogPostPage = BlogPostPageModule.default;
+            PrivacyPage = PrivacyPageModule.default;
+            LegalPage = LegalPageModule.default;
+            ErrorPage = ErrorPageModule.default;
             routesLoaded = true;
         } catch (err) {
             console.warn('⚠️ Failed to load routes:', err);
         }
     }
-    import SEO from '../components/SEO.svelte';
-    import { appVersion } from '../utils/version';
     
     export const url = "";
     export const currentVersion = appVersion;
     
     // Hole die unterstützten Sprachcodes direkt aus der utils/languages.js
-    import { getSupportedLanguageCodes } from '../utils/languages';
     const supportedLanguages = getSupportedLanguageCodes();
     
     // Verfolge die aktuelle Route
-    let currentPath = "";
-    let currentPageType = "home";
-    let pageURL = "";
-    let initialRouteProcessed = false;
-    let processingRoute = false; // Verhindert gleichzeitige Route-Verarbeitung
+    let currentPath = $state("");
+    let initialRouteProcessed = $state(false);
+    let processingRoute = $state(false); // Verhindert gleichzeitige Route-Verarbeitung
     
-    // Bestimme den Seitentyp für SEO-Komponente
-    function determinePageType(path) {
-        // Extract path without language prefix
-        const pathSegments = path.split('/').filter(segment => segment !== '');
-        
-        // Handle root path
-        if (pathSegments.length === 0) {
-            return 'home';
-        }
-        
-        // If first segment is a language code
-        if (supportedLanguages.includes(pathSegments[0])) {
-            // If only language, it's the home page
-            if (pathSegments.length === 1) {
-                return 'home';
-            }
-            
-            // Get the actual page path (after language code)
-            const pageSegment = pathSegments[1];
-            
-            // Map segment to page type
-            switch (pageSegment) {
-                case 'blog': return 'blog';
-                case 'versions': return 'versions';
-                case 'contact': return 'contact';
-                case 'account': return 'account';
-                case 'privacy': return 'privacy';
-                case 'legal': return 'legal';
-                default: return 'home';
-            }
-        } else {
-            // No language code, direct page path
-            const pageSegment = pathSegments[0];
-            
-            // Map segment to page type
-            switch (pageSegment) {
-                case 'blog': return 'blog';
-                case 'versions': return 'versions';
-                case 'contact': return 'contact';
-                case 'account': return 'account';
-                case 'privacy': return 'privacy';
-                case 'legal': return 'legal';
-
-                default: return 'home';
-            }
-        }
-    }
     
     // Verbesserte Route-Verarbeitung ohne Weiterleitung von Root zu Sprach-URL
     async function handleRouteChange() {
@@ -120,7 +90,7 @@
         console.log('🔄 LanguageRouter: current path:', window.location.pathname);
         
         // Close any open modals when navigating to prevent them from appearing briefly
-        if ($isModalVisible) {
+        if (get(isModalVisible)) {
             closeModal();
         }
         
@@ -135,11 +105,6 @@
         try {
             // Extrahiere den aktuellen Pfad
             currentPath = window.location.pathname;
-            pageURL = currentPath; // Set pageURL for SEO component
-            
-            // Determine page type for SEO
-            currentPageType = determinePageType(currentPath);
-            console.log('🔄 LanguageRouter: Page type:', currentPageType);
             
             // Überprüfe Login-Status bei jedem Route-Wechsel - nur wenn nötig
             if (!initialRouteProcessed) {
@@ -209,7 +174,7 @@
             
             // CRITICAL: Initialize daily usage for ALL users (logged in or guest)
             try {
-                const { initializeDailyUsage } = await import('../stores/dailyUsageStore.js');
+                const { initializeDailyUsage } = await import('../stores/dailyUsageStore');
                 await initializeDailyUsage();
                 console.log('✅ LanguageRouter: Daily usage initialized on app start');
             } catch (error) {
@@ -223,8 +188,6 @@
             
             // SEO-optimierte Initialisierung
             currentPath = window.location.pathname;
-            pageURL = currentPath;
-            currentPageType = determinePageType(currentPath);
             
             // SEO-optimierte Sprach-Erkennung
             // REMOVED: setTimeout delay - Race Condition behoben, proper async/await verwendet
@@ -287,68 +250,71 @@
         }
     });
 </script>
-
-<!-- Zentralisierte SEO-Komponente für die gesamte App -->
-<SEO 
-  pageType={currentPageType} 
-  url={pageURL}
-/>
   
-<Router {url}>
-    <Route path="/" component={Index} />
-    <Route path="/:lang" component={Index} />
-    
-    <!-- PERFORMANCE: Lazy Loaded Routes mit svelte:component -->
+<Router>
+    <!-- PERFORMANCE: Lazy Loaded Routes mit +page.svelte (SvelteKit Pattern) -->
     {#if routesLoaded}
+        <!-- Root Route (Home/Index) -->
+        <Route path="/" component={RootPage} />
+        <Route path="/:lang" component={RootPage} />
+        
+        <!-- Versions Route -->
         <Route path="/versions" let:params>
-            <svelte:component this={VersionHistory} />
+            <svelte:component this={VersionsPage} />
         </Route>
         <Route path="/:lang/versions" let:params>
-            <svelte:component this={VersionHistory} />
+            <svelte:component this={VersionsPage} />
         </Route>
         
+        <!-- Contact Route -->
         <Route path="/contact" let:params>
-            <svelte:component this={ContactForm} />
+            <svelte:component this={ContactPage} />
         </Route>
         <Route path="/:lang/contact" let:params>
-            <svelte:component this={ContactForm} />
+            <svelte:component this={ContactPage} />
         </Route>
         
+        <!-- Account Route -->
         <Route path="/account" let:params>
-            <svelte:component this={AccountManager} />
+            <svelte:component this={AccountPage} />
         </Route>
         <Route path="/:lang/account" let:params>
-            <svelte:component this={AccountManager} />
+            <svelte:component this={AccountPage} />
         </Route>
         
+        <!-- Blog Routes -->
         <Route path="/blog" let:params>
-            <svelte:component this={BlogGrid} />
+            <svelte:component this={BlogPage} />
         </Route>
         <Route path="/:lang/blog" let:params>
-            <svelte:component this={BlogGrid} />
+            <svelte:component this={BlogPage} />
         </Route>
         
+        <!-- Blog Post Route (Dynamic Slug) -->
         <Route path="/blog/:slug" let:params>
-            <svelte:component this={BlogPost} slug={params.slug} />
+            <svelte:component this={BlogPostPage} slug={params.slug} />
         </Route>
         <Route path="/:lang/blog/:slug" let:params>
-            <svelte:component this={BlogPost} slug={params.slug} />
+            <svelte:component this={BlogPostPage} slug={params.slug} />
         </Route>
         
+        <!-- Privacy Route -->
         <Route path="/privacy" let:params>
-            <svelte:component this={StaticPage} slug="privacy" />
+            <svelte:component this={PrivacyPage} />
         </Route>
         <Route path="/:lang/privacy" let:params>
-            <svelte:component this={StaticPage} slug="privacy" />
+            <svelte:component this={PrivacyPage} />
         </Route>
         
+        <!-- Legal Route -->
         <Route path="/legal" let:params>
-            <svelte:component this={StaticPage} slug="legal" />
+            <svelte:component this={LegalPage} />
         </Route>
         <Route path="/:lang/legal" let:params>
-            <svelte:component this={StaticPage} slug="legal" />
+            <svelte:component this={LegalPage} />
         </Route>
         
-        <Route component={NotFound} />
+        <!-- 404 Error Route -->
+        <Route component={ErrorPage} />
     {/if}
 </Router>

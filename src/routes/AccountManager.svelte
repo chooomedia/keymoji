@@ -1,10 +1,11 @@
 <!-- src/routes/AccountManager.svelte -->
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
-    import { navigate } from 'svelte-routing';
+    import { navigate } from '../utils/routing.ts';
     import { fade, fly, slide, crossfade } from 'svelte/transition';
     import { tick } from 'svelte';
     import PageLayout from '../components/Layout/PageLayout.svelte';
+    // Footer wird automatisch über Layout-Konfiguration gerendert
     import { 
         isLoggedIn, 
         dailyLimit, 
@@ -16,9 +17,10 @@
         accountTier,
         successfulStoryRequests,
         isDisabled
-    } from '../../stores/appStores';
-    import { remainingGenerations as remainingGenerationsStore } from '../stores/dailyUsageStore.js';
-    import { translations, currentLanguage } from '../stores/contentStore.js';
+    } from '../stores/appStores';
+    import { remainingGenerations as remainingGenerationsStore } from '../stores/dailyUsageStore';
+    import { translations, currentLanguage } from '../stores/contentStore.ts';
+    import { get } from 'svelte/store';
     import { 
         loginWithMagicLink, 
         isLoggingIn, 
@@ -38,8 +40,8 @@
         secureLoginWithMagicLink,
         secureVerifyMagicLink,
         logAccountingEvent
-    } from '../stores/accountStore.js';
-    import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore';
+    } from '../stores/accountStore';
+    import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore.ts';
     import { 
         currentSettings,
         resetSettings, 
@@ -48,74 +50,81 @@
         hasUnsavedChanges,
         saveAllSettings,
         settingsStatus
-    } from '../stores/userSettingsStore.js';
-    import { WEBHOOKS } from '../config/api.js';
-    import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
+    } from '../stores/userSettingsStore';
+    import { WEBHOOKS } from '../config/api';
+    import { storageHelpers, STORAGE_KEYS } from '../config/storage';
     import UserSettings from '../components/UserSettings.svelte';
-    import { get } from 'svelte/store';
     import ContextMenu from '../components/UI/ContextMenu.svelte';
     import { isDevelopment } from '../utils/environment';
-    import { validateUserLimits } from '../config/limits.js';
-    import { sendAnalyticsEvent } from '../../stores/appStores';
+    import { validateUserLimits } from '../config/limits';
+    import { sendAnalyticsEvent } from '../../stores/appStores.ts';
     import Input from '../components/UI/Input.svelte';
     import Button from '../components/UI/Button.svelte';
     import ContextBadge from '../components/UI/ContextBadge.svelte';
     import LineChart from '../components/UI/LineChart.svelte';
     import ChartSkeleton from '../components/UI/ChartSkeleton.svelte';
-    import FooterInfo from '../widgets/FooterInfo.svelte';
     import FeatureCard from '../components/Features/FeatureCard.svelte';
     import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers';
     // REMOVED: getUsageHistory, calculateUsageStats - now using usageHistory store from userDataStore.js
     import { DEMO_USAGE_HISTORY_4W, getDemoDataForPeriod, isDemoData } from '../utils/demoChartData';
     import { generateBenefitsStructuredData, injectStructuredData, formatCanonicalUrl } from '../utils/seo';
 
-    // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
-    $: pageTitle = (() => {
+    // Reaktive PageLayout Props - dynamisch basierend auf Account-Status (Svelte 5 Runes)
+    let pageTitle = $derived.by(() => {
+        const t = get(translations);
         if (isVerifyingMagicLink) {
-            return $translations?.accountManager?.verifyingTitle || '🔗 Verifiziere Magic Link...';
+            return t?.accountManager?.verifyingTitle || '🔗 Verifiziere Magic Link...';
         }
         if (magicLinkStatus === 'error') {
-            return $translations?.accountManager?.verificationErrorTitle || '❌ Verifikation Fehlgeschlagen';
+            return t?.accountManager?.verificationErrorTitle || '❌ Verifikation Fehlgeschlagen';
         }
-        if ($isLoggedIn) {
+        const isLoggedInValue = get(isLoggedIn);
+        if (isLoggedInValue) {
             // Get user name from multiple sources with smart fallback (Priority Order!)
+            const currentSettingsValue = get(currentSettings);
+            const userProfileValue = get(userProfile);
+            const currentAccountValue = get(currentAccount);
             const userName = 
-                $currentSettings?.name ||        // 1. Current settings (from input, highest priority!)
-                $userProfile?.name ||            // 2. User profile store
-                $currentAccount?.name ||         // 3. Current account
-                $currentAccount?.profile?.name || // 4. Account profile
-                ($currentAccount?.email ? $currentAccount.email.split('@')[0] : null) || // 5. Email prefix
+                currentSettingsValue?.name ||        // 1. Current settings (from input, highest priority!)
+                userProfileValue?.name ||            // 2. User profile store
+                currentAccountValue?.name ||         // 3. Current account
+                currentAccountValue?.profile?.name || // 4. Account profile
+                (currentAccountValue?.email ? currentAccountValue.email.split('@')[0] : null) || // 5. Email prefix
                 'there'; // 6. Friendly fallback instead of "User"
             
-            return ($translations?.accountManager?.welcomeBack || 'Welcome back, {name}! 👋').replace('{name}', userName);
+            return (t?.accountManager?.welcomeBack || 'Welcome back, {name}! 👋').replace('{name}', userName);
         }
         if (accountCreationStep === 'verification') {
-            return $translations?.accountManager?.verificationTitle || '📧 Check Your Email and Verify';
+            return t?.accountManager?.verificationTitle || '📧 Check Your Email and Verify';
         }
         if (shouldShowSimplifiedView) {
-            return $translations?.accountManager?.returnUserTitle || '👋 Willkommen zurück!';
+            return t?.accountManager?.returnUserTitle || '👋 Willkommen zurück!';
         }
-        return $translations?.accountManager?.pageTitle || 'Account Manager';
-    })();
+        return t?.accountManager?.pageTitle || 'Account Manager';
+    });
 
-    $: pageDescription = (() => {
+    let pageDescription = $derived.by(() => {
+        const t = get(translations);
+        const isLoggedInValue = get(isLoggedIn);
         if (isVerifyingMagicLink) {
-            return $translations?.accountManager?.verifyingDescription || 'Bitte warte, während wir deinen Account verifizieren.';
+            return t?.accountManager?.verifyingDescription || 'Bitte warte, während wir deinen Account verifizieren.';
         }
         if (magicLinkStatus === 'error') {
-            return magicLinkError || ($translations?.accountManager?.verificationErrorDescription || 'Ein Fehler ist aufgetreten.');
+            return magicLinkError || (t?.accountManager?.verificationErrorDescription || 'Ein Fehler ist aufgetreten.');
         }
-        if ($isLoggedIn) {
-            return $translations?.accountManager?.welcomeDescription || 'Ready to create some amazing emoji passwords? Your account is secure and ready to go!';
+        if (isLoggedInValue) {
+            return t?.accountManager?.welcomeDescription || 'Ready to create some amazing emoji passwords? Your account is secure and ready to go!';
         }
         if (accountCreationStep === 'verification') {
-            return ($translations?.accountManager?.verificationDescription || 'Check your email {email} and click the magic link to complete setup').replace('{email}', email);
+            const currentAccountValue = get(currentAccount);
+            const emailValue = currentAccountValue?.email || 'your email';
+            return (t?.accountManager?.verificationDescription || 'Check your email {email} and click the magic link to complete setup').replace('{email}', emailValue);
         }
         if (shouldShowSimplifiedView) {
-            return $translations?.accountManager?.returnUserDescription || 'Wir haben deine E-Mail-Adresse erkannt. Logge dich schnell wieder ein.';
+            return t?.accountManager?.returnUserDescription || 'Wir haben deine E-Mail-Adresse erkannt. Logge dich schnell wieder ein.';
         }
-        return $translations?.accountManager?.pageDescription || 'Manage your security settings and account preferences';
-    })();
+        return t?.accountManager?.pageDescription || 'Manage your security settings and account preferences';
+    });
 
     // Toggle state
     let showBenefitsToggle = 'free';
@@ -135,37 +144,46 @@
     let sessionExpired = false;
     let hasValidSession = false;
     
-    // Reactive calculation for days since account creation
-    // Übergebe $currentAccount damit API-Daten (Google Sheets) bevorzugt werden!
-    $: daysSinceCreation = getDaysSinceAccountCreation($currentAccount);
+    // Reactive calculation for days since account creation (Svelte 5 Runes)
+    // Übergebe currentAccount damit API-Daten (Google Sheets) bevorzugt werden!
+    let daysSinceCreation = $derived(getDaysSinceAccountCreation(get(currentAccount)));
     
-    // Generate and inject structured data for benefits (Rich Elements for SEO)
-    $: if ($translations?.accountManager?.benefits && !$isLoggedIn && accountCreationStep === 'benefits') {
+    // Generate and inject structured data for benefits (Rich Elements for SEO) (Svelte 5 Runes)
+    $effect(() => {
+        const t = get(translations);
+        const isLoggedInValue = get(isLoggedIn);
+        if (t?.accountManager?.benefits && !isLoggedInValue && accountCreationStep === 'benefits') {
         try {
             const canonicalUrl = formatCanonicalUrl(window.location.pathname);
             const benefitsStructuredData = generateBenefitsStructuredData(
-                $translations.accountManager.benefits,
-                $currentLanguage,
+                t.accountManager.benefits,
+                get(currentLanguage),
                 canonicalUrl
             );
             injectStructuredData(benefitsStructuredData);
         } catch (error) {
             console.warn('⚠️ Failed to inject benefits structured data:', error);
         }
-    }
+        }
+    });
     
-    // Debug: Log when daysSinceCreation changes
-    $: if (daysSinceCreation !== undefined) {
-        console.log('🔄 [AccountManager] daysSinceCreation updated:', {
-            daysSinceCreation,
-            createdAt: $currentAccount?.createdAt,
-            createdAtType: typeof $currentAccount?.createdAt,
-            hasCurrentAccount: !!$currentAccount,
-            isLoggedIn: $isLoggedIn
-        });
-        const label = $isLoggedIn ? formatAccountAge(daysSinceCreation, $translations?.accountManager?.accountAge) : '';
-        console.log('🔄 [AccountManager] accountAgeLabel will be:', label);
-    }
+    // Debug: Log when daysSinceCreation changes (Svelte 5 Runes)
+    $effect(() => {
+        if (daysSinceCreation !== undefined) {
+            const currentAccountValue = get(currentAccount);
+            const isLoggedInValue = get(isLoggedIn);
+            console.log('🔄 [AccountManager] daysSinceCreation updated:', {
+                daysSinceCreation,
+                createdAt: currentAccountValue?.createdAt,
+                createdAtType: typeof currentAccountValue?.createdAt,
+                hasCurrentAccount: !!currentAccountValue,
+                isLoggedIn: isLoggedInValue
+            });
+            const t = get(translations);
+            const label = isLoggedInValue ? formatAccountAge(daysSinceCreation, t?.accountManager?.accountAge) : '';
+            console.log('🔄 [AccountManager] accountAgeLabel will be:', label);
+        }
+    });
     
     // Return user view state
     let hasLoggedInBefore = false;
@@ -173,17 +191,14 @@
     // State for expanded view
     let showExpandedView = false;
     
-    // Initialize shouldShowSimplifiedView with initial value
-    let shouldShowSimplifiedView = false;
-    
     // Check if user has navigated away from initial load (stored in sessionStorage)
     let hasNavigatedAway = sessionStorage.getItem('hasNavigatedAway') === 'true';
     
-    // Reactive simplified view logic
-    $: shouldShowSimplifiedView = (() => {
+    // Reactive simplified view logic (Svelte 5 Runes)
+    let shouldShowSimplifiedView = $derived.by(() => {
         // Check if user is not logged in but has login history
         const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
-        const loggedIn = get(isLoggedIn);
+        const loggedIn = isLoggedIn;
         
         // If expanded view is active, don't show simplified view
         if (showExpandedView) {
@@ -205,15 +220,23 @@
         });
         
         return shouldShow;
-    })();
+    });
     
-    // Reactive daily limit calculation
-    $: currentUserLimits = validateUserLimits($isLoggedIn, $accountTier, $dailyLimit?.used || 0);
+    // Reactive daily limit calculation (Svelte 5 Runes)
+    let currentUserLimits = $derived.by(() => {
+        const isLoggedInValue = get(isLoggedIn);
+        const accountTierValue = get(accountTier);
+        const dailyLimitValue = get(dailyLimit);
+        return validateUserLimits(isLoggedInValue, accountTierValue, dailyLimitValue?.used || 0);
+    });
     // Use remainingGenerations from dailyUsageStore (single source of truth)
-    $: remainingGenerations = $remainingGenerationsStore;
-    $: dailyLimitDisplay = ($translations?.accountManager?.remainingDisplay || '{remaining} / {limit}')
-        .replace('{remaining}', remainingGenerations)
-        .replace('{limit}', currentUserLimits.limit);
+    let remainingGenerations = $derived(get(remainingGenerationsStore));
+    let dailyLimitDisplay = $derived.by(() => {
+        const t = get(translations);
+        return (t?.accountManager?.remainingDisplay || '{remaining} / {limit}')
+            .replace('{remaining}', remainingGenerations)
+            .replace('{limit}', currentUserLimits.limit);
+    });
     
     // Usage Chart State
     let selectedTimePeriod = '7d';
@@ -223,17 +246,29 @@
     import { 
         usageHistory as usageHistoryStore, 
         refreshUsageHistory 
-    } from '../stores/userDataStore.js';
+    } from '../stores/userDataStore';
     
-    // Reactive: Use store data (auto-updates!)
-    $: chartUsageHistory = $usageHistoryStore.data || [];
-    $: isLoadingChartData = $usageHistoryStore.isLoading;
-    $: chartDataError = $usageHistoryStore.errorMessage;
-    $: usageStats = $usageHistoryStore.stats;
+    // Reactive: Use store data (auto-updates!) (Svelte 5 Runes)
+    let chartUsageHistory = $derived.by(() => {
+        const store = get(usageHistoryStore);
+        return store?.data || [];
+    });
+    let isLoadingChartData = $derived.by(() => {
+        const store = get(usageHistoryStore);
+        return store?.isLoading || false;
+    });
+    let chartDataError = $derived.by(() => {
+        const store = get(usageHistoryStore);
+        return store?.errorMessage || null;
+    });
+    let usageStats = $derived.by(() => {
+        const store = get(usageHistoryStore);
+        return store?.stats || null;
+    });
     
     // Calculate total stories generated (from usage history stats or daily limit)
-    // Best Practice: Use multiple sources for accuracy
-    $: totalStoriesGenerated = (() => {
+    // Best Practice: Use multiple sources for accuracy (Svelte 5 Runes)
+    let totalStoriesGenerated = $derived.by(() => {
         // Priority 1: Use usageStats.total if available (sum of all history entries)
         // This gives the total across all days in history
         if (usageStats && typeof usageStats.total === 'number' && usageStats.total > 0) {
@@ -257,7 +292,7 @@
         
         // Fallback: 0
         return 0;
-    })();
+    });
     
     // ROBUST: Watch currentAccount changes and trigger load
     // This works for BOTH soft reload AND hard reload!
@@ -266,7 +301,8 @@
         
         currentAccount.subscribe(async (account) => {
             // Only proceed if logged in and account exists
-            if (!account || !$isLoggedIn) {
+            const isLoggedInValue = get(isLoggedIn);
+            if (!account || !isLoggedInValue) {
                 console.log('👀 [CHART WATCH] No account or not logged in, skipping');
                 return;
             }
@@ -284,14 +320,15 @@
         watchAccountChanges();
         
         // Initial load (uses cache if valid!)
-        if ($isLoggedIn) {
+        const isLoggedInValue = get(isLoggedIn);
+        if (isLoggedInValue) {
             console.log('🔄 [CHART] Initial data load on mount...');
             await refreshUsageHistory();
         }
     });
     
-    // Reactive: Determine final usage history to display (real or demo)
-    $: finalUsageHistory = (() => {
+    // Reactive: Determine final usage history to display (real or demo) (Svelte 5 Runes)
+    let finalUsageHistory = $derived.by(() => {
         // If we have real data, use it!
         if (chartUsageHistory.length > 0) {
             isDemoDataShown = false;
@@ -301,14 +338,15 @@
         
         // If logged in but no data AND not loading, show empty (will show "No Data" message)
         // Only show demo if explicitly enabled (for testing)
-        if ($isLoggedIn && chartUsageHistory.length === 0 && !isLoadingChartData) {
+        const isLoggedInValue = get(isLoggedIn);
+        if (isLoggedInValue && chartUsageHistory.length === 0 && !isLoadingChartData) {
             isDemoDataShown = false;
             console.log('📊 Logged in but no usage data available yet');
             return [];
         }
         
         // Still loading - return empty to show loading state
-        if ($isLoggedIn && isLoadingChartData) {
+        if (isLoggedInValue && isLoadingChartData) {
             isDemoDataShown = false;
             console.log('⏳ Loading usage data...');
             return [];
@@ -318,13 +356,13 @@
         isDemoDataShown = false;
         console.log('📊 Not logged in, no chart data');
         return [];
-    })();
+    });
     
-    // Reactive: Generate chart data from final history
-    $: finalChartData = generateChartData(selectedTimePeriod, finalUsageHistory);
+    // Reactive: Generate chart data from final history (Svelte 5 Runes)
+    let finalChartData = $derived(generateChartData(selectedTimePeriod, finalUsageHistory));
     
-    // Reactive: Generate story chart data (second line)
-    $: finalStoryChartData = (() => {
+    // Reactive: Generate story chart data (second line) (Svelte 5 Runes)
+    let finalStoryChartData = $derived.by(() => {
         if (!finalChartData || finalChartData.length === 0) return [];
         
         const storyData = finalChartData.map(point => ({
@@ -341,7 +379,7 @@
         });
         
         return storyData;
-    })();
+    });
     
     /**
      * Calculate optimal maxValue for chart Y-axis
@@ -351,7 +389,8 @@
     function calculateMaxValue(chartData) {
         if (!chartData || chartData.length === 0) {
             // Default fallback
-            return $accountTier === 'pro' ? 35 : 9;
+            const accountTierValue = get(accountTier);
+            return accountTierValue === 'pro' ? 35 : 9;
         }
         
         // Find maximum value in data (consider both random and story usage)
@@ -361,7 +400,8 @@
         
         // If no data values, use default
         if (maxDataValue === 0) {
-            return $accountTier === 'pro' ? 35 : 9;
+            const accountTierValue = get(accountTier);
+            return accountTierValue === 'pro' ? 35 : 9;
         }
         
         // Round up to next nice number, but cap at 100
@@ -374,13 +414,13 @@
         return Math.min(optimalMax, 100);
     }
     
-    // Reactive: Calculate dynamic maxValue based on chart data
-    $: chartMaxValue = calculateMaxValue(finalChartData);
+    // Reactive: Calculate dynamic maxValue based on chart data (Svelte 5 Runes)
+    let chartMaxValue = $derived(calculateMaxValue(finalChartData));
     
-    // Debug: Log final state
-    $: {
+    // Debug: Log final state (Svelte 5 Runes)
+    $effect(() => {
         console.log('📊 [CHART STATE]', {
-            isLoggedIn: $isLoggedIn,
+            isLoggedIn: get(isLoggedIn),
             chartUsageHistoryLength: chartUsageHistory.length,
             finalUsageHistoryLength: finalUsageHistory.length,
             isDemoDataShown,
@@ -390,7 +430,7 @@
             isLoadingChartData,
             chartDataError
         });
-    }
+    });
     
     /**
      * Handle manual refresh of chart data from backend
@@ -405,14 +445,16 @@
             
             if (chartUsageHistory.length > 0) {
                 console.log('✅ [CHART REFRESH] Loaded fresh data:', chartUsageHistory.length, 'entries');
-                showSuccess($translations?.accountManager?.messages?.chartDataRefreshed || 'Chart data refreshed!', 2000);
+                const t = get(translations);
+                showSuccess(t?.accountManager?.messages?.chartDataRefreshed || 'Chart data refreshed!', 2000);
             } else {
                 console.warn('⚠️ [CHART REFRESH] No new data available');
-                showInfo($translations?.accountManager?.messages?.noNewData || 'No new data available', 2000);
+                showInfo(t?.accountManager?.messages?.noNewData || 'No new data available', 2000);
             }
         } catch (error) {
             console.error('❌ [CHART REFRESH] Failed to refresh:', error);
-            showError($translations?.accountManager?.messages?.refreshFailed || 'Failed to refresh data', 2000);
+            const t = get(translations);
+            showError(t?.accountManager?.messages?.refreshFailed || 'Failed to refresh data', 2000);
         }
     }
     
@@ -490,20 +532,22 @@
 
     // Email validation
     const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    $: isEmailValid = validateEmail(email);
-    $: isNameValid = name.trim().length >= 2;
-    $: isFormValid = isEmailValid && (showProfileForm ? isNameValid : true);
+    // Form validation (Svelte 5 Runes)
+    let isEmailValid = $derived(validateEmail(email));
+    let isNameValid = $derived(name.trim().length >= 2);
+    let isFormValid = $derived(isEmailValid && (showProfileForm ? isNameValid : true));
     
-    // Email validation for Magic Link button - konsistent mit isEmailValid
-    $: isEmailValidForMagicLink = isEmailValid;
+    // Email validation for Magic Link button - konsistent mit isEmailValid (Svelte 5 Runes)
+    let isEmailValidForMagicLink = $derived(isEmailValid);
     
-    // Magic Link button text with emoji
-    $: magicLinkButtonText = (() => {
+    // Magic Link button text with emoji (Svelte 5 Runes)
+    let magicLinkButtonText = $derived.by(() => {
+        const t = get(translations);
         if (hasValidSession) {
-            return $translations?.accountManager?.buttons?.loginToAccount || 'Login to Account';
+            return t?.accountManager?.buttons?.loginToAccount || 'Login to Account';
         }
-        return $translations?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
-    })();
+        return t?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
+    });
 
     // Ensure we always have a valid name for the API
     function getValidName() {
@@ -539,7 +583,7 @@
     // Return user view functions
     function checkUserLoginHistory() {
         const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
-        const loggedIn = get(isLoggedIn);
+        const loggedIn = isLoggedIn;
         console.log('🔍 Login history check:', {
             history: history,
             loggedIn: loggedIn,
@@ -569,28 +613,34 @@
         console.log('✅ Login history gesetzt:', history);
     }
     
-    // Intelligent button text based on user state
-    $: intelligentButtonText = (() => {
-        if (isSubmitting) {
-            return $translations?.accountManager?.buttons?.sendingMagicLink || 'Sending...';
+    // Intelligent button text based on user state (Svelte 5 Runes)
+    let intelligentButtonText = $derived.by(() => {
+        const t = get(translations);
+        const isLoggingInValue = get(isLoggingIn);
+        if (isSubmitting || isLoggingInValue) {
+            return t?.accountManager?.buttons?.sendingMagicLink || 'Sending...';
         }
         if (hasLoggedInBefore) {
-            return $translations?.accountManager?.buttons?.loginAgain || '🔐 Login again';
+            return t?.accountManager?.buttons?.loginAgain || '🔐 Login again';
         }
-        return $translations?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
-    })();
+        return t?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
+    });
     
     // Account age label for tooltip - zeigt wie lange User den Account hat (NUR Zeitangabe)
-    // CRITICAL: Nur für eingeloggte User - berechnet aus createdAt
-    $: accountAgeLabel = $isLoggedIn 
-        ? formatAccountAge(
-            daysSinceCreation, 
-            $translations?.accountManager?.accountAge
-        )
-        : ''; // Nicht eingeloggte User verwenden freeDescription/proDescription
+    // CRITICAL: Nur für eingeloggte User - berechnet aus createdAt (Svelte 5 Runes)
+    let accountAgeLabel = $derived.by(() => {
+        const isLoggedInValue = get(isLoggedIn);
+        const t = get(translations);
+        return isLoggedInValue 
+            ? formatAccountAge(
+                daysSinceCreation, 
+                t?.accountManager?.accountAge
+            )
+            : ''; // Nicht eingeloggte User verwenden freeDescription/proDescription
+    });
     
-    // Tier badge text - zeigt NUR den Tier-Status
-    $: tierBadgeText = getTierBadgeText($accountTier);
+    // Tier badge text - zeigt NUR den Tier-Status (Svelte 5 Runes)
+    let tierBadgeText = $derived(getTierBadgeText(get(accountTier)));
     
 
 
@@ -641,7 +691,8 @@
     // Handle settings reset
     function handleResetSettings() {
         resetSettings();
-                                showSuccess($translations?.accountManager?.messages?.settingsReset || 'Settings reset to default', 3000);
+        const t = get(translations);
+        showSuccess(t?.accountManager?.messages?.settingsReset || 'Settings reset to default', 3000);
         closeContextMenu();
     }
 
@@ -649,9 +700,11 @@
     function handleExportSettings() {
         try {
             exportSettings();
-                                    showSuccess($translations?.accountManager?.messages?.settingsExported || 'Settings exported successfully', 3000);
+            const t = get(translations);
+            showSuccess(t?.accountManager?.messages?.settingsExported || 'Settings exported successfully', 3000);
         } catch (error) {
-                                    showError($translations?.accountManager?.messages?.exportFailed || 'Failed to export settings', 3000);
+            const t = get(translations);
+            showError(t?.accountManager?.messages?.exportFailed || 'Failed to export settings', 3000);
         }
         closeContextMenu();
     }
@@ -660,12 +713,13 @@
     function handleImportSettings(event) {
         const file = event.target.files[0];
         if (file) {
+            const t = get(translations);
             importSettings(file)
                 .then(() => {
-                    showSuccess($translations?.accountManager?.messages?.settingsImported || 'Settings imported successfully', 3000);
+                    showSuccess(t?.accountManager?.messages?.settingsImported || 'Settings imported successfully', 3000);
                 })
                 .catch((error) => {
-                    showError(`${$translations?.accountManager?.messages?.importFailed || 'Import failed'}: ${error.message}`, 3000);
+                    showError(`${t?.accountManager?.messages?.importFailed || 'Import failed'}: ${error.message}`, 3000);
                 });
         }
         closeContextMenu();
@@ -691,7 +745,8 @@
         console.log('🔐 Login history preserved for return user functionality');
         
         // shouldShowSimplifiedView is now reactive, no need to set it manually
-        showSuccess($translations?.accountManager?.messages?.logoutSuccess || 'Successfully logged out', 3000);
+        const t = get(translations);
+        showSuccess(t?.accountManager?.messages?.logoutSuccess || 'Successfully logged out', 3000);
         closeContextMenu();
         
         // Route zur Startseite nach Logout
@@ -713,11 +768,13 @@
             if (accountCheck.exists) {
                 console.log('✅ Account already exists, proceeding with magic link');
                 // Account exists, proceed with magic link
-                showInfo($translations?.accountManager?.messages?.accountFoundSendingLink || 'Account found! Sending magic link to existing account.', 3000);
+                const t = get(translations);
+                showInfo(t?.accountManager?.messages?.accountFoundSendingLink || 'Account found! Sending magic link to existing account.', 3000);
             } else {
                 console.log('🆕 No existing account found, will create new account');
                 // Account doesn't exist, will be created during magic link verification
-                showInfo($translations?.accountManager?.messages?.creatingNewAccount || 'Creating new account and sending magic link.', 3000);
+                const t = get(translations);
+                showInfo(t?.accountManager?.messages?.creatingNewAccount || 'Creating new account and sending magic link.', 3000);
             }
 
             // Determine if we're in development mode
@@ -750,13 +807,15 @@
             });
             
             // Show success message
-            showSuccess($translations?.accountManager?.messages?.magicLinkSent || 'Magic link sent! Check your email to complete login.', 5000);
+            const t = get(translations);
+            showSuccess(t?.accountManager?.messages?.magicLinkSent || 'Magic link sent! Check your email to complete login.', 5000);
             
             // Move to verification step
             accountCreationStep = 'verification';
         } catch (error) {
             console.error('Login error:', error);
-            showError($translations?.accountManager?.messages?.magicLinkSendFailed || 'Failed to send magic link. Please try again.', 5000);
+            const t = get(translations);
+            showError(t?.accountManager?.messages?.magicLinkSendFailed || 'Failed to send magic link. Please try again.', 5000);
         } finally {
             isSubmitting = false;
             checkingAccount = false;
@@ -816,8 +875,8 @@
                 console.log('🔗 Magic link verification detected:', { token, email: magicLinkEmail, isDevMode });
                 
                 // Check if user is already logged in with the same email
-                const currentLoggedIn = get(isLoggedIn);
-                const currentAccountEmail = get(currentAccount)?.email;
+                const currentLoggedIn = isLoggedIn;
+                const currentAccountEmail = currentAccount?.email;
                 const isAlreadyLoggedIn = currentLoggedIn && currentAccountEmail === magicLinkEmail;
                 
                 console.log('🔍 Login status check:', {
@@ -857,12 +916,12 @@
                     currentPath: currentPath,
                     pathSegments: pathSegments,
                     hasLanguagePrefix: hasLanguagePrefix,
-                    currentLanguage: get(currentLanguage)
+                    currentLanguage: currentLanguage
                 });
                 
                 // If we're on /account (without language prefix), redirect to /de/account (or current language)
                 if (currentPath === '/account') {
-                    const currentLang = get(currentLanguage);
+                    const currentLang = currentLanguage;
                     const redirectPath = `/${currentLang}/account?t=${token}&e=${magicLinkEmail}${isDevMode ? '&dev=true' : ''}`;
                     console.log('🔄 Redirecting magic link to language-prefixed route:', redirectPath);
                     navigate(redirectPath, { replace: true });
@@ -879,7 +938,8 @@
                         console.log('🔒 Starting secure magic link verification...');
                         await secureVerifyMagicLink(token, magicLinkEmail);
                         magicLinkStatus = 'success';
-                        showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 3000);
+                        const t = get(translations);
+                        showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 3000);
                         
                         // Mark successful login for return user tracking (only on successful verification)
                         markSuccessfulLogin(magicLinkEmail);
@@ -907,10 +967,12 @@
                             
                             // Refresh session
                             checkSessionStatus();
-                            showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
+                            const t = get(translations);
+                            showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
                         } else {
                             // Real error - show error message
-                        showError($translations?.accountManager?.messages?.magicLinkVerificationFailed || 'Magic link verification failed', 5000);
+                        const t = get(translations);
+                        showError(t?.accountManager?.messages?.magicLinkVerificationFailed || 'Magic link verification failed', 5000);
                         }
                     } finally {
                         isVerifyingMagicLink = false;
@@ -930,7 +992,7 @@
             
             // Pre-fill email from login history if available
             const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
-            if (history && history.email && !get(isLoggedIn)) {
+            if (history && history.email && !isLoggedIn) {
                 email = history.email;
                 console.log('👤 Pre-filled email from login history:', history.email);
             }
@@ -951,7 +1013,7 @@
             // Debug: Log initial state
             console.log('🔍 Initial AccountManager state:', {
                 shouldShowSimplifiedView: shouldShowSimplifiedView,
-                isLoggedIn: get(isLoggedIn),
+                isLoggedIn: isLoggedIn,
                 history: history,
                 email: email,
                 showExpandedView: showExpandedView,
@@ -959,9 +1021,10 @@
             });
             
             // Initialize with current account data if available
-            if ($currentAccount?.email) {
-                email = $currentAccount.email;
-                name = $currentAccount.name || '';
+            const currentAccountValue = get(currentAccount);
+            if (currentAccountValue?.email) {
+                email = currentAccountValue.email;
+                name = currentAccountValue.name || '';
             }
             
             // Add global click listener for context menu
@@ -977,28 +1040,36 @@
     });
 
     // Reactive statement to show error as modal
-    $: if ($loginError) {
-        showError($loginError, 5000);
-    }
+    // Handle login errors (Svelte 5 Runes)
+    $effect(() => {
+        if ($loginError) {
+            showError($loginError, 5000);
+        }
+    });
     
     // Reactive statement to update daily limits when user state changes
     // REMOVED: This reactive block was overwriting dailyLimit with old localStorage data
     // dailyLimit is now ONLY managed by dailyUsageStore.js - DO NOT SET IT HERE!
     // Old code read from STORAGE_KEYS.DAILY_REQUEST_COUNT which is deprecated
     
-    // For debugging, just log when user state changes
-    $: if ($isLoggedIn !== undefined && $accountTier !== undefined) {
-        console.log('🔄 AccountManager: User state changed:', {
-            isLoggedIn: $isLoggedIn,
-            accountTier: $accountTier,
-            dailyLimit: $dailyLimit
-        });
-    }
+    // For debugging, just log when user state changes (Svelte 5 Runes)
+    $effect(() => {
+        const isLoggedInValue = get(isLoggedIn);
+        const accountTierValue = get(accountTier);
+        const dailyLimitValue = get(dailyLimit);
+        if (isLoggedInValue !== undefined && accountTierValue !== undefined) {
+            console.log('🔄 AccountManager: User state changed:', {
+                isLoggedIn: isLoggedInValue,
+                accountTier: accountTierValue,
+                dailyLimit: dailyLimitValue
+            });
+        }
+    });
 
     // Check if user has a valid session
     function checkSessionStatus() {
-        const account = get(currentAccount);
-        const loggedIn = get(isLoggedIn);
+        const account = currentAccount;
+        const loggedIn = isLoggedIn;
         
         // Check localStorage-based session first
         const hasExistingPrefs = hasExistingUserPreferences();
@@ -1052,24 +1123,26 @@
     }
 
     // Get dynamic button text based on state
-    $: loginButtonText = (() => {
+    // Login button text (Svelte 5 Runes)
+    let loginButtonText = $derived.by(() => {
+        const t = get(translations);
         if (isSubmitting) {
-            return $translations?.accountManager?.buttons?.sendingMagicLink || 'Sending...';
+            return t?.accountManager?.buttons?.sendingMagicLink || 'Sending...';
         }
         if (checkingAccount) {
-            return $translations?.accountManager?.buttons?.checkAccountExists || 'Checking...';
+            return t?.accountManager?.buttons?.checkAccountExists || 'Checking...';
         }
         if (accountExists) {
-            return $translations?.accountManager?.buttons?.accountExists || 'Account found...';
+            return t?.accountManager?.buttons?.accountExists || 'Account found...';
         }
         if (sessionExpired) {
-            return $translations?.accountManager?.buttons?.sessionExpired || 'Session expired';
+            return t?.accountManager?.buttons?.sessionExpired || 'Session expired';
         }
         if (hasValidSession) {
-            return $translations?.accountManager?.buttons?.loginToAccount || 'Login to Account';
+            return t?.accountManager?.buttons?.loginToAccount || 'Login to Account';
         }
-        return $translations?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
-    })();
+        return t?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
+    });
 
     // Context menu actions
     function handleExport() {
@@ -1087,9 +1160,15 @@
         console.log('Reset clicked');
     }
 
-    // Reaktive SEO Meta-Tags
-    $: seoTitle = $translations?.accountManager?.pageTitle || 'Account Manager';
-    $: seoDescription = $translations?.accountManager?.pageDescription || 'Manage your security settings and account preferences';
+    // Reaktive SEO Meta-Tags (Svelte 5 Runes)
+    let seoTitle = $derived.by(() => {
+        const t = get(translations);
+        return t?.accountManager?.pageTitle || 'Account Manager';
+    });
+    let seoDescription = $derived.by(() => {
+        const t = get(translations);
+        return t?.accountManager?.pageDescription || 'Manage your security settings and account preferences';
+    });
 
 </script>
 
@@ -1098,7 +1177,7 @@
     <meta name="description" content={seoDescription} />
 </svelte:head>
 
-<PageLayout {pageTitle} {pageDescription}>
+<PageLayout {pageTitle} {pageDescription} routeSlug="account">
 
     <!-- Main Content Container -->
     <div in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}>
@@ -1111,7 +1190,7 @@
                     <div>
                         <div class="flex items-center justify-between mb-6">
                             <p class="text-gray-600 dark:text-gray-400">
-                                {$currentAccount?.email}
+                                {get(currentAccount)?.email}
                             </p>
 
                             <!-- PRO Badge and Context Menu -->
@@ -1263,7 +1342,7 @@
                                             🔄 Erneut versuchen
                                         </Button>
                                     </div>
-                                {:else if finalUsageHistory.length === 0 && !isLoadingChartData && $isLoggedIn}
+                                {:else if finalUsageHistory.length === 0 && !isLoadingChartData && get(isLoggedIn)}
                                     <!-- No Data State (nur wenn wirklich KEINE Daten UND eingeloggt UND nicht am Laden!) -->
                                     <div 
                                         class="flex flex-col items-center justify-center h-64 bg-gray-100 dark:bg-aubergine-900 rounded-lg border border-gray-200 dark:border-aubergine-700 p-8"
@@ -1771,7 +1850,7 @@
                                         FREE
                                     </span>
                                     <span class="text-xs transition-colors duration-300 text-yellow-600">
-                                        {$isLoggedIn ? accountAgeLabel : ($translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit')}
+                                        {get(isLoggedIn) ? accountAgeLabel : (get(translations)?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit')}
                                     </span>
                                 </button>
                                 <button
@@ -1782,7 +1861,7 @@
                                         {$translations?.accountManager?.tiers?.pro || 'PRO'}
                                     </span>
                                     <span class="text-sm transition-colors duration-300 text-purple-600">
-                                        {$isLoggedIn ? accountAgeLabel : ($translations?.accountManager?.proDescription || '💎 Enterprise Security')}
+                                        {get(isLoggedIn) ? accountAgeLabel : (get(translations)?.accountManager?.proDescription || '💎 Enterprise Security')}
                                     </span>
                                 </button>
                             </div>
@@ -2000,5 +2079,4 @@
     />
 
     <!-- Footer Information Component -->
-    <FooterInfo slot="footer" />
 </PageLayout>

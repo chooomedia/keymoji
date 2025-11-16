@@ -1,19 +1,26 @@
-<script>
+<script lang="ts">
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { onMount, createEventDispatcher } from 'svelte';
-    import { get } from 'svelte/store';
-    import { currentLanguage, changeLanguage, showLanguageMenu, translations } from '../stores/contentStore.js';
+    import { currentLanguage, changeLanguage, showLanguageMenu, translations } from '../stores/contentStore.ts';
     import { supportedLanguages } from '../utils/languages';
-    import { navigate } from "svelte-routing";
+    import { navigate } from '../utils/routing.ts';
     
     const dispatch = createEventDispatcher();
     
-    export let position = 'top'; // top, bottom
-    export let display = 'full'; // full, compact
-    export let showLabels = true;
+    interface Props {
+        position?: 'top' | 'bottom';
+        display?: 'full' | 'compact';
+        showLabels?: boolean;
+    }
     
-    let selectedLang = $currentLanguage;
+    let {
+        position = 'top',
+        display = 'full',
+        showLabels = true
+    }: Props = $props();
+    
+    let selectedLang = $state(currentLanguage);
     let elvishFontLoaded = false;
     let menuRef;
     let buttonRef;
@@ -147,11 +154,9 @@
         
         // CRITICAL: Sync with userSettings store
         try {
-            const { updateSetting, userSettings } = await import('../stores/userSettingsStore.js');
-            const { get } = await import('svelte/store');
-            
+            const { updateSetting, userSettings: userSettingsStore } = await import('../stores/userSettingsStore.ts');
             // Update userSettings.language to stay in sync
-            const currentSettings = get(userSettings);
+            const currentSettings = userSettingsStore;
             if (currentSettings.language !== langCode) {
                 updateSetting('language', langCode);
                 console.log('✅ userSettings.language synced:', langCode);
@@ -230,7 +235,7 @@
     
     onMount(() => {
         // Schriftart vorladen, wenn die aktuelle Sprache Elvish ist
-        if ($currentLanguage === 'sjn') {
+        if (currentLanguage === 'sjn') {
             preloadElvishFont();
             
             // Ensure the correct class is applied
@@ -241,7 +246,7 @@
         // Use capture phase to ensure it runs before other handlers
         const handleClickOutside = (event) => {
             // Get current state from store (reactive)
-            const isMenuOpen = get(showLanguageMenu);
+            const isMenuOpen = showLanguageMenu;
             
             if (!isMenuOpen) return;
             
@@ -269,7 +274,7 @@
                 !isInsideCategoryButton && 
                 !isInsideFixedMenu && 
                 !isInsideDonateMenu) {
-                showLanguageMenu.set(false);
+                showLanguageMenu = false;
             }
         };
         
@@ -283,16 +288,18 @@
         };
     });
     
-    // Update selectedLang when currentLanguage changes
-    $: selectedLang = $currentLanguage;
+    $effect(() => {
+        selectedLang = currentLanguage;
+    });
     
-    // Reaktive Schriftart-Anwendung
-    $: if ($currentLanguage === 'sjn') {
-        preloadElvishFont();
-        document.body.classList.add('font-elvish');
-    } else {
-        document.body.classList.remove('font-elvish');
-    }
+    $effect(() => {
+        if (currentLanguage === 'sjn') {
+            preloadElvishFont();
+            document.body.classList.add('font-elvish');
+        } else {
+            document.body.classList.remove('font-elvish');
+        }
+    });
 </script>
     
 <div class="language-switcher {position} {display}">
@@ -357,14 +364,14 @@
                                 role="menuitem"
                                 on:click={() => handleLanguageChange(lang.code)}
                                 on:keydown={(e) => handleMenuKeydown(e, lang.code)}
-                                aria-current={$currentLanguage === lang.code ? 'true' : 'false'}
+                                aria-current={currentLanguage === lang.code ? 'true' : 'false'}
                                 tabindex="-1"
                                 aria-label="Switch to {lang.name} language"
                                 title={lang.name}
                             >
                                 <span class="flag-icon text-xl mr-3" aria-hidden="true">{lang.flag}</span>
                                 <span class="lang-name flex-1 text-left">{lang.name}</span>
-                                {#if $currentLanguage === lang.code}
+                                {#if currentLanguage === lang.code}
                                     <span class="ml-auto text-yellow shrink-0" aria-label="Currently selected language">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <polyline points="20 6 9 17 4 12"></polyline>

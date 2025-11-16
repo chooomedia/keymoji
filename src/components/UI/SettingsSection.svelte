@@ -33,46 +33,77 @@
  * />
  -->
 
-<script>
+<script lang="ts">
     import { slide } from 'svelte/transition';
     import SettingsItem from './SettingsItem.svelte';
     
-    // Props
-    export let section;
-    export let currentLanguage = 'en';
-    export let activeSection;
-    export let currentSettings;
-    export let userTier = 'free';
-    export let onSectionToggle;
-    export let onSettingChange;
-    export let onAction;
-    
-    // Helper function to get localized text
-    function getLocalizedText(textObj, fallback = '') {
-        return textObj?.[$currentLanguage] || textObj?.en || fallback;
+    interface SettingsItemConfig {
+        id: string;
+        type: 'toggle' | 'select' | 'range' | 'button';
+        icon?: string;
+        title?: Record<string, string>;
+        description?: Record<string, string>;
+        defaultValue?: unknown;
+        color?: string;
+        options?: Array<{ value: string; label: Record<string, string> }>;
+        labels?: { min?: string; max?: string };
+        min?: number;
+        max?: number;
+        validation?: unknown;
+        buttonText?: string;
     }
     
-    // Check if section is active
-    $: isActive = activeSection === section.id;
+    interface SectionConfig {
+        id: string;
+        icon?: string;
+        title?: Record<string, string>;
+        description?: Record<string, string>;
+        items?: SettingsItemConfig[];
+        proItems?: SettingsItemConfig[];
+    }
     
-    // Get all items for current tier
-    $: allItems = [
+    interface Props {
+        section: SectionConfig;
+        currentLanguage?: string;
+        activeSection?: string | null;
+        currentSettings?: Record<string, unknown>;
+        userTier?: 'free' | 'pro';
+        onSectionToggle?: (sectionId: string | null) => void;
+        onSettingChange?: (itemId: string, value: unknown) => void;
+        onAction?: (action: string) => void;
+    }
+    
+    let {
+        section,
+        currentLanguage = 'en',
+        activeSection,
+        currentSettings = {},
+        userTier = 'free',
+        onSectionToggle,
+        onSettingChange,
+        onAction
+    }: Props = $props();
+    
+    function getLocalizedText(textObj: Record<string, string> | undefined, fallback = ''): string {
+        return textObj?.[currentLanguage] || textObj?.en || fallback;
+    }
+    
+    const isActive = $derived(activeSection === section.id);
+    
+    const allItems = $derived([
         ...(section.items || []),
         ...(userTier === 'pro' && section.proItems ? section.proItems : [])
-    ];
+    ]);
     
-    // Handle section toggle
-    function handleSectionToggle() {
+    function handleSectionToggle(): void {
         onSectionToggle?.(isActive ? null : section.id);
     }
     
-    // Handle setting value change
-    function handleSettingChange(itemId, value) {
+    function handleSettingChange(itemId: string, value: unknown): void {
         onSettingChange?.(itemId, value);
     }
     
-    // Handle action button click
-    function handleAction(action) {
+    function handleAction(action: string): void {
         onAction?.(action);
     }
 </script>
