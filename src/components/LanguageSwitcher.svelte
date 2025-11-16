@@ -22,10 +22,10 @@
     }: Props = $props();
     
     let selectedLang = $state(get(currentLanguage));
-    let elvishFontLoaded = false;
-    let menuRef;
-    let buttonRef;
-    let dropdownTop = 0;
+    let elvishFontLoaded = $state(false);
+    let menuRef: HTMLElement | undefined = $state();
+    let buttonRef: HTMLElement | undefined = $state();
+    let dropdownTop = $state(0);
     
     // Direkter Zugriff auf die supportedLanguages aus languageUtils
     const languages = supportedLanguages;

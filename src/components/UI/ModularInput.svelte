@@ -65,9 +65,9 @@
     export let onAction;
     
     // Local state for input value - prevents focus loss during re-renders
-    let localValue = currentValue;
-    let isFocused = false;
-    let lastUserInput = null; // Track the last value the user typed
+    let localValue = $state(currentValue);
+    let isFocused = $state(false);
+    let lastUserInput = $state<string | null>(null); // Track the last value the user typed
     
     // Update local value when currentValue prop changes from outside
     // CRITICAL: Only update if:
@@ -112,8 +112,8 @@
     const dispatch = createEventDispatcher();
     
     // Validation state
-    let isValid = true;
-    let validationErrors = [];
+    let isValid = $state(true);
+    let validationErrors = $state<string[]>([]);
     
     // Helper function to get localized text
     function getLocalizedText(textObj, fallback = '') {

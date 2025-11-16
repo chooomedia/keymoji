@@ -12,17 +12,21 @@
     // Assign to variable for template use (helps Webpack resolve)
     const AppLayout = AppLayoutComponent;
     
+    import type { Snippet } from 'svelte';
+    
     // Props für Layout (SvelteKit Pattern)
     interface Props {
         routeSlug?: string;
         pageTitle?: string;
         pageDescription?: string;
+        children?: Snippet;
     }
     
     let {
         routeSlug = 'index',
         pageTitle = '',
-        pageDescription = ''
+        pageDescription = '',
+        children
     }: Props = $props();
     
     // Bestimme Route-Slug aus aktueller URL (falls nicht übergeben)
@@ -55,7 +59,6 @@
     routeSlug={currentRouteSlug}
     {pageTitle} 
     {pageDescription}
->
-    <slot />
-</AppLayout>
+    {children}
+/>
 

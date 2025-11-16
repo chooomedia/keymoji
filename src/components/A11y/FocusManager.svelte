@@ -3,6 +3,8 @@
     import { onMount, onDestroy } from 'svelte';
     import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers';
     
+    import type { Snippet } from 'svelte';
+    
     interface Props {
         active?: boolean;
         initialFocus?: HTMLElement | string | null;
@@ -11,6 +13,7 @@
         returnFocusOnEscape?: boolean;
         autoFocus?: boolean;
         loop?: boolean;
+        children?: Snippet;
     }
     
     let {
@@ -20,7 +23,8 @@
         restoreFocus = true,
         returnFocusOnEscape = true,
         autoFocus = true,
-        loop = true
+        loop = true,
+        children
     }: Props = $props();
     
     let trapElement: HTMLElement | null = $state(null);
@@ -202,5 +206,7 @@
   </script>
   
   <div bind:this={trapElement} class="focus-trap">
-    <slot></slot>
+    {#if children}
+      {@render children()}
+    {/if}
   </div>

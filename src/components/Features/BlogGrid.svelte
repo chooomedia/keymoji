@@ -15,8 +15,6 @@
     import BlogPostImage from './BlogPostImage.svelte';
     import BlogPostMeta from './BlogPostMeta.svelte';
     import HeartAnimation from './HeartAnimation.svelte';
-    import BigHeartAnimation from './BigHeartAnimation.svelte';
-    import ButtonHeartParticles from './ButtonHeartParticles.svelte';
     import Pagination from '../UI/Pagination.svelte';
     import BlogPostSkeleton from './BlogPostSkeleton.svelte';
     import ShareButtons from './ShareButtons.svelte';
@@ -102,7 +100,7 @@
         return text.length > 24 ? text.substring(0, 21) + '...' : text;
     }
     
-    let likeStatusMap = new Map(); // Map für Erfolgs-/Fehler-Status: { postId: 'success' | 'error' | null }
+    let likeStatusMap = $state(new Map()); // Map für Erfolgs-/Fehler-Status: { postId: 'success' | 'error' | null }
     
     async function handleLike(postId: number): Promise<void> {
         if (!isLoggedIn) {
@@ -1029,16 +1027,17 @@
 
 <!-- Heart Animations -->
 <!-- Große fliegende Herzen (wie in BlogPost) -->
-<HeartAnimation show={showHeartAnimation} count={5} />
+<HeartAnimation show={showHeartAnimation} mode="float" count={5} />
 
 <!-- Große zentrierte Herz-Animation für Success -->
-<BigHeartAnimation show={showBigHeartAnimation} />
+<HeartAnimation show={showBigHeartAnimation} mode="big" />
 
 <!-- Button Heart Particles - Kleine fliegende Herzen um jeden Button -->
 {#each Array.from(buttonParticles.entries()) as [postId, particleData]}
     {#if particleData.show && particleData.buttonElement}
-        <ButtonHeartParticles 
+        <HeartAnimation 
             show={particleData.show} 
+            mode="particles"
             buttonElement={particleData.buttonElement}
             count={6}
         />

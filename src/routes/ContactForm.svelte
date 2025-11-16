@@ -69,7 +69,7 @@
     });
 
     // Redirect management
-    let redirectTimeout = null;
+    let redirectTimeout: ReturnType<typeof setTimeout> | null = $state(null);
 
     // Constants
     const MIN_MESSAGE_LENGTH = 10;
@@ -255,10 +255,13 @@
 </script>
 
 <PageLayout {pageTitle} {pageDescription} routeSlug="contact">
+    {#snippet beforeHeader()}
     <!-- GIF Image in before-header slot -->
-    <div slot="before-header" class="flex justify-center">
+        <div class="flex justify-center">
         <div 
             class="relative w-32 h-32 cursor-pointer rounded-full overflow-hidden border-4 border-yellow-200 dark:border-yellow-600 shadow-lg transform-gpu"
+            role="img"
+            aria-label="Contact form image"
             onmouseenter={() => {showRealImage = true; console.log('Mouse enter - showing real image');}}
             onmouseleave={() => {showRealImage = false; console.log('Mouse leave - showing GIF');}}
         >
@@ -283,7 +286,9 @@
             />
         </div>
     </div>
+    {/snippet}
 
+    {#snippet children()}
     <!-- Contact Form Content -->
     <form onsubmit={handleSubmit}>
         <!-- Honeypot Field -->
@@ -419,6 +424,7 @@
             </Button>
         </div>
     </form>
+    {/snippet}
 
     <!-- Footer Information Component -->
 </PageLayout>

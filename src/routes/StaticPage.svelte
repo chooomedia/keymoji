@@ -18,7 +18,7 @@
     
     let { slug = 'privacy' }: Props = $props();
     
-    let loading = true;
+    let loading = $state(true);
     
     // Get content based on slug and language (reactive) - Svelte 5 Runes
     let pageData = $derived.by(() => {
@@ -62,8 +62,9 @@
     </PageLayout>
 {:else if pageData}
     <PageLayout {pageTitle} {pageDescription} routeSlug="static">
-        <!-- Back Button - Liegt ZUR HÄLFTE auf content-wrapper Rand -->
-        <div slot="before-content" class="relative w-full flex justify-center -mb-14">
+        {#snippet beforeContent()}
+            <!-- Back Button - Liegt ZUR HÄLFTE auf content-wrapper Rand -->
+            <div class="relative w-full flex justify-center -mb-14">
             <button 
                 onclick={navigateToHome}
                 class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 z-20"
@@ -151,7 +152,7 @@
             </button>
         </div>
         </div>
-
+        {/snippet}
     </PageLayout>
 {:else}
     <PageLayout pageTitle="404" pageDescription="Page not found">

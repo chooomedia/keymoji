@@ -1,9 +1,8 @@
 <script lang="ts">
   import { slide } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
-  import { navigate } from '../utils/routing.ts';
-  import { darkMode, showDonateMenu, isLoggedIn, currentAccount } from '../stores/appStores';
-  import { showLanguageMenu, translations, currentLanguage } from '../stores/contentStore.ts';
+  import { darkMode, showDonateMenu } from '../stores/appStores';
+  import { translations } from '../stores/contentStore';
   import { get } from 'svelte/store';
   import { createEventDispatcher, onMount } from 'svelte';
   import ModalDebugComponent from '../components/UI/ModalDebug.svelte';
@@ -43,7 +42,7 @@
   
   // Reactive store values for template use (Svelte 5 Runes)
   let showDonateMenuValue = $derived(get(showDonateMenu));
-  let selectedLink: string | undefined = undefined;
+  let selectedLink = $state<string | undefined>(undefined);
   let showDebugModal = $state(false);
 
   // Dev-Mode einmalig berechnen, damit Template eine definierte Variable hat
@@ -108,7 +107,7 @@
       }
       
       // Close donate menu if click is outside all relevant elements
-      if (showDonateMenu && 
+      if (get(showDonateMenu) && 
           !isInsideDonateButton && 
           !isInsideDonateMenuItem && 
           !isInsideShareButton && 
@@ -117,7 +116,7 @@
           !isInsideLanguageButton && 
           !isInsideCategoryMenu && 
           !isInsideCategoryButton) {
-        set(showDonateMenu, false);
+        showDonateMenu.set(false);
       }
     };
     
@@ -172,7 +171,7 @@
     }
     
     if (menuType === 'donate') {
-      set(showDonateMenu, !get(showDonateMenu));
+      showDonateMenu.set(!get(showDonateMenu));
       showMenu = false;
       
       // Schließe Language Dropdown, wenn Donate Dropdown geöffnet wird
@@ -184,7 +183,7 @@
       }
     } else if (menuType === 'share') {
       showMenu = !showMenu;
-        set(showDonateMenu, false);
+        showDonateMenu.set(false);
       
       // Schließe Language Dropdown, wenn Share Menu geöffnet wird
       if (showMenu) {
@@ -227,7 +226,7 @@
   function closeAll() {
     selectedLink = undefined;
     showMenu = false;
-        set(showDonateMenu, false);
+        showDonateMenu.set(false);
   }
 
   // Reaktive Bindungen für Links - jetzt über t() verwaltet (Svelte 5 Runes)

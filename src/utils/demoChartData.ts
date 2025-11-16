@@ -4,14 +4,9 @@
 //
 // TypeScript Migration: v0.7.7
 
-/**
- * Usage History Entry Interface
- */
-export interface UsageHistoryEntry {
-    date: string;
-    used: number;
-    limit: number;
-}
+import type { UsageHistoryEntry } from '../types/Account';
+
+// UsageHistoryEntry is now imported from '../types/Account'
 
 /**
  * Static demo dataset - shows what the chart looks like with data

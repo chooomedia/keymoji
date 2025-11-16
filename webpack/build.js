@@ -7,6 +7,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const path = require('path');
 const { paths } = require('./utils');
 
@@ -248,7 +249,17 @@ module.exports = merge(common, {
             minChunkSize: 10000
         }),
         // SEO-optimierte Performance-Plugins
-        new webpack.optimize.ModuleConcatenationPlugin()
+        new webpack.optimize.ModuleConcatenationPlugin(),
+        // PERFORMANCE: Bundle-Analyzer (nur wenn ANALYZE=true gesetzt)
+        ...(process.env.ANALYZE === 'true' ? [
+            new BundleAnalyzerPlugin({
+                analyzerMode: 'static',
+                openAnalyzer: true,
+                reportFilename: 'bundle-report.html',
+                generateStatsFile: true,
+                statsFilename: 'bundle-stats.json'
+            })
+        ] : [])
     ],
 
     cache: {
@@ -258,7 +269,11 @@ module.exports = merge(common, {
         },
         compression: 'gzip',
         name: `production-cache`,
-        version: `${Date.now()}`
+        version: `${Date.now()}`,
+        // PERFORMANCE: Cache-Optimierung für Production
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 Tage Cache-Gültigkeit
+        cacheDirectory: path.resolve(__dirname, '../node_modules/.cache/webpack-prod'),
+        maxMemoryGenerations: 1 // Nur 1 Generation im Speicher
     },
 
     // SEO-optimierte Performance-Einstellungen

@@ -5,6 +5,7 @@
 
 export * from './Account';
 export * from './API';
+export * from './ComponentProps';
 
 // Re-export commonly used types
 export type {
@@ -31,4 +32,34 @@ export type {
     BlogAPIResponse,
     AnalyticsEvent
 } from './API';
+
+// Re-export Component Props for easy access
+export type {
+    BaseUIProps,
+    ButtonProps,
+    InputProps,
+    CheckboxProps,
+    ToggleProps,
+    TooltipProps,
+    ContextBadgeProps,
+    FormProps,
+    LayoutProps,
+    SEOProps,
+    RouteProps,
+    NavigationProps,
+    ChartProps,
+    ModalProps,
+    PaginationProps,
+    SettingsItemProps,
+    AccountFormProps,
+    BlogPostProps,
+    FeatureCardProps,
+    ButtonVariant,
+    BadgeVariant,
+    CheckboxVariant,
+    ToggleColor,
+    ComponentSize,
+    ButtonSize,
+    Position
+} from './ComponentProps';
 

@@ -17,7 +17,7 @@ import {
 } from '../config/limits';
 import { isDevelopment } from '../utils/environment';
 import { cachedFetchAccount, invalidateCachePattern } from '../utils/apiCache';
-import type { Account } from '../types/Account';
+import type { Account, UsageHistoryEntry, DailyLimitState } from '../types/Account';
 
 export interface UsageStatus {
     isLoading: boolean;
@@ -37,20 +37,7 @@ export interface DailyUsageData {
     [key: string]: unknown;
 }
 
-export interface UsageHistoryEntry {
-    date: string;
-    used: number;
-    storyUsed?: number;
-    limit?: number;
-    timestamp?: string;
-    [key: string]: unknown;
-}
-
-export interface DailyLimitState {
-    limit: number;
-    used: number;
-    storyUsed?: number;
-}
+// UsageHistoryEntry and DailyLimitState are now imported from '../types/Account'
 
 export const usageStatus = writable<UsageStatus>({
     isLoading: false,

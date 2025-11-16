@@ -927,6 +927,11 @@ export function updateMetaTags(seoData: SEOConfig, currentLanguage: string): voi
         }
     }
 
+    // CRITICAL: Update HTML lang attribute FIRST (for SEO and accessibility)
+    if (document.documentElement) {
+        document.documentElement.setAttribute('lang', currentLanguage);
+    }
+
     // Title
     document.title = title;
 

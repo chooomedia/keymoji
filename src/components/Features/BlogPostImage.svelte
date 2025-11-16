@@ -21,7 +21,7 @@
     export let showCategory = true;
     export let showFeaturedBadge = false;
     
-    let imageError = false;
+    let imageError = $state(false);
     
     /**
      * Normalisiert Bild-URL: 

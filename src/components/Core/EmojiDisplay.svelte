@@ -164,38 +164,38 @@
         // Only update if settings actually changed
         if (settingsKey !== lastStoryModeSettings) {
             lastStoryModeSettings = settingsKey;
+        
+        if (storyModeSettings) {
+            const enabled = storyModeSettings.enabled ?? false;
+            const currentProvider = storyModeSettings.provider || 'apertus';
+            const apiKeys = storyModeSettings.apiKeys || {};
+            const currentApiKey = apiKeys[currentProvider] || '';
             
-            if (storyModeSettings) {
-                const enabled = storyModeSettings.enabled ?? false;
-                const currentProvider = storyModeSettings.provider || 'apertus';
-                const apiKeys = storyModeSettings.apiKeys || {};
-                const currentApiKey = apiKeys[currentProvider] || '';
-                
-                // For Apertus: configured if enabled (token is loaded from environment)
-                // For other providers: configured if API key exists and is valid
-                const configured = currentProvider === 'apertus' 
-                    ? enabled // Apertus is configured if Story Mode is enabled (token handled internally)
-                    : !!(currentApiKey && currentApiKey.length >= 10);
-                
+            // For Apertus: configured if enabled (token is loaded from environment)
+            // For other providers: configured if API key exists and is valid
+            const configured = currentProvider === 'apertus' 
+                ? enabled // Apertus is configured if Story Mode is enabled (token handled internally)
+                : !!(currentApiKey && currentApiKey.length >= 10);
+            
                 // Only update if values actually changed
                 if (storyModeEnabled !== enabled) {
-                    storyModeEnabled = enabled;
+            storyModeEnabled = enabled;
                 }
                 if (storyModeConfigured !== configured) {
-                    storyModeConfigured = configured;
+            storyModeConfigured = configured;
                 }
-                
-                // Update temperature from settings ONLY on first load
-                // Load from store if available, otherwise use 0 as default
-                if (!temperatureInitialized) {
-                    const savedTemperature = storyModeSettings.temperature;
-                    // Validate: must be between 0 and 1, default to 0 if invalid
-                    if (typeof savedTemperature === 'number' && savedTemperature >= 0 && savedTemperature <= 1) {
-                        storyTemperature = savedTemperature;
-                    } else {
-                        storyTemperature = 0; // Default to 0 (Precise)
-                    }
-                    temperatureInitialized = true;
+            
+            // Update temperature from settings ONLY on first load
+            // Load from store if available, otherwise use 0 as default
+            if (!temperatureInitialized) {
+                const savedTemperature = storyModeSettings.temperature;
+                // Validate: must be between 0 and 1, default to 0 if invalid
+                if (typeof savedTemperature === 'number' && savedTemperature >= 0 && savedTemperature <= 1) {
+                    storyTemperature = savedTemperature;
+                } else {
+                    storyTemperature = 0; // Default to 0 (Precise)
+                }
+                temperatureInitialized = true;
                 }
             }
         }
@@ -235,48 +235,48 @@
             // Only update if model settings actually changed
             if (modelKey !== lastDisplayModelKey) {
                 lastDisplayModelKey = modelKey;
-                
-                // For custom provider, use customModel; for others, use model or default
+            
+            // For custom provider, use customModel; for others, use model or default
                 let newDisplayModel: string;
-                if (provider === 'custom') {
+            if (provider === 'custom') {
                     newDisplayModel = customModel || 'Custom';
-                } else {
-                    // Use the actual model from settings, or fallback to default for provider
-                    // getDefaultModel returns the full model name (e.g., 'apertus-8b-2509')
-                    // We'll format it nicely for display
-                    const defaultModel = getDefaultModel(provider, userTier);
-                    const modelToDisplay = model || defaultModel || 'Model';
-                    
-                    // Format model name for display (make it more readable)
-                    if (modelToDisplay.includes('apertus-70b') || modelToDisplay.includes('70b')) {
-                        newDisplayModel = 'Apertus-70B';
-                    } else if (modelToDisplay.includes('apertus')) {
-                        newDisplayModel = 'Apertus-8B';
-                    } else if (modelToDisplay.includes('gpt-3.5')) {
-                        newDisplayModel = 'GPT-3.5';
-                    } else if (modelToDisplay.includes('gpt-4')) {
-                        newDisplayModel = 'GPT-4';
-                    } else if (modelToDisplay.includes('gemini')) {
-                        newDisplayModel = 'Gemini Pro';
-                    } else if (modelToDisplay.includes('mistral')) {
-                        newDisplayModel = modelToDisplay.includes('tiny') ? 'Mistral Tiny' : 'Mistral';
-                    } else if (modelToDisplay.includes('claude')) {
-                        newDisplayModel = 'Claude Haiku';
-                    } else {
-                        // Use model as-is, or capitalize first letter
-                        newDisplayModel = modelToDisplay.charAt(0).toUpperCase() + modelToDisplay.slice(1);
-                    }
-                }
+            } else {
+                // Use the actual model from settings, or fallback to default for provider
+                // getDefaultModel returns the full model name (e.g., 'apertus-8b-2509')
+                // We'll format it nicely for display
+                const defaultModel = getDefaultModel(provider, userTier);
+                const modelToDisplay = model || defaultModel || 'Model';
                 
+                // Format model name for display (make it more readable)
+                if (modelToDisplay.includes('apertus-70b') || modelToDisplay.includes('70b')) {
+                        newDisplayModel = 'Apertus-70B';
+                } else if (modelToDisplay.includes('apertus')) {
+                        newDisplayModel = 'Apertus-8B';
+                } else if (modelToDisplay.includes('gpt-3.5')) {
+                        newDisplayModel = 'GPT-3.5';
+                } else if (modelToDisplay.includes('gpt-4')) {
+                        newDisplayModel = 'GPT-4';
+                } else if (modelToDisplay.includes('gemini')) {
+                        newDisplayModel = 'Gemini Pro';
+                } else if (modelToDisplay.includes('mistral')) {
+                        newDisplayModel = modelToDisplay.includes('tiny') ? 'Mistral Tiny' : 'Mistral';
+                } else if (modelToDisplay.includes('claude')) {
+                        newDisplayModel = 'Claude Haiku';
+                } else {
+                    // Use model as-is, or capitalize first letter
+                        newDisplayModel = modelToDisplay.charAt(0).toUpperCase() + modelToDisplay.slice(1);
+                }
+            }
+            
                 // Only update if value actually changed
                 if (displayModel !== newDisplayModel) {
                     displayModel = newDisplayModel;
-                    displayModelShort = getShortModelName(displayModel);
-                }
-            }
+            displayModelShort = getShortModelName(displayModel);
+        }
+    }
         }
     });
-
+  
     // Timeout-Tracking für Memory Leak Prevention
     let activeTimeouts = $state<Set<ReturnType<typeof setTimeout>>>(new Set());
     let modalVisibilityUnsubscribe: (() => void) | undefined = undefined;
@@ -1055,7 +1055,7 @@
               </button>
               
               <!-- "or" separator -->
-              <span class="text-xs text-gray-500 dark:text-gray-400 px-1 relative z-10">                                                                        
+              <span class="text-xs text-gray-500 dark:text-gray-400 px-1 relative z-10">
                 {t?.index?.setupStoryModeOr || 'oder'}
               </span>
               
@@ -1083,8 +1083,8 @@
                     }, 100);
                   }, 400);
                 }}
-                class="standard-ai-button inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer relative overflow-hidden h-8 transition-all duration-300 ease-in-out {yellowButtonHover ? 'yellow-hover' : ''} {yellowButtonClick ? 'yellow-click' : ''}"                                        
-                style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"                                                                     
+                class="standard-ai-button inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer relative overflow-hidden h-8 transition-all duration-300 ease-in-out {yellowButtonHover ? 'yellow-hover' : ''} {yellowButtonClick ? 'yellow-click' : ''}"
+                style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"
                 title={t?.index?.setupStoryModeDescription || 'Setup your AI for AI-generated emoji passwords'}                                        
                 aria-label={t?.index?.setupStoryMode || 'Setup your AI'}                                                                               
                 onmouseenter={() => {
@@ -1183,7 +1183,7 @@
           rows="5"
           aria-describedby="char-counter"
           aria-busy={isGeneratingStory}
-        />
+        ></textarea>
         
         <!-- Loading Overlay für Story Generation (Fancy UX) -->
         {#if isGeneratingStory}
@@ -1303,7 +1303,7 @@
             type="button"
             aria-label={t?.emojiDisplay?.clearButton || 'Clear input'}
             onclick={clearInput} 
-            class="absolute top-2 right-2 inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white active:text-black dark:active:text-white z-10"                                    
+            class="absolute top-2 right-2 inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white active:text-black dark:active:text-white z-10"
             disabled={isDisabled}
             title={t?.emojiDisplay?.clearButton || 'Clear'}
           >
@@ -1417,7 +1417,7 @@
         <button
           aria-label={t?.emojiDisplay?.randomButton || 'Switch to random mode'}                                                                        
           onclick={() => { isStoryMode = false; showTextArea = false; }} 
-          class="w-1/2 py-4 rounded-full bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm transition-all duration-300 ease-in-out transform hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"                  
+          class="w-1/2 py-4 rounded-full bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm transition-all duration-300 ease-in-out transform hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
           disabled={isDisabled || isGeneratingStory}
           title={t?.emojiDisplay?.randomButton}
         >
@@ -1457,7 +1457,7 @@
           aria-label={t?.emojiDisplay?.randomButton || 'Generate random emojis'}                                                                       
           onclick={() => generateRandomEmojis(true)} 
           onkeydown={handleKeyPress} 
-          class="w-1/2 py-4 rounded-full transition-all duration-300 ease-in-out transform focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100                                                                         
+          class="w-1/2 py-4 rounded-full transition-all duration-300 ease-in-out transform focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100
             {storyModeEnabled && storyModeConfigured
               ? 'bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 focus:ring-yellow-400'
               : 'bg-yellow-500 text-black border-2 border-yellow-500 shadow-md hover:scale-105 focus:scale-105 active:scale-95 focus:ring-yellow-50'}"

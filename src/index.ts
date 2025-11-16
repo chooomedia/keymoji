@@ -210,15 +210,27 @@ function initializeApp(): Component {
         if (typeof window === 'undefined') return;
         
         const path = window.location.pathname;
-        const lang = get(currentLanguage) || 'en';
+        
+        // CRITICAL: Extract language from URL FIRST (before store initialization)
+        const pathSegments = path.split('/').filter(segment => segment !== '');
+        const supportedLanguages = ['en', 'de', 'fr', 'es', 'it', 'ja', 'ko', 'nl', 'pl', 'ru', 'tr', 'af', 'tlh', 'sjn', 'de-CH'];
+        const urlLang = pathSegments.length > 0 && supportedLanguages.includes(pathSegments[0]) 
+            ? pathSegments[0] 
+            : null;
+        
+        // Use URL language if available, otherwise use store language, fallback to 'en'
+        const lang = urlLang || get(currentLanguage) || 'en';
+        
+        // CRITICAL: Update HTML lang attribute IMMEDIATELY (before any rendering)
+        if (document.documentElement) {
+            document.documentElement.setAttribute('lang', lang);
+        }
         
         // Determine page type from path
-        const pathSegments = path.split('/').filter(segment => segment !== '');
         let pageType = 'home';
         
         if (pathSegments.length > 0) {
             const firstSegment = pathSegments[0];
-            const supportedLanguages = ['en', 'de', 'fr', 'es', 'it', 'ja', 'ko', 'nl', 'pl', 'ru', 'tr', 'af', 'tlh', 'sjn', 'de-CH'];
             
             if (supportedLanguages.includes(firstSegment)) {
                 // Language prefix present
@@ -236,40 +248,9 @@ function initializeApp(): Component {
             url: path
         }, lang);
         
-        // Subscribe to language changes for SEO updates
-        const unsubscribe = currentLanguage.subscribe((newLang) => {
-            updateSEO({
-                pageType,
-                url: window.location.pathname
-            }, newLang);
-        });
-        
-        // Subscribe to path changes (popstate)
-        window.addEventListener('popstate', () => {
-            const newPath = window.location.pathname;
-            const newPathSegments = newPath.split('/').filter(segment => segment !== '');
-            let newPageType = 'home';
-            
-            if (newPathSegments.length > 0) {
-                const firstSegment = newPathSegments[0];
-                const supportedLanguages = ['en', 'de', 'fr', 'es', 'it', 'ja', 'ko', 'nl', 'pl', 'ru', 'tr', 'af', 'tlh', 'sjn', 'de-CH'];
-                
-                if (supportedLanguages.includes(firstSegment)) {
-                    const pageSegment = newPathSegments[1];
-                    newPageType = pageSegment || 'home';
-                } else {
-                    newPageType = firstSegment || 'home';
-                }
-            }
-            
-            updateSEO({
-                pageType: newPageType,
-                url: newPath
-            }, get(currentLanguage));
-        });
-        
-        // Store unsubscribe for cleanup (if needed)
-        (window as { keymojiSEOUnsubscribe?: () => void }).keymojiSEOUnsubscribe = unsubscribe;
+        // NOTE: SEO updates for language/path changes are handled by LanguageRouter
+        // Do NOT subscribe here to avoid duplicate updates and CPU overhead
+        // The initial SEO update above is sufficient for first render
     }
     
     // Initialize SEO before mounting component

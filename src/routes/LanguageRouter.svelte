@@ -1,6 +1,7 @@
 <!-- src/routes/LanguageRouter.svelte -->
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, untrack } from 'svelte';
+    import { fade } from 'svelte/transition';
     import { get } from 'svelte/store';
     
     // Import components with explicit variable assignment (Webpack fix)
@@ -35,6 +36,8 @@
     let loadingError = $state<Error | null>(null);
     let isLoading = $state(false);
     let loadingProgress = $state<string>('');
+    let showLoader = $state(true); // Separate State für Loader-Anzeige (für Fade-Out)
+    let contentReady = $state(false); // State für Content-Bereitschaft
     
     // Lazy Load Page Components (Svelte 5 Best Practice)
     // Gemäß Svelte Docs: Dynamische Imports mit Error Handling und Loading States
@@ -207,6 +210,16 @@
             console.log('✅ LanguageRouter: isLoading set to false');
             
             devLog('✅ LanguageRouter: Routes loaded successfully');
+            
+            // PERFORMANCE: Sauberes Loader-Fade-Out mit kurzer Verzögerung
+            // Verhindert Flackern und ermöglicht saubere Transition
+            setTimeout(() => {
+                showLoader = false;
+                // Kurze Verzögerung bevor Content angezeigt wird (für saubere Transition)
+                setTimeout(() => {
+                    contentReady = true;
+                }, 150); // 150ms für Fade-Out-Animation
+            }, 300); // 300ms Verzögerung für "Ready!" Message
             devLog('✅ LanguageRouter: Loaded components:', {
                 RootPage: !!RootPage,
                 ContactPage: !!ContactPage,
@@ -232,6 +245,12 @@
             });
             // Set routesLoaded to true anyway to show error page
             routesLoaded = true;
+            
+            // Auch bei Fehler Loader ausblenden
+            setTimeout(() => {
+                showLoader = false;
+                contentReady = true;
+            }, 300);
         }
     }
     
@@ -246,8 +265,14 @@
     let initialRouteProcessed = $state(false);
     let processingRoute = $state(false); // Verhindert gleichzeitige Route-Verarbeitung
     
+    // Svelte 5 Best Practice: Store direkt verwenden, nicht über $derived
+    // Vermeidet zirkuläre Abhängigkeiten und infinite loops
+    // Verwende get() direkt in Funktionen statt reaktiver Rune
+    let lastProcessedPath = $state("");
+    let lastProcessedLang = $state<string | null>(null);
     
     // Verbesserte Route-Verarbeitung ohne Weiterleitung von Root zu Sprach-URL
+    // CRITICAL: Diese Funktion darf NICHT State lesen und schreiben, der sie wieder triggert
     async function handleRouteChange() {
         console.log('🔄 LanguageRouter: handleRouteChange called');
         console.log('🔄 LanguageRouter: current path:', window.location.pathname);
@@ -263,11 +288,20 @@
             return;
         }
         
+        const newPath = window.location.pathname;
+        const currentLangValue = get(currentLanguage);
+        
+        // Guard: Verhindere doppelte Verarbeitung desselben Pfads
+        if (newPath === lastProcessedPath && currentLangValue === lastProcessedLang) {
+            console.log('🔄 LanguageRouter: Path and language unchanged, skipping...');
+            return;
+        }
+        
         processingRoute = true;
         
         try {
-            // Extrahiere den aktuellen Pfad
-            currentPath = window.location.pathname;
+            // Extrahiere den aktuellen Pfad (nur lesen, nicht schreiben in State)
+            const pathToProcess = newPath;
             
             // Überprüfe Login-Status bei jedem Route-Wechsel - nur wenn nötig
             if (!initialRouteProcessed) {
@@ -277,7 +311,7 @@
             }
             
             // Extrahiere Pfadsegmente für die Spracherkennung
-            const pathSegments = currentPath.split('/').filter(segment => segment !== '');
+            const pathSegments = pathToProcess.split('/').filter(segment => segment !== '');
             const potentialLang = pathSegments[0];
             console.log('🔄 LanguageRouter: Path segments:', pathSegments);
             console.log('🔄 LanguageRouter: Potential language:', potentialLang);
@@ -287,14 +321,19 @@
             if (potentialLang && supportedLanguages.includes(potentialLang)) {
                 console.log('🔄 LanguageRouter: Valid language found:', potentialLang);
                 // Setze die Sprache basierend auf der URL, wenn sie anders ist
-                if (potentialLang !== $currentLanguage) {
-                    console.log('🔄 LanguageRouter: Language different, changing from', $currentLanguage, 'to', potentialLang);
+                // CRITICAL: Nur ändern wenn wirklich anders, um infinite loops zu vermeiden
+                if (potentialLang !== currentLangValue) {
+                    console.log('🔄 LanguageRouter: Language different, changing from', currentLangValue, 'to', potentialLang);
                     await changeLanguage(potentialLang);
+                    // Update tracking nach erfolgreicher Änderung
+                    lastProcessedLang = potentialLang;
                 } else {
                     console.log('🔄 LanguageRouter: Language already set to:', potentialLang);
+                    lastProcessedLang = currentLangValue;
                 }
             } else {
-                console.log('🔄 LanguageRouter: No valid language in URL, using current:', $currentLanguage);
+                console.log('🔄 LanguageRouter: No valid language in URL, using current:', currentLangValue);
+                lastProcessedLang = currentLangValue;
             }
             
             // Preserve URL parameters for magic link verification
@@ -305,6 +344,10 @@
                 console.log('🔗 LanguageRouter: Magic link parameters detected, preserving them');
                 console.log('🔗 LanguageRouter: URL params:', window.location.search);
             }
+            
+            // Update tracking - NUR NACH erfolgreicher Verarbeitung
+            currentPath = pathToProcess;
+            lastProcessedPath = pathToProcess;
             
             // Markiere, dass anfängliche Route verarbeitet wurde
             if (!initialRouteProcessed) {
@@ -325,6 +368,9 @@
         try {
             devLog('🚀 LanguageRouter: Component mounted');
             
+            // NOTE: Cache initialization is handled in src/index.ts to prevent duplicate calls
+            // Do NOT call initializeCache here - it's already called in initializeApp()
+            
             // NOTE: localStorage migration runs SYNCHRONOUSLY on appStores.js import
             // This ensures all data is clean BEFORE any store initialization
             
@@ -344,10 +390,27 @@
                 // Retry nach kurzer Verzögerung
                 setTimeout(() => {
                     if (!routesLoaded && !isLoading) {
-                        loadRoutes();
+                        loadRoutes().catch(err => {
+                            console.error('❌ LanguageRouter: Retry failed:', err);
+                            // Auch bei Fehler contentReady setzen, damit Error-State angezeigt wird
+                            setTimeout(() => {
+                                showLoader = false;
+                                contentReady = true;
+                            }, 300);
+                        });
                     }
                 }, 1000);
             }
+            
+            // FALLBACK: Setze contentReady nach Timeout, auch wenn Routen nicht geladen wurden
+            // Verhindert, dass die App für immer im Loading-State bleibt
+            setTimeout(() => {
+                if (!contentReady) {
+                    console.warn('⚠️ LanguageRouter: Timeout reached, setting contentReady anyway');
+                    showLoader = false;
+                    contentReady = true;
+                }
+            }, 10000); // 10 Sekunden Timeout
             
             // CRITICAL: Initialize daily usage for ALL users (logged in or guest)
             try {
@@ -364,32 +427,39 @@
             console.log('🔐 LanguageRouter: Session restoration result:', sessionRestored);
             
             // SEO-optimierte Initialisierung
-            currentPath = window.location.pathname;
+            const initialPath = window.location.pathname;
+            currentPath = initialPath;
             
             // SEO-optimierte Sprach-Erkennung
             // REMOVED: setTimeout delay - Race Condition behoben, proper async/await verwendet
-            const pathSegments = window.location.pathname.split('/').filter(segment => segment !== '');
+            const pathSegments = initialPath.split('/').filter(segment => segment !== '');
             const potentialLang = pathSegments[0];
+            const storeLang = get(currentLanguage);
             
             devLog('🔍 LanguageRouter: Language check:', {
                 urlLang: potentialLang,
-                storeLang: $currentLanguage,
+                storeLang: storeLang,
                 supported: supportedLanguages.includes(potentialLang)
             });
             
             if (potentialLang && supportedLanguages.includes(potentialLang)) {
                 // SEO-optimierte URL-Sprach-Synchronisation
-                if (potentialLang !== $currentLanguage) {
+                if (potentialLang !== storeLang) {
                     devLog('🔄 LanguageRouter: URL language differs from store, updating store');
                     await changeLanguage(potentialLang);
+                    lastProcessedLang = potentialLang;
+                } else {
+                    lastProcessedLang = storeLang;
                 }
             } else {
                 // SEO-optimierte Store-Sprach-Synchronisation
-                const storeLang = $currentLanguage;
                 if (storeLang && storeLang !== 'en') {
                     devLog('🔄 LanguageRouter: Store has language, updating URL');
-                    const newPath = `/${storeLang}${window.location.pathname}`;
+                    const newPath = `/${storeLang}${initialPath}`;
                     navigate(newPath, { replace: true });
+                    lastProcessedLang = storeLang;
+                } else {
+                    lastProcessedLang = storeLang;
                 }
             }
             
@@ -410,16 +480,26 @@
             });
             
             // SEO-optimierte Sprachänderungen
-            const unsubscribe = currentLanguage.subscribe(async (lang) => {
-                if (initialRouteProcessed && lang && !processingRoute) {
-                    // REMOVED: setTimeout delay - Race Condition behoben, direkt aufrufen
-                    await handleRouteChange();
-                }
+            // Svelte 5 Best Practice: Store direkt subscriben statt $effect mit $derived
+            // CRITICAL: Verhindert infinite loops durch untrack() und direkten Store-Zugriff
+            const unsubscribe = currentLanguage.subscribe((lang) => {
+                // untrack verhindert, dass dieser Callback weitere Reaktivität triggert
+                untrack(() => {
+                    // Guard: Nur reagieren wenn wirklich geändert und initialisiert
+                    if (initialRouteProcessed && lang && !processingRoute && lang !== lastProcessedLang) {
+                        console.log('🔄 LanguageRouter: Language changed via store subscription:', lang);
+                        // Async in Callback: Verwende Promise ohne await
+                        handleRouteChange().catch(error => {
+                            console.error('❌ LanguageRouter: Error in store subscription route change:', error);
+                        });
+                    }
+                });
             });
             
             // SEO-optimierte Cleanup-Funktion
             return () => {
                 window.removeEventListener('popstate', handleRouteChange);
+                // Store-Subscription cleanup
                 unsubscribe();
             };
         } catch (error) {
@@ -428,10 +508,18 @@
     });
 </script>
   
-{#if !routesLoaded || isLoading}
+{#if !contentReady || showLoader || (!routesLoaded || isLoading)}
     <!-- Loading State (Svelte 5 Best Practice) -->
     <!-- Reagiert auf isLoading und routesLoaded State -->
-    <div class="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900" role="status" aria-live="polite" aria-label="Loading application">
+    <!-- Fade-Out-Animation für sauberes Ausblenden -->
+    <div 
+        class="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900 fixed inset-0 z-50 transition-opacity duration-300" 
+        class:opacity-0={contentReady && !showLoader && routesLoaded && !isLoading}
+        class:opacity-100={!contentReady || showLoader || !routesLoaded || isLoading}
+        role="status" 
+        aria-live="polite" 
+        aria-label="Loading application"
+    >
         <div class="text-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4" aria-hidden="true"></div>
             <p class="text-gray-600 dark:text-gray-400 mb-2">Loading...</p>
@@ -440,7 +528,9 @@
             {/if}
         </div>
     </div>
-{:else if loadingError}
+{/if}
+
+{#if contentReady && loadingError}
     <!-- Error State (Svelte 5 Best Practice) -->
     <div class="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900" role="alert">
         <div class="text-center max-w-md p-6">
@@ -459,13 +549,15 @@
             </button>
         </div>
     </div>
-{:else}
+{/if}
+
+{#if contentReady && !loadingError}
 <Router>
     <!-- PERFORMANCE: Lazy Loaded Routes mit +page.svelte (SvelteKit Pattern) -->
         <!-- Root Route (Home/Index) -->
         {#if RootPage}
-            <Route path="/" component={RootPage} />
-            <Route path="/:lang" component={RootPage} />
+        <Route path="/" component={RootPage} />
+        <Route path="/:lang" component={RootPage} />
         {/if}
         
         <!-- Versions Route -->
@@ -568,7 +660,7 @@
         
         <!-- 404 Error Route -->
         {#if ErrorPage}
-            <Route component={ErrorPage} />
+        <Route component={ErrorPage} />
         {:else}
             <Route>
                 <div class="flex items-center justify-center min-h-screen">
@@ -578,6 +670,6 @@
                     </div>
                 </div>
             </Route>
-        {/if}
+    {/if}
 </Router>
 {/if}

@@ -13,6 +13,8 @@
     import FooterInfoComponent from '../../widgets/FooterInfo.svelte';
     import { getLayoutConfig, type LayoutConfig } from '../../data/layoutConfig.json';
     
+    import type { Snippet } from 'svelte';
+    
     // Props
     interface Props {
         routeSlug?: string;
@@ -22,6 +24,11 @@
         showIntroSection?: boolean;
         introTitle?: string;
         introText?: string;
+        children?: Snippet;
+        'before-header'?: Snippet; // Prop-Name mit Bindestrich (für Kompatibilität)
+        header?: Snippet;
+        'before-content'?: Snippet; // Prop-Name mit Bindestrich (für Kompatibilität)
+        footer?: Snippet;
     }
     
     let {
@@ -31,7 +38,12 @@
         titleClass = 'text-gray',
         showIntroSection = false,
         introTitle = '',
-        introText = ''
+        introText = '',
+        children,
+        'before-header': beforeHeader,
+        header,
+        'before-content': beforeContent,
+        footer
     }: Props = $props();
     
     // Komponenten-Referenzen (Webpack/Svelte 5 stabilisieren)
@@ -115,7 +127,9 @@
         <section class="main-content flex flex-col justify-center items-center min-h-screen py-8 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
 
             <!-- Content before header (e.g. images) -->
-            <slot name="before-header"></slot>
+            {#if beforeHeader}
+                {@render beforeHeader()}
+            {/if}
 
             <!-- Generic Page Header - wenn pageTitle gesetzt -->
             {#if pageTitle}
@@ -132,7 +146,9 @@
             {/if}
 
             <!-- Custom Header Slot für spezifische Seiten -->
-            <slot name="header"></slot>
+            {#if header}
+                {@render header()}
+            {/if}
 
             <!-- Optional Introduction Section -->
             {#if showIntroSection}
@@ -143,20 +159,25 @@
             {/if}
 
             <!-- Additional content before main content (e.g. images) -->
-            <slot name="before-content" />
+            {#if beforeContent}
+                {@render beforeContent()}
+            {/if}
 
             <!-- Main Content Box - Mit Hintergrund für Modularität -->
             <div class="content-wrapper p-4 w-full md:w-27 rounded-2xl backdrop-blur-sm bg-creme-500 dark:bg-aubergine-80 backdrop-opacity-60 shadow-xl">
-                <slot />
+                {#if children}
+                    {@render children()}
+                {/if}
             </div>
 
             <!-- Optional Footer after content (Slot hat Priorität) -->
-            {#if $$slots.footer}
-                <slot name="footer" />
+            {#if footer}
+                {@render footer()}
             {:else if layoutConfig.footer.visible}
                 <!-- Footer aus Konfiguration (nur wenn kein Slot vorhanden) -->
+                {@const Footer = footerComponent}
                 <div class="w-full">
-                    <svelte:component this={footerComponent} {...(layoutConfig.footer.props || {})} />
+                    <Footer {...(layoutConfig.footer.props || {})} />
                 </div>
             {/if}
         </section>

@@ -6,16 +6,7 @@ import { currentAccount, isLoggedIn, accountTier } from './appStores';
 import { STORAGE_KEYS, storageHelpers } from '../config/storage';
 import { WEBHOOKS } from '../config/api';
 import { cachedFetchAccount } from '../utils/apiCache';
-import type { Account } from '../types/Account';
-
-export interface UsageHistoryEntry {
-    date: string;
-    used: number;
-    storyUsed?: number;
-    limit?: number;
-    timestamp?: string;
-    [key: string]: unknown;
-}
+import type { Account, UsageHistoryEntry, DailyLimitState } from '../types/Account';
 
 export interface UsageStats {
     total: number;
@@ -48,11 +39,7 @@ export interface UsageHistoryState {
     stats: UsageStats;
 }
 
-export interface DailyLimitState {
-    limit: number;
-    used: number;
-    storyUsed?: number;
-}
+// DailyLimitState is now imported from '../types/Account'
 
 const CACHE_DURATION = {
     SETTINGS: 5 * 60 * 1000, // 5 minutes

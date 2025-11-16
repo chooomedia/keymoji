@@ -11,17 +11,13 @@
  * TypeScript Migration: v0.7.7
  */
 
-import type { Account, DailyUsage } from '../types/Account';
+import type { Account, DailyUsage, DailyLimitState } from '../types/Account';
 
 export interface LoadDailyUsageOptions {
     includeAPI?: boolean;
 }
 
-export interface DailyLimitState {
-    limit: number;
-    used: number;
-    storyUsed?: number;
-}
+// DailyLimitState is now imported from '../types/Account'
 
 /**
  * Load daily usage with priority order

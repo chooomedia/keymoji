@@ -1,18 +1,7 @@
 <script lang="ts">
   import Tooltip from './Tooltip.svelte';
-  
-  interface Props {
-    variant?: 'default' | 'primary' | 'secondary' | 'fixed' | 'yellow';
-    size?: 'sm' | 'md' | 'menu' | 'lg';
-    disabled?: boolean;
-    type?: 'button' | 'submit' | 'reset';
-    href?: string | null;
-    fullWidth?: boolean;
-    tooltip?: string;
-    tooltipPosition?: 'auto' | 'top' | 'bottom' | 'left' | 'right';
-    ariaLabel?: string;
-    emojiOnly?: boolean;
-  }
+  import type { ButtonProps } from '../../types/ComponentProps';
+  import type { Snippet } from 'svelte';
   
   let {
     variant = 'default',
@@ -24,8 +13,10 @@
     tooltip = '',
     tooltipPosition = 'auto',
     ariaLabel = '',
-    emojiOnly = false
-  }: Props = $props();
+    emojiOnly = false,
+    onclick,
+    children
+  }: ButtonProps & { children?: Snippet } = $props();
   
   const variants = {
     primary: 'bg-yellow-500 hover:bg-yellow-600 focus:bg-yellow-600 active:bg-yellow-700 text-black disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:active:bg-gray-400',
@@ -59,7 +50,9 @@
     aria-disabled={disabled}
     aria-label={ariaLabel || undefined}
   >
-    <slot />
+    {#if children}
+      {@render children()}
+    {/if}
     {#if tooltip}
       <Tooltip text={tooltip} position={tooltipPosition} disabled={disabled} />
     {/if}
@@ -71,8 +64,11 @@
     class={buttonClasses} 
     aria-disabled={disabled}
     aria-label={ariaLabel || undefined}
+    onclick={onclick}
   >
-    <slot />
+    {#if children}
+      {@render children()}
+    {/if}
     {#if tooltip}
       <Tooltip text={tooltip} position={tooltipPosition} disabled={disabled} />
     {/if}

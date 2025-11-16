@@ -18,8 +18,10 @@
     },
     "scripts": {
         "dev": "webpack serve --config webpack/start.js",
+        "dev:clean": "rm -rf node_modules/.cache/webpack-dev && npm run dev",
         "prebuild": "node scripts/update-timestamp.js && node scripts/generate-sitemap.js",
         "build": "webpack --config webpack/build.js && node scripts/generate-static-routes.js && node scripts/optimize-build.js",
+        "build:analyze": "ANALYZE=true webpack --config webpack/build.js",
         "postbuild": "tsx scripts/prerender-meta.js",
         "check:images": "node scripts/check-social-images.js",
         "setup:fonts": "node scripts/setup-fonts.js",
@@ -61,6 +63,7 @@
         "tsx": "^4.20.6",
         "typescript": "^5.9.3",
         "webpack": "^5.102.1",
+        "webpack-bundle-analyzer": "^4.10.2",
         "webpack-cli": "^5.1.4",
         "webpack-dev-server": "^5.2.2",
         "webpack-merge": "^5.7.3"

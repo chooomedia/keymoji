@@ -54,37 +54,163 @@ export interface UserProfile {
 
 ### 3. Komponenten-Struktur
 
-#### Svelte Komponenten
+#### Svelte Komponenten - Standard-Struktur
 ```svelte
 <script lang="ts">
-  // 1. Imports
-  import { onMount } from 'svelte';
+  // 1. Imports (Svelte, Stores, Utils, Components)
+  import { onMount, onDestroy } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   
-  // 2. TypeScript Interfaces
+  // 2. TypeScript Interfaces & Types
   interface Props {
     title: string;
     count?: number;
   }
   
-  // 3. Props mit $props()
+  // 3. Props mit $props() (Svelte 5)
   let { title, count = 0 }: Props = $props();
   
-  // 4. State mit $state()
+  // 4. Event Dispatcher (wenn nötig)
+  const dispatch = createEventDispatcher();
+  
+  // 5. State mit $state() - IMMER für reaktive Variablen
   let isLoading = $state(false);
+  let selectedItem = $state<string | undefined>(undefined);
+  let formData = $state<Record<string, any>>({});
   
-  // 5. Derived mit $derived()
+  // 6. Derived mit $derived() - für abgeleitete Werte
   let displayCount = $derived(count * 2);
+  let isFormValid = $derived(formData.email && formData.name);
   
-  // 6. Effects mit $effect()
+  // 7. Effects mit $effect() - für Side Effects
   $effect(() => {
     console.log('Count changed:', displayCount);
   });
   
-  // 7. Functions
-  function handleClick() {
+  // 8. Lifecycle Hooks
+  onMount(() => {
+    // Initialisierung
+  });
+  
+  onDestroy(() => {
+    // Cleanup
+  });
+  
+  // 9. Event Handler Functions
+  function handleClick(event: MouseEvent) {
+    // ...
+  }
+  
+  function handleBlur(event: FocusEvent) {
+    // ...
+  }
+  
+  function handleFocus(event: FocusEvent) {
     // ...
   }
 </script>
+```
+
+#### Reaktivitäts-Regeln (KRITISCH!)
+- **IMMER** `$state()` für Variablen, die aktualisiert werden
+- **KEINE** `let variable = value` ohne `$state()` wenn Variable später geändert wird
+- **IMMER** TypeScript Types für `$state()` Variablen: `let count = $state<number>(0)`
+- **IMMER** `$derived()` für Werte, die von anderen State-Variablen abhängen
+- **IMMER** `$effect()` für Side Effects (DOM-Manipulation, API-Calls, etc.)
+
+```typescript
+// ✅ GUT: Reaktive State-Variablen
+let isLoading = $state(false);
+let selectedItem = $state<string | undefined>(undefined);
+let formErrors = $state<Record<string, string>>({});
+let items = $state<string[]>([]);
+
+// ❌ SCHLECHT: Nicht-reaktive Variablen die aktualisiert werden
+let isLoading = false; // Wird später geändert → Warning!
+let selectedItem = undefined; // Wird später geändert → Warning!
+
+// ✅ GUT: Lokale Variablen in Funktionen (OK ohne $state)
+function calculateTotal() {
+  let sum = 0; // Lokal in Funktion → OK
+  return sum;
+}
+
+// ✅ GUT: Konstanten (OK ohne $state)
+const API_URL = 'https://api.example.com';
+const MAX_RETRIES = 3;
+```
+
+#### Event Handler Patterns (Svelte 5)
+- **IMMER** Event Handler als Funktionen definieren
+- **IMMER** TypeScript Types für Event-Parameter
+- **IMMER** `onclick`, `onblur`, `onfocus` etc. (keine `on:click` mehr in Svelte 5)
+- **IMMER** Event-Handler inline oder als Funktionen
+
+```svelte
+<!-- ✅ GUT: Inline Event Handler -->
+<button onclick={() => handleClick()}>Click</button>
+<button onclick={(e) => handleClick(e)}>Click</button>
+
+<!-- ✅ GUT: Event Handler mit Event-Parameter -->
+<input 
+  oninput={(e) => handleInput(e)}
+  onfocus={(e) => handleFocus(e)}
+  onblur={(e) => handleBlur(e)}
+/>
+
+<!-- ✅ GUT: Event Handler als Funktion -->
+<button onclick={handleClick}>Click</button>
+
+<!-- ❌ SCHLECHT: Alte Svelte 3 Syntax -->
+<button on:click={handleClick}>Click</button>
+
+<!-- ✅ GUT: Event Handler mit preventDefault -->
+<button onclick={(e) => { e.preventDefault(); handleClick(); }}>
+  Submit
+</button>
+
+<!-- ✅ GUT: Event Handler mit stopPropagation -->
+<div onclick={(e) => { e.stopPropagation(); handleClick(); }}>
+  Content
+</div>
+```
+
+#### Event Handler Best Practices
+```typescript
+// ✅ GUT: Typisierte Event Handler
+function handleInput(event: Event) {
+  const target = event.target as HTMLInputElement;
+  const value = target.value;
+  // ...
+}
+
+function handleClick(event: MouseEvent) {
+  event.preventDefault();
+  event.stopPropagation();
+  // ...
+}
+
+function handleBlur(event: FocusEvent) {
+  const target = event.target as HTMLInputElement;
+  // Validation on blur
+  validateInput(target.value);
+}
+
+function handleFocus(event: FocusEvent) {
+  const target = event.target as HTMLInputElement;
+  // Track focus state
+  isFocused = true;
+}
+
+// ✅ GUT: Keyboard Event Handler
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Enter') {
+    handleSubmit();
+  }
+  if (event.key === 'Escape') {
+    handleCancel();
+  }
+}
 ```
 
 ### 4. Tailwind CSS
@@ -239,29 +365,194 @@ try {
 
 ### 13. Code-Organisation
 
-#### Datei-Struktur
+#### Datei-Struktur & Modulare Architektur
 ```
 src/
 ├── components/        # Wiederverwendbare Komponenten
 │   ├── A11y/         # Accessibility Komponenten
-│   ├── Core/         # Core Features
+│   │   ├── FocusManager.svelte    # Focus Trapping
+│   │   ├── SkipLink.svelte        # Skip Navigation
+│   │   └── ...                    # Weitere A11y Komponenten
+│   ├── Core/         # Core Features (Business Logic)
+│   │   ├── EmojiDisplay.svelte    # Haupt-Feature
+│   │   ├── UserCounter.svelte     # Feature-spezifisch
+│   │   └── ...                    # Weitere Core Features
 │   ├── Features/     # Feature-spezifische Komponenten
+│   │   ├── AccountBenefits.svelte # Account-Features
+│   │   ├── BlogGrid.svelte        # Blog-Features
+│   │   └── ...                    # Weitere Features
 │   ├── Layout/       # Layout-Komponenten
-│   └── UI/           # UI-Elemente
+│   │   ├── AppLayout.svelte       # Haupt-Layout
+│   │   ├── PageLayout.svelte      # Seiten-Layout
+│   │   ├── Header.svelte          # Header-Komponente
+│   │   └── ...                    # Weitere Layout-Komponenten
+│   └── UI/           # UI-Elemente (Wiederverwendbar)
+│       ├── Button.svelte          # Basis-Button
+│       ├── Modal.svelte           # Modal-Dialog
+│       ├── Input.svelte           # Input-Feld
+│       ├── Tooltip.svelte         # Tooltip
+│       └── ...                    # Weitere UI-Komponenten
 ├── config/           # Konfiguration
+│   ├── api.js        # API-Konfiguration
+│   ├── storage.js    # Storage-Konfiguration
+│   └── ...          # Weitere Konfigurationen
 ├── data/             # Statische Daten & Content
-├── routes/           # Route-Komponenten
+│   ├── versions.js   # Versions-Daten
+│   └── ...          # Weitere statische Daten
+├── routes/           # Route-Komponenten (Seiten)
+│   ├── AccountManager.svelte      # Account-Seite
+│   ├── ContactForm.svelte         # Kontakt-Seite
+│   ├── StaticPage.svelte          # Statische Seiten
+│   └── ...                       # Weitere Routes
 ├── stores/           # State Management (Runes bevorzugt)
+│   ├── accountStore.ts           # Account-State
+│   ├── userSettingsStore.ts      # User-Settings-State
+│   ├── contentStore.ts           # Content-State
+│   └── ...                      # Weitere Stores
 ├── utils/            # Utility-Funktionen
-└── widgets/          # Widget-Komponenten
+│   ├── apiCache.js   # API-Caching
+│   ├── routing.ts    # Routing-Utils
+│   └── ...          # Weitere Utils
+└── widgets/          # Widget-Komponenten (Komplexe UI-Bereiche)
+    ├── FixedMenu.svelte          # Fixed Menu Widget
+    ├── FooterInfo.svelte         # Footer Widget
+    └── ...                      # Weitere Widgets
+```
+
+#### Komponenten-Typen & Verantwortlichkeiten
+
+##### UI-Komponenten (`components/UI/`)
+- **Zweck**: Wiederverwendbare, generische UI-Elemente
+- **Eigenschaften**: 
+  - Keine Business-Logik
+  - Props-basiert
+  - Event-Dispatcher für Kommunikation
+  - Styling via Tailwind CSS
+- **Beispiele**: `Button.svelte`, `Input.svelte`, `Modal.svelte`, `Tooltip.svelte`
+- **Struktur**:
+```svelte
+<script lang="ts">
+  interface Props {
+    label: string;
+    onClick?: () => void;
+  }
+  let { label, onClick }: Props = $props();
+  const dispatch = createEventDispatcher();
+</script>
+```
+
+##### Feature-Komponenten (`components/Features/`)
+- **Zweck**: Feature-spezifische Komponenten mit Business-Logik
+- **Eigenschaften**:
+  - Business-Logik enthalten
+  - API-Calls möglich
+  - Store-Integration
+  - Komplexe State-Verwaltung
+- **Beispiele**: `AccountBenefits.svelte`, `BlogGrid.svelte`, `DailyLimitChart.svelte`
+- **Struktur**:
+```svelte
+<script lang="ts">
+  import { cachedFetch } from '../utils/apiCache';
+  import { currentAccount } from '../stores/accountStore';
+  
+  let data = $state(null);
+  let isLoading = $state(false);
+  
+  async function loadData() {
+    isLoading = true;
+    data = await cachedFetch('/api/data');
+    isLoading = false;
+  }
+</script>
+```
+
+##### Core-Komponenten (`components/Core/`)
+- **Zweck**: Kern-Features der Anwendung
+- **Eigenschaften**:
+  - Zentrale Business-Logik
+  - Komplexe State-Verwaltung
+  - Performance-kritisch
+- **Beispiele**: `EmojiDisplay.svelte`, `UserCounter.svelte`
+- **Struktur**: Wie Feature-Komponenten, aber mit höherer Komplexität
+
+##### Layout-Komponenten (`components/Layout/`)
+- **Zweck**: Strukturierung der Anwendung
+- **Eigenschaften**:
+  - Keine Business-Logik
+  - Slot-basiert
+  - Responsive Design
+- **Beispiele**: `AppLayout.svelte`, `PageLayout.svelte`, `Header.svelte`
+- **Struktur**:
+```svelte
+<script lang="ts">
+  interface Props {
+    title?: string;
+  }
+  let { title }: Props = $props();
+</script>
+<header>{title}</header>
+<main><slot /></main>
+```
+
+##### Route-Komponenten (`routes/`)
+- **Zweck**: Seiten-Komponenten für Routing
+- **Eigenschaften**:
+  - Vollständige Seiten
+  - SEO-Metadaten
+  - Layout-Integration
+  - Route-Parameter
+- **Beispiele**: `AccountManager.svelte`, `ContactForm.svelte`, `StaticPage.svelte`
+- **Struktur**:
+```svelte
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { seoStore } from '../stores/seoStore';
+  
+  onMount(() => {
+    seoStore.setTitle('Page Title');
+    seoStore.setDescription('Page Description');
+  });
+</script>
+```
+
+##### Widget-Komponenten (`widgets/`)
+- **Zweck**: Komplexe, wiederverwendbare UI-Bereiche
+- **Eigenschaften**:
+  - Kombination mehrerer Komponenten
+  - Eigene State-Verwaltung
+  - Event-Dispatcher
+- **Beispiele**: `FixedMenu.svelte`, `FooterInfo.svelte`
+- **Struktur**: Wie Feature-Komponenten, aber UI-fokussiert
+
+##### Store-Dateien (`stores/`)
+- **Zweck**: State Management
+- **Eigenschaften**:
+  - Svelte 5 Runes bevorzugt (`$state`, `$derived`)
+  - TypeScript Interfaces
+  - Exportierte Funktionen für State-Manipulation
+- **Beispiele**: `accountStore.ts`, `userSettingsStore.ts`
+- **Struktur**:
+```typescript
+// ✅ GUT: Svelte 5 Runes Store
+export let currentAccount = $state<Account | null>(null);
+
+export function updateAccount(account: Account) {
+  currentAccount = account;
+}
+
+// ⚠️ ALT: Nur wenn nötig für Kompatibilität
+import { writable } from 'svelte/store';
+export const legacyStore = writable(null);
 ```
 
 #### Naming Conventions
-- **Komponenten**: PascalCase (`UserSettings.svelte`)
-- **Dateien**: camelCase (`accountStore.js`)
-- **Konstanten**: UPPER_SNAKE_CASE (`STORAGE_KEYS`)
-- **Funktionen**: camelCase (`getUserSettings()`)
-- **Types/Interfaces**: PascalCase (`UserAccount`)
+- **Komponenten**: PascalCase (`UserSettings.svelte`, `AccountBenefits.svelte`)
+- **Dateien**: camelCase (`accountStore.ts`, `apiCache.js`)
+- **Konstanten**: UPPER_SNAKE_CASE (`STORAGE_KEYS`, `API_URL`)
+- **Funktionen**: camelCase (`getUserSettings()`, `handleClick()`)
+- **Types/Interfaces**: PascalCase (`UserAccount`, `AccountMetadata`)
+- **Event Handler**: `handle` + EventName (`handleClick()`, `handleBlur()`, `handleFocus()`)
+- **State Variablen**: camelCase mit beschreibendem Namen (`isLoading`, `selectedItem`, `formData`)
 
 ### 14. Git & Commits
 
@@ -322,11 +613,16 @@ async function loadAccount(userId: string, options?: LoadOptions): Promise<Accou
 8. **Magic Numbers** - Immer Konstanten verwenden
 9. **Nested ternaries** - Klarere If-Statements
 10. **Unused Imports** - Immer entfernen
+11. **Nicht-reaktive State-Variablen** - `let variable = value` ohne `$state()` wenn Variable aktualisiert wird
+12. **Alte Event-Syntax** - `on:click` statt `onclick` (Svelte 5)
+13. **Reaktive Statements mit Side Effects** - `$:` für Side Effects statt `$effect()`
+14. **Props ohne TypeScript Interface** - Immer Props typisieren
+15. **Event Handler ohne Types** - Immer Event-Types definieren
 
 ## ✅ Erlaubte Patterns
 
 ### ✅ Erlaubt:
-1. **Svelte Runes** - `$state`, `$derived`, `$effect`
+1. **Svelte Runes** - `$state`, `$derived`, `$effect`, `$props()`, `$bindable()`
 2. **TypeScript** - Überall wo möglich
 3. **Tailwind CSS** - Für alle Styles
 4. **API Caching** - `cachedFetch` für alle API-Calls
@@ -334,14 +630,26 @@ async function loadAccount(userId: string, options?: LoadOptions): Promise<Accou
 6. **Lazy Loading** - Für große Komponenten
 7. **Code Splitting** - Für Routes
 8. **Memoization** - Für teure Berechnungen
+9. **Event Handler** - `onclick`, `onblur`, `onfocus`, `oninput`, etc. (Svelte 5)
+10. **Typisierte Event Handler** - `(e: MouseEvent) => {}`, `(e: FocusEvent) => {}`
+11. **Inline Event Handler** - `onclick={() => handleClick()}` oder `onclick={handleClick}`
+12. **Event Dispatcher** - `createEventDispatcher()` für Custom Events
+13. **Lifecycle Hooks** - `onMount()`, `onDestroy()`, `beforeUpdate()`, `afterUpdate()`
+14. **Reaktive State** - `$state()` für alle Variablen die aktualisiert werden
+15. **Derived Values** - `$derived()` für abgeleitete Werte
+16. **Side Effects** - `$effect()` für DOM-Manipulation, API-Calls, etc.
 
 ## 🔄 Migration Guidelines
 
 ### Svelte 3 → Svelte 5
 1. **Stores → Runes**: `writable()` → `$state()`
 2. **Derived Stores**: `derived()` → `$derived()`
-3. **Reactive Statements**: `$:` → `$effect()`
+3. **Reactive Statements**: `$:` → `$effect()` (für Side Effects) oder `$derived()` (für Werte)
 4. **Props**: `export let` → `let { prop } = $props()`
+5. **Event Handler**: `on:click` → `onclick`, `on:blur` → `onblur`, etc.
+6. **State Variablen**: `let variable = value` → `let variable = $state(value)` wenn Variable aktualisiert wird
+7. **Bindable Props**: `export let value` → `let { value = $bindable() } = $props()`
+8. **Reactive Statements**: `$: derived = base * 2` → `let derived = $derived(base * 2)`
 
 ### TypeScript Migration
 1. **Schrittweise**: `.js` → `.ts` → `.svelte` mit `lang="ts"`

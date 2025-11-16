@@ -52,3 +52,4 @@
 - `initializeAccountFromCookies` ist sehr groß (~300 Zeilen) - sollte später optimiert werden
 - `syncAccountData` ist komplex - sollte später optimiert werden
 
+

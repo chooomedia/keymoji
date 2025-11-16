@@ -10,13 +10,14 @@
         isModalVisible, 
         modalType, 
         modalData, 
-        closeModal 
+        closeModal
     } from '../../stores/modalStore';
     import { get } from 'svelte/store';
   
     import { isDebugMode } from '../../utils/environment';
     
     import { translations } from '../../stores/contentStore';
+    import type { ButtonVariant } from '../../types/ComponentProps';
   
     // Svelte 5 / Webpack: stabile Komponenten-Referenzen
     const FocusManager = FocusManagerComponent;
@@ -33,7 +34,6 @@
         isVisible && !!message && message.trim() !== ''
     );
     
-    let imageLoaded = $state(false);
     let modalRef: HTMLElement | null = $state(null);
     let lastActiveElement: HTMLElement | null = $state(null);
     let debugMode = $state(isDebugMode());
@@ -50,10 +50,9 @@
     // Constants for animation and accessibility
     const ANIMATION_DURATION = 300;
     const MODAL_TIMEOUT = 5000; // 5 seconds
-    const PROGRESS_UPDATE_INTERVAL = 50; // Update every 50ms
   
     // Icons for different message types
-    const ICONS = {
+    const ICONS: Record<string, string> = {
         success: '✅',
         warning: '⚠️',
         error: '❌',
@@ -102,7 +101,7 @@
     }
   
     function getIcon(type: string): string {
-        return ICONS[type] || ICONS.info;
+        return ICONS[type] || ICONS.info || 'ℹ️';
     }
   
     // Handle manually closing the modal
@@ -123,10 +122,6 @@
         }
     }
   
-    function handleImageLoad(): void {
-        imageLoaded = true;
-    }
-  
     function handleBackdropClick(event: MouseEvent): void {
         if (event.target === event.currentTarget) {
             handleCloseModal();
@@ -139,7 +134,7 @@
         isComponentMounted = true;
         
         // Save current focused element
-        lastActiveElement = document.activeElement;
+        lastActiveElement = document.activeElement as HTMLElement | null;
         
         // Verhindert Scrollbar-Hüpfen bei Modal-Öffnung
         document.body.classList.add('modal-open');
@@ -183,7 +178,7 @@
     });
 
     function startProgressBar(): void {
-        const duration = modalState?.duration || MODAL_TIMEOUT;
+        const duration = (typeof modalState?.duration === 'number' ? modalState.duration : MODAL_TIMEOUT);
         
         // Only start progress bar if duration is set and > 0
         if (!duration || duration <= 0) {
@@ -209,7 +204,10 @@
             
             if (progressBar <= 0) {
                 progressBar = 0;
-                clearInterval(progressInterval);
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                }
                 // Auto-close modal when progress reaches 0
                 setTimeout(() => {
                     if (showMessage) {
@@ -223,11 +221,12 @@
     function stopProgressBar(): void {
         if (progressInterval) {
             clearInterval(progressInterval);
+            progressInterval = null;
         }
     }
 
     const remainingSeconds = $derived.by(() => {
-        const duration = modalState?.duration || MODAL_TIMEOUT;
+        const duration = (typeof modalState?.duration === 'number' ? modalState.duration : MODAL_TIMEOUT);
         if (!duration || duration <= 0) return 0;
         return Math.round((progressBar / 100) * (duration / 1000));
     });
@@ -292,7 +291,7 @@
                     <button
                         onclick={handleCloseModal}
                         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
-                        aria-label={translations?.modals?.closeModal || 'Close modal'}
+                        aria-label={(get(translations) as Record<string, any>)?.modals?.closeModal || 'Close modal'}
                     >
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -304,9 +303,12 @@
                 <div class="p-4" class:pb-0="{true}">
                     <!-- Pro Feature Content -->
                     {#if messageType === 'pro-feature'}
+                        {@const t = get(translations) as Record<string, any>}
+                        {@const accountManager = t?.accountManager as Record<string, any> | undefined}
+                        {@const proFeatureModal = accountManager?.proFeatureModal as Record<string, any> | undefined}
                         <div class="mb-6">
                             <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                {modalState?.featureName || (translations?.accountManager?.proFeatureModal?.title || 'Pro Feature')}
+                                {modalState?.featureName || proFeatureModal?.title || 'Pro Feature'}
                             </h4>
                             <p class="text-gray-600 dark:text-gray-300 mb-4">
                                 {modalState?.featureDescription || message}
@@ -315,47 +317,50 @@
                             <!-- Pro Benefits -->
                             <div class="bg-powder-500 dark:bg-aubergine-900 rounded-lg border border-purple-700 p-4 mb-4">
                                 <h5 class="font-semibold text-purple-700 dark:text-purple-100 mb-2">
-                                    {translations?.accountManager?.proFeatureModal?.proBenefits || 'Pro Benefits:'}
+                                    {proFeatureModal?.proBenefits || 'Pro Benefits:'}
                                 </h5>
                                 <ul class="space-y-1 text-sm text-purple-800 dark:text-purple-200">
                                     <li class="flex items-center">
                                         <span class="mr-2">✓</span>
-                                        {translations?.accountManager?.proFeatureModal?.unlimitedGenerations || 'Unlimited emoji generations'}
+                                        {proFeatureModal?.unlimitedGenerations || 'Unlimited emoji generations'}
                                     </li>
                                     <li class="flex items-center">
                                         <span class="mr-2">✓</span>
-                                        {translations?.accountManager?.proFeatureModal?.advancedSecurity || 'Advanced security features'}
+                                        {proFeatureModal?.advancedSecurity || 'Advanced security features'}
                                     </li>
                                     <li class="flex items-center">
                                         <span class="mr-2">✓</span>
-                                        {translations?.accountManager?.proFeatureModal?.prioritySupport || 'Priority support'}
+                                        {proFeatureModal?.prioritySupport || 'Priority support'}
                                     </li>
                                     <li class="flex items-center">
                                         <span class="mr-2">✓</span>
-                                        {translations?.accountManager?.proFeatureModal?.earlyAccess || 'Early access to new features'}
+                                        {proFeatureModal?.earlyAccess || 'Early access to new features'}
                                     </li>
                                 </ul>
                             </div>
                         </div>
                     {:else if modalState?.content}
                         <!-- Custom Content -->
-                        <div class="mb-6">
-                            {#if modalState.content.title}
-                                <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                    {modalState.content.title}
-                                </h4>
-                            {/if}
-                            {#if modalState.content.description}
-                                <p class="text-gray-600 dark:text-gray-300 mb-4">
-                                    {modalState.content.description}
-                                </p>
-                            {/if}
-                            {#if modalState.content.html}
-                                <div class="text-gray-700 dark:text-gray-300 leading-relaxed">
-                                    {@html modalState.content.html}
-                                </div>
-                            {/if}
-                        </div>
+                        {@const content = modalState.content as { title?: string; description?: string; html?: string } | undefined}
+                        {#if content}
+                            <div class="mb-6">
+                                {#if content.title}
+                                    <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                        {content.title}
+                                    </h4>
+                                {/if}
+                                {#if content.description}
+                                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                                        {content.description}
+                                    </p>
+                                {/if}
+                                {#if content.html}
+                                    <div class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                        {@html content.html}
+                                    </div>
+                                {/if}
+                            </div>
+                        {/if}
                     {:else}
                         <!-- Default Modal Message -->
                         <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -369,71 +374,86 @@
                     <!-- Buttons Section with same padding as content -->
                     {#if messageType === 'pro-feature'}
                         <!-- Pro Feature Buttons -->
-                        <div class="flex gap-3 mb-4 px-4">
+                        {@const t = get(translations) as Record<string, any>}
+                        {@const accountManager = t?.accountManager as Record<string, any> | undefined}
+                        {@const proFeatureModal = accountManager?.proFeatureModal as Record<string, any> | undefined}
+                        {#if proFeatureModal}
+                            <div class="flex gap-3 mb-4 px-4">
                             <Button
                                 variant="secondary"
                                 size="sm"
                                 fullWidth={true}
                                 onclick={handleCloseModal}
                             >
-                                {translations?.accountManager?.proFeatureModal?.maybeLater || 'Maybe Later'}
+                                {proFeatureModal?.maybeLater || 'Maybe Later'}
                             </Button>
                             <Button
                                 variant="primary"
                                 size="sm"
                                 fullWidth={true}
                                 onclick={() => {
-                                    if (modalState?.onUpgrade) {
-                                        modalState.onUpgrade();
+                                    const onUpgrade = modalState?.onUpgrade;
+                                    if (typeof onUpgrade === 'function') {
+                                        onUpgrade();
                                     }
                                     handleCloseModal();
                                 }}
                             >
-                                {translations?.accountManager?.proFeatureModal?.upgradeToPro || 'Upgrade to Pro'}
+                                {proFeatureModal?.upgradeToPro || 'Upgrade to Pro'}
                             </Button>
-                        </div>
+                            </div>
+                        {/if}
                     {:else if modalState?.primaryButton || modalState?.secondaryButton}
                         <!-- Custom Buttons -->
-                        <div class="flex gap-3 mb-4 px-4">
-                            {#if modalState.secondaryButton}
+                        {@const primaryButton = modalState.primaryButton as { text: string; action: () => void } | undefined}
+                        {@const secondaryButton = modalState.secondaryButton as { text: string; action: () => void } | undefined}
+                        {#if primaryButton || secondaryButton}
+                            <div class="flex gap-3 mb-4 px-4">
+                            {#if secondaryButton}
                                 <Button
                                     variant="secondary"
                                     size="sm"
                                     fullWidth={true}
-                                    onclick={modalState.secondaryButton.action}
+                                    onclick={secondaryButton.action}
                                 >
-                                    {modalState.secondaryButton.text}
+                                    {secondaryButton.text}
                                 </Button>
                             {/if}
-                            {#if modalState.primaryButton}
+                            {#if primaryButton}
                                 <Button
                                     variant="primary"
                                     size="sm"
                                     fullWidth={true}
-                                    onclick={modalState.primaryButton.action}
+                                    onclick={primaryButton.action}
                                 >
-                                    {modalState.primaryButton.text}
+                                    {primaryButton.text}
                                 </Button>
                             {/if}
-                        </div>
+                            </div>
+                        {/if}
                     {:else if modalState?.buttons}
                         <!-- Dynamic Button Array -->
-                        <div class="flex gap-3 mb-4 px-4">
-                            {#each modalState.buttons as button, index}
-                                <Button
-                                    variant={button.variant || 'secondary'}
-                                    size="sm"
-                                    fullWidth={true}
-                                    onclick={button.action}
-                                >
-                                    {button.text}
-                                </Button>
-                            {/each}
-                        </div>
+                        {@const buttons = modalState.buttons as Array<{ text: string; variant?: string; action: () => void }> | undefined}
+                        {#if buttons && Array.isArray(buttons)}
+                            <div class="flex gap-3 mb-4 px-4">
+                                {#each buttons as button}
+                                    <Button
+                                        variant={(button.variant || 'secondary') as ButtonVariant}
+                                        size="sm"
+                                        fullWidth={true}
+                                        onclick={button.action}
+                                    >
+                                        {button.text}
+                                    </Button>
+                                {/each}
+                            </div>
+                        {/if}
                     {/if}
                     
                     <!-- Auto-Close Progress Bar - Show for all modals with duration -->
                     {#if showMessage && progressBar > 0 && remainingSeconds > 0}
+                        {@const t = get(translations) as Record<string, any>}
+                        {@const modals = t?.modals as Record<string, any> | undefined}
                         <div class="w-full h-1">
                             <div 
                                 class="h-1 transition-all duration-500 ease-out z-10"
@@ -442,8 +462,8 @@
                         </div>
                         <div class="text-xs text-gray-500 dark:text-gray-400 text-center p-4">
                             {remainingSeconds === 1 
-                                ? (translations?.modals?.modalClosesInSingular || 'Modal closes in {seconds} second').replace('{seconds}', String(remainingSeconds))
-                                : (translations?.modals?.modalClosesIn || 'Modal closes in {seconds} seconds').replace('{seconds}', String(remainingSeconds))
+                                ? (modals?.modalClosesInSingular || 'Modal closes in {seconds} second').replace('{seconds}', String(remainingSeconds))
+                                : (modals?.modalClosesIn || 'Modal closes in {seconds} seconds').replace('{seconds}', String(remainingSeconds))
                             }
                         </div>
                     {/if}
@@ -454,9 +474,13 @@
 {/if}
 
 <!-- Focus Management -->
-{#if showMessage && isComponentMounted}
+{#if showMessage && isComponentMounted && modalRef}
     <FocusManager 
-        bind:this={modalRef}
-        on:close={handleCloseModal}
+        active={true}
+        initialFocus={modalRef}
+        restoreFocus={true}
+        returnFocusOnEscape={true}
+        autoFocus={true}
+        loop={true}
     />
 {/if}

@@ -40,16 +40,16 @@
     ];
     
     // Recent Emojis from localStorage
-    let recentEmojis = [];
-    let emojiSliderContainer;
-    let isDragging = false;
-    let startX = 0;
-    let scrollLeft = 0;
-    let momentum = 0;
-    let lastX = 0;
-    let animationId = null;
-    let autoSlideInterval = null;
-    let currentIndex = 0;
+    let recentEmojis = $state<string[]>([]);
+    let emojiSliderContainer: HTMLElement | undefined = $state();
+    let isDragging = $state(false);
+    let startX = $state(0);
+    let scrollLeft = $state(0);
+    let momentum = $state(0);
+    let lastX = $state(0);
+    let animationId = $state<number | null>(null);
+    let autoSlideInterval = $state<number | null>(null);
+    let currentIndex = $state(0);
     
     // Helper: Mask emojis (keep only first emoji, mask rest with *******)
     function maskEmojis(emojiString) {
@@ -299,11 +299,14 @@
 </svelte:head>
 
 <PageLayout {pageTitle} {pageDescription} routeSlug="notFound">
+    {#snippet beforeHeader()}
     <!-- Bouncing Emoji in before-header slot (like ContactForm) -->
-    <div slot="before-header" class="flex justify-center">
+        <div class="flex justify-center">
         <div class="text-8xl animate-bounce">😵‍💫</div>
     </div>
+    {/snippet}
 
+    {#snippet children()}
     <!-- 404 Content -->
     <div class="notfound-wrapper" in:fly={{y: 50, duration: 400, delay: 200}} out:fade={{duration: 200}}>
         <!-- Main Content -->
@@ -353,6 +356,9 @@
                             bind:this={emojiSliderContainer}
                             class="flex overflow-x-auto scroll-smooth snap-x snap-proximity overscroll-x-contain gap-2 py-4 px-10 emoji-slider cursor-grab select-none border border-gray-200 dark:border-gray-700 rounded-xl [&>div]:snap-center [&>div]:transition-transform [&>div]:duration-300 [&>div]:ease-out"
                             style="scrollbar-width: none; -ms-overflow-style: none;"
+                            role="button"
+                            aria-label="Emoji slider - drag to scroll"
+                            tabindex="0"
                             onmousedown={handleMouseDown}
                             onmousemove={handleMouseMove}
                             onmouseup={handleMouseUp}
@@ -418,6 +424,7 @@
             </div>
         </section> 
     </div>
+    {/snippet}
 
     <!-- Footer Information Component -->
 </PageLayout>

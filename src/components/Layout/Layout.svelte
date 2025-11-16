@@ -21,14 +21,14 @@ import ModalDebug from '../UI/ModalDebug.svelte';
     const lightGradient = 'linear-gradient(-45deg, #e0e0e0f7, #f8f8f8f0, #ecececf0, #e0e0e0f2)';
     
     // Performance-State
-    let backgroundLoaded = false;
-    let supportsWebP = false;
+    let backgroundLoaded = $state(false);
+    let supportsWebP = $state(false);
     
     const finalBgSrc = $derived(supportsWebP ? hieroglyphicEmojisWebP : hieroglyphicEmojisSrc);
     const bgImage = $derived(`background-image: url("${finalBgSrc}"), ${darkMode ? darkGradient : lightGradient}`);
     const bgBlendMode = $derived(darkMode ? 'multiply' : 'hue');
     
-    let mounted = false;
+    let mounted = $state(false);
     
     // WebP-Support-Detection (Apple/Airbnb-Style)
     function checkWebPSupport() {

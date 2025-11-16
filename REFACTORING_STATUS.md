@@ -46,3 +46,4 @@
 - `accountSecurity.ts` importiert Types temporär von `accountStore.ts`
 - Nach Refactoring können Types in separate `accountTypes.ts` verschoben werden
 
+

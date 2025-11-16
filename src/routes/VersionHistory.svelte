@@ -19,12 +19,12 @@
    
     // Verwende appVersion statt currentVersion Prop
     let currentVersion = appVersion;
-    let timelineHeight = 0;
-    let versionItems = [];
+    let timelineHeight = $state(0);
+    let versionItems = $state<HTMLElement[]>([]);
     
     // Accordion State - Only one version open at a time
     // Current Version initial geöffnet
-    let expandedVersion = currentVersion; // Only store the currently expanded version
+    let expandedVersion = $state(currentVersion); // Only store the currently expanded version
    
     // Berechnet die Timeline-Höhe: Vom ersten Dot bis zum letzten Dot
     function calculateTimelineHeight() {
@@ -47,7 +47,7 @@
     }
    
     // Timeline-Höhe aktualisieren - mit Throttle für Performance
-    let isUpdating = false;
+    let isUpdating = $state(false);
     function updateTimelineHeight() {
         if (isUpdating) return;
         isUpdating = true;
@@ -129,9 +129,9 @@
 </svelte:head>
 
 <PageLayout {pageTitle} {pageDescription} routeSlug="versions">
-    
+    {#snippet beforeContent()}
     <!-- Back Button - Liegt ZUR HÄLFTE auf content-wrapper Rand -->
-    <div slot="before-content" class="relative w-full flex justify-center -mb-14">
+        <div class="relative w-full flex justify-center -mb-14">
         <button 
             onclick={navigateBack}
             class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 z-20"
@@ -142,7 +142,9 @@
             <span class="font-semibold">{$translations?.index?.backToMainButtonText || 'Go back home'}</span>
         </button>
     </div>
+    {/snippet}
     
+    {#snippet children()}
     <!-- Content Container - Filigranes Spacing oben -->
     <div class="container mx-auto pt-8 pb-4">
 
@@ -154,7 +156,7 @@
                     <div 
                         style="left: 5px; top: 20px; height: {timelineHeight}px; transition: height 350ms cubic-bezier(0.4, 0, 0.2, 1); will-change: height;" 
                         class="absolute w-0.5 bg-gradient-to-b from-yellow-500 via-aubergine-200 to-yellow-500 dark:from-yellow-500 dark:via-secondary dark:to-yellow-500 opacity-30 transform-gpu"
-                    />
+                    ></div>
 
                     {#each Object.entries(versions).sort((a, b) => b[0].localeCompare(a[0])) as [version, details], i (version)}
                         {@const isExpanded = expandedVersion === version}
@@ -305,6 +307,7 @@
             </button>
         </div>
     </div>
+    {/snippet}
 
     <!-- Footer Information Component -->
 </PageLayout>

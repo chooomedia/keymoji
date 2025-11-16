@@ -1,16 +1,6 @@
 <!-- src/components/UI/Checkbox.svelte -->
 <script lang="ts">
-    interface Props {
-        checked?: boolean;
-        disabled?: boolean;
-        id?: string;
-        name?: string;
-        label?: string;
-        labelHtml?: string;
-        labelClass?: string;
-        size?: 'sm' | 'md' | 'lg';
-        variant?: 'default' | 'primary' | 'success' | 'warning' | 'error';
-    }
+    import type { CheckboxProps } from '../../types/ComponentProps';
     
     let {
         checked = $bindable(false),
@@ -22,7 +12,7 @@
         labelClass = 'text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none',
         size = 'md',
         variant = 'default'
-    }: Props = $props();
+    }: CheckboxProps = $props();
     
     function dispatchChange(event: Event): void {
         const target = event.target as HTMLInputElement;

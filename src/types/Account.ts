@@ -91,3 +91,20 @@ export interface StoryModeSettings {
     [key: string]: unknown;
 }
 
+// Usage History Types - Single Source of Truth
+export interface UsageHistoryEntry {
+    date: string;
+    used: number;
+    storyUsed?: number;
+    limit?: number;
+    timestamp?: string;
+    [key: string]: unknown;
+}
+
+// Daily Limit State - Single Source of Truth
+export interface DailyLimitState {
+    limit: number;
+    used: number;
+    storyUsed?: number;
+}
+

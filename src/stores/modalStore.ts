@@ -12,6 +12,20 @@ export interface ModalData {
     icon?: string;
     showSpinner?: boolean;
     isDailyLimitModal?: boolean;
+    duration?: number;
+    featureName?: string;
+    featureDescription?: string;
+    onUpgrade?: () => void;
+    content?: {
+        title?: string;
+        description?: string;
+        html?: string;
+    };
+    buttons?: Array<{
+        text: string;
+        variant?: string;
+        action: () => void;
+    }>;
     primaryButton?: {
         text: string;
         action: () => void;

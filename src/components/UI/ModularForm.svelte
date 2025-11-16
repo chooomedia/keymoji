@@ -82,9 +82,9 @@
     const dispatch = createEventDispatcher();
     
     // Form state
-    let isSubmitting = false;
-    let validationErrors = {};
-    let isValid = true;
+    let isSubmitting = $state(false);
+    let validationErrors = $state<Record<string, string>>({});
+    let isValid = $state(true);
     
     // Helper function to get localized text
     function getLocalizedText(textObj, fallback = '') {

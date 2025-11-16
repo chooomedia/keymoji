@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
+  
   interface Props {
     type?: string;
     name?: string;
@@ -10,6 +12,7 @@
     invalid?: boolean;
     valid?: boolean;
     autocomplete?: string;
+    children?: Snippet;
   }
   
   let {
@@ -22,7 +25,8 @@
     id = '',
     invalid = false,
     valid = false,
-    autocomplete = ''
+    autocomplete = '',
+    children
   }: Props = $props();
   
   const baseClasses = "w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light p-4";
@@ -122,7 +126,9 @@
     aria-describedby={invalid ? `${id}-error` : valid ? `${id}-success` : undefined}
     autocomplete={getAutocompleteValue()}
   >
-    <slot />
+    {#if children}
+      {@render children()}
+    {/if}
   </select>
 {:else if type === 'email'}
   <div class="relative">

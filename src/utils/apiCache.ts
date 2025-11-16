@@ -732,18 +732,54 @@ export function debugCache(): CacheDebugResult {
     return { cache, stats };
 }
 
+// Flag to prevent duplicate initialization
+let cacheInitialized = false;
+
 /**
  * Auto-cleanup on app start (remove expired entries)
+ * CRITICAL: This should only be called ONCE per page load (in src/index.ts)
  */
 export function initializeCache(): void {
+    // Prevent duplicate initialization (saves CPU cycles)
+    if (cacheInitialized) {
+        console.log('⚠️ Cache already initialized, skipping duplicate call');
+        return;
+    }
+    
     try {
         console.log('🔄 Initializing API cache...');
+        cacheInitialized = true;
+        
+        // CRITICAL: Aggressive cleanup on startup
+        const cache = getCache();
+        const entries = Object.entries(cache);
+        
+        console.log(`🧹 Found ${entries.length} cache entries on startup`);
+        
+        // Remove ALL expired entries immediately
         cleanupCache();
-
+        
+        // If still too large, clear everything (safety measure)
         const stats = getCacheStats();
-        console.log('✅ API cache initialized:', stats);
+        if (stats && (stats.totalSize > MAX_CACHE_SIZE || stats.totalEntries > MAX_CACHE_ENTRIES * 2)) {
+            console.warn('⚠️ Cache still too large after cleanup, clearing all...');
+            clearAllCache();
+        }
+        
+        const finalStats = getCacheStats();
+        console.log('✅ API cache initialized:', finalStats);
     } catch (error) {
         console.error('❌ Cache initialization failed:', error);
+        // Last resort: clear everything
+        try {
+            clearAllCache();
+            console.log('✅ Cache cleared as fallback');
+        } catch (clearError) {
+            console.error('❌ Failed to clear cache:', clearError);
+        } finally {
+            // Reset flag on error so it can be retried
+            cacheInitialized = false;
+        }
     }
 }
 

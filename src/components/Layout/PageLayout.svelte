@@ -4,6 +4,8 @@
 <script lang="ts">
     import AppLayoutComponent from './AppLayout.svelte';
     
+    import type { Snippet } from 'svelte';
+    
     // Props für die Seite (bleiben gleich für Rückwärtskompatibilität)
     interface Props {
         pageTitle?: string;
@@ -13,6 +15,11 @@
         introTitle?: string;
         introText?: string;
         routeSlug?: string;
+        children?: Snippet;
+        beforeHeader?: Snippet; // Svelte 5: camelCase für Snippet-Namen (keine Bindestriche)
+        header?: Snippet;
+        beforeContent?: Snippet; // Svelte 5: camelCase für Snippet-Namen (keine Bindestriche)
+        footer?: Snippet;
     }
     
     let {
@@ -22,7 +29,12 @@
         showIntroSection = false,
         introTitle = '',
         introText = '',
-        routeSlug = 'index'
+        routeSlug = 'index',
+        children,
+        beforeHeader,
+        header,
+        beforeContent,
+        footer
     }: Props = $props();
     
     // Bestimme Route-Slug basierend auf aktueller Route (falls nicht übergeben)
@@ -63,11 +75,9 @@
     {showIntroSection}
     {introTitle}
     {introText}
->
-    <!-- Alle Slots weiterleiten -->
-    <slot name="before-header" slot="before-header" />
-    <slot name="header" slot="header" />
-    <slot name="before-content" slot="before-content" />
-    <slot />
-    <slot name="footer" slot="footer" />
-</AppLayout> 
+    {children}
+    before-header={beforeHeader}
+    {header}
+    before-content={beforeContent}
+    {footer}
+/> 

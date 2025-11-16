@@ -4,13 +4,16 @@
     import { currentLocation, subscribe } from '../../utils/routing';
     import { matchRoute } from '../../utils/routeMatcher';
     
+    import type { Snippet } from 'svelte';
+    
     interface Props {
         path?: string;
         component?: any;
         exact?: boolean;
+        children?: Snippet<[params: Record<string, string>]>;
     }
     
-    let { path = '*', component, exact = false }: Props = $props();
+    let { path = '*', component, exact = false, children }: Props = $props();
     
     // Reaktive Location-Variable, die über subscribe aktualisiert wird
     let reactiveLocation = $state(currentLocation || (typeof window !== 'undefined' ? window.location.pathname : '/'));
@@ -41,7 +44,7 @@
     {#if component}
         {@const Component = component}
         <Component {...params} />
-    {:else}
-        <slot {params} />
+    {:else if children}
+        {@render children(params)}
     {/if}
 {/if}

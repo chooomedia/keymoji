@@ -25,17 +25,17 @@
     
     let { slug }: Props = $props();
     
-    let post = null;
-    let loading = true;
-    let error = null;
-    let shareUrl = '';
-    let showHeartAnimation = false;
-    let isLiking = false;
-    let allPosts = [];
-    let previousPost = null;
-    let nextPost = null;
-    let isTransitioning = false;
-    let isMounted = false;
+    let post = $state<any>(null);
+    let loading = $state(true);
+    let error = $state<string | null>(null);
+    let shareUrl = $state('');
+    let showHeartAnimation = $state(false);
+    let isLiking = $state(false);
+    let allPosts = $state<any[]>([]);
+    let previousPost = $state<any>(null);
+    let nextPost = $state<any>(null);
+    let isTransitioning = $state(false);
+    let isMounted = $state(false);
   
     const backToPostsText = $derived.by(() => {
         const lang = currentLanguage || 'en';
@@ -157,7 +157,7 @@
       }
     }
   
-    let likeStatus = null; // 'success' | 'error' | null
+    let likeStatus = $state<string | null>(null); // 'success' | 'error' | null
   
     async function handleLike(): Promise<void> {
         if (!isLoggedIn) {
@@ -262,8 +262,9 @@
 </script>
   
     <PageLayout pageTitle={post?.title || ''} pageDescription={post?.excerpt || ''} routeSlug="blog">
+    {#snippet beforeContent()}
     <!-- Back Button - Liegt ZUR HÄLFTE auf content-wrapper Rand -->
-    <div slot="before-content" class="relative w-full flex justify-center -mb-14">
+        <div class="relative w-full flex justify-center -mb-14">
         {#if !loading && !error && post}
             <button 
                 onclick={navigateBack}
@@ -276,7 +277,9 @@
             </button>
         {/if}
     </div>
+    {/snippet}
 
+    {#snippet children()}
     {#if loading || isTransitioning}
         <div in:fade={{duration: 200, easing: cubicInOut}} out:fade={{duration: 150, easing: cubicInOut}}>
             <BlogPostSkeleton count={1} />
@@ -397,7 +400,8 @@
     {/if}
     
     <!-- Heart Animation -->
-    <HeartAnimation show={showHeartAnimation} count={5} />
+    <HeartAnimation show={showHeartAnimation} mode="float" count={5} />
+    {/snippet}
 </PageLayout>
 
 <!-- Fixed Navigation Buttons (Previous/Next Post) - Outside PageLayout -->

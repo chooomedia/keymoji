@@ -1150,9 +1150,10 @@
                 data-accordion="{section.id}"
             >
                 <!-- Section Header -->
+                <div class="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
                 <button
-                    onclick={() => toggleSection(section.id)}
-                    class="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-all focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+                        onclick={() => toggleSection(section.id)}
+                        class="flex-1 flex items-center justify-between focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-all focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                     aria-label="{getLocalizedText(section.title)} - {activeSection === section.id ? 'Collapse' : 'Expand'}"
                     id="accordion-{section.id}"
                 >
@@ -1174,7 +1175,16 @@
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2">
+                        <svg 
+                            class="w-5 h-5 text-gray-400 transition-transform duration-200 ease-out {activeSection === section.id ? 'transform rotate-180' : ''}" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="flex items-center space-x-2 ml-2">
                         {#if !isProUser && (section.id === 'security' || section.id === 'generation' || section.id === 'privacy' || section.id === 'pro')}
                             <button
                                 onclick={(e) => { e.stopPropagation(); handleProFeature(getLocalizedText(section.title), getLocalizedText(section.description)); }}
@@ -1185,16 +1195,8 @@
                                 Upgrade
                             </button>
                         {/if}
-                        <svg 
-                            class="w-5 h-5 text-gray-400 transition-transform duration-200 ease-out {activeSection === section.id ? 'transform rotate-180' : ''}" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                        >
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
                     </div>
-                </button>
+                </div>
 
                 <!-- Section Content -->
                 {#if activeSection === section.id}

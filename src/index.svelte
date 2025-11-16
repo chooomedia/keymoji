@@ -20,7 +20,7 @@
     let showDebug = isDebugMode();
   
     // Prüfen, ob die Seite gerendert wurde
-    let isRendered = false;
+    let isRendered = $state(false);
     
 
     
