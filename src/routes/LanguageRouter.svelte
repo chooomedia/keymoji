@@ -42,10 +42,6 @@ Handles route changes, language switching, and session initialization.
         console.groupEnd();
     }
     
-    // PERFORMANCE: Lazy Loading für Routes (Code Splitting)
-    // Svelte 5 Best Practice: Komponenten-Referenzen die sich ändern (null -> Component) müssen $state() sein
-    // Svelte erkennt Änderungen nur bei reaktiven Variablen - normale Variablen triggern kein Re-Render
-    // SvelteKit Pattern: Verwende +page.svelte Komponenten die bereits Layout haben
     let RootPage = $state<any>(null);
     let ContactPage = $state<any>(null);
     let AccountPage = $state<any>(null);
@@ -59,11 +55,9 @@ Handles route changes, language switching, and session initialization.
     let loadingError = $state<Error | null>(null);
     let isLoading = $state(false);
     let loadingProgress = $state<string>('');
-    let showLoader = $state(true); // Separate State für Loader-Anzeige (für Fade-Out)
-    let contentReady = $state(false); // State für Content-Bereitschaft
+    let showLoader = $state(true);
+    let contentReady = $state(false);
     
-    // PERFORMANCE: Priorisiertes Laden für schnelles initiales Rendering
-    // Strategie: RootPage zuerst (kritisch), dann ErrorPage, dann andere Routen parallel
     async function loadRoutes(): Promise<void> {
         if (routesLoaded) {
             return;
@@ -97,7 +91,6 @@ Handles route changes, language switching, and session initialization.
                 import('./legal/+page.svelte')
             ]);
             
-            // Prüfe auf Fehler und extrahiere Module
             const routeNames = [
                 'ContactPage', 'AccountPage', 'VersionsPage',
                 'BlogPage', 'BlogPostPage', 'PrivacyPage', 'LegalPage'
@@ -131,8 +124,6 @@ Handles route changes, language switching, and session initialization.
                 throw new Error('ErrorPage missing - critical route failed');
             }
             
-            // Zuweisen der zusätzlichen Komponenten (non-critical)
-            // Verwende optional chaining für robustes Error-Handling
             if (ContactPageModule?.default) ContactPage = ContactPageModule.default;
             if (AccountPageModule?.default) AccountPage = AccountPageModule.default;
             if (VersionsPageModule?.default) VersionsPage = VersionsPageModule.default;
@@ -159,26 +150,13 @@ Handles route changes, language switching, and session initialization.
     
     export const url = "";
     export const currentVersion = appVersion;
-    
-    // Hole die unterstützten Sprachcodes direkt aus der utils/languages.js
     const supportedLanguages = getSupportedLanguageCodes();
-    
-    // Verfolge die aktuelle Route
-    // Svelte 5 Best Practice: Variablen die nur intern verwendet werden (nicht im Template) 
-    // müssen NICHT reaktiv sein - normale let Variablen sind ausreichend
     let currentPath = "";
     let initialRouteProcessed = false;
-    let processingRoute = false; // Verhindert gleichzeitige Route-Verarbeitung
-    
-    // Svelte 5 Best Practice: Store direkt verwenden, nicht über $derived
-    // Vermeidet zirkuläre Abhängigkeiten und infinite loops
-    // Verwende get() direkt in Funktionen statt reaktiver Rune
-    // Diese Variablen werden nur intern verwendet, nicht im Template → normale let
+    let processingRoute = false;
     let lastProcessedPath = "";
     let lastProcessedLang: string | null = null;
     
-    // Verbesserte Route-Verarbeitung ohne Weiterleitung von Root zu Sprach-URL
-    // CRITICAL: Diese Funktion darf NICHT State lesen und schreiben, der sie wieder triggert
     async function handleRouteChange() {
         if (get(isModalVisible)) {
             closeModal();
@@ -221,17 +199,9 @@ Handles route changes, language switching, and session initialization.
         }
     }
     
-    // SEO-optimierte App-Initialisierung
     onMount(async () => {
         try {
             devLog('🚀 LanguageRouter: Component mounted');
-            
-            // NOTE: Cache initialization is handled in src/index.ts to prevent duplicate calls
-            // Do NOT call initializeCache here - it's already called in initializeApp()
-            
-            // NOTE: localStorage migration runs SYNCHRONOUSLY on appStores.js import
-            // This ensures all data is clean BEFORE any store initialization
-            
             resetSessionFlags();
             await loadRoutes();
             if (!routesLoaded) {
@@ -256,13 +226,8 @@ Handles route changes, language switching, and session initialization.
                 await initializeDailyUsage();
             } catch (error) {}
             const sessionRestored = await initializeAccountFromCookies();
-            
-            // SEO-optimierte Initialisierung
             const initialPath = window.location.pathname;
             currentPath = initialPath;
-            
-            // SEO-optimierte Sprach-Erkennung
-            // REMOVED: setTimeout delay - Race Condition behoben, proper async/await verwendet
             const pathSegments = initialPath.split('/').filter(segment => segment !== '');
             const potentialLang = pathSegments[0];
             const storeLang = get(currentLanguage);
@@ -274,7 +239,6 @@ Handles route changes, language switching, and session initialization.
             });
             
             if (potentialLang && supportedLanguages.includes(potentialLang)) {
-                // SEO-optimierte URL-Sprach-Synchronisation
                 if (potentialLang !== storeLang) {
                     devLog('🔄 LanguageRouter: URL language differs from store, updating store');
                     await changeLanguage(potentialLang);
@@ -283,7 +247,6 @@ Handles route changes, language switching, and session initialization.
                     lastProcessedLang = storeLang;
                 }
             } else {
-                // SEO-optimierte Store-Sprach-Synchronisation
                 if (storeLang && storeLang !== 'en') {
                     devLog('🔄 LanguageRouter: Store has language, updating URL');
                     const newPath = `/${storeLang}${initialPath}`;
@@ -294,25 +257,16 @@ Handles route changes, language switching, and session initialization.
                 }
             }
             
-            // SEO-optimierte Route-Verarbeitung
             await handleRouteChange();
             initialRouteProcessed = true;
-            
-            // SEO-optimierte Browser-Navigation
             window.addEventListener('popstate', handleRouteChange);
-            
-            // SEO-optimierte Benutzerdefinierte Navigation
             document.addEventListener('click', async (e) => {
                 const langLink = e.target.closest('[data-language-link]');
                 if (langLink) {
-                    // REMOVED: setTimeout delay - Race Condition behoben, direkt aufrufen
                     await handleRouteChange();
                 }
             });
             
-            // SEO-optimierte Sprachänderungen
-            // Svelte 5 Best Practice: Store direkt subscriben statt $effect mit $derived
-            // CRITICAL: Verhindert infinite loops durch untrack() und direkten Store-Zugriff
             const unsubscribe = currentLanguage.subscribe((lang) => {
                 untrack(() => {
                     if (initialRouteProcessed && lang && !processingRoute && lang !== lastProcessedLang) {
@@ -321,10 +275,8 @@ Handles route changes, language switching, and session initialization.
                 });
             });
             
-            // SEO-optimierte Cleanup-Funktion
             return () => {
                 window.removeEventListener('popstate', handleRouteChange);
-                // Store-Subscription cleanup
                 unsubscribe();
             };
         } catch (error) {
@@ -334,9 +286,6 @@ Handles route changes, language switching, and session initialization.
 </script>
   
 {#if !contentReady || showLoader || !routesLoaded || isLoading}
-    <!-- Loading State (Svelte 5 Best Practice) -->
-    <!-- Reagiert auf isLoading und routesLoaded State -->
-    <!-- Fade-Out-Animation für sauberes Ausblenden -->
     <div 
         class="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900 fixed inset-0 z-50 transition-opacity duration-300" 
         class:opacity-0={contentReady && !showLoader && routesLoaded && !isLoading}
@@ -356,7 +305,6 @@ Handles route changes, language switching, and session initialization.
 {/if}
 
 {#if contentReady && loadingError}
-    <!-- Error State (Svelte 5 Best Practice) -->
     <div class="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900" role="alert">
         <div class="text-center max-w-md p-6">
             <div class="text-6xl mb-4">⚠️</div>
@@ -378,14 +326,11 @@ Handles route changes, language switching, and session initialization.
 
 {#if contentReady && !loadingError}
 <Router>
-    <!-- PERFORMANCE: Lazy Loaded Routes mit +page.svelte (SvelteKit Pattern) -->
-        <!-- Root Route (Home/Index) -->
         {#if RootPage}
         <Route path="/" component={RootPage} />
         <Route path="/:lang" component={RootPage} />
         {/if}
         
-        <!-- Versions Route -->
         <Route path="/versions" let:params>
             {#if VersionsPage}
                 {@const Component = VersionsPage}
@@ -399,7 +344,6 @@ Handles route changes, language switching, and session initialization.
             {/if}
         </Route>
         
-        <!-- Contact Route -->
         <Route path="/contact" let:params>
             {#if ContactPage}
                 {@const Component = ContactPage}
@@ -413,7 +357,6 @@ Handles route changes, language switching, and session initialization.
             {/if}
         </Route>
         
-        <!-- Account Route -->
         <Route path="/account" let:params>
             {#if AccountPage}
                 {@const Component = AccountPage}
@@ -427,7 +370,6 @@ Handles route changes, language switching, and session initialization.
             {/if}
         </Route>
         
-        <!-- Blog Routes -->
         <Route path="/blog" let:params>
             {#if BlogPage}
                 {@const Component = BlogPage}
@@ -441,7 +383,6 @@ Handles route changes, language switching, and session initialization.
             {/if}
         </Route>
         
-        <!-- Blog Post Route (Dynamic Slug) -->
         <Route path="/blog/:slug" let:params>
             {#if BlogPostPage}
                 {@const Component = BlogPostPage}
@@ -455,7 +396,6 @@ Handles route changes, language switching, and session initialization.
             {/if}
         </Route>
         
-        <!-- Privacy Route -->
         <Route path="/privacy" let:params>
             {#if PrivacyPage}
                 {@const Component = PrivacyPage}
@@ -469,7 +409,6 @@ Handles route changes, language switching, and session initialization.
             {/if}
         </Route>
         
-        <!-- Legal Route -->
         <Route path="/legal" let:params>
             {#if LegalPage}
                 {@const Component = LegalPage}
@@ -483,7 +422,6 @@ Handles route changes, language switching, and session initialization.
             {/if}
         </Route>
         
-        <!-- 404 Error Route -->
         {#if ErrorPage}
         <Route component={ErrorPage} />
         {:else}
