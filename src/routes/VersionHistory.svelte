@@ -14,8 +14,9 @@
     const PageLayout = PageLayoutComponent;
 
     // Reaktive PageLayout Props (Svelte 5 Runes)
-    let pageTitle = $derived.by(() => get(translations)?.versions?.pageTitle || 'Version History');
-    let pageDescription = $derived.by(() => get(translations)?.versions?.pageDescription || 'Check out the development history and changelog of Keymoji.');
+    // PERFORMANCE: $derived() statt $derived.by() für einfache Store-Zugriffe
+    let pageTitle = $derived(() => get(translations)?.versions?.pageTitle || 'Version History');
+    let pageDescription = $derived(() => get(translations)?.versions?.pageDescription || 'Check out the development history and changelog of Keymoji.');
    
     // Verwende appVersion statt currentVersion Prop
     let currentVersion = appVersion;

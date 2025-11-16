@@ -116,6 +116,7 @@ export interface UserProfile {
 - **KEINE** `let variable = value` ohne `$state()` wenn Variable später geändert wird
 - **IMMER** TypeScript Types für `$state()` Variablen: `let count = $state<number>(0)`
 - **IMMER** `$derived()` für Werte, die von anderen State-Variablen abhängen
+- **PERFORMANCE**: `$derived()` für einfache Berechnungen, `$derived.by()` nur für komplexe Berechnungen mit mehreren Schritten
 - **IMMER** `$effect()` für Side Effects (DOM-Manipulation, API-Calls, etc.)
 
 ```typescript
@@ -138,6 +139,21 @@ function calculateTotal() {
 // ✅ GUT: Konstanten (OK ohne $state)
 const API_URL = 'https://api.example.com';
 const MAX_RETRIES = 3;
+
+// ✅ GUT: $derived() für einfache Berechnungen (PERFORMANCE)
+let doubled = $derived(count * 2);
+let isValid = $derived(email && password);
+let message = $derived(get(storeValue));
+
+// ✅ GUT: $derived.by() nur für komplexe Berechnungen mit mehreren Schritten
+let complexValue = $derived.by(() => {
+  const step1 = calculateStep1();
+  const step2 = processStep2(step1);
+  return finalize(step2);
+});
+
+// ❌ SCHLECHT: $derived.by() für einfache Berechnungen (Performance-Verschwendung)
+let simple = $derived.by(() => get(storeValue)); // Sollte $derived() sein!
 ```
 
 #### Event Handler Patterns (Svelte 5)

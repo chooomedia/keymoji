@@ -1,4 +1,8 @@
-<!-- src/components/UserSettings.svelte -->
+<!--
+User settings component for managing account preferences and configuration.
+Handles settings sections, API key testing, story mode configuration, and UI state.
+Manages PRO banner, settings persistence, and validation.
+-->
 <script lang="ts">
     import { onMount } from 'svelte';
     import { fade, slide } from 'svelte/transition';
@@ -21,6 +25,27 @@
     import Modal from './UI/Modal.svelte';
     import { showSuccess, showError, showWarning, showModal } from '../stores/modalStore';
     import { testAIProvider, getProviderInfo } from '../utils/storyModeAI';
+    import { isDebugMode } from '../utils/environment';
+
+    function debugUserSettings() {
+        if (!isDebugMode()) return;
+        console.group('🔍 UserSettings Debug');
+        console.log('Settings:', {
+            activeSection,
+            isProUser,
+            settingsInitialized,
+            hasUnsavedChanges: get(hasUnsavedChanges),
+            currentProvider
+        });
+        console.log('API Test:', {
+            isTestingAPI,
+            apiTestSuccess,
+            testedProvider,
+            showApiKey
+        });
+        console.log('UI State:', uiState);
+        console.groupEnd();
+    }
 
     // Load settings configuration
     let settingsConfig = $state<Record<string, unknown>>({});
@@ -55,36 +80,23 @@
     
     // Load verification status from settings (only if settings are initialized)
     function loadVerificationStatus() {
-        // Guard: Don't load if settings aren't initialized yet
         if (!settingsInitialized) {
-            console.log('⏸️ Skipping loadVerificationStatus - settings not yet initialized');
             return;
         }
-        
         try {
             const currentSettings = getCurrentUserSettings();
             const storyMode = currentSettings?.storyMode || {};
             const verifiedProviders = storyMode.verifiedProviders || {};
-            // Use currentProvider (reactive) as Single Source of Truth
             const provider = currentProvider || 'apertus';
-            
-            // Check if current provider is verified
             if (verifiedProviders[provider]?.success) {
                 const verification = verifiedProviders[provider];
                 apiTestSuccess = true;
                 testedProvider = provider;
-                console.log('✅ Verification status restored for provider:', provider, {
-                    verifiedAt: verification.verifiedAt,
-                    model: verification.model
-                });
             } else {
                 apiTestSuccess = false;
                 testedProvider = null;
-                console.log('ℹ️ No verification status found for provider:', provider);
             }
         } catch (error) {
-            console.warn('⚠️ Error loading verification status:', error);
-            // Don't throw - just reset to safe state
             apiTestSuccess = false;
             testedProvider = null;
         }
@@ -103,20 +115,10 @@
                 loadVerificationStatus();
             }
             
-            // Reset if provider changed
             if (testedProvider && currentProvider !== testedProvider) {
                 apiTestSuccess = false;
                 testedProvider = null;
-                console.log('🔄 Provider changed, resetting test status');
-                // Reload verification status for new provider
                 loadVerificationStatus();
-            }
-            
-            // Reset if API key was modified after successful test
-            if (apiTestSuccess && testedProvider === currentProvider) {
-                // We can't easily detect if the key changed, so we assume it's still valid
-                // The user must re-test if they change the key
-                console.log('✅ Test status maintained for current provider:', currentProvider);
             }
         }
     });
@@ -251,14 +253,6 @@
         return true;
     }));
 
-    // Debug logging for reactivity
-    $effect(() => {
-        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-            console.log('🔄 UserSettings: availableSections updated:', availableSections);
-            console.log('🔄 UserSettings: isProUser:', isProUser);
-            console.log('🔄 UserSettings: settingsConfig:', settingsConfig);
-        }
-    });
 
     // Track if user is trying to leave the page
     let isLeavingPage = false;
@@ -273,13 +267,9 @@
 
     async function loadSettingsConfig() {
         try {
-            console.log('🔄 UserSettings: Loading settings config...');
-            // Import the settings config directly instead of fetching
             const configModule = await import('../data/userSettings.json');
             settingsConfig = configModule.default;
-            console.log('✅ UserSettings: Settings config loaded:', settingsConfig);
         } catch (error) {
-            console.error('❌ UserSettings: Failed to load settings config:', error);
             // Fallback configuration
             settingsConfig = {
                 sections: {
@@ -331,27 +321,11 @@
                 }
                 hasApiKey = apiKeys[currentProvider] && apiKeys[currentProvider].length >= 10;
             } else {
-                // For Apertus: Check if VITE_N8N_APERTUS_TOKEN exists in environment
                 const hasToken = typeof import.meta !== 'undefined' && 
                     import.meta.env?.VITE_N8N_APERTUS_TOKEN &&
                     import.meta.env.VITE_N8N_APERTUS_TOKEN.trim().length > 0;
-                hasApiKey = hasToken; // Apertus is configured if token exists
-                console.log('🔍 [Apertus] Token check:', {
-                    hasToken,
-                    tokenExists: !!import.meta?.env?.VITE_N8N_APERTUS_TOKEN,
-                    tokenLength: import.meta?.env?.VITE_N8N_APERTUS_TOKEN?.length || 0
-                });
+                hasApiKey = hasToken;
             }
-            
-            console.log('✨ Story Mode toggle:', {
-                newValue: value,
-                currentProvider,
-                isApertus,
-                hasApiKey,
-                apiKeyLength: !isApertus ? (currentSettings?.storyMode?.apiKeys?.[currentProvider]?.length || 0) : 'N/A (uses env token)',
-                apiTestSuccess,
-                testedProvider
-            });
             
             if (value === true) {
                 // Check if API key/token exists (skip for Apertus if token is in env)
@@ -362,38 +336,25 @@
                         : `⚠️ Bitte gib zuerst einen API-Key für ${currentProvider} ein!\n\n` +
                           `Du benötigst einen gültigen API-Key, um Story Mode zu nutzen.`;
                     showWarning(errorMessage, 5000);
-                    console.error(`❌ Story Mode activation blocked: ${isApertus ? 'No n8n token' : 'No API key'}`);
-                    return; // Don't update setting
+                    return;
                 }
-                
-                // OPTIONAL: Warn if not tested, but allow activation
                 if (!apiTestSuccess || testedProvider !== currentProvider) {
-                    console.warn('⚠️ Story Mode aktiviert ohne API-Test');
                     showWarning(
                         `⚠️ Hinweis: API-Verbindung noch nicht getestet!\n\n` +
                         `Klicke auf "🧪 Test" um die Verbindung zu prüfen.\n\n` +
                         `Story Mode wird trotzdem aktiviert.`,
                         4000
                     );
-                    // Continue and activate anyway
                 }
-                
-                console.log('✅ Story Mode wird aktiviert');
             }
         }
-        
-        // Reset test status when API keys are modified
-        // Use currentProvider (reactive) as Single Source of Truth
         if (key === 'storyMode.apiKeys') {
             const oldApiKeys = getEffectiveValue('storyMode.apiKeys') || {};
             const oldKey = oldApiKeys[currentProvider] || '';
             const newKey = (value[currentProvider] || '');
-            
-            // If key changed for current provider, reset test status
             if (oldKey !== newKey && apiTestSuccess && testedProvider === currentProvider) {
                 apiTestSuccess = false;
                 testedProvider = null;
-                console.log('🔄 API Key modified, test status reset');
                 
                 // Show info notification
                 if (newKey.length >= 10) {
@@ -406,28 +367,14 @@
             }
         }
         
-        // Update the setting (skip if already updated above)
         if (key !== 'storyMode.provider') {
             updateSetting(key, value);
-            console.log('✅ Setting updated in store:', { key, value });
         }
-        
-        // Apply some settings immediately for preview
         if (key === 'theme') {
             applyTheme(value);
         }
         if (key === 'language') {
             applyLanguage(value);
-        }
-        
-        // Log final state for Story Mode
-        if (key === 'storyMode.enabled') {
-            const finalValue = getEffectiveValue('storyMode.enabled');
-            console.log('✅ Story Mode final state:', { 
-                requested: value, 
-                stored: finalValue,
-                match: value === finalValue 
-            });
         }
     }
 
@@ -453,12 +400,7 @@
                         // Reset loading state
                         settingsStatus.update(status => ({ ...status, isSaving: false }));
                         
-                        // Apply settings immediately after save
                         applySettingsImmediately();
-                        
-                        // Log saved UI state for debugging
-                        console.log('💾 UI State saved:', uiState);
-                        
                     } catch (error) {
                         // Show error message
                         showError('Failed to save settings: ' + error.message, 5000);
@@ -491,8 +433,6 @@
             applyLanguage(settings.language);
         }
         
-        // Apply other settings as needed
-        console.log('✅ Settings applied immediately:', settings);
     }
     
     // Apply theme changes

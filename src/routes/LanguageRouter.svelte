@@ -21,7 +21,8 @@
     import { getSupportedLanguageCodes } from '../utils/languages';
     
     // PERFORMANCE: Lazy Loading für Routes (Code Splitting)
-    // Svelte 5 Best Practice: Verwende $state für reaktive Komponenten-Referenzen
+    // Svelte 5 Best Practice: Komponenten-Referenzen die sich ändern (null -> Component) müssen $state() sein
+    // Svelte erkennt Änderungen nur bei reaktiven Variablen - normale Variablen triggern kein Re-Render
     // SvelteKit Pattern: Verwende +page.svelte Komponenten die bereits Layout haben
     let RootPage = $state<any>(null);
     let ContactPage = $state<any>(null);
@@ -39,8 +40,8 @@
     let showLoader = $state(true); // Separate State für Loader-Anzeige (für Fade-Out)
     let contentReady = $state(false); // State für Content-Bereitschaft
     
-    // Lazy Load Page Components (Svelte 5 Best Practice)
-    // Gemäß Svelte Docs: Dynamische Imports mit Error Handling und Loading States
+    // PERFORMANCE: Priorisiertes Laden für schnelles initiales Rendering
+    // Strategie: RootPage zuerst (kritisch), dann ErrorPage, dann andere Routen parallel
     async function loadRoutes(): Promise<void> {
         if (routesLoaded) {
             console.log('✅ LanguageRouter: Routes already loaded, skipping');
@@ -52,37 +53,49 @@
         }
         
         isLoading = true;
-        loadingProgress = 'Initializing...';
-        console.log('🔄 LanguageRouter: Starting route loading...');
+        loadingProgress = 'Loading...';
+        console.log('🔄 LanguageRouter: Starting prioritized route loading...');
         
         try {
-            devLog('🔄 LanguageRouter: Loading routes...');
-            loadingProgress = 'Loading route components...';
-            console.log('🔄 LanguageRouter: Starting dynamic imports...');
+            // STAGE 1: Kritische Routen zuerst (RootPage + ErrorPage für Fallback)
+            // Diese müssen sofort verfügbar sein für initiales Rendering
+            loadingProgress = 'Loading critical routes...';
+            console.log('🚀 LanguageRouter: Stage 1 - Loading critical routes (RootPage, ErrorPage)...');
             
-            // Svelte 5 Best Practice: Dynamische Imports mit expliziten Pfaden
-            // Webpack erkennt diese als Code-Splitting-Punkte
-            // Verwende Promise.all für bessere Performance (alle Routen parallel laden)
-            console.log('🔄 LanguageRouter: Importing routes...');
-            
-            // Svelte 5 Best Practice: Dynamische Imports mit besserem Error-Handling
-            // Verwende Promise.allSettled für robustes Error-Handling
-            const importResults = await Promise.allSettled([
+            const [RootPageModule, ErrorPageModule] = await Promise.all([
                 import('./+page.svelte'),
+                import('./+error.svelte')
+            ]);
+            
+            // Sofort zuweisen für schnelles Rendering
+            RootPage = RootPageModule.default;
+            ErrorPage = ErrorPageModule.default;
+            
+            console.log('✅ LanguageRouter: Critical routes loaded, showing content...');
+            
+            // CRITICAL: Setze routesLoaded sofort nach RootPage, damit Content angezeigt wird
+            routesLoaded = true;
+            showLoader = false;
+            contentReady = true;
+            
+            // STAGE 2: Andere Routen im Hintergrund nachladen (non-blocking)
+            loadingProgress = 'Loading additional routes...';
+            console.log('🔄 LanguageRouter: Stage 2 - Loading additional routes in background...');
+            
+            const importResults = await Promise.allSettled([
                 import('./contact/+page.svelte'),
                 import('./account/+page.svelte'),
                 import('./versions/+page.svelte'),
                 import('./blog/+page.svelte'),
                 import('./blog/[slug]/+page.svelte'),
                 import('./privacy/+page.svelte'),
-                import('./legal/+page.svelte'),
-                import('./+error.svelte')
+                import('./legal/+page.svelte')
             ]);
             
             // Prüfe auf Fehler und extrahiere Module
             const routeNames = [
-                'RootPage', 'ContactPage', 'AccountPage', 'VersionsPage',
-                'BlogPage', 'BlogPostPage', 'PrivacyPage', 'LegalPage', 'ErrorPage'
+                'ContactPage', 'AccountPage', 'VersionsPage',
+                'BlogPage', 'BlogPostPage', 'PrivacyPage', 'LegalPage'
             ];
             
             const modules: any[] = [];
@@ -93,133 +106,60 @@
                     modules.push(result.value);
                     console.log(`✅ ${routeNames[index]} loaded successfully`);
                 } else {
-                    console.error(`❌ Failed to load ${routeNames[index]}:`, result.reason);
+                    console.warn(`⚠️ Failed to load ${routeNames[index]}:`, result.reason);
+                    // Non-critical routes: Warnung statt Fehler
                     errors.push(`${routeNames[index]}: ${result.reason?.message || String(result.reason)}`);
                     modules.push(null);
                 }
             });
             
+            // Non-critical routes: Logge Fehler, aber wirf keinen Error
             if (errors.length > 0) {
-                throw new Error(`Failed to load ${errors.length} route(s): ${errors.join(', ')}`);
+                console.warn(`⚠️ LanguageRouter: ${errors.length} non-critical route(s) failed to load:`, errors);
             }
             
             const [
-                RootPageModule,
                 ContactPageModule,
                 AccountPageModule,
                 VersionsPageModule,
                 BlogPageModule,
                 BlogPostPageModule,
                 PrivacyPageModule,
-                LegalPageModule,
-                ErrorPageModule
+                LegalPageModule
             ] = modules;
             
-            console.log('✅ LanguageRouter: All imports completed');
+            console.log('✅ LanguageRouter: Additional routes loaded');
             
-            // Extrahiere Default-Exports (Svelte 5 Best Practice)
-            // Validiere, dass default export existiert
-            console.log('🔄 LanguageRouter: Validating default exports...');
-            console.log('🔄 LanguageRouter: RootPageModule:', RootPageModule);
-            console.log('🔄 LanguageRouter: RootPageModule.default:', RootPageModule?.default);
-            
-            if (!RootPageModule?.default) {
-                console.error('❌ RootPageModule:', RootPageModule);
-                throw new Error('RootPage missing default export');
+            // Validiere kritische Routen (RootPage + ErrorPage bereits validiert)
+            if (!RootPage) {
+                throw new Error('RootPage missing - critical route failed');
             }
-            if (!ContactPageModule?.default) {
-                console.error('❌ ContactPageModule:', ContactPageModule);
-                throw new Error('ContactPage missing default export');
-            }
-            if (!AccountPageModule?.default) {
-                console.error('❌ AccountPageModule:', AccountPageModule);
-                throw new Error('AccountPage missing default export');
-            }
-            if (!VersionsPageModule?.default) {
-                console.error('❌ VersionsPageModule:', VersionsPageModule);
-                throw new Error('VersionsPage missing default export');
-            }
-            if (!BlogPageModule?.default) {
-                console.error('❌ BlogPageModule:', BlogPageModule);
-                throw new Error('BlogPage missing default export');
-            }
-            if (!BlogPostPageModule?.default) {
-                console.error('❌ BlogPostPageModule:', BlogPostPageModule);
-                throw new Error('BlogPostPage missing default export');
-            }
-            if (!PrivacyPageModule?.default) {
-                console.error('❌ PrivacyPageModule:', PrivacyPageModule);
-                throw new Error('PrivacyPage missing default export');
-            }
-            if (!LegalPageModule?.default) {
-                console.error('❌ LegalPageModule:', LegalPageModule);
-                throw new Error('LegalPage missing default export');
-            }
-            if (!ErrorPageModule?.default) {
-                console.error('❌ ErrorPageModule:', ErrorPageModule);
-                throw new Error('ErrorPage missing default export');
+            if (!ErrorPage) {
+                throw new Error('ErrorPage missing - critical route failed');
             }
             
-            console.log('✅ LanguageRouter: All default exports validated');
+            // Zuweisen der zusätzlichen Komponenten (non-critical)
+            // Verwende optional chaining für robustes Error-Handling
+            if (ContactPageModule?.default) ContactPage = ContactPageModule.default;
+            if (AccountPageModule?.default) AccountPage = AccountPageModule.default;
+            if (VersionsPageModule?.default) VersionsPage = VersionsPageModule.default;
+            if (BlogPageModule?.default) BlogPage = BlogPageModule.default;
+            if (BlogPostPageModule?.default) BlogPostPage = BlogPostPageModule.default;
+            if (PrivacyPageModule?.default) PrivacyPage = PrivacyPageModule.default;
+            if (LegalPageModule?.default) LegalPage = LegalPageModule.default;
             
-            // Zuweisen der Komponenten (Svelte 5 Best Practice: Direkte Zuweisung)
-            console.log('🔄 LanguageRouter: Assigning components...');
-            RootPage = RootPageModule.default;
-            ContactPage = ContactPageModule.default;
-            AccountPage = AccountPageModule.default;
-            VersionsPage = VersionsPageModule.default;
-            BlogPage = BlogPageModule.default;
-            BlogPostPage = BlogPostPageModule.default;
-            PrivacyPage = PrivacyPageModule.default;
-            LegalPage = LegalPageModule.default;
-            ErrorPage = ErrorPageModule.default;
-            console.log('✅ LanguageRouter: Components assigned');
+            console.log('✅ LanguageRouter: All routes loaded (critical + additional)');
             
-            // Validiere, dass alle Komponenten geladen wurden
-            console.log('🔄 LanguageRouter: Final validation...');
-            const allLoaded = RootPage && ContactPage && AccountPage && VersionsPage && 
-                            BlogPage && BlogPostPage && PrivacyPage && LegalPage && ErrorPage;
-            
-            console.log('🔄 LanguageRouter: Component status:', {
-                RootPage: !!RootPage,
-                ContactPage: !!ContactPage,
-                AccountPage: !!AccountPage,
-                VersionsPage: !!VersionsPage,
-                BlogPage: !!BlogPage,
-                BlogPostPage: !!BlogPostPage,
-                PrivacyPage: !!PrivacyPage,
-                LegalPage: !!LegalPage,
-                ErrorPage: !!ErrorPage,
-                allLoaded
-            });
-            
-            if (!allLoaded) {
-                console.error('❌ LanguageRouter: Some components failed to load');
-                throw new Error('Some route components failed to load (null or undefined)');
+            // Validiere nur kritische Routen (andere sind optional)
+            if (!RootPage || !ErrorPage) {
+                throw new Error('Critical routes failed to load');
             }
             
-            loadingProgress = 'Validating components...';
-            console.log('✅ LanguageRouter: All components loaded successfully');
-            
-            routesLoaded = true;
             loadingError = null;
             isLoading = false;
             loadingProgress = 'Ready!';
             
-            console.log('✅ LanguageRouter: routesLoaded set to true');
-            console.log('✅ LanguageRouter: isLoading set to false');
-            
-            devLog('✅ LanguageRouter: Routes loaded successfully');
-            
-            // PERFORMANCE: Sauberes Loader-Fade-Out mit kurzer Verzögerung
-            // Verhindert Flackern und ermöglicht saubere Transition
-            setTimeout(() => {
-                showLoader = false;
-                // Kurze Verzögerung bevor Content angezeigt wird (für saubere Transition)
-                setTimeout(() => {
-                    contentReady = true;
-                }, 150); // 150ms für Fade-Out-Animation
-            }, 300); // 300ms Verzögerung für "Ready!" Message
+            console.log('✅ LanguageRouter: All routes loaded successfully');
             devLog('✅ LanguageRouter: Loaded components:', {
                 RootPage: !!RootPage,
                 ContactPage: !!ContactPage,
@@ -246,11 +186,12 @@
             // Set routesLoaded to true anyway to show error page
             routesLoaded = true;
             
-            // Auch bei Fehler Loader ausblenden
-            setTimeout(() => {
-                showLoader = false;
-                contentReady = true;
-            }, 300);
+            // CRITICAL FIX: Auch bei Fehler Loader sofort ausblenden
+            // Timeouts verursachen, dass der Loader zu lange angezeigt wird
+            showLoader = false;
+            contentReady = true;
+            
+            console.log('✅ LanguageRouter: Error handler - contentReady set to true');
         }
     }
     
@@ -261,15 +202,18 @@
     const supportedLanguages = getSupportedLanguageCodes();
     
     // Verfolge die aktuelle Route
-    let currentPath = $state("");
-    let initialRouteProcessed = $state(false);
-    let processingRoute = $state(false); // Verhindert gleichzeitige Route-Verarbeitung
+    // Svelte 5 Best Practice: Variablen die nur intern verwendet werden (nicht im Template) 
+    // müssen NICHT reaktiv sein - normale let Variablen sind ausreichend
+    let currentPath = "";
+    let initialRouteProcessed = false;
+    let processingRoute = false; // Verhindert gleichzeitige Route-Verarbeitung
     
     // Svelte 5 Best Practice: Store direkt verwenden, nicht über $derived
     // Vermeidet zirkuläre Abhängigkeiten und infinite loops
     // Verwende get() direkt in Funktionen statt reaktiver Rune
-    let lastProcessedPath = $state("");
-    let lastProcessedLang = $state<string | null>(null);
+    // Diese Variablen werden nur intern verwendet, nicht im Template → normale let
+    let lastProcessedPath = "";
+    let lastProcessedLang: string | null = null;
     
     // Verbesserte Route-Verarbeitung ohne Weiterleitung von Root zu Sprach-URL
     // CRITICAL: Diese Funktion darf NICHT State lesen und schreiben, der sie wieder triggert
@@ -392,11 +336,10 @@
                     if (!routesLoaded && !isLoading) {
                         loadRoutes().catch(err => {
                             console.error('❌ LanguageRouter: Retry failed:', err);
-                            // Auch bei Fehler contentReady setzen, damit Error-State angezeigt wird
-                            setTimeout(() => {
-                                showLoader = false;
-                                contentReady = true;
-                            }, 300);
+                            // CRITICAL FIX: Auch bei Fehler contentReady sofort setzen
+                            showLoader = false;
+                            contentReady = true;
+                            console.log('✅ LanguageRouter: Retry error handler - contentReady set to true');
                         });
                     }
                 }, 1000);
@@ -508,7 +451,7 @@
     });
 </script>
   
-{#if !contentReady || showLoader || (!routesLoaded || isLoading)}
+{#if !contentReady || showLoader || !routesLoaded || isLoading}
     <!-- Loading State (Svelte 5 Best Practice) -->
     <!-- Reagiert auf isLoading und routesLoaded State -->
     <!-- Fade-Out-Animation für sauberes Ausblenden -->

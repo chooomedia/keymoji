@@ -1,5 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+    // PERFORMANCE: Optimierte Content-Paths für bessere Build-Performance
+    // Tailwind CSS 3+ verwendet automatisch JIT Mode - keine extract-Funktion nötig
     content: ['./src/**/*.{html,js,ts,svelte}', './public/index.html'],
     darkMode: 'class',
     // JIT Mode ist in Tailwind CSS 3 Standard

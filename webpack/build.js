@@ -68,9 +68,14 @@ module.exports = merge(common, {
     },
 
     optimization: {
+        // PERFORMANCE: Deterministic module IDs für bessere Caching
         moduleIds: 'deterministic',
+        // PERFORMANCE: Single runtime chunk für bessere Code Splitting
         runtimeChunk: 'single',
         minimize: true,
+        // PERFORMANCE: Tree shaking für bessere Bundle-Größe
+        usedExports: true,
+        sideEffects: false, // Annahme: keine Side Effects in node_modules
         minimizer: [
             new TerserPlugin({
                 terserOptions: {

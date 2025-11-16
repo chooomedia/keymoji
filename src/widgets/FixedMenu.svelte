@@ -35,10 +35,11 @@
   let showMenu = $state(false);
   
   // Reactive translations for template use (Svelte 5 Runes)
-  let t = $derived.by(() => get(translations));
-  let donateButtonText = $derived.by(() => t?.donateButton?.text || 'Support us');
-  let donateButtonOpenText = $derived.by(() => t?.donateButton?.openText || 'Close');
-  let fixedMenuTooltips = $derived.by(() => t?.fixedMenu?.tooltips || {});
+  // PERFORMANCE: $derived() statt $derived.by() für einfache Store-Zugriffe
+  let t = $derived(get(translations));
+  let donateButtonText = $derived(() => t?.donateButton?.text || 'Support us');
+  let donateButtonOpenText = $derived(() => t?.donateButton?.openText || 'Close');
+  let fixedMenuTooltips = $derived(() => t?.fixedMenu?.tooltips || {});
   
   // Reactive store values for template use (Svelte 5 Runes)
   let showDonateMenuValue = $derived(get(showDonateMenu));

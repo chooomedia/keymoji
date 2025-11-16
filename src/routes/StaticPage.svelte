@@ -21,10 +21,14 @@
     let loading = $state(true);
     
     // Get content based on slug and language (reactive) - Svelte 5 Runes
+    // PERFORMANCE: $derived.by() hier korrekt, da mehrere Schritte und Side Effects (loading = true/false)
     let pageData = $derived.by(() => {
         loading = true;
         const content = staticPagesData[slug];
-        if (!content) return null;
+        if (!content) {
+            loading = false;
+            return null;
+        }
         
         // Language fallback: current → en (use get() for stores in $derived.by)
         const lang = get(currentLanguage);
@@ -34,6 +38,7 @@
     });
     
     // Reactive Props für PageLayout (Svelte 5 Runes)
+    // PERFORMANCE: $derived() für einfache Property-Zugriffe
     let pageTitle = $derived(pageData?.title || '');
     let pageDescription = $derived(pageData?.description || '');
     let sections = $derived(pageData?.sections || []);

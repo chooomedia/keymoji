@@ -14,8 +14,9 @@
     const FeatureCard = FeatureCardComponent;
 
     // Reaktive PageLayout Props (Svelte 5 Runes)
-    let pageTitle = $derived.by(() => get(translations)?.notFound?.pageTitle || '404 - Page Not Found');
-    let pageDescription = $derived.by(() => get(translations)?.notFound?.pageDescription || 'The page you are looking for does not exist.');
+    // PERFORMANCE: $derived() statt $derived.by() für einfache Store-Zugriffe
+    let pageTitle = $derived(() => get(translations)?.notFound?.pageTitle || '404 - Page Not Found');
+    let pageDescription = $derived(() => get(translations)?.notFound?.pageDescription || 'The page you are looking for does not exist.');
     
     // Site Navigation Data
     const siteNavigation = [

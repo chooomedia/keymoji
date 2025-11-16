@@ -24,9 +24,12 @@
     const Button = ButtonComponent;
 
     // Werte aus Stores als Runes-Values ableiten
-    const message = $derived.by(() => get(modalMessage));
-    const isVisible = $derived.by(() => get(isModalVisible));
-    const modalState = $derived.by(() => get(modalData));
+    // PERFORMANCE: $derived() statt $derived.by() für einfache Store-Zugriffe
+    // $derived.by() nur für komplexe Berechnungen mit mehreren Schritten
+    const message = $derived(get(modalMessage));
+    const isVisible = $derived(get(isModalVisible));
+    const modalState = $derived(get(modalData));
+    // messageType benötigt .by() weil es eine Funktion aufruft
     const messageType = $derived.by(
         () => get(modalType) || getMessageType(message)
     );
@@ -34,12 +37,21 @@
         isVisible && !!message && message.trim() !== ''
     );
     
+    // Svelte 5 Best Practice: Nur Variablen die im Template verwendet werden oder Re-Renders auslösen müssen → $state()
+    // modalRef wird mit bind:this verwendet → $state() erforderlich
     let modalRef: HTMLElement | null = $state(null);
-    let lastActiveElement: HTMLElement | null = $state(null);
-    let debugMode = $state(isDebugMode());
+    
+    // debugMode wird nur einmal gesetzt und ändert sich nie → const
+    const debugMode = isDebugMode();
+    
+    // isComponentMounted wird möglicherweise im Template verwendet → prüfen, aber wahrscheinlich $state()
     let isComponentMounted = $state(false);
+    
+    // progressBar wird im Template verwendet (Progress Bar Anzeige) → $state() erforderlich
     let progressBar = $state(100);
-    let progressInterval: ReturnType<typeof setInterval> | null = $state(null);
+    
+    // progressInterval wird nur intern verwendet (nicht im Template) → normale let
+    let progressInterval: ReturnType<typeof setInterval> | null = null;
     
     $effect(() => {
         if (debugMode && messageType) {
@@ -132,9 +144,6 @@
     onMount(() => {
         // Markiere Komponente als gemountet
         isComponentMounted = true;
-        
-        // Save current focused element
-        lastActiveElement = document.activeElement as HTMLElement | null;
         
         // Verhindert Scrollbar-Hüpfen bei Modal-Öffnung
         document.body.classList.add('modal-open');

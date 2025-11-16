@@ -27,7 +27,14 @@ module.exports = {
                             runes: true,
                             // Svelte 5: Generiere Code für Browser
                             generate: 'client',
-                            dev: process.env.NODE_ENV !== 'production'
+                            dev: process.env.NODE_ENV !== 'production',
+                            // PERFORMANCE: Immutable mode für bessere Performance
+                            // Annimmt dass Props/State nicht mutiert werden (Svelte 5 Best Practice)
+                            immutable: false, // false weil wir State mutieren
+                            // PERFORMANCE: Accessors für bessere Tree-Shaking
+                            accessors: false,
+                            // PERFORMANCE: CSS scoping für bessere Performance
+                            css: 'injected'
                         },
                         preprocess: require('svelte-preprocess')({
                             typescript: {

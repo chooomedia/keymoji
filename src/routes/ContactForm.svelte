@@ -31,8 +31,9 @@
     const Checkbox = CheckboxComponent;
     
     // Reaktive Übersetzungen - optimiert (Svelte 5 Runes)
-    let pageTitle = $derived.by(() => get(translations)?.contactForm?.pageTitle || 'Contact');
-    let pageDescription = $derived.by(() => get(translations)?.contactForm?.pageDescription || 'Get in touch with us');
+    // PERFORMANCE: $derived() statt $derived.by() für einfache Store-Zugriffe
+    let pageTitle = $derived(() => get(translations)?.contactForm?.pageTitle || 'Contact');
+    let pageDescription = $derived(() => get(translations)?.contactForm?.pageDescription || 'Get in touch with us');
 
     // Debug-Logging für Reaktivität - nur in Development (Svelte 5 Runes)
     $effect(() => {

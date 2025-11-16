@@ -37,14 +37,15 @@
     let isTransitioning = $state(false);
     let isMounted = $state(false);
   
-    const backToPostsText = $derived.by(() => {
+    // PERFORMANCE: $derived() statt $derived.by() für einfache Bedingungen
+    const backToPostsText = $derived(() => {
         const lang = currentLanguage || 'en';
         if (lang === 'de') return 'Zurück zu Posts';
         if (lang === 'en') return 'Back to Posts';
         return 'Back to Posts';
     });
     
-    const postNotFoundText = $derived.by(() => {
+    const postNotFoundText = $derived(() => {
         const lang = currentLanguage || 'en';
         if (lang === 'de') return 'Post nicht gefunden';
         if (lang === 'en') return 'Post not found';
