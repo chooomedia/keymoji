@@ -64,7 +64,7 @@
     import ChartSkeleton from '../components/UI/ChartSkeleton.svelte';
     import FooterInfo from '../widgets/FooterInfo.svelte';
     import FeatureCard from '../components/Features/FeatureCard.svelte';
-    import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers.js';
+    import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers';
     // REMOVED: getUsageHistory, calculateUsageStats - now using usageHistory store from userDataStore.js
     import { DEMO_USAGE_HISTORY_4W, getDemoDataForPeriod, isDemoData } from '../utils/demoChartData.js';
     import { generateBenefitsStructuredData, injectStructuredData, formatCanonicalUrl } from '../utils/seo';

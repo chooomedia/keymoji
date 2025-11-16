@@ -1,10 +1,25 @@
-// src/utils/apiCache.js
+// src/utils/apiCache.ts
 // Intelligent API Caching Layer - Prevents 429 errors with Best Practices
+//
+// TypeScript Migration: v0.7.7
 
-import { storageHelpers } from '../config/storage.js';
+import { storageHelpers } from '../config/storage';
 
-// Cache TTL (Time To Live) - Different for different data types
-const CACHE_TTL = {
+/**
+ * Cache TTL Types
+ */
+export type CacheDataType = 
+    | 'ACCOUNT_PROFILE'
+    | 'DAILY_USAGE'
+    | 'USAGE_HISTORY'
+    | 'SESSION_CHECK'
+    | 'USER_SETTINGS'
+    | 'DEFAULT';
+
+/**
+ * Cache TTL (Time To Live) - Different for different data types
+ */
+const CACHE_TTL: Record<CacheDataType, number> = {
     ACCOUNT_PROFILE: 5 * 60 * 1000, // 5 minutes (rarely changes)
     DAILY_USAGE: 30 * 1000, // 30 seconds (changes frequently)
     USAGE_HISTORY: 60 * 60 * 1000, // 1 hour (changes once per day)
@@ -13,17 +28,83 @@ const CACHE_TTL = {
     DEFAULT: 60 * 1000 // 1 minute (fallback)
 };
 
-// Request throttling - Max requests per endpoint
+/**
+ * Request throttling - Max requests per endpoint
+ */
 const REQUEST_THROTTLE = {
     MIN_INTERVAL: 1000, // Min 1 second between requests
     MAX_PARALLEL: 3 // Max 3 parallel requests total
-};
+} as const;
+
+/**
+ * Cache Entry Interface
+ */
+export interface CacheEntry {
+    data: unknown;
+    cachedAt: number;
+    expiresAt: number;
+    ttl: number;
+}
+
+/**
+ * Cache Storage Type
+ */
+type CacheStorage = Record<string, CacheEntry>;
+
+/**
+ * Fetch Options Interface
+ */
+export interface FetchOptions extends RequestInit {
+    body?: string | BodyInit | null;
+}
+
+/**
+ * Cache Stats Interface
+ */
+export interface CacheStats {
+    totalEntries: number;
+    fresh: number;
+    stale: number;
+    totalSize: number;
+    oldestEntry: {
+        key: string;
+        age: number;
+    } | null;
+    newestEntry: {
+        key: string;
+        age: number;
+    } | null;
+}
+
+/**
+ * API Cache Debug Interface
+ */
+export interface CacheDebugResult {
+    cache: CacheStorage;
+    stats: CacheStats | null;
+}
+
+/**
+ * Window API Cache Interface (for debugging)
+ */
+declare global {
+    interface Window {
+        apiCache?: {
+            stats: () => CacheStats | null;
+            debug: () => CacheDebugResult;
+            clear: () => void;
+            cleanup: () => void;
+            invalidate: (key: string) => void;
+            invalidatePattern: (pattern: string) => void;
+        };
+    }
+}
 
 // In-flight requests (prevent duplicate parallel calls)
-const pendingRequests = new Map();
+const pendingRequests = new Map<string, Promise<unknown>>();
 
 // Last request times (for throttling)
-const lastRequestTimes = new Map();
+const lastRequestTimes = new Map<string, number>();
 
 // Active requests counter
 let activeRequestCount = 0;
@@ -38,9 +119,9 @@ const MAX_CACHE_ENTRIES = 100;
 /**
  * Generate unique cache key from URL and options
  */
-function getCacheKey(url, options = {}) {
+function getCacheKey(url: string, options: FetchOptions = {}): string {
     try {
-        const body = options?.body ? JSON.parse(options.body) : {};
+        const body = options?.body ? JSON.parse(options.body as string) : {};
         const action = body.action || 'get';
         const userId = body.userId || body.email || 'anonymous';
 
@@ -55,7 +136,9 @@ function getCacheKey(url, options = {}) {
 /**
  * Get endpoint key for throttling (without user-specific data)
  */
-function getEndpointKey(url) {
+function getEndpointKey(url: string): string {
+    if (typeof window === 'undefined') return url;
+    
     try {
         const urlObj = new URL(url, window.location.origin);
         return urlObj.pathname; // e.g., '/api/account'
@@ -67,7 +150,11 @@ function getEndpointKey(url) {
 /**
  * Get all cached data from localStorage
  */
-function getCache() {
+function getCache(): CacheStorage {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+        return {};
+    }
+    
     try {
         const cached = localStorage.getItem(CACHE_STORAGE_KEY);
         return cached ? JSON.parse(cached) : {};
@@ -80,7 +167,11 @@ function getCache() {
 /**
  * Save cache to localStorage
  */
-function saveCache(cache) {
+function saveCache(cache: CacheStorage): void {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+        return;
+    }
+    
     try {
         const cacheString = JSON.stringify(cache);
 
@@ -95,7 +186,7 @@ function saveCache(cache) {
     } catch (error) {
         console.warn('⚠️ Failed to save cache:', error);
         // QuotaExceededError? Clean up!
-        if (error.name === 'QuotaExceededError') {
+        if (error instanceof Error && error.name === 'QuotaExceededError') {
             cleanupCache();
         }
     }
@@ -104,7 +195,7 @@ function saveCache(cache) {
 /**
  * Get cached entry
  */
-function getFromCache(key) {
+function getFromCache(key: string): CacheEntry | null {
     try {
         const cache = getCache();
         const entry = cache[key];
@@ -132,11 +223,11 @@ function getFromCache(key) {
 /**
  * Save entry to cache
  */
-function saveToCache(key, data, ttl = CACHE_TTL.DEFAULT) {
+function saveToCache(key: string, data: unknown, ttl: number = CACHE_TTL.DEFAULT): void {
     try {
         const cache = getCache();
 
-        const entry = {
+        const entry: CacheEntry = {
             data: data,
             cachedAt: Date.now(),
             expiresAt: Date.now() + ttl,
@@ -162,7 +253,7 @@ function saveToCache(key, data, ttl = CACHE_TTL.DEFAULT) {
 /**
  * Check if cache entry is expired
  */
-function isExpired(entry) {
+function isExpired(entry: CacheEntry | null | undefined): boolean {
     if (!entry || !entry.expiresAt) {
         return true;
     }
@@ -172,7 +263,7 @@ function isExpired(entry) {
 /**
  * Get cache entry age in milliseconds
  */
-function getAge(entry) {
+function getAge(entry: CacheEntry | null | undefined): number {
     if (!entry || !entry.cachedAt) {
         return Infinity;
     }
@@ -182,7 +273,7 @@ function getAge(entry) {
 /**
  * Cleanup old/expired cache entries
  */
-function cleanupCache(cacheData = null) {
+function cleanupCache(cacheData: CacheStorage | null = null): void {
     try {
         const cache = cacheData || getCache();
         const entries = Object.entries(cache);
@@ -221,7 +312,7 @@ function cleanupCache(cacheData = null) {
 /**
  * Invalidate specific cache entry
  */
-export function invalidateCache(key) {
+export function invalidateCache(key: string): void {
     try {
         const cache = getCache();
         if (cache[key]) {
@@ -237,7 +328,7 @@ export function invalidateCache(key) {
 /**
  * Invalidate all cache entries matching pattern
  */
-export function invalidateCachePattern(pattern) {
+export function invalidateCachePattern(pattern: string): void {
     try {
         const cache = getCache();
         const keys = Object.keys(cache);
@@ -257,7 +348,11 @@ export function invalidateCachePattern(pattern) {
 /**
  * Clear all cache
  */
-export function clearAllCache() {
+export function clearAllCache(): void {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+        return;
+    }
+    
     try {
         localStorage.removeItem(CACHE_STORAGE_KEY);
         console.log('🗑️ All cache cleared');
@@ -269,7 +364,7 @@ export function clearAllCache() {
 /**
  * Check if request should be throttled
  */
-function shouldThrottle(url) {
+function shouldThrottle(url: string): boolean {
     const key = getEndpointKey(url);
     const lastTime = lastRequestTimes.get(key) || 0;
     const now = Date.now();
@@ -281,7 +376,7 @@ function shouldThrottle(url) {
 /**
  * Wait for throttle interval
  */
-function waitForThrottle(url) {
+function waitForThrottle(url: string): Promise<void> {
     const key = getEndpointKey(url);
     const lastTime = lastRequestTimes.get(key) || 0;
     const now = Date.now();
@@ -302,24 +397,24 @@ function waitForThrottle(url) {
 
 /**
  * Main cached fetch function
- * @param {string} url - API endpoint
- * @param {object} options - Fetch options
- * @param {number} ttl - Cache TTL in milliseconds
- * @param {boolean} useStaleWhileRevalidate - Return stale data immediately, refresh in background
+ * @param url - API endpoint
+ * @param options - Fetch options
+ * @param ttl - Cache TTL in milliseconds
+ * @param useStaleWhileRevalidate - Return stale data immediately, refresh in background
  */
 export async function cachedFetch(
-    url,
-    options = {},
-    ttl = CACHE_TTL.DEFAULT,
-    useStaleWhileRevalidate = false
-) {
+    url: string,
+    options: FetchOptions = {},
+    ttl: number = CACHE_TTL.DEFAULT,
+    useStaleWhileRevalidate: boolean = false
+): Promise<unknown> {
     const cacheKey = getCacheKey(url, options);
 
     try {
         // === PHASE 1: Check for in-flight request (deduplication) ===
         if (pendingRequests.has(cacheKey)) {
             console.log('🔄 Reusing in-flight request:', cacheKey);
-            return await pendingRequests.get(cacheKey);
+            return await pendingRequests.get(cacheKey)!;
         }
 
         // === PHASE 2: Check cache ===
@@ -391,7 +486,12 @@ export async function cachedFetch(
 /**
  * Execute actual fetch and handle caching
  */
-async function executeFetch(url, options, cacheKey, ttl) {
+async function executeFetch(
+    url: string,
+    options: FetchOptions,
+    cacheKey: string,
+    ttl: number
+): Promise<unknown> {
     try {
         const response = await fetch(url, options);
 
@@ -403,13 +503,14 @@ async function executeFetch(url, options, cacheKey, ttl) {
 
         // Check if response has content
         const contentType = response.headers.get('content-type');
-        let text;
+        let text: string;
         
         try {
             text = await response.text();
         } catch (textError) {
-            console.error('❌ [apiCache] Failed to read response text:', textError);
-            throw new Error(`Failed to read response: ${textError.message}`);
+            const error = textError instanceof Error ? textError : new Error(String(textError));
+            console.error('❌ [apiCache] Failed to read response text:', error);
+            throw new Error(`Failed to read response: ${error.message}`);
         }
         
         // Handle empty responses
@@ -419,19 +520,20 @@ async function executeFetch(url, options, cacheKey, ttl) {
         }
         
         // Try to parse JSON
-        let data;
+        let data: unknown;
         try {
             data = JSON.parse(text);
         } catch (parseError) {
+            const error = parseError instanceof Error ? parseError : new Error(String(parseError));
             console.error('❌ [apiCache] Failed to parse JSON response:', {
                 url,
                 status: response.status,
                 contentType,
                 textPreview: text.substring(0, 200),
                 textLength: text.length,
-                error: parseError.message
+                error: error.message
             });
-            throw new Error(`Invalid JSON response: ${parseError.message}`);
+            throw new Error(`Invalid JSON response: ${error.message}`);
         }
 
         // Save to cache
@@ -447,7 +549,12 @@ async function executeFetch(url, options, cacheKey, ttl) {
 /**
  * Background refresh (non-blocking)
  */
-async function performBackgroundRefresh(url, options, cacheKey, ttl) {
+async function performBackgroundRefresh(
+    url: string,
+    options: FetchOptions,
+    cacheKey: string,
+    ttl: number
+): Promise<void> {
     try {
         console.log('🔄 Background refresh starting:', cacheKey);
 
@@ -469,7 +576,7 @@ async function performBackgroundRefresh(url, options, cacheKey, ttl) {
 /**
  * Wait for parallel slot to free up
  */
-function waitForParallelSlot() {
+function waitForParallelSlot(): Promise<void> {
     return new Promise(resolve => {
         const checkInterval = setInterval(() => {
             if (activeRequestCount < REQUEST_THROTTLE.MAX_PARALLEL) {
@@ -483,16 +590,20 @@ function waitForParallelSlot() {
 /**
  * Get appropriate TTL for data type
  */
-export function getTTLForDataType(dataType) {
+export function getTTLForDataType(dataType: CacheDataType): number {
     return CACHE_TTL[dataType] || CACHE_TTL.DEFAULT;
 }
 
 /**
  * Specialized fetch for account data
  */
-export async function cachedFetchAccount(userId, email, action = 'get') {
+export async function cachedFetchAccount(
+    userId: string,
+    email: string,
+    action: string = 'get'
+): Promise<unknown> {
     const url = '/api/account';
-    const options = {
+    const options: FetchOptions = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -511,9 +622,12 @@ export async function cachedFetchAccount(userId, email, action = 'get') {
 /**
  * Specialized fetch for daily usage
  */
-export async function cachedFetchDailyUsage(userId, email) {
+export async function cachedFetchDailyUsage(
+    userId: string,
+    email: string
+): Promise<unknown> {
     const url = '/api/account';
-    const options = {
+    const options: FetchOptions = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -533,7 +647,10 @@ export async function cachedFetchDailyUsage(userId, email) {
  * Specialized fetch for usage history
  * @deprecated Use cachedFetchAccount() instead - same functionality, better naming
  */
-export async function cachedFetchUsageHistory(userId, email) {
+export async function cachedFetchUsageHistory(
+    userId: string,
+    email: string
+): Promise<unknown> {
     // Delegate to cachedFetchAccount for consistency
     return cachedFetchAccount(userId, email, 'get');
 }
@@ -541,12 +658,12 @@ export async function cachedFetchUsageHistory(userId, email) {
 /**
  * Debug: Show cache stats
  */
-export function getCacheStats() {
+export function getCacheStats(): CacheStats | null {
     try {
         const cache = getCache();
         const entries = Object.entries(cache);
 
-        const stats = {
+        const stats: CacheStats = {
             totalEntries: entries.length,
             fresh: 0,
             stale: 0,
@@ -587,7 +704,7 @@ export function getCacheStats() {
 /**
  * Debug: Show all cache entries
  */
-export function debugCache() {
+export function debugCache(): CacheDebugResult {
     const cache = getCache();
     const stats = getCacheStats();
 
@@ -615,12 +732,10 @@ export function debugCache() {
     return { cache, stats };
 }
 
-// cleanupCache already defined above at line 185
-
 /**
  * Auto-cleanup on app start (remove expired entries)
  */
-export function initializeCache() {
+export function initializeCache(): void {
     try {
         console.log('🔄 Initializing API cache...');
         cleanupCache();
@@ -643,3 +758,4 @@ if (typeof window !== 'undefined') {
         invalidatePattern: invalidateCachePattern
     };
 }
+

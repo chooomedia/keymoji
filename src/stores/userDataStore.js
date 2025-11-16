@@ -6,7 +6,7 @@ import { writable, derived, get } from 'svelte/store';
 import { currentAccount, isLoggedIn, accountTier } from './appStores.js';
 import { STORAGE_KEYS, storageHelpers } from '../config/storage.js';
 import { WEBHOOKS } from '../config/api.js';
-import { cachedFetchAccount } from '../utils/apiCache.js';
+import { cachedFetchAccount } from '../utils/apiCache';
 
 // === CACHE CONFIGURATION ===
 const CACHE_DURATION = {

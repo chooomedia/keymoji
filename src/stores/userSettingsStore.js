@@ -8,7 +8,7 @@ import {
     getCookieStatus
 } from '../utils/cookies';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
-import { invalidateCachePattern } from '../utils/apiCache.js';
+import { invalidateCachePattern } from '../utils/apiCache';
 import {
     validateSettings,
     sanitizeSettings,

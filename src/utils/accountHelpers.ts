@@ -1,16 +1,31 @@
-// src/utils/accountHelpers.js
+// src/utils/accountHelpers.ts
 // Zentrale Hilfsfunktionen für Account-Management
+//
+// TypeScript Migration: v0.7.7
 
-import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
+import { storageHelpers, STORAGE_KEYS } from '../config/storage';
+import type { Account } from '../types/Account';
+
+/**
+ * Account Age Translations Interface
+ */
+export interface AccountAgeTranslations {
+    today?: string;
+    yesterday?: string;
+    days?: string;
+    weeks?: string;
+    months?: string;
+    years?: string;
+}
 
 /**
  * Berechnet die Anzahl der Tage seit Account-Erstellung
  * Nutzt ZUERST die API-Daten (currentAccount.createdAt), dann localStorage als Fallback
- * @param {object} currentAccount - Optional: Current account object from store
- * @returns {number} Anzahl der Tage
+ * @param currentAccount - Optional: Current account object from store
+ * @returns Anzahl der Tage
  */
-export function getDaysSinceAccountCreation(currentAccount = null) {
-    let createdAtValue = null;
+export function getDaysSinceAccountCreation(currentAccount: Account | null = null): number {
+    let createdAtValue: string | null = null;
 
     // PRIORITÄT 1: API-Daten vom currentAccount (aus Google Sheets!)
     if (currentAccount && currentAccount.createdAt) {
@@ -23,9 +38,9 @@ export function getDaysSinceAccountCreation(currentAccount = null) {
 
     // PRIORITÄT 2: localStorage USER_PREFERENCES.createdAt (Fallback)
     if (!createdAtValue) {
-        const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
+        const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES) as { createdAt?: string } | null;
         console.log('🔍 DEBUG: User preferences from localStorage:', userPrefs);
-        createdAtValue = userPrefs?.createdAt;
+        createdAtValue = userPrefs?.createdAt || null;
 
         if (createdAtValue) {
             console.log(
@@ -62,7 +77,7 @@ export function getDaysSinceAccountCreation(currentAccount = null) {
             console.warn('⚠️ CreatedAt date is in the future:', createdAtValue);
             // Use a reasonable fallback date (e.g., 1 day ago)
             const fallbackDate = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 1 day ago
-            const diffTime = Math.abs(now - fallbackDate);
+            const diffTime = Math.abs(now.getTime() - fallbackDate.getTime());
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             console.log('🔧 Using fallback date (1 day ago):', diffDays);
             return diffDays;
@@ -81,7 +96,7 @@ export function getDaysSinceAccountCreation(currentAccount = null) {
             now.getUTCDate()
         ));
         
-        const diffTime = nowUTC - createdAtUTC;
+        const diffTime = nowUTC.getTime() - createdAtUTC.getTime();
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
         console.log('✅ Days since creation calculated:', {
@@ -103,12 +118,15 @@ export function getDaysSinceAccountCreation(currentAccount = null) {
 
 /**
  * Formatiert die Account-Age in einen benutzerfreundlichen String
- * @param {number} days - Anzahl der Tage seit Account-Erstellung
- * @param {object} translations - Übersetzungsobjekt aus accountManager.accountAge
- * @returns {string} Formatierter String (z.B. "Seit heute!", "Seit 7 Tagen!", "Seit 2 Monaten!")
+ * @param days - Anzahl der Tage seit Account-Erstellung
+ * @param translations - Übersetzungsobjekt aus accountManager.accountAge
+ * @returns Formatierter String (z.B. "Seit heute!", "Seit 7 Tagen!", "Seit 2 Monaten!")
  * NOTE: Entfernt "FREE:" Prefix aus Übersetzungen für eingeloggte User
  */
-export function formatAccountAge(days, translations = {}) {
+export function formatAccountAge(
+    days: number,
+    translations: AccountAgeTranslations = {}
+): string {
     // Ensure days is a valid number
     if (typeof days !== 'number' || isNaN(days) || days < 0) {
         console.warn('⚠️ formatAccountAge: Invalid days value, defaulting to 0:', days);
@@ -116,13 +134,13 @@ export function formatAccountAge(days, translations = {}) {
     }
     
     // Helper function to remove "FREE:" or "PRO:" prefix from translations
-    const cleanTranslation = (text) => {
-        if (!text) return text;
+    const cleanTranslation = (text: string | undefined): string => {
+        if (!text) return text || '';
         // Remove common prefixes: "✨ FREE:", "🔥 FREE:", "💎 PRO:", etc.
         return text.replace(/^[✨🔥⚡💪🏆🚀]*\s*(FREE|PRO):\s*/i, '').trim();
     };
     
-    let result;
+    let result: string;
     
     if (days === 0) {
         result = translations?.today || 'Seit heute!';
@@ -138,24 +156,24 @@ export function formatAccountAge(days, translations = {}) {
             // Use fallback format
             baseText = 'Seit {days} Tagen!';
         }
-        result = baseText.replace('{days}', days);
+        result = baseText.replace('{days}', String(days));
     } else if (days < 30) {
         const weeks = Math.floor(days / 7);
         const baseText = translations?.weeks || 'Seit {weeks} Woche{plural}!';
         result = baseText
-            .replace('{weeks}', weeks)
+            .replace('{weeks}', String(weeks))
             .replace('{plural}', weeks > 1 ? 'n' : '');
     } else if (days < 365) {
         const months = Math.floor(days / 30);
         const baseText = translations?.months || 'Seit {months} Monat{plural}!';
         result = baseText
-            .replace('{months}', months)
+            .replace('{months}', String(months))
             .replace('{plural}', months > 1 ? 'en' : '');
     } else {
         const years = Math.floor(days / 365);
         const baseText = translations?.years || 'Seit {years} Jahr{plural}!';
         result = baseText
-            .replace('{years}', years)
+            .replace('{years}', String(years))
             .replace('{plural}', years > 1 ? 'en' : '');
     }
     
@@ -165,22 +183,22 @@ export function formatAccountAge(days, translations = {}) {
 
 /**
  * Gibt den Tier-Badge-Text zurück (NUR Prefix)
- * @param {string} tier - 'free' oder 'pro'
- * @returns {string} Badge-Text (z.B. "✨ FREE", "💎 PRO")
+ * @param tier - 'free' oder 'pro'
+ * @returns Badge-Text (z.B. "✨ FREE", "💎 PRO")
  */
-export function getTierBadgeText(tier = 'free') {
+export function getTierBadgeText(tier: 'free' | 'pro' = 'free'): string {
     return tier === 'pro' ? '💎 PRO' : '✨ FREE';
 }
 
 /**
  * Test-Funktion zum manuellen Setzen des createdAt (nur für Development)
- * @param {number} daysAgo - Wie viele Tage in der Vergangenheit
+ * @param daysAgo - Wie viele Tage in der Vergangenheit
  */
-export function testSetCreatedAt(daysAgo = 0) {
+export function testSetCreatedAt(daysAgo: number = 0): number {
     const testDate = new Date(
         Date.now() - daysAgo * 24 * 60 * 60 * 1000
     ).toISOString();
-    const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
+    const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {}) as { createdAt?: string } | Record<string, unknown>;
     const updatedPrefs = {
         ...userPrefs,
         createdAt: testDate
@@ -193,10 +211,11 @@ export function testSetCreatedAt(daysAgo = 0) {
 
 /**
  * Prüft localStorage und gibt User-Preferences zurück
- * @returns {object|null} User preferences oder null
+ * @returns User preferences oder null
  */
-export function checkLocalStorageForAccount() {
-    const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
+export function checkLocalStorageForAccount(): Record<string, unknown> | null {
+    const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES) as Record<string, unknown> | null;
     console.log('🔍 Current userPrefs in localStorage:', userPrefs);
     return userPrefs;
 }
+

@@ -133,7 +133,7 @@ function initializeApp() {
     displayKeymojiConsoleArt();
 
     // Initialize API cache (cleanup expired entries, load debug tools)
-    import('./utils/apiCache.js').then(module => {
+    import('./utils/apiCache').then(module => {
         module.initializeCache();
         console.log('✅ API cache initialized (prevents 429 errors)');
         if (!isProduction()) {

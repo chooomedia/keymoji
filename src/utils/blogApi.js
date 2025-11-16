@@ -2,7 +2,7 @@
 // Blog API Utilities - Centralized blog data fetching with caching and error handling
 
 import { WEBHOOKS } from '../config/api.js';
-import { cachedFetch } from './apiCache.js';
+import { cachedFetch } from './apiCache';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 import { normalizeSlug, sanitizeSlug } from './slug';
 

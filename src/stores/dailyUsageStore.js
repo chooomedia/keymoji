@@ -19,7 +19,7 @@ import { isDevelopment } from '../utils/environment';
 import {
     cachedFetchAccount,
     invalidateCachePattern
-} from '../utils/apiCache.js';
+} from '../utils/apiCache';
 
 // === STORES ===
 

@@ -19,7 +19,7 @@ import {
     invalidateCachePattern,
     initializeCache,
     clearAllCache
-} from '../utils/apiCache.js';
+} from '../utils/apiCache';
 import { generateClientFingerprint } from '../utils/sharedHelpers';
 
 // Security constants
