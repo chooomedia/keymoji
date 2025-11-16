@@ -2,6 +2,7 @@
 module.exports = {
     content: ['./src/**/*.{html,js,svelte}', './public/index.html'],
     darkMode: 'class',
+    // JIT Mode ist in Tailwind CSS 2.2+ Standard, PurgeCSS ist integriert
     theme: {
         screens: {
             sm: '380px',
@@ -194,6 +195,14 @@ module.exports = {
                 m41: '-41px',
                 m3: '-3px'
             },
+            // Gemeinsame Utility Patterns (DRY Principle)
+            // Diese Patterns werden häufig verwendet und sollten als Utilities definiert werden
+            boxShadow: {
+                'card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                'card-dark': '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',
+                'button': '0 2px 4px rgba(0, 0, 0, 0.1)',
+                'button-hover': '0 4px 8px rgba(0, 0, 0, 0.15)',
+            },
             // Enhanced animations für Apple/Airbnb Style
             animation: {
                 'fade-in': 'fadeIn 0.5s ease-in-out',
@@ -320,9 +329,66 @@ module.exports = {
             }
         }
     },
-    plugins: [require('tailwindcss'), require('autoprefixer')],
+    plugins: [
+        require('tailwindcss'),
+        require('autoprefixer'),
+        // Custom Plugin für gemeinsame Utility Patterns
+        function({ addUtilities, theme }) {
+            const newUtilities = {
+                // Button Base Styles (häufig verwendet)
+                '.btn-base': {
+                    '@apply transition-all transform rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed': {},
+                },
+                '.btn-hover': {
+                    '@apply hover:scale-105 focus:scale-105 active:scale-95 disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100': {},
+                },
+                // Input Base Styles (häufig verwendet)
+                '.input-base': {
+                    '@apply w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light p-4': {},
+                },
+                '.input-focus': {
+                    '@apply focus:ring-1 focus:ring-yellow-50 focus:border-transparent': {},
+                },
+                // Card Base Styles (häufig verwendet)
+                '.card-base': {
+                    '@apply bg-white dark:bg-aubergine-900 rounded-lg shadow-md p-4': {},
+                },
+                // Container Base Styles
+                '.container-base': {
+                    '@apply bg-white dark:bg-aubergine-900 text-black dark:text-powder-50': {},
+                },
+                // Scrollbar Styles (Dark Mode)
+                '.scrollbar-thin': {
+                    'scrollbar-width': 'thin',
+                    'scrollbar-color': theme('colors.gray.400') + ' ' + theme('colors.gray.100'),
+                },
+                '.scrollbar-thin-dark': {
+                    'scrollbar-width': 'thin',
+                    'scrollbar-color': theme('colors.gray.600') + ' ' + theme('colors.aubergine.800'),
+                },
+            };
+            addUtilities(newUtilities);
+        }
+    ],
     future: {
         purgeLayersByDefault: true,
         removeDeprecatedGapUtilities: true
-    }
+    },
+    // Safelist für dynamische Klassen (wird automatisch von Tailwind CSS verwendet)
+    safelist: [
+        'dark',
+        // Dynamische Farb-Klassen (für Runtime-Generierung)
+        {
+            pattern: /^(bg|text|border)-(yellow|green|red|blue|purple|pink|orange|gray|aubergine|creme|powder|light)-(50|100|200|300|400|500|600|700|800|900|950)$/,
+        },
+        // Custom Utilities
+        'btn-base',
+        'btn-hover',
+        'input-base',
+        'input-focus',
+        'card-base',
+        'container-base',
+        'scrollbar-thin',
+        'scrollbar-thin-dark',
+    ]
 };
