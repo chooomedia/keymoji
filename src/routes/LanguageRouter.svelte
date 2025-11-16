@@ -1,24 +1,46 @@
-<!-- src/routes/LanguageRouter.svelte -->
+<!--
+Language router component for handling multi-language routing and route loading.
+Manages dynamic route imports, language detection, and initial app setup.
+Handles route changes, language switching, and session initialization.
+-->
 <script lang="ts">
     import { onMount, untrack } from 'svelte';
     import { fade } from 'svelte/transition';
     import { get } from 'svelte/store';
-    
-    // Import components with explicit variable assignment (Webpack fix)
     import RouterComponent from '../components/Routing/Router.svelte';
     import RouteComponent from '../components/Routing/Route.svelte';
-    
-    // Assign to variables for template use (helps Webpack resolve)
     const Router = RouterComponent;
     const Route = RouteComponent;
     import { navigate } from '../utils/routing';
     import { changeLanguage, currentLanguage } from '../stores/contentStore';
     import { closeModal, isModalVisible } from '../stores/modalStore';
-    import { devLog } from '../utils/environment';
+    import { devLog, isDebugMode } from '../utils/environment';
     import { initializeAccountFromCookies } from '../stores/accountStore';
     import { resetSessionFlags } from '../stores/accountSession';
     import { appVersion } from '../utils/version';
     import { getSupportedLanguageCodes } from '../utils/languages';
+
+    function debugLanguageRouter() {
+        if (!isDebugMode()) return;
+        console.group('🔍 LanguageRouter Debug');
+        console.log('Routes:', {
+            routesLoaded,
+            isLoading,
+            loadingError: loadingError?.message,
+            contentReady,
+            showLoader
+        });
+        console.log('Language:', {
+            currentLanguage: get(currentLanguage),
+            supportedLanguages: getSupportedLanguageCodes()
+        });
+        console.log('Pages:', {
+            hasRootPage: !!RootPage,
+            hasContactPage: !!ContactPage,
+            hasAccountPage: !!AccountPage
+        });
+        console.groupEnd();
+    }
     
     // PERFORMANCE: Lazy Loading für Routes (Code Splitting)
     // Svelte 5 Best Practice: Komponenten-Referenzen die sich ändern (null -> Component) müssen $state() sein
@@ -44,43 +66,26 @@
     // Strategie: RootPage zuerst (kritisch), dann ErrorPage, dann andere Routen parallel
     async function loadRoutes(): Promise<void> {
         if (routesLoaded) {
-            console.log('✅ LanguageRouter: Routes already loaded, skipping');
             return;
         }
         if (isLoading) {
-            console.log('⏳ LanguageRouter: Already loading, skipping duplicate call');
-            return; // Verhindere doppelte Loads
+            return;
         }
-        
         isLoading = true;
         loadingProgress = 'Loading...';
-        console.log('🔄 LanguageRouter: Starting prioritized route loading...');
-        
+        debugLanguageRouter();
         try {
-            // STAGE 1: Kritische Routen zuerst (RootPage + ErrorPage für Fallback)
-            // Diese müssen sofort verfügbar sein für initiales Rendering
             loadingProgress = 'Loading critical routes...';
-            console.log('🚀 LanguageRouter: Stage 1 - Loading critical routes (RootPage, ErrorPage)...');
-            
             const [RootPageModule, ErrorPageModule] = await Promise.all([
                 import('./+page.svelte'),
                 import('./+error.svelte')
             ]);
-            
-            // Sofort zuweisen für schnelles Rendering
             RootPage = RootPageModule.default;
             ErrorPage = ErrorPageModule.default;
-            
-            console.log('✅ LanguageRouter: Critical routes loaded, showing content...');
-            
-            // CRITICAL: Setze routesLoaded sofort nach RootPage, damit Content angezeigt wird
             routesLoaded = true;
             showLoader = false;
             contentReady = true;
-            
-            // STAGE 2: Andere Routen im Hintergrund nachladen (non-blocking)
             loadingProgress = 'Loading additional routes...';
-            console.log('🔄 LanguageRouter: Stage 2 - Loading additional routes in background...');
             
             const importResults = await Promise.allSettled([
                 import('./contact/+page.svelte'),
@@ -104,19 +109,11 @@
             importResults.forEach((result, index) => {
                 if (result.status === 'fulfilled') {
                     modules.push(result.value);
-                    console.log(`✅ ${routeNames[index]} loaded successfully`);
                 } else {
-                    console.warn(`⚠️ Failed to load ${routeNames[index]}:`, result.reason);
-                    // Non-critical routes: Warnung statt Fehler
                     errors.push(`${routeNames[index]}: ${result.reason?.message || String(result.reason)}`);
                     modules.push(null);
                 }
             });
-            
-            // Non-critical routes: Logge Fehler, aber wirf keinen Error
-            if (errors.length > 0) {
-                console.warn(`⚠️ LanguageRouter: ${errors.length} non-critical route(s) failed to load:`, errors);
-            }
             
             const [
                 ContactPageModule,
@@ -127,10 +124,6 @@
                 PrivacyPageModule,
                 LegalPageModule
             ] = modules;
-            
-            console.log('✅ LanguageRouter: Additional routes loaded');
-            
-            // Validiere kritische Routen (RootPage + ErrorPage bereits validiert)
             if (!RootPage) {
                 throw new Error('RootPage missing - critical route failed');
             }
@@ -147,51 +140,20 @@
             if (BlogPostPageModule?.default) BlogPostPage = BlogPostPageModule.default;
             if (PrivacyPageModule?.default) PrivacyPage = PrivacyPageModule.default;
             if (LegalPageModule?.default) LegalPage = LegalPageModule.default;
-            
-            console.log('✅ LanguageRouter: All routes loaded (critical + additional)');
-            
-            // Validiere nur kritische Routen (andere sind optional)
             if (!RootPage || !ErrorPage) {
                 throw new Error('Critical routes failed to load');
             }
-            
             loadingError = null;
             isLoading = false;
             loadingProgress = 'Ready!';
-            
-            console.log('✅ LanguageRouter: All routes loaded successfully');
-            devLog('✅ LanguageRouter: Loaded components:', {
-                RootPage: !!RootPage,
-                ContactPage: !!ContactPage,
-                AccountPage: !!AccountPage,
-                VersionsPage: !!VersionsPage,
-                BlogPage: !!BlogPage,
-                BlogPostPage: !!BlogPostPage,
-                PrivacyPage: !!PrivacyPage,
-                LegalPage: !!LegalPage,
-                ErrorPage: !!ErrorPage
-            });
         } catch (err) {
             const error = err instanceof Error ? err : new Error(String(err));
             loadingError = error;
             isLoading = false;
             loadingProgress = 'Error occurred';
-            
-            console.error('❌ LanguageRouter: Failed to load routes:', error);
-            console.error('❌ LanguageRouter: Error details:', {
-                message: error.message,
-                stack: error.stack,
-                name: error.name
-            });
-            // Set routesLoaded to true anyway to show error page
             routesLoaded = true;
-            
-            // CRITICAL FIX: Auch bei Fehler Loader sofort ausblenden
-            // Timeouts verursachen, dass der Loader zu lange angezeigt wird
             showLoader = false;
             contentReady = true;
-            
-            console.log('✅ LanguageRouter: Error handler - contentReady set to true');
         }
     }
     
@@ -218,92 +180,44 @@
     // Verbesserte Route-Verarbeitung ohne Weiterleitung von Root zu Sprach-URL
     // CRITICAL: Diese Funktion darf NICHT State lesen und schreiben, der sie wieder triggert
     async function handleRouteChange() {
-        console.log('🔄 LanguageRouter: handleRouteChange called');
-        console.log('🔄 LanguageRouter: current path:', window.location.pathname);
-        
-        // Close any open modals when navigating to prevent them from appearing briefly
         if (get(isModalVisible)) {
             closeModal();
         }
-        
-        // Vermeide gleichzeitige Verarbeitung, was zu Race Conditions führen könnte
         if (processingRoute) {
-            console.log('🔄 LanguageRouter: Route processing already in progress, skipping...');
             return;
         }
-        
         const newPath = window.location.pathname;
         const currentLangValue = get(currentLanguage);
-        
-        // Guard: Verhindere doppelte Verarbeitung desselben Pfads
         if (newPath === lastProcessedPath && currentLangValue === lastProcessedLang) {
-            console.log('🔄 LanguageRouter: Path and language unchanged, skipping...');
             return;
         }
-        
         processingRoute = true;
-        
         try {
-            // Extrahiere den aktuellen Pfad (nur lesen, nicht schreiben in State)
             const pathToProcess = newPath;
-            
-            // Überprüfe Login-Status bei jedem Route-Wechsel - nur wenn nötig
             if (!initialRouteProcessed) {
-                console.log('🔐 LanguageRouter: Checking login status...');
-                const loginResult = initializeAccountFromCookies();
-                console.log('🔐 LanguageRouter: Login check result:', loginResult);
+                initializeAccountFromCookies();
             }
-            
-            // Extrahiere Pfadsegmente für die Spracherkennung
             const pathSegments = pathToProcess.split('/').filter(segment => segment !== '');
             const potentialLang = pathSegments[0];
-            console.log('🔄 LanguageRouter: Path segments:', pathSegments);
-            console.log('🔄 LanguageRouter: Potential language:', potentialLang);
-            console.log('🔄 LanguageRouter: Supported languages:', supportedLanguages);
-            
-            // Wenn das erste Segment ein gültiger Sprachcode ist
+            const supportedLanguages = getSupportedLanguageCodes();
             if (potentialLang && supportedLanguages.includes(potentialLang)) {
-                console.log('🔄 LanguageRouter: Valid language found:', potentialLang);
-                // Setze die Sprache basierend auf der URL, wenn sie anders ist
-                // CRITICAL: Nur ändern wenn wirklich anders, um infinite loops zu vermeiden
                 if (potentialLang !== currentLangValue) {
-                    console.log('🔄 LanguageRouter: Language different, changing from', currentLangValue, 'to', potentialLang);
                     await changeLanguage(potentialLang);
-                    // Update tracking nach erfolgreicher Änderung
                     lastProcessedLang = potentialLang;
                 } else {
-                    console.log('🔄 LanguageRouter: Language already set to:', potentialLang);
                     lastProcessedLang = currentLangValue;
                 }
             } else {
-                console.log('🔄 LanguageRouter: No valid language in URL, using current:', currentLangValue);
                 lastProcessedLang = currentLangValue;
             }
-            
-            // Preserve URL parameters for magic link verification
-            const urlParams = new URLSearchParams(window.location.search);
-            const hasMagicLinkParams = urlParams.get('t') || urlParams.get('token') || urlParams.get('e') || urlParams.get('email');
-            
-            if (hasMagicLinkParams) {
-                console.log('🔗 LanguageRouter: Magic link parameters detected, preserving them');
-                console.log('🔗 LanguageRouter: URL params:', window.location.search);
-            }
-            
-            // Update tracking - NUR NACH erfolgreicher Verarbeitung
             currentPath = pathToProcess;
             lastProcessedPath = pathToProcess;
-            
-            // Markiere, dass anfängliche Route verarbeitet wurde
             if (!initialRouteProcessed) {
                 initialRouteProcessed = true;
-                console.log('🔄 LanguageRouter: Initial route processed');
             }
         } catch (error) {
-            console.error('❌ LanguageRouter: Error in route handling:', error);
         } finally {
-            // Freigeben nach Verarbeitung
             processingRoute = false;
-            console.log('🔄 LanguageRouter: Route processing finished');
         }
     }
     
@@ -318,56 +232,30 @@
             // NOTE: localStorage migration runs SYNCHRONOUSLY on appStores.js import
             // This ensures all data is clean BEFORE any store initialization
             
-            // CRITICAL: Reset session flags on every page load (before session restore!)
             resetSessionFlags();
-            console.log('✅ LanguageRouter: Session flags reset for new page load');
-            
-            // PERFORMANCE: Load routes immediately (blocking for first render)
-            // Svelte 5 Best Practice: await für initiales Laden
-            // Der Loading-State reagiert automatisch auf isLoading und routesLoaded
             await loadRoutes();
-            
-            // Validiere, dass Routen geladen wurden
             if (!routesLoaded) {
-                console.warn('⚠️ LanguageRouter: Routes not loaded after await');
                 loadingProgress = 'Retrying...';
-                // Retry nach kurzer Verzögerung
                 setTimeout(() => {
                     if (!routesLoaded && !isLoading) {
-                        loadRoutes().catch(err => {
-                            console.error('❌ LanguageRouter: Retry failed:', err);
-                            // CRITICAL FIX: Auch bei Fehler contentReady sofort setzen
+                        loadRoutes().catch(() => {
                             showLoader = false;
                             contentReady = true;
-                            console.log('✅ LanguageRouter: Retry error handler - contentReady set to true');
                         });
                     }
                 }, 1000);
             }
-            
-            // FALLBACK: Setze contentReady nach Timeout, auch wenn Routen nicht geladen wurden
-            // Verhindert, dass die App für immer im Loading-State bleibt
             setTimeout(() => {
                 if (!contentReady) {
-                    console.warn('⚠️ LanguageRouter: Timeout reached, setting contentReady anyway');
                     showLoader = false;
                     contentReady = true;
                 }
-            }, 10000); // 10 Sekunden Timeout
-            
-            // CRITICAL: Initialize daily usage for ALL users (logged in or guest)
+            }, 10000);
             try {
                 const { initializeDailyUsage } = await import('../stores/dailyUsageStore');
                 await initializeDailyUsage();
-                console.log('✅ LanguageRouter: Daily usage initialized on app start');
-            } catch (error) {
-                console.warn('⚠️ LanguageRouter: Failed to initialize daily usage:', error);
-            }
-            
-            // Initialize account from cookies (session restore)
-            console.log('🔐 LanguageRouter: Starting session restoration...');
+            } catch (error) {}
             const sessionRestored = await initializeAccountFromCookies();
-            console.log('🔐 LanguageRouter: Session restoration result:', sessionRestored);
             
             // SEO-optimierte Initialisierung
             const initialPath = window.location.pathname;
@@ -426,15 +314,9 @@
             // Svelte 5 Best Practice: Store direkt subscriben statt $effect mit $derived
             // CRITICAL: Verhindert infinite loops durch untrack() und direkten Store-Zugriff
             const unsubscribe = currentLanguage.subscribe((lang) => {
-                // untrack verhindert, dass dieser Callback weitere Reaktivität triggert
                 untrack(() => {
-                    // Guard: Nur reagieren wenn wirklich geändert und initialisiert
                     if (initialRouteProcessed && lang && !processingRoute && lang !== lastProcessedLang) {
-                        console.log('🔄 LanguageRouter: Language changed via store subscription:', lang);
-                        // Async in Callback: Verwende Promise ohne await
-                        handleRouteChange().catch(error => {
-                            console.error('❌ LanguageRouter: Error in store subscription route change:', error);
-                        });
+                        handleRouteChange().catch(() => {});
                     }
                 });
             });
