@@ -27,6 +27,7 @@
     import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js';
     import { incrementDailyUsage, initializeDailyUsage } from '../../stores/dailyUsageStore.js';
     import { generateStoryEmojis, getDefaultModel } from '../../utils/storyModeAI.js';
+    import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers.js';
 
     // Props
     export let showEmojiCodes = false;
@@ -251,9 +252,9 @@
     const loadingLane2 = generateMiddleLaneEmojis(8); // More emojis for variety
     const loadingLane3 = generateSlowLaneEmojis(5);
     
-    // Helper-Funktion für sichere setTimeout mit Cleanup
-    function safeSetTimeout(callback, delay) {
-        const timeoutId = setTimeout(() => {
+    // Wrapper für safeSetTimeout mit lokalem Tracking (für onDestroy cleanup)
+    function localSafeSetTimeout(callback, delay) {
+        const timeoutId = safeSetTimeout(() => {
             activeTimeouts.delete(timeoutId);
             callback();
         }, delay);
@@ -326,7 +327,7 @@
       // Subscribe to modal visibility with cleanup tracking
       modalVisibilityUnsubscribe = isModalVisible.subscribe((visible) => {
         if (visible) {
-          safeSetTimeout(() => {
+          localSafeSetTimeout(() => {
             shouldAnimateEmojis = true;
           }, 1000);
         }
@@ -698,7 +699,7 @@
     // State Management Functions
     function temporarilyDisableButton() {
       isDisabled.set(true);
-      safeSetTimeout(() => isDisabled.set(false), DISABLE_DURATION_MS);
+      localSafeSetTimeout(() => isDisabled.set(false), DISABLE_DURATION_MS);
     }
   
     function showDailyLimitModal(message) {

@@ -298,6 +298,31 @@ export function sendAnalyticsEvent(
     return true;
 }
 
+/**
+ * Generate client fingerprint for security (Browser Fingerprinting)
+ * Used for session validation and security logging
+ * @returns {string} Client fingerprint (32 chars)
+ */
+export function generateClientFingerprint() {
+    if (typeof document === 'undefined') {
+        return 'server-side-fingerprint';
+    }
+
+    try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillText('Keymoji Security Fingerprint', 2, 2);
+        
+        return canvas.toDataURL().substring(0, 32);
+    } catch (error) {
+        console.warn('⚠️ Failed to generate client fingerprint:', error);
+        // Fallback fingerprint
+        return `fp_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    }
+}
+
 export default {
     safeSetTimeout,
     clearAllTimeouts,
@@ -312,5 +337,6 @@ export default {
     logError,
     formatDate,
     storageHelper,
-    sendAnalyticsEvent
+    sendAnalyticsEvent,
+    generateClientFingerprint
 };

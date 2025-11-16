@@ -1,5 +1,6 @@
 <script>
   import { onDestroy } from 'svelte';
+  import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers.js';
   
   export let targetId = 'main-content';
   export let label = 'Skip to main content';
@@ -7,9 +8,9 @@
   // Timeout-Tracking für Memory Leak Prevention
   let activeTimeouts = new Set();
   
-  // Helper-Funktion für sichere setTimeout mit Cleanup
-  function safeSetTimeout(callback, delay) {
-    const timeoutId = setTimeout(() => {
+  // Wrapper für safeSetTimeout mit lokalem Tracking (für onDestroy cleanup)
+  function localSafeSetTimeout(callback, delay) {
+    const timeoutId = safeSetTimeout(() => {
       activeTimeouts.delete(timeoutId);
       callback();
     }, delay);
@@ -40,7 +41,7 @@
       // Remove tabindex after focus (if it wasn't there originally)
       if (targetElement.getAttribute('tabindex') === '-1') {
         // Use a timeout to prevent immediate blur
-        safeSetTimeout(() => {
+        localSafeSetTimeout(() => {
           targetElement.removeAttribute('tabindex');
         }, 100);
       }

@@ -20,16 +20,7 @@ import {
 import { dailyLimit } from './appStores.js';
 // Import metadata cleaner to prevent duplicate fields
 import { prepareMetadataForAPI, validateMetadataNoDuplicates } from '../utils/metadataCleaner.js';
-
-// Helper function to generate client fingerprint
-function generateClientFingerprint() {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    ctx.textBaseline = 'top';
-    ctx.font = '14px Arial';
-    ctx.fillText('Keymoji fingerprint', 2, 2);
-    return canvas.toDataURL();
-}
+import { generateClientFingerprint } from '../utils/sharedHelpers.js';
 
 // Store für ungespeicherte Änderungen
 export const pendingChanges = writable({});

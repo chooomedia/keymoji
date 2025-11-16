@@ -20,6 +20,7 @@ import {
     initializeCache,
     clearAllCache
 } from '../utils/apiCache.js';
+import { generateClientFingerprint } from '../utils/sharedHelpers.js';
 
 // Security constants
 const SESSION_TIMEOUT = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -29,17 +30,6 @@ const LOGIN_ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 minutes
 
 // Rate limiting storage
 const LOGIN_ATTEMPTS = new Map();
-
-// Generate client fingerprint for security
-function generateClientFingerprint() {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    ctx.textBaseline = 'top';
-    ctx.font = '14px Arial';
-    ctx.fillText('Keymoji Security Fingerprint', 2, 2);
-
-    return canvas.toDataURL().substring(0, 32);
-}
 
 // Show login success modal for first-time users
 function showLoginSuccessIfFirstLogin(accountInfo) {

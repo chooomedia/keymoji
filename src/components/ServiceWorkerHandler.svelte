@@ -4,13 +4,14 @@
     import { showInfo } from '../stores/modalStore.js';
     import { translations } from '../stores/contentStore.js';
     import { isDebugMode } from '../utils/environment.js';
+    import { safeSetTimeout, clearAllTimeouts } from '../utils/sharedHelpers.js';
 
     // Timeout-Tracking für Memory Leak Prevention
     let activeTimeouts = new Set();
     
-    // Helper-Funktion für sichere setTimeout mit Cleanup
-    function safeSetTimeout(callback, delay) {
-        const timeoutId = setTimeout(() => {
+    // Wrapper für safeSetTimeout mit lokalem Tracking (für onDestroy cleanup)
+    function localSafeSetTimeout(callback, delay) {
+        const timeoutId = safeSetTimeout(() => {
             activeTimeouts.delete(timeoutId);
             callback();
         }, delay);
@@ -50,7 +51,7 @@
                 // We could reload the page here, but it's often better to let the user decide
                 // If a reload hasn't happened within 5 seconds since the controllerchange,
                 // show a notification with a manual reload option
-                safeSetTimeout(() => {
+                localSafeSetTimeout(() => {
                     const refreshPrompt = $translations.serviceWorker?.manualRefreshNeeded || 'Manual refresh needed';
                     
                     showInfo(refreshPrompt, 8000);
