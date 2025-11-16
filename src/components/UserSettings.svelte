@@ -588,23 +588,16 @@ Manages PRO banner, settings persistence, and validation.
                 const dismissedData = JSON.parse(dismissed);
                 const now = Date.now();
                 const timeSinceDismiss = now - dismissedData.dismissedAt;
-                
                 if (timeSinceDismiss < THREE_DAYS_MS) {
-                    console.log('🚫 PRO banner dismissed:', {
-                        daysAgo: Math.floor(timeSinceDismiss / (24 * 60 * 60 * 1000)),
-                        remainingDays: Math.ceil((THREE_DAYS_MS - timeSinceDismiss) / (24 * 60 * 60 * 1000))
-                    });
-                    return true; // Still dismissed
+                    return true;
                 } else {
-                    console.log('✅ PRO banner: 3 days passed, showing again');
                     localStorage.removeItem(PRO_BANNER_KEY);
-                    return false; // Show again
+                    return false;
                 }
             }
-            return false; // Not dismissed yet
+            return false;
         } catch (error) {
-            console.warn('⚠️ Error checking PRO banner state:', error);
-            return false; // Show by default
+            return false;
         }
     }
 
@@ -617,21 +610,14 @@ Manages PRO banner, settings persistence, and validation.
             };
             localStorage.setItem(PRO_BANNER_KEY, JSON.stringify(dismissData));
             showProBanner = false;
-            console.log('✅ PRO banner dismissed for 3 days');
-        } catch (error) {
-            console.error('❌ Failed to dismiss PRO banner:', error);
-        }
+        } catch (error) {}
     }
 
-    // Reset PRO banner (force show again) - called from Header badge
     export function resetProBanner() {
         try {
             localStorage.removeItem(PRO_BANNER_KEY);
             showProBanner = true;
-            console.log('🔄 PRO banner reset and shown again');
-        } catch (error) {
-            console.error('❌ Failed to reset PRO banner:', error);
-        }
+        } catch (error) {}
     }
     
     /**
@@ -658,60 +644,28 @@ Manages PRO banner, settings persistence, and validation.
         // CRITICAL: Try multiple sources for apiKeys
         let apiKeys = getEffectiveValue('storyMode.apiKeys');
         if (!apiKeys || typeof apiKeys !== 'object' || Object.keys(apiKeys).length === 0) {
-            // Fallback to currentSettings
             apiKeys = currentSettings?.storyMode?.apiKeys || {};
-            console.warn('⚠️ [TEST] apiKeys not found in getEffectiveValue, using currentSettings:', {
-                hasApiKeys: !!apiKeys,
-                apiKeysKeys: Object.keys(apiKeys),
-                provider
-            });
         }
-        
         const apiKey = apiKeys[provider];
         const customApiUrl = getEffectiveValue('storyMode.customApiUrl') || currentSettings?.storyMode?.customApiUrl;
         const customEndpoint = getEffectiveValue('storyMode.customEndpoint') || currentSettings?.storyMode?.customEndpoint;
         const customFormat = getEffectiveValue('storyMode.customFormat') || currentSettings?.storyMode?.customFormat;
         const customModel = getEffectiveValue('storyMode.customModel') || currentSettings?.storyMode?.customModel;
         const model = getEffectiveValue('storyMode.model') || currentSettings?.storyMode?.model;
-        
-        // CRITICAL: Enhanced debugging for API key detection
-        console.log('🔍 [TEST] API Key Detection:', {
-                provider, 
-            hasApiKeys: !!apiKeys,
-            apiKeysType: typeof apiKeys,
-            apiKeysKeys: Object.keys(apiKeys || {}),
-                hasApiKey: !!apiKey,
-            apiKeyLength: apiKey?.length || 0,
-            apiKeyPreview: apiKey ? `${apiKey.substring(0, 10)}...` : 'none',
-            currentSettingsHasStoryMode: !!currentSettings?.storyMode,
-            currentSettingsHasApiKeys: !!currentSettings?.storyMode?.apiKeys
-            });
             
             // Validate API key exists for current provider (skip for Apertus as it uses n8n token)
             // For other providers, require minimum length based on provider type
             if (provider !== 'apertus') {
                 const providerInfo = getProviderInfo(provider);
                 if (!providerInfo) {
-                    console.error('❌ [TEST] Provider info not found for:', provider);
                     showWarning(`⚠️ Unbekannter Provider: ${provider}`, 3000);
                     isTestingAPI = false;
                     return;
                 }
-                
                 const minKeyLength = providerInfo.apiKeyPrefix 
-                    ? providerInfo.apiKeyPrefix.length + 10  // Prefix + minimum key length
-                    : 10; // Default minimum
-                
+                    ? providerInfo.apiKeyPrefix.length + 10
+                    : 10;
                 if (!apiKey || apiKey.length < minKeyLength) {
-                    console.error('❌ [TEST] API Key validation failed:', {
-                        provider,
-                        hasApiKey: !!apiKey,
-                        apiKeyLength: apiKey?.length || 0,
-                        minKeyLength,
-                        apiKeyPrefix: providerInfo.apiKeyPrefix,
-                        apiKeysObject: apiKeys,
-                        allApiKeys: Object.keys(apiKeys || {}).map(k => ({ key: k, length: apiKeys[k]?.length || 0 }))
-                    });
                     showWarning(`⚠️ Bitte gib zuerst einen gültigen API-Key für ${providerInfo.name} ein (mindestens ${minKeyLength} Zeichen)`, 3000);
                     isTestingAPI = false;
                     return;
@@ -732,40 +686,13 @@ Manages PRO banner, settings persistence, and validation.
                 model
             };
             
-        // Retry configuration
         const MAX_RETRIES = 3;
-        const RETRY_DELAY_BASE = 500; // Base delay in ms (exponential backoff: 500ms, 1000ms, 2000ms)
+        const RETRY_DELAY_BASE = 500;
         let lastError = null;
         let attempt = 0;
-        
-        // DEV: Log initial test attempt
-        console.log('🧪 [TEST] Starting API connection test with retry logic:', {
-            provider,
-            hasApiKey: !!apiKey,
-            customApiUrl,
-            maxRetries: MAX_RETRIES,
-            retryDelayBase: RETRY_DELAY_BASE
-        });
-        
-        // Retry loop: Attempt up to MAX_RETRIES times
         for (attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-                // DEV: Log attempt (silent for user)
-                if (attempt > 1) {
-                    console.log(`🔄 [TEST] Retry attempt ${attempt}/${MAX_RETRIES} (silent)`);
-                } else {
-                    console.log(`📤 [TEST] Attempt ${attempt}/${MAX_RETRIES}: Sending test request`, testConfig);
-                }
-            
-            // Call test function
-            const result = await testAIProvider(testConfig);
-            
-                // DEV: Log result (silent for user during retries)
-                if (attempt > 1) {
-                    console.log(`📥 [TEST] Retry ${attempt} result received (silent)`);
-                } else {
-                    console.log('📥 [TEST] Received test result:', result);
-                }
+                const result = await testAIProvider(testConfig);
             
             // Validate result: success must be true AND response must not be empty
             if (result.success) {
@@ -778,30 +705,19 @@ Manages PRO banner, settings persistence, and validation.
                     );
                 }
 
-                    // ✅ SUCCESS: Mark test as successful
                 apiTestSuccess = true;
                 testedProvider = provider;
-                    
-                    // DEV: Log success with attempt info
-                    console.log(`✅ [TEST] API test successful on attempt ${attempt}/${MAX_RETRIES}, provider verified:`, provider);
-                
-                // Save verification status to settings (persistent storage)
                 const currentSettings = getCurrentUserSettings();
                 const storyMode = currentSettings?.storyMode || {};
                 const verifiedProviders = storyMode.verifiedProviders || {};
-                
-                // Update verified providers with test result
                 verifiedProviders[provider] = {
                     verifiedAt: new Date().toISOString(),
                     model: result.model || getEffectiveValue('storyMode.model') || '',
                     lastTest: new Date().toISOString(),
-                        success: true,
-                        attempts: attempt // Track how many attempts were needed
+                    success: true,
+                    attempts: attempt
                 };
-                
-                // Save to settings (will be persisted on next save)
                 updateSetting('storyMode.verifiedProviders', verifiedProviders);
-                    console.log('💾 [TEST] Verification status saved for provider:', provider, verifiedProviders[provider]);
                 
                     // Show success message to user (only after successful test)
                 const providerInfo = getProviderInfo(provider);
@@ -821,9 +737,6 @@ Manages PRO banner, settings persistence, and validation.
                           `Response: ${responsePreview}${responsePreview.length >= 50 ? '...' : ''}`;
                     
                     showSuccess(successMessage, 5000);
-                    console.log('✅ [TEST] API test successful:', result);
-                    
-                    // Exit retry loop on success
                     isTestingAPI = false;
                     return;
             } else {
@@ -832,52 +745,15 @@ Manages PRO banner, settings persistence, and validation.
             }
             
         } catch (error) {
-                // Store error for potential user message (only after all retries fail)
                 lastError = error;
-                
-                // DEV: Log error attempt (silent for user during retries)
-                console.error(`❌ [TEST] Attempt ${attempt}/${MAX_RETRIES} failed (silent):`, {
-                    error: error.message,
-                    errorStack: error.stack,
-                    errorName: error.name,
-                    provider,
-                    attempt,
-                    willRetry: attempt < MAX_RETRIES,
-                    testConfig: {
-                        provider: testConfig.provider,
-                        hasApiKey: !!testConfig.apiKey,
-                        apiKeyLength: testConfig.apiKey?.length || 0,
-                        customApiUrl: testConfig.customApiUrl
-                    }
-                });
-                
-                // If this is not the last attempt, wait before retrying (exponential backoff)
                 if (attempt < MAX_RETRIES) {
-                    const retryDelay = RETRY_DELAY_BASE * Math.pow(2, attempt - 1); // 500ms, 1000ms, 2000ms
-                    console.log(`⏳ [TEST] Waiting ${retryDelay}ms before retry ${attempt + 1}/${MAX_RETRIES} (silent)`);
+                    const retryDelay = RETRY_DELAY_BASE * Math.pow(2, attempt - 1);
                     await new Promise(resolve => setTimeout(resolve, retryDelay));
                 }
             }
         }
-        
-        // ❌ ALL RETRIES FAILED: Show user-friendly error message
-        // Mark test as failed
-            apiTestSuccess = false;
-            testedProvider = null;
-            
-        // DEV: Log final failure with all details
-        console.error('❌ [TEST] All retry attempts failed:', {
-            provider,
-            totalAttempts: MAX_RETRIES,
-            finalError: lastError?.message,
-            errorStack: lastError?.stack,
-            testConfig: {
-                provider: testConfig.provider,
-                hasApiKey: !!testConfig.apiKey,
-                customApiUrl: testConfig.customApiUrl,
-                customEndpoint: testConfig.customEndpoint
-            }
-        });
+        apiTestSuccess = false;
+        testedProvider = null;
         
         // USER: Show short, user-friendly error message
         const errorMessage = lastError?.message || 'Unbekannter Fehler';
@@ -913,56 +789,31 @@ Manages PRO banner, settings persistence, and validation.
     }
 
     onMount(async () => {
-        console.log('🔄 UserSettings: Component mounting...');
+        debugUserSettings();
         await loadSettingsConfig();
-        console.log('✅ UserSettings: Component mounted with config:', settingsConfig);
-
-        // Check PRO banner dismissed state
         const isDismissed = checkProBannerDismissed();
         showProBanner = !isDismissed;
-
-        // Initialize settings from account and API
         const { initializeSettingsForUser } = await import('../stores/userSettingsStore');
         await initializeSettingsForUser();
-        console.log('✅ UserSettings: Settings initialized for user');
-        
-        // Mark settings as initialized BEFORE loading verification status
         settingsInitialized = true;
-        
-        // REMOVED: setTimeout delay - Race Condition behoben
-        // Stores werden jetzt synchron aktualisiert, kein Delay nötig
-        
-        // Load and restore verification status from settings (now safe to call)
         loadVerificationStatus();
-        
-        // 🔄 MIGRATION: Old apiKey → new apiKeys structure
         const currentSettings = getCurrentUserSettings();
         const storyMode = currentSettings?.storyMode || {};
-        const oldApiKey = storyMode.apiKey; // Old singular key
+        const oldApiKey = storyMode.apiKey;
         const apiKeys = storyMode.apiKeys || {};
         const currentProvider = storyMode.provider || 'openai';
-        
-        // If old apiKey exists but not in new apiKeys structure, migrate it
         if (oldApiKey && oldApiKey.length > 10 && !apiKeys[currentProvider]) {
-            console.log('🔄 Migrating old apiKey to new apiKeys structure...');
             const newApiKeys = {
                 ...apiKeys,
                 [currentProvider]: oldApiKey
             };
-            
-            // Update settings
             handleSettingUpdate('storyMode.apiKeys', newApiKeys);
-            
-            // Remove old apiKey field (no longer used)
             const updatedStoryMode = {
                 ...storyMode,
                 apiKeys: newApiKeys
             };
-            delete updatedStoryMode.apiKey; // Remove old field
-            
-            // Save immediately
+            delete updatedStoryMode.apiKey;
             await saveAllSettings();
-            console.log('✅ Migration complete! Old apiKey moved to apiKeys[' + currentProvider + ']');
         }
         
         // Load UI state from userSettings
@@ -973,12 +824,9 @@ Manages PRO banner, settings persistence, and validation.
             if (uiState.expandedSections.length > 0) {
                 activeSection = uiState.expandedSections[0];
             }
-            console.log('✅ UI State loaded from settings:', uiState, 'activeSection:', activeSection);
         } else {
-            // Default: basic section open
             uiState = { expandedSections: ['basic'] };
             activeSection = 'basic';
-            console.log('ℹ️ Using default UI state (basic section open)');
         }
 
         // Add beforeunload event listener for page leave confirmation
@@ -1474,7 +1322,6 @@ Manages PRO banner, settings persistence, and validation.
                                                     oninput={(e) => {
                                                         const newValue = parseFloat(e.target.value);
                                                         if (!isNaN(newValue) && newValue >= 0 && newValue <= 1) {
-                                                            console.log('🌡️ Temperature slider changed:', newValue);
                                                             handleSettingUpdate(item.id, newValue);
                                                         }
                                                     }}
