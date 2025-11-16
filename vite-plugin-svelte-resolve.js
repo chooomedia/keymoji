@@ -31,7 +31,7 @@ function svelteResolvePrePlugin() {
         enforce: 'pre',
         buildStart() {
             console.log(
-                '[svelte-resolve] ✅ Plugin geladen (svelte/store Resolution aktiv)'
+                '[svelte-resolve] ✅ Plugin geladen (svelte/internal Resolution aktiv)'
             );
             resolvedModules.clear();
         },
