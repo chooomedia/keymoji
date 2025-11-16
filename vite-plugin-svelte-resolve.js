@@ -479,7 +479,26 @@ function svelteResolveTransformPlugin() {
                     return resolved;
                 }
             }
-            // HINWEIS: svelte/store wird NICHT hier aufgelöst - Vite macht das automatisch korrekt
+            // FALLBACK: svelte/store Resolution (nur wenn Vite es nicht auflösen kann)
+            if (
+                normalizedId === 'svelte/store' ||
+                normalizedId.startsWith('svelte/store/')
+            ) {
+                const resolved = path.resolve(
+                    __dirname,
+                    'node_modules/svelte/src/store/index-client.js'
+                );
+                if (fs.existsSync(resolved)) {
+                    console.log(
+                        `[svelte-resolve-transform] ✅ resolveId (fallback): ${normalizedId} → ${resolved
+                            .split('/')
+                            .pop()} from ${
+                            importer ? importer.split('/').pop() : 'unknown'
+                        }`
+                    );
+                    return resolved;
+                }
+            }
             return undefined;
         },
         transform(code, id) {
