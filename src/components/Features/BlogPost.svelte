@@ -1,3 +1,8 @@
+<!--
+Blog post component for displaying individual blog posts with content and metadata.
+Handles post fetching, liking functionality, navigation, and SEO structured data.
+Manages loading states, error handling, and post transitions.
+-->
 <script lang="ts">
     import { currentLanguage, showShareMenu, translations } from '../../stores/contentStore';
     import { onMount } from 'svelte';
@@ -18,6 +23,21 @@
     import { generateBlogPostStructuredData, formatCanonicalUrl, injectStructuredData } from '../../utils/seo';
     import BlogPostSkeleton from './BlogPostSkeleton.svelte';
     import { navigateToBlogPost } from '../../utils/blogNavigation';
+    import { isDebugMode } from '../../utils/environment';
+
+    function debugBlogPost() {
+        if (!isDebugMode()) return;
+        console.group('🔍 BlogPost Debug');
+        console.log('State:', {
+            slug,
+            loading,
+            hasPost: !!post,
+            error,
+            isLiking,
+            showHeartAnimation
+        });
+        console.groupEnd();
+    }
   
     interface Props {
         slug: string;
@@ -59,6 +79,7 @@
     }
   
     onMount(() => {
+        debugBlogPost();
         isMounted = true;
         loadPost();
     });
@@ -135,12 +156,8 @@
           const structuredData = generateBlogPostStructuredData(post, currentLanguage, canonicalUrl);
           injectStructuredData(structuredData);
         } else {
-          // Post nicht gefunden - 404
           post = null;
-          error = postNotFoundText; // Verwende übersetzten Text
-          console.warn('⚠️ [BlogPost] Post not found with slug:', slug);
-          
-          // Update SEO for 404 page
+          error = postNotFoundText;
           updateSeo({
             title: postNotFoundText,
             description: postNotFoundText,
@@ -150,9 +167,8 @@
           });
         }
       } catch (err) {
-        console.error('❌ [BlogPost] Error fetching post:', err);
         post = null;
-        error = err.message || postNotFoundText; // Verwende übersetzten Text als Fallback
+        error = err.message || postNotFoundText;
       } finally {
         loading = false;
       }
@@ -173,9 +189,7 @@
         
         const currentLikes = post.likes || 0;
         
-        // KEIN TOGGLE: Nur Like wenn likes === 0
         if (currentLikes > 0) {
-            console.log('⚠️ [BlogPost] Post already liked (likes > 0), skipping');
             return;
         }
         
@@ -227,13 +241,8 @@
                 }, 2000);
             }
         } catch (error) {
-            console.error('❌ [BlogPost] Error liking post:', error);
             isLiking = false;
-            
-            // Fehler: Rotes X
             likeStatus = 'error';
-            
-            // Clear error status after animation
             setTimeout(() => {
                 likeStatus = null;
             }, 2000);
@@ -254,11 +263,8 @@
             ...post,
             likes: updatedPost.likes
           };
-          console.log('✅ [BlogPost] Likes refreshed from backend:', updatedPost.likes);
         }
-      } catch (error) {
-        console.warn('⚠️ [BlogPost] Error refreshing likes:', error);
-      }
+      } catch (error) {}
     }
 </script>
   

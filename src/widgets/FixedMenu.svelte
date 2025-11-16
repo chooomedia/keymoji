@@ -1,3 +1,8 @@
+<!--
+Fixed menu widget component for navigation and donation options.
+Handles menu toggle, theme synchronization, and localStorage management.
+Manages modal display and account initialization.
+-->
 <script lang="ts">
   import { slide } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
@@ -21,7 +26,18 @@
   } from '../assets/shapes';
   import { navigateToContact } from '../utils/navigation';
   import { storageHelpers, STORAGE_KEYS } from '../config/storage';
-  import { isDevelopment } from '../utils/environment';
+  import { isDevelopment, isDebugMode } from '../utils/environment';
+
+  function debugFixedMenu() {
+    if (!isDebugMode()) return;
+    console.group('🔍 FixedMenu Debug');
+    console.log('State:', {
+      showMenu,
+      showDonateMenuValue: get(showDonateMenu),
+      darkMode: get(darkMode)
+    });
+    console.groupEnd();
+  }
 
   const dispatch = createEventDispatcher();
 
@@ -65,7 +81,7 @@
 
   // Click-Outside Handler - consistent with LanguageSwitcher
   onMount(() => {
-    // Initialize account from cookies
+    debugFixedMenu();
     initializeAccountFromCookies();
     
     // Click-outside handler - consistent with LanguageSwitcher and BlogGrid
@@ -150,19 +166,13 @@
       }
     }
     
-    // CRITICAL: Sync with userSettings store
     try {
       const { updateSetting, userSettings: userSettingsStore } = await import('../stores/userSettingsStore.ts');
-      
-      // Update userSettings.theme to stay in sync
       const currentSettings = userSettingsStore;
       if (currentSettings.theme !== newTheme) {
         updateSetting('theme', newTheme);
-        console.log('✅ userSettings.theme synced:', newTheme);
       }
-    } catch (error) {
-      console.warn('⚠️ Failed to sync userSettings theme:', error);
-    }
+    } catch (error) {}
   }
 
   function toggleMenu(menuType, event) {
@@ -212,7 +222,6 @@
     const confirmed = confirm('⚠️ Clear ALL localStorage data? This cannot be undone!');
     if (confirmed) {
       storageHelpers.clearAll();
-      console.log('✅ localStorage cleared! Reloading page...');
       window.location.reload();
     }
   }
