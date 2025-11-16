@@ -1,4 +1,8 @@
-<!-- src/routes/VersionHistory.svelte -->
+<!--
+Version history page component displaying changelog and release timeline.
+Handles version accordion state, timeline height calculation, and SEO updates.
+Manages scroll behavior and version expansion.
+-->
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { fly, slide } from 'svelte/transition';
@@ -9,6 +13,19 @@
     import { navigate } from '../utils/routing';
     import PageLayoutComponent from '../components/Layout/PageLayout.svelte';
     import { versionInfo, appVersion } from '../utils/version';
+    import { isDebugMode } from '../utils/environment';
+
+    function debugVersionHistory() {
+        if (!isDebugMode()) return;
+        console.group('🔍 VersionHistory Debug');
+        console.log('State:', {
+            currentVersion,
+            expandedVersion,
+            timelineHeight,
+            versionItemsCount: versionItems.length
+        });
+        console.groupEnd();
+    }
 
     // Svelte 5 / Webpack: stabile Komponenten-Referenz
     const PageLayout = PageLayoutComponent;
@@ -89,7 +106,7 @@
     }
 
     onMount(() => {
-        // Update SEO settings for this page
+        debugVersionHistory();
         updateSeo({
             title: pageTitle,
             description: pageDescription,
@@ -267,18 +284,10 @@
         <div class="w-full mt-12 text-center">
             <button
                 onclick={() => {
-                    console.log('🔝 Scrolling to top...');
-                    
-                    // ROBUST SCROLL - Try ALL methods immediately
                     try {
-                        // Method 1: window.scrollTo (most reliable)
                         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-                        
-                        // Method 2: document elements (immediate)
                         document.documentElement.scrollTop = 0;
                         document.body.scrollTop = 0;
-                        
-                        // Method 3: All scrollable containers
                         const scrollableElements = [
                             document.querySelector('.app-container'),
                             document.querySelector('.main-content'),
@@ -286,18 +295,13 @@
                             document.querySelector('.wrapper'),
                             document.querySelector('[class*="scroll"]')
                         ];
-                        
                         scrollableElements.forEach(el => {
                             if (el) {
                                 el.scrollTop = 0;
                                 el.scrollTo?.({ top: 0, behavior: 'smooth' });
                             }
                         });
-                        
-                        console.log('✅ Scroll to top triggered');
-                    } catch (error) {
-                        console.error('❌ Scroll error:', error);
-                    }
+                    } catch (error) {}
                 }}
                 class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-yellow-500 text-black dark:bg-aubergine-900 dark:text-white rounded-full font-medium shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                 aria-label="Back to top"

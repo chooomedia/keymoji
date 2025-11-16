@@ -1,6 +1,8 @@
-<!-- src/routes/StaticPage.svelte -->
-<!-- Generische Komponente für statische Seiten mit Slug-Support -->
-<!-- Data-Driven Architecture: Content (JSON) + Presentation (Component) -->
+<!--
+Static page component for rendering privacy and legal pages.
+Handles dynamic content loading based on slug and language.
+Manages page sections and formatting.
+-->
 <script lang="ts">
     import { onMount } from 'svelte';
     import { currentLanguage, translations } from '../stores/contentStore';
@@ -10,6 +12,19 @@
     import { navigateToHome } from '../utils/navigation';
     import { appVersion } from '../utils/version';
     import { get } from 'svelte/store';
+    import { isDebugMode } from '../utils/environment';
+
+    function debugStaticPage() {
+        if (!isDebugMode()) return;
+        console.group('🔍 StaticPage Debug');
+        console.log('State:', {
+            slug,
+            loading,
+            hasPageData: !!pageData,
+            language: get(currentLanguage)
+        });
+        console.groupEnd();
+    }
     
     // Props (Svelte 5 Runes)
     interface Props {
@@ -116,18 +131,10 @@
             <div class="w-full mt-12 text-center">
             <button
                 onclick={() => {
-                    console.log('🔝 Scrolling to top...');
-                    
-                    // ROBUST SCROLL - Try ALL methods immediately
                     try {
-                        // Method 1: window.scrollTo (most reliable)
                         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-                        
-                        // Method 2: document elements (immediate)
                         document.documentElement.scrollTop = 0;
                         document.body.scrollTop = 0;
-                        
-                        // Method 3: All scrollable containers
                         const scrollableElements = [
                             document.querySelector('.app-container'),
                             document.querySelector('.main-content'),
@@ -135,18 +142,13 @@
                             document.querySelector('.wrapper'),
                             document.querySelector('[class*="scroll"]')
                         ];
-                        
                         scrollableElements.forEach(el => {
                             if (el) {
                                 el.scrollTop = 0;
                                 el.scrollTo?.({ top: 0, behavior: 'smooth' });
                             }
                         });
-                        
-                        console.log('✅ Scroll to top triggered');
-                    } catch (error) {
-                        console.error('❌ Scroll error:', error);
-                    }
+                    } catch (error) {}
                 }}
                 class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-yellow-500 text-black dark:bg-aubergine-900 dark:text-white rounded-full font-medium shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                 aria-label="Back to top"

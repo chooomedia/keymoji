@@ -1,4 +1,8 @@
-<!-- src/routes/NotFound.svelte -->
+<!--
+404 not found page component displaying error message and navigation options.
+Handles recent emojis display, emoji masking, and page navigation.
+Manages emoji slider and auto-scroll functionality.
+-->
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { fade, fly, scale } from 'svelte/transition';
@@ -8,6 +12,18 @@
     import { STORAGE_KEYS, storageHelpers } from '../config/storage';
     import { navigateToRoute, navigateToHome } from '../utils/navigation';
     import FeatureCardComponent from '../components/Features/FeatureCard.svelte';
+    import { isDebugMode } from '../utils/environment';
+
+    function debugNotFound() {
+        if (!isDebugMode()) return;
+        console.group('🔍 NotFound Debug');
+        console.log('State:', {
+            recentEmojisCount: recentEmojis.length,
+            isDragging,
+            currentIndex
+        });
+        console.groupEnd();
+    }
     
     // Svelte 5 / Webpack: stabile Komponenten-Referenzen
     const PageLayout = PageLayoutComponent;
@@ -74,26 +90,15 @@
     
     function loadRecentEmojis() {
         const stored = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
-        console.log('📋 404 loadRecentEmojis:', { count: stored.length, sample: stored.slice(0, 2) });
         if (!Array.isArray(stored) || stored.length === 0) {
             recentEmojis = [];
             return;
         }
-        
-        // CRITICAL: ALWAYS mask emojis (force migration)
         const masked = stored.map(emoji => maskEmojis(emoji)).filter(Boolean);
-        console.log('🎭 Masked emojis:', { sample: masked.slice(0, 2) });
-        
-        // Check if migration was needed
         const needsMigration = masked.some((emoji, i) => emoji !== stored[i]);
-        console.log('🔄 Migration needed:', needsMigration);
-        
         if (needsMigration) {
-            console.log('✅ Migrating unmasked emojis on 404 page');
             storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, masked);
         }
-        
-        // Limit to 10
         recentEmojis = masked.slice(0, 10);
     }
     
@@ -272,10 +277,8 @@
     }
     
     onMount(() => {
-        // Load recent emojis
+        debugNotFound();
         loadRecentEmojis();
-        
-        // Start auto-sliding after a delay
         setTimeout(() => startAutoSlide(), 2000);
     });
     
