@@ -1,12 +1,23 @@
-// src/utils/demoChartData.js
+// src/utils/demoChartData.ts
 // Static Demo Dataset for SVG Chart (when no real data available)
 // This is FIXED data (not random!) for consistent UX
+//
+// TypeScript Migration: v0.7.7
+
+/**
+ * Usage History Entry Interface
+ */
+export interface UsageHistoryEntry {
+    date: string;
+    used: number;
+    limit: number;
+}
 
 /**
  * Static demo dataset - shows what the chart looks like with data
  * This is ALWAYS the same (not random!) for predictable UX
  */
-export const DEMO_USAGE_HISTORY = [
+export const DEMO_USAGE_HISTORY: UsageHistoryEntry[] = [
     // Last 7 days - moderate usage pattern
     { date: '2025-10-10', used: 6, limit: 9 },
     { date: '2025-10-09', used: 7, limit: 9 },
@@ -20,7 +31,7 @@ export const DEMO_USAGE_HISTORY = [
 /**
  * Extended demo dataset (4 weeks) - for time period selector
  */
-export const DEMO_USAGE_HISTORY_4W = [
+export const DEMO_USAGE_HISTORY_4W: UsageHistoryEntry[] = [
     ...DEMO_USAGE_HISTORY,
     { date: '2025-10-03', used: 6, limit: 9 },
     { date: '2025-10-02', used: 5, limit: 9 },
@@ -47,8 +58,10 @@ export const DEMO_USAGE_HISTORY_4W = [
 
 /**
  * Check if usage history is demo data (not real from backend)
+ * @param history - Usage history array to check
+ * @returns True if history matches demo data
  */
-export function isDemoData(history) {
+export function isDemoData(history: UsageHistoryEntry[] | null | undefined): boolean {
     if (!history || !Array.isArray(history) || history.length === 0) {
         return false;
     }
@@ -65,9 +78,16 @@ export function isDemoData(history) {
 }
 
 /**
- * Get appropriate demo dataset based on selected period
+ * Time Period Type
  */
-export function getDemoDataForPeriod(period = '7d') {
+export type TimePeriod = '7d' | '14d' | '4w' | '3m';
+
+/**
+ * Get appropriate demo dataset based on selected period
+ * @param period - Time period ('7d', '14d', '4w', '3m')
+ * @returns Demo dataset for the selected period
+ */
+export function getDemoDataForPeriod(period: TimePeriod = '7d'): UsageHistoryEntry[] {
     switch (period) {
         case '7d':
             return DEMO_USAGE_HISTORY.slice(0, 7);
@@ -80,3 +100,4 @@ export function getDemoDataForPeriod(period = '7d') {
             return DEMO_USAGE_HISTORY;
     }
 }
+

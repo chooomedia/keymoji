@@ -4,28 +4,30 @@
  * @description Efficiently loads and caches JSON content files for better performance.
  * Provides a centralized way to manage content loading with caching and error handling.
  *
+ * TypeScript Migration: v0.7.7
+ *
  * @example
- * import { loadContent } from '../utils/contentLoader.js';
+ * import { loadContent } from '../utils/contentLoader';
  *
  * const settingsConfig = await loadContent('userSettings.json');
  * const translations = await loadContent('translations.json');
  */
 
 // Cache for loaded content
-const contentCache = new Map();
+const contentCache = new Map<string, unknown>();
 
 /**
  * Load content from a JSON file with caching
  *
- * @param {string} filename - The filename to load (relative to /src/content/)
- * @param {boolean} useCache - Whether to use cached version (default: true)
- * @returns {Promise<Object>} The loaded content
+ * @param filename - The filename to load (relative to /src/content/)
+ * @param useCache - Whether to use cached version (default: true)
+ * @returns Promise with the loaded content
  *
  * @example
  * const settings = await loadContent('userSettings.json');
  * const freshSettings = await loadContent('userSettings.json', false); // Skip cache
  */
-export async function loadContent(filename, useCache = true) {
+export async function loadContent(filename: string, useCache: boolean = true): Promise<unknown> {
     const cacheKey = filename;
 
     // Return cached version if available and cache is enabled
@@ -59,13 +61,13 @@ export async function loadContent(filename, useCache = true) {
 /**
  * Clear the content cache
  *
- * @param {string} filename - Optional filename to clear specific cache entry
+ * @param filename - Optional filename to clear specific cache entry
  *
  * @example
  * clearContentCache(); // Clear all cache
  * clearContentCache('userSettings.json'); // Clear specific file cache
  */
-export function clearContentCache(filename = null) {
+export function clearContentCache(filename: string | null = null): void {
     if (filename) {
         contentCache.delete(filename);
     } else {
@@ -76,8 +78,8 @@ export function clearContentCache(filename = null) {
 /**
  * Get cached content without loading from server
  *
- * @param {string} filename - The filename to get from cache
- * @returns {Object|null} The cached content or null if not cached
+ * @param filename - The filename to get from cache
+ * @returns The cached content or null if not cached
  *
  * @example
  * const cachedSettings = getCachedContent('userSettings.json');
@@ -85,28 +87,28 @@ export function clearContentCache(filename = null) {
  *     // Use cached version
  * }
  */
-export function getCachedContent(filename) {
+export function getCachedContent(filename: string): unknown | null {
     return contentCache.get(filename) || null;
 }
 
 /**
  * Preload multiple content files
  *
- * @param {string[]} filenames - Array of filenames to preload
- * @returns {Promise<Object>} Object with loaded content keyed by filename
+ * @param filenames - Array of filenames to preload
+ * @returns Promise with object containing loaded content keyed by filename
  *
  * @example
  * const content = await preloadContent(['userSettings.json', 'translations.json']);
  * const settings = content['userSettings.json'];
- * const translations = content['translations.json'];
  */
-export async function preloadContent(filenames) {
-    const content = {};
+export async function preloadContent(filenames: string[]): Promise<Record<string, unknown>> {
+    const content: Record<string, unknown> = {};
 
     await Promise.all(
         filenames.map(async filename => {
             try {
-                content[filename] = await loadContent(filename);
+                const data = await loadContent(filename);
+                content[filename] = data;
             } catch (error) {
                 console.error(`Failed to preload ${filename}:`, error);
                 content[filename] = null;
@@ -120,14 +122,15 @@ export async function preloadContent(filenames) {
 /**
  * Check if content is cached
  *
- * @param {string} filename - The filename to check
- * @returns {boolean} Whether the content is cached
+ * @param filename - The filename to check
+ * @returns Whether the content is cached
  *
  * @example
  * if (isContentCached('userSettings.json')) {
  *     // Content is available immediately
  * }
  */
-export function isContentCached(filename) {
+export function isContentCached(filename: string): boolean {
     return contentCache.has(filename);
 }
+
