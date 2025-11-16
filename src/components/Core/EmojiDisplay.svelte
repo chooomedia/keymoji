@@ -64,7 +64,6 @@ Manages state for emoji generation, story input, and UI animations.
         console.groupEnd();
     }
 
-    // Props
     interface Props {
         showEmojiCodes?: boolean;
     }
@@ -73,25 +72,17 @@ Manages state for emoji generation, story input, and UI animations.
         showEmojiCodes = false
     }: Props = $props();
 
-    // State
     let storyInput = $state('');
     let randomEmojis = $state<string[]>([]);
-    let emojiCount = $state(9); // Updated: Default 9 emojis for FREE users
+    let emojiCount = $state(9);
     let showTextArea = $state(false);
-    
-    // Button animation state
     let swissButtonHover = $state(false);
     let swissButtonClick = $state(false);
     let yellowButtonHover = $state(false);
     let yellowButtonClick = $state(false);
-  
-    // Runes-kompatible Übersetzungen
     const t = $derived(get(translations));
-  
-    // Story Mode - Persistent text input
     const STORY_INPUT_KEY = 'keymoji_story_input';
   
-    // Load last story input from localStorage
     if (typeof window !== 'undefined') {
         const savedInput = localStorage.getItem(STORY_INPUT_KEY);
         if (savedInput) {
@@ -99,7 +90,6 @@ Manages state for emoji generation, story input, and UI animations.
         }
     }
   
-    // Save story input to localStorage on every change (reactive)
     $effect(() => {
         if (typeof window !== 'undefined') {
             if (storyInput && storyInput.trim()) {
@@ -112,62 +102,32 @@ Manages state for emoji generation, story input, and UI animations.
     let shouldAnimateEmojis = $state(false);
     let isStoryMode = $state(false);
     let initialRenderComplete = $state(false);
-  
-    // Story Mode Settings (reactive)
     let storyModeEnabled = $state(false);
-    let storyModeConfigured = $state(false); // Has API key
-  
-    // Story Mode Loading State
+    let storyModeConfigured = $state(false);
     let isGeneratingStory = $state(false);
-  
-    // Character Validation Constants (for Story Mode)
     const MAX_CHARS = 400;
     const MIN_CHARS = 10;
-  
-    // Reactive Character Validation
     let currentLength = $derived(storyInput?.length || 0);
     let remaining = $derived(MAX_CHARS - currentLength);
     let isOverLimit = $derived(currentLength > MAX_CHARS);
     let isUnderLimit = $derived(currentLength > 0 && currentLength < MIN_CHARS);
     let isValidLength = $derived(currentLength >= MIN_CHARS && currentLength <= MAX_CHARS);
     let canGenerate = $derived(isValidLength && storyInput.trim().length >= MIN_CHARS);
-  
-    // Temperature for Story Mode (0.0-1.0 range)
-    let storyTemperature = $state(0); // Default: start at 0 (Precise)
-    let temperatureInitialized = $state(false); // Prevent override after user adjustment
-    
-    // Model display variables
-    let displayModel = $state('Model'); // Initialize with default
-    // CRITICAL: displayModelShort should be $derived() to prevent infinite loops
+    let storyTemperature = $state(0);
+    let temperatureInitialized = $state(false);
+    let displayModel = $state('Model');
     let displayModelShort = $derived(getShortModelName(displayModel));
     
-    // Get short model name for chip display (max 12 chars, smart truncation)
-    // Must be defined before $effect() that uses it
     function getShortModelName(modelName: string): string {
         if (!modelName) return 'Model';
-        
-        // If already short enough, return as-is
         if (modelName.length <= 12) return modelName;
-        
-        // Smart truncation: try to preserve meaningful parts
-        // Examples: "apertus-8b-instruct-2509" -> "Apertus", "GPT-3.5-turbo" -> "GPT-3.5-tur"
-        
-        // Try to get first word or meaningful prefix
         const parts = modelName.split(/[-_\s]/);
-        
-        // If first part is good length and capitalized, use it
         if (parts[0] && parts[0].length <= 12 && parts[0][0] === parts[0][0].toUpperCase()) {
             return parts[0];
         }
-        
-        // Otherwise, truncate to 12 chars
         return modelName.substring(0, 12);
     }
   
-    // REACTIVE: Update Story Mode status when ANY store changes
-    // Priority: currentSettings > userSettings > currentAccount
-    // FIX: Only update if values actually changed to prevent infinite loops
-    // CRITICAL: lastStoryModeSettings must NOT be $state() to prevent infinite loops
     let lastStoryModeSettings: string | null = null;
     $effect(() => {
         let storyModeSettings = null;
@@ -175,15 +135,12 @@ Manages state for emoji generation, story input, and UI animations.
         const userSettingsValue = get(userSettings);
         const currentAccountValue = get(currentAccount);
         
-        // Try currentSettings first (most up-to-date)
         if (currentSettingsValue?.storyMode) {
             storyModeSettings = currentSettingsValue.storyMode;
         }
-        // Fallback to userSettings
         else if (userSettingsValue?.storyMode) {
             storyModeSettings = userSettingsValue.storyMode;
         }
-        // Fallback to currentAccount
         else if (currentAccountValue?.metadata?.settings?.storyMode) {
             storyModeSettings = currentAccountValue.metadata.settings.storyMode;
         }

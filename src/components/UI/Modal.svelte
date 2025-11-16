@@ -49,20 +49,9 @@ Manages focus trapping and keyboard navigation.
         isVisible && !!message && message.trim() !== ''
     );
     
-    // Svelte 5 Best Practice: Nur Variablen die im Template verwendet werden oder Re-Renders auslösen müssen → $state()
-    // modalRef wird mit bind:this verwendet → $state() erforderlich
     let modalRef: HTMLElement | null = $state(null);
-    
-    // debugMode wird nur einmal gesetzt und ändert sich nie → const
-    const debugMode = isDebugMode();
-    
-    // isComponentMounted wird möglicherweise im Template verwendet → prüfen, aber wahrscheinlich $state()
     let isComponentMounted = $state(false);
-    
-    // progressBar wird im Template verwendet (Progress Bar Anzeige) → $state() erforderlich
     let progressBar = $state(100);
-    
-    // progressInterval wird nur intern verwendet (nicht im Template) → normale let
     let progressInterval: ReturnType<typeof setInterval> | null = null;
     
 
