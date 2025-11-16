@@ -1,6 +1,8 @@
-// src/stores/accountStore.ts
-// Enhanced account management with security features
-// TypeScript Migration: v0.7.7
+/*
+Account store for managing user authentication, account creation, and session management.
+Handles magic link login, account verification, and secure token generation.
+Manages account state, user profiles, and integration with backend services.
+*/
 import { writable, get } from 'svelte/store';
 import {
     currentAccount,
@@ -16,7 +18,7 @@ import { WEBHOOKS } from '../config/api';
 import { isDevelopment } from '../utils/environment';
 import { cachedFetchAccount, clearAllCache } from '../utils/apiCache';
 import { generateClientFingerprint } from '../utils/sharedHelpers';
-// Import Helper Functions
+import { isDebugMode } from '../utils/environment';
 import {
     generateSecureToken,
     generateFantasyName,
@@ -151,9 +153,12 @@ export type AccountingOperation =
     | 'LOGIN'
     | 'VERIFY_LOGIN';
 
-// Session and rate limit constants moved to respective modules
-// SESSION_TIMEOUT, MAX_SESSIONS_PER_USER -> accountSession.ts
-// MAX_LOGIN_ATTEMPTS, LOGIN_ATTEMPT_WINDOW, LOGIN_ATTEMPTS -> accountSecurity.ts
+function debugAccountStore(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 AccountStore Debug: ${context}`);
+    if (data) console.log(data);
+    console.groupEnd();
+}
 
 function showLoginSuccessIfFirstLogin(accountInfo: AccountInfo): void {
     if (accountInfo.isFirstLogin) {
@@ -171,7 +176,7 @@ export async function checkAccountExists(
     name: string = ''
 ): Promise<AccountCheckResult> {
     try {
-        console.log('🔍 Checking account existence for:', email);
+        debugAccountStore('Checking account existence', { email });
 
         try {
             const response = await fetch(WEBHOOKS.ACCOUNT.CHECK_EXISTS, {
@@ -188,26 +193,21 @@ export async function checkAccountExists(
 
             if (response.ok) {
                 const responseText = await response.text();
-                console.log('🔍 Raw n8n response:', responseText);
+                debugAccountStore('Raw n8n response', responseText);
 
                 if (responseText && responseText.trim()) {
                     try {
                         const result = JSON.parse(responseText);
-                        console.log('✅ n8n account check result:', result);
+                        debugAccountStore('n8n account check result', result);
 
                         if (result.exists && result.account) {
-                            console.log(
-                                '🔄 Syncing n8n account data to localStorage'
-                            );
+                            debugAccountStore('Syncing n8n account data to localStorage');
 
                             const parsedAccount = safeJSONParse(
                                 result.account,
                                 {}
                             );
-                            console.log(
-                                '🔍 DEBUG: Parsed account data:',
-                                parsedAccount
-                            );
+                            debugAccountStore('Parsed account data', parsedAccount);
 
                             const parsedProfile = safeJSONParse(
                                 parsedAccount.profile,
@@ -218,7 +218,7 @@ export async function checkAccountExists(
                                 {}
                             );
 
-                            console.log('🔍 DEBUG: Parsed nested fields:', {
+                            debugAccountStore('Parsed nested fields', {
                                 profileType: typeof parsedAccount.profile,
                                 metadataType: typeof parsedAccount.metadata,
                                 hasCreatedAtInAccount:
@@ -233,16 +233,13 @@ export async function checkAccountExists(
                                 parsedAccount.createdAt ||
                                 parsedProfile.createdAt ||
                                 parsedMetadata.createdAt ||
-                                parsedAccount.created_at || // Alternative naming
+                                parsedAccount.created_at ||
                                 parsedProfile.created_at ||
                                 parsedMetadata.created_at ||
                                 getCreatedAtFromAccount(parsedAccount) ||
                                 null;
 
-                            console.log(
-                                '🔍 DEBUG: Extracted createdAt:',
-                                createdAt
-                            );
+                            debugAccountStore('Extracted createdAt', createdAt);
 
                             const userPrefsData = {
                                 email: parsedAccount.email || email,
@@ -263,9 +260,7 @@ export async function checkAccountExists(
                             };
 
                             if (!userPrefsData.createdAt) {
-                                console.warn(
-                                    '⚠️ [CHECK] No createdAt found in account data - will not overwrite existing value'
-                                );
+                                debugAccountStore('[CHECK] No createdAt found in account data - will not overwrite existing value');
                             }
 
                             storageHelpers.set(
@@ -276,26 +271,19 @@ export async function checkAccountExists(
                             if (createdAt) {
                                 saveCreatedAtToUserPreferences(createdAt);
                             } else {
-                                console.log(
-                                    '⚠️ No createdAt found in account data'
-                                );
+                                debugAccountStore('No createdAt found in account data');
                             }
                         }
 
                         return result;
                     } catch (parseError) {
-                        console.log(
-                            '❌ Failed to parse n8n response as JSON:',
-                            parseError
-                        );
+                        debugAccountStore('Failed to parse n8n response as JSON', parseError);
                         throw new Error('Invalid JSON response from n8n');
                     }
                 } else {
-                    console.log('❌ Empty response from n8n webhook');
                     throw new Error('Empty response from n8n webhook');
                 }
             } else {
-                console.log('❌ n8n webhook returned status:', response.status);
                 throw new Error(
                     `n8n webhook returned status: ${response.status}`
                 );
@@ -305,13 +293,10 @@ export async function checkAccountExists(
                 webhookError instanceof Error
                     ? webhookError.message
                     : String(webhookError);
-            console.log(
-                '❌ n8n webhook failed, using localStorage fallback:',
-                errorMessage
-            );
+            debugAccountStore('n8n webhook failed, using localStorage fallback', errorMessage);
         }
 
-        console.log('🔍 Using localStorage fallback for account check');
+        debugAccountStore('Using localStorage fallback for account check');
         const existingPrefs = storageHelpers.get<
             Account | Record<string, unknown>
         >(STORAGE_KEYS.USER_PREFERENCES);
@@ -323,7 +308,7 @@ export async function checkAccountExists(
             typeof existingPrefs.email === 'string' &&
             existingPrefs.email.toLowerCase() === email.toLowerCase()
         ) {
-            console.log('✅ Found existing account in localStorage');
+            debugAccountStore('Found existing account in localStorage');
             return {
                 success: true,
                 exists: true,
@@ -332,7 +317,7 @@ export async function checkAccountExists(
             };
         }
 
-        console.log('❌ No account found in localStorage');
+        debugAccountStore('No account found in localStorage');
         return {
             success: true,
             exists: false,
@@ -340,7 +325,7 @@ export async function checkAccountExists(
             message: 'No account found (localStorage fallback)'
         };
     } catch (error) {
-        console.error('❌ Account check error:', error);
+        debugAccountStore('Account check error', error);
         return {
             success: true,
             exists: false,
@@ -357,12 +342,8 @@ export async function loginWithMagicLink(
 ): Promise<MagicLinkResult> {
     try {
         checkRateLimit(email);
-
-        console.log('🔗 Sending magic link for:', email);
-
+        debugAccountStore('Sending magic link', { email, dev });
         const isDevMode = dev || isDevelopment();
-
-        console.log('🔧 Development mode detected:', isDevMode);
 
         const response = await fetch(WEBHOOKS.ACCOUNT.MAGIC_LINK_SEND, {
             method: 'POST',
@@ -393,10 +374,10 @@ export async function loginWithMagicLink(
             success: true
         });
 
-        console.log('✅ Magic link sent successfully:', result);
+        debugAccountStore('Magic link sent successfully', result);
         return result;
     } catch (error) {
-        console.error('❌ Magic link send error:', error);
+        debugAccountStore('Magic link send error', error);
 
         logSecurityEvent('MAGIC_LINK_FAILED', {
             email,
@@ -412,7 +393,7 @@ export async function verifyMagicLink(
     email: string
 ): Promise<VerificationResult> {
     try {
-        console.log('🔗 Verifying magic link on backend:', { token, email });
+        debugAccountStore('Verifying magic link on backend', { token, email });
 
         const response = await fetch(WEBHOOKS.ACCOUNT.MAGIC_LINK_VERIFY, {
             method: 'POST',
@@ -443,10 +424,10 @@ export async function verifyMagicLink(
             method: 'backend_verification'
         });
 
-        console.log('✅ Magic link verified on backend:', result);
+        debugAccountStore('Magic link verified on backend', result);
         return result;
     } catch (error) {
-        console.error('❌ Backend magic link verification error:', error);
+        debugAccountStore('Backend magic link verification error', error);
 
         logSecurityEvent('VERIFICATION_FAILED', {
             email,
@@ -463,7 +444,7 @@ export async function verifyMagicLinkFrontend(
     email: string
 ): Promise<VerificationResult> {
     try {
-        console.log('🔗 Verifying magic link in frontend:', { token, email });
+        debugAccountStore('Verifying magic link in frontend', { token, email });
 
         if (!token || typeof token !== 'string' || token.length < 10) {
             throw new Error('Invalid token format');
@@ -485,7 +466,7 @@ export async function verifyMagicLinkFrontend(
         }
         sessionStorage.setItem(verificationKey, now.toString());
 
-        console.log(
+        debugAccountStore(
             '🔍 Checking if account already exists for magic link verification...'
         );
         const accountCheck = await checkAccountExists(
@@ -498,12 +479,12 @@ export async function verifyMagicLinkFrontend(
         let verificationResult;
 
         if (accountCheck.exists) {
-            console.log('✅ Account already exists, using existing account');
+            debugAccountStore('Account already exists, using existing account');
             const parsedAccount = safeJSONParse(
                 accountCheck.account,
                 accountCheck.account
             );
-            console.log('🔍 DEBUG: Parsed existing account:', parsedAccount);
+            debugAccountStore('Parsed existing account', parsedAccount);
 
             verificationResult = {
                 success: true,
@@ -511,7 +492,7 @@ export async function verifyMagicLinkFrontend(
                 message: 'Account already exists'
             };
         } else {
-            console.log(
+            debugAccountStore(
                 '🔒 Creating new account via n8n secure accounting workflow...'
             );
 
@@ -541,7 +522,7 @@ export async function verifyMagicLinkFrontend(
 
                 if (!response.ok) {
                     const responseText = await response.text();
-                    console.log('🔍 Raw n8n error response:', responseText);
+                    debugAccountStore('🔍 Raw n8n error response:', responseText);
 
                     let errorMessage = 'Failed to verify magic link via n8n';
                     if (responseText && responseText.trim()) {
@@ -553,7 +534,7 @@ export async function verifyMagicLinkFrontend(
                                 errorMessage.includes('already exists') ||
                                 errorMessage.includes('Account already exists')
                             ) {
-                                console.log(
+                                debugAccountStore(
                                     '⚠️ Account already exists, trying to fetch existing account...'
                                 );
                                 isNewAccount = false;
@@ -566,7 +547,7 @@ export async function verifyMagicLinkFrontend(
                                     existingCheck.exists &&
                                     existingCheck.account
                                 ) {
-                                    console.log(
+                                    debugAccountStore(
                                         '✅ Found existing account, using it instead'
                                     );
                                     const parsedAccount = safeJSONParse(
@@ -612,11 +593,11 @@ export async function verifyMagicLinkFrontend(
                                         existingAccountData as Account;
 
                                     if (!accountData.createdAt) {
-                                        console.warn(
+                                        debugAccountStore(
                                             '⚠️ [LOGIN] No createdAt found in existing account - preserving existing value'
                                         );
                                     } else {
-                                        console.log(
+                                        debugAccountStore(
                                             '✅ [LOGIN] Using createdAt from existing account:',
                                             accountData.createdAt
                                         );
@@ -628,7 +609,7 @@ export async function verifyMagicLinkFrontend(
                                 throw new Error(errorMessage);
                             }
                         } catch (parseError) {
-                            console.log(
+                            debugAccountStore(
                                 '❌ Failed to parse error response as JSON:',
                                 parseError
                             );
@@ -641,13 +622,13 @@ export async function verifyMagicLinkFrontend(
                 }
 
                 const responseText = await response.text();
-                console.log('🔍 Raw n8n verification response:', responseText);
+                debugAccountStore('🔍 Raw n8n verification response:', responseText);
 
                 if (responseText && responseText.trim()) {
                     try {
                         verificationResult = JSON.parse(responseText);
                     } catch (parseError) {
-                        console.log(
+                        debugAccountStore(
                             '❌ Failed to parse verification response as JSON:',
                             parseError
                         );
@@ -656,7 +637,7 @@ export async function verifyMagicLinkFrontend(
                         );
                     }
                 } else {
-                    console.log(
+                    debugAccountStore(
                         '❌ Empty response from n8n verification webhook'
                     );
                     throw new Error(
@@ -664,7 +645,7 @@ export async function verifyMagicLinkFrontend(
                     );
                 }
             } catch (n8nError) {
-                console.log(
+                debugAccountStore(
                     '❌ n8n account creation failed, using localStorage fallback:',
                     n8nError.message
                 );
@@ -690,16 +671,16 @@ export async function verifyMagicLinkFrontend(
             }
         }
 
-        console.log('🔒 n8n verification result:', verificationResult);
+        debugAccountStore('🔒 n8n verification result:', verificationResult);
 
-        console.log('🔗 Verification result:', verificationResult);
+        debugAccountStore('🔗 Verification result:', verificationResult);
 
         const backendCreatedAt =
             verificationResult.account?.createdAt ||
             getCreatedAtFromAccount(verificationResult.account) ||
             null;
 
-        console.log(
+        debugAccountStore(
             '🔍 [LOGIN] Extracted createdAt from verificationResult:',
             backendCreatedAt
         );
@@ -733,19 +714,19 @@ export async function verifyMagicLinkFrontend(
         };
 
         if (!accountData.createdAt) {
-            console.warn(
+            debugAccountStore(
                 '⚠️ [LOGIN] No createdAt in verificationResult - will try to get from full account data or preserve existing'
             );
         } else {
-            console.log(
+            debugAccountStore(
                 '✅ [LOGIN] Using createdAt from verificationResult:',
                 accountData.createdAt
             );
         }
 
-        console.log('🔗 Setting account data:', accountData);
+        debugAccountStore('🔗 Setting account data:', accountData);
 
-        console.log(
+        debugAccountStore(
             '📡 [LOGIN] Loading full account data from database (cached)...'
         );
         try {
@@ -755,7 +736,7 @@ export async function verifyMagicLinkFrontend(
                     window.location.hostname === '127.0.0.1');
 
             if (isLocalhost) {
-                console.log(
+                debugAccountStore(
                     '⚠️ [LOGIN] Localhost detected - skipping API call, using verification data only'
                 );
                 throw new Error('Localhost: API not available');
@@ -767,7 +748,7 @@ export async function verifyMagicLinkFrontend(
                 'get' // CRITICAL: Use 'get' not 'read' for n8n webhook!
             );
 
-            console.log('✅ [LOGIN] Full account data loaded (cached):', {
+            debugAccountStore('✅ [LOGIN] Full account data loaded (cached):', {
                 success: fullAccountResult.success,
                 hasAccount: !!fullAccountResult.account,
                 hasMetadata: !!fullAccountResult.account?.metadata,
@@ -780,7 +761,7 @@ export async function verifyMagicLinkFrontend(
                     fullAccountResult.account,
                     fullAccountResult.account
                 );
-                console.log('🔍 DEBUG: Parsed full account from backend:', {
+                debugAccountStore('🔍 DEBUG: Parsed full account from backend:', {
                     hasCreatedAt: !!parsedFullAccount.createdAt,
                     createdAt: parsedFullAccount.createdAt,
                     createdAtType: typeof parsedFullAccount.createdAt,
@@ -820,19 +801,19 @@ export async function verifyMagicLinkFrontend(
                     sessionExpires: accountData.sessionExpires,
                     lastActivity: accountData.lastActivity
                 } as Account;
-                console.log(
+                debugAccountStore(
                     '✅ [LOGIN] Account data merged with full database data'
                 );
-                console.log(
+                debugAccountStore(
                     '✅ [LOGIN] UsageHistory entries:',
                     parsedFullAccount?.metadata?.usageHistory?.length || 0
                 );
-                console.log(
+                debugAccountStore(
                     '✅ [LOGIN] CreatedAt from backend (FINAL):',
                     accountData.createdAt
                 );
             } else {
-                console.warn(
+                debugAccountStore(
                     '⚠️ [LOGIN] Failed to load full account data, using verification data only'
                 );
             }
@@ -843,12 +824,12 @@ export async function verifyMagicLinkFrontend(
                     window.location.hostname === '127.0.0.1');
 
             if (isLocalhost) {
-                console.log(
+                debugAccountStore(
                     '💡 [LOGIN - LOCALHOST] Vercel API not available, trying direct n8n connection...'
                 );
 
                 try {
-                    console.log(
+                    debugAccountStore(
                         '📡 [LOCALHOST] Fetching data directly from n8n...'
                     );
                     const n8nResponse = await fetch(
@@ -868,7 +849,7 @@ export async function verifyMagicLinkFrontend(
 
                     if (n8nResponse.ok) {
                         const n8nResult = await n8nResponse.json();
-                        console.log('✅ [LOCALHOST] n8n response:', {
+                        debugAccountStore('✅ [LOCALHOST] n8n response:', {
                             success: n8nResult.success,
                             hasAccount: !!n8nResult.account,
                             hasMetadata: !!n8nResult.account?.metadata,
@@ -882,7 +863,7 @@ export async function verifyMagicLinkFrontend(
                                 try {
                                     metadata = JSON.parse(metadata);
                                 } catch (e) {
-                                    console.warn(
+                                    debugAccountStore(
                                         '⚠️ Failed to parse metadata:',
                                         e
                                     );
@@ -923,33 +904,33 @@ export async function verifyMagicLinkFrontend(
                                     'free') as 'free' | 'pro'
                             } as Account;
 
-                            console.log(
+                            debugAccountStore(
                                 '✅ [LOCALHOST] Account data merged with n8n data!'
                             );
-                            console.log(
+                            debugAccountStore(
                                 '✅ [LOCALHOST] UsageHistory entries:',
                                 metadata?.usageHistory?.length || 0
                             );
                         }
                     } else {
-                        console.warn(
+                        debugAccountStore(
                             '⚠️ [LOCALHOST] n8n returned error:',
                             n8nResponse.status
                         );
                     }
                 } catch (n8nError) {
-                    console.warn(
+                    debugAccountStore(
                         '⚠️ [LOCALHOST] Direct n8n call failed:',
                         n8nError.message
                     );
                 }
             } else {
-                console.error(
+                debugAccountStore(
                     '❌ [LOGIN] Error loading full account data:',
                     error.message
                 );
             }
-            console.log('💡 [LOGIN] Continuing with available data');
+            debugAccountStore('💡 [LOGIN] Continuing with available data');
         }
 
         let createdAt =
@@ -964,13 +945,13 @@ export async function verifyMagicLinkFrontend(
             );
             createdAt = userPrefs.createdAt || null;
             if (createdAt) {
-                console.log(
+                debugAccountStore(
                     '🔍 [LOGIN] Using createdAt from localStorage (preserved):',
                     createdAt
                 );
                 accountData.createdAt = createdAt;
             } else {
-                console.warn(
+                debugAccountStore(
                     '⚠️ [LOGIN] No createdAt found anywhere - will not create new one'
                 );
             }
@@ -982,13 +963,13 @@ export async function verifyMagicLinkFrontend(
 
         syncAccountData(accountData);
 
-        console.log(
+        debugAccountStore(
             '🔍 DEBUG: Final createdAt for verifyMagicLinkFrontend:',
             createdAt ||
                 'NOT FOUND - will not be set (preserves existing value)'
         );
 
-        console.log(
+        debugAccountStore(
             '⚙️ [LOGIN] Initializing user settings after account sync...'
         );
         try {
@@ -996,9 +977,9 @@ export async function verifyMagicLinkFrontend(
                 './userSettingsStore'
             );
             await initializeSettingsForUser();
-            console.log('✅ [LOGIN] User settings initialized successfully');
+            debugAccountStore('✅ [LOGIN] User settings initialized successfully');
         } catch (error) {
-            console.warn(
+            debugAccountStore(
                 '⚠️ [LOGIN] Failed to initialize settings (non-critical):',
                 error
             );
@@ -1021,16 +1002,16 @@ export async function verifyMagicLinkFrontend(
         }
 
         if (!finalCreatedAt) {
-            console.warn(
+            debugAccountStore(
                 '⚠️ [LOGIN] No createdAt found anywhere - localStorage will not have createdAt field'
             );
         } else if (!createdAt && existingPrefs.createdAt) {
-            console.log(
+            debugAccountStore(
                 '✅ [LOGIN] Preserving existing createdAt from localStorage:',
                 finalCreatedAt
             );
         } else if (createdAt) {
-            console.log(
+            debugAccountStore(
                 '✅ [LOGIN] Using createdAt from backend/accountData:',
                 finalCreatedAt
             );
@@ -1050,7 +1031,7 @@ export async function verifyMagicLinkFrontend(
             ...(finalCreatedAt ? { createdAt: finalCreatedAt } : {}) // Conditional spread - only add if exists
         };
 
-        console.log('💾 [LOGIN] Saving userPrefsData to localStorage:', {
+        debugAccountStore('💾 [LOGIN] Saving userPrefsData to localStorage:', {
             hasCreatedAt: !!userPrefsData.createdAt,
             createdAt: userPrefsData.createdAt,
             hasMetadata: !!userPrefsData.metadata,
@@ -1061,7 +1042,7 @@ export async function verifyMagicLinkFrontend(
         storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, userPrefsData);
 
         try {
-            console.log('📡 Updating lastLogin in database...');
+            debugAccountStore('📡 Updating lastLogin in database...');
 
             const cleanedAccountData = removeCreatedAtFromObject(accountData);
 
@@ -1091,13 +1072,13 @@ export async function verifyMagicLinkFrontend(
                     metadata: cleanedMetadata // Clean metadata without duplicates!
                 })
             });
-            console.log('✅ lastLogin updated in database');
+            debugAccountStore('✅ lastLogin updated in database');
         } catch (error) {
-            console.warn('⚠️ Failed to update lastLogin in database:', error);
+            debugAccountStore('⚠️ Failed to update lastLogin in database:', error);
         }
 
         const savedPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
-        console.log('✅ [LOGIN] Verified localStorage save:', {
+        debugAccountStore('✅ [LOGIN] Verified localStorage save:', {
             saved: !!savedPrefs,
             hasCreatedAt: !!savedPrefs?.createdAt,
             createdAt: savedPrefs?.createdAt,
@@ -1107,7 +1088,7 @@ export async function verifyMagicLinkFrontend(
 
         if (finalCreatedAt) {
             saveCreatedAtToUserPreferences(finalCreatedAt);
-            console.log(
+            debugAccountStore(
                 '✅ [LOGIN] Saved createdAt to user preferences:',
                 finalCreatedAt
             );
@@ -1122,24 +1103,24 @@ export async function verifyMagicLinkFrontend(
                 }
             }
         } else {
-            console.warn(
+            debugAccountStore(
                 '⚠️ [LOGIN] No createdAt found anywhere - cannot save to user preferences'
             );
         }
 
         storageHelpers.set('sessionId', accountData.sessionId);
 
-        console.log('🔗 localStorage updated, now notifying other tabs');
+        debugAccountStore('🔗 localStorage updated, now notifying other tabs');
 
         notifyMagicLinkVerification(accountData);
 
         if (isNewAccount) {
-            console.log(
+            debugAccountStore(
                 '🆕 New account created - showing new account created modal'
             );
             showNewAccountCreated();
         } else {
-            console.log(
+            debugAccountStore(
                 '✅ Existing account found - showing account found modal'
             );
             showExistingAccountFound();
@@ -1160,12 +1141,12 @@ export async function verifyMagicLinkFrontend(
                     .count + 1
         };
         storageHelpers.set(STORAGE_KEYS.LOGIN_HISTORY, history);
-        console.log(
+        debugAccountStore(
             '✅ Login history gesetzt in verifyMagicLinkFrontend:',
             history
         );
 
-        console.log(
+        debugAccountStore(
             '🔄 Refreshing user data after login (using already-loaded account data)...'
         );
         try {
@@ -1176,21 +1157,21 @@ export async function verifyMagicLinkFrontend(
                 refreshUserSettings(true), // Force refresh (may call API, but settings are separate)
                 refreshUsageHistory(false) // Use currentAccount data (already loaded!) - NO force to avoid duplicate API call
             ]);
-            console.log(
+            debugAccountStore(
                 '✅ User data refreshed successfully (no duplicate API calls)'
             );
         } catch (error) {
-            console.warn(
+            debugAccountStore(
                 '⚠️ Failed to refresh user data (non-critical):',
                 error
             );
         }
 
-        console.log('🔗 Magic link verification completed successfully');
+        debugAccountStore('🔗 Magic link verification completed successfully');
 
         return verificationResult;
     } catch (error) {
-        console.error('❌ Frontend magic link verification error:', error);
+        debugAccountStore('❌ Frontend magic link verification error:', error);
         logSecurityEvent('VERIFICATION_ERROR', {
             email,
             error: error.message,
@@ -1201,7 +1182,7 @@ export async function verifyMagicLinkFrontend(
 }
 
 export async function logout(): Promise<void> {
-    console.log('👋 [LOGOUT] Starting logout process...');
+    debugAccountStore('👋 [LOGOUT] Starting logout process...');
 
     logSecurityEvent('LOGOUT', {
         userId: currentAccount?.userId,
@@ -1209,13 +1190,13 @@ export async function logout(): Promise<void> {
     });
 
     clearAllCache();
-    console.log('✅ [LOGOUT] API cache cleared');
+    debugAccountStore('✅ [LOGOUT] API cache cleared');
 
     try {
         syncAccountData(null);
         isLoggedIn = false;
         accountTier = 'free';
-        console.log('✅ [LOGOUT] Account stores reset');
+        debugAccountStore('✅ [LOGOUT] Account stores reset');
 
         const { userSettings, usageHistory } = await import('./userDataStore');
 
@@ -1240,25 +1221,25 @@ export async function logout(): Promise<void> {
             trend: 'stable'
         };
 
-        console.log('✅ [LOGOUT] User data stores reset');
+        debugAccountStore('✅ [LOGOUT] User data stores reset');
 
         if (isDevelopment()) {
             const { resetDailyUsage } = await import('./dailyUsageStore');
             try {
                 resetDailyUsage();
-                console.log('✅ [LOGOUT] Daily usage reset (dev mode)');
+                debugAccountStore('✅ [LOGOUT] Daily usage reset (dev mode)');
             } catch (error) {
-                console.log(
+                debugAccountStore(
                     'ℹ️ [LOGOUT] Daily usage reset skipped (production mode)'
                 );
             }
         } else {
-            console.log(
+            debugAccountStore(
                 'ℹ️ [LOGOUT] Daily usage persists (production mode - security)'
             );
         }
     } catch (error) {
-        console.warn('⚠️ [LOGOUT] Error resetting stores:', error);
+        debugAccountStore('⚠️ [LOGOUT] Error resetting stores:', error);
     }
 
     try {
@@ -1281,13 +1262,13 @@ export async function logout(): Promise<void> {
             try {
                 localStorage.removeItem(key);
             } catch (e) {
-                console.warn(`⚠️ Failed to remove ${key}:`, e);
+                debugAccountStore(`⚠️ Failed to remove ${key}:`, e);
             }
         });
 
-        console.log('✅ [LOGOUT] All storage cleared');
+        debugAccountStore('✅ [LOGOUT] All storage cleared');
     } catch (error) {
-        console.warn('⚠️ [LOGOUT] Failed to clear storage:', error);
+        debugAccountStore('⚠️ [LOGOUT] Failed to clear storage:', error);
     }
 
     if (currentAccount?.email) {
@@ -1295,9 +1276,9 @@ export async function logout(): Promise<void> {
     }
 
     resetSessionFlags();
-    console.log('✅ [LOGOUT] Session flags reset');
+    debugAccountStore('✅ [LOGOUT] Session flags reset');
 
-    console.log('🔄 [LOGOUT] Redirecting to home...');
+    debugAccountStore('🔄 [LOGOUT] Redirecting to home...');
 
     if (typeof window !== 'undefined') {
         setTimeout(() => {
@@ -1305,11 +1286,12 @@ export async function logout(): Promise<void> {
         }, 100);
     }
 
-    console.log('✅ [LOGOUT] Logout complete!');
+    debugAccountStore('✅ [LOGOUT] Logout complete!');
 }
 
 export function getCurrentAccount(): Account | null {
-    return get(currentAccount);
+    // Runes: Direkter Zugriff ohne get()
+    return currentAccount;
 }
 
 // Session state flags moved to accountSession.ts
@@ -1322,7 +1304,7 @@ export async function initializeAccountFromCookies(
         const timeSinceLastRestore = Date.now() - restoreState.timestamp;
 
         if (restoreState.isRestoring && timeSinceLastRestore < 5000) {
-            console.log('⏳ Session restore already in progress, skipping...');
+            debugAccountStore('⏳ Session restore already in progress, skipping...');
             return restoreState.restored;
         }
 
@@ -1331,11 +1313,11 @@ export async function initializeAccountFromCookies(
             !forceRestore &&
             timeSinceLastRestore < 5000
         ) {
-            console.log('✅ Session already restored (recent), skipping...');
+            debugAccountStore('✅ Session already restored (recent), skipping...');
             return true;
         }
 
-        console.log('🔐 [SESSION RESTORE] Starting session restoration...', {
+        debugAccountStore('🔐 [SESSION RESTORE] Starting session restoration...', {
             forceRestore,
             timeSinceLastRestore,
             previouslyRestored: restoreState.restored,
@@ -1352,7 +1334,7 @@ export async function initializeAccountFromCookies(
         const sessionId = getSessionId(); // Use local function, not storageHelpers.getSessionId
 
         if (!validateSession(userPrefs)) {
-            console.log(
+            debugAccountStore(
                 '❌ [SESSION RESTORE] Invalid session, clearing session data'
             );
             try {
@@ -1365,7 +1347,7 @@ export async function initializeAccountFromCookies(
                 userProfile = null;
                 accountTier = 'free';
             } catch (error) {
-                console.warn(
+                debugAccountStore(
                     '⚠️ [SESSION RESTORE] Failed to clear invalid session data:',
                     error
                 );
@@ -1383,7 +1365,7 @@ export async function initializeAccountFromCookies(
             userPrefs.email &&
             !forceRestore
         ) {
-            console.log(
+            debugAccountStore(
                 '✅ [SESSION RESTORE] Stores already initialized, skipping API call',
                 {
                     email: userPrefs.email,
@@ -1397,7 +1379,7 @@ export async function initializeAccountFromCookies(
         if (userPrefs.email && sessionId) {
             const createdAt = getCreatedAtFromUserPreferences();
 
-            console.log(
+            debugAccountStore(
                 '📡 [SESSION RESTORE] Loading full account data from database...'
             );
             let accountInfo = null;
@@ -1410,12 +1392,12 @@ export async function initializeAccountFromCookies(
                         window.location.hostname === '127.0.0.1');
 
                 if (isLocalhost) {
-                    console.log(
+                    debugAccountStore(
                         '⚠️ [SESSION RESTORE] Localhost detected - Vercel API not available, trying direct n8n...'
                     );
 
                     try {
-                        console.log(
+                        debugAccountStore(
                             '📡 [SESSION RESTORE - LOCALHOST] Fetching from n8n...'
                         );
                         const n8nResponse = await fetch(
@@ -1435,7 +1417,7 @@ export async function initializeAccountFromCookies(
 
                         if (n8nResponse.ok) {
                             const n8nResult = await n8nResponse.json();
-                            console.log(
+                            debugAccountStore(
                                 '✅ [SESSION RESTORE - LOCALHOST] n8n data loaded:',
                                 {
                                     success: n8nResult.success,
@@ -1455,7 +1437,7 @@ export async function initializeAccountFromCookies(
                                     try {
                                         metadata = JSON.parse(metadata);
                                     } catch (e) {
-                                        console.warn(
+                                        debugAccountStore(
                                             '⚠️ Failed to parse metadata:',
                                             e
                                         );
@@ -1470,7 +1452,7 @@ export async function initializeAccountFromCookies(
                                     }
                                 };
 
-                                console.log(
+                                debugAccountStore(
                                     '✅ [SESSION RESTORE - LOCALHOST] Using n8n data!'
                                 );
                             } else {
@@ -1482,7 +1464,7 @@ export async function initializeAccountFromCookies(
                             );
                         }
                     } catch (n8nError) {
-                        console.warn(
+                        debugAccountStore(
                             '⚠️ [SESSION RESTORE - LOCALHOST] n8n failed:',
                             n8nError.message
                         );
@@ -1499,7 +1481,7 @@ export async function initializeAccountFromCookies(
                 }
 
                 if (fullAccountResult) {
-                    console.log(
+                    debugAccountStore(
                         '✅ [SESSION RESTORE] Full account data loaded from database (cached):',
                         {
                             success: fullAccountResult.success,
@@ -1523,7 +1505,7 @@ export async function initializeAccountFromCookies(
                         lastActivity: new Date().toISOString(),
                         isFirstLogin: false
                     };
-                    console.log(
+                    debugAccountStore(
                         '✅ [SESSION RESTORE] Using full database data with usageHistory'
                     );
                 } else {
@@ -1536,11 +1518,11 @@ export async function initializeAccountFromCookies(
                         window.location.hostname === '127.0.0.1');
 
                 if (isLocalhost) {
-                    console.log(
+                    debugAccountStore(
                         '💡 [SESSION RESTORE - LOCALHOST] Using localStorage data (API not available locally)'
                     );
                 } else {
-                    console.warn(
+                    debugAccountStore(
                         '⚠️ [SESSION RESTORE] Failed to load from database, using cookies fallback:',
                         error.message
                     );
@@ -1561,14 +1543,14 @@ export async function initializeAccountFromCookies(
                     lastActivity: new Date().toISOString(),
                     isFirstLogin: false // Session restoration, not first login
                 };
-                console.log(
+                debugAccountStore(
                     '💡 [SESSION RESTORE] Using cookies/localStorage fallback (usageHistory may be missing)'
                 );
             }
 
             syncAccountData(accountInfo);
 
-            console.log('✅ Account loaded from cookies:', accountInfo.email);
+            debugAccountStore('✅ Account loaded from cookies:', accountInfo.email);
 
             const updatedLastLogin = new Date().toISOString();
             storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, {
@@ -1579,7 +1561,7 @@ export async function initializeAccountFromCookies(
                 lastActivity: updatedLastLogin
             });
 
-            console.log('✅ Session restored (READ-ONLY, no database write):', {
+            debugAccountStore('✅ Session restored (READ-ONLY, no database write):', {
                 userId: accountInfo.userId,
                 email: accountInfo.email,
                 action: 'READ_ONLY'
@@ -1593,11 +1575,11 @@ export async function initializeAccountFromCookies(
             setSessionRestoreState(false, true);
             return true;
         } else {
-            console.log('❌ No valid session found in cookies');
+            debugAccountStore('❌ No valid session found in cookies');
             setSessionRestoreState(false, false);
         }
     } catch (error) {
-        console.warn('Failed to load account from cookies:', error);
+        debugAccountStore('Failed to load account from cookies:', error);
         logSecurityEvent('SESSION_LOAD_ERROR', {
             error: error instanceof Error ? error.message : String(error)
         });
@@ -1613,7 +1595,7 @@ async function syncAccountData(
     accountData: Account | Partial<Account> | null
 ): Promise<void> {
     if (accountData) {
-        console.log('🔄 [ACCOUNT DEBUG] syncAccountData: Raw data received:', {
+        debugAccountStore('🔄 [ACCOUNT DEBUG] syncAccountData: Raw data received:', {
             profileType: typeof accountData.profile,
             metadataType: typeof accountData.metadata,
             hasUserId: !!accountData.userId,
@@ -1624,7 +1606,7 @@ async function syncAccountData(
         const parsedProfile = safeJSONParse(accountData.profile, {});
         const parsedMetadata = safeJSONParse(accountData.metadata, {});
 
-        console.log('✅ [ACCOUNT DEBUG] Parsed data:', {
+        debugAccountStore('✅ [ACCOUNT DEBUG] Parsed data:', {
             profile: parsedProfile,
             metadata: {
                 hasSettings: !!parsedMetadata.settings,
@@ -1647,7 +1629,7 @@ async function syncAccountData(
                 try {
                     parsedDailyUsage = JSON.parse(accountData.dailyUsage);
                 } catch (e) {
-                    console.warn(
+                    debugAccountStore(
                         '⚠️ Failed to parse dailyUsage from accountData:',
                         e
                     );
@@ -1665,7 +1647,7 @@ async function syncAccountData(
         };
 
         if (parsedDailyUsage) {
-            console.log(
+            debugAccountStore(
                 '✅ [ACCOUNT DEBUG] dailyUsage loaded from accountData:',
                 {
                     date: parsedDailyUsage.date,
@@ -1674,7 +1656,7 @@ async function syncAccountData(
                 }
             );
         } else {
-            console.log(
+            debugAccountStore(
                 'ℹ️ [ACCOUNT DEBUG] No dailyUsage in accountData - will be loaded by initializeDailyUsage()'
             );
         }
@@ -1693,17 +1675,17 @@ async function syncAccountData(
             );
             if (userPrefs.createdAt) {
                 cleanAccountData.createdAt = userPrefs.createdAt;
-                console.log(
+                debugAccountStore(
                     '🔄 syncAccountData: Backend has no valid createdAt - preserving existing from localStorage:',
                     cleanAccountData.createdAt
                 );
             } else {
-                console.warn(
+                debugAccountStore(
                     '⚠️ syncAccountData: No createdAt found in accountData or localStorage - will not create new one'
                 );
             }
         } else {
-            console.log(
+            debugAccountStore(
                 '✅ syncAccountData: Using valid createdAt from accountData (API/Backend):',
                 cleanAccountData.createdAt
             );
@@ -1715,7 +1697,7 @@ async function syncAccountData(
         userProfile = parsedProfile;
         accountTier = cleanAccountData.tier || 'free';
 
-        console.log('✅ [ACCOUNT] Stores updated:', {
+        debugAccountStore('✅ [ACCOUNT] Stores updated:', {
             isLoggedIn: true,
             tier: cleanAccountData.tier || 'free',
             hasProfile: !!parsedProfile,
@@ -1727,16 +1709,16 @@ async function syncAccountData(
             let finalDailyUsage = parsedDailyUsage; // Use dailyUsage from accountData if available
 
             if (!finalDailyUsage) {
-                console.log(
+                debugAccountStore(
                     'ℹ️ [ACCOUNT DEBUG] No dailyUsage in accountData - loading from API/localStorage...'
                 );
                 const { initializeDailyUsage } = await import(
                     './dailyUsageStore'
                 );
                 finalDailyUsage = await initializeDailyUsage(cleanAccountData);
-                console.log('✅ Daily usage initialized from API/localStorage');
+                debugAccountStore('✅ Daily usage initialized from API/localStorage');
             } else {
-                console.log(
+                debugAccountStore(
                     '✅ [ACCOUNT DEBUG] Using dailyUsage from accountData, syncing to dailyUsageStore...'
                 );
                 const { updateDailyLimitStore } = await import(
@@ -1744,7 +1726,7 @@ async function syncAccountData(
                 );
                 if (updateDailyLimitStore) {
                     updateDailyLimitStore(finalDailyUsage);
-                    console.log(
+                    debugAccountStore(
                         '✅ [ACCOUNT DEBUG] dailyUsage synced to dailyLimit store'
                     );
                 }
@@ -1752,7 +1734,7 @@ async function syncAccountData(
 
             if (finalDailyUsage) {
                 cleanAccountData.dailyUsage = finalDailyUsage;
-                console.log(
+                debugAccountStore(
                     '✅ [ACCOUNT DEBUG] dailyUsage synced to currentAccount store:',
                     {
                         date: finalDailyUsage.date,
@@ -1765,17 +1747,17 @@ async function syncAccountData(
             try {
                 const { refreshUsageHistory } = await import('./userDataStore');
                 await refreshUsageHistory(true, cleanAccountData); // Force refresh but use accountData if available
-                console.log(
+                debugAccountStore(
                     '✅ Usage history refreshed after account sync (with today merge, using accountData to prevent duplicate API call)'
                 );
             } catch (error) {
-                console.warn(
+                debugAccountStore(
                     '⚠️ Failed to refresh usage history after sync:',
                     error
                 );
             }
         } catch (error) {
-            console.warn(
+            debugAccountStore(
                 '⚠️ Failed to initialize daily usage, using fallback:',
                 error
             );
@@ -1790,23 +1772,23 @@ async function syncAccountData(
             try {
                 const { refreshUsageHistory } = await import('./userDataStore');
                 await refreshUsageHistory(true, cleanAccountData); // Use accountData to prevent duplicate API calls
-                console.log(
+                debugAccountStore(
                     '✅ Usage history refreshed after account sync (fallback, using accountData to prevent duplicate API call)'
                 );
             } catch (err) {
-                console.warn('⚠️ Failed to refresh usage history:', err);
+                debugAccountStore('⚠️ Failed to refresh usage history:', err);
             }
         }
 
-        console.log(
+        debugAccountStore(
             '✅ [ACCOUNT DEBUG] syncAccountData: Account synced with createdAt:',
             cleanAccountData.createdAt
         );
-        console.log(
+        debugAccountStore(
             '✅ [ACCOUNT DEBUG] syncAccountData: UsageHistory entries:',
             parsedMetadata?.usageHistory?.length || 0
         );
-        console.log(
+        debugAccountStore(
             '✅ [ACCOUNT DEBUG] syncAccountData: Complete metadata structure:',
             {
                 settings: !!parsedMetadata?.settings,
@@ -1819,7 +1801,7 @@ async function syncAccountData(
         const hasSession = hasValidUserSession();
         const hasPrefs = hasExistingUserPreferences();
 
-        console.log(
+        debugAccountStore(
             '⚠️ [ACCOUNT DEBUG] No account data received, checking session validity:',
             {
                 hasSession,
@@ -1829,7 +1811,7 @@ async function syncAccountData(
         );
 
         if (!hasSession && !hasPrefs) {
-            console.log(
+            debugAccountStore(
                 '🔄 [ACCOUNT DEBUG] No valid session, resetting stores'
             );
             isLoggedIn = false;
@@ -1838,7 +1820,7 @@ async function syncAccountData(
             accountTier = 'free';
             updateDailyLimit(false, 'free', 0); // Reset to guest limits
         } else {
-            console.log(
+            debugAccountStore(
                 '✅ [ACCOUNT DEBUG] Valid session exists, keeping stores intact'
             );
         }
@@ -1866,7 +1848,7 @@ export async function createAccount(
 
         validateMetadataNoDuplicates(cleanedMetadata, 'createAccount');
 
-        console.log('🆕 Creating account with cleaned metadata:', {
+        debugAccountStore('🆕 Creating account with cleaned metadata:', {
             hasUsageHistory: !!cleanedMetadata.usageHistory,
             usageHistoryLength: cleanedMetadata.usageHistory?.length || 0,
             tier: metadata?.tier || 'free' // tier is separate column, not in metadata!
@@ -1901,7 +1883,7 @@ export async function createAccount(
 
         return result;
     } catch (error) {
-        console.error('Create account error:', error);
+        debugAccountStore('Create account error:', error);
         logSecurityEvent('ACCOUNT_CREATION_FAILED', {
             userId,
             email,
@@ -1936,7 +1918,7 @@ export async function getAccount(
         const result = await response.json();
         return result;
     } catch (error) {
-        console.error('Get account error:', error);
+        debugAccountStore('Get account error:', error);
         throw error;
     }
 }
@@ -1974,7 +1956,7 @@ export async function updateAccount(
 
         return result;
     } catch (error) {
-        console.error('Update account error:', error);
+        debugAccountStore('Update account error:', error);
         logSecurityEvent('ACCOUNT_UPDATE_FAILED', {
             userId,
             error: error.message
@@ -1986,7 +1968,7 @@ export async function updateAccount(
 export function hasExistingUserPreferences(): boolean {
     try {
         const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
-        console.log('🔍 hasExistingUserPreferences check:', {
+        debugAccountStore('🔍 hasExistingUserPreferences check:', {
             prefs: prefs,
             hasPrefs: !!prefs,
             hasEmail: !!(prefs && prefs.email),
@@ -1995,7 +1977,7 @@ export function hasExistingUserPreferences(): boolean {
         });
         return prefs && prefs.email && prefs.lastLogin;
     } catch (error) {
-        console.warn('Error checking user preferences:', error);
+        debugAccountStore('Error checking user preferences:', error);
         return false;
     }
 }
@@ -2005,7 +1987,7 @@ export function getUserEmailFromPreferences(): string | null {
         const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
         return prefs?.email || null;
     } catch (error) {
-        console.warn('Error getting user email from preferences:', error);
+        debugAccountStore('Error getting user email from preferences:', error);
         return null;
     }
 }
@@ -2013,7 +1995,7 @@ export function getUserEmailFromPreferences(): string | null {
 export function hasValidUserSession(): boolean {
     try {
         const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES);
-        console.log('🔍 hasValidUserSession check:', {
+        debugAccountStore('🔍 hasValidUserSession check:', {
             prefs: prefs,
             hasPrefs: !!prefs,
             hasSessionExpires: !!(prefs && prefs.sessionExpires),
@@ -2031,7 +2013,7 @@ export function hasValidUserSession(): boolean {
 
         return now < expires;
     } catch (error) {
-        console.warn('Error checking user session:', error);
+        debugAccountStore('Error checking user session:', error);
         return false;
     }
 }
@@ -2039,23 +2021,23 @@ export function hasValidUserSession(): boolean {
 export function setupMagicLinkListener(): void {
     if (typeof window === 'undefined') return;
 
-    console.log(
+    debugAccountStore(
         '🔗 Setting up magic link listener for cross-tab communication'
     );
 
     window.addEventListener('message', event => {
-        console.log('🔗 Received message:', event.data);
+        debugAccountStore('🔗 Received message:', event.data);
 
         if (
             event.source !== window ||
             event.data?.target === 'metamask-inpage'
         ) {
-            console.log('🔗 Ignoring non-app message:', event.data?.target);
+            debugAccountStore('🔗 Ignoring non-app message:', event.data?.target);
             return;
         }
 
         if (event.data && event.data.type === 'MAGIC_LINK_VERIFIED') {
-            console.log('🔗 Magic link verified in another tab:', event.data);
+            debugAccountStore('🔗 Magic link verified in another tab:', event.data);
 
             if (event.data.success && event.data.email) {
                 const existingPrefs = storageHelpers.get(
@@ -2074,7 +2056,7 @@ export function setupMagicLinkListener(): void {
                     ...(createdAt ? { createdAt } : {})
                 };
 
-                console.log(
+                debugAccountStore(
                     '🔗 Updating account state from cross-tab message:',
                     accountData
                 );
@@ -2093,7 +2075,7 @@ export function setupMagicLinkListener(): void {
 
                 if (!userPrefsUpdate.createdAt && existingPrefs.createdAt) {
                     userPrefsUpdate.createdAt = existingPrefs.createdAt;
-                    console.log(
+                    debugAccountStore(
                         '✅ [CROSS-TAB] Preserved existing createdAt:',
                         existingPrefs.createdAt
                     );
@@ -2116,13 +2098,13 @@ export function setupMagicLinkListener(): void {
     });
 
     window.addEventListener('storage', event => {
-        console.log('🔗 Storage event received:', event.key, event.newValue);
+        debugAccountStore('🔗 Storage event received:', event.key, event.newValue);
 
         if (event.key === STORAGE_KEYS.USER_PREFERENCES && event.newValue) {
             try {
                 const userPrefs = JSON.parse(event.newValue);
                 if (userPrefs.email && userPrefs.lastLogin) {
-                    console.log(
+                    debugAccountStore(
                         '🔄 User preferences updated in another tab:',
                         userPrefs
                     );
@@ -2135,7 +2117,7 @@ export function setupMagicLinkListener(): void {
                         lastLogin: userPrefs.lastLogin
                     };
 
-                    console.log(
+                    debugAccountStore(
                         '🔗 Updating account state from storage event:',
                         accountData
                     );
@@ -2146,12 +2128,12 @@ export function setupMagicLinkListener(): void {
                     showExistingAccountFound();
                 }
             } catch (error) {
-                console.warn('Error parsing storage update:', error);
+                debugAccountStore('Error parsing storage update:', error);
             }
         }
     });
 
-    console.log('🔗 Magic link listener setup complete');
+    debugAccountStore('🔗 Magic link listener setup complete');
 }
 
 export function notifyMagicLinkVerification(
@@ -2159,13 +2141,13 @@ export function notifyMagicLinkVerification(
 ): void {
     if (typeof window === 'undefined') return;
 
-    console.log(
+    debugAccountStore(
         '🔗 Notifying all tabs about magic link verification:',
         accountData
     );
 
     if (!accountData || !accountData.email || !accountData.userId) {
-        console.error('❌ Invalid account data for notification');
+        debugAccountStore('❌ Invalid account data for notification');
         return;
     }
 
@@ -2186,9 +2168,9 @@ export function notifyMagicLinkVerification(
 
     try {
         window.postMessage(message, window.location.origin);
-        console.log('🔗 postMessage sent to all tabs:', message);
+        debugAccountStore('🔗 postMessage sent to all tabs:', message);
     } catch (error) {
-        console.error('❌ Failed to send postMessage:', error);
+        debugAccountStore('❌ Failed to send postMessage:', error);
     }
 
     const existingPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
@@ -2208,13 +2190,13 @@ export function notifyMagicLinkVerification(
     });
 
     if (preservedCreatedAt) {
-        console.log(
+        debugAccountStore(
             '✅ [CROSS-TAB] Preserved createdAt in localStorage update:',
             preservedCreatedAt
         );
     }
 
-    console.log('🔗 localStorage updated to trigger storage event');
+    debugAccountStore('🔗 localStorage updated to trigger storage event');
 }
 
 function validateAccountingOperation(
@@ -2277,7 +2259,7 @@ function validateAccountingOperation(
         validation.errors.push('Invalid account tier');
     }
 
-    console.log('🔍 Accounting Validation:', {
+    debugAccountStore('🔍 Accounting Validation:', {
         operation,
         isValid: validation.isValid,
         errors: validation.errors,
@@ -2296,7 +2278,7 @@ async function secureAccountingOperation(
     operation: AccountingOperation,
     data: AccountingOperationData
 ): Promise<unknown> {
-    console.log('🔒 Starting secure accounting operation:', operation);
+    debugAccountStore('🔒 Starting secure accounting operation:', operation);
 
     const validation = validateAccountingOperation(operation, data);
     if (!validation.isValid) {
