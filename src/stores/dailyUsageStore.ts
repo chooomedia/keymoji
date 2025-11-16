@@ -1,6 +1,8 @@
-// src/stores/dailyUsageStore.ts
-// Zentrale Verwaltung der täglichen Usage Limits mit Datenbank-Persistenz
-// TypeScript Migration: v0.7.7
+/*
+Daily usage store for managing user daily generation limits and usage tracking.
+Handles limit validation, usage incrementing, and synchronization with backend.
+Manages daily reset logic and usage history persistence.
+*/
 import { writable, derived, get } from 'svelte/store';
 import {
     currentAccount,
@@ -15,9 +17,16 @@ import {
     isLimitReached,
     getRemainingGenerations
 } from '../config/limits';
-import { isDevelopment } from '../utils/environment';
+import { isDevelopment, isDebugMode } from '../utils/environment';
 import { cachedFetchAccount, invalidateCachePattern } from '../utils/apiCache';
 import type { Account, UsageHistoryEntry, DailyLimitState } from '../types/Account';
+
+function debugDailyUsageStore(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 DailyUsageStore Debug: ${context}`);
+    if (data) debugDailyUsageStore(data);
+    console.groupEnd();
+}
 
 export interface UsageStatus {
     isLoading: boolean;
@@ -36,8 +45,6 @@ export interface DailyUsageData {
     lastIncrement?: string;
     [key: string]: unknown;
 }
-
-// UsageHistoryEntry and DailyLimitState are now imported from '../types/Account'
 
 export const usageStatus = writable<UsageStatus>({
     isLoading: false,
@@ -65,16 +72,13 @@ function getUsageFromLocalStorage(): DailyUsageData | null {
         if (stored && typeof stored === 'object') {
             const resetDate = stored.lastReset || stored.date;
             if (shouldResetUsage(resetDate)) {
-                console.log(
-                    '📅 Daily usage data expired (new day detected), returning null to trigger reset...'
-                );
+                debugDailyUsageStore('Daily usage data expired (new day detected), returning null to trigger reset');
                 return null;
             }
 
-            const OLD_LIMITS = [3, 25]; // Old incorrect values
+            const OLD_LIMITS = [3, 25];
             if (stored.limit && OLD_LIMITS.includes(stored.limit)) {
-                console.log(
-                    '🔄 MIGRATION: Detected old limit value:',
+                debugDailyUsageStore('MIGRATION: Detected old limit value',
                     stored.limit
                 );
 
@@ -94,27 +98,27 @@ function getUsageFromLocalStorage(): DailyUsageData | null {
 
                 storageHelpers.set(STORAGE_KEYS.DAILY_USAGE, migratedData);
 
-                console.log(
+                debugDailyUsageStore(
                     '✅ MIGRATION: Limit updated:',
                     stored.limit,
                     '→',
                     newLimit
                 );
-                console.log(
+                debugDailyUsageStore(
                     '✅ MIGRATION: Migrated data saved to localStorage'
                 );
 
                 return migratedData;
             }
 
-            console.log(
+            debugDailyUsageStore(
                 '📦 Loaded daily usage from localStorage (same day):',
                 stored
             );
             return stored;
         }
     } catch (error: unknown) {
-        console.warn('⚠️ Failed to load usage from localStorage:', error);
+        debugDailyUsageStore('⚠️ Failed to load usage from localStorage:', error);
     }
     return null;
 }
@@ -122,9 +126,9 @@ function getUsageFromLocalStorage(): DailyUsageData | null {
 function saveUsageToLocalStorage(usageData: DailyUsageData): void {
     try {
         storageHelpers.set(STORAGE_KEYS.DAILY_USAGE, usageData);
-        console.log('💾 Saved daily usage to localStorage:', usageData);
+        debugDailyUsageStore('💾 Saved daily usage to localStorage:', usageData);
     } catch (error: unknown) {
-        console.warn('⚠️ Failed to save usage to localStorage:', error);
+        debugDailyUsageStore('⚠️ Failed to save usage to localStorage:', error);
     }
 }
 
@@ -146,7 +150,7 @@ export async function initializeDailyUsage(
         const tier = accountData?.tier || accountTier || 'free';
         const loggedIn = !!accountData || isLoggedIn || false;
 
-        console.log('🔄 Initializing daily usage for ALL users...', {
+        debugDailyUsageStore('🔄 Initializing daily usage for ALL users...', {
             loggedIn,
             tier,
             hasAccount: !!account,
@@ -163,7 +167,7 @@ export async function initializeDailyUsage(
                 try {
                     usageData = JSON.parse(accountDailyUsage) as DailyUsageData;
                 } catch (e) {
-                    console.warn(
+                    debugDailyUsageStore(
                         '⚠️ Failed to parse dailyUsage from accountData:',
                         e
                     );
@@ -177,7 +181,7 @@ export async function initializeDailyUsage(
             }
 
             if (usageData) {
-                console.log(
+                debugDailyUsageStore(
                     '✅ Daily usage loaded from accountData (priority 1 - prevents duplicate API call!):',
                     usageData
                 );
@@ -189,7 +193,7 @@ export async function initializeDailyUsage(
         if (!usageData) {
             usageData = getUsageFromLocalStorage();
             if (usageData) {
-                console.log(
+                debugDailyUsageStore(
                     '✅ Daily usage loaded from localStorage (priority 2):',
                     usageData
                 );
@@ -198,19 +202,19 @@ export async function initializeDailyUsage(
         }
 
         if (!usageData && loggedIn && account?.userId) {
-            console.log(
+            debugDailyUsageStore(
                 '📡 Loading daily usage from API (accountData had no dailyUsage)...'
             );
             const apiUsageData = await loadUsageFromAPI(account);
             if (apiUsageData) {
-                console.log(
+                debugDailyUsageStore(
                     '✅ Daily usage loaded from API (merging with localStorage):',
                     apiUsageData
                 );
                 usageData = apiUsageData;
             }
         } else if (usageData && accountData?.dailyUsage) {
-            console.log(
+            debugDailyUsageStore(
                 '⏭️ Skipping API call - dailyUsage already loaded from accountData (prevents duplicate!)'
             );
         }
@@ -223,7 +227,7 @@ export async function initializeDailyUsage(
                 limit: limit,
                 lastReset: getTodayDateString()
             };
-            console.log(
+            debugDailyUsageStore(
                 '✅ Daily usage initialized with defaults (first time):',
                 usageData
             );
@@ -233,7 +237,7 @@ export async function initializeDailyUsage(
             if (loggedIn && account?.userId) {
                 await saveUsageToAPI(account, usageData).catch(
                     (error: unknown) => {
-                        console.warn(
+                        debugDailyUsageStore(
                             '⚠️ Failed to save initial usage to API:',
                             error
                         );
@@ -245,14 +249,14 @@ export async function initializeDailyUsage(
         if (loggedIn && account?.userId) {
             const correctLimit = getDailyLimitForUser(loggedIn, tier);
             if (usageData.limit !== correctLimit) {
-                console.log(
+                debugDailyUsageStore(
                     `🔄 Updating limit for tier change: ${usageData.limit} → ${correctLimit} (logged in as ${tier})`
                 );
                 usageData.limit = correctLimit;
                 saveUsageToLocalStorage(usageData);
             }
         } else {
-            console.log(
+            debugDailyUsageStore(
                 `⏸️ Skipping limit update (not logged in yet): current=${
                     usageData.limit
                 }, would be=${getDailyLimitForUser(loggedIn, tier)}`
@@ -268,14 +272,14 @@ export async function initializeDailyUsage(
                 limit: limit,
                 lastReset: getTodayDateString()
             };
-            console.log('🔄 Daily usage reset for new day:', usageData);
+            debugDailyUsageStore('🔄 Daily usage reset for new day:', usageData);
 
             updateDailyLimitStore(usageData);
 
             saveUsageToLocalStorage(usageData);
             if (loggedIn && account?.userId) {
                 saveUsageToAPI(account, usageData).catch((error: unknown) => {
-                    console.warn('⚠️ Failed to save reset to API:', error);
+                    debugDailyUsageStore('⚠️ Failed to save reset to API:', error);
                 });
             }
         } else {
@@ -283,7 +287,7 @@ export async function initializeDailyUsage(
             saveUsageToLocalStorage(usageData);
         }
 
-        console.log('🎯 FINAL daily usage state:', {
+        debugDailyUsageStore('🎯 FINAL daily usage state:', {
             used: usageData.used,
             limit: usageData.limit,
             remaining: usageData.limit - usageData.used,
@@ -297,7 +301,7 @@ export async function initializeDailyUsage(
     } catch (error: unknown) {
         const errorMessage =
             error instanceof Error ? error.message : String(error);
-        console.error('❌ Failed to initialize daily usage:', error);
+        debugDailyUsageStore('❌ Failed to initialize daily usage:', error);
         usageStatus.isLoading = false;
         usageStatus.hasError = true;
         usageStatus.errorMessage = errorMessage;
@@ -346,7 +350,7 @@ async function saveToUsageHistory(
                 limit: latestUsageData.limit || existingEntry.limit || 0,
                 timestamp: new Date().toISOString()
             };
-            console.log('🔄 [HISTORY] Merging existing entry:', {
+            debugDailyUsageStore('🔄 [HISTORY] Merging existing entry:', {
                 existing: existingEntry,
                 fromStore: currentLimit,
                 fromUsageData: usageData,
@@ -377,7 +381,7 @@ async function saveToUsageHistory(
             )
             .slice(0, 365);
 
-        console.log(
+        debugDailyUsageStore(
             '📊 Updated usage history:',
             updatedHistory.length,
             'entries'
@@ -385,7 +389,7 @@ async function saveToUsageHistory(
 
         return updatedHistory;
     } catch (error: unknown) {
-        console.warn('⚠️ Failed to update usage history:', error);
+        debugDailyUsageStore('⚠️ Failed to update usage history:', error);
         const metadata =
             account.metadata && typeof account.metadata === 'object'
                 ? (account.metadata as Record<string, unknown>)
@@ -411,7 +415,7 @@ export async function incrementDailyUsage(
         const currentLimit = dailyLimit as DailyLimitState;
 
         if (!isStoryMode && currentLimit.used >= currentLimit.limit) {
-            console.error(
+            debugDailyUsageStore(
                 '❌ Cannot increment: Daily limit already reached!',
                 currentLimit
             );
@@ -439,7 +443,7 @@ export async function incrementDailyUsage(
             lastIncrement: new Date().toISOString()
         };
 
-        console.log('➕ Incrementing daily usage:', {
+        debugDailyUsageStore('➕ Incrementing daily usage:', {
             before: currentLimit,
             after: usageData
         });
@@ -452,7 +456,7 @@ export async function incrementDailyUsage(
             STORAGE_KEYS.DAILY_USAGE
         );
         if (!verification || verification.used !== newUsed) {
-            console.error(
+            debugDailyUsageStore(
                 '❌ CRITICAL: localStorage write failed! Attempting retry...'
             );
             saveUsageToLocalStorage(usageData);
@@ -461,18 +465,18 @@ export async function incrementDailyUsage(
                 STORAGE_KEYS.DAILY_USAGE
             );
             if (!retryVerification || retryVerification.used !== newUsed) {
-                console.error('❌ CRITICAL: localStorage retry also failed!');
+                debugDailyUsageStore('❌ CRITICAL: localStorage retry also failed!');
                 throw new Error(
                     'Failed to persist usage increment to localStorage'
                 );
             }
         } else {
-            console.log('✅ localStorage write verified:', verification);
+            debugDailyUsageStore('✅ localStorage write verified:', verification);
         }
 
         if (loggedIn && account?.userId) {
             saveUsageToAPI(account, usageData).catch((error: unknown) => {
-                console.warn(
+                debugDailyUsageStore(
                     '⚠️ API save failed (non-critical, localStorage is up-to-date):',
                     error
                 );
@@ -482,7 +486,7 @@ export async function incrementDailyUsage(
         usageStatus.isSaving = false;
         usageStatus.lastSync = new Date().toISOString();
 
-        console.log(
+        debugDailyUsageStore(
             '✅ Daily usage incremented and persisted successfully:',
             usageData
         );
@@ -490,7 +494,7 @@ export async function incrementDailyUsage(
     } catch (error: unknown) {
         const errorMessage =
             error instanceof Error ? error.message : String(error);
-        console.error('❌ Failed to increment daily usage:', error);
+        debugDailyUsageStore('❌ Failed to increment daily usage:', error);
         usageStatus.isSaving = false;
         usageStatus.hasError = true;
         usageStatus.errorMessage = errorMessage;
@@ -505,7 +509,7 @@ async function loadUsageFromAPI(
     account: Account
 ): Promise<DailyUsageData | null> {
     try {
-        console.log(
+        debugDailyUsageStore(
             '📡 Loading daily usage from API (cached):',
             account.userId
         );
@@ -519,7 +523,7 @@ async function loadUsageFromAPI(
         let result: { success: boolean; account?: Account } | null = null;
 
         if (isLocalhost) {
-            console.log('💡 [LOCALHOST] Fetching from n8n directly...');
+            debugDailyUsageStore('💡 [LOCALHOST] Fetching from n8n directly...');
             try {
                 const n8nResponse = await fetch(
                     'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account',
@@ -539,12 +543,12 @@ async function loadUsageFromAPI(
                         success: boolean;
                         account?: Account;
                     };
-                    console.log('✅ [LOCALHOST] Loaded from n8n');
+                    debugDailyUsageStore('✅ [LOCALHOST] Loaded from n8n');
                 } else {
                     return null;
                 }
             } catch (error: unknown) {
-                console.warn('⚠️ [LOCALHOST] n8n fetch failed:', error);
+                debugDailyUsageStore('⚠️ [LOCALHOST] n8n fetch failed:', error);
                 return null;
             }
         } else {
@@ -560,7 +564,7 @@ async function loadUsageFromAPI(
                 .dailyUsage as DailyUsageData | null;
 
             if (dailyUsage) {
-                console.log(
+                debugDailyUsageStore(
                     '✅ [NEW STRUCTURE] Loading dailyUsage from separate column'
                 );
             } else {
@@ -571,7 +575,7 @@ async function loadUsageFromAPI(
                         : {};
                 if (profile.dailyUsage) {
                     dailyUsage = profile.dailyUsage as DailyUsageData;
-                    console.warn(
+                    debugDailyUsageStore(
                         '⚠️ [DEPRECATED] Loading dailyUsage from profile (should be in own column)'
                     );
                 }
@@ -587,7 +591,7 @@ async function loadUsageFromAPI(
                             : {};
                     if (metadata.dailyUsage) {
                         dailyUsage = metadata.dailyUsage as DailyUsageData;
-                        console.warn(
+                        debugDailyUsageStore(
                             '⚠️ [DEPRECATED] Loading dailyUsage from metadata (should be migrated to own column)'
                         );
                     }
@@ -598,7 +602,7 @@ async function loadUsageFromAPI(
                 try {
                     dailyUsage = JSON.parse(dailyUsage) as DailyUsageData;
                 } catch (e) {
-                    console.warn('⚠️ Failed to parse dailyUsage:', e);
+                    debugDailyUsageStore('⚠️ Failed to parse dailyUsage:', e);
                     dailyUsage = null;
                 }
             }
@@ -608,14 +612,14 @@ async function loadUsageFromAPI(
                 typeof dailyUsage === 'object' &&
                 dailyUsage !== null
             ) {
-                console.log('✅ Daily usage from API (cached):', dailyUsage);
+                debugDailyUsageStore('✅ Daily usage from API (cached):', dailyUsage);
                 return dailyUsage as DailyUsageData;
             }
         }
 
         return null;
     } catch (error: unknown) {
-        console.warn('⚠️ Failed to load usage from API:', error);
+        debugDailyUsageStore('⚠️ Failed to load usage from API:', error);
         return null;
     }
 }
@@ -633,7 +637,7 @@ async function saveUsageToAPI(
     rawResponse?: string;
 }> {
     try {
-        console.log('📡 Saving daily usage to API:', usageData);
+        debugDailyUsageStore('📡 Saving daily usage to API:', usageData);
 
         const currentPrefs = storageHelpers.get<Account>(
             STORAGE_KEYS.USER_PREFERENCES,
@@ -685,7 +689,7 @@ async function saveUsageToAPI(
             : WEBHOOKS.ACCOUNT.UPDATE; // Vercel proxy for production
 
         if (isLocalhost) {
-            console.log(
+            debugDailyUsageStore(
                 '💡 [LOCALHOST] Using direct n8n webhook for usage tracking'
             );
         }
@@ -727,7 +731,7 @@ async function saveUsageToAPI(
         };
 
         if (!responseText || responseText.trim().length === 0) {
-            console.log(
+            debugDailyUsageStore(
                 '⚠️ [API] Empty response from n8n (non-critical, usage saved)'
             );
             result = {
@@ -743,11 +747,11 @@ async function saveUsageToAPI(
                     rawResponse?: string;
                 };
             } catch (parseError: unknown) {
-                console.warn(
+                debugDailyUsageStore(
                     '⚠️ [API] Failed to parse JSON response:',
                     parseError
                 );
-                console.warn(
+                debugDailyUsageStore(
                     '⚠️ [API] Response text:',
                     responseText.substring(0, 200)
                 );
@@ -759,10 +763,10 @@ async function saveUsageToAPI(
             }
         }
 
-        console.log('✅ Daily usage saved to API:', result);
+        debugDailyUsageStore('✅ Daily usage saved to API:', result);
 
         if (result.success && result.account) {
-            console.log(
+            debugDailyUsageStore(
                 '🔄 [SYNC] Syncing backend response to local stores...'
             );
 
@@ -791,7 +795,7 @@ async function saveUsageToAPI(
                                 parsedAccount.dailyUsage
                             ) as DailyUsageData;
                         } catch (e) {
-                            console.warn(
+                            debugDailyUsageStore(
                                 '⚠️ Failed to parse dailyUsage from response:',
                                 e
                             );
@@ -805,14 +809,14 @@ async function saveUsageToAPI(
                     }
                 }
 
-                console.log(
+                debugDailyUsageStore(
                     '📊 [SYNC] Backend returned usageHistory:',
                     (parsedMetadata.usageHistory as UsageHistoryEntry[])
                         ?.length || 0,
                     'entries'
                 );
                 if (parsedDailyUsage) {
-                    console.log('✅ [SYNC] Backend returned dailyUsage:', {
+                    debugDailyUsageStore('✅ [SYNC] Backend returned dailyUsage:', {
                         date: parsedDailyUsage.date,
                         used: parsedDailyUsage.used,
                         limit: parsedDailyUsage.limit
@@ -825,7 +829,7 @@ async function saveUsageToAPI(
                     lastLogin: new Date().toISOString()
                 };
                 storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
-                console.log('✅ [SYNC] localStorage updated');
+                debugDailyUsageStore('✅ [SYNC] localStorage updated');
 
                 const { usageHistory: usageHistoryStore } = await import(
                     './userDataStore.ts'
@@ -840,7 +844,7 @@ async function saveUsageToAPI(
                         lastUpdate: Date.now(),
                         isCached: false
                     }));
-                    console.log('✅ [SYNC] usageHistory store updated');
+                    debugDailyUsageStore('✅ [SYNC] usageHistory store updated');
                 }
 
                 const { syncAccountData } = await import('./accountStore');
@@ -849,11 +853,11 @@ async function saveUsageToAPI(
                     metadata: parsedMetadata,
                     dailyUsage: parsedDailyUsage || account.dailyUsage || null
                 });
-                console.log(
+                debugDailyUsageStore(
                     '✅ [SYNC] currentAccount store updated with dailyUsage'
                 );
             } catch (syncError: unknown) {
-                console.warn(
+                debugDailyUsageStore(
                     '⚠️ [SYNC] Failed to sync backend response (non-critical):',
                     syncError
                 );
@@ -864,7 +868,7 @@ async function saveUsageToAPI(
     } catch (error: unknown) {
         const errorMessage =
             error instanceof Error ? error.message : String(error);
-        console.error('❌ Failed to save usage to API:', error);
+        debugDailyUsageStore('❌ Failed to save usage to API:', error);
         throw error;
     }
 }
@@ -875,14 +879,14 @@ async function saveUsageToAPI(
  */
 export function updateDailyLimitStore(usageData: DailyUsageData | null): void {
     if (!usageData) {
-        console.warn('⚠️ updateDailyLimitStore: No usageData provided');
+        debugDailyUsageStore('⚠️ updateDailyLimitStore: No usageData provided');
         return;
     }
 
     dailyLimit.limit = usageData.limit || 0;
     dailyLimit.used = usageData.used || 0;
     dailyLimit.storyUsed = usageData.storyUsed || 0;
-    console.log('✅ dailyLimit store updated:', {
+    debugDailyUsageStore('✅ dailyLimit store updated:', {
         limit: usageData.limit,
         used: usageData.used,
         storyUsed: usageData.storyUsed || 0
@@ -896,7 +900,7 @@ export function updateDailyLimitStore(usageData: DailyUsageData | null): void {
  */
 export async function resetDailyUsage(): Promise<DailyUsageData> {
     if (!isDevelopment()) {
-        console.error(
+        debugDailyUsageStore(
             '❌ [SECURITY] resetDailyUsage() is only available in development mode!'
         );
         throw new Error(
@@ -923,7 +927,7 @@ export async function resetDailyUsage(): Promise<DailyUsageData> {
         await saveUsageToAPI(account, usageData);
     }
 
-    console.log('🔄 [DEV] Daily usage reset:', usageData);
+    debugDailyUsageStore('🔄 [DEV] Daily usage reset:', usageData);
     return usageData;
 }
 
