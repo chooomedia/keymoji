@@ -1,3 +1,8 @@
+<!--
+Language switcher component for changing application language.
+Handles language selection, menu display, and navigation updates.
+Manages font preloading and user settings synchronization.
+-->
 <script lang="ts">
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
@@ -6,6 +11,18 @@
     import { currentLanguage, changeLanguage, showLanguageMenu, translations } from '../stores/contentStore';
     import { supportedLanguages } from '../utils/languages';
     import { navigate } from '../utils/routing';
+    import { isDebugMode } from '../utils/environment';
+
+    function debugLanguageSwitcher() {
+        if (!isDebugMode()) return;
+        console.group('🔍 LanguageSwitcher Debug');
+        console.log('State:', {
+            selectedLang,
+            isMenuOpen: get(showLanguageMenu),
+            currentLanguage: get(currentLanguage)
+        });
+        console.groupEnd();
+    }
     
     const dispatch = createEventDispatcher();
     
@@ -69,10 +86,7 @@
             }
             
             elvishFontLoaded = true;
-            console.log('Elvish font preloaded and ready');
-        } catch (error) {
-            console.warn('Failed to preload Elvish font:', error);
-        }
+        } catch (error) {}
     }
     
     function toggleLanguageMenu(event) {
@@ -121,17 +135,7 @@
         const languageCodes = languages.map(lang => lang.code);
         const nonLanguageSegments = pathSegments.filter(segment => !languageCodes.includes(segment));
         
-        // Construct new URL with new language code
         const newPath = `/${langCode}${nonLanguageSegments.length > 0 ? '/' + nonLanguageSegments.join('/') : ''}`;
-        
-        console.log('🔄 updateCurrentPath:', {
-            originalPath: path,
-            pathSegments,
-            languageCodes,
-            nonLanguageSegments,
-            newPath
-        });
-        
         return newPath;
     }
     
