@@ -1,13 +1,14 @@
-// src/stores/accountSecurity.ts
-// Security & Logging Functions für Account Management
-// TypeScript Migration: v0.7.7
+/*
+Account security store for managing security events, rate limiting, and audit logging.
+Handles login attempt tracking, security event logging, and accounting event management.
+Provides rate limiting functionality to prevent brute force attacks.
+*/
 import { get } from 'svelte/store';
 import { currentAccount } from './appStores';
 import { WEBHOOKS } from '../config/api';
 import { generateClientFingerprint } from '../utils/sharedHelpers';
 import { getSessionId } from './accountHelpers';
-// Types werden von accountStore.ts exportiert
-// Import hier temporär, bis accountStore.ts refactored ist
+import { isDebugMode } from '../utils/environment';
 import type {
     SecurityEventDetails,
     SecurityLog,
@@ -19,16 +20,20 @@ const LOGIN_ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 minutes
 
 const LOGIN_ATTEMPTS = new Map<string, number[]>();
 
-/**
- * Log security event
- */
+function debugAccountSecurity(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 AccountSecurity Debug: ${context}`);
+    if (data) console.log(data);
+    console.groupEnd();
+}
+
 export function logSecurityEvent(
     event: string,
     details: SecurityEventDetails = {}
 ): void {
     const timestamp = new Date().toISOString();
     const clientFingerprint = generateClientFingerprint();
-    const account = get(currentAccount);
+    const account = currentAccount;
 
     const securityLog: SecurityLog = {
         event,
@@ -43,7 +48,7 @@ export function logSecurityEvent(
         email: details?.email || account?.email
     };
 
-    console.log('🔒 Security Event:', securityLog);
+    debugAccountSecurity('Security Event', securityLog);
 
     if (
         typeof window !== 'undefined' &&
@@ -54,7 +59,7 @@ export function logSecurityEvent(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(securityLog)
         }).catch((error: unknown) => {
-            console.warn('Failed to log security event:', error);
+            debugAccountSecurity('Failed to log security event', error);
         });
     }
 }
@@ -66,7 +71,7 @@ export function logAccountingEvent(
     event: string,
     details: SecurityEventDetails = {}
 ): void {
-    const account = get(currentAccount);
+    const account = currentAccount;
     const accountingDetails: AccountingEventDetails = {
         ...details,
         event: event, // Add event field for n8n compatibility
@@ -80,7 +85,7 @@ export function logAccountingEvent(
         action: event
     };
 
-    console.log('💰 Accounting Event:', accountingDetails);
+    debugAccountSecurity('Accounting Event', accountingDetails);
 
     if (typeof window !== 'undefined') {
         fetch(WEBHOOKS.ACCOUNTING.AUDIT_LOG, {
@@ -88,7 +93,7 @@ export function logAccountingEvent(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(accountingDetails)
         }).catch((error: unknown) => {
-            console.warn('Failed to log accounting event to n8n:', error);
+            debugAccountSecurity('Failed to log accounting event to n8n', error);
         });
     }
 

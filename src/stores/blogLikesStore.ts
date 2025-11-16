@@ -1,11 +1,20 @@
-// src/stores/blogLikesStore.ts
-// Store für Blog Post Likes - Best Practices nach Svelte Doc
-// TypeScript Migration: v0.7.7
-// WICHTIG: In .ts-Dateien KEINE Runes verwenden – klassische Svelte Stores nutzen
-
+/*
+Blog likes store for managing blog post like status and counts.
+Handles like state synchronization with backend, optimistic updates, and cache management.
+Provides like status tracking and refresh functionality for blog posts.
+*/
 import { writable, get, derived, type Readable } from 'svelte/store';
 import { fetchBlogPosts, likeBlogPost, type BlogPost } from '../utils/blogApi';
+import { isDebugMode } from '../utils/environment';
 import type { LikeBlogPostResponse } from '../utils/blogApi';
+
+function debugBlogLikesStore(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 BlogLikesStore Debug: ${context}`);
+    if (data) debugBlogLikesStore(data);
+    console.groupEnd();
+}
+
 export interface LikeStatus {
     liked: boolean;
     likes: number;
@@ -54,13 +63,13 @@ async function initialize(): Promise<void> {
             forceRefresh: true
         });
 
-        console.log(
+        debugBlogLikesStore(
             '🔍 [blogLikesStore] DEBUG - Fetched posts from backend:',
             posts.length
         );
         if (posts.length > 0 && posts[0]) {
             const firstPost = posts[0];
-            console.log('🔍 [blogLikesStore] DEBUG - First post:', {
+            debugBlogLikesStore('🔍 [blogLikesStore] DEBUG - First post:', {
                 id: firstPost.id || firstPost.row_number,
                 title: firstPost.title?.substring(0, 30),
                 likes: firstPost.likes,
@@ -88,7 +97,7 @@ async function initialize(): Promise<void> {
                         firstPost &&
                         postId === (firstPost.id || firstPost.row_number)
                     ) {
-                        console.log(
+                        debugBlogLikesStore(
                             '🔍 [blogLikesStore] DEBUG - Processing first post:',
                             {
                                 postId,
@@ -111,7 +120,7 @@ async function initialize(): Promise<void> {
                 const firstPostId = String(
                     firstPost.id || firstPost.row_number
                 );
-                console.log(
+                debugBlogLikesStore(
                     '✅ [blogLikesStore] DEBUG - Store data for first post:',
                     {
                         postId: firstPostId,
@@ -122,7 +131,7 @@ async function initialize(): Promise<void> {
 
             blogLikesState.set(likesData);
             isInitialized = true;
-            console.log(
+            debugBlogLikesStore(
                 '✅ [blogLikesStore] Initialized with backend values:',
                 Object.keys(likesData).length,
                 'posts'
@@ -132,7 +141,7 @@ async function initialize(): Promise<void> {
             isInitialized = true;
         }
     } catch (error) {
-        console.error('❌ [blogLikesStore] Error initializing:', error);
+        debugBlogLikesStore('❌ [blogLikesStore] Error initializing:', error);
         blogLikesState.set({});
         isInitialized = true;
     }
@@ -171,7 +180,7 @@ async function addLike(
     const current = getLikeStatus(postId);
 
     if (current.likes > 0) {
-        console.log(
+        debugBlogLikesStore(
             '⚠️ [blogLikesStore] Post already liked (likes > 0), skipping'
         );
         return {
@@ -210,7 +219,7 @@ async function addLike(
             const statusCode = result?.statusCode;
 
             if (statusCode === 404) {
-                console.warn(
+                debugBlogLikesStore(
                     '⚠️ [blogLikesStore] Like webhook not available (404). Workflow may not be active.'
                 );
             }
@@ -228,7 +237,7 @@ async function addLike(
         }
     } catch (error) {
         const err = error as Error;
-        console.error('❌ [blogLikesStore] Error adding like:', error);
+        debugBlogLikesStore('❌ [blogLikesStore] Error adding like:', error);
         if (optimistic) {
             updateLike(postId, false, 0);
         }
@@ -278,7 +287,7 @@ async function refreshFromBackend(): Promise<void> {
                     }
                 });
 
-                console.log(
+                debugBlogLikesStore(
                     '✅ [blogLikesStore] Refreshed from backend (backend values have priority)'
                 );
 
@@ -286,7 +295,7 @@ async function refreshFromBackend(): Promise<void> {
             });
         }
     } catch (error) {
-        console.error(
+        debugBlogLikesStore(
             '❌ [blogLikesStore] Error refreshing from backend:',
             error
         );
