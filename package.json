@@ -28,7 +28,11 @@
         "generate:token:dev": "node scripts/generate-n8n-token.js --env dev",
         "generate:token:prod": "node scripts/generate-n8n-token.js --env prod",
         "check:apertus-token": "node scripts/check-apertus-token.js",
-        "setup:apertus": "bash scripts/setup-apertus-token.sh"
+        "setup:apertus": "bash scripts/setup-apertus-token.sh",
+        "version:bump": "node scripts/bump-version.js",
+        "version:patch": "node scripts/bump-version.js patch",
+        "version:minor": "node scripts/bump-version.js minor",
+        "version:major": "node scripts/bump-version.js major"
     },
     "devDependencies": {
         "@babel/cli": "^7.28.3",
