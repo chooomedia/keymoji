@@ -1,8 +1,16 @@
-/**
- * Language Utilities - Content wird jetzt über contentStore verwaltet
- *
- * TypeScript Migration: v0.7.7
- */
+/*
+Language utilities for managing supported languages and locale handling.
+Provides language code validation, locale mapping, and browser language detection.
+Handles language metadata and translation key retrieval.
+*/
+import { isDebugMode } from './environment';
+
+function debugLanguages(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 Languages Debug: ${context}`);
+    if (data) console.log(data);
+    console.groupEnd();
+}
 
 import { get } from 'svelte/store';
 import { content, currentLanguage } from '../stores/contentStore';
@@ -163,10 +171,7 @@ export function getBrowserLanguage(): string {
  * @returns Object with preloaded translations (empty object, deprecated)
  */
 export function preloadTranslations(keys: string[] = [], langCode: string | null = null): Record<string, unknown> {
-    // Diese Funktion wird jetzt über contentStore verwaltet
-    console.warn(
-        'preloadTranslations is deprecated - use contentStore instead'
-    );
+    debugLanguages('preloadTranslations is deprecated - use contentStore instead');
     return {};
 }
 

@@ -1,32 +1,16 @@
-/**
- * Metadata Cleaner Utility
- * 
- * Best Practice: Single Source of Truth
- * - Fields with their own columns in Google Sheets should NOT be in metadata
- * - This prevents duplication, inconsistencies, and data loss
- * 
- * Google Sheets Columns:
- * - userId (UserID)
- * - email (Email)
- * - tier (Tier)
- * - createdAt (CreatedAt)
- * - lastLogin (LastLogin)
- * - profile (Profile) - JSON column
- * - dailyUsage (DailyUsage) - JSON column (NEW!)
- * - metadata (Metadata) - JSON column
- * - status (Status)
- * 
- * What SHOULD be in metadata:
- * - settings (UserSettings)
- * - usageHistory (for charts, last 365 days)
- * - updatedAt, updatedVia, lastActivity, lastSettingsSave (tracking fields)
- * - Other app-specific metadata
- * 
- * What should NOT be in metadata (have own columns):
- * - createdAt, dailyUsage, profile, tier, email, userId, lastLogin, status
- *
- * TypeScript Migration: v0.7.7
- */
+/*
+Metadata cleaner utility for removing duplicate fields from metadata objects.
+Prevents data duplication by removing fields that have their own columns in Google Sheets.
+Validates metadata structure and cleans nested objects to maintain data integrity.
+*/
+import { isDebugMode } from './environment';
+
+function debugMetadataCleaner(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 MetadataCleaner Debug: ${context}`);
+    if (data) console.log(data);
+    console.groupEnd();
+}
 
 /**
  * List of fields that have their own columns in Google Sheets
@@ -128,16 +112,12 @@ export function prepareMetadataForAPI(
 ): Record<string, unknown> {
     const cleaned = cleanMetadataForUpdate(metadata, { strict: true });
 
-    // Log what was removed (only in development)
     if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
         const removed = Object.keys(metadata || {}).filter(key => 
             COLUMN_FIELDS.includes(key) || COLUMN_FIELDS.includes(key.charAt(0).toUpperCase() + key.slice(1))
         );
         if (removed.length > 0) {
-            console.log(`🧹 [METADATA CLEANER] Removed ${removed.length} duplicate field(s) from metadata:`, removed);
-            if (context.source) {
-                console.log(`   Source: ${context.source}`);
-            }
+            debugMetadataCleaner(`Removed ${removed.length} duplicate field(s) from metadata`, { removed, source: context.source });
         }
     }
 
@@ -164,14 +144,8 @@ export function validateMetadataNoDuplicates(
     );
 
     if (duplicates.length > 0) {
-        const message = `⚠️ [METADATA VALIDATION] Found ${duplicates.length} duplicate field(s) in metadata from ${source}: ${duplicates.join(', ')}`;
-        
-        if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
-            console.error(message);
-            console.error('   This should be cleaned before sending to API!');
-        } else {
-            console.warn(message);
-        }
+        const message = `Found ${duplicates.length} duplicate field(s) in metadata from ${source}: ${duplicates.join(', ')}`;
+        debugMetadataCleaner(message, { duplicates, source, note: 'This should be cleaned before sending to API!' });
     }
 }
 

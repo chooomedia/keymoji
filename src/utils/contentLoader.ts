@@ -1,19 +1,17 @@
-/**
- * Content Loader Utility
- *
- * @description Efficiently loads and caches JSON content files for better performance.
- * Provides a centralized way to manage content loading with caching and error handling.
- *
- * TypeScript Migration: v0.7.7
- *
- * @example
- * import { loadContent } from '../utils/contentLoader';
- *
- * const settingsConfig = await loadContent('userSettings.json');
- * const translations = await loadContent('translations.json');
- */
+/*
+Content loader utility for efficiently loading and caching JSON content files.
+Provides centralized content management with caching and error handling.
+Manages content cache and preloading functionality for improved performance.
+*/
+import { isDebugMode } from './environment';
 
-// Cache for loaded content
+function debugContentLoader(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 ContentLoader Debug: ${context}`);
+    if (data) console.log(data);
+    console.groupEnd();
+}
+
 const contentCache = new Map<string, unknown>();
 
 /**
@@ -53,7 +51,7 @@ export async function loadContent(filename: string, useCache: boolean = true): P
 
         return content;
     } catch (error) {
-        console.error(`Error loading content from ${filename}:`, error);
+        debugContentLoader(`Error loading content from ${filename}`, error);
         throw error;
     }
 }
@@ -110,7 +108,7 @@ export async function preloadContent(filenames: string[]): Promise<Record<string
                 const data = await loadContent(filename);
                 content[filename] = data;
             } catch (error) {
-                console.error(`Failed to preload ${filename}:`, error);
+                debugContentLoader(`Failed to preload ${filename}`, error);
                 content[filename] = null;
             }
         })

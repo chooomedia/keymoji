@@ -1,10 +1,18 @@
-// src/utils/accountHelpers.ts
-// Zentrale Hilfsfunktionen für Account-Management
-//
-// TypeScript Migration: v0.7.7
-
+/*
+Account helper functions for account age calculation and formatting.
+Provides utilities for calculating days since account creation and formatting account age display.
+Handles account metadata retrieval and tier badge text generation.
+*/
 import { storageHelpers, STORAGE_KEYS } from '../config/storage';
+import { isDebugMode } from './environment';
 import type { Account } from '../types/Account';
+
+function debugAccountHelpers(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 AccountHelpers Debug: ${context}`);
+    if (data) debugAccountHelpers(data);
+    console.groupEnd();
+}
 
 /**
  * Account Age Translations Interface
@@ -30,7 +38,7 @@ export function getDaysSinceAccountCreation(currentAccount: Account | null = nul
     // PRIORITÄT 1: API-Daten vom currentAccount (aus Google Sheets!)
     if (currentAccount && currentAccount.createdAt) {
         createdAtValue = currentAccount.createdAt;
-        console.log(
+        debugAccountHelpers(
             '🔍 Using createdAt from currentAccount (API/Google Sheets):',
             createdAtValue
         );
@@ -39,11 +47,11 @@ export function getDaysSinceAccountCreation(currentAccount: Account | null = nul
     // PRIORITÄT 2: localStorage USER_PREFERENCES.createdAt (Fallback)
     if (!createdAtValue) {
         const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES) as { createdAt?: string } | null;
-        console.log('🔍 DEBUG: User preferences from localStorage:', userPrefs);
+        debugAccountHelpers('🔍 DEBUG: User preferences from localStorage:', userPrefs);
         createdAtValue = userPrefs?.createdAt || null;
 
         if (createdAtValue) {
-            console.log(
+            debugAccountHelpers(
                 '🔍 Using createdAt from localStorage:',
                 createdAtValue
             );
@@ -55,11 +63,11 @@ export function getDaysSinceAccountCreation(currentAccount: Account | null = nul
     // Wenn kein createdAt gefunden wird, bedeutet das, dass der Account noch nicht vollständig erstellt wurde
     // oder dass die Daten noch nicht synchronisiert wurden
     if (!createdAtValue) {
-        console.warn('⚠️ No creation date found - this should only happen for new accounts');
+        debugAccountHelpers('⚠️ No creation date found - this should only happen for new accounts');
         // DON'T set createdAt to current date here - it should come from the backend/API!
         // Only return current date for calculation purposes, but don't save it
         createdAtValue = new Date().toISOString();
-        console.log('⚠️ Using current date as fallback for calculation only (not saved)');
+        debugAccountHelpers('⚠️ Using current date as fallback for calculation only (not saved)');
     }
 
     try {
@@ -68,18 +76,18 @@ export function getDaysSinceAccountCreation(currentAccount: Account | null = nul
 
         // Check if the date is valid
         if (isNaN(createdAt.getTime())) {
-            console.warn('⚠️ Invalid date format:', createdAtValue);
+            debugAccountHelpers('⚠️ Invalid date format:', createdAtValue);
             return 0;
         }
 
         // Check if the date is in the future (which would be invalid)
         if (createdAt > now) {
-            console.warn('⚠️ CreatedAt date is in the future:', createdAtValue);
+            debugAccountHelpers('⚠️ CreatedAt date is in the future:', createdAtValue);
             // Use a reasonable fallback date (e.g., 1 day ago)
             const fallbackDate = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 1 day ago
             const diffTime = Math.abs(now.getTime() - fallbackDate.getTime());
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            console.log('🔧 Using fallback date (1 day ago):', diffDays);
+            debugAccountHelpers('🔧 Using fallback date (1 day ago):', diffDays);
             return diffDays;
         }
 
@@ -99,7 +107,7 @@ export function getDaysSinceAccountCreation(currentAccount: Account | null = nul
         const diffTime = nowUTC.getTime() - createdAtUTC.getTime();
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-        console.log('✅ Days since creation calculated:', {
+        debugAccountHelpers('✅ Days since creation calculated:', {
             createdAtValue,
             createdAt,
             createdAtUTC: createdAtUTC.toISOString(),
@@ -111,7 +119,7 @@ export function getDaysSinceAccountCreation(currentAccount: Account | null = nul
 
         return diffDays;
     } catch (error) {
-        console.warn('Error calculating days since account creation:', error);
+        debugAccountHelpers('Error calculating days since account creation:', error);
         return 0;
     }
 }
@@ -129,7 +137,7 @@ export function formatAccountAge(
 ): string {
     // Ensure days is a valid number
     if (typeof days !== 'number' || isNaN(days) || days < 0) {
-        console.warn('⚠️ formatAccountAge: Invalid days value, defaulting to 0:', days);
+        debugAccountHelpers('⚠️ formatAccountAge: Invalid days value, defaulting to 0:', days);
         days = 0;
     }
     
@@ -204,8 +212,8 @@ export function testSetCreatedAt(daysAgo: number = 0): number {
         createdAt: testDate
     };
     storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
-    console.log(`🔧 Test createdAt set to ${daysAgo} days ago:`, testDate);
-    console.log('🔧 Updated userPrefs:', updatedPrefs);
+    debugAccountHelpers(`🔧 Test createdAt set to ${daysAgo} days ago:`, testDate);
+    debugAccountHelpers('🔧 Updated userPrefs:', updatedPrefs);
     return getDaysSinceAccountCreation();
 }
 
@@ -215,7 +223,7 @@ export function testSetCreatedAt(daysAgo: number = 0): number {
  */
 export function checkLocalStorageForAccount(): Record<string, unknown> | null {
     const userPrefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES) as Record<string, unknown> | null;
-    console.log('🔍 Current userPrefs in localStorage:', userPrefs);
+    debugAccountHelpers('🔍 Current userPrefs in localStorage:', userPrefs);
     return userPrefs;
 }
 

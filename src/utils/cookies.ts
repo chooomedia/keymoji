@@ -1,8 +1,16 @@
-/**
- * Sichere Cookie-Behandlung für Account-Management
- *
- * TypeScript Migration: v0.7.7
- */
+/*
+Cookie utility for secure cookie management in account system.
+Provides functions for setting, getting, and deleting cookies with security options.
+Handles account tokens, session IDs, and user preferences via cookies.
+*/
+import { isDebugMode } from './environment';
+
+function debugCookies(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 Cookies Debug: ${context}`);
+    if (data) console.log(data);
+    console.groupEnd();
+}
 
 /**
  * Cookie-Optionen Interface
@@ -95,7 +103,7 @@ export function setSecureCookie(name: string, value: string, options: CookieOpti
         document.cookie = cookieString;
         return true;
     } catch (error) {
-        console.warn('Failed to set cookie:', name, error);
+        debugCookies('Failed to set cookie', { name, error });
         return false;
     }
 }
@@ -118,7 +126,7 @@ export function getCookie(name: string): string | null {
         }
         return null;
     } catch (error) {
-        console.warn('Failed to read cookie:', name, error);
+        debugCookies('Failed to read cookie', { name, error });
         return null;
     }
 }
@@ -133,7 +141,7 @@ export function deleteCookie(name: string): boolean {
         document.cookie = `${name}=; max-age=0; path=/`;
         return true;
     } catch (error) {
-        console.warn('Failed to delete cookie:', name, error);
+        debugCookies('Failed to delete cookie', { name, error });
         return false;
     }
 }

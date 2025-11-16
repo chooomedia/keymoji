@@ -1,13 +1,19 @@
-/**
- * Navigation Utilities für konsistente Navigation
- * Best Practices für Svelte-Routing mit Language-Support
- *
- * TypeScript Migration: v0.7.7
- */
-
+/*
+Navigation utilities for consistent routing with language support.
+Provides navigation functions for routes, home page, and contact page.
+Handles language-aware navigation and route checking functionality.
+*/
 import { get } from 'svelte/store';
 import { navigate } from './routing';
 import { currentLanguage } from '../stores/contentStore';
+import { isDebugMode } from './environment';
+
+function debugNavigation(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 Navigation Debug: ${context}`);
+    if (data) console.log(data);
+    console.groupEnd();
+}
 
 /**
  * Markiert dass der User von der initialen Seite navigiert ist
@@ -16,7 +22,7 @@ import { currentLanguage } from '../stores/contentStore';
 function markNavigatedAway(): void {
     if (typeof sessionStorage !== 'undefined') {
         sessionStorage.setItem('hasNavigatedAway', 'true');
-        console.log('🔄 User navigated away - hasNavigatedAway set to true');
+        debugNavigation('User navigated away - hasNavigatedAway set to true');
     }
 }
 
@@ -31,14 +37,10 @@ export function navigateToRoute(path: string, replace: boolean = false): void {
 
         const lang = get(currentLanguage) || 'en';
         const fullPath = path ? `/${lang}/${path}` : `/${lang}`;
-        console.log('🔄 Navigation: navigateToRoute', {
-            path,
-            fullPath,
-            replace
-        });
+        debugNavigation('Navigation: navigateToRoute', { path, fullPath, replace });
         navigate(fullPath, { replace });
     } catch (error) {
-        console.error('❌ Navigation error:', error);
+        debugNavigation('Navigation error', error);
         // Fallback zur Home-Seite
         navigate('/', { replace });
     }
@@ -54,10 +56,10 @@ export function navigateToHome(replace: boolean = false): void {
 
         const lang = get(currentLanguage) || 'en';
         const fullPath = lang === 'en' ? '/' : `/${lang}`;
-        console.log('🔄 Navigation: navigateToHome', { fullPath, replace });
+        debugNavigation('Navigation: navigateToHome', { fullPath, replace });
         navigate(fullPath, { replace });
     } catch (error) {
-        console.error('❌ Navigation error:', error);
+        debugNavigation('Navigation error', error);
         navigate('/', { replace });
     }
 }
