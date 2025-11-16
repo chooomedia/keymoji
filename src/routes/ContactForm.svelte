@@ -13,7 +13,7 @@
         showModalWithContent,
         showConfirmation,
         showInfo
-    } from '../stores/modalStore.js';
+    } from '../stores/modalStore';
     import { navigate } from "svelte-routing";
     import { fade, fly, scale } from 'svelte/transition';
     import PageLayout from '../components/Layout/PageLayout.svelte';

@@ -13,7 +13,7 @@
     import { translations } from '../../stores/contentStore.js';
     import { navigateToBlog } from '../../utils/navigation';
     import Button from '../UI/Button.svelte';
-    import { showModal } from '../../stores/modalStore.js';
+    import { showModal } from '../../stores/modalStore';
 
     const dispatch = createEventDispatcher();
     

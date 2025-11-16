@@ -26,7 +26,7 @@
         showMagicLinkVerificationFailed,
         showAccountLoginSuccess,
         showAccountLogoutSuccess
-    } from '../../stores/modalStore.js';
+    } from '../../stores/modalStore';
     import { incrementDailyUsage } from '../../stores/dailyUsageStore.js';
     
     // Import translations

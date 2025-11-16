@@ -39,7 +39,7 @@
         secureVerifyMagicLink,
         logAccountingEvent
     } from '../stores/accountStore.js';
-    import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore.js';
+    import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore';
     import { 
         currentSettings,
         resetSettings, 

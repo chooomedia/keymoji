@@ -18,7 +18,7 @@
         showModal,
         showInfo,
         isModalVisible
-    } from '../../stores/modalStore.js';
+    } from '../../stores/modalStore';
     import { translations, currentLanguage } from '../../stores/contentStore.js';
     import { getCurrentUserSettings, userSettings, effectiveSettings, updateSetting } from '../../stores/userSettingsStore.js';
     import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';

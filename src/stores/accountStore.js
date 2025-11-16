@@ -10,7 +10,7 @@ import {
     dailyLimit,
     updateDailyLimit
 } from './appStores.js';
-import { showExistingAccountFound, showNewAccountCreated } from './modalStore.js';
+import { showExistingAccountFound, showNewAccountCreated } from './modalStore';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 import { WEBHOOKS } from '../config/api.js';
 import { isDevelopment } from '../utils/environment';

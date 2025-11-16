@@ -12,7 +12,7 @@
         modalType, 
         modalData, 
         closeModal 
-    } from '../../stores/modalStore.js';
+    } from '../../stores/modalStore';
   
     // Import for isDebugMode
     import { isDebugMode } from '../../utils/environment';

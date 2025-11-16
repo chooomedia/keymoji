@@ -53,7 +53,7 @@
 
 <script>
     import { createEventDispatcher } from 'svelte';
-    import { showSuccess, showError, showInfo } from '../../stores/modalStore.js';
+    import { showSuccess, showError, showInfo } from '../../stores/modalStore';
     import Toggle from './Toggle.svelte';
     
     // Props

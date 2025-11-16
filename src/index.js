@@ -2,7 +2,7 @@
 import './index.css'; // Essential: Import Tailwind CSS
 import LanguageRouter from './routes/LanguageRouter.svelte';
 import { isProduction } from './utils/environment';
-import { closeModal, isModalVisible } from './stores/modalStore.js';
+import { closeModal, isModalVisible } from './stores/modalStore';
 
 /**
  * ASCII Art Logo Generator für Keymoji (Apple/Airbnb Style)

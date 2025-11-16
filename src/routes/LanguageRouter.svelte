@@ -4,7 +4,7 @@
     import { onMount, onDestroy } from 'svelte';
     import { changeLanguage, currentLanguage } from '../stores/contentStore.js';
     import { getBrowserLanguage, isLanguageSupported } from '../utils/languages';
-    import { closeModal, isModalVisible } from '../stores/modalStore.js';
+    import { closeModal, isModalVisible } from '../stores/modalStore';
     import { devLog } from '../utils/environment';
     import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore.js';
     // PERFORMANCE: Index bleibt synchron (Hauptseite, muss schnell laden)
