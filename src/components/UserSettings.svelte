@@ -577,10 +577,6 @@ Manages PRO banner, settings persistence, and validation.
                 activeSection = null;
             }
         }
-        
-        console.log('🎨 UI State updated:', uiState, 'activeSection:', activeSection);
-        
-        // Mark as pending change (will be saved with "Save Settings" button)
         updateSetting('uiState', uiState);
     }
 
