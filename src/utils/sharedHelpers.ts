@@ -1,12 +1,17 @@
-/**
- * Shared Utility Functions - Keymoji
- * Zentrale Sammlung von wiederverwendbaren Helper-Funktionen
- * Apple/Airbnb Style: DRY (Don't Repeat Yourself) Principle
- * 
- * TypeScript Migration: v0.7.7
- */
+/*
+Shared utility functions for common operations across the application.
+Provides timeout management, localization helpers, client fingerprinting, and utility functions.
+Implements DRY principle with reusable helper functions for memory management and i18n support.
+*/
+import { isDebugMode } from './environment';
 
-// Globale Timeout-Tracking für Memory Leak Prevention
+function debugSharedHelpers(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 SharedHelpers Debug: ${context}`);
+    if (data) debugSharedHelpers(data);
+    console.groupEnd();
+}
+
 const globalTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
 /**
@@ -105,7 +110,7 @@ export function safeNavigate(path: string, replace: boolean = false): boolean {
             return true;
         }
     } catch (error) {
-        console.warn('Navigation failed:', error);
+        debugSharedHelpers('Navigation failed:', error);
         return false;
     }
     return false;
@@ -217,12 +222,12 @@ export function logError(
 
     // In Development: Console-Logging
     if (process.env.NODE_ENV === 'development') {
-        console.error('🚨 Error:', errorInfo);
+        debugSharedHelpers('🚨 Error:', errorInfo);
     }
 
     // In Production: Minimal Logging für Privacy
     if (process.env.NODE_ENV === 'production') {
-        console.error('Error occurred:', errorInfo.message);
+        debugSharedHelpers('Error occurred:', errorInfo.message);
     }
 
     return errorInfo;
@@ -264,7 +269,7 @@ export const storageHelper = {
             const item = localStorage.getItem(key);
             return item ? JSON.parse(item) : defaultValue;
         } catch (error) {
-            console.warn(`Storage get failed for key: ${key}`, error);
+            debugSharedHelpers(`Storage get failed for key: ${key}`, error);
             return defaultValue;
         }
     },
@@ -275,7 +280,7 @@ export const storageHelper = {
             localStorage.setItem(key, JSON.stringify(value));
             return true;
         } catch (error) {
-            console.warn(`Storage set failed for key: ${key}`, error);
+            debugSharedHelpers(`Storage set failed for key: ${key}`, error);
             return false;
         }
     },
@@ -286,7 +291,7 @@ export const storageHelper = {
             localStorage.removeItem(key);
             return true;
         } catch (error) {
-            console.warn(`Storage remove failed for key: ${key}`, error);
+            debugSharedHelpers(`Storage remove failed for key: ${key}`, error);
             return false;
         }
     }
@@ -324,7 +329,7 @@ export function sendAnalyticsEvent(
 
     // In Development: Console-Logging
     if (process.env.NODE_ENV === 'development') {
-        console.log('📊 Analytics Event:', eventName, sanitizedProperties);
+        debugSharedHelpers('📊 Analytics Event:', eventName, sanitizedProperties);
     }
 
     return true;
@@ -351,7 +356,7 @@ export function generateClientFingerprint(): string {
         
         return canvas.toDataURL().substring(0, 32);
     } catch (error) {
-        console.warn('⚠️ Failed to generate client fingerprint:', error);
+        debugSharedHelpers('⚠️ Failed to generate client fingerprint:', error);
         // Fallback fingerprint
         return `fp_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     }

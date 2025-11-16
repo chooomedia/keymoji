@@ -1,9 +1,17 @@
-// src/utils/blogApi.ts
-// Blog API Utilities - Centralized blog data fetching with caching and error handling
-//
-// TypeScript Migration: v0.7.7
-
+/*
+Blog API utilities for fetching blog posts with caching and error handling.
+Provides centralized blog data fetching, slug normalization, and like management.
+Handles blog post retrieval, caching, and interaction with backend webhooks.
+*/
 import { WEBHOOKS } from '../config/api';
+import { isDebugMode } from './environment';
+
+function debugBlogApi(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 BlogApi Debug: ${context}`);
+    if (data) debugBlogApi(data);
+    console.groupEnd();
+}
 import { cachedFetch } from './apiCache';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage';
 import { normalizeSlug, sanitizeSlug } from './slug';
@@ -157,7 +165,7 @@ export function formatDate(isodate: string | null | undefined, locale: string = 
             day: 'numeric'
         });
     } catch (error) {
-        console.warn('⚠️ [blogApi] Error formatting date:', error);
+        debugBlogApi('⚠️ [blogApi] Error formatting date:', error);
         return '';
     }
 }
@@ -177,26 +185,26 @@ export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<Blo
         try {
             const stored = storageHelpers.get(STORAGE_KEYS_BLOG.POSTS, []) as BlogPost[] | unknown;
             cachedPosts = Array.isArray(stored) ? stored : [];
-            console.log('📦 [blogApi] Cached posts in localStorage:', cachedPosts.length);
+            debugBlogApi('📦 [blogApi] Cached posts in localStorage:', cachedPosts.length);
         } catch (error) {
-            console.warn('⚠️ [blogApi] Error reading cached posts:', error);
+            debugBlogApi('⚠️ [blogApi] Error reading cached posts:', error);
         }
         
         // Fetch von API mit Caching (oder ohne Cache wenn forceRefresh)
         const url = WEBHOOKS.BLOG.POSTS;
-        console.log('🔗 [blogApi] Fetching blog posts from:', url);
+        debugBlogApi('🔗 [blogApi] Fetching blog posts from:', url);
         let posts: unknown;
         
         if (forceRefresh) {
             // Force fresh fetch from API (bypass cache)
-            console.log('🔄 [blogApi] Force refreshing posts from backend...');
+            debugBlogApi('🔄 [blogApi] Force refreshing posts from backend...');
             const response = await fetch(url, { method: 'GET' });
             
             // Handle HTTP errors
             if (!response.ok) {
-                console.error(`❌ [blogApi] HTTP error! status: ${response.status}`);
+                debugBlogApi(`❌ [blogApi] HTTP error! status: ${response.status}`);
                 if (cachedPosts.length > 0) {
-                    console.warn('⚠️ [blogApi] Using cached data due to HTTP error');
+                    debugBlogApi('⚠️ [blogApi] Using cached data due to HTTP error');
                     return cachedPosts;
                 }
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -206,15 +214,15 @@ export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<Blo
             const responseText = await response.text();
             const responseLength = responseText ? responseText.trim().length : 0;
             
-            console.log(`📊 [blogApi] Response status: ${response.status}, size: ${responseLength} bytes`);
+            debugBlogApi(`📊 [blogApi] Response status: ${response.status}, size: ${responseLength} bytes`);
             
             if (!responseText || responseLength === 0) {
-                console.warn('⚠️ [blogApi] Empty response from API (HTTP 200 but 0 bytes), using cached data');
+                debugBlogApi('⚠️ [blogApi] Empty response from API (HTTP 200 but 0 bytes), using cached data');
                 if (cachedPosts.length > 0) {
                     return cachedPosts;
                 }
                 // Return empty array if no cache available
-                console.warn('⚠️ [blogApi] No cached data available, returning empty array');
+                debugBlogApi('⚠️ [blogApi] No cached data available, returning empty array');
                 return [];
             }
             
@@ -223,10 +231,10 @@ export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<Blo
                 posts = JSON.parse(responseText);
             } catch (parseError) {
                 const error = parseError instanceof Error ? parseError : new Error(String(parseError));
-                console.error('❌ [blogApi] Failed to parse JSON response:', error);
-                console.error('❌ [blogApi] Response text (first 200 chars):', responseText.substring(0, 200));
+                debugBlogApi('❌ [blogApi] Failed to parse JSON response:', error);
+                debugBlogApi('❌ [blogApi] Response text (first 200 chars):', responseText.substring(0, 200));
                 if (cachedPosts.length > 0) {
-                    console.warn('⚠️ [blogApi] Using cached data due to parse error');
+                    debugBlogApi('⚠️ [blogApi] Using cached data due to parse error');
                     return cachedPosts;
                 }
                 throw new Error(`Invalid JSON response: ${error.message}`);
@@ -241,9 +249,9 @@ export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<Blo
                 true // stale-while-revalidate
             );
             } catch (fetchError) {
-                console.error('❌ [blogApi] Error fetching posts:', fetchError);
+                debugBlogApi('❌ [blogApi] Error fetching posts:', fetchError);
                 if (cachedPosts.length > 0) {
-                    console.warn('⚠️ [blogApi] Using cached data due to fetch error');
+                    debugBlogApi('⚠️ [blogApi] Using cached data due to fetch error');
                     return cachedPosts;
                 }
                 throw fetchError;
@@ -252,14 +260,14 @@ export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<Blo
         
         // Handle empty or invalid responses
         if (!posts) {
-            console.warn('⚠️ [blogApi] Empty response from API, using cached data');
+            debugBlogApi('⚠️ [blogApi] Empty response from API, using cached data');
             return cachedPosts.length > 0 ? cachedPosts : [];
         }
         
         if (!Array.isArray(posts)) {
-            console.warn('⚠️ [blogApi] Invalid posts response (not an array):', typeof posts, posts);
+            debugBlogApi('⚠️ [blogApi] Invalid posts response (not an array):', typeof posts, posts);
             if (cachedPosts.length > 0) {
-                console.warn('⚠️ [blogApi] Using cached data due to invalid response type');
+                debugBlogApi('⚠️ [blogApi] Using cached data due to invalid response type');
                 return cachedPosts;
             }
             return [];
@@ -267,7 +275,7 @@ export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<Blo
         
         // Handle empty array (API returned [] but HTTP 200)
         if (posts.length === 0) {
-            console.log('ℹ️ [blogApi] API returned empty array, using cached data if available');
+            debugBlogApi('ℹ️ [blogApi] API returned empty array, using cached data if available');
             return cachedPosts.length > 0 ? cachedPosts : [];
         }
         
@@ -277,7 +285,7 @@ export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<Blo
         // DEBUG: Log Backend-Daten für ersten Post
         if (posts.length > 0 && forceRefresh) {
             const firstPost = posts[0] as BlogPost;
-            console.log('🔍 [blogApi] DEBUG - First post from backend:', {
+            debugBlogApi('🔍 [blogApi] DEBUG - First post from backend:', {
                 id: firstPost.id || firstPost.row_number,
                 title: firstPost.title?.substring(0, 30),
                 likes: firstPost.likes,
@@ -314,7 +322,7 @@ export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<Blo
             // DEBUG: Log für ersten Post
             if (postId === (posts[0] as BlogPost)?.id || postId === (posts[0] as BlogPost)?.row_number) {
                 if (forceRefresh) {
-                    console.log('🔍 [blogApi] DEBUG - Processing likes for first post:', {
+                    debugBlogApi('🔍 [blogApi] DEBUG - Processing likes for first post:', {
                         postId,
                         backendLikesRaw,
                         backendLikesRawType: typeof backendLikesRaw,
@@ -341,7 +349,7 @@ export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<Blo
             
             // DEBUG: Log wenn Backend-Wert fehlt oder unerwartet ist
             if (backendLikes === null || backendLikes === undefined || isNaN(backendLikes)) {
-                console.warn('⚠️ [blogApi] Missing/invalid likes from backend for post:', {
+                debugBlogApi('⚠️ [blogApi] Missing/invalid likes from backend for post:', {
                     id: postId,
                     title: blogPost.title?.substring(0, 30),
                     postLikes: blogPost.likes,
@@ -354,7 +362,7 @@ export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<Blo
             
             // DEBUG: Log für ersten Post (immer bei forceRefresh)
             if (postId === ((posts[0] as BlogPost)?.id || (posts[0] as BlogPost)?.row_number) && forceRefresh) {
-                console.log('✅ [blogApi] DEBUG - Final likes for first post:', {
+                debugBlogApi('✅ [blogApi] DEBUG - Final likes for first post:', {
                     postId,
                     backendLikes,
                     cachedLikesValue,
@@ -377,26 +385,26 @@ export async function fetchBlogPosts(options: BlogPostOptions = {}): Promise<Blo
         try {
             storageHelpers.set(STORAGE_KEYS_BLOG.POSTS, mergedPosts);
         } catch (error) {
-            console.warn('⚠️ [blogApi] Error saving posts to cache:', error);
+            debugBlogApi('⚠️ [blogApi] Error saving posts to cache:', error);
         }
         
         return mergedPosts;
     } catch (error) {
-        console.error('❌ [blogApi] Error fetching blog posts:', error);
+        debugBlogApi('❌ [blogApi] Error fetching blog posts:', error);
         
         // Fallback: Return cached posts
         try {
             const stored = storageHelpers.get(STORAGE_KEYS_BLOG.POSTS, []) as BlogPost[] | unknown;
             if (Array.isArray(stored) && stored.length > 0) {
-                console.log('✅ [blogApi] Using cached posts as fallback:', stored.length, 'posts');
+                debugBlogApi('✅ [blogApi] Using cached posts as fallback:', stored.length, 'posts');
                 return stored;
             }
         } catch (cacheError) {
-            console.error('❌ [blogApi] Error reading cached posts:', cacheError);
+            debugBlogApi('❌ [blogApi] Error reading cached posts:', cacheError);
         }
         
         // Return empty array if no cached data available
-        console.warn('⚠️ [blogApi] No cached posts available, returning empty array');
+        debugBlogApi('⚠️ [blogApi] No cached posts available, returning empty array');
         return [];
     }
 }
@@ -416,14 +424,14 @@ export async function fetchBlogPost(
     const { useCache = true } = options;
     
     if (!slug) {
-        console.error('❌ [blogApi] No slug provided');
+        debugBlogApi('❌ [blogApi] No slug provided');
         return null;
     }
     
     // Sanitize slug für sichere Suche
     const sanitizedSlug = sanitizeSlug(slug);
     if (!sanitizedSlug) {
-        console.error('❌ [blogApi] Invalid slug format:', slug);
+        debugBlogApi('❌ [blogApi] Invalid slug format:', slug);
         return null;
     }
     
@@ -432,7 +440,7 @@ export async function fetchBlogPost(
         const allPosts = await fetchBlogPosts({ useCache });
         
         if (!Array.isArray(allPosts) || allPosts.length === 0) {
-            console.warn('⚠️ [blogApi] No posts available to search');
+            debugBlogApi('⚠️ [blogApi] No posts available to search');
             return null;
         }
         
@@ -444,7 +452,7 @@ export async function fetchBlogPost(
         });
         
         if (!post) {
-            console.warn('⚠️ [blogApi] Post not found with slug:', sanitizedSlug);
+            debugBlogApi('⚠️ [blogApi] Post not found with slug:', sanitizedSlug);
             return null;
         }
         
@@ -460,7 +468,7 @@ export async function fetchBlogPost(
         
         return post;
     } catch (error) {
-        console.error('❌ [blogApi] Error fetching blog post:', error);
+        debugBlogApi('❌ [blogApi] Error fetching blog post:', error);
         return null;
     }
 }
@@ -479,7 +487,7 @@ export async function likeBlogPost(
     const { optimistic = true, unlike = false } = options;
     
     if (!postId) {
-        console.error('❌ [blogApi] No postId provided');
+        debugBlogApi('❌ [blogApi] No postId provided');
         return null;
     }
     
@@ -509,7 +517,7 @@ export async function likeBlogPost(
             
             // Handle 404 specifically (webhook not registered)
             if (statusCode === 404) {
-                console.warn('⚠️ [blogApi] Like webhook not registered (404). Workflow may not be active in n8n.');
+                debugBlogApi('⚠️ [blogApi] Like webhook not registered (404). Workflow may not be active in n8n.');
                 errorMessage = 'Like webhook not available. Please activate the workflow in n8n.';
             }
             
@@ -517,11 +525,11 @@ export async function likeBlogPost(
                 const errorData = await response.json() as { message?: string; error?: string; hint?: string };
                 errorMessage = errorData.message || errorData.error || errorMessage;
                 if (errorData.hint) {
-                    console.warn('💡 [blogApi] Hint:', errorData.hint);
+                    debugBlogApi('💡 [blogApi] Hint:', errorData.hint);
                 }
             } catch (parseError) {
                 const errorText = await response.text().catch(() => 'Unknown error');
-                console.error(`❌ [blogApi] Like request failed (${statusCode}):`, errorText.substring(0, 200));
+                debugBlogApi(`❌ [blogApi] Like request failed (${statusCode}):`, errorText.substring(0, 200));
             }
             
             if (optimistic) {
@@ -541,7 +549,7 @@ export async function likeBlogPost(
             const responseText = await response.text();
             
             if (!responseText || responseText.trim().length === 0) {
-                console.warn('⚠️ [blogApi] Empty response from API, assuming success');
+                debugBlogApi('⚠️ [blogApi] Empty response from API, assuming success');
                 updateCachedLike(postId, !unlike);
                 return {
                     success: true,
@@ -552,7 +560,7 @@ export async function likeBlogPost(
             result = JSON.parse(responseText) as { success?: boolean; likes?: number | string | null };
         } catch (parseError) {
             const error = parseError instanceof Error ? parseError : new Error(String(parseError));
-            console.error('❌ [blogApi] Failed to parse response as JSON:', error);
+            debugBlogApi('❌ [blogApi] Failed to parse response as JSON:', error);
             if (optimistic) {
                 updateCachedLike(postId, unlike);
             }
@@ -581,7 +589,7 @@ export async function likeBlogPost(
             return null;
         }
     } catch (error) {
-        console.error('❌ [blogApi] Error liking blog post:', error);
+        debugBlogApi('❌ [blogApi] Error liking blog post:', error);
         if (optimistic) {
             updateCachedLike(postId, unlike);
         }
@@ -598,7 +606,7 @@ function getCachedLikes(): CachedLikesStorage {
         const stored = storageHelpers.get(STORAGE_KEYS_BLOG.LIKES, {}) as CachedLikesStorage | unknown;
         return typeof stored === 'object' && stored !== null ? stored as CachedLikesStorage : {};
     } catch (error) {
-        console.warn('⚠️ [blogApi] Error reading cached likes:', error);
+        debugBlogApi('⚠️ [blogApi] Error reading cached likes:', error);
         return {};
     }
 }
@@ -628,14 +636,14 @@ function updateCachedLike(postId: string | number, liked: boolean, likes: number
         storageHelpers.set(STORAGE_KEYS_BLOG.LIKES, cachedLikes);
         
         // Debug: Log update
-        console.log('💾 [blogApi] Updated cached like:', {
+        debugBlogApi('💾 [blogApi] Updated cached like:', {
             postId,
             liked,
             likes: newLikes,
             source: likes !== null ? 'backend' : 'optimistic'
         });
     } catch (error) {
-        console.warn('⚠️ [blogApi] Error updating cached like:', error);
+        debugBlogApi('⚠️ [blogApi] Error updating cached like:', error);
     }
 }
 

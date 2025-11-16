@@ -1,18 +1,18 @@
-// src/utils/storyModeAI.ts
-/**
- * Story Mode AI Integration
- * Supports multiple AI providers: OpenAI, Google Gemini, Mistral, Custom
- *
- * Security: User provides their own API keys
- * Privacy: API keys stored encrypted in backend
- * Intelligence: AI generates emojis ONLY from emojisArray.json
- *
- * TypeScript Migration: v0.7.7
- */
-
+/*
+Story mode AI integration for generating emoji stories from user input.
+Supports multiple AI providers: OpenAI, Google Gemini, Mistral, Claude, Custom, Apertus.
+Handles API key management, request formatting, and response parsing for different providers.
+*/
 import emojisData from '../../public/emojisArray.json';
 import { storageHelpers } from '../config/storage';
-import { isDevelopment } from './environment';
+import { isDevelopment, isDebugMode } from './environment';
+
+function debugStoryModeAI(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 StoryModeAI Debug: ${context}`);
+    if (data) debugStoryModeAI(data);
+    console.groupEnd();
+}
 
 // Type definitions
 export type AIProvider = 'openai' | 'gemini' | 'mistral' | 'claude' | 'custom' | 'apertus';
@@ -205,7 +205,7 @@ function getAvailableEmojisForPrompt(): string {
     // This ensures consistency between Random and Story Mode
     // Return ALL emojis joined with spaces for the AI prompt
     if (!emojis || !Array.isArray(emojis) || emojis.length === 0) {
-        console.warn(
+        debugStoryModeAI(
             '⚠️ [Story Mode] Emojis array is empty or invalid, using fallback'
         );
         return '😀 😃 😄 😁 😆 😅 🤣 😂 🙂 🙃 😉 😊 😇 🥰 😍 🤩 😘 😗 ☺ 😚 😙';
@@ -334,7 +334,7 @@ async function callOpenAI(
 
     for (const modelName of modelsToTry) {
         try {
-            console.log(`🔄 Trying OpenAI model: ${modelName}`);
+            debugStoryModeAI(`🔄 Trying OpenAI model: ${modelName}`);
             return await callOpenAIWithModel(
                 apiKey,
                 prompt,
@@ -344,7 +344,7 @@ async function callOpenAI(
             );
         } catch (error) {
             const err = error as Error;
-            console.warn(`⚠️ OpenAI model ${modelName} failed:`, err.message);
+            debugStoryModeAI(`⚠️ OpenAI model ${modelName} failed:`, err.message);
             lastError = err;
         }
     }
@@ -428,7 +428,7 @@ async function callClaude(
 
     for (const modelName of modelsToTry) {
         try {
-            console.log(`🔄 Trying Claude model: ${modelName}`);
+            debugStoryModeAI(`🔄 Trying Claude model: ${modelName}`);
             return await callClaudeWithModel(
                 apiKey,
                 prompt,
@@ -438,7 +438,7 @@ async function callClaude(
             );
         } catch (error) {
             const err = error as Error;
-            console.warn(`⚠️ Claude model ${modelName} failed:`, err.message);
+            debugStoryModeAI(`⚠️ Claude model ${modelName} failed:`, err.message);
             lastError = err;
         }
     }
@@ -534,7 +534,7 @@ async function callApertus(
         (window.location.hostname === 'localhost' ||
             window.location.hostname === '127.0.0.1')
     ) {
-        console.log('🔍 [Apertus] Raw token from env:', {
+        debugStoryModeAI('🔍 [Apertus] Raw token from env:', {
             exists: !!rawToken,
             type: typeof rawToken,
             length: rawToken?.length || 0,
@@ -566,15 +566,15 @@ async function callApertus(
         n8nToken === "''" ||
         n8nToken.length < 10
     ) {
-        console.error(
+        debugStoryModeAI(
             '❌ [Apertus] VITE_N8N_APERTUS_TOKEN not set or is invalid. Webhook will reject request.'
         );
-        console.error(
+        debugStoryModeAI(
             '   💡 Run: npm run check:apertus-token to verify configuration'
         );
-        console.error('   🔍 Raw token value:', rawToken);
-        console.error('   🔍 Cleaned token:', n8nToken);
-        console.error('   🔍 Token length:', n8nToken?.length || 0);
+        debugStoryModeAI('   🔍 Raw token value:', rawToken);
+        debugStoryModeAI('   🔍 Cleaned token:', n8nToken);
+        debugStoryModeAI('   🔍 Token length:', n8nToken?.length || 0);
 
         // Throw error instead of silently continuing with empty token
         throw new Error(
@@ -584,7 +584,7 @@ async function callApertus(
         );
     } else {
         // Debug: Log token status (without exposing the actual token)
-        console.log('✅ [Apertus] Token loaded and validated:', {
+        debugStoryModeAI('✅ [Apertus] Token loaded and validated:', {
             length: n8nToken.length,
             preview: `${n8nToken.substring(0, 4)}...${n8nToken.substring(
                 n8nToken.length - 4
@@ -595,8 +595,8 @@ async function callApertus(
 
     // Debug: Log URL before fetch
     const apertusUrl = WEBHOOKS.APERTUS;
-    console.log('🔗 [Apertus] Calling webhook:', apertusUrl);
-    console.log(
+    debugStoryModeAI('🔗 [Apertus] Calling webhook:', apertusUrl);
+    debugStoryModeAI(
         '🔍 [Debug] URL type:',
         typeof apertusUrl,
         'Length:',
@@ -609,7 +609,7 @@ async function callApertus(
         typeof apertusUrl !== 'string' ||
         !apertusUrl.startsWith('http')
     ) {
-        console.error('❌ Invalid APERTUS URL:', apertusUrl);
+        debugStoryModeAI('❌ Invalid APERTUS URL:', apertusUrl);
         throw new Error('Invalid APERTUS URL configuration');
     }
 
@@ -634,16 +634,16 @@ async function callApertus(
 
     // Get response text first (for better error handling)
     const responseText = await response.text();
-    console.log(
+    debugStoryModeAI(
         '📥 [Apertus] Raw response text:',
         responseText.substring(0, 500)
     );
-    console.log(
+    debugStoryModeAI(
         '📥 [Apertus] Response status:',
         response.status,
         response.statusText
     );
-    console.log(
+    debugStoryModeAI(
         '📥 [Apertus] Response headers:',
         Object.fromEntries(response.headers.entries())
     );
@@ -657,7 +657,7 @@ async function callApertus(
             }
         } catch (e) {
             // Not JSON, use text as error message
-            console.warn(
+            debugStoryModeAI(
                 '⚠️ [Apertus] Error response is not JSON:',
                 responseText
             );
@@ -677,12 +677,12 @@ async function callApertus(
 
     // Check if response is empty
     if (!responseText || responseText.trim().length === 0) {
-        console.error('❌ [Apertus] Empty response from n8n webhook');
-        console.error('   💡 Check n8n workflow execution logs for errors');
-        console.error(
+        debugStoryModeAI('❌ [Apertus] Empty response from n8n webhook');
+        debugStoryModeAI('   💡 Check n8n workflow execution logs for errors');
+        debugStoryModeAI(
             '   💡 Ensure "Respond to Webhook" node is connected and configured'
         );
-        console.error(
+        debugStoryModeAI(
             '   💡 Verify "Call Apertus" node succeeds (not error branch)'
         );
         throw new Error(
@@ -697,8 +697,8 @@ async function callApertus(
     try {
         data = JSON.parse(responseText);
     } catch (e) {
-        console.error('❌ [Apertus] Failed to parse JSON response:', e);
-        console.error('❌ [Apertus] Response text:', responseText);
+        debugStoryModeAI('❌ [Apertus] Failed to parse JSON response:', e);
+        debugStoryModeAI('❌ [Apertus] Response text:', responseText);
         throw new Error(
             `Invalid JSON response from Apertus n8n workflow. Response: ${responseText.substring(
                 0,
@@ -707,11 +707,11 @@ async function callApertus(
         );
     }
 
-    console.log(
+    debugStoryModeAI(
         '📥 [Apertus] Parsed response data:',
         JSON.stringify(data, null, 2)
     );
-    console.log(
+    debugStoryModeAI(
         '📥 [Apertus] Response type:',
         Array.isArray(data) ? 'Array' : typeof data
     );
@@ -721,7 +721,7 @@ async function callApertus(
 
     // Case 1: Response is an array (n8n sometimes wraps responses in arrays)
     if (Array.isArray(data)) {
-        console.log('📦 [Apertus] Response is array, length:', data.length);
+        debugStoryModeAI('📦 [Apertus] Response is array, length:', data.length);
 
         // Try to find response in array elements
         for (let i = 0; i < data.length; i++) {
@@ -736,7 +736,7 @@ async function callApertus(
                 if (choices && choices[0]?.message?.content) {
                     const content = choices[0].message.content;
                     if (content && content.trim().length > 0) {
-                        console.log(
+                        debugStoryModeAI(
                             `✅ [Apertus] Found OpenAI format in array[${i}]:`,
                             content.substring(0, 100)
                         );
@@ -747,7 +747,7 @@ async function callApertus(
                 // Check response field (must not be empty)
                 const response = itemObj.response as string | undefined;
                 if (response && typeof response === 'string' && response.trim().length > 0) {
-                    console.log(
+                    debugStoryModeAI(
                         `✅ [Apertus] Found response in array[${i}]:`,
                         response.substring(0, 100)
                     );
@@ -757,7 +757,7 @@ async function callApertus(
                 // Check text field
                 const text = itemObj.text as string | undefined;
                 if (text && typeof text === 'string' && text.trim().length > 0) {
-                    console.log(
+                    debugStoryModeAI(
                         `✅ [Apertus] Found text in array[${i}]:`,
                         text.substring(0, 100)
                     );
@@ -779,7 +779,7 @@ async function callApertus(
                         }
                     }
                     if (contentStr && contentStr.trim().length > 0) {
-                        console.log(
+                        debugStoryModeAI(
                             `✅ [Apertus] Found content in array[${i}]:`,
                             contentStr.substring(0, 100)
                         );
@@ -787,7 +787,7 @@ async function callApertus(
                     }
                 }
             } else if (typeof item === 'string' && item.trim().length > 0) {
-                console.log(
+                debugStoryModeAI(
                     `✅ [Apertus] Found string in array[${i}]:`,
                     item.substring(0, 100)
                 );
@@ -804,7 +804,7 @@ async function callApertus(
             if (choices && choices[0]?.message?.content) {
                 const content = choices[0].message.content;
                 if (content && content.trim().length > 0) {
-                    console.log(
+                    debugStoryModeAI(
                         '✅ [Apertus] Extracted OpenAI format from first array element'
                     );
                     return content;
@@ -822,7 +822,7 @@ async function callApertus(
                         ? extracted
                         : (extracted as { text?: string }).text || '';
                 if (content && content.trim().length > 0) {
-                    console.log(
+                    debugStoryModeAI(
                         '✅ [Apertus] Extracted from first array element:',
                         content.substring(0, 100)
                     );
@@ -835,7 +835,7 @@ async function callApertus(
                 firstItem.success === true &&
                 (!firstItem.response || (firstItem.response as string).trim().length === 0)
             ) {
-                console.warn(
+                debugStoryModeAI(
                     '⚠️ [Apertus] n8n workflow returned success=true but empty response. Full data:',
                     JSON.stringify(firstItem, null, 2)
                 );
@@ -853,7 +853,7 @@ async function callApertus(
 
         // If we get here, the response field exists but is empty
         // This means the API call succeeded but returned empty content
-        console.warn(
+        debugStoryModeAI(
             '⚠️ [Apertus] Response field exists but is empty. API call succeeded but no content returned.'
         );
         throw new Error(
@@ -871,7 +871,7 @@ async function callApertus(
         if (choices && choices[0]?.message?.content) {
             const content = choices[0].message.content;
             if (content && content.trim().length > 0) {
-                console.log(
+                debugStoryModeAI(
                     '✅ [Apertus] Found OpenAI format:',
                     content.substring(0, 100)
                 );
@@ -882,7 +882,7 @@ async function callApertus(
         // The workflow returns: { response: "...", usage: {...}, ... }
         const response = dataObj.response as string | undefined;
         if (response && typeof response === 'string' && response.trim().length > 0) {
-            console.log(
+            debugStoryModeAI(
                 '✅ [Apertus] Found response field:',
                 response.substring(0, 100)
             );
@@ -904,7 +904,7 @@ async function callApertus(
                 }
             }
             if (contentStr && contentStr.trim().length > 0) {
-                console.log(
+                debugStoryModeAI(
                     '✅ [Apertus] Found content field:',
                     contentStr.substring(0, 100)
                 );
@@ -914,7 +914,7 @@ async function callApertus(
 
         const text = dataObj.text as string | undefined;
         if (text && typeof text === 'string' && text.trim().length > 0) {
-            console.log(
+            debugStoryModeAI(
                 '✅ [Apertus] Found text field:',
                 text.substring(0, 100)
             );
@@ -923,7 +923,7 @@ async function callApertus(
 
         const message = dataObj.message as string | undefined;
         if (message && typeof message === 'string' && message.trim().length > 0) {
-            console.log(
+            debugStoryModeAI(
                 '✅ [Apertus] Found message field:',
                 message.substring(0, 100)
             );
@@ -932,7 +932,7 @@ async function callApertus(
 
         // If response field exists but is empty, provide helpful error
         if (dataObj.response !== undefined && (dataObj.response as string).trim().length === 0) {
-            console.warn(
+            debugStoryModeAI(
                 '⚠️ [Apertus] Response field exists but is empty. Full data:',
                 JSON.stringify(dataObj, null, 2)
             );
@@ -945,7 +945,7 @@ async function callApertus(
 
     // Case 3: Response is a string
     if (typeof data === 'string') {
-        console.log('✅ [Apertus] Response is string:', data.substring(0, 100));
+        debugStoryModeAI('✅ [Apertus] Response is string:', data.substring(0, 100));
         return data;
     }
 
@@ -955,7 +955,7 @@ async function callApertus(
         ? `Array with ${data.length} elements`
         : `Object with keys: ${Object.keys(data as Record<string, unknown>).join(', ')}`;
 
-    console.error(
+    debugStoryModeAI(
         '❌ [Apertus] Invalid response format. Response type:',
         responseType,
         responseInfo
@@ -1011,7 +1011,7 @@ async function callGemini(
     // Try each combination (Best Practice: Maximum compatibility)
     for (const attempt of attempts) {
         try {
-            console.log(
+            debugStoryModeAI(
                 `🔄 Gemini ${attempt.version}/${attempt.model} (${attempt.authMethod})`
             );
             return await callGeminiWithVersion(
@@ -1025,7 +1025,7 @@ async function callGemini(
             );
         } catch (error) {
             const err = error as Error;
-            console.warn(
+            debugStoryModeAI(
                 `⚠️ ${attempt.version}/${attempt.model} (${
                     attempt.authMethod
                 }): ${err.message?.substring(0, 80)}`
@@ -1129,7 +1129,7 @@ async function callGeminiWithVersion(
 
     // Handle blocked responses
     if (data.candidates?.[0]?.finishReason === 'SAFETY') {
-        console.warn('⚠️ Gemini safety filter triggered, using fallback');
+        debugStoryModeAI('⚠️ Gemini safety filter triggered, using fallback');
         return ''; // Will trigger fallback in validateGeneratedEmojis
     }
 
@@ -1159,7 +1159,7 @@ async function callMistral(
 
     for (const modelName of modelsToTry) {
         try {
-            console.log(`🔄 Trying Mistral model: ${modelName}`);
+            debugStoryModeAI(`🔄 Trying Mistral model: ${modelName}`);
             return await callMistralWithModel(
                 apiKey,
                 prompt,
@@ -1169,7 +1169,7 @@ async function callMistral(
             );
         } catch (error) {
             const err = error as Error;
-            console.warn(
+            debugStoryModeAI(
                 `⚠️ Mistral model ${modelName} failed:`,
                 err.message
             );
@@ -1253,7 +1253,7 @@ async function callCustomAPI(config: CustomAPIConfig): Promise<string> {
         ? apiUrl + endpoint.replace(/^\//, '')
         : apiUrl + endpoint;
 
-    console.log('🌐 [Custom API] Request details:', {
+    debugStoryModeAI('🌐 [Custom API] Request details:', {
         fullUrl,
         endpoint,
         format,
@@ -1305,7 +1305,7 @@ async function callCustomAPI(config: CustomAPIConfig): Promise<string> {
             };
     }
 
-    console.log('📤 [Custom API] Request body:', JSON.stringify(body, null, 2));
+    debugStoryModeAI('📤 [Custom API] Request body:', JSON.stringify(body, null, 2));
 
     const response = await fetchWithTimeout(
         fullUrl,
@@ -1320,7 +1320,7 @@ async function callCustomAPI(config: CustomAPIConfig): Promise<string> {
         30000 // 30 second timeout
     );
 
-    console.log(
+    debugStoryModeAI(
         '📥 [Custom API] Response status:',
         response.status,
         response.statusText
@@ -1328,12 +1328,12 @@ async function callCustomAPI(config: CustomAPIConfig): Promise<string> {
 
     if (!response.ok) {
         const error = await response.text();
-        console.error('❌ [Custom API] Error response:', error);
+        debugStoryModeAI('❌ [Custom API] Error response:', error);
         throw new Error(error || 'Custom API error');
     }
 
     const data = await response.json() as Record<string, unknown>;
-    console.log('✅ [Custom API] Response data:', data);
+    debugStoryModeAI('✅ [Custom API] Response data:', data);
 
     // Try common response formats
     const choices = data.choices as Array<{ message?: { content?: string } }> | undefined;
@@ -1347,7 +1347,7 @@ async function callCustomAPI(config: CustomAPIConfig): Promise<string> {
         (data.emojis as string | undefined) ||
         '';
 
-    console.log('🎯 [Custom API] Extracted result:', result);
+    debugStoryModeAI('🎯 [Custom API] Extracted result:', result);
     return result;
 }
 
@@ -1406,12 +1406,12 @@ function getCachedStory(text: string, emojiCount: number, provider: AIProvider, 
             const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
 
             if (cacheAge < maxAge) {
-                console.log('✅ Story cache hit:', cacheKey);
+                debugStoryModeAI('✅ Story cache hit:', cacheKey);
                 return cached.emojis;
             }
         }
     } catch (error) {
-        console.warn('⚠️ Cache read error:', error);
+        debugStoryModeAI('⚠️ Cache read error:', error);
     }
 
     return null;
@@ -1430,7 +1430,7 @@ function cacheStoryResult(
     try {
         // VALIDATION: Only cache valid emoji arrays
         if (!emojis || !Array.isArray(emojis) || emojis.length === 0) {
-            console.warn('⚠️ Skipping cache: Invalid emoji data', emojis);
+            debugStoryModeAI('⚠️ Skipping cache: Invalid emoji data', emojis);
             return;
         }
 
@@ -1443,9 +1443,9 @@ function cacheStoryResult(
             provider,
             model: model || ''
         });
-        console.log('💾 Story cached:', cacheKey, '→', emojis.length, 'emojis');
+        debugStoryModeAI('💾 Story cached:', cacheKey, '→', emojis.length, 'emojis');
     } catch (error) {
-        console.warn('⚠️ Cache write error:', error);
+        debugStoryModeAI('⚠️ Cache write error:', error);
     }
 }
 
@@ -1462,7 +1462,7 @@ export async function generateStoryEmojis(
     emojiCount: number,
     storyModeConfig: StoryModeConfig
 ): Promise<StoryGenerationResult> {
-    console.log('🚀 generateStoryEmojis called:', {
+    debugStoryModeAI('🚀 generateStoryEmojis called:', {
         hasText: !!text,
         textLength: text?.length,
         emojiCount,
@@ -1504,7 +1504,7 @@ export async function generateStoryEmojis(
         const cached = getCachedStory(text, emojiCount, provider, model);
         // VALIDATION: Ensure cached result is valid array with emojis
         if (cached && Array.isArray(cached) && cached.length > 0) {
-            console.log(
+            debugStoryModeAI(
                 '✅ Using valid cached story:',
                 cached.length,
                 'emojis'
@@ -1517,14 +1517,14 @@ export async function generateStoryEmojis(
                 model: model || getDefaultModel(provider, tier)
             };
         } else if (cached) {
-            console.warn('⚠️ Invalid cached story, regenerating...', cached);
+            debugStoryModeAI('⚠️ Invalid cached story, regenerating...', cached);
         }
     } else if (forceRegenerate) {
-        console.log('🔄 Force regenerate: Skipping cache lookup');
+        debugStoryModeAI('🔄 Force regenerate: Skipping cache lookup');
     }
 
     try {
-        console.log(`🤖 Generating story emojis with ${provider}...`);
+        debugStoryModeAI(`🤖 Generating story emojis with ${provider}...`);
 
         const prompt = buildPrompt(text, emojiCount, provider);
         let aiResponse = '';
@@ -1535,12 +1535,12 @@ export async function generateStoryEmojis(
 
         if (provider === 'custom' && customModel) {
             finalModel = customModel;
-            console.log(`🎯 Using custom model: ${finalModel}`);
+            debugStoryModeAI(`🎯 Using custom model: ${finalModel}`);
         } else if (!finalModel) {
             finalModel = getDefaultModel(provider, tier);
-            console.log(`🤖 Auto-selected model: ${finalModel}`);
+            debugStoryModeAI(`🤖 Auto-selected model: ${finalModel}`);
         } else {
-            console.log(`🎯 Using configured model: ${finalModel}`);
+            debugStoryModeAI(`🎯 Using configured model: ${finalModel}`);
         }
 
         // Call appropriate AI provider
@@ -1618,7 +1618,7 @@ export async function generateStoryEmojis(
         // Validate and filter emojis
         const generatedEmojis = validateGeneratedEmojis(aiResponse, emojiCount);
 
-        console.log(`✅ Generated ${generatedEmojis.length} valid emojis`);
+        debugStoryModeAI(`✅ Generated ${generatedEmojis.length} valid emojis`);
 
         // Cache result
         if (cacheResults !== false) {
@@ -1639,7 +1639,7 @@ export async function generateStoryEmojis(
             model: finalModel
         };
     } catch (error) {
-        console.error('❌ Story generation error:', error);
+        debugStoryModeAI('❌ Story generation error:', error);
         throw error;
     }
 }
@@ -1662,10 +1662,10 @@ export function clearStoryCache(): number {
             window.localStorage.removeItem(key);
         });
 
-        console.log(`🧹 Cleared ${storyCacheKeys.length} story cache entries`);
+        debugStoryModeAI(`🧹 Cleared ${storyCacheKeys.length} story cache entries`);
         return storyCacheKeys.length;
     } catch (error) {
-        console.warn('⚠️ Failed to clear story cache:', error);
+        debugStoryModeAI('⚠️ Failed to clear story cache:', error);
         return 0;
     }
 }
@@ -1727,7 +1727,7 @@ export function getStoryCacheStats(): CacheStats | null {
 
         return stats;
     } catch (error) {
-        console.warn('⚠️ Failed to get cache stats:', error);
+        debugStoryModeAI('⚠️ Failed to get cache stats:', error);
         return null;
     }
 }
@@ -1766,7 +1766,7 @@ export async function testAIProvider(storyModeConfig: StoryModeConfig): Promise<
                 const mockMode = urlParams.get('mock-custom-api') === 'true';
 
                 if (mockMode) {
-                    console.log(
+                    debugStoryModeAI(
                         '🧪 [DEV] Using MOCK response for Custom API (CORS bypass)'
                     );
                     response = '🧪'; // Return test emoji
@@ -1827,7 +1827,7 @@ export async function testAIProvider(storyModeConfig: StoryModeConfig): Promise<
                 usedModel = model || 'swiss-ai/apertus-70b-instruct';
                 // For Apertus, token is loaded from environment in callApertus
                 // Pass empty string as apiKey - callApertus will load token internally
-                console.log(
+                debugStoryModeAI(
                     '🧪 [Apertus Test] Calling callApertus with empty API key (token loaded from env)'
                 );
                 try {
