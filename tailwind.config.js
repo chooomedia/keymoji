@@ -352,14 +352,39 @@ module.exports = {
         purgeLayersByDefault: true,
         removeDeprecatedGapUtilities: true
     },
-    // Safelist für dynamische Klassen (wird automatisch von Tailwind CSS verwendet)
+    // PERFORMANCE: Optimierte Safelist - nur wirklich benötigte Klassen
+    // WICHTIG: Pattern-Matching für alle Farb-Varianten wurde entfernt (6MB → <100KB)
+    // Dynamische Klassen werden jetzt nur bei tatsächlicher Verwendung generiert
     safelist: [
         'dark',
-        // Dynamische Farb-Klassen (für Runtime-Generierung)
-        {
-            pattern: /^(bg|text|border)-(yellow|green|red|blue|purple|pink|orange|gray|aubergine|creme|powder|light)-(50|100|200|300|400|500|600|700|800|900|950)$/,
-        },
-        // Custom Utilities (nur Scrollbar, da @apply in Tailwind CSS 2.2.19 Limitations hat)
+        // Nur häufig verwendete Farb-Kombinationen (nicht alle Varianten!)
+        // Diese werden tatsächlich im Code verwendet:
+        'bg-yellow-500', 'bg-yellow-600', 'bg-yellow-400', 'bg-yellow-50', 'bg-yellow-100', 'bg-yellow-200', 'bg-yellow-800', 'bg-yellow-900',
+        'text-yellow-500', 'text-yellow-600', 'text-yellow-400', 'text-yellow-50', 'text-yellow-100', 'text-yellow-200', 'text-yellow-800', 'text-yellow-900',
+        'bg-purple-100', 'bg-purple-200', 'bg-purple-400', 'bg-purple-600', 'bg-purple-700', 'bg-purple-800', 'bg-purple-900', 'bg-purple-50',
+        'text-purple-400', 'text-purple-600', 'text-purple-800', 'text-purple-200',
+        'bg-gray-100', 'bg-gray-200', 'bg-gray-300', 'bg-gray-400', 'bg-gray-500', 'bg-gray-600', 'bg-gray-700', 'bg-gray-800', 'bg-gray-900',
+        'text-gray-100', 'text-gray-200', 'text-gray-300', 'text-gray-400', 'text-gray-500', 'text-gray-600', 'text-gray-700', 'text-gray-800', 'text-gray-900',
+        'bg-aubergine-800', 'bg-aubergine-900', 'bg-aubergine-950',
+        'text-aubergine-800', 'text-aubergine-900', 'text-aubergine-950',
+        'bg-powder-50', 'bg-powder-200', 'bg-powder-300',
+        'text-powder-50',
+        'bg-creme-50', 'bg-creme-500',
+        'bg-green-50', 'bg-green-400', 'bg-green-600', 'bg-green-800', 'bg-green-900',
+        'text-green-200', 'text-green-400', 'text-green-600', 'text-green-800',
+        'bg-red-50', 'bg-red-400', 'bg-red-600', 'bg-red-800', 'bg-red-900',
+        'text-red-200', 'text-red-400', 'text-red-600', 'text-red-800',
+        'bg-blue-50', 'bg-blue-100', 'bg-blue-200', 'bg-blue-400', 'bg-blue-600', 'bg-blue-800', 'bg-blue-900',
+        'text-blue-200', 'text-blue-400', 'text-blue-600', 'text-blue-800',
+        'border-yellow-300', 'border-yellow-400', 'border-yellow-500',
+        'border-gray-200', 'border-gray-300', 'border-gray-400', 'border-gray-600', 'border-gray-700',
+        'border-purple-700',
+        'border-green-200', 'border-green-400', 'border-green-700',
+        'border-red-200', 'border-red-400', 'border-red-700',
+        'border-blue-200', 'border-blue-400', 'border-blue-700',
+        'border-aubergine-800',
+        'border-creme-50',
+        // Custom Utilities
         'scrollbar-thin',
         'scrollbar-thin-dark',
     ]

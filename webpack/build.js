@@ -100,8 +100,12 @@ module.exports = merge(common, {
                         {
                             discardComments: { removeAll: true },
                             normalizeWhitespace: true,
-                            colormin: true,
-                            minifyFontValues: true
+                            colormin: true, // PERFORMANCE: Farben optimieren
+                            minifyFontValues: true,
+                            // PERFORMANCE: Aggressivere Optimierung für kleinere Bundle-Größe
+                            discardUnused: true,
+                            reduceIdents: true,
+                            zindex: false // Behalte z-index Werte
                         }
                     ]
                 }
