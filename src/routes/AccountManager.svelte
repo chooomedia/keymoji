@@ -267,6 +267,7 @@ Manages session state, chart data, and user preferences.
         if (isLoggedInValue) {
             await refreshUsageHistory();
         }
+    });
     
     let finalUsageHistory = $derived.by(() => {
         if (chartUsageHistory.length > 0) {
@@ -588,93 +589,95 @@ Manages session state, chart data, and user preferences.
         handleLogin(new Event('submit'));
     }
 
-    onMount(async () => {
-        try {
-            const accountRestored = await initializeAccountFromCookies();
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token') || urlParams.get('t');
-            const magicLinkEmail = urlParams.get('email') || urlParams.get('e');
-            const isDevMode = urlParams.get('dev') === 'true';
-            
-            if (token && magicLinkEmail) {
-                const currentLoggedIn = isLoggedIn;
-                const currentAccountEmail = currentAccount?.email;
-                const isAlreadyLoggedIn = currentLoggedIn && currentAccountEmail === magicLinkEmail;
-                if (isAlreadyLoggedIn) {
-                    magicLinkStatus = 'success';
-                    markSuccessfulLogin(magicLinkEmail);
-                    const newUrl = window.location.pathname;
-                    window.history.replaceState({}, '', newUrl);
-                    checkSessionStatus();
-                    const t = get(translations);
-                    showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
-                    return;
-                }
+    onMount(() => {
+        (async () => {
+            try {
+                const accountRestored = await initializeAccountFromCookies();
+                const urlParams = new URLSearchParams(window.location.search);
+                const token = urlParams.get('token') || urlParams.get('t');
+                const magicLinkEmail = urlParams.get('email') || urlParams.get('e');
+                const isDevMode = urlParams.get('dev') === 'true';
                 
-                const currentPath = window.location.pathname;
-                const pathSegments = currentPath.split('/').filter(segment => segment !== '');
-                const hasLanguagePrefix = pathSegments.length > 1 && pathSegments[0] && pathSegments[1] === 'account';
-                if (currentPath === '/account') {
-                    const currentLang = currentLanguage;
-                    const redirectPath = `/${currentLang}/account?t=${token}&e=${magicLinkEmail}${isDevMode ? '&dev=true' : ''}`;
-                    navigate(redirectPath, { replace: true });
-                    return;
-                }
-                if (hasLanguagePrefix || currentPath === '/account') {
-                    isVerifyingMagicLink = true;
-                    magicLinkStatus = 'verifying';
-                    try {
-                        await secureVerifyMagicLink(token, magicLinkEmail);
+                if (token && magicLinkEmail) {
+                    const currentLoggedIn = isLoggedIn;
+                    const currentAccountEmail = currentAccount?.email;
+                    const isAlreadyLoggedIn = currentLoggedIn && currentAccountEmail === magicLinkEmail;
+                    if (isAlreadyLoggedIn) {
                         magicLinkStatus = 'success';
-                        const t = get(translations);
-                        showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 3000);
                         markSuccessfulLogin(magicLinkEmail);
                         const newUrl = window.location.pathname;
                         window.history.replaceState({}, '', newUrl);
                         checkSessionStatus();
-                    } catch (error) {
-                        magicLinkStatus = 'error';
-                        magicLinkError = error.message || 'Verification failed';
-                        const errorMessage = error.message || '';
-                        if (errorMessage.includes('already') || errorMessage.includes('exists') || errorMessage.includes('logged in')) {
+                        const t = get(translations);
+                        showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
+                        return;
+                    }
+                    
+                    const currentPath = window.location.pathname;
+                    const pathSegments = currentPath.split('/').filter(segment => segment !== '');
+                    const hasLanguagePrefix = pathSegments.length > 1 && pathSegments[0] && pathSegments[1] === 'account';
+                    if (currentPath === '/account') {
+                        const currentLang = currentLanguage;
+                        const redirectPath = `/${currentLang}/account?t=${token}&e=${magicLinkEmail}${isDevMode ? '&dev=true' : ''}`;
+                        navigate(redirectPath, { replace: true });
+                        return;
+                    }
+                    if (hasLanguagePrefix || currentPath === '/account') {
+                        isVerifyingMagicLink = true;
+                        magicLinkStatus = 'verifying';
+                        try {
+                            await secureVerifyMagicLink(token, magicLinkEmail);
                             magicLinkStatus = 'success';
-                            magicLinkError = '';
+                            const t = get(translations);
+                            showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 3000);
+                            markSuccessfulLogin(magicLinkEmail);
+                            const newUrl = window.location.pathname;
+                            window.history.replaceState({}, '', newUrl);
                             checkSessionStatus();
-                            const t = get(translations);
-                            showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
-                        } else {
-                            const t = get(translations);
-                            showError(t?.accountManager?.messages?.magicLinkVerificationFailed || 'Magic link verification failed', 5000);
+                        } catch (error) {
+                            magicLinkStatus = 'error';
+                            magicLinkError = error.message || 'Verification failed';
+                            const errorMessage = error.message || '';
+                            if (errorMessage.includes('already') || errorMessage.includes('exists') || errorMessage.includes('logged in')) {
+                                magicLinkStatus = 'success';
+                                magicLinkError = '';
+                                checkSessionStatus();
+                                const t = get(translations);
+                                showSuccess(t?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
+                            } else {
+                                const t = get(translations);
+                                showError(t?.accountManager?.messages?.magicLinkVerificationFailed || 'Magic link verification failed', 5000);
+                            }
+                        } finally {
+                            isVerifyingMagicLink = false;
                         }
-                    } finally {
-                        isVerifyingMagicLink = false;
                     }
                 }
-            }
-            
-            checkSessionStatus();
-            checkUserLoginHistory();
-            const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
-            if (history && history.email && !isLoggedIn) {
-                email = history.email;
-            }
-            shouldShowSimplifiedView = !!(history && history.email && !get(isLoggedIn) && !hasNavigatedAway);
-            if (shouldShowSimplifiedView) {
-                accountCreationStep = null;
-            } else {
-                accountCreationStep = 'benefits';
-            }
-            const currentAccountValue = get(currentAccount);
-            if (currentAccountValue?.email) {
-                email = currentAccountValue.email;
-                name = currentAccountValue.name || '';
-            }
-            document.addEventListener('click', handleClickOutside);
-            
-            return () => {
-                document.removeEventListener('click', handleClickOutside);
-            };
-        } catch (error) {}
+                
+                checkSessionStatus();
+                checkUserLoginHistory();
+                const history = storageHelpers.get(STORAGE_KEYS.LOGIN_HISTORY);
+                if (history && history.email && !isLoggedIn) {
+                    email = history.email;
+                }
+                shouldShowSimplifiedView = !!(history && history.email && !get(isLoggedIn) && !hasNavigatedAway);
+                if (shouldShowSimplifiedView) {
+                    accountCreationStep = null;
+                } else {
+                    accountCreationStep = 'benefits';
+                }
+                const currentAccountValue = get(currentAccount);
+                if (currentAccountValue?.email) {
+                    email = currentAccountValue.email;
+                    name = currentAccountValue.name || '';
+                }
+                document.addEventListener('click', handleClickOutside);
+            } catch (error) {}
+        })();
+        
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
     });
 
     $effect(() => {

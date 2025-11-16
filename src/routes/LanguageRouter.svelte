@@ -199,89 +199,98 @@ Handles route changes, language switching, and session initialization.
         }
     }
     
-    onMount(async () => {
-        try {
-            devLog('🚀 LanguageRouter: Component mounted');
-            resetSessionFlags();
-            await loadRoutes();
-            if (!routesLoaded) {
-                loadingProgress = 'Retrying...';
-                setTimeout(() => {
-                    if (!routesLoaded && !isLoading) {
-                        loadRoutes().catch(() => {
-                            showLoader = false;
-                            contentReady = true;
-                        });
-                    }
-                }, 1000);
-            }
-            setTimeout(() => {
-                if (!contentReady) {
-                    showLoader = false;
-                    contentReady = true;
-                }
-            }, 10000);
+    onMount(() => {
+        let unsubscribe: (() => void) | null = null;
+        
+        (async () => {
             try {
-                const { initializeDailyUsage } = await import('../stores/dailyUsageStore');
-                await initializeDailyUsage();
-            } catch (error) {}
-            const sessionRestored = await initializeAccountFromCookies();
-            const initialPath = window.location.pathname;
-            currentPath = initialPath;
-            const pathSegments = initialPath.split('/').filter(segment => segment !== '');
-            const potentialLang = pathSegments[0];
-            const storeLang = get(currentLanguage);
-            
-            devLog('🔍 LanguageRouter: Language check:', {
-                urlLang: potentialLang,
-                storeLang: storeLang,
-                supported: supportedLanguages.includes(potentialLang)
-            });
-            
-            if (potentialLang && supportedLanguages.includes(potentialLang)) {
-                if (potentialLang !== storeLang) {
-                    devLog('🔄 LanguageRouter: URL language differs from store, updating store');
-                    await changeLanguage(potentialLang);
-                    lastProcessedLang = potentialLang;
+                devLog('🚀 LanguageRouter: Component mounted');
+                resetSessionFlags();
+                await loadRoutes();
+                if (!routesLoaded) {
+                    loadingProgress = 'Retrying...';
+                    setTimeout(() => {
+                        if (!routesLoaded && !isLoading) {
+                            loadRoutes().catch(() => {
+                                showLoader = false;
+                                contentReady = true;
+                            });
+                        }
+                    }, 1000);
+                }
+                setTimeout(() => {
+                    if (!contentReady) {
+                        showLoader = false;
+                        contentReady = true;
+                    }
+                }, 10000);
+                try {
+                    const { initializeDailyUsage } = await import('../stores/dailyUsageStore');
+                    await initializeDailyUsage();
+                } catch (error) {}
+                const sessionRestored = await initializeAccountFromCookies();
+                const initialPath = window.location.pathname;
+                currentPath = initialPath;
+                const pathSegments = initialPath.split('/').filter(segment => segment !== '');
+                const potentialLang = pathSegments[0];
+                const storeLang = get(currentLanguage);
+                
+                devLog('🔍 LanguageRouter: Language check:', {
+                    urlLang: potentialLang,
+                    storeLang: storeLang,
+                    supported: supportedLanguages.includes(potentialLang)
+                });
+                
+                if (potentialLang && supportedLanguages.includes(potentialLang)) {
+                    if (potentialLang !== storeLang) {
+                        devLog('🔄 LanguageRouter: URL language differs from store, updating store');
+                        await changeLanguage(potentialLang);
+                        lastProcessedLang = potentialLang;
+                    } else {
+                        lastProcessedLang = storeLang;
+                    }
                 } else {
-                    lastProcessedLang = storeLang;
+                    if (storeLang && storeLang !== 'en') {
+                        devLog('🔄 LanguageRouter: Store has language, updating URL');
+                        const newPath = `/${storeLang}${initialPath}`;
+                        navigate(newPath, { replace: true });
+                        lastProcessedLang = storeLang;
+                    } else {
+                        lastProcessedLang = storeLang;
+                    }
                 }
-            } else {
-                if (storeLang && storeLang !== 'en') {
-                    devLog('🔄 LanguageRouter: Store has language, updating URL');
-                    const newPath = `/${storeLang}${initialPath}`;
-                    navigate(newPath, { replace: true });
-                    lastProcessedLang = storeLang;
-                } else {
-                    lastProcessedLang = storeLang;
-                }
-            }
-            
-            await handleRouteChange();
-            initialRouteProcessed = true;
-            window.addEventListener('popstate', handleRouteChange);
-            document.addEventListener('click', async (e) => {
-                const langLink = e.target.closest('[data-language-link]');
-                if (langLink) {
-                    await handleRouteChange();
-                }
-            });
-            
-            const unsubscribe = currentLanguage.subscribe((lang) => {
-                untrack(() => {
-                    if (initialRouteProcessed && lang && !processingRoute && lang !== lastProcessedLang) {
-                        handleRouteChange().catch(() => {});
+                
+                await handleRouteChange();
+                initialRouteProcessed = true;
+                window.addEventListener('popstate', handleRouteChange);
+                document.addEventListener('click', async (e) => {
+                    const target = e.target as HTMLElement | null;
+                    if (target) {
+                        const langLink = target.closest('[data-language-link]');
+                        if (langLink) {
+                            await handleRouteChange();
+                        }
                     }
                 });
-            });
-            
-            return () => {
-                window.removeEventListener('popstate', handleRouteChange);
+                
+                unsubscribe = currentLanguage.subscribe((lang) => {
+                    untrack(() => {
+                        if (initialRouteProcessed && lang && !processingRoute && lang !== lastProcessedLang) {
+                            handleRouteChange().catch(() => {});
+                        }
+                    });
+                });
+            } catch (error) {
+                devLog('❌ LanguageRouter: Error in onMount:', error);
+            }
+        })();
+        
+        return () => {
+            window.removeEventListener('popstate', handleRouteChange);
+            if (unsubscribe) {
                 unsubscribe();
-            };
-        } catch (error) {
-            devLog('❌ LanguageRouter: Error in onMount:', error);
-        }
+            }
+        };
     });
 </script>
   
