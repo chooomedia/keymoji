@@ -224,16 +224,6 @@ Manages focus trapping and keyboard navigation.
         return Math.round((progressBar / 100) * (duration / 1000));
     });
 
-    $effect(() => {
-        if (debugMode && showMessage && isComponentMounted) {
-            console.log('🔔 Modal state changed:', {
-                message,
-                type: messageType,
-                isVisible,
-                hasData: Object.keys(modalState || {}).length > 0
-            });
-        }
-    });
 </script>
 
 {#if showMessage && isComponentMounted}
