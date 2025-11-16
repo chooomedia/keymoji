@@ -981,8 +981,8 @@
         // Mark settings as initialized BEFORE loading verification status
         settingsInitialized = true;
         
-        // Small delay to ensure stores are fully updated
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // REMOVED: setTimeout delay - Race Condition behoben
+        // Stores werden jetzt synchron aktualisiert, kein Delay nötig
         
         // Load and restore verification status from settings (now safe to call)
         loadVerificationStatus();

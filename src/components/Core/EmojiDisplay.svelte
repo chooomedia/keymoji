@@ -273,9 +273,9 @@
       console.log('📊 Current daily limits on mount:', $dailyLimit);
       
       // CRITICAL: Wait for dailyLimit to be initialized before first generation
-      // This prevents generating with default limit (3) before actual limit loads
-      await new Promise(resolve => setTimeout(resolve, 100));
-      console.log('📊 Daily limits after wait:', $dailyLimit);
+      // REMOVED: setTimeout delay - Race Condition behoben
+      // dailyLimit wird jetzt synchron initialisiert, kein Delay nötig
+      console.log('📊 Daily limits on mount:', $dailyLimit);
 
       // Check user settings for Story Mode and Auto-Generate
       const userSettings = getCurrentUserSettings();

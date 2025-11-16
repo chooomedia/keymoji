@@ -190,10 +190,8 @@ import BlogPost from '../components/Features/BlogPost.svelte';
             pageURL = currentPath;
             currentPageType = determinePageType(currentPath);
             
-            // SEO-optimierte Store-Initialisierung
-            await new Promise(resolve => setTimeout(resolve, 200));
-            
             // SEO-optimierte Sprach-Erkennung
+            // REMOVED: setTimeout delay - Race Condition behoben, proper async/await verwendet
             const pathSegments = window.location.pathname.split('/').filter(segment => segment !== '');
             const potentialLang = pathSegments[0];
             
@@ -227,18 +225,19 @@ import BlogPost from '../components/Features/BlogPost.svelte';
             window.addEventListener('popstate', handleRouteChange);
             
             // SEO-optimierte Benutzerdefinierte Navigation
-            document.addEventListener('click', (e) => {
+            document.addEventListener('click', async (e) => {
                 const langLink = e.target.closest('[data-language-link]');
                 if (langLink) {
-                    setTimeout(handleRouteChange, 50);
+                    // REMOVED: setTimeout delay - Race Condition behoben, direkt aufrufen
+                    await handleRouteChange();
                 }
             });
             
             // SEO-optimierte Sprachänderungen
             const unsubscribe = currentLanguage.subscribe(async (lang) => {
                 if (initialRouteProcessed && lang && !processingRoute) {
-                    await new Promise(resolve => setTimeout(resolve, 0));
-                    handleRouteChange();
+                    // REMOVED: setTimeout delay - Race Condition behoben, direkt aufrufen
+                    await handleRouteChange();
                 }
             });
             
