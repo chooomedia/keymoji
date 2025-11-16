@@ -135,14 +135,16 @@ export default defineConfig(({ mode }) => {
 
         // Optimierungen
         optimizeDeps: {
-            include: ['svelte', 'svelte-routing'],
+            include: ['svelte', 'svelte-routing', 'svelte/store'],
             // Svelte interne Module ausschließen (nicht über package.json exports verfügbar)
+            // WICHTIG: svelte/store NICHT ausschließen - wird benötigt!
             exclude: [
                 'svelte/internal/client',
                 'svelte/internal/disclose-version'
             ],
             esbuildOptions: {
-                conditions: ['browser', 'svelte', 'import', 'module', 'default']
+                // Reihenfolge aus vite.config.example.js: 'svelte' VOR 'browser'
+                conditions: ['svelte', 'browser', 'import', 'module', 'main']
             },
             // Force re-optimization wenn sich Dependencies ändern
             force: false
