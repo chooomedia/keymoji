@@ -22,7 +22,7 @@
     instagramIcon
   } from '../assets/shapes.js';
   import { currentLanguage } from '../stores/contentStore.js';
-  import { navigateToContact } from '../utils/navigation.js';
+  import { navigateToContact } from '../utils/navigation';
   import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
   import { isDevelopment } from '../utils/environment';
 

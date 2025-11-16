@@ -19,7 +19,7 @@
     import PageLayout from '../components/Layout/PageLayout.svelte';
     import { WEBHOOKS, API_CONFIG } from '../config/api.js';
     import { appVersion } from '../utils/version';
-    import { navigateToHome } from '../utils/navigation.js';
+    import { navigateToHome } from '../utils/navigation';
     import Input from '../components/UI/Input.svelte';
     import Button from '../components/UI/Button.svelte';
     import Checkbox from '../components/UI/Checkbox.svelte';

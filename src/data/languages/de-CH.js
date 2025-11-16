@@ -1,7 +1,7 @@
 // src/data/languages/de-CH.js
 // Swiss German language content
 
-import { formatVersion } from '../../utils/version.js';
+import { formatVersion } from '../../utils/version';
 
 export default {
     _meta: {

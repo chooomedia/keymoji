@@ -1,12 +1,15 @@
-// src/utils/slug.js
-// Slug Utilities - Generate and sanitize URL-friendly slugs
+/**
+ * Slug Utilities - Generate and sanitize URL-friendly slugs
+ *
+ * TypeScript Migration: v0.7.7
+ */
 
 /**
  * Generiert einen URL-freundlichen Slug aus einem String
- * @param {string} text - Text für Slug-Generierung
- * @returns {string} URL-freundlicher Slug
+ * @param text - Text für Slug-Generierung
+ * @returns URL-freundlicher Slug
  */
-export function generateSlug(text) {
+export function generateSlug(text: string | null | undefined): string {
     if (!text || typeof text !== 'string') {
         return '';
     }
@@ -29,10 +32,10 @@ export function generateSlug(text) {
 
 /**
  * Sanitized einen vorhandenen Slug (sichert gegen XSS)
- * @param {string} slug - Zu sanitizierender Slug
- * @returns {string} Sanitizierter Slug
+ * @param slug - Zu sanitizierender Slug
+ * @returns Sanitizierter Slug
  */
-export function sanitizeSlug(slug) {
+export function sanitizeSlug(slug: string | null | undefined): string {
     if (!slug || typeof slug !== 'string') {
         return '';
     }
@@ -49,10 +52,10 @@ export function sanitizeSlug(slug) {
 
 /**
  * Validiert einen Slug
- * @param {string} slug - Zu validierender Slug
- * @returns {boolean} Ob der Slug gültig ist
+ * @param slug - Zu validierender Slug
+ * @returns Ob der Slug gültig ist
  */
-export function isValidSlug(slug) {
+export function isValidSlug(slug: string | null | undefined): boolean {
     if (!slug || typeof slug !== 'string') {
         return false;
     }
@@ -65,11 +68,11 @@ export function isValidSlug(slug) {
 
 /**
  * Normalisiert einen Slug (generiert einen, falls nicht vorhanden)
- * @param {string} text - Text für Slug (z.B. Titel)
- * @param {string} fallback - Fallback-Wert (z.B. id oder row_number)
- * @returns {string} Normalisierter Slug
+ * @param text - Text für Slug (z.B. Titel)
+ * @param fallback - Fallback-Wert (z.B. id oder row_number)
+ * @returns Normalisierter Slug
  */
-export function normalizeSlug(text, fallback = '') {
+export function normalizeSlug(text: string | null | undefined, fallback: string | number = ''): string {
     if (!text) {
         return fallback ? String(fallback) : '';
     }

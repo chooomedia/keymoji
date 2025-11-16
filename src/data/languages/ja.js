@@ -1,7 +1,7 @@
 // src/data/languages/ja.js
 // Japanese language content
 
-import { formatVersion } from '../../utils/version.js';
+import { formatVersion } from '../../utils/version';
 
 export default {
     _meta: {

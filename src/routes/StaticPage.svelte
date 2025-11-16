@@ -7,7 +7,7 @@
     import PageLayout from '../components/Layout/PageLayout.svelte';
     import StaticSection from '../components/StaticContent/StaticSection.svelte';
     import { staticPagesData } from '../data/staticPages.json.js';
-    import { navigateToHome } from '../utils/navigation.js';
+    import { navigateToHome } from '../utils/navigation';
     import { appVersion } from '../utils/version';
     import FooterInfo from '../widgets/FooterInfo.svelte';
     

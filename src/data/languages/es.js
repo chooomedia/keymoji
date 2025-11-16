@@ -1,7 +1,7 @@
 // src/data/languages/es.js
 // Spanish language content
 
-import { formatVersion } from '../../utils/version.js';
+import { formatVersion } from '../../utils/version';
 
 export default {
     _meta: {

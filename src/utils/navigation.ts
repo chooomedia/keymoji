@@ -1,23 +1,26 @@
-// src/utils/navigation.js
 /**
  * Navigation Utilities für konsistente Navigation
  * Best Practices für Svelte-Routing mit Language-Support
+ *
+ * TypeScript Migration: v0.7.7
  */
 
 import { navigate } from 'svelte-routing';
-import { get } from 'svelte/store';
+import { get, type Readable } from 'svelte/store';
 import { currentLanguage } from '../stores/contentStore.js';
 
 /**
  * Navigiert zu einer Route mit korrekter Sprachunterstützung
- * @param {string} path - Der Pfad ohne Sprachpräfix
- * @param {boolean} replace - Ob die aktuelle Route ersetzt werden soll
+ * @param path - Der Pfad ohne Sprachpräfix
+ * @param replace - Ob die aktuelle Route ersetzt werden soll
  */
-export function navigateToRoute(path, replace = false) {
+export function navigateToRoute(path: string, replace: boolean = false): void {
     try {
         // Mark that user has navigated away from initial load
-        sessionStorage.setItem('hasNavigatedAway', 'true');
-        console.log('🔄 User navigated away - hasNavigatedAway set to true');
+        if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.setItem('hasNavigatedAway', 'true');
+            console.log('🔄 User navigated away - hasNavigatedAway set to true');
+        }
 
         const lang = get(currentLanguage) || 'en';
         const fullPath = path ? `/${lang}/${path}` : `/${lang}`;
@@ -36,13 +39,15 @@ export function navigateToRoute(path, replace = false) {
 
 /**
  * Navigiert zur Home-Seite
- * @param {boolean} replace - Ob die aktuelle Route ersetzt werden soll
+ * @param replace - Ob die aktuelle Route ersetzt werden soll
  */
-export function navigateToHome(replace = false) {
+export function navigateToHome(replace: boolean = false): void {
     try {
         // Mark that user has navigated away from initial load
-        sessionStorage.setItem('hasNavigatedAway', 'true');
-        console.log('🔄 User navigated away - hasNavigatedAway set to true');
+        if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.setItem('hasNavigatedAway', 'true');
+            console.log('🔄 User navigated away - hasNavigatedAway set to true');
+        }
 
         const lang = get(currentLanguage) || 'en';
         const fullPath = lang === 'en' ? '/' : `/${lang}`;
@@ -56,36 +61,36 @@ export function navigateToHome(replace = false) {
 
 /**
  * Navigiert zur Contact-Seite
- * @param {boolean} replace - Ob die aktuelle Route ersetzt werden soll
+ * @param replace - Ob die aktuelle Route ersetzt werden soll
  */
-export function navigateToContact(replace = false) {
+export function navigateToContact(replace: boolean = false): void {
     navigateToRoute('contact', replace);
 }
 
 /**
  * Navigiert zur Version-History-Seite
- * @param {boolean} replace - Ob die aktuelle Route ersetzt werden soll
+ * @param replace - Ob die aktuelle Route ersetzt werden soll
  */
-export function navigateToVersions(replace = false) {
+export function navigateToVersions(replace: boolean = false): void {
     navigateToRoute('versions', replace);
 }
 
 /**
  * Navigiert zur Blog-Seite
- * @param {boolean} replace - Ob die aktuelle Route ersetzt werden soll
+ * @param replace - Ob die aktuelle Route ersetzt werden soll
  * @deprecated Use blogNavigation.navigateToBlog instead
  */
-export function navigateToBlog(replace = false) {
+export function navigateToBlog(replace: boolean = false): void {
     navigateToRoute('blog', replace);
 }
 
 /**
  * Navigiert zu einem spezifischen Blog-Post
- * @param {string} slug - Der Blog-Post Slug
- * @param {boolean} replace - Ob die aktuelle Route ersetzt werden soll
+ * @param slug - Der Blog-Post Slug
+ * @param replace - Ob die aktuelle Route ersetzt werden soll
  * @deprecated Use blogNavigation.navigateToBlogPost instead
  */
-export function navigateToBlogPost(slug, replace = false) {
+export function navigateToBlogPost(slug: string, replace: boolean = false): void {
     try {
         const lang = get(currentLanguage) || 'en';
         const fullPath = `/${lang}/blog/${slug}`;
@@ -103,9 +108,11 @@ export function navigateToBlogPost(slug, replace = false) {
 
 /**
  * Prüft ob die aktuelle Route die Home-Seite ist
- * @returns {boolean}
+ * @returns true wenn Home-Seite
  */
-export function isHomePage() {
+export function isHomePage(): boolean {
+    if (typeof window === 'undefined') return false;
+    
     const path = window.location.pathname;
     const segments = path.split('/').filter(segment => segment !== '');
     return segments.length === 0 || segments.length === 1;
@@ -113,10 +120,12 @@ export function isHomePage() {
 
 /**
  * Prüft ob die aktuelle Route eine bestimmte Seite ist
- * @param {string} page - Der Seitenname (z.B. 'contact', 'versions')
- * @returns {boolean}
+ * @param page - Der Seitenname (z.B. 'contact', 'versions')
+ * @returns true wenn aktuelle Seite
  */
-export function isCurrentPage(page) {
+export function isCurrentPage(page: string): boolean {
+    if (typeof window === 'undefined') return false;
+    
     const path = window.location.pathname;
     const segments = path.split('/').filter(segment => segment !== '');
 
@@ -130,3 +139,4 @@ export function isCurrentPage(page) {
 
     return segments[1] === page;
 }
+

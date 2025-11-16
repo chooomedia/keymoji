@@ -7,7 +7,7 @@
  */
 
 import { updatedTime } from './timestamp.js';
-import { appVersion } from './version.js';
+import { appVersion } from './version';
 
 /**
  * Default SEO configuration

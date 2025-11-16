@@ -1,15 +1,23 @@
-// src/utils/cookies.js
-// Sichere Cookie-Behandlung für Account-Management
+/**
+ * Sichere Cookie-Behandlung für Account-Management
+ *
+ * TypeScript Migration: v0.7.7
+ */
 
-const COOKIE_OPTIONS = {
-    secure: true, // Nur über HTTPS
-    sameSite: 'strict', // CSRF-Schutz
-    httpOnly: false, // JavaScript-Zugriff erlauben
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 Tage
-    path: '/'
-};
+/**
+ * Cookie-Optionen Interface
+ */
+export interface CookieOptions {
+    secure?: boolean;
+    sameSite?: 'strict' | 'lax' | 'none';
+    httpOnly?: boolean;
+    maxAge?: number;
+    path?: string;
+}
 
-// Cookie-Namen
+/**
+ * Cookie-Keys Konstanten
+ */
 export const COOKIE_KEYS = {
     ACCOUNT_TOKEN: 'keymoji_account_token',
     USER_ID: 'keymoji_user_id',
@@ -19,12 +27,49 @@ export const COOKIE_KEYS = {
     THEME: 'keymoji_theme'
 };
 
-// Sichere Cookie setzen
-export function setSecureCookie(name, value, options = {}) {
+/**
+ * Standard Cookie-Optionen
+ */
+const COOKIE_OPTIONS: CookieOptions = {
+    secure: true, // Nur über HTTPS
+    sameSite: 'strict', // CSRF-Schutz
+    httpOnly: false, // JavaScript-Zugriff erlauben
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 Tage
+    path: '/'
+};
+
+/**
+ * Cookie-Status Interface
+ */
+export interface CookieStatus {
+    exists: boolean;
+    valid: boolean;
+    value: string | null;
+}
+
+/**
+ * Cookie-Status Map
+ */
+export interface CookieStatusMap {
+    [key: string]: CookieStatus;
+}
+
+/**
+ * Account-Token Interface
+ */
+export interface AccountToken {
+    token: string | null;
+    userId: string | null;
+}
+
+/**
+ * Sichere Cookie setzen
+ */
+export function setSecureCookie(name: string, value: string, options: CookieOptions = {}): boolean {
     if (typeof document === 'undefined') return false;
 
     try {
-        const cookieOptions = {
+        const cookieOptions: CookieOptions = {
             ...COOKIE_OPTIONS,
             ...options
         };
@@ -55,13 +100,15 @@ export function setSecureCookie(name, value, options = {}) {
     }
 }
 
-// Cookie lesen
-export function getCookie(name) {
+/**
+ * Cookie lesen
+ */
+export function getCookie(name: string): string | null {
     if (typeof document === 'undefined') return null;
 
     try {
         const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
+        for (const cookie of cookies) {
             const [cookieName, cookieValue] = cookie
                 .split('=')
                 .map(c => c.trim());
@@ -76,8 +123,10 @@ export function getCookie(name) {
     }
 }
 
-// Cookie löschen
-export function deleteCookie(name) {
+/**
+ * Cookie löschen
+ */
+export function deleteCookie(name: string): boolean {
     if (typeof document === 'undefined') return false;
 
     try {
@@ -89,63 +138,88 @@ export function deleteCookie(name) {
     }
 }
 
-// Account-Token setzen
-export function setAccountToken(token, userId) {
+/**
+ * Account-Token setzen
+ */
+export function setAccountToken(token: string, userId: string): boolean {
     const success1 = setSecureCookie(COOKIE_KEYS.ACCOUNT_TOKEN, token);
     const success2 = setSecureCookie(COOKIE_KEYS.USER_ID, userId);
     return success1 && success2;
 }
 
-// Account-Token lesen
-export function getAccountToken() {
+/**
+ * Account-Token lesen
+ */
+export function getAccountToken(): AccountToken {
     return {
         token: getCookie(COOKIE_KEYS.ACCOUNT_TOKEN),
         userId: getCookie(COOKIE_KEYS.USER_ID)
     };
 }
 
-// Account-Token löschen
-export function clearAccountToken() {
+/**
+ * Account-Token löschen
+ */
+export function clearAccountToken(): boolean {
     const success1 = deleteCookie(COOKIE_KEYS.ACCOUNT_TOKEN);
     const success2 = deleteCookie(COOKIE_KEYS.USER_ID);
     return success1 && success2;
 }
 
-// Session-ID generieren
-export function generateSessionId() {
+/**
+ * Session-ID generieren
+ */
+export function generateSessionId(): string {
     return (
         Math.random().toString(36).substring(2, 15) +
         Math.random().toString(36).substring(2, 15)
     );
 }
 
-// Session-ID setzen
-export function setSessionId() {
+/**
+ * Session-ID setzen
+ */
+export function setSessionId(): boolean {
     const sessionId = generateSessionId();
     return setSecureCookie(COOKIE_KEYS.SESSION_ID, sessionId);
 }
 
-// Session-ID lesen
-export function getSessionId() {
+/**
+ * Session-ID lesen
+ */
+export function getSessionId(): string | null {
     return getCookie(COOKIE_KEYS.SESSION_ID);
 }
 
-// User-Präferenzen setzen
-export function setUserPreferences(preferences) {
+/**
+ * User-Präferenzen Interface
+ */
+export interface UserPreferences {
+    [key: string]: unknown;
+}
+
+/**
+ * User-Präferenzen setzen
+ */
+export function setUserPreferences(preferences: UserPreferences): boolean {
     return setSecureCookie(
         COOKIE_KEYS.PREFERENCES,
         JSON.stringify(preferences)
     );
 }
 
-// User-Präferenzen lesen
-export function getUserPreferences() {
+/**
+ * User-Präferenzen lesen
+ */
+export function getUserPreferences(): UserPreferences | null {
     const prefs = getCookie(COOKIE_KEYS.PREFERENCES);
-    return prefs ? JSON.parse(prefs) : null;
+    return prefs ? JSON.parse(prefs) as UserPreferences : null;
 }
 
-// Alle Cookies löschen
-export function clearAllCookies() {
+/**
+ * Alle Cookies löschen
+ */
+export function clearAllCookies(): boolean {
     const keys = Object.values(COOKIE_KEYS);
     let success = true;
 
@@ -158,8 +232,10 @@ export function clearAllCookies() {
     return success;
 }
 
-// Cookie-Validierung
-export function validateCookie(name, value) {
+/**
+ * Cookie-Validierung
+ */
+export function validateCookie(name: string, value: string | null): boolean {
     if (!name || !value) return false;
 
     // Spezifische Validierungen je nach Cookie-Typ
@@ -175,9 +251,11 @@ export function validateCookie(name, value) {
     }
 }
 
-// Cookie-Status prüfen
-export function getCookieStatus() {
-    const status = {};
+/**
+ * Cookie-Status prüfen
+ */
+export function getCookieStatus(): CookieStatusMap {
+    const status: CookieStatusMap = {};
 
     for (const [key, value] of Object.entries(COOKIE_KEYS)) {
         const cookieValue = getCookie(value);
@@ -190,3 +268,4 @@ export function getCookieStatus() {
 
     return status;
 }
+

@@ -1,7 +1,7 @@
 // src/data/languages/fr.js
 // French language content
 
-import { formatVersion } from '../../utils/version.js';
+import { formatVersion } from '../../utils/version';
 
 export default {
     _meta: {

@@ -1,7 +1,7 @@
 // src/data/languages/sjn.js
 // Sindarin language content
 
-import { formatVersion } from '../../utils/version.js';
+import { formatVersion } from '../../utils/version';
 
 export default {
     _meta: {

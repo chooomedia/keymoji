@@ -1,10 +1,26 @@
-// src/utils/languageUtils.js
-// Content wird jetzt über contentStore verwaltet
-import { get } from 'svelte/store';
+/**
+ * Language Utilities - Content wird jetzt über contentStore verwaltet
+ *
+ * TypeScript Migration: v0.7.7
+ */
+
+import { get, type Readable } from 'svelte/store';
 import { content, currentLanguage } from '../stores/contentStore.js';
 
-// Supported languages - jetzt statisch definiert
-const contentLanguages = [
+/**
+ * Language Interface
+ */
+export interface Language {
+    code: string;
+    name: string;
+    flag: string;
+    ogLocale: string;
+}
+
+/**
+ * Supported languages - jetzt statisch definiert
+ */
+const contentLanguages: readonly string[] = [
     'en',
     'de',
     'de-CH',
@@ -20,9 +36,12 @@ const contentLanguages = [
     'ko',
     'tlh',
     'sjn'
-];
+] as const;
 
-export const supportedLanguages = [
+/**
+ * Supported languages with metadata
+ */
+export const supportedLanguages: readonly Language[] = [
     { code: 'en', name: 'English', flag: '🇺🇸', ogLocale: 'en_US' },
     { code: 'de', name: 'Deutsch', flag: '🇩🇪', ogLocale: 'de_DE' },
     { code: 'de-CH', name: 'Schwiizerdütsch', flag: '🇨🇭', ogLocale: 'de_CH' },
@@ -38,40 +57,61 @@ export const supportedLanguages = [
     { code: 'ko', name: '한국어', flag: '🇰🇷', ogLocale: 'ko_KO' },
     { code: 'tlh', name: 'Klingon', flag: '🖖', ogLocale: 'tlh_Qo' },
     { code: 'sjn', name: 'Sindarin', flag: '🧝‍♀️', ogLocale: 'sjn_Qo' }
-];
+] as const;
 
-// Helper functions for language operations
-export function isLanguageSupported(langCode) {
+/**
+ * Helper functions for language operations
+ */
+export function isLanguageSupported(langCode: string | null | undefined): boolean {
     // Check if the language is in content.js and is not a special key
     if (langCode === 'logo') return false;
-    return contentLanguages.includes(langCode);
+    return contentLanguages.includes(langCode as typeof contentLanguages[number]);
 }
 
-export function getSupportedLanguageCodes() {
+/**
+ * Get supported language codes
+ */
+export function getSupportedLanguageCodes(): string[] {
     return supportedLanguages.map(lang => lang.code);
 }
 
-export function getLanguageByCode(langCode) {
+/**
+ * Get language by code
+ */
+export function getLanguageByCode(langCode: string | null | undefined): Language {
     return (
         supportedLanguages.find(lang => lang.code === langCode) ||
         supportedLanguages[0]
     );
 }
 
-export function getLocale(langCode) {
+/**
+ * Get locale for language code
+ */
+export function getLocale(langCode: string | null | undefined): string {
     const lang = getLanguageByCode(langCode);
     return lang.ogLocale || 'en_US';
 }
 
-export function getBrowserLanguage() {
+/**
+ * Locale to language mapping
+ */
+interface LocaleToLanguageMap {
+    [locale: string]: string;
+}
+
+/**
+ * Get browser language
+ */
+export function getBrowserLanguage(): string {
     if (typeof window === 'undefined') return 'en';
 
     const userLanguages = navigator.languages || [
-        navigator.language || navigator.userLanguage
+        navigator.language || (navigator as any).userLanguage
     ];
 
     // Mapping für Locale-Codes mit Region zu unseren Sprachcodes
-    const localeToLanguageMap = {
+    const localeToLanguageMap: LocaleToLanguageMap = {
         'de-CH': 'de-CH', // Schweizerdeutsch
         'de-AT': 'de', // Österreichisches Deutsch (fallback zu Standard-Deutsch)
         'de-LI': 'de-CH', // Liechtenstein (fallback zu Schweizerdeutsch)
@@ -117,11 +157,12 @@ export function getBrowserLanguage() {
 
 /**
  * Preloads translations for common UI elements to improve performance.
- * @param {Array<string>} keys - Array of translation key paths (e.g., 'header.title')
- * @param {string} langCode - Language code to use (optional, uses current language if not provided)
- * @returns {Object} - Object with preloaded translations
+ * @deprecated Use contentStore instead
+ * @param keys - Array of translation key paths (e.g., 'header.title')
+ * @param langCode - Language code to use (optional, uses current language if not provided)
+ * @returns Object with preloaded translations (empty object, deprecated)
  */
-export function preloadTranslations(keys = [], langCode = null) {
+export function preloadTranslations(keys: string[] = [], langCode: string | null = null): Record<string, unknown> {
     // Diese Funktion wird jetzt über contentStore verwaltet
     console.warn(
         'preloadTranslations is deprecated - use contentStore instead'
@@ -131,12 +172,16 @@ export function preloadTranslations(keys = [], langCode = null) {
 
 /**
  * Gets a translated text by key path.
- * @param {string} key - Key path (e.g., 'header.title')
- * @param {string} lang - Language code (optional, uses current language if not provided)
- * @param {Object} currentLangStore - Current language store (optional)
- * @returns {string} - Translated text or key if not found
+ * @param key - Key path (e.g., 'header.title')
+ * @param lang - Language code (optional, uses current language if not provided)
+ * @param currentLangStore - Current language store (optional)
+ * @returns Translated text or key if not found
  */
-export function getText(key, lang = null, currentLangStore = null) {
+export function getText(
+    key: string,
+    lang: string | null = null,
+    currentLangStore: Readable<string> | null = null
+): string {
     const currentContent = get(content);
     const currentLang = currentLangStore
         ? get(currentLangStore)
@@ -149,7 +194,7 @@ export function getText(key, lang = null, currentLangStore = null) {
     }
 
     const keys = key.split('.');
-    let value = currentContent;
+    let value: any = currentContent;
 
     for (const k of keys) {
         if (value === undefined || value === null) {
@@ -160,3 +205,4 @@ export function getText(key, lang = null, currentLangStore = null) {
 
     return value || key;
 }
+

@@ -3,7 +3,7 @@
     import { Router, Route, navigate } from 'svelte-routing';
     import { onMount, onDestroy } from 'svelte';
     import { changeLanguage, currentLanguage } from '../stores/contentStore.js';
-    import { getBrowserLanguage, isLanguageSupported } from '../utils/languages.js';
+    import { getBrowserLanguage, isLanguageSupported } from '../utils/languages';
     import { closeModal, isModalVisible } from '../stores/modalStore.js';
     import { devLog } from '../utils/environment';
     import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore.js';
@@ -56,7 +56,7 @@
     export const currentVersion = appVersion;
     
     // Hole die unterstützten Sprachcodes direkt aus der utils/languages.js
-    import { getSupportedLanguageCodes } from '../utils/languages.js';
+    import { getSupportedLanguageCodes } from '../utils/languages';
     const supportedLanguages = getSupportedLanguageCodes();
     
     // Verfolge die aktuelle Route

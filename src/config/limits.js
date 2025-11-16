@@ -2,7 +2,7 @@
 // Zentrale, sichere Konfiguration für alle App-Limits
 // Diese Werte sind HARDCODED und können NICHT client-seitig manipuliert werden
 
-import { isDevelopment } from '../utils/environment.js';
+import { isDevelopment } from '../utils/environment';
 
 export const DAILY_LIMITS = {
     // Guest User (nicht eingeloggt)

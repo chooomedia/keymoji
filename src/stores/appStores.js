@@ -6,7 +6,7 @@ import {
     isLanguageSupported,
     getBrowserLanguage,
     getText as getTextUtil
-} from '../utils/languages.js';
+} from '../utils/languages';
 import { appVersion, formatVersion } from '../utils/version';
 import { WEBHOOKS } from '../config/api.js';
 import {
