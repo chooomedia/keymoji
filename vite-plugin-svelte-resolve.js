@@ -1,5 +1,6 @@
 // vite-plugin-svelte-resolve.js
 // Vite Plugin um Svelte 5 Module korrekt aufzulösen
+// Basierend auf vite.config.example.js und Webpack common.js Einstellungen
 // ALTERNATIVE IMPLEMENTATION: resolveId + load + transform für maximale Kompatibilität
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,6 +8,15 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import fs from 'fs';
+
+// Webpack common.js Einstellungen (aus webpack/common.js):
+// - resolve.alias: svelte, svelte/store, svelte/internal, svelte/internal/disclose-version, svelte/internal/client
+// - resolve.conditionNames: ['svelte', 'browser', 'import', 'module', 'main']
+// - resolve.mainFields: ['svelte', 'browser', 'module', 'main']
+// - resolve.extensions: ['.ts', '.mjs', '.js', '.svelte', '.jsx']
+// - resolve.fullySpecified: false
+// - resolve.modules: ['node_modules', 'src', '.']
+// - resolve.symlinks: false
 
 // Cache für aufgelöste Module
 const resolvedModules = new Map();
@@ -48,6 +58,9 @@ function svelteResolvePrePlugin() {
 
             // Verwende normalizedId für alle Prüfungen
             id = normalizedId;
+            
+            // Webpack common.js: resolve.alias Einstellungen
+            // Entspricht vite.config.example.js resolve.alias
             // svelte/store Resolution
             if (id === 'svelte/store' || id.startsWith('svelte/store/')) {
                 const resolved = path.resolve(
@@ -114,6 +127,8 @@ function svelteResolvePrePlugin() {
                 return undefined;
             }
             // Svelte 5: internal als Verzeichnis
+            // Webpack common.js: 'svelte/internal': path.resolve('node_modules', 'svelte', 'src', 'internal')
+            // vite.config.example.js: 'svelte/internal': path.resolve(__dirname, 'node_modules/svelte/src/internal')
             if (id.startsWith('svelte/internal/')) {
                 const subPath = id.replace('svelte/internal/', '');
                 let resolved = path.resolve(
@@ -490,7 +505,7 @@ function svelteResolveTransformPlugin() {
         resolveId(id, importer) {
             // Normalisiere ID (Windows/Unix Pfad-Unterschiede)
             const normalizedId = id.replace(/\\/g, '/');
-            
+
             // CRITICAL: Auch nach dem Svelte-Plugin müssen wir resolveId implementieren
             // für die Imports, die das Svelte-Plugin hinzugefügt hat
             if (normalizedId === 'svelte/internal/disclose-version') {
@@ -525,7 +540,10 @@ function svelteResolveTransformPlugin() {
                     return resolved;
                 }
             }
-            if (normalizedId === 'svelte/store' || normalizedId.startsWith('svelte/store/')) {
+            if (
+                normalizedId === 'svelte/store' ||
+                normalizedId.startsWith('svelte/store/')
+            ) {
                 const resolved = path.resolve(
                     __dirname,
                     'node_modules/svelte/src/store/index-client.js'
