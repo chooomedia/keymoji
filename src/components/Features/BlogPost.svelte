@@ -8,7 +8,7 @@
     import { fetchBlogPost, likeBlogPost, fetchBlogPosts } from '../../utils/blogApi';
     import { getBlogUrl, getBlogShareUrl, getHomeUrl } from '../../utils/blogNavigation';
     import { isLoggedIn } from '../../stores/appStores.js';
-    import { blogLikesStore } from '../../stores/blogLikesStore.js';
+    import { blogLikesStore } from '../../stores/blogLikesStore';
     import { get } from 'svelte/store';
     import PageLayout from '../Layout/PageLayout.svelte';
     import BlogPostImage from './BlogPostImage.svelte';

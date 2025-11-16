@@ -21,7 +21,7 @@
     import BlogPostSkeleton from './BlogPostSkeleton.svelte';
     import ShareButtons from './ShareButtons.svelte';
     import { generateBlogListStructuredData, formatCanonicalUrl, injectStructuredData } from '../../utils/seo';
-    import { blogLikesStore, getPostLikes } from '../../stores/blogLikesStore.js';
+    import { blogLikesStore, getPostLikes } from '../../stores/blogLikesStore';
     import { slide, fade } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     
