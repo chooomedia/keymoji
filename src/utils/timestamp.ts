@@ -1,10 +1,16 @@
-/**
- * Timestamp utilities for the application
- * - Centralized timestamp management
- * - Build-time timestamp generation
- * - Last update tracking
- * TypeScript Migration: v0.7.7
- */
+/*
+Timestamp utilities for centralized timestamp management and formatting.
+Provides functions for timestamp generation, formatting, and relative time calculation.
+Handles build-time timestamp tracking and date manipulation utilities.
+*/
+import { isDebugMode } from './environment';
+
+function debugTimestamp(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 Timestamp Debug: ${context}`);
+    if (data) console.log(data);
+    console.groupEnd();
+}
 
 export const updatedTime: string = '2025-11-16T08:14:50.151Z';
 
@@ -33,7 +39,7 @@ export function formatTimestamp(timestamp: string, locale: string = 'en'): strin
             minute: '2-digit'
         });
     } catch (error) {
-        console.warn('Failed to format timestamp:', error);
+        debugTimestamp('Failed to format timestamp', error);
         return timestamp;
     }
 }
@@ -81,7 +87,7 @@ export function getRelativeTime(timestamp: string): string {
         const diffInYears = Math.floor(diffInDays / 365);
         return `${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`;
     } catch (error) {
-        console.warn('Failed to get relative time:', error);
+        debugTimestamp('Failed to get relative time', error);
         return timestamp;
     }
 }
@@ -98,7 +104,7 @@ export function isRecent(timestamp: string): boolean {
         const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
         return diffInHours < 24;
     } catch (error) {
-        console.warn('Failed to check if timestamp is recent:', error);
+        debugTimestamp('Failed to check if timestamp is recent', error);
         return false;
     }
 }

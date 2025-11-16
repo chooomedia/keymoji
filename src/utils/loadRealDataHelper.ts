@@ -1,11 +1,18 @@
-/**
- * Helper to load real data from n8n into localStorage
- * Use this on localhost to get real data from Google Sheets!
- * TypeScript Migration: v0.7.7
- */
-
+/*
+Helper utility for loading real account data from backend into localStorage.
+Provides development tooling for loading production data during local development.
+Handles account data fetching and localStorage synchronization.
+*/
 import { STORAGE_KEYS, storageHelpers } from '../config/storage';
+import { isDebugMode } from './environment';
 import type { Account } from '../types/Account';
+
+function debugLoadRealDataHelper(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 LoadRealDataHelper Debug: ${context}`);
+    if (data) debugLoadRealDataHelper(data);
+    console.groupEnd();
+}
 
 export interface LoadRealDataResult {
     success: boolean;
@@ -20,13 +27,13 @@ export interface LoadRealDataResult {
  */
 export async function loadRealDataFromBackend(email: string): Promise<LoadRealDataResult> {
     try {
-        console.log('📡 Loading real data from n8n for:', email);
+        debugLoadRealDataHelper('📡 Loading real data from n8n for:', email);
 
         // Get userId from localStorage if available
         const userPrefs = storageHelpers.get<Partial<Account>>(STORAGE_KEYS.USER_PREFERENCES, {});
         const userId = userPrefs.userId || `user_${Date.now()}`;
 
-        console.log('📡 Using userId:', userId);
+        debugLoadRealDataHelper('📡 Using userId:', userId);
 
         const response = await fetch(
             'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account',
@@ -56,7 +63,7 @@ export async function loadRealDataFromBackend(email: string): Promise<LoadRealDa
             throw new Error('No account data in response');
         }
 
-        console.log('✅ Loaded account data from n8n:', {
+        debugLoadRealDataHelper('✅ Loaded account data from n8n:', {
             hasMetadata: !!result.account.metadata,
             metadataType: typeof result.account.metadata,
             hasUsageHistory: !!result.account.metadata?.usageHistory,
@@ -72,7 +79,7 @@ export async function loadRealDataFromBackend(email: string): Promise<LoadRealDa
             metadata = JSON.parse(metadata) as Account['metadata'];
         }
 
-        console.log(
+        debugLoadRealDataHelper(
             '📊 usageHistory entries:',
             Array.isArray(metadata?.usageHistory) ? metadata.usageHistory.length : 0
         );
@@ -93,8 +100,8 @@ export async function loadRealDataFromBackend(email: string): Promise<LoadRealDa
 
         storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
 
-        console.log('✅ localStorage updated with real data!');
-        console.log(
+        debugLoadRealDataHelper('✅ localStorage updated with real data!');
+        debugLoadRealDataHelper(
             '📊 usageHistory in localStorage:',
             Array.isArray(updatedPrefs.metadata?.usageHistory)
                 ? updatedPrefs.metadata.usageHistory.length
@@ -109,7 +116,7 @@ export async function loadRealDataFromBackend(email: string): Promise<LoadRealDa
                 : 0
         };
     } catch (error) {
-        console.error('❌ Failed to load real data:', error);
+        debugLoadRealDataHelper('❌ Failed to load real data:', error);
         throw error;
     }
 }
@@ -127,19 +134,19 @@ if (typeof window !== 'undefined') {
             );
             const targetEmail = email || userPrefs.email || 'cm@chooo.de';
 
-            console.log('📡 Loading real data for:', targetEmail);
+            debugLoadRealDataHelper('📡 Loading real data for:', targetEmail);
             const result = await loadRealDataFromBackend(targetEmail);
-            console.log('✅ Real data loaded! Reloading page...');
+            debugLoadRealDataHelper('✅ Real data loaded! Reloading page...');
             setTimeout(() => location.reload(), 1000);
             return result;
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            console.error('❌ Error:', error);
+            debugLoadRealDataHelper('❌ Error:', error);
             return { success: false, error: errorMessage };
         }
     };
 
-    console.log(
+    debugLoadRealDataHelper(
         '🔧 Helper loaded! Run: window.loadRealData() or window.loadRealData("your@email.com")'
     );
 }

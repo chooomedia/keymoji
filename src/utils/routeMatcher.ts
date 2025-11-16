@@ -1,7 +1,8 @@
-// src/utils/routeMatcher.ts
-// Gemeinsame Route-Matching-Logik (DRY)
-// TypeScript Migration: v0.7.7
-
+/*
+Route matcher utility for pattern matching and parameter extraction.
+Provides route pattern matching with parameter extraction from URL paths.
+Handles dynamic route parameters and wildcard matching.
+*/
 export interface MatchResult {
     isMatch: boolean;
     params: Record<string, string>;

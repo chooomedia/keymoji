@@ -1,12 +1,8 @@
-/**
- * Centralized SEO utilities
- * - Consistent meta tag management
- * - Structured data generation
- * - Canonical URL handling
- * - Social media optimization
- *
- * TypeScript Migration: v0.7.7
- */
+/*
+SEO utilities for managing meta tags, structured data, and social media optimization.
+Provides functions for generating structured data, canonical URLs, and meta tag management.
+Handles SEO configuration and Open Graph tag generation.
+*/
 
 import { updatedTime } from './timestamp';
 import { appVersion } from './version';

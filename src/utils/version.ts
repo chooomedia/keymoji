@@ -1,14 +1,8 @@
-/**
- * Zentrale Definition der Anwendungsversion
- *
- * Diese Datei definiert die Versionsnummer an einer zentralen Stelle,
- * damit sie im gesamten Projekt konsistent verwendet werden kann.
- *
- * WICHTIG: Diese Datei sollte nur aktualisiert werden, wenn eine neue
- * Version veröffentlicht wird.
- *
- * TypeScript Migration: v0.7.7
- */
+/*
+Version management utility for centralized application version tracking.
+Defines version number, codename, and update date in a single location.
+Provides version formatting functions for display purposes.
+*/
 
 /**
  * Versionsinformationen Interface

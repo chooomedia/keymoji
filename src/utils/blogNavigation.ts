@@ -1,11 +1,19 @@
-// src/utils/blogNavigation.ts
-// Blog Navigation Utilities - Automatisches Language-Handling für Blog-Routen
-//
-// TypeScript Migration: v0.7.7
-
+/*
+Blog navigation utilities for language-aware blog routing.
+Provides functions for generating blog URLs with automatic language prefix.
+Handles navigation to blog overview and individual blog posts.
+*/
 import { get } from 'svelte/store';
 import { currentLanguage } from '../stores/contentStore';
 import { navigate } from './routing';
+import { isDebugMode } from './environment';
+
+function debugBlogNavigation(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 BlogNavigation Debug: ${context}`);
+    if (data) console.log(data);
+    console.groupEnd();
+}
 
 /**
  * Generiert eine Blog-URL mit automatischem Language-Prefix
@@ -45,7 +53,7 @@ export function navigateToBlog(replace: boolean = false): void {
  */
 export function navigateToBlogPost(slug: string, replace: boolean = false): void {
     if (!slug) {
-        console.warn('⚠️ [blogNavigation] No slug provided, navigating to blog overview');
+        debugBlogNavigation('No slug provided, navigating to blog overview');
         navigateToBlog(replace);
         return;
     }

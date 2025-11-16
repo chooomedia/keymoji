@@ -1,8 +1,8 @@
-/**
- * Slug Utilities - Generate and sanitize URL-friendly slugs
- *
- * TypeScript Migration: v0.7.7
- */
+/*
+Slug utilities for generating and sanitizing URL-friendly slugs.
+Provides functions for creating safe slugs from text, validating slugs, and normalizing slug formats.
+Handles slug generation with fallback options and XSS prevention.
+*/
 
 /**
  * Generiert einen URL-freundlichen Slug aus einem String

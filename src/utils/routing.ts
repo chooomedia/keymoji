@@ -1,9 +1,8 @@
-// src/utils/routing.ts
-// Einfache Routing-Lösung für Svelte 5
-// Ersetzt svelte-routing mit Svelte 5 kompatibler Lösung
-
-// Reaktive Variable für currentLocation
-// Wird über notifyListeners aktualisiert, damit Komponenten reagieren können
+/*
+Routing utility for Svelte 5 compatible client-side routing.
+Provides navigation functions and route change listeners.
+Handles browser history management and link interception.
+*/
 let _currentLocation = typeof window !== 'undefined' ? window.location.pathname : '/';
 let routeListeners: Array<() => void> = [];
 

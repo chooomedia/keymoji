@@ -1,9 +1,17 @@
-/**
- * Generate test data for usage history charts
- * TypeScript Migration: v0.7.7
- */
-
+/*
+Usage history generator for creating test data for usage history charts.
+Generates realistic usage patterns based on account tier and day of week.
+Provides test data generation for development and testing purposes.
+*/
 import { get } from 'svelte/store';
+import { isDebugMode } from './environment';
+
+function debugUsageHistoryGenerator(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 UsageHistoryGenerator Debug: ${context}`);
+    if (data) debugUsageHistoryGenerator(data);
+    console.groupEnd();
+}
 import { currentAccount, accountTier } from '../stores/appStores';
 import { WEBHOOKS } from '../config/api';
 import type { Account } from '../types/Account';
@@ -149,7 +157,7 @@ export async function saveHistoryToAccount(
             throw new Error('No account found. Please login first.');
         }
 
-        console.log('📊 Saving usage history to account:', {
+        debugUsageHistoryGenerator('📊 Saving usage history to account:', {
             entries: history.length,
             userId: account.userId,
             tier: tier
@@ -167,7 +175,7 @@ export async function saveHistoryToAccount(
             };
         });
 
-        console.log('✅ currentAccount updated with test history');
+        debugUsageHistoryGenerator('✅ currentAccount updated with test history');
 
         // Save to API (if not localhost)
         if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
@@ -195,17 +203,17 @@ export async function saveHistoryToAccount(
             }
 
             const result = await response.json() as { success: boolean };
-            console.log('✅ Usage history saved to API:', result);
+            debugUsageHistoryGenerator('✅ Usage history saved to API:', result);
 
             return result;
         } else {
-            console.log(
+            debugUsageHistoryGenerator(
                 '⚠️ Localhost detected - API save skipped, only store updated'
             );
             return { success: true, message: 'Local only (localhost)' };
         }
     } catch (error) {
-        console.error('❌ Failed to save usage history:', error);
+        debugUsageHistoryGenerator('❌ Failed to save usage history:', error);
         throw error;
     }
 }
@@ -223,19 +231,19 @@ export async function generate4WeeksData(): Promise<UsageHistoryEntryExtended[]>
         const history = generateTestUsageHistory(28, tier);
 
         console.group('📊 Generating 4 Weeks Usage Data');
-        console.log('Tier:', tier);
-        console.log('Entries:', history.length);
-        console.log('Sample:', history.slice(0, 3));
+        debugUsageHistoryGenerator('Tier:', tier);
+        debugUsageHistoryGenerator('Entries:', history.length);
+        debugUsageHistoryGenerator('Sample:', history.slice(0, 3));
         console.groupEnd();
 
         await saveHistoryToAccount(history);
 
-        console.log('✅ 4 weeks data generated successfully!');
-        console.log('🔄 Reload page to see chart update');
+        debugUsageHistoryGenerator('✅ 4 weeks data generated successfully!');
+        debugUsageHistoryGenerator('🔄 Reload page to see chart update');
 
         return history;
     } catch (error) {
-        console.error('❌ Failed to generate 4 weeks data:', error);
+        debugUsageHistoryGenerator('❌ Failed to generate 4 weeks data:', error);
         throw error;
     }
 }
@@ -250,10 +258,10 @@ export async function generate7DaysIncreasing(): Promise<UsageHistoryEntryExtend
 
         await saveHistoryToAccount(history);
 
-        console.log('✅ 7 days increasing data generated!');
+        debugUsageHistoryGenerator('✅ 7 days increasing data generated!');
         return history;
     } catch (error) {
-        console.error('❌ Failed:', error);
+        debugUsageHistoryGenerator('❌ Failed:', error);
         throw error;
     }
 }
@@ -268,10 +276,10 @@ export async function generate1YearData(): Promise<UsageHistoryEntryExtended[]> 
 
         await saveHistoryToAccount(history);
 
-        console.log('✅ 1 year data generated!');
+        debugUsageHistoryGenerator('✅ 1 year data generated!');
         return history;
     } catch (error) {
-        console.error('❌ Failed:', error);
+        debugUsageHistoryGenerator('❌ Failed:', error);
         throw error;
     }
 }
@@ -282,9 +290,9 @@ export async function generate1YearData(): Promise<UsageHistoryEntryExtended[]> 
 export async function clearUsageHistory(): Promise<void> {
     try {
         await saveHistoryToAccount([]);
-        console.log('✅ Usage history cleared');
+        debugUsageHistoryGenerator('✅ Usage history cleared');
     } catch (error) {
-        console.error('❌ Failed to clear history:', error);
+        debugUsageHistoryGenerator('❌ Failed to clear history:', error);
         throw error;
     }
 }
@@ -329,18 +337,18 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
         fillYear: generate1YearData
     };
 
-    console.log(
+    debugUsageHistoryGenerator(
         '🔧 Usage History Generator available: window.keymojiUsageGenerator'
     );
-    console.log('');
-    console.log('📖 Quick Commands:');
-    console.log(
+    debugUsageHistoryGenerator('');
+    debugUsageHistoryGenerator('📖 Quick Commands:');
+    debugUsageHistoryGenerator(
         '  window.keymojiUsageGenerator.generate4Weeks()  // 4 weeks realistic data'
     );
-    console.log(
+    debugUsageHistoryGenerator(
         '  window.keymojiUsageGenerator.generate1Year()   // 1 year data'
     );
-    console.log(
+    debugUsageHistoryGenerator(
         '  window.keymojiUsageGenerator.clear()          // Clear history'
     );
 }

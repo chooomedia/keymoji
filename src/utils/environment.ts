@@ -1,12 +1,8 @@
-/**
- * Centralized environment utilities
- * - Consistent environment detection across the application
- * - Development mode helpers
- * - Production mode helpers
- * - Environment-specific configurations
- *
- * TypeScript Migration: v0.7.7
- */
+/*
+Environment utilities for detecting and managing application environment.
+Provides functions for checking development, production, and test modes.
+Handles debug mode detection and environment-specific configuration.
+*/
 
 /**
  * Environment type
@@ -38,11 +34,30 @@ export interface EnvironmentConfigMap {
  */
 export function getEnvironment(): Environment {
     try {
-        const env = typeof process !== 'undefined' &&
-            process.env &&
-            process.env.NODE_ENV
-            ? process.env.NODE_ENV
-            : 'production';
+        // Vite: import.meta.env.MODE (development/production)
+        // Webpack: process.env.NODE_ENV
+        let env: string | undefined;
+        
+        // Try Vite first (import.meta.env)
+        // CRITICAL: import.meta ist immer verfügbar in ES Modules
+        // Prüfe direkt auf import.meta.env.MODE (Vite setzt das automatisch)
+        try {
+            if ((import.meta as { env?: { MODE?: string } })?.env?.MODE) {
+                env = (import.meta as { env: { MODE: string } }).env.MODE;
+            }
+        } catch (e) {
+            // import.meta nicht verfügbar (z.B. in Node.js ohne ES Modules)
+        }
+        
+        // Fallback to process.env (Webpack)
+        if (!env && typeof process !== 'undefined' && process.env && process.env.NODE_ENV) {
+            env = process.env.NODE_ENV;
+        }
+        
+        // Default to production
+        if (!env) {
+            env = 'production';
+        }
         
         // Type guard to ensure valid environment
         if (env === 'development' || env === 'production' || env === 'test') {
@@ -51,9 +66,6 @@ export function getEnvironment(): Environment {
         
         return 'production';
     } catch (e) {
-        console.warn(
-            'Could not access environment variables, defaulting to production'
-        );
         return 'production';
     }
 }

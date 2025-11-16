@@ -1,9 +1,16 @@
-/**
- * Timestamp utilities for the application
- * - Centralized timestamp management
- * - Build-time timestamp generation
- * - Last update tracking
- */
+/*
+Timestamp utilities for centralized timestamp management and formatting.
+Provides functions for timestamp generation, formatting, and relative time calculation.
+Handles build-time timestamp tracking and date manipulation utilities.
+*/
+import { isDebugMode } from './environment';
+
+function debugTimestamp(context, data) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 Timestamp Debug: ${context}`);
+    if (data) console.log(data);
+    console.groupEnd();
+}
 
 export const updatedTime = '2025-11-16T20:55:37.556Z';
 
@@ -32,7 +39,7 @@ export function formatTimestamp(timestamp, locale = 'en') {
             minute: '2-digit'
         });
     } catch (error) {
-        console.warn('Invalid timestamp format:', timestamp);
+        debugTimestamp('Invalid timestamp format', { timestamp, error });
         return timestamp;
     }
 }
