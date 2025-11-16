@@ -19,6 +19,12 @@ module.exports = {
                         emitCss: true,
                         hotReload: true,
                         preprocess: require('svelte-preprocess')({
+                            typescript: {
+                                tsconfigFile: './tsconfig.json',
+                                compilerOptions: {
+                                    module: 'ESNext'
+                                }
+                            },
                             postcss: {
                                 plugins: [
                                     require('tailwindcss'),
@@ -33,6 +39,24 @@ module.exports = {
                 test: /\.js$/,
                 exclude: /(node_modules)/,
                 loader: 'babel-loader'
+            },
+            {
+                test: /\.ts$/,
+                exclude: /(node_modules)/,
+                use: [
+                    {
+                        loader: 'babel-loader'
+                    },
+                    {
+                        loader: 'ts-loader',
+                        options: {
+                            transpileOnly: true,
+                            compilerOptions: {
+                                module: 'ESNext'
+                            }
+                        }
+                    }
+                ]
             },
             {
                 // Add font file handling
@@ -50,7 +74,7 @@ module.exports = {
             svelte: path.resolve('node_modules', 'svelte')
         },
         conditionNames: ['svelte', 'browser', 'module', 'main'],
-        extensions: ['.mjs', '.js', '.svelte'],
+        extensions: ['.mjs', '.js', '.ts', '.svelte'],
         mainFields: ['svelte', 'browser', 'module', 'main']
     }
 };
