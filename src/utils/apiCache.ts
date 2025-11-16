@@ -1,9 +1,17 @@
-// src/utils/apiCache.ts
-// Intelligent API Caching Layer - Prevents 429 errors with Best Practices
-//
-// TypeScript Migration: v0.7.7
-
+/*
+API cache utility for intelligent request caching and throttling.
+Prevents 429 errors by implementing request throttling and intelligent cache management.
+Handles cache expiration, parallel request limits, and cache invalidation.
+*/
 import { storageHelpers } from '../config/storage';
+import { isDebugMode } from './environment';
+
+function debugApiCache(context: string, data?: unknown) {
+    if (!isDebugMode()) return;
+    console.group(`🔍 ApiCache Debug: ${context}`);
+    if (data) console.log(data);
+    console.groupEnd();
+}
 
 /**
  * Cache TTL Types
@@ -159,7 +167,7 @@ function getCache(): CacheStorage {
         const cached = localStorage.getItem(CACHE_STORAGE_KEY);
         return cached ? JSON.parse(cached) : {};
     } catch (error) {
-        console.warn('⚠️ Failed to read cache:', error);
+        debugApiCache('⚠️ Failed to read cache:', error);
         return {};
     }
 }
@@ -177,14 +185,14 @@ function saveCache(cache: CacheStorage): void {
 
         // Check size limit
         if (cacheString.length > MAX_CACHE_SIZE) {
-            console.warn('⚠️ Cache size limit exceeded, cleaning up...');
+            debugApiCache('⚠️ Cache size limit exceeded, cleaning up...');
             cleanupCache(cache);
             return;
         }
 
         localStorage.setItem(CACHE_STORAGE_KEY, cacheString);
     } catch (error) {
-        console.warn('⚠️ Failed to save cache:', error);
+        debugApiCache('⚠️ Failed to save cache:', error);
         // QuotaExceededError? Clean up!
         if (error instanceof Error && error.name === 'QuotaExceededError') {
             cleanupCache();
@@ -206,16 +214,16 @@ function getFromCache(key: string): CacheEntry | null {
 
         // Check if expired
         if (isExpired(entry)) {
-            console.log('⏰ Cache entry expired:', key);
+            debugApiCache('⏰ Cache entry expired:', key);
             return null;
         }
 
         const age = Date.now() - entry.cachedAt;
-        console.log(`✅ Cache HIT: ${key} (age: ${Math.round(age / 1000)}s)`);
+        debugApiCache(`✅ Cache HIT: ${key} (age: ${Math.round(age / 1000)}s)`);
 
         return entry;
     } catch (error) {
-        console.warn('⚠️ Failed to get from cache:', error);
+        debugApiCache('⚠️ Failed to get from cache:', error);
         return null;
     }
 }
@@ -244,9 +252,9 @@ function saveToCache(key: string, data: unknown, ttl: number = CACHE_TTL.DEFAULT
             saveCache(cache);
         }
 
-        console.log(`💾 Cached: ${key} (TTL: ${ttl / 1000}s)`);
+        debugApiCache(`💾 Cached: ${key} (TTL: ${ttl / 1000}s)`);
     } catch (error) {
-        console.warn('⚠️ Failed to save to cache:', error);
+        debugApiCache('⚠️ Failed to save to cache:', error);
     }
 }
 
@@ -278,14 +286,14 @@ function cleanupCache(cacheData: CacheStorage | null = null): void {
         const cache = cacheData || getCache();
         const entries = Object.entries(cache);
 
-        console.log(`🧹 Cleaning up cache (${entries.length} entries)...`);
+        debugApiCache(`🧹 Cleaning up cache (${entries.length} entries)...`);
 
         // Remove expired entries
         const activeEntries = entries.filter(
             ([key, value]) => !isExpired(value)
         );
 
-        console.log(
+        debugApiCache(
             `🧹 Removed ${
                 entries.length - activeEntries.length
             } expired entries`
@@ -296,16 +304,16 @@ function cleanupCache(cacheData: CacheStorage | null = null): void {
             activeEntries.sort((a, b) => b[1].cachedAt - a[1].cachedAt);
             const kept = activeEntries.slice(0, MAX_CACHE_ENTRIES);
 
-            console.log(`🧹 Kept ${kept.length} newest entries`);
+            debugApiCache(`🧹 Kept ${kept.length} newest entries`);
 
             saveCache(Object.fromEntries(kept));
         } else {
             saveCache(Object.fromEntries(activeEntries));
         }
 
-        console.log(`✅ Cache cleanup complete`);
+        debugApiCache(`✅ Cache cleanup complete`);
     } catch (error) {
-        console.error('❌ Cache cleanup failed:', error);
+        debugApiCache('❌ Cache cleanup failed:', error);
     }
 }
 
@@ -318,10 +326,10 @@ export function invalidateCache(key: string): void {
         if (cache[key]) {
             delete cache[key];
             saveCache(cache);
-            console.log(`🗑️ Invalidated cache: ${key}`);
+            debugApiCache(`🗑️ Invalidated cache: ${key}`);
         }
     } catch (error) {
-        console.warn('⚠️ Failed to invalidate cache:', error);
+        debugApiCache('⚠️ Failed to invalidate cache:', error);
     }
 }
 
@@ -337,11 +345,11 @@ export function invalidateCachePattern(pattern: string): void {
         matching.forEach(key => delete cache[key]);
         saveCache(cache);
 
-        console.log(
+        debugApiCache(
             `🗑️ Invalidated ${matching.length} cache entries matching: ${pattern}`
         );
     } catch (error) {
-        console.warn('⚠️ Failed to invalidate cache pattern:', error);
+        debugApiCache('⚠️ Failed to invalidate cache pattern:', error);
     }
 }
 
@@ -355,9 +363,9 @@ export function clearAllCache(): void {
     
     try {
         localStorage.removeItem(CACHE_STORAGE_KEY);
-        console.log('🗑️ All cache cleared');
+        debugApiCache('🗑️ All cache cleared');
     } catch (error) {
-        console.warn('⚠️ Failed to clear cache:', error);
+        debugApiCache('⚠️ Failed to clear cache:', error);
     }
 }
 
@@ -384,7 +392,7 @@ function waitForThrottle(url: string): Promise<void> {
     const waitTime = Math.max(0, REQUEST_THROTTLE.MIN_INTERVAL - timeSinceLast);
 
     if (waitTime > 0) {
-        console.log(
+        debugApiCache(
             `⏸️ Throttling request to ${getEndpointKey(
                 url
             )} (wait ${waitTime}ms)`
@@ -413,7 +421,7 @@ export async function cachedFetch(
     try {
         // === PHASE 1: Check for in-flight request (deduplication) ===
         if (pendingRequests.has(cacheKey)) {
-            console.log('🔄 Reusing in-flight request:', cacheKey);
+            debugApiCache('🔄 Reusing in-flight request:', cacheKey);
             return await pendingRequests.get(cacheKey)!;
         }
 
@@ -426,7 +434,7 @@ export async function cachedFetch(
                 return cached.data;
             } else if (useStaleWhileRevalidate) {
                 // Stale data: return immediately, refresh in background
-                console.log(
+                debugApiCache(
                     `📦 Returning STALE data (age: ${Math.round(
                         getAge(cached) / 1000
                     )}s), refreshing...`
@@ -435,7 +443,7 @@ export async function cachedFetch(
                 // Background refresh (non-blocking!)
                 performBackgroundRefresh(url, options, cacheKey, ttl).catch(
                     err => {
-                        console.warn('⚠️ Background refresh failed:', err);
+                        debugApiCache('⚠️ Background refresh failed:', err);
                     }
                 );
 
@@ -444,11 +452,11 @@ export async function cachedFetch(
         }
 
         // === PHASE 3: Cache miss - fetch from API ===
-        console.log('⚠️ Cache MISS:', cacheKey);
+        debugApiCache('⚠️ Cache MISS:', cacheKey);
 
         // Check parallel request limit
         if (activeRequestCount >= REQUEST_THROTTLE.MAX_PARALLEL) {
-            console.warn(
+            debugApiCache(
                 `⚠️ Too many parallel requests (${activeRequestCount}), queuing...`
             );
             await waitForParallelSlot();
@@ -469,13 +477,13 @@ export async function cachedFetch(
 
         return result;
     } catch (error) {
-        console.error('❌ cachedFetch error:', error);
+        debugApiCache('❌ cachedFetch error:', error);
 
         // Try to return stale cache as fallback
         const cache = getCache();
         const staleEntry = cache[cacheKey];
         if (staleEntry) {
-            console.warn('⚠️ Returning STALE cache due to error');
+            debugApiCache('⚠️ Returning STALE cache due to error');
             return staleEntry.data;
         }
 
@@ -509,13 +517,13 @@ async function executeFetch(
             text = await response.text();
         } catch (textError) {
             const error = textError instanceof Error ? textError : new Error(String(textError));
-            console.error('❌ [apiCache] Failed to read response text:', error);
+            debugApiCache('❌ [apiCache] Failed to read response text:', error);
             throw new Error(`Failed to read response: ${error.message}`);
         }
         
         // Handle empty responses
         if (!text || text.trim().length === 0) {
-            console.warn('⚠️ [apiCache] Empty response from:', url);
+            debugApiCache('⚠️ [apiCache] Empty response from:', url);
             return null;
         }
         
@@ -525,7 +533,7 @@ async function executeFetch(
             data = JSON.parse(text);
         } catch (parseError) {
             const error = parseError instanceof Error ? parseError : new Error(String(parseError));
-            console.error('❌ [apiCache] Failed to parse JSON response:', {
+            debugApiCache('❌ [apiCache] Failed to parse JSON response:', {
                 url,
                 status: response.status,
                 contentType,
@@ -556,7 +564,7 @@ async function performBackgroundRefresh(
     ttl: number
 ): Promise<void> {
     try {
-        console.log('🔄 Background refresh starting:', cacheKey);
+        debugApiCache('🔄 Background refresh starting:', cacheKey);
 
         await waitForThrottle(url);
         lastRequestTimes.set(getEndpointKey(url), Date.now());
@@ -566,10 +574,10 @@ async function performBackgroundRefresh(
         if (response.ok) {
             const data = await response.json();
             saveToCache(cacheKey, data, ttl);
-            console.log('✅ Background refresh complete:', cacheKey);
+            debugApiCache('✅ Background refresh complete:', cacheKey);
         }
     } catch (error) {
-        console.warn('⚠️ Background refresh failed:', error);
+        debugApiCache('⚠️ Background refresh failed:', error);
     }
 }
 
@@ -696,7 +704,7 @@ export function getCacheStats(): CacheStats | null {
 
         return stats;
     } catch (error) {
-        console.error('❌ Failed to get cache stats:', error);
+        debugApiCache('❌ Failed to get cache stats:', error);
         return null;
     }
 }
@@ -708,26 +716,26 @@ export function debugCache(): CacheDebugResult {
     const cache = getCache();
     const stats = getCacheStats();
 
-    console.log('═══════════════════════════════════════════');
-    console.log('📊 API CACHE DEBUG');
-    console.log('═══════════════════════════════════════════');
-    console.log('');
-    console.log('Stats:', stats);
-    console.log('');
-    console.log('Entries:');
+    debugApiCache('═══════════════════════════════════════════');
+    debugApiCache('📊 API CACHE DEBUG');
+    debugApiCache('═══════════════════════════════════════════');
+    debugApiCache('');
+    debugApiCache('Stats:', stats);
+    debugApiCache('');
+    debugApiCache('Entries:');
     Object.entries(cache).forEach(([key, value]) => {
-        console.log(`  ${isExpired(value) ? '⏰ STALE' : '✅ FRESH'}: ${key}`);
-        console.log(
+        debugApiCache(`  ${isExpired(value) ? '⏰ STALE' : '✅ FRESH'}: ${key}`);
+        debugApiCache(
             `     Age: ${Math.round(getAge(value) / 1000)}s, TTL: ${
                 value.ttl / 1000
             }s`
         );
     });
-    console.log('');
-    console.log('Active Requests:', activeRequestCount);
-    console.log('Pending Requests:', pendingRequests.size);
-    console.log('');
-    console.log('═══════════════════════════════════════════');
+    debugApiCache('');
+    debugApiCache('Active Requests:', activeRequestCount);
+    debugApiCache('Pending Requests:', pendingRequests.size);
+    debugApiCache('');
+    debugApiCache('═══════════════════════════════════════════');
 
     return { cache, stats };
 }
@@ -742,19 +750,19 @@ let cacheInitialized = false;
 export function initializeCache(): void {
     // Prevent duplicate initialization (saves CPU cycles)
     if (cacheInitialized) {
-        console.log('⚠️ Cache already initialized, skipping duplicate call');
+        debugApiCache('⚠️ Cache already initialized, skipping duplicate call');
         return;
     }
     
     try {
-        console.log('🔄 Initializing API cache...');
+        debugApiCache('🔄 Initializing API cache...');
         cacheInitialized = true;
         
         // CRITICAL: Aggressive cleanup on startup
         const cache = getCache();
         const entries = Object.entries(cache);
         
-        console.log(`🧹 Found ${entries.length} cache entries on startup`);
+        debugApiCache(`🧹 Found ${entries.length} cache entries on startup`);
         
         // Remove ALL expired entries immediately
         cleanupCache();
@@ -762,20 +770,20 @@ export function initializeCache(): void {
         // If still too large, clear everything (safety measure)
         const stats = getCacheStats();
         if (stats && (stats.totalSize > MAX_CACHE_SIZE || stats.totalEntries > MAX_CACHE_ENTRIES * 2)) {
-            console.warn('⚠️ Cache still too large after cleanup, clearing all...');
+            debugApiCache('⚠️ Cache still too large after cleanup, clearing all...');
             clearAllCache();
         }
         
         const finalStats = getCacheStats();
-        console.log('✅ API cache initialized:', finalStats);
+        debugApiCache('✅ API cache initialized:', finalStats);
     } catch (error) {
-        console.error('❌ Cache initialization failed:', error);
+        debugApiCache('❌ Cache initialization failed:', error);
         // Last resort: clear everything
         try {
             clearAllCache();
-            console.log('✅ Cache cleared as fallback');
+            debugApiCache('✅ Cache cleared as fallback');
         } catch (clearError) {
-            console.error('❌ Failed to clear cache:', clearError);
+            debugApiCache('❌ Failed to clear cache:', clearError);
         } finally {
             // Reset flag on error so it can be retried
             cacheInitialized = false;
