@@ -7,15 +7,48 @@
     import { closeModal, isModalVisible } from '../stores/modalStore.js';
     import { devLog } from '../utils/environment.js';
     import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore.js';
+    // PERFORMANCE: Index bleibt synchron (Hauptseite, muss schnell laden)
     import Index from '../index.svelte';
-    import BlogGrid from '../components/Features/BlogGrid.svelte';
-import BlogPost from '../components/Features/BlogPost.svelte';
-    import VersionHistory from './VersionHistory.svelte';
-    import ContactForm from './ContactForm.svelte';
-    import AccountManager from './AccountManager.svelte';
-    import StaticPage from './StaticPage.svelte';
-
-    import NotFound from './NotFound.svelte';
+    
+    // PERFORMANCE: Lazy Loading für Routes (Code Splitting)
+    // Diese Komponenten werden nur geladen, wenn die Route besucht wird
+    let BlogGrid, BlogPost, VersionHistory, ContactForm, AccountManager, StaticPage, NotFound;
+    let routesLoaded = false;
+    
+    // Lazy Load Components on mount (Preload für bessere UX)
+    async function loadRoutes() {
+        if (routesLoaded) return;
+        try {
+            const [
+                BlogGridModule,
+                BlogPostModule,
+                VersionHistoryModule,
+                ContactFormModule,
+                AccountManagerModule,
+                StaticPageModule,
+                NotFoundModule
+            ] = await Promise.all([
+                import('../components/Features/BlogGrid.svelte'),
+                import('../components/Features/BlogPost.svelte'),
+                import('./VersionHistory.svelte'),
+                import('./ContactForm.svelte'),
+                import('./AccountManager.svelte'),
+                import('./StaticPage.svelte'),
+                import('./NotFound.svelte')
+            ]);
+            
+            BlogGrid = BlogGridModule.default;
+            BlogPost = BlogPostModule.default;
+            VersionHistory = VersionHistoryModule.default;
+            ContactForm = ContactFormModule.default;
+            AccountManager = AccountManagerModule.default;
+            StaticPage = StaticPageModule.default;
+            NotFound = NotFoundModule.default;
+            routesLoaded = true;
+        } catch (err) {
+            console.warn('⚠️ Failed to load routes:', err);
+        }
+    }
     import SEO from '../components/SEO.svelte';
     import { appVersion } from '../utils/version.js';
     
@@ -171,6 +204,9 @@ import BlogPost from '../components/Features/BlogPost.svelte';
             resetSessionFlags();
             console.log('✅ LanguageRouter: Session flags reset for new page load');
             
+            // PERFORMANCE: Load routes in background (non-blocking)
+            loadRoutes();
+            
             // CRITICAL: Initialize daily usage for ALL users (logged in or guest)
             try {
                 const { initializeDailyUsage } = await import('../stores/dailyUsageStore.js');
@@ -262,54 +298,57 @@ import BlogPost from '../components/Features/BlogPost.svelte';
     <Route path="/" component={Index} />
     <Route path="/:lang" component={Index} />
     
-    <Route path="/versions" let:params>
-        <VersionHistory />
-    </Route>
-    <Route path="/:lang/versions" let:params>
-        <VersionHistory />
-    </Route>
-    
-    <Route path="/contact" let:params>
-        <ContactForm />
-    </Route>
-    <Route path="/:lang/contact" let:params>
-        <ContactForm />
-    </Route>
-    
-    <Route path="/account" let:params>
-        <AccountManager />
-    </Route>
-    <Route path="/:lang/account" let:params>
-        <AccountManager />
-    </Route>
-    
-    <Route path="/blog" let:params>
-        <BlogGrid />
-    </Route>
-    <Route path="/:lang/blog" let:params>
-        <BlogGrid />
-    </Route>
-    
-    <Route path="/blog/:slug" let:params>
-        <BlogPost slug={params.slug} />
-    </Route>
-    <Route path="/:lang/blog/:slug" let:params>
-        <BlogPost slug={params.slug} />
-    </Route>
-    
-    <Route path="/privacy" let:params>
-        <StaticPage slug="privacy" />
-    </Route>
-    <Route path="/:lang/privacy" let:params>
-        <StaticPage slug="privacy" />
-    </Route>
-    
-    <Route path="/legal" let:params>
-        <StaticPage slug="legal" />
-    </Route>
-    <Route path="/:lang/legal" let:params>
-        <StaticPage slug="legal" />
-    </Route>
-    
-    <Route component={NotFound} />
+    <!-- PERFORMANCE: Lazy Loaded Routes mit svelte:component -->
+    {#if routesLoaded}
+        <Route path="/versions" let:params>
+            <svelte:component this={VersionHistory} />
+        </Route>
+        <Route path="/:lang/versions" let:params>
+            <svelte:component this={VersionHistory} />
+        </Route>
+        
+        <Route path="/contact" let:params>
+            <svelte:component this={ContactForm} />
+        </Route>
+        <Route path="/:lang/contact" let:params>
+            <svelte:component this={ContactForm} />
+        </Route>
+        
+        <Route path="/account" let:params>
+            <svelte:component this={AccountManager} />
+        </Route>
+        <Route path="/:lang/account" let:params>
+            <svelte:component this={AccountManager} />
+        </Route>
+        
+        <Route path="/blog" let:params>
+            <svelte:component this={BlogGrid} />
+        </Route>
+        <Route path="/:lang/blog" let:params>
+            <svelte:component this={BlogGrid} />
+        </Route>
+        
+        <Route path="/blog/:slug" let:params>
+            <svelte:component this={BlogPost} slug={params.slug} />
+        </Route>
+        <Route path="/:lang/blog/:slug" let:params>
+            <svelte:component this={BlogPost} slug={params.slug} />
+        </Route>
+        
+        <Route path="/privacy" let:params>
+            <svelte:component this={StaticPage} slug="privacy" />
+        </Route>
+        <Route path="/:lang/privacy" let:params>
+            <svelte:component this={StaticPage} slug="privacy" />
+        </Route>
+        
+        <Route path="/legal" let:params>
+            <svelte:component this={StaticPage} slug="legal" />
+        </Route>
+        <Route path="/:lang/legal" let:params>
+            <svelte:component this={StaticPage} slug="legal" />
+        </Route>
+        
+        <Route component={NotFound} />
+    {/if}
 </Router>

@@ -109,12 +109,32 @@ module.exports = merge(common, {
         ],
         splitChunks: {
             chunks: 'all',
-            maxInitialRequests: 20,
+            maxInitialRequests: 25,
             minSize: 20000,
-            maxSize: 244000,
+            maxSize: 200000, // PERFORMANCE: Reduziert von 244KB auf 200KB für besseres Code Splitting
             cacheGroups: {
+                // PERFORMANCE: Separate Chunks für große Libraries
+                svelte: {
+                    test: /[\\/]node_modules[\\/]svelte[\\/]/,
+                    name: 'npm.svelte',
+                    priority: 30,
+                    reuseExistingChunk: true
+                },
+                svelteRouting: {
+                    test: /[\\/]node_modules[\\/]svelte-routing[\\/]/,
+                    name: 'npm.svelte-routing',
+                    priority: 25,
+                    reuseExistingChunk: true
+                },
                 defaultVendors: {
-                    test: /[\\/]node_modules[\\/]/,
+                    test(module) {
+                        // PERFORMANCE: Exclude bereits separierte Libraries (svelte, svelte-routing)
+                        const modulePath = module.context || '';
+                        if (/[\\/](svelte|svelte-routing)[\\/]/.test(modulePath)) {
+                            return false;
+                        }
+                        return /[\\/]node_modules[\\/]/.test(modulePath);
+                    },
                     name(module) {
                         const packageName = module.context.match(
                             /[\\/]node_modules[\\/](.*?)([\\/]|$)/
@@ -136,17 +156,25 @@ module.exports = merge(common, {
                     enforce: true,
                     priority: 20
                 },
+                // PERFORMANCE: Route Chunks für Lazy Loading
+                // Routes werden automatisch als async chunks behandelt durch dynamic imports
+                routes: {
+                    name: 'routes',
+                    test: /[\\/]src[\\/]routes[\\/]/,
+                    priority: 25,
+                    reuseExistingChunk: true
+                },
+                components: {
+                    name: 'components',
+                    test: /[\\/]src[\\/]components[\\/]Features[\\/]/,
+                    priority: 20,
+                    reuseExistingChunk: true
+                },
                 // SEO-optimierte Chunks
                 seo: {
                     name: 'seo',
                     test: /[\\/]src[\\/]utils[\\/]seo\.js/,
                     priority: 30,
-                    reuseExistingChunk: true
-                },
-                routing: {
-                    name: 'routing',
-                    test: /[\\/]src[\\/]routes[\\/]/,
-                    priority: 25,
                     reuseExistingChunk: true
                 }
             }
