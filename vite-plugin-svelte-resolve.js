@@ -303,11 +303,9 @@ function svelteResolvePrePlugin() {
                 }
             }
 
-            // CRITICAL: Transformierte .svelte Dateien - prüfe ALLE Dateien die svelte/* Imports enthalten
+            // CRITICAL: Transformierte .svelte Dateien - prüfe nur interne Module (NICHT svelte/store)
             // Das Svelte-Plugin fügt automatisch Imports hinzu, daher müssen wir ALLE Dateien prüfen
-            const hasSvelteImports =
-                code.includes("from 'svelte/store'") ||
-                code.includes('from "svelte/store"') ||
+            const hasSvelteInternalImports =
                 code.includes("from 'svelte/internal/client'") ||
                 code.includes('from "svelte/internal/client"') ||
                 code.includes("from 'svelte/internal/disclose-version'") ||
@@ -315,39 +313,13 @@ function svelteResolvePrePlugin() {
                 code.includes("import 'svelte/internal/disclose-version'") ||
                 code.includes('import "svelte/internal/disclose-version"');
 
-            // CRITICAL: Prüfe ALLE Dateien die svelte/* Imports enthalten
+            // CRITICAL: Prüfe nur interne Module (NICHT svelte/store - wird von Vite normal aufgelöst)
             // Das Svelte-Plugin fügt automatisch Imports hinzu, daher müssen wir ALLE Dateien prüfen
-            if (hasSvelteImports) {
+            if (hasSvelteInternalImports) {
                 let newCode = code;
                 let hasChanges = false;
 
-                // Ersetze svelte/store
-                if (
-                    code.includes("from 'svelte/store'") ||
-                    code.includes('from "svelte/store"')
-                ) {
-                    const resolved = path.resolve(
-                        __dirname,
-                        'node_modules/svelte/src/store/index-client.js'
-                    );
-                    if (fs.existsSync(resolved)) {
-                        const relativePath = path.relative(
-                            path.dirname(id),
-                            resolved
-                        );
-                        const normalizedPath = relativePath.startsWith('.')
-                            ? relativePath
-                            : './' + relativePath;
-                        newCode = newCode.replace(
-                            /from ['"]svelte\/store['"]/g,
-                            match => {
-                                const quote = match.includes("'") ? "'" : '"';
-                                return `from ${quote}${normalizedPath}${quote}`;
-                            }
-                        );
-                        hasChanges = true;
-                    }
-                }
+                // HINWEIS: svelte/store wird NICHT hier ersetzt - Vite macht das automatisch korrekt
 
                 // Ersetze svelte/internal/client
                 if (
