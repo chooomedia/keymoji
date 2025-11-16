@@ -20,7 +20,7 @@ import {
     initializeCache,
     clearAllCache
 } from '../utils/apiCache.js';
-import { generateClientFingerprint } from '../utils/sharedHelpers.js';
+import { generateClientFingerprint } from '../utils/sharedHelpers';
 
 // Security constants
 const SESSION_TIMEOUT = 7 * 24 * 60 * 60 * 1000; // 7 days

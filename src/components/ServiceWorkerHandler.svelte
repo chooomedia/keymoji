@@ -4,7 +4,7 @@
     import { showInfo } from '../stores/modalStore.js';
     import { translations } from '../stores/contentStore.js';
     import { isDebugMode } from '../utils/environment.js';
-    import { safeSetTimeout, clearAllTimeouts } from '../utils/sharedHelpers.js';
+    import { safeSetTimeout, clearAllTimeouts } from '../utils/sharedHelpers';
 
     // Timeout-Tracking für Memory Leak Prevention
     let activeTimeouts = new Set();

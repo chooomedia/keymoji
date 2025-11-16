@@ -27,7 +27,7 @@
     import { getDailyLimitForUser, validateUserLimits } from '../../config/limits.js';
     import { incrementDailyUsage, initializeDailyUsage } from '../../stores/dailyUsageStore.js';
     import { generateStoryEmojis, getDefaultModel } from '../../utils/storyModeAI.js';
-    import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers.js';
+    import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers';
 
     // Props
     export let showEmojiCodes = false;

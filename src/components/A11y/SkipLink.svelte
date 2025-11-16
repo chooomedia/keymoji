@@ -1,6 +1,6 @@
 <script>
   import { onDestroy } from 'svelte';
-  import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers.js';
+  import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers';
   
   export let targetId = 'main-content';
   export let label = 'Skip to main content';

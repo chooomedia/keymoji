@@ -2,16 +2,18 @@
  * Shared Utility Functions - Keymoji
  * Zentrale Sammlung von wiederverwendbaren Helper-Funktionen
  * Apple/Airbnb Style: DRY (Don't Repeat Yourself) Principle
+ * 
+ * TypeScript Migration: v0.7.7
  */
 
 // Globale Timeout-Tracking für Memory Leak Prevention
-let globalTimeouts = new Set();
+const globalTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
 /**
  * Safe Timeout mit automatischem Cleanup (Apple-Style Memory Management)
  * Verhindert Memory Leaks durch nicht geclearte Timeouts
  */
-export function safeSetTimeout(callback, delay) {
+export function safeSetTimeout(callback: () => void, delay: number): ReturnType<typeof setTimeout> {
     const timeoutId = setTimeout(() => {
         globalTimeouts.delete(timeoutId);
         callback();
@@ -23,7 +25,7 @@ export function safeSetTimeout(callback, delay) {
 /**
  * Cleanup aller aktiven Timeouts (für onDestroy/unmount)
  */
-export function clearAllTimeouts() {
+export function clearAllTimeouts(): void {
     globalTimeouts.forEach(timeoutId => {
         clearTimeout(timeoutId);
     });
@@ -35,10 +37,10 @@ export function clearAllTimeouts() {
  * Unterstützt verschachtelte Objekte und Fallback-Werte
  */
 export function getLocalizedText(
-    textObj,
-    fallback = '',
-    currentLanguage = 'en'
-) {
+    textObj: Record<string, string> | string | null | undefined,
+    fallback: string = '',
+    currentLanguage: string = 'en'
+): string {
     if (!textObj) return fallback;
 
     if (typeof textObj === 'string') {
@@ -60,7 +62,7 @@ export function getLocalizedText(
 /**
  * Email-Anonymisierung für Privacy/Security (GDPR-konform)
  */
-export function anonymizeEmail(email) {
+export function anonymizeEmail(email: string | null | undefined): string {
     if (!email || typeof email !== 'string') return 'unknown@example.com';
 
     const [localPart, domain] = email.split('@');
@@ -77,7 +79,7 @@ export function anonymizeEmail(email) {
 /**
  * Email-Validierung (Enhanced)
  */
-export function validateEmail(email) {
+export function validateEmail(email: unknown): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return (
         typeof email === 'string' &&
@@ -89,7 +91,7 @@ export function validateEmail(email) {
 /**
  * Sichere Navigation mit Error-Handling (Apple-Style)
  */
-export function safeNavigate(path, replace = false) {
+export function safeNavigate(path: string, replace: boolean = false): boolean {
     try {
         if (typeof window !== 'undefined' && window.history) {
             if (replace) {
@@ -112,7 +114,10 @@ export function safeNavigate(path, replace = false) {
 /**
  * Responsive Image Loading (Performance-Optimierung)
  */
-export function createResponsiveImageLoader(imageUrl, callback) {
+export function createResponsiveImageLoader(
+    imageUrl: string | null | undefined,
+    callback: (success: boolean) => void
+): void {
     if (!imageUrl) {
         callback(false);
         return;
@@ -128,11 +133,11 @@ export function createResponsiveImageLoader(imageUrl, callback) {
  * Color Class Generator für konsistente UI (Apple/Airbnb Style)
  */
 export function generateColorClasses(
-    baseColor,
-    variant = 'default',
-    darkMode = false
-) {
-    const colorMap = {
+    baseColor: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info',
+    variant: string = 'default',
+    darkMode: boolean = false
+): string {
+    const colorMap: Record<string, string> = {
         primary: darkMode
             ? 'bg-aubergine-800 text-white'
             : 'bg-creme-500 text-black',
@@ -151,16 +156,22 @@ export function generateColorClasses(
 /**
  * Debounce Function (Performance-Optimierung für Input-Events)
  */
-export function debounce(func, wait, immediate = false) {
-    let timeout;
-    return function executedFunction(...args) {
+export function debounce<T extends (...args: any[]) => any>(
+    func: T,
+    wait: number,
+    immediate: boolean = false
+): (...args: Parameters<T>) => void {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    return function executedFunction(...args: Parameters<T>) {
         const later = () => {
-            timeout = null;
+            timeoutId = null;
             if (!immediate) func(...args);
         };
-        const callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+        const callNow = immediate && !timeoutId;
+        if (timeoutId !== null) {
+            clearTimeout(timeoutId);
+        }
+        timeoutId = setTimeout(later, wait);
         if (callNow) func(...args);
     };
 }
@@ -168,9 +179,12 @@ export function debounce(func, wait, immediate = false) {
 /**
  * Throttle Function (Performance-Optimierung für Scroll/Resize Events)
  */
-export function throttle(func, limit) {
-    let inThrottle;
-    return function executedFunction(...args) {
+export function throttle<T extends (...args: any[]) => any>(
+    func: T,
+    limit: number
+): (...args: Parameters<T>) => void {
+    let inThrottle: boolean = false;
+    return function executedFunction(...args: Parameters<T>) {
         if (!inThrottle) {
             func.apply(this, args);
             inThrottle = true;
@@ -182,10 +196,18 @@ export function throttle(func, limit) {
 /**
  * Enhanced Error Logging mit Context (Apple-Style Debugging)
  */
-export function logError(error, context = {}, userAgent = '') {
+export interface ErrorContext {
+    [key: string]: unknown;
+}
+
+export function logError(
+    error: Error | unknown,
+    context: ErrorContext = {},
+    userAgent: string = ''
+): ErrorContext & { message: string; stack?: string; timestamp: string; userAgent: string; url: string } {
     const errorInfo = {
-        message: error.message || 'Unknown error',
-        stack: error.stack,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
         timestamp: new Date().toISOString(),
         userAgent: userAgent.substring(0, 100),
         context,
@@ -209,10 +231,14 @@ export function logError(error, context = {}, userAgent = '') {
 /**
  * Format Date Helper (Internationalisierung)
  */
-export function formatDate(date, locale = 'en-US', options = {}) {
+export function formatDate(
+    date: Date | string | number | null | undefined,
+    locale: string = 'en-US',
+    options: Intl.DateTimeFormatOptions = {}
+): string {
     if (!date) return '';
 
-    const defaultOptions = {
+    const defaultOptions: Intl.DateTimeFormatOptions = {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -232,7 +258,7 @@ export function formatDate(date, locale = 'en-US', options = {}) {
  * Storage Helper mit Error-Handling (Privacy-First)
  */
 export const storageHelper = {
-    get(key, defaultValue = null) {
+    get<T>(key: string, defaultValue: T | null = null): T | null {
         try {
             if (typeof window === 'undefined') return defaultValue;
             const item = localStorage.getItem(key);
@@ -243,7 +269,7 @@ export const storageHelper = {
         }
     },
 
-    set(key, value) {
+    set<T>(key: string, value: T): boolean {
         try {
             if (typeof window === 'undefined') return false;
             localStorage.setItem(key, JSON.stringify(value));
@@ -254,7 +280,7 @@ export const storageHelper = {
         }
     },
 
-    remove(key) {
+    remove(key: string): boolean {
         try {
             if (typeof window === 'undefined') return false;
             localStorage.removeItem(key);
@@ -269,14 +295,20 @@ export const storageHelper = {
 /**
  * Enhanced Analytics Event Sender (Privacy-First)
  */
+export interface AnalyticsProperties {
+    [key: string]: unknown;
+    timestamp?: string;
+    page?: string;
+}
+
 export function sendAnalyticsEvent(
-    eventName,
-    properties = {},
-    userConsent = true
-) {
+    eventName: string,
+    properties: AnalyticsProperties = {},
+    userConsent: boolean = true
+): boolean {
     if (!userConsent) return false;
 
-    const sanitizedProperties = {
+    const sanitizedProperties: AnalyticsProperties = {
         ...properties,
         timestamp: new Date().toISOString(),
         page:
@@ -301,9 +333,8 @@ export function sendAnalyticsEvent(
 /**
  * Generate client fingerprint for security (Browser Fingerprinting)
  * Used for session validation and security logging
- * @returns {string} Client fingerprint (32 chars)
  */
-export function generateClientFingerprint() {
+export function generateClientFingerprint(): string {
     if (typeof document === 'undefined') {
         return 'server-side-fingerprint';
     }
@@ -311,6 +342,9 @@ export function generateClientFingerprint() {
     try {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            throw new Error('Canvas context not available');
+        }
         ctx.textBaseline = 'top';
         ctx.font = '14px Arial';
         ctx.fillText('Keymoji Security Fingerprint', 2, 2);
@@ -323,6 +357,7 @@ export function generateClientFingerprint() {
     }
 }
 
+// Default Export für Kompatibilität
 export default {
     safeSetTimeout,
     clearAllTimeouts,
@@ -340,3 +375,4 @@ export default {
     sendAnalyticsEvent,
     generateClientFingerprint
 };
+

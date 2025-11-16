@@ -1,7 +1,7 @@
 <!-- src/components/A11y/FocusManager.svelte -->
 <script>
     import { onMount, onDestroy } from 'svelte';
-    import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers.js';
+    import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers';
     
     // Props
     export let active = true; // Whether focus trapping is active

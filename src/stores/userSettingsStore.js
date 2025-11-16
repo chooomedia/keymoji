@@ -19,8 +19,11 @@ import {
 // Note: dailyLimit is exported from appStores.js, not dailyUsageStore.js
 import { dailyLimit } from './appStores.js';
 // Import metadata cleaner to prevent duplicate fields
-import { prepareMetadataForAPI, validateMetadataNoDuplicates } from '../utils/metadataCleaner.js';
-import { generateClientFingerprint } from '../utils/sharedHelpers.js';
+import {
+    prepareMetadataForAPI,
+    validateMetadataNoDuplicates
+} from '../utils/metadataCleaner.js';
+import { generateClientFingerprint } from '../utils/sharedHelpers';
 
 // Store für ungespeicherte Änderungen
 export const pendingChanges = writable({});
@@ -288,14 +291,14 @@ export function updateSetting(key, value) {
             const parts = key.split('.');
             const topLevelKey = parts[0];
             const nestedPath = parts.slice(1).join('.');
-            
+
             // Preserve existing nested structure
             const existingTopLevel = changes[topLevelKey] || {};
-            
+
             // Build new nested value
             let nestedValue = existingTopLevel;
             const pathParts = nestedPath.split('.');
-            
+
             // Build nested object path by path
             let current = nestedValue;
             for (let i = 0; i < pathParts.length - 1; i++) {
@@ -304,10 +307,10 @@ export function updateSetting(key, value) {
                 }
                 current = current[pathParts[i]];
             }
-            
+
             // Set final value
             current[pathParts[pathParts.length - 1]] = value;
-            
+
             return {
                 ...changes,
                 [topLevelKey]: nestedValue
@@ -325,15 +328,19 @@ export function updateSetting(key, value) {
 // Deep merge function for nested settings
 function deepMerge(target, source) {
     const result = { ...target };
-    
+
     for (const key in source) {
-        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+        if (
+            source[key] &&
+            typeof source[key] === 'object' &&
+            !Array.isArray(source[key])
+        ) {
             result[key] = deepMerge(target[key] || {}, source[key]);
         } else {
             result[key] = source[key];
         }
     }
-    
+
     return result;
 }
 
@@ -511,40 +518,61 @@ async function updateAccountName(userId, name) {
         let currentDailyUsage = null;
         try {
             // Priority 1: Try to get from account.dailyUsage (if already loaded)
-            if (account?.dailyUsage && typeof account.dailyUsage === 'object' && account.dailyUsage.date) {
+            if (
+                account?.dailyUsage &&
+                typeof account.dailyUsage === 'object' &&
+                account.dailyUsage.date
+            ) {
                 currentDailyUsage = account.dailyUsage;
-                console.log('✅ [NAME UPDATE] Using dailyUsage from account store:', {
-                    date: currentDailyUsage.date,
-                    used: currentDailyUsage.used,
-                    limit: currentDailyUsage.limit
-                });
-            } else {
-                // Use centralized loadDailyUsage utility (single source of truth)
-                const { loadDailyUsage } = await import('../utils/dailyUsageLoader.js');
-                currentDailyUsage = await loadDailyUsage(account, { includeAPI: true });
-                if (currentDailyUsage) {
-                    console.log('✅ [NAME UPDATE] Loaded dailyUsage using centralized loader:', {
+                console.log(
+                    '✅ [NAME UPDATE] Using dailyUsage from account store:',
+                    {
                         date: currentDailyUsage.date,
                         used: currentDailyUsage.used,
                         limit: currentDailyUsage.limit
-                    });
+                    }
+                );
+            } else {
+                // Use centralized loadDailyUsage utility (single source of truth)
+                const { loadDailyUsage } = await import(
+                    '../utils/dailyUsageLoader.js'
+                );
+                currentDailyUsage = await loadDailyUsage(account, {
+                    includeAPI: true
+                });
+                if (currentDailyUsage) {
+                    console.log(
+                        '✅ [NAME UPDATE] Loaded dailyUsage using centralized loader:',
+                        {
+                            date: currentDailyUsage.date,
+                            used: currentDailyUsage.used,
+                            limit: currentDailyUsage.limit
+                        }
+                    );
                 }
             }
-            
+
             // CRITICAL: Validate that dailyUsage has required fields
-            if (currentDailyUsage && (!currentDailyUsage.date || currentDailyUsage.date === '')) {
-                console.warn('⚠️ [NAME UPDATE] dailyUsage missing date field - treating as invalid');
+            if (
+                currentDailyUsage &&
+                (!currentDailyUsage.date || currentDailyUsage.date === '')
+            ) {
+                console.warn(
+                    '⚠️ [NAME UPDATE] dailyUsage missing date field - treating as invalid'
+                );
                 currentDailyUsage = null;
             }
         } catch (error) {
             console.error('❌ [NAME UPDATE] Error loading dailyUsage:', error);
             currentDailyUsage = null;
         }
-        
+
         if (!currentDailyUsage) {
-            console.warn('⚠️ [NAME UPDATE] No valid dailyUsage found - n8n MUST preserve from Google Sheets!');
+            console.warn(
+                '⚠️ [NAME UPDATE] No valid dailyUsage found - n8n MUST preserve from Google Sheets!'
+            );
         }
-        
+
         // CRITICAL: Build clean metadata without duplicate fields (fields with own columns!)
         // Single Source of Truth: Fields with own columns should NOT be in metadata
         const metadataToSend = {
@@ -552,11 +580,13 @@ async function updateAccountName(userId, name) {
             updatedAt: new Date().toISOString(),
             updatedVia: 'settings-ui-name-change'
         };
-        
+
         // CRITICAL: Clean metadata to remove duplicate fields (createdAt, dailyUsage, profile, tier, etc.)
         // These fields have their own columns and should NOT be in metadata!
-        const cleanedMetadata = prepareMetadataForAPI(metadataToSend, { source: 'updateAccountName' });
-        
+        const cleanedMetadata = prepareMetadataForAPI(metadataToSend, {
+            source: 'updateAccountName'
+        });
+
         // Validate (warns in dev if duplicates found)
         validateMetadataNoDuplicates(cleanedMetadata, 'updateAccountName');
 
@@ -564,16 +594,16 @@ async function updateAccountName(userId, name) {
         // If dailyUsage is not available, n8n MUST preserve it from lookupData!
         const requestBody = {
             action: 'update', // Required for n8n
-                userId: userId,
-                email: account?.email || '',
-                profile: {
-                    ...(account?.profile || {}),
-                    name: name
-                },
-                lastLogin: new Date().toISOString(), // Update lastLogin
+            userId: userId,
+            email: account?.email || '',
+            profile: {
+                ...(account?.profile || {}),
+                name: name
+            },
+            lastLogin: new Date().toISOString(), // Update lastLogin
             metadata: cleanedMetadata // Clean metadata without duplicates!
         };
-        
+
         // CRITICAL: Include dailyUsage ONLY if we have valid data!
         // If not included, n8n will preserve from lookupData (Google Sheets)
         if (currentDailyUsage && currentDailyUsage.date) {
@@ -584,9 +614,11 @@ async function updateAccountName(userId, name) {
                 limit: currentDailyUsage.limit
             });
         } else {
-            console.warn('⚠️ [NAME UPDATE] NOT including dailyUsage in request - n8n MUST preserve from Google Sheets!');
+            console.warn(
+                '⚠️ [NAME UPDATE] NOT including dailyUsage in request - n8n MUST preserve from Google Sheets!'
+            );
         }
-        
+
         const response = await fetch(WEBHOOKS.ACCOUNT.UPDATE, {
             method: 'POST',
             headers: {
@@ -633,12 +665,12 @@ export function discardChanges() {
 
 export function getPendingValue(key) {
     const pending = get(pendingChanges);
-    
+
     // Support nested keys like "storyMode.customFormat"
     if (!key.includes('.')) {
         return pending[key];
     }
-    
+
     const getNestedValue = (obj, path) => {
         if (!obj || typeof obj !== 'object') return undefined;
         const parts = path.split('.');
@@ -649,7 +681,7 @@ export function getPendingValue(key) {
         }
         return result;
     };
-    
+
     return getNestedValue(pending, key);
 }
 
@@ -951,26 +983,29 @@ export async function initializeSettingsForUser() {
             // Priority 2: Try to load settings from API (if not already loaded from account)
             // This is useful for force refresh, but account.metadata.settings should be primary
             if (!loadedSettings || Object.keys(loadedSettings).length === 0) {
-            try {
-                const apiSettings = await loadSettingsFromAPI();
-                if (apiSettings) {
-                    console.log('✅ Settings loaded from API:', apiSettings);
-                    loadedSettings = apiSettings;
-                }
-            } catch (error) {
-                // CORS error is expected in localhost - use localStorage instead
-                // Only log if NOT localhost CORS (which is expected)
-                if (error.message === 'CORS: Localhost development mode') {
-                    // Silent - expected behavior on localhost
-                } else if (
-                    error.message.includes('CORS') ||
-                    error.message.includes('Failed to fetch')
-                ) {
-                    console.log(
-                        'ℹ️ API not available (CORS), using local settings'
-                    );
-                } else {
-                    console.warn('⚠️ API error:', error.message);
+                try {
+                    const apiSettings = await loadSettingsFromAPI();
+                    if (apiSettings) {
+                        console.log(
+                            '✅ Settings loaded from API:',
+                            apiSettings
+                        );
+                        loadedSettings = apiSettings;
+                    }
+                } catch (error) {
+                    // CORS error is expected in localhost - use localStorage instead
+                    // Only log if NOT localhost CORS (which is expected)
+                    if (error.message === 'CORS: Localhost development mode') {
+                        // Silent - expected behavior on localhost
+                    } else if (
+                        error.message.includes('CORS') ||
+                        error.message.includes('Failed to fetch')
+                    ) {
+                        console.log(
+                            'ℹ️ API not available (CORS), using local settings'
+                        );
+                    } else {
+                        console.warn('⚠️ API error:', error.message);
                     }
                 }
             }
@@ -1211,19 +1246,23 @@ export async function saveSettingsToAPI(settings) {
         if (!account || !account.userId) {
             throw new Error('No user account found');
         }
-        
+
         // CRITICAL: Ensure email is always present (required for n8n workflow)
         // For updates, email can be empty string, but n8n will use existing email from Google Sheets
         // However, it's better to always send a valid email if available
         if (!account.email || account.email.trim() === '') {
-            console.warn('⚠️ Account email is missing, trying to get from localStorage...');
+            console.warn(
+                '⚠️ Account email is missing, trying to get from localStorage...'
+            );
             const prefs = storageHelpers.get(STORAGE_KEYS.USER_PREFERENCES, {});
             const storedEmail = prefs.email || account.email || '';
             if (storedEmail && storedEmail.trim() !== '') {
                 // Update account with email from localStorage
                 account.email = storedEmail;
             } else {
-                console.warn('⚠️ No email found - n8n will use existing email from Google Sheets');
+                console.warn(
+                    '⚠️ No email found - n8n will use existing email from Google Sheets'
+                );
             }
         }
 
@@ -1274,21 +1313,33 @@ export async function saveSettingsToAPI(settings) {
         // Use centralized loadDailyUsage utility (single source of truth)
         let currentDailyUsage = null;
         try {
-            const { loadDailyUsage } = await import('../utils/dailyUsageLoader.js');
-            currentDailyUsage = await loadDailyUsage(account, { includeAPI: true });
+            const { loadDailyUsage } = await import(
+                '../utils/dailyUsageLoader.js'
+            );
+            currentDailyUsage = await loadDailyUsage(account, {
+                includeAPI: true
+            });
             if (currentDailyUsage) {
-                console.log('✅ [SETTINGS SAVE] Loaded dailyUsage using centralized loader:', {
-                    date: currentDailyUsage.date,
-                    used: currentDailyUsage.used,
-                    limit: currentDailyUsage.limit
-                });
+                console.log(
+                    '✅ [SETTINGS SAVE] Loaded dailyUsage using centralized loader:',
+                    {
+                        date: currentDailyUsage.date,
+                        used: currentDailyUsage.used,
+                        limit: currentDailyUsage.limit
+                    }
+                );
             }
         } catch (error) {
-            console.warn('⚠️ [SETTINGS SAVE] Could not load dailyUsage, n8n will preserve from Google Sheets:', error);
+            console.warn(
+                '⚠️ [SETTINGS SAVE] Could not load dailyUsage, n8n will preserve from Google Sheets:',
+                error
+            );
         }
-        
+
         if (!currentDailyUsage) {
-            console.warn('⚠️ [SETTINGS SAVE] No dailyUsage found - n8n will preserve existing value from Google Sheets');
+            console.warn(
+                '⚠️ [SETTINGS SAVE] No dailyUsage found - n8n will preserve existing value from Google Sheets'
+            );
         } else {
             console.log('✅ [SETTINGS SAVE] Preserving dailyUsage:', {
                 date: currentDailyUsage.date,
@@ -1307,11 +1358,13 @@ export async function saveSettingsToAPI(settings) {
             updatedVia: 'settings-ui',
             lastSettingsSave: new Date().toISOString()
         };
-        
+
         // CRITICAL: Clean metadata to remove duplicate fields (createdAt, dailyUsage, profile, tier, etc.)
         // These fields have their own columns and should NOT be in metadata!
-        const cleanedMetadata = prepareMetadataForAPI(metadataToSend, { source: 'saveSettingsToAPI' });
-        
+        const cleanedMetadata = prepareMetadataForAPI(metadataToSend, {
+            source: 'saveSettingsToAPI'
+        });
+
         // Validate (warns in dev if duplicates found)
         validateMetadataNoDuplicates(cleanedMetadata, 'saveSettingsToAPI');
 
@@ -1375,7 +1428,10 @@ export async function saveSettingsToAPI(settings) {
                     try {
                         parsedDailyUsage = JSON.parse(parsedAccount.dailyUsage);
                     } catch (e) {
-                        console.warn('⚠️ [SETTINGS SAVE] Failed to parse dailyUsage from response:', e);
+                        console.warn(
+                            '⚠️ [SETTINGS SAVE] Failed to parse dailyUsage from response:',
+                            e
+                        );
                     }
                 } else if (typeof parsedAccount.dailyUsage === 'object') {
                     parsedDailyUsage = parsedAccount.dailyUsage;
@@ -1418,7 +1474,9 @@ export async function saveSettingsToAPI(settings) {
                     // CRITICAL: Include dailyUsage from response!
                     dailyUsage: parsedDailyUsage || account.dailyUsage || null
                 });
-                console.log('✅ [SYNC] currentAccount store updated with dailyUsage');
+                console.log(
+                    '✅ [SYNC] currentAccount store updated with dailyUsage'
+                );
             } catch (error) {
                 console.warn(
                     '⚠️ [SYNC] Failed to update currentAccount store:',
@@ -1667,7 +1725,9 @@ export async function loadSettingsFromAPI() {
     } catch (error) {
         // Silent skip for expected localhost CORS error
         if (error.message === 'CORS: Localhost development mode') {
-            console.log('ℹ️ [Settings] Skipping API load on localhost (expected CORS behavior)');
+            console.log(
+                'ℹ️ [Settings] Skipping API load on localhost (expected CORS behavior)'
+            );
             return null; // Return null instead of throwing
         }
         console.error('❌ Load settings from API error:', error);
