@@ -1,10 +1,13 @@
-<!-- src/components/UI/Modal.svelte -->
+<!--
+Modal component for displaying messages, notifications, and dialogs.
+Handles different message types, auto-dismiss timers, and accessibility features.
+Manages focus trapping and keyboard navigation.
+-->
 <script lang="ts">
     import { fade, fly } from 'svelte/transition';
     import { onMount, onDestroy } from 'svelte';
     import FocusManagerComponent from '../A11y/FocusManager.svelte';
     import ButtonComponent from './Button.svelte';
-    
     import { 
         modalMessage, 
         isModalVisible, 
@@ -13,13 +16,22 @@
         closeModal
     } from '../../stores/modalStore';
     import { get } from 'svelte/store';
-  
     import { isDebugMode } from '../../utils/environment';
-    
     import { translations } from '../../stores/contentStore';
     import type { ButtonVariant } from '../../types/ComponentProps';
-  
-    // Svelte 5 / Webpack: stabile Komponenten-Referenzen
+
+    function debugModal() {
+        if (!isDebugMode()) return;
+        console.group('🔍 Modal Debug');
+        console.log('State:', {
+            isVisible: get(isModalVisible),
+            message: get(modalMessage),
+            messageType: get(modalType),
+            modalData: get(modalData)
+        });
+        console.groupEnd();
+    }
+
     const FocusManager = FocusManagerComponent;
     const Button = ButtonComponent;
 
@@ -53,11 +65,6 @@
     // progressInterval wird nur intern verwendet (nicht im Template) → normale let
     let progressInterval: ReturnType<typeof setInterval> | null = null;
     
-    $effect(() => {
-        if (debugMode && messageType) {
-            console.log('🔔 Modal messageType:', messageType, 'isProFeature:', messageType === 'pro-feature');
-        }
-    });
 
     // Constants for animation and accessibility
     const ANIMATION_DURATION = 300;
@@ -116,14 +123,9 @@
         return ICONS[type] || ICONS.info || 'ℹ️';
     }
   
-    // Handle manually closing the modal
     function handleCloseModal() {
-        // Stop progress bar
         stopProgressBar();
-        
-        if (debugMode) {
-            console.log('🔔 Modal manually closed:', { message, type: messageType });
-        }
+        debugModal();
         closeModal();
     }
   
@@ -140,36 +142,18 @@
         }
     }
     
-    // Component lifecycle
     onMount(() => {
-        // Markiere Komponente als gemountet
         isComponentMounted = true;
-        
-        // Verhindert Scrollbar-Hüpfen bei Modal-Öffnung
         document.body.classList.add('modal-open');
-        
-        if (debugMode) {
-            console.log('🔔 Modal component mounted');
-        }
+        debugModal();
     });
     
-    // Cleanup on component destroy
     onDestroy(() => {
-        // Markiere Komponente als unmounted
         isComponentMounted = false;
-        
-        // Clear progress interval
         if (progressInterval) {
             clearInterval(progressInterval);
         }
-        
-        // Entferne Modal-Open Klasse
         document.body.classList.remove('modal-open');
-        
-        // Make sure we don't leave any modal state active when unmounting
-        if (debugMode) {
-            console.log('🔔 Modal component destroyed');
-        }
     });
 
     // Start progress bar when modal becomes visible
