@@ -332,32 +332,10 @@ module.exports = {
     plugins: [
         require('tailwindcss'),
         require('autoprefixer'),
-        // Custom Plugin für gemeinsame Utility Patterns
+        // Custom Plugin für Scrollbar Styles (ohne @apply, da Tailwind CSS 2.2.19 @apply-Limitations hat)
         function({ addUtilities, theme }) {
             const newUtilities = {
-                // Button Base Styles (häufig verwendet)
-                '.btn-base': {
-                    '@apply transition-all transform rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed': {},
-                },
-                '.btn-hover': {
-                    '@apply hover:scale-105 focus:scale-105 active:scale-95 disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100': {},
-                },
-                // Input Base Styles (häufig verwendet)
-                '.input-base': {
-                    '@apply w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light p-4': {},
-                },
-                '.input-focus': {
-                    '@apply focus:ring-1 focus:ring-yellow-50 focus:border-transparent': {},
-                },
-                // Card Base Styles (häufig verwendet)
-                '.card-base': {
-                    '@apply bg-white dark:bg-aubergine-900 rounded-lg shadow-md p-4': {},
-                },
-                // Container Base Styles
-                '.container-base': {
-                    '@apply bg-white dark:bg-aubergine-900 text-black dark:text-powder-50': {},
-                },
-                // Scrollbar Styles (Dark Mode)
+                // Scrollbar Styles (Dark Mode) - direkte CSS-Regeln ohne @apply
                 '.scrollbar-thin': {
                     'scrollbar-width': 'thin',
                     'scrollbar-color': theme('colors.gray.400') + ' ' + theme('colors.gray.100'),
@@ -381,13 +359,7 @@ module.exports = {
         {
             pattern: /^(bg|text|border)-(yellow|green|red|blue|purple|pink|orange|gray|aubergine|creme|powder|light)-(50|100|200|300|400|500|600|700|800|900|950)$/,
         },
-        // Custom Utilities
-        'btn-base',
-        'btn-hover',
-        'input-base',
-        'input-focus',
-        'card-base',
-        'container-base',
+        // Custom Utilities (nur Scrollbar, da @apply in Tailwind CSS 2.2.19 Limitations hat)
         'scrollbar-thin',
         'scrollbar-thin-dark',
     ]
