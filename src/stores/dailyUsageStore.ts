@@ -24,7 +24,7 @@ import type { Account, UsageHistoryEntry, DailyLimitState } from '../types/Accou
 function debugDailyUsageStore(context: string, data?: unknown) {
     if (!isDebugMode()) return;
     console.group(`🔍 DailyUsageStore Debug: ${context}`);
-    if (data) debugDailyUsageStore(data);
+    if (data) console.log(data);
     console.groupEnd();
 }
 
@@ -111,14 +111,11 @@ function getUsageFromLocalStorage(): DailyUsageData | null {
                 return migratedData;
             }
 
-            debugDailyUsageStore(
-                '📦 Loaded daily usage from localStorage (same day):',
-                stored
-            );
+            debugDailyUsageStore('Loaded daily usage from localStorage (same day)', stored);
             return stored;
         }
     } catch (error: unknown) {
-        debugDailyUsageStore('⚠️ Failed to load usage from localStorage:', error);
+        debugDailyUsageStore('Failed to load usage from localStorage', error);
     }
     return null;
 }
@@ -126,9 +123,9 @@ function getUsageFromLocalStorage(): DailyUsageData | null {
 function saveUsageToLocalStorage(usageData: DailyUsageData): void {
     try {
         storageHelpers.set(STORAGE_KEYS.DAILY_USAGE, usageData);
-        debugDailyUsageStore('💾 Saved daily usage to localStorage:', usageData);
+        debugDailyUsageStore('Saved daily usage to localStorage', usageData);
     } catch (error: unknown) {
-        debugDailyUsageStore('⚠️ Failed to save usage to localStorage:', error);
+        debugDailyUsageStore('Failed to save usage to localStorage', error);
     }
 }
 
