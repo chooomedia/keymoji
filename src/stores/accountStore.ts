@@ -166,8 +166,6 @@ function showLoginSuccessIfFirstLogin(accountInfo: AccountInfo): void {
     }
 }
 
-// validateSession, generateSecureToken, generateFantasyName moved to helper modules
-
 export const isLoggingIn = writable<boolean>(false);
 export const loginError = writable<string | null>(null);
 
