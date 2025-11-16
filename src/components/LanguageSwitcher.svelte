@@ -140,53 +140,26 @@ Manages font preloading and user settings synchronization.
     }
     
     async function handleLanguageChange(langCode) {
-        console.log('🔄 LanguageSwitcher: handleLanguageChange called with:', langCode);
-        console.log('🔄 LanguageSwitcher: current selectedLang:', selectedLang);
-        
-        // Do nothing if it's the same language
+        debugLanguageSwitcher();
         if (langCode === selectedLang) {
-            console.log('🔄 LanguageSwitcher: Same language, closing menu');
             showLanguageMenu.set(false);
             return;
         }
-        
-        // Vorladen der Elvish Schriftart, wenn auf Elvish gewechselt wird
         if (langCode === 'sjn') {
             preloadElvishFont();
         }
-        
-        console.log('🔄 LanguageSwitcher: Calling changeLanguage...');
-        
-        // Set language in store (contentStore.js)
         await changeLanguage(langCode);
         selectedLang = langCode;
-        console.log('🔄 LanguageSwitcher: Language changed to:', selectedLang);
-        
-        // CRITICAL: Sync with userSettings store
         try {
             const { updateSetting, userSettings: userSettingsStore } = await import('../stores/userSettingsStore.ts');
-            // Update userSettings.language to stay in sync
             const currentSettings = userSettingsStore;
             if (currentSettings.language !== langCode) {
                 updateSetting('language', langCode);
-                console.log('✅ userSettings.language synced:', langCode);
             }
-        } catch (error) {
-            console.warn('⚠️ Failed to sync userSettings:', error);
-        }
-        
-        // Get new path with updated language
+        } catch (error) {}
         const newPath = updateCurrentPath(langCode);
-        
-        // Debug output
-        console.log('🔄 LanguageSwitcher: Navigating to new path:', newPath);
-        
-        // Update URL without reload
         navigate(newPath, { replace: true });
-        
-        // Close menu
         showLanguageMenu.set(false);
-        console.log('🔄 LanguageSwitcher: Menu closed');
         
         // Trigger event for parent components
         dispatch('languageChange', langCode);
