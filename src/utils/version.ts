@@ -32,6 +32,5 @@ export function formatVersion(includeV: boolean = true): string {
     return includeV ? `v${appVersion}` : appVersion;
 }
 
-// Exportiert die standardmäßige Versionsnummer
 export default appVersion;
 
