@@ -37,7 +37,8 @@ jobs:
       - name: Check version consistency
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          VERSION_JS=$(grep -oP "export const appVersion = ['\"]\K[^'\"]+" src/utils/version.js || echo "")
+          # Cross-platform version extraction
+          VERSION_JS=$(grep -E "export const appVersion = ['\"]" src/utils/version.js | sed -E "s/.*['\"]([^'\"]+)['\"].*/\1/" || echo "")
           
           echo "📦 package.json version: $PACKAGE_VERSION"
           echo "📦 src/utils/version.js version: $VERSION_JS"
