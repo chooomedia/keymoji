@@ -4,19 +4,52 @@
  * - Development mode helpers
  * - Production mode helpers
  * - Environment-specific configurations
+ *
+ * TypeScript Migration: v0.7.7
  */
 
 /**
- * Get the current environment
- * @returns {string} 'development' | 'production' | 'test'
+ * Environment type
  */
-export function getEnvironment() {
+export type Environment = 'development' | 'production' | 'test';
+
+/**
+ * Environment configuration interface
+ */
+export interface EnvironmentConfig {
+    debugEnabled: boolean;
+    verboseLogging: boolean;
+    serviceWorkerEnabled: boolean;
+    analyticsEnabled: boolean;
+}
+
+/**
+ * Environment-specific configuration map
+ */
+export interface EnvironmentConfigMap {
+    development: EnvironmentConfig;
+    production: EnvironmentConfig;
+    test: EnvironmentConfig;
+}
+
+/**
+ * Get the current environment
+ * @returns 'development' | 'production' | 'test'
+ */
+export function getEnvironment(): Environment {
     try {
-        return typeof process !== 'undefined' &&
+        const env = typeof process !== 'undefined' &&
             process.env &&
             process.env.NODE_ENV
             ? process.env.NODE_ENV
             : 'production';
+        
+        // Type guard to ensure valid environment
+        if (env === 'development' || env === 'production' || env === 'test') {
+            return env;
+        }
+        
+        return 'production';
     } catch (e) {
         console.warn(
             'Could not access environment variables, defaulting to production'
@@ -27,9 +60,9 @@ export function getEnvironment() {
 
 /**
  * Check if running in development mode
- * @returns {boolean} True if in development mode
+ * @returns True if in development mode
  */
-export function isDevelopment() {
+export function isDevelopment(): boolean {
     // Check NODE_ENV first
     if (getEnvironment() === 'development') {
         return true;
@@ -52,25 +85,25 @@ export function isDevelopment() {
 
 /**
  * Check if running in production mode
- * @returns {boolean} True if in production mode
+ * @returns True if in production mode
  */
-export function isProduction() {
+export function isProduction(): boolean {
     return getEnvironment() === 'production';
 }
 
 /**
  * Check if running in test mode
- * @returns {boolean} True if in test mode
+ * @returns True if in test mode
  */
-export function isTest() {
+export function isTest(): boolean {
     return getEnvironment() === 'test';
 }
 
 /**
  * Get debug mode status
- * @returns {boolean} True if debug mode is enabled
+ * @returns True if debug mode is enabled
  */
-export function isDebugMode() {
+export function isDebugMode(): boolean {
     return (
         isDevelopment() &&
         typeof window !== 'undefined' &&
@@ -80,9 +113,9 @@ export function isDebugMode() {
 
 /**
  * Get test mode status
- * @returns {boolean} True if test mode is enabled
+ * @returns True if test mode is enabled
  */
-export function isTestMode() {
+export function isTestMode(): boolean {
     return (
         isDevelopment() &&
         typeof window !== 'undefined' &&
@@ -93,7 +126,7 @@ export function isTestMode() {
 /**
  * Environment-specific configuration
  */
-export const ENV_CONFIG = {
+export const ENV_CONFIG: EnvironmentConfigMap = {
     development: {
         debugEnabled: true,
         verboseLogging: true,
@@ -116,42 +149,51 @@ export const ENV_CONFIG = {
 
 /**
  * Get environment-specific configuration
- * @returns {object} Configuration for current environment
+ * @returns Configuration for current environment
  */
-export function getEnvironmentConfig() {
+export function getEnvironmentConfig(): EnvironmentConfig {
     const env = getEnvironment();
     return ENV_CONFIG[env] || ENV_CONFIG.production;
 }
 
 /**
- * Safe console logging that respects environment settings
- * @param {string} level - 'log' | 'warn' | 'error' | 'info'
- * @param {...any} args - Arguments to log
+ * Console log level type
  */
-export function safeLog(level = 'log', ...args) {
+export type LogLevel = 'log' | 'warn' | 'error' | 'info';
+
+/**
+ * Safe console logging that respects environment settings
+ * @param level - 'log' | 'warn' | 'error' | 'info'
+ * @param args - Arguments to log
+ */
+export function safeLog(level: LogLevel = 'log', ...args: unknown[]): void {
     const config = getEnvironmentConfig();
 
     if (config.verboseLogging || level === 'error') {
+        // eslint-disable-next-line no-console
         console[level](...args);
     }
 }
 
 /**
  * Development-only logging
- * @param {...any} args - Arguments to log
+ * @param args - Arguments to log
  */
-export function devLog(...args) {
+export function devLog(...args: unknown[]): void {
     if (isDevelopment()) {
+        // eslint-disable-next-line no-console
         console.log(...args);
     }
 }
 
 /**
  * Development-only warning
- * @param {...any} args - Arguments to log
+ * @param args - Arguments to log
  */
-export function devWarn(...args) {
+export function devWarn(...args: unknown[]): void {
     if (isDevelopment()) {
+        // eslint-disable-next-line no-console
         console.warn(...args);
     }
 }
+

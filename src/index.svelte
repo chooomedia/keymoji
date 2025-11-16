@@ -10,7 +10,7 @@
     import EmojiDisplay from './components/Core/EmojiDisplay.svelte';
 
     import { translations } from './stores/contentStore.js';
-    import { isDebugMode } from './utils/environment.js';
+    import { isDebugMode } from './utils/environment';
     import { initializeAccountFromCookies, setupMagicLinkListener } from './stores/accountStore.js';
     import { initializeSettingsForUser } from './stores/userSettingsStore.js';
     import { testLimitConfiguration, testLimitConsistency } from './utils/test-limits.js';

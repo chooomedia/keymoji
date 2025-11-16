@@ -3,8 +3,8 @@
 
 import { writable, get, derived } from 'svelte/store';
 import { STORAGE_KEYS, storageHelpers } from '../config/storage.js';
-import { appVersion, formatVersion } from '../utils/version.js';
-import { isDevelopment, devLog, devWarn } from '../utils/environment.js';
+import { appVersion, formatVersion } from '../utils/version';
+import { isDevelopment, devLog, devWarn } from '../utils/environment';
 import { initializeAccountFromCookies } from './accountStore.js';
 
 // Stores für Content und Sprache

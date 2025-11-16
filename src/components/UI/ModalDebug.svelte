@@ -31,7 +31,7 @@
     
     // Import translations
     import { translations } from '../../stores/contentStore.js';
-    import { isDevelopment } from '../../utils/environment.js';
+    import { isDevelopment } from '../../utils/environment';
 
     const dispatch = createEventDispatcher();
 

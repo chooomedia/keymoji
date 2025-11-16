@@ -3,7 +3,7 @@
     import { onMount, afterUpdate } from 'svelte';
     import { darkMode } from '../../stores/appStores.js';
     import { currentLanguage } from '../../stores/contentStore.js';
-import { updatedTime } from '../../utils/timestamp.js';
+import { updatedTime } from '../../utils/timestamp';
     import SkipLink from '../A11y/SkipLink.svelte';
 import ServiceWorkerHandler from '../ServiceWorkerHandler.svelte';
 import Modal from '../UI/Modal.svelte';

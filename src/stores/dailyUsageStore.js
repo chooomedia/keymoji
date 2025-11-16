@@ -15,7 +15,7 @@ import {
     isLimitReached,
     getRemainingGenerations
 } from '../config/limits.js';
-import { isDevelopment } from '../utils/environment.js';
+import { isDevelopment } from '../utils/environment';
 import {
     cachedFetchAccount,
     invalidateCachePattern

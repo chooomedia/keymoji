@@ -7,7 +7,7 @@
     import { currentLanguage, translations } from '../stores/contentStore.js';
     import { navigate } from 'svelte-routing';
     import PageLayout from '../components/Layout/PageLayout.svelte';
-    import { versionInfo, appVersion } from '../utils/version.js';
+    import { versionInfo, appVersion } from '../utils/version';
     import FooterInfo from '../widgets/FooterInfo.svelte';
 
     // Reaktive PageLayout Props

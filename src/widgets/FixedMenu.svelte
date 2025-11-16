@@ -24,7 +24,7 @@
   import { currentLanguage } from '../stores/contentStore.js';
   import { navigateToContact } from '../utils/navigation.js';
   import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
-  import { isDevelopment } from '../utils/environment.js';
+  import { isDevelopment } from '../utils/environment';
 
   const dispatch = createEventDispatcher();
 

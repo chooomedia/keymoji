@@ -13,7 +13,7 @@ import {
 import { showExistingAccountFound, showNewAccountCreated } from './modalStore.js';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 import { WEBHOOKS } from '../config/api.js';
-import { isDevelopment } from '../utils/environment.js';
+import { isDevelopment } from '../utils/environment';
 import {
     cachedFetchAccount,
     invalidateCachePattern,

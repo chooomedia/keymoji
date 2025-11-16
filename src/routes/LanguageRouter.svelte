@@ -5,7 +5,7 @@
     import { changeLanguage, currentLanguage } from '../stores/contentStore.js';
     import { getBrowserLanguage, isLanguageSupported } from '../utils/languages.js';
     import { closeModal, isModalVisible } from '../stores/modalStore.js';
-    import { devLog } from '../utils/environment.js';
+    import { devLog } from '../utils/environment';
     import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore.js';
     // PERFORMANCE: Index bleibt synchron (Hauptseite, muss schnell laden)
     import Index from '../index.svelte';
@@ -50,7 +50,7 @@
         }
     }
     import SEO from '../components/SEO.svelte';
-    import { appVersion } from '../utils/version.js';
+    import { appVersion } from '../utils/version';
     
     export const url = "";
     export const currentVersion = appVersion;

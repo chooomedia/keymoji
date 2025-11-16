@@ -1,6 +1,6 @@
 // src/stores/modalStore.js
 import { writable, get } from 'svelte/store';
-import { isDevelopment, devLog } from '../utils/environment.js';
+import { isDevelopment, devLog } from '../utils/environment';
 
 /**
  * Enhanced Modal-System mit pausierbaren async Funktionen (Apple/Airbnb UX-Style)

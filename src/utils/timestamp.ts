@@ -3,25 +3,27 @@
  * - Centralized timestamp management
  * - Build-time timestamp generation
  * - Last update tracking
+ *
+ * TypeScript Migration: v0.7.7
  */
 
-export const updatedTime = '2025-11-16T04:06:29.828Z';
+export const updatedTime: string = '2025-11-16T04:06:29.828Z';
 
 /**
  * Get the current timestamp in ISO format
- * @returns {string} Current timestamp
+ * @returns Current timestamp
  */
-export function getCurrentTimestamp() {
+export function getCurrentTimestamp(): string {
     return new Date().toISOString();
 }
 
 /**
  * Format timestamp for display
- * @param {string} timestamp - ISO timestamp string
- * @param {string} locale - Locale for formatting (default: 'en')
- * @returns {string} Formatted date string
+ * @param timestamp - ISO timestamp string
+ * @param locale - Locale for formatting (default: 'en')
+ * @returns Formatted date string
  */
-export function formatTimestamp(timestamp, locale = 'en') {
+export function formatTimestamp(timestamp: string, locale: string = 'en'): string {
     try {
         const date = new Date(timestamp);
         return date.toLocaleDateString(locale, {
@@ -39,14 +41,14 @@ export function formatTimestamp(timestamp, locale = 'en') {
 
 /**
  * Check if a timestamp is recent (within last 24 hours)
- * @param {string} timestamp - ISO timestamp string
- * @returns {boolean} True if timestamp is recent
+ * @param timestamp - ISO timestamp string
+ * @returns True if timestamp is recent
  */
-export function isRecentTimestamp(timestamp) {
+export function isRecentTimestamp(timestamp: string): boolean {
     try {
         const timestampDate = new Date(timestamp);
         const now = new Date();
-        const diffInHours = (now - timestampDate) / (1000 * 60 * 60);
+        const diffInHours = (now.getTime() - timestampDate.getTime()) / (1000 * 60 * 60);
         return diffInHours < 24;
     } catch (error) {
         return false;
@@ -55,14 +57,14 @@ export function isRecentTimestamp(timestamp) {
 
 /**
  * Get relative time string (e.g., "2 hours ago")
- * @param {string} timestamp - ISO timestamp string
- * @returns {string} Relative time string
+ * @param timestamp - ISO timestamp string
+ * @returns Relative time string
  */
-export function getRelativeTime(timestamp) {
+export function getRelativeTime(timestamp: string): string {
     try {
         const timestampDate = new Date(timestamp);
         const now = new Date();
-        const diffInSeconds = Math.floor((now - timestampDate) / 1000);
+        const diffInSeconds = Math.floor((now.getTime() - timestampDate.getTime()) / 1000);
 
         if (diffInSeconds < 60) {
             return 'just now';
@@ -80,3 +82,4 @@ export function getRelativeTime(timestamp) {
         return 'unknown time';
     }
 }
+

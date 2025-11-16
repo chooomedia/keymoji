@@ -8,7 +8,7 @@
     import StaticSection from '../components/StaticContent/StaticSection.svelte';
     import { staticPagesData } from '../data/staticPages.json.js';
     import { navigateToHome } from '../utils/navigation.js';
-    import { appVersion } from '../utils/version.js';
+    import { appVersion } from '../utils/version';
     import FooterInfo from '../widgets/FooterInfo.svelte';
     
     // Props

@@ -3,7 +3,7 @@
     import { onMount, onDestroy } from 'svelte';
     import { showInfo } from '../stores/modalStore.js';
     import { translations } from '../stores/contentStore.js';
-    import { isDebugMode } from '../utils/environment.js';
+    import { isDebugMode } from '../utils/environment';
     import { safeSetTimeout, clearAllTimeouts } from '../utils/sharedHelpers';
 
     // Timeout-Tracking für Memory Leak Prevention

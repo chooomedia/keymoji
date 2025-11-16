@@ -10,7 +10,7 @@
 
 import emojisData from '../../public/emojisArray.json';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
-import { isDevelopment } from '../utils/environment.js';
+import { isDevelopment } from '../utils/environment';
 
 const emojis = emojisData.emojis;
 

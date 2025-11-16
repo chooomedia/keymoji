@@ -7,14 +7,14 @@ import {
     getBrowserLanguage,
     getText as getTextUtil
 } from '../utils/languages.js';
-import { appVersion, formatVersion } from '../utils/version.js';
+import { appVersion, formatVersion } from '../utils/version';
 import { WEBHOOKS } from '../config/api.js';
 import {
     STORAGE_KEYS,
     storageHelpers,
     migrateAndCleanupLocalStorage
 } from '../config/storage.js';
-import { isDevelopment, devWarn } from '../utils/environment.js';
+import { isDevelopment, devWarn } from '../utils/environment';
 import { getDailyLimitForUser, validateUserLimits } from '../config/limits.js';
 
 // ============================================

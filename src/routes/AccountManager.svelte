@@ -54,7 +54,7 @@
     import UserSettings from '../components/UserSettings.svelte';
     import { get } from 'svelte/store';
     import ContextMenu from '../components/UI/ContextMenu.svelte';
-    import { isDevelopment } from '../utils/environment.js';
+    import { isDevelopment } from '../utils/environment';
     import { validateUserLimits } from '../config/limits.js';
     import { sendAnalyticsEvent } from '../stores/appStores.js';
     import Input from '../components/UI/Input.svelte';

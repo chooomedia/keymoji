@@ -15,7 +15,7 @@
     } from '../../stores/modalStore.js';
   
     // Import for isDebugMode
-    import { isDebugMode } from '../../utils/environment.js';
+    import { isDebugMode } from '../../utils/environment';
     
     // Import translations
     import { translations } from '../../stores/contentStore.js';

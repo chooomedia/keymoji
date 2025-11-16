@@ -1,7 +1,7 @@
 // src/index.js
 import './index.css'; // Essential: Import Tailwind CSS
 import LanguageRouter from './routes/LanguageRouter.svelte';
-import { isProduction } from './utils/environment.js';
+import { isProduction } from './utils/environment';
 import { closeModal, isModalVisible } from './stores/modalStore.js';
 
 /**
