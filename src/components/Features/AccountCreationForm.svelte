@@ -43,7 +43,7 @@
 </script>
 
 <div class="bg-transparent mb-2 relative z-20">
-    <form on:submit|preventDefault={onSubmit} class="space-y-4">
+    <form onsubmit={(e) => { e.preventDefault(); onSubmit(e); }} class="space-y-4">
         <div>
             <label for="email" class="sr-only">{get(translations)?.accountManager?.emailLabel || 'Email'}</label>
             <Input
@@ -114,7 +114,7 @@
                 variant="secondary"
                 size="sm"
                 fullWidth={true}
-                on:click={onToggleProfileForm}
+                onclick={onToggleProfileForm}
             >
                 <span class="mr-1.5">👤</span>{showProfileForm ? (get(translations)?.accountManager?.buttons?.hideProfile || 'Hide') : (get(translations)?.accountManager?.buttons?.addProfile || 'Add')} {get(translations)?.accountManager?.buttons?.name || 'Name'}
             </Button>
@@ -124,7 +124,7 @@
                     variant="secondary"
                     size="sm"
                     fullWidth={true}
-                    on:click={onShowExpandedView}
+                    onclick={onShowExpandedView}
                 >
                     {get(translations)?.accountManager?.buttons?.compactView || 'Compact view'}
                 </Button>

@@ -2,15 +2,14 @@
     import { onMount, onDestroy } from 'svelte';
     import { slide, fly } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
-    import { hamburger, logo } from "../../assets/shapes";
+    import { hamburger, logo } from '../../assets/shapes';
     import { isDisabled, showDonateMenu, isLoggedIn, currentAccount, dailyLimit, accountTier } from '../../stores/appStores'
     import { currentLanguage, t, showLanguageMenu, changeLanguage } from '../../stores/contentStore';
     import { get } from 'svelte/store';
     import GitButton from '../../widgets/GitButton.svelte';
     import { createEventDispatcher } from 'svelte';
     import { navigate } from '../../utils/routing';
-    import Link from '../../components/Routing/Link.svelte';
-    import LanguageSwitcher from '../LanguageSwitcher.svelte';
+    import LanguageSwitcherComponent from '../LanguageSwitcher.svelte';
     import { supportedLanguages } from '../../utils/languages';
     import { translations } from '../../stores/contentStore';
     import { navigateToBlog } from '../../utils/blogNavigation';
@@ -18,6 +17,9 @@
     import { showModal } from '../../stores/modalStore';
 
     const dispatch = createEventDispatcher();
+
+    // Webpack/Svelte 5: explizite Zuweisung für stabile Komponenten-Referenz
+    const LanguageSwitcher = LanguageSwitcherComponent;
     
     const remaining = $derived(Math.max(0, (dailyLimit?.limit || 0) - (dailyLimit?.used || 0)));
     const isProUser = $derived(accountTier === 'pro');
@@ -75,6 +77,9 @@
             }
         }
     });
+
+    // Ensure logo import is treated as value (not tree-shaken by TS)
+    const logoMarkup: string = logo;
 
     const headerTitle = $derived(translations?.header?.pageTitle || 'Keymoji');
     
@@ -136,11 +141,17 @@
             <!-- Logo und Titel links -->
             <div class="flex items-center">
                 <h2 class="flex flex-wrap md:text-2xl font-semibold items-center whitespace-nowrap dark:text-white">
-                    <Link 
-                        to={currentLanguage === 'en' ? '/' : `/${currentLanguage}`}
+                    <a 
+                        href={currentLanguage === 'en' ? '/' : `/${currentLanguage}`}
+                        onclick={(event) => {
+                            event.preventDefault();
+                            const lang = currentLanguage || 'en';
+                            const homePath = lang === 'en' ? '/' : `/${lang}`;
+                            navigate(homePath, { replace: true });
+                        }}
                         class="flex items-center hover:text-yellow transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-aubergine-800 rounded-lg"
                         aria-label={headerTitle}
-                    >
+                        >
                         <!-- Keymoji Logo SVG from shapes.js -->
                         <svg 
                             class="w-14 h-14 transition-transform hover:scale-110" 
@@ -149,10 +160,10 @@
                             viewBox="0 0 600 600"
                             style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
                         >
-                            {@html logo}
+                            {@html logoMarkup}
                         </svg>
                         <span class="ml-2">{headerTitle}</span>
-                    </Link>
+                    </a>
                 </h2>
             </div>
             
@@ -168,7 +179,7 @@
                     <button
                         type="button"
                         class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center relative"
-                        on:click={navigateToAccount}
+                        onclick={navigateToAccount}
                         aria-label={isLoggedIn ? (translations?.header?.accountTooltip || 'Account Settings') : (translations?.header?.loginTooltip || 'Login / Create Account')}
                         title={isLoggedIn ? (translations?.header?.accountTooltip || 'Account Settings') : (translations?.header?.loginTooltip || 'Login / Create Account')}
                     >
@@ -180,7 +191,7 @@
                         {#key displayValue}
                             <button
                                 type="button"
-                                on:click={handleBadgeClick}
+                                onclick={handleBadgeClick}
                                 in:fly={{y: isCountingDown ? 10 : -10, duration: 300, easing: cubicInOut}}
                                 out:fly={{y: isCountingDown ? -10 : 10, duration: 300, easing: cubicInOut}}
                                 class="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center rounded-full text-[0.65rem] font-bold shadow-lg border border-white dark:border-aubergine-900 transition-all transform hover:scale-110 focus:scale-110 active:scale-95 focus:ring-2 focus:ring-offset-1 focus:outline-none z-[80] {

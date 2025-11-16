@@ -69,7 +69,6 @@
     {type} 
     {disabled} 
     class={buttonClasses} 
-    on:click 
     aria-disabled={disabled}
     aria-label={ariaLabel || undefined}
   >

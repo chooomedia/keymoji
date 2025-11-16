@@ -350,7 +350,7 @@
             <button
                 id={config.id}
                 type="button"
-                on:click={handleButtonAction}
+                onclick={handleButtonAction}
                 disabled={config.disabled}
                 class="w-full px-4 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
@@ -361,9 +361,9 @@
             <select
                 id={config.id}
                 value={localValue}
-                on:change={handleValueChange}
-                on:focus={handleFocus}
-                on:blur={handleBlur}
+                onchange={handleValueChange}
+                onfocus={handleFocus}
+                onblur={handleBlur}
                 disabled={config.disabled}
                 class={`${getInputClasses()} ${config.class} appearance-none bg-no-repeat pr-12`}
                 style="background-image: url('data:image/svg+xml,%3Csvg viewBox=\'0 0 20 20\' fill=\'none\' stroke=\'%23666\' stroke-width=\'2\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M6 8l4 4 4-4\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E'); background-position: right 1rem center; background-size: 1.25rem;"
@@ -382,9 +382,9 @@
             <textarea
                 id={config.id}
                 value={localValue}
-                on:input={handleValueChange}
-                on:focus={handleFocus}
-                on:blur={handleBlur}
+                oninput={handleValueChange}
+                onfocus={handleFocus}
+                onblur={handleBlur}
                 placeholder={getLocalizedText(config.placeholder)}
                 disabled={config.disabled}
                 rows={config.rows || 4}
@@ -402,7 +402,7 @@
                     id={config.id}
                     type="checkbox"
                     bind:checked={currentValue}
-                    on:change={handleValueChange}
+                    onchange={handleValueChange}
                     disabled={config.disabled}
                     class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-invalid={!isValid && validationErrors.length > 0}
@@ -423,7 +423,7 @@
                             name={config.id}
                             value={option.value}
                             bind:group={currentValue}
-                            on:change={handleValueChange}
+                            onchange={handleValueChange}
                             disabled={config.disabled}
                             class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
@@ -441,7 +441,7 @@
                     id={config.id}
                     type="range"
                     bind:value={localValue}
-                    on:input={handleRangeChange}
+                    oninput={handleRangeChange}
                     min={config.min || 0}
                     max={config.max || 100}
                     step={config.step || 0.1}
@@ -474,7 +474,7 @@
                     bind:checked={currentValue}
                     disabled={config.disabled}
                     color={config.color || 'yellow'}
-                    on:change={handleValueChange}
+                    onchange={handleValueChange}
                 />
             </div>
         {:else}
@@ -484,9 +484,9 @@
                     id={config.id}
                     type="email"
                     value={localValue}
-                    on:input={handleValueChange}
-                    on:focus={handleFocus}
-                    on:blur={handleBlur}
+                    oninput={handleValueChange}
+                    onfocus={handleFocus}
+                    onblur={handleBlur}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}
                     required={config.required}
@@ -501,9 +501,9 @@
                     id={config.id}
                     type="password"
                     value={localValue}
-                    on:input={handleValueChange}
-                    on:focus={handleFocus}
-                    on:blur={handleBlur}
+                    oninput={handleValueChange}
+                    onfocus={handleFocus}
+                    onblur={handleBlur}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}
                     required={config.required}
@@ -518,9 +518,9 @@
                     id={config.id}
                     type="number"
                     value={localValue}
-                    on:input={handleValueChange}
-                    on:focus={handleFocus}
-                    on:blur={handleBlur}
+                    oninput={handleValueChange}
+                    onfocus={handleFocus}
+                    onblur={handleBlur}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}
                     required={config.required}
@@ -537,9 +537,9 @@
                     id={config.id}
                     type="text"
                     value={localValue}
-                    on:input={handleValueChange}
-                    on:focus={handleFocus}
-                    on:blur={handleBlur}
+                    oninput={handleValueChange}
+                    onfocus={handleFocus}
+                    onblur={handleBlur}
                     placeholder={getLocalizedText(config.placeholder)}
                     disabled={config.disabled}
                     required={config.required}

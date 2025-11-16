@@ -26,7 +26,7 @@
         <div class="w-full h-full relative flex justify-around">
             <button
                 class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10 hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-                on:click={() => onTierChange('free')}
+                onclick={() => onTierChange('free')}
                 aria-label={get(translations)?.accountManager?.tiers?.free || 'Select Free account'}
                 title={get(translations)?.accountManager?.freeDescription || 'Free account'}
             >
@@ -39,7 +39,7 @@
             </button>
             <button
                 class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10 hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
-                on:click={() => onTierChange('pro')}
+                onclick={() => onTierChange('pro')}
                 aria-label={get(translations)?.accountManager?.tiers?.pro || 'Select Pro account'}
                 title={get(translations)?.accountManager?.proDescription || 'Pro account'}
             >

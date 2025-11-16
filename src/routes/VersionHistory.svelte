@@ -7,8 +7,11 @@
     import { currentLanguage, translations } from '../stores/contentStore';
     import { get } from 'svelte/store';
     import { navigate } from '../utils/routing';
-    import PageLayout from '../components/Layout/PageLayout.svelte';
+    import PageLayoutComponent from '../components/Layout/PageLayout.svelte';
     import { versionInfo, appVersion } from '../utils/version';
+
+    // Svelte 5 / Webpack: stabile Komponenten-Referenz
+    const PageLayout = PageLayoutComponent;
 
     // Reaktive PageLayout Props (Svelte 5 Runes)
     let pageTitle = $derived.by(() => get(translations)?.versions?.pageTitle || 'Version History');
@@ -130,7 +133,7 @@
     <!-- Back Button - Liegt ZUR HÄLFTE auf content-wrapper Rand -->
     <div slot="before-content" class="relative w-full flex justify-center -mb-14">
         <button 
-            on:click={navigateBack}
+            onclick={navigateBack}
             class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 z-20"
             aria-label={$translations?.index?.backToMainButtonText || 'Back to home'}
             title={$translations?.index?.backToMainButtonText || 'Back to home'}
@@ -160,7 +163,7 @@
                             bind:this={versionItems[i]}
                             class="relative mb-6 pl-8"
                             in:fly={{ y: 20, duration: 400, delay: i * 80 }}
-                            on:introend={() => {
+                            onintroend={() => {
                                 updateTimelineHeight();
                             }}
                         >
@@ -172,7 +175,7 @@
                             
                             <!-- Collapsible Version Header - Elegant & Filigran -->
                             <button
-                                on:click={() => toggleVersion(version)}
+                                onclick={() => toggleVersion(version)}
                                 class="w-full text-left bg-creme-200 dark:bg-aubergine-900 rounded-xl p-3.5 hover:bg-creme-300 dark:hover:bg-aubergine-800 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
                                 aria-expanded={isExpanded}
                                 aria-controls={`version-${version}-content`}
@@ -260,7 +263,7 @@
         <!-- Back to Top Button (konsistent mit Static Pages) -->
         <div class="w-full mt-12 text-center">
             <button
-                on:click={() => {
+                onclick={() => {
                     console.log('🔝 Scrolling to top...');
                     
                     // ROBUST SCROLL - Try ALL methods immediately

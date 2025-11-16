@@ -2,9 +2,12 @@
 <script>
     import { currentLanguage, translations } from '../stores/contentStore';
     import { navigateToVersions } from '../utils/navigation';
-    import UserCounter from '../components/Core/UserCounter.svelte';
+    import UserCounterComponent from '../components/Core/UserCounter.svelte';
     import { linkedinIcon } from '../assets/shapes';
-
+    
+    // Svelte 5 / Webpack: stabile Komponenten-Referenz
+    const UserCounter = UserCounterComponent;
+    
     function navigateToVersion() {
         navigateToVersions(false);
     }
@@ -19,7 +22,7 @@
     
     <!-- Version Information -->
     <button 
-        on:click={navigateToVersion}
+        onclick={navigateToVersion}
         class="hover:text-yellow-500 focus:text-yellow-500 active:text-yellow-600 transition-all duration-200 transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1 rounded px-1"
         type="button"
         aria-label={$translations?.footer?.versionHistory || 'View version history'}

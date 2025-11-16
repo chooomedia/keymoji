@@ -51,6 +51,9 @@
     let yellowButtonHover = $state(false);
     let yellowButtonClick = $state(false);
   
+    // Runes-kompatible Übersetzungen
+    const t = $derived(get(translations));
+  
     // Story Mode - Persistent text input
     const STORY_INPUT_KEY = 'keymoji_story_input';
   
@@ -96,12 +99,12 @@
     let canGenerate = $derived(isValidLength && storyInput.trim().length >= MIN_CHARS);
   
     // Temperature for Story Mode (0.0-1.0 range)
-    let storyTemperature = 0; // Default: start at 0 (Precise)
-    let temperatureInitialized = false; // Prevent override after user adjustment
+    let storyTemperature = $state(0); // Default: start at 0 (Precise)
+    let temperatureInitialized = $state(false); // Prevent override after user adjustment
     
     // Model display variables
-    let displayModel = 'Model'; // Initialize with default
-    let displayModelShort = 'Model'; // Short version for chip
+    let displayModel = $state('Model'); // Initialize with default
+    let displayModelShort = $state('Model'); // Short version for chip
     
     // Get short model name for chip display (max 12 chars, smart truncation)
     // Must be defined before $effect() that uses it
@@ -128,6 +131,8 @@
   
     // REACTIVE: Update Story Mode status when ANY store changes
     // Priority: currentSettings > userSettings > currentAccount
+    // FIX: Only update if values actually changed to prevent infinite loops
+    let lastStoryModeSettings = $state<string | null>(null);
     $effect(() => {
         let storyModeSettings = null;
         const currentSettingsValue = get(currentSettings);
@@ -147,38 +152,58 @@
             storyModeSettings = currentAccountValue.metadata.settings.storyMode;
         }
         
-        if (storyModeSettings) {
-            const enabled = storyModeSettings.enabled ?? false;
-            const currentProvider = storyModeSettings.provider || 'apertus';
-            const apiKeys = storyModeSettings.apiKeys || {};
-            const currentApiKey = apiKeys[currentProvider] || '';
+        // Create a stable key to compare settings
+        const settingsKey = storyModeSettings 
+            ? JSON.stringify({
+                enabled: storyModeSettings.enabled,
+                provider: storyModeSettings.provider,
+                apiKeys: storyModeSettings.apiKeys
+            })
+            : null;
+        
+        // Only update if settings actually changed
+        if (settingsKey !== lastStoryModeSettings) {
+            lastStoryModeSettings = settingsKey;
             
-            // For Apertus: configured if enabled (token is loaded from environment)
-            // For other providers: configured if API key exists and is valid
-            const configured = currentProvider === 'apertus' 
-                ? enabled // Apertus is configured if Story Mode is enabled (token handled internally)
-                : !!(currentApiKey && currentApiKey.length >= 10);
-            
-            // Always update (let Svelte handle change detection)
-            storyModeEnabled = enabled;
-            storyModeConfigured = configured;
-            
-            // Update temperature from settings ONLY on first load
-            // Load from store if available, otherwise use 0 as default
-            if (!temperatureInitialized) {
-                const savedTemperature = storyModeSettings.temperature;
-                // Validate: must be between 0 and 1, default to 0 if invalid
-                if (typeof savedTemperature === 'number' && savedTemperature >= 0 && savedTemperature <= 1) {
-                    storyTemperature = savedTemperature;
-                } else {
-                    storyTemperature = 0; // Default to 0 (Precise)
+            if (storyModeSettings) {
+                const enabled = storyModeSettings.enabled ?? false;
+                const currentProvider = storyModeSettings.provider || 'apertus';
+                const apiKeys = storyModeSettings.apiKeys || {};
+                const currentApiKey = apiKeys[currentProvider] || '';
+                
+                // For Apertus: configured if enabled (token is loaded from environment)
+                // For other providers: configured if API key exists and is valid
+                const configured = currentProvider === 'apertus' 
+                    ? enabled // Apertus is configured if Story Mode is enabled (token handled internally)
+                    : !!(currentApiKey && currentApiKey.length >= 10);
+                
+                // Only update if values actually changed
+                if (storyModeEnabled !== enabled) {
+                    storyModeEnabled = enabled;
                 }
-                temperatureInitialized = true;
+                if (storyModeConfigured !== configured) {
+                    storyModeConfigured = configured;
+                }
+                
+                // Update temperature from settings ONLY on first load
+                // Load from store if available, otherwise use 0 as default
+                if (!temperatureInitialized) {
+                    const savedTemperature = storyModeSettings.temperature;
+                    // Validate: must be between 0 and 1, default to 0 if invalid
+                    if (typeof savedTemperature === 'number' && savedTemperature >= 0 && savedTemperature <= 1) {
+                        storyTemperature = savedTemperature;
+                    } else {
+                        storyTemperature = 0; // Default to 0 (Precise)
+                    }
+                    temperatureInitialized = true;
+                }
             }
         }
     });
 
     // REACTIVE: Display model for AI Model Chip (use same source as temperature)
+    // FIX: Only update if model actually changed to prevent infinite loops
+    let lastDisplayModelKey = $state<string | null>(null);
     $effect(() => {
         let storyModeSettings = null;
         const currentSettingsValue = get(currentSettings);
@@ -202,43 +227,53 @@
             const provider = storyModeSettings.provider || 'apertus';
             const model = storyModeSettings.model || '';
             const customModel = storyModeSettings.customModel || '';
-            
-            // Get user tier for default model selection
             const userTier = get(accountTier) || 'free';
             
-            // For custom provider, use customModel; for others, use model or default
-            if (provider === 'custom') {
-                displayModel = customModel || 'Custom';
-            } else {
-                // Use the actual model from settings, or fallback to default for provider
-                // getDefaultModel returns the full model name (e.g., 'apertus-8b-2509')
-                // We'll format it nicely for display
-                const defaultModel = getDefaultModel(provider, userTier);
-                const modelToDisplay = model || defaultModel || 'Model';
+            // Create a stable key to compare model settings
+            const modelKey = `${provider}:${model}:${customModel}:${userTier}`;
+            
+            // Only update if model settings actually changed
+            if (modelKey !== lastDisplayModelKey) {
+                lastDisplayModelKey = modelKey;
                 
-                // Format model name for display (make it more readable)
-                if (modelToDisplay.includes('apertus-70b') || modelToDisplay.includes('70b')) {
-                    displayModel = 'Apertus-70B';
-                } else if (modelToDisplay.includes('apertus')) {
-                    displayModel = 'Apertus-8B';
-                } else if (modelToDisplay.includes('gpt-3.5')) {
-                    displayModel = 'GPT-3.5';
-                } else if (modelToDisplay.includes('gpt-4')) {
-                    displayModel = 'GPT-4';
-                } else if (modelToDisplay.includes('gemini')) {
-                    displayModel = 'Gemini Pro';
-                } else if (modelToDisplay.includes('mistral')) {
-                    displayModel = modelToDisplay.includes('tiny') ? 'Mistral Tiny' : 'Mistral';
-                } else if (modelToDisplay.includes('claude')) {
-                    displayModel = 'Claude Haiku';
+                // For custom provider, use customModel; for others, use model or default
+                let newDisplayModel: string;
+                if (provider === 'custom') {
+                    newDisplayModel = customModel || 'Custom';
                 } else {
-                    // Use model as-is, or capitalize first letter
-                    displayModel = modelToDisplay.charAt(0).toUpperCase() + modelToDisplay.slice(1);
+                    // Use the actual model from settings, or fallback to default for provider
+                    // getDefaultModel returns the full model name (e.g., 'apertus-8b-2509')
+                    // We'll format it nicely for display
+                    const defaultModel = getDefaultModel(provider, userTier);
+                    const modelToDisplay = model || defaultModel || 'Model';
+                    
+                    // Format model name for display (make it more readable)
+                    if (modelToDisplay.includes('apertus-70b') || modelToDisplay.includes('70b')) {
+                        newDisplayModel = 'Apertus-70B';
+                    } else if (modelToDisplay.includes('apertus')) {
+                        newDisplayModel = 'Apertus-8B';
+                    } else if (modelToDisplay.includes('gpt-3.5')) {
+                        newDisplayModel = 'GPT-3.5';
+                    } else if (modelToDisplay.includes('gpt-4')) {
+                        newDisplayModel = 'GPT-4';
+                    } else if (modelToDisplay.includes('gemini')) {
+                        newDisplayModel = 'Gemini Pro';
+                    } else if (modelToDisplay.includes('mistral')) {
+                        newDisplayModel = modelToDisplay.includes('tiny') ? 'Mistral Tiny' : 'Mistral';
+                    } else if (modelToDisplay.includes('claude')) {
+                        newDisplayModel = 'Claude Haiku';
+                    } else {
+                        // Use model as-is, or capitalize first letter
+                        newDisplayModel = modelToDisplay.charAt(0).toUpperCase() + modelToDisplay.slice(1);
+                    }
+                }
+                
+                // Only update if value actually changed
+                if (displayModel !== newDisplayModel) {
+                    displayModel = newDisplayModel;
+                    displayModelShort = getShortModelName(displayModel);
                 }
             }
-            
-            // Create short version for chip display
-            displayModelShort = getShortModelName(displayModel);
         }
     });
 
@@ -494,7 +529,7 @@
     // Helper Functions
     async function handleSuccessfulGeneration(countTowardsLimit = true) {
       await copyToClipboard(randomEmojis.join(' '));
-      showSuccessMessage(translations.emojiDisplay.successMessage);
+      showSuccessMessage(t?.emojiDisplay?.successMessage || 'Copied!');
       showTextArea = false;
       temporarilyDisableButton();
       
@@ -549,7 +584,7 @@
           custom: 'Custom API'
         };
         
-        const successMsg = `✅ ${translations.emojiDisplay.successStoryMessage}\n\n🤖 Generated with ${providerNames[provider]}`;
+        const successMsg = `✅ ${t?.emojiDisplay?.successStoryMessage || 'Story generated'}\n\n🤖 Generated with ${providerNames[provider]}`;                               
         showSuccess(successMsg, 3000);
       }
       
@@ -713,7 +748,7 @@
             // Letzter Fallback - zeige manuelle Kopier-Option
             console.log('Clipboard: Manual copy required');
             showInfo(
-                translations.emojiDisplay.clipboardManual || 
+                t?.emojiDisplay?.clipboardManual || 
                 'Click the emoji display to copy manually!'
             );
             
@@ -727,7 +762,7 @@
         
         // Zeige alternative Lösung
         showInfo(
-            translations.emojiDisplay.clipboardError || 
+            t?.emojiDisplay?.clipboardError || 
             'Click the emoji display to copy manually!'
         );
         
@@ -738,7 +773,7 @@
   
     function handleError(type, error) {
       console.error(`${type}:`, error);
-              showErrorMessage(translations.emojiDisplay.errorMessage);
+              showErrorMessage(t?.emojiDisplay?.errorMessage || 'Something went wrong. Please try again.');
     }
   
     // State Management Functions
@@ -947,12 +982,12 @@
       id="emoji-display" 
       tabindex="0" 
       class="core-button text-white bg-black border-gray-400 px-3 mb-2 md:pt-1 md:pb-1 pb-1 transform -translate-y-2.5 transition-all hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2" 
-      on:click={() => isStoryMode ? generateEmojis() : generateRandomEmojis()} 
-      on:keydown={e => e.key === 'Enter' && (isStoryMode ? generateEmojis() : generateRandomEmojis())} 
-      aria-label={translations.emojiDisplay.clickToCopy} 
+      onclick={() => isStoryMode ? generateEmojis() : generateRandomEmojis()} 
+      onkeydown={e => e.key === 'Enter' && (isStoryMode ? generateEmojis() : generateRandomEmojis())} 
+      aria-label={t?.emojiDisplay?.clickToCopy || 'Click to copy'} 
       aria-live="polite"
       aria-pressed="false"
-      title={translations.emojiDisplay.clickToCopy}
+      title={t?.emojiDisplay?.clickToCopy || 'Click to copy'}
     >
       <div class="mt-1 md:mt-0 flex gap-2 overflow-visible justify-center items-center">
         {#if randomEmojis && randomEmojis.length > 0}
@@ -968,17 +1003,24 @@
     <!-- Instructions Section -->
     <div class="flex flex-wrap justify-center items-center">
       <h2 class="mt-1 text-xs text-center dark:text-white z-10 ">
-        {#each translations.index.pageInstruction as instruction, i}
+        {#each (t?.index?.pageInstruction ?? []) as instruction, i}
           {#if i === 0 && storyModeEnabled && storyModeConfigured}
             <!-- Show AI ready message when fully configured -->
-            <p>{translations.index.storyModeReady || 'AI-generated emoji passwords ready 🤖'}</p>
+            <p>{t?.index?.storyModeReady || 'AI-generated emoji passwords ready 🤖'}</p>
           {:else if i === 0 && !storyModeEnabled}
             <!-- Show setup chips when Story Mode is NOT enabled -->
             <div class="flex flex-wrap items-center justify-center gap-2">
               <!-- Swiss LLM Button - Primary recommendation -->
               <button
-                on:click={() => {
-                  const lang = currentLanguage || 'en';
+                onclick={() => {
+                  // Animation state
+                  swissButtonClick = true;
+                  setTimeout(() => {
+                    swissButtonClick = false;
+                  }, 600);
+                  
+                  // Navigation
+                  const lang = get(currentLanguage) || 'en';
                   const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
                   navigate(accountPath);
                   setTimeout(() => {
@@ -994,19 +1036,13 @@
                 }}
                 class="swiss-ai-button inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 cursor-pointer relative overflow-hidden h-8 transition-all duration-300 ease-in-out {swissButtonHover ? 'swiss-hover' : ''} {swissButtonClick ? 'swiss-click' : ''}"
                 style="background: linear-gradient(135deg, rgba(218, 41, 28, 0.15) 0%, rgba(218, 41, 28, 0.1) 100%); border: 1px solid rgba(218, 41, 28, 0.25); color: rgb(218, 41, 28);"
-                title={translations.index.setupStoryModeSwissTooltip || 'Swiss AI (Apertus) - Privacy-first AI hosted in Switzerland'}
-                aria-label={translations.index.setupStoryModeSwiss || 'Use Swiss AI'}
-                on:mouseenter={() => {
+                title={t?.index?.setupStoryModeSwissTooltip || 'Swiss AI (Apertus) - Privacy-first AI hosted in Switzerland'}
+                aria-label={t?.index?.setupStoryModeSwiss || 'Use Swiss AI'}
+                onmouseenter={() => {
                   swissButtonHover = true;
                 }}
-                on:mouseleave={() => {
+                onmouseleave={() => {
                   swissButtonHover = false;
-                }}
-                on:click={() => {
-                  swissButtonClick = true;
-                  setTimeout(() => {
-                    swissButtonClick = false;
-                  }, 600);
                 }}
               >
                 <!-- Background overlay - Auto-Animation alle 7 Sekunden (nur wenn nicht gehovered/geklickt) -->
@@ -1015,17 +1051,24 @@
                 <div class="swiss-hover-bg absolute inset-0 bg-red-600 rounded-full pointer-events-none {swissButtonHover || swissButtonClick ? 'opacity-100' : 'opacity-0'}" style="background-color: rgb(218, 41, 28); transition: opacity 0.3s ease-in-out;"></div>
                 <!-- Content -->
                 <span class="swiss-text text-sm relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;" aria-hidden="true">🇨🇭</span>
-                <span class="swiss-text relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;">{translations.index.setupStoryModeSwiss || 'Use Swiss AI 🇨🇭'}</span>
+                <span class="swiss-text relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;">{t?.index?.setupStoryModeSwiss || 'Use Swiss AI 🇨🇭'}</span>
               </button>
               
               <!-- "or" separator -->
-              <span class="text-xs text-gray-500 dark:text-gray-400 px-1 relative z-10">
-                {translations.index.setupStoryModeOr || 'oder'}
+              <span class="text-xs text-gray-500 dark:text-gray-400 px-1 relative z-10">                                                                        
+                {t?.index?.setupStoryModeOr || 'oder'}
               </span>
               
               <!-- Standard LLM Setup Button -->
               <button
-                on:click={() => {
+                onclick={() => {
+                  // Animation state
+                  yellowButtonClick = true;
+                  setTimeout(() => {
+                    yellowButtonClick = false;
+                  }, 600);
+                  
+                  // Navigation
                   const lang = currentLanguage || 'en';
                   const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
                   navigate(accountPath);
@@ -1040,21 +1083,15 @@
                     }, 100);
                   }, 400);
                 }}
-                class="standard-ai-button inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer relative overflow-hidden h-8 transition-all duration-300 ease-in-out {yellowButtonHover ? 'yellow-hover' : ''} {yellowButtonClick ? 'yellow-click' : ''}"
-                style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"
-                title={translations.index.setupStoryModeDescription || 'Setup your AI for AI-generated emoji passwords'}
-                aria-label={translations.index.setupStoryMode || 'Setup your AI'}
-                on:mouseenter={() => {
+                class="standard-ai-button inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer relative overflow-hidden h-8 transition-all duration-300 ease-in-out {yellowButtonHover ? 'yellow-hover' : ''} {yellowButtonClick ? 'yellow-click' : ''}"                                        
+                style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"                                                                     
+                title={t?.index?.setupStoryModeDescription || 'Setup your AI for AI-generated emoji passwords'}                                        
+                aria-label={t?.index?.setupStoryMode || 'Setup your AI'}                                                                               
+                onmouseenter={() => {
                   yellowButtonHover = true;
                 }}
-                on:mouseleave={() => {
+                onmouseleave={() => {
                   yellowButtonHover = false;
-                }}
-                on:click={() => {
-                  yellowButtonClick = true;
-                  setTimeout(() => {
-                    yellowButtonClick = false;
-                  }, 600);
                 }}
               >
                 <!-- Background overlay - bei Hover/Klick -->
@@ -1064,13 +1101,13 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span class="yellow-text relative z-20 {yellowButtonHover || yellowButtonClick ? 'text-black' : ''}" style="transition: color 0.3s ease-in-out;">{translations.index.setupStoryMode || 'Setup your AI'}</span>
+                <span class="yellow-text relative z-20 {yellowButtonHover || yellowButtonClick ? 'text-black' : ''}" style="transition: color 0.3s ease-in-out;">{t?.index?.setupStoryMode || 'Setup your AI'}</span>                  
               </button>
             </div>
           {:else if i === 0 && storyModeEnabled && !storyModeConfigured}
             <!-- Show "Configure API" chip if enabled but no API key -->
             <button
-              on:click={() => {
+              onclick={() => {
                 const lang = currentLanguage || 'en';
                 const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
                 navigate(accountPath);
@@ -1093,7 +1130,7 @@
               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
-              <span>{translations.index.setupStoryMode || 'Setup your LLM'}</span>
+              <span>{t?.index?.setupStoryMode || 'Setup your LLM'}</span>                                                                              
             </button>
           {:else}
             <p>{instruction}</p>
@@ -1130,10 +1167,10 @@
         <textarea 
         id="story-input"
           bind:value={storyInput} 
-          placeholder={translations.emojiDisplay.placeholderText} 
+          placeholder={t?.emojiDisplay?.placeholderText || 'Describe your story...'} 
           class="custom-scrollbar overflow-y-auto appearance-none block w-full pr-12 pb-8 text-gray-900 dark:text-white py-3 px-4 leading-tight transition duration-300 ease-in-out bg-white dark:bg-aubergine-900 border-0 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed placeholder-gray-400 dark:placeholder-gray-500 resize-none" 
-          on:keydown={handleTextareaKeydown}
-          on:input={(e) => {
+          onkeydown={handleTextareaKeydown}
+          oninput={(e) => {
             // Enforce max length
             if (e.target.value.length > MAX_CHARS) {
               storyInput = e.target.value.slice(0, MAX_CHARS);
@@ -1264,11 +1301,11 @@
         {#if storyInput && storyInput.length > 0}
           <button 
             type="button"
-            aria-label={translations.emojiDisplay.clearButton || 'Clear input'}
-            on:click={clearInput} 
-            class="absolute top-2 right-2 inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white active:text-black dark:active:text-white z-10"
+            aria-label={t?.emojiDisplay?.clearButton || 'Clear input'}
+            onclick={clearInput} 
+            class="absolute top-2 right-2 inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white active:text-black dark:active:text-white z-10"                                    
             disabled={isDisabled}
-            title={translations.emojiDisplay.clearButton || 'Clear'}
+            title={t?.emojiDisplay?.clearButton || 'Clear'}
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -1289,7 +1326,7 @@
           max="1" 
           step="0.1"
           bind:value={storyTemperature}
-          on:input={handleTemperatureChange}
+          oninput={handleTemperatureChange}
           class="flex-1 h-1.5 appearance-none rounded-full bg-gray-300 dark:bg-gray-600 transition-all hover:bg-yellow-400 dark:hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed" 
           style="--range-thumb-color: rgb(234, 179, 8);"
           disabled={isGeneratingStory}
@@ -1300,7 +1337,7 @@
           {storyTemperature.toFixed(1)}
         </span>
         <button
-          on:click={() => {
+          onclick={() => {
             // Navigate to account page
             const lang = currentLanguage || 'en';
             const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
@@ -1342,15 +1379,15 @@
     <!-- Action Buttons -->
     <div 
       role="main"
-      aria-label={translations.emojiDisplay.emojiDisplayTitle} 
+          aria-label={t?.emojiDisplay?.emojiDisplayTitle || 'Emoji display'} 
       class="flex space-x-4 mt-3 mb-2"
     >
       {#if isStoryMode}
         <!-- Story Mode Generate Button (gelb, aktiv) -->
         <button 
-          aria-label={translations.emojiDisplay.storyButtonClicked || 'Generate story emojis'}
+          aria-label={t?.emojiDisplay?.storyButtonClicked || 'Generate story emojis'}                                                                  
           aria-busy={isGeneratingStory}
-          on:click={generateEmojis} 
+          onclick={generateEmojis} 
           class="w-1/2 py-4 rounded-full bg-yellow-500 text-black border-2 border-yellow-500 shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
           disabled={isDisabled || !canGenerate || isGeneratingStory}
           title={!canGenerate 
@@ -1361,7 +1398,7 @@
                 : `Enter at least ${MIN_CHARS} characters`)
             : isGeneratingStory
               ? 'Generating...'
-              : translations.emojiDisplay.storyButtonClicked}
+              : (t?.emojiDisplay?.storyButtonClicked || 'Generate story emojis')}
         >
           {#if isGeneratingStory}
             <span class="flex items-center justify-center">
@@ -1372,42 +1409,42 @@
               <span>Creating...</span>
             </span>
           {:else}
-            {getShortButtonText(translations.emojiDisplay.storyButtonClicked)}
+            {getShortButtonText(t?.emojiDisplay?.storyButtonClicked || 'Generate story emojis')}
           {/if}
         </button>
         
         <!-- Back to Random Button: gedämpft mit gelbem Border -->
         <button
-          aria-label={translations.emojiDisplay.randomButton || 'Switch to random mode'}
-          on:click={() => { isStoryMode = false; showTextArea = false; }} 
-          class="w-1/2 py-4 rounded-full bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm transition-all duration-300 ease-in-out transform hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
+          aria-label={t?.emojiDisplay?.randomButton || 'Switch to random mode'}                                                                        
+          onclick={() => { isStoryMode = false; showTextArea = false; }} 
+          class="w-1/2 py-4 rounded-full bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm transition-all duration-300 ease-in-out transform hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"                  
           disabled={isDisabled || isGeneratingStory}
-          title={translations.emojiDisplay.randomButton}
+          title={t?.emojiDisplay?.randomButton}
         >
-          {translations.emojiDisplay.randomButton}
+          {t?.emojiDisplay?.randomButton || 'Random'}
         </button>
       {:else}
         <!-- Story Mode Toggle Button: gelb wenn in Settings aktiviert -->
         <button 
           aria-label={storyModeEnabled && storyModeConfigured 
-            ? (translations.emojiDisplay.storyButton || 'Story mode')
+            ? (t?.emojiDisplay?.storyButton || 'Story mode')
             : (!storyModeEnabled 
               ? 'Story mode - Enable in settings'
               : 'Story mode - Configure API key in settings')}
-          on:click={storyModeEnabled && storyModeConfigured ? toggleStoryMode : null} 
+          onclick={storyModeEnabled && storyModeConfigured ? toggleStoryMode : null} 
           class="w-1/2 py-4 rounded-full transition-all duration-300 ease-in-out transform focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
             {storyModeEnabled && storyModeConfigured 
               ? 'bg-yellow-500 text-black border-2 border-yellow-500 shadow-md hover:scale-105 focus:scale-105 active:scale-95 cursor-pointer focus:ring-yellow-50' 
               : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-500 border-2 border-gray-300 dark:border-gray-700 opacity-60 cursor-not-allowed focus:ring-gray-200'}"
           disabled={!storyModeEnabled || !storyModeConfigured || isDisabled}
           title={storyModeEnabled && storyModeConfigured 
-            ? (translations.emojiDisplay.storyButton || 'Story mode')
+            ? (t?.emojiDisplay?.storyButton || 'Story mode')
             : (!storyModeEnabled 
               ? 'Enable Story Mode in settings'
               : 'Configure API key in settings')}
         >
           {#if storyModeEnabled && storyModeConfigured}
-            {translations.emojiDisplay.storyButton}
+            {t?.emojiDisplay?.storyButton || 'Story mode'}
           {:else if !storyModeEnabled}
             🔒 Story Mode
           {:else}
@@ -1417,17 +1454,17 @@
         
         <!-- Random Button: gedämpft mit gelbem Border wenn Story aktiviert -->
         <button
-          aria-label={translations.emojiDisplay.randomButton || 'Generate random emojis'}
-          on:click={() => generateRandomEmojis(true)} 
-          on:keydown={handleKeyPress} 
-          class="w-1/2 py-4 rounded-full transition-all duration-300 ease-in-out transform focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100
+          aria-label={t?.emojiDisplay?.randomButton || 'Generate random emojis'}                                                                       
+          onclick={() => generateRandomEmojis(true)} 
+          onkeydown={handleKeyPress} 
+          class="w-1/2 py-4 rounded-full transition-all duration-300 ease-in-out transform focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100                                                                         
             {storyModeEnabled && storyModeConfigured
               ? 'bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 focus:ring-yellow-400'
               : 'bg-yellow-500 text-black border-2 border-yellow-500 shadow-md hover:scale-105 focus:scale-105 active:scale-95 focus:ring-yellow-50'}"
           disabled={isDisabled}
-          title={translations.emojiDisplay.randomButton}
+          title={t?.emojiDisplay?.randomButton}
         >
-          {translations.emojiDisplay.randomButton}
+          {t?.emojiDisplay?.randomButton || 'Random'}
         </button>
       {/if}
     </div>

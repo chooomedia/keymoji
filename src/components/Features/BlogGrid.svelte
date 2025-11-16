@@ -579,7 +579,7 @@
         <div class="flex flex-col justify-center items-center py-12">
             <p class="text-red-500 dark:text-red-400 mb-4">❌ {error}</p>
             <button 
-                on:click={() => window.location.reload()} 
+                onclick={() => window.location.reload()} 
                 class="px-4 py-2 bg-yellow text-black rounded-full hover:scale-105 transition-transform">
                 Retry
             </button>
@@ -604,7 +604,7 @@
                 <button
                     id="category-toggle-button"
                     bind:this={buttonRef}
-                    on:click={() => {
+                    onclick={() => {
                         if (!isDropdownOpen) {
                             const languageMenu = document.querySelector('#language-dropdown-menu');
                             if (languageMenu) {
@@ -651,11 +651,11 @@
                         <div class="max-h-96 overflow-y-auto custom-scrollbar">
                             {#each categoriesWithCounts as item}
                                 <button
-                                    on:click={() => {
+                                    onclick={() => {
                                         selectedCategory = item.category;
                                         isDropdownOpen = false;
                                     }}
-                                    on:keydown={(e) => {
+                                    onkeydown={(e) => {
                                         switch (e.key) {
                                             case 'Enter':
                                             case ' ':
@@ -809,7 +809,7 @@
                             data-like-button-id={postId}
                             aria-label={hasLikes ? 'Post already liked' : 'Like the blog post'}
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 h-8 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-visible"
-                            on:click|stopPropagation={() => handleLike(postId)}
+                            onclick={(e) => { e.stopPropagation(); handleLike(postId); }}
                             title={hasLikes ? 'Already liked' : 'Like'}
                             disabled={likingPostId === postId || hasLikes}
                         >
@@ -945,7 +945,7 @@
                                         data-like-button-id={post.id || post.row_number}
                                         aria-label={displayLiked ? 'Unlike the blog post' : 'Like the blog post'}
                                         class="inline-flex items-center gap-1.5 px-3 py-1.5 h-8 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-visible"
-                                on:click|stopPropagation={() => handleLike(post.id || post.row_number)}
+                                onclick={(e) => { e.stopPropagation(); handleLike(post.id || post.row_number); }}
                                         title={displayLiked ? 'Unlike' : 'Like'}
                                 disabled={likingPostId === (post.id || post.row_number)}
                             >
@@ -990,7 +990,7 @@
 >
     <span itemprop="name" class="sr-only">Previous page navigation</span>
     <button
-        on:click={previousPage}
+        onclick={previousPage}
         disabled={currentPage === 1 || isLoadingMore || isTransitioning}
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
         aria-label="Go to previous page, page {currentPage - 1} of {totalPages}"
@@ -1012,7 +1012,7 @@
 >
     <span itemprop="name" class="sr-only">Next page navigation</span>
     <button
-        on:click={nextPage}
+        onclick={nextPage}
         disabled={currentPage === totalPages || isLoadingMore || isTransitioning}
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
         aria-label="Go to next page, page {currentPage + 1} of {totalPages}"

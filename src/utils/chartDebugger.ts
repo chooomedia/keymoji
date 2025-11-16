@@ -19,9 +19,9 @@ export function fullDiagnosis(): void {
     console.log('═══════════════════════════════════════════════════════');
     console.log('');
 
-    const account = currentAccount;
-    const loggedIn = isLoggedIn;
-    const tier = accountTier;
+    const account = get(currentAccount);
+    const loggedIn = get(isLoggedIn);
+    const tier = get(accountTier);
 
     // Step 1: Account State
     console.log('📊 STEP 1: Account Store State');
@@ -250,7 +250,7 @@ export function fullDiagnosis(): void {
  * Quick check - returns true if everything is OK
  */
 export function quickCheck(): boolean {
-    const account = currentAccount;
+    const account = get(currentAccount);
 
     const checks = {
         hasAccount: !!account,
@@ -282,7 +282,7 @@ export function quickCheck(): boolean {
  * Force parse metadata if it's still a string
  */
 export function forceParseMetadata(): boolean {
-    const account = currentAccount;
+    const account = get(currentAccount);
 
     if (!account) {
         console.error('❌ No account in store');
@@ -292,12 +292,22 @@ export function forceParseMetadata(): boolean {
     if (typeof account.metadata === 'string') {
         console.log('🔧 Metadata is string, parsing...');
         try {
-            account.metadata = JSON.parse(account.metadata) as Account['metadata'];
+            const parsedMetadata = JSON.parse(account.metadata) as Account['metadata'];
+            
+            // Update store properly (use .update() instead of direct mutation)
+            currentAccount.update((acc: Account | null) => {
+                if (!acc) return acc;
+                return {
+                    ...acc,
+                    metadata: parsedMetadata
+                };
+            });
+            
             console.log('✅ Metadata parsed successfully!');
             console.log(
                 'UsageHistory length:',
-                (account.metadata as Record<string, unknown>)?.usageHistory ? 
-                    (account.metadata as { usageHistory: unknown[] }).usageHistory.length : 0
+                (parsedMetadata as Record<string, unknown>)?.usageHistory ? 
+                    (parsedMetadata as { usageHistory: unknown[] }).usageHistory.length : 0
             );
             return true;
         } catch (error) {
@@ -314,7 +324,7 @@ export function forceParseMetadata(): boolean {
  * Inject test data for immediate testing
  */
 export function injectTestData(): boolean {
-    const account = currentAccount;
+    const account = get(currentAccount);
 
     if (!account) {
         console.error('❌ No account in store');
@@ -340,12 +350,17 @@ export function injectTestData(): boolean {
         });
     }
 
-    // Update account (Svelte 5 Runes - direkte Zuweisung)
-    if (account.metadata && typeof account.metadata === 'object') {
-        (account.metadata as Record<string, unknown>).usageHistory = usageHistory;
-    } else {
-        account.metadata = { usageHistory } as Account['metadata'];
-    }
+    // Update account store properly (use .update() instead of direct mutation)
+    currentAccount.update((acc: Account | null) => {
+        if (!acc) return acc;
+        return {
+            ...acc,
+            metadata: {
+                ...(acc.metadata || {}),
+                usageHistory: usageHistory
+            }
+        };
+    });
 
     console.log('✅ Test data injected:', usageHistory.length, 'entries');
     console.log('🔄 Reload page or navigate to /account to see chart');

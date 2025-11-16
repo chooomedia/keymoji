@@ -68,8 +68,8 @@
 
 <span
     class="account-status-btn {getAccountStatusClass()}"
-    on:click={handleClick}
-    on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleClick(); } }}
+    onclick={handleClick}
+    onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleClick(); } }}
     role="button"
     tabindex="0"
     title={getButtonTitle()}

@@ -2,6 +2,7 @@
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { onMount, createEventDispatcher } from 'svelte';
+    import { get } from 'svelte/store';
     import { currentLanguage, changeLanguage, showLanguageMenu, translations } from '../stores/contentStore';
     import { supportedLanguages } from '../utils/languages';
     import { navigate } from '../utils/routing';
@@ -20,7 +21,7 @@
         showLabels = true
     }: Props = $props();
     
-    let selectedLang = $state(currentLanguage);
+    let selectedLang = $state(get(currentLanguage));
     let elvishFontLoaded = false;
     let menuRef;
     let buttonRef;
@@ -28,6 +29,10 @@
     
     // Direkter Zugriff auf die supportedLanguages aus languageUtils
     const languages = supportedLanguages;
+
+    // Runes-kompatible abgeleitete Werte
+    const t = $derived(get(translations));
+    const isMenuOpen = $derived(get(showLanguageMenu));
     
     // Funktion zum Vorladen der Elvish-Schriftart
     function preloadElvishFont() {
@@ -76,10 +81,11 @@
             event.stopPropagation();
         }
         
-        $showLanguageMenu = !$showLanguageMenu;
+        const currentlyOpen = get(showLanguageMenu);
+        showLanguageMenu.set(!currentlyOpen);
         
         // Schließe Category Dropdown, wenn Language Dropdown geöffnet wird
-        if ($showLanguageMenu) {
+        if (get(showLanguageMenu)) {
             // Calculate dropdown position once when opening
             // Desktop: Position directly below header (no gap)
             // Mobile: Small gap for better UX
@@ -136,7 +142,7 @@
         // Do nothing if it's the same language
         if (langCode === selectedLang) {
             console.log('🔄 LanguageSwitcher: Same language, closing menu');
-            $showLanguageMenu = false;
+            showLanguageMenu.set(false);
             return;
         }
         
@@ -175,7 +181,7 @@
         navigate(newPath, { replace: true });
         
         // Close menu
-        $showLanguageMenu = false;
+        showLanguageMenu.set(false);
         console.log('🔄 LanguageSwitcher: Menu closed');
         
         // Trigger event for parent components
@@ -197,12 +203,12 @@
     
     // Keyboard navigation - consistent with BlogGrid category dropdown
     function handleKeydown(event) {
-        if (!$showLanguageMenu) return;
+        if (!get(showLanguageMenu)) return;
         
         switch (event.key) {
             case 'Escape':
                 event.preventDefault();
-                $showLanguageMenu = false;
+                showLanguageMenu.set(false);
                 buttonRef?.focus();
                 break;
             case 'ArrowDown':
@@ -235,7 +241,7 @@
     
     onMount(() => {
         // Schriftart vorladen, wenn die aktuelle Sprache Elvish ist
-        if (currentLanguage === 'sjn') {
+        if (get(currentLanguage) === 'sjn') {
             preloadElvishFont();
             
             // Ensure the correct class is applied
@@ -246,9 +252,9 @@
         // Use capture phase to ensure it runs before other handlers
         const handleClickOutside = (event) => {
             // Get current state from store (reactive)
-            const isMenuOpen = showLanguageMenu;
+            const menuOpen = get(showLanguageMenu);
             
-            if (!isMenuOpen) return;
+            if (!menuOpen) return;
             
             const target = event.target;
             
@@ -274,7 +280,7 @@
                 !isInsideCategoryButton && 
                 !isInsideFixedMenu && 
                 !isInsideDonateMenu) {
-                showLanguageMenu = false;
+                showLanguageMenu.set(false);
             }
         };
         
@@ -289,11 +295,11 @@
     });
     
     $effect(() => {
-        selectedLang = currentLanguage;
+        selectedLang = get(currentLanguage);
     });
     
     $effect(() => {
-        if (currentLanguage === 'sjn') {
+        if (get(currentLanguage) === 'sjn') {
             preloadElvishFont();
             document.body.classList.add('font-elvish');
         } else {
@@ -308,12 +314,12 @@
         bind:this={buttonRef}
         type="button"
         class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14"
-        on:click={toggleLanguageMenu}
-        aria-label={$showLanguageMenu ? ($translations?.languageSwitcher?.closeMenu || 'Close language menu') : ($translations?.languageSwitcher?.changeLanguage || 'Change language')}
+        onclick={toggleLanguageMenu}
+        aria-label={isMenuOpen ? (t?.languageSwitcher?.closeMenu || 'Close language menu') : (t?.languageSwitcher?.changeLanguage || 'Change language')}                                                         
         aria-haspopup="true"
-        aria-expanded={$showLanguageMenu}
+        aria-expanded={isMenuOpen}
         aria-controls="language-dropdown-menu"
-        title={$translations?.languageSwitcher?.changeLanguage || 'Change language'}
+        title={t?.languageSwitcher?.changeLanguage || 'Change language'}                                                                            
     >
         <div class="flex items-center justify-between w-full">
             <div class="flex items-center">
@@ -324,7 +330,7 @@
             </div>
             {#if display === 'full'}
                 <div class="flex items-center ml-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200 {$showLanguageMenu ? 'transform rotate-180' : ''}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200 {isMenuOpen ? 'transform rotate-180' : ''}">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                 </div>
@@ -333,7 +339,7 @@
     </button>
     
     <!-- Dropdown Menu - Desktop: Directly below header, no top/left/right border -->
-    {#if $showLanguageMenu}
+    {#if isMenuOpen}
         <div 
             id="language-dropdown-menu"
             bind:this={menuRef}
@@ -362,8 +368,8 @@
                             <button
                                 class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 dark:hover:bg-aubergine-800 focus:bg-aubergine-50 dark:focus:bg-aubergine-800 active:bg-aubergine-100 dark:active:bg-aubergine-700 text-sm transition-all text-black dark:text-white focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                                 role="menuitem"
-                                on:click={() => handleLanguageChange(lang.code)}
-                                on:keydown={(e) => handleMenuKeydown(e, lang.code)}
+                                onclick={() => handleLanguageChange(lang.code)}
+                                onkeydown={(e) => handleMenuKeydown(e, lang.code)}
                                 aria-current={currentLanguage === lang.code ? 'true' : 'false'}
                                 tabindex="-1"
                                 aria-label="Switch to {lang.name} language"

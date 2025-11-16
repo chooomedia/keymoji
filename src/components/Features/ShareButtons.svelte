@@ -15,7 +15,7 @@
     {#if showNativeShare && typeof navigator !== 'undefined' && navigator.share}
         <button 
             aria-label="Share the blog post" 
-            on:click={() => {
+            onclick={() => {
                 if (shareUrl) {
                     navigator.share({
                         title: title,

@@ -2,7 +2,7 @@
 <!-- Wrapper-Komponente für Rückwärtskompatibilität -->
 <!-- Verwendet intern AppLayout mit JSON-Konfiguration -->
 <script lang="ts">
-    import AppLayout from './AppLayout.svelte';
+    import AppLayoutComponent from './AppLayout.svelte';
     
     // Props für die Seite (bleiben gleich für Rückwärtskompatibilität)
     interface Props {
@@ -28,6 +28,9 @@
     // Bestimme Route-Slug basierend auf aktueller Route (falls nicht übergeben)
     import { onMount } from 'svelte';
     let currentRouteSlug = $state(routeSlug);
+    
+    // Webpack/Svelte 5: stabile Komponenten-Referenz
+    const AppLayout = AppLayoutComponent;
     
     onMount(() => {
         if (!routeSlug || routeSlug === 'index') {

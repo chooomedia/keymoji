@@ -12,7 +12,7 @@ let showEraseButton = true;
   
 {#if showEraseButton}
     <Button variant="default" size="menu"
-        on:click={clearLocalStorage}>
+        onclick={clearLocalStorage}>
         🛁
     </Button>
 {/if}

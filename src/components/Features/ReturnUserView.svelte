@@ -39,7 +39,7 @@
 </div>
 
 <!-- Login form -->
-<form on:submit|preventDefault={onSubmit} class="space-y-4">
+<form onsubmit={(e) => { e.preventDefault(); onSubmit(e); }} class="space-y-4">
     <Button
         type="submit"
         variant="primary"
@@ -61,7 +61,7 @@
         variant="secondary"
         size="sm"
         fullWidth={true}
-        on:click={onShowExpandedView}
+        onclick={onShowExpandedView}
     >
         {get(translations)?.accountManager?.buttons?.showFullForm || 'Show full form'}
     </Button>

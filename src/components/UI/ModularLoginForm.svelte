@@ -158,7 +158,7 @@
             onCancel={handleCancel}
             {submitConfig}
             {cancelConfig}
-            on:change={handleFormChange}
+            onchange={handleFormChange}
             on:validation={handleValidation}
         />
         

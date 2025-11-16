@@ -6,7 +6,7 @@
   import { showLanguageMenu, translations, currentLanguage } from '../stores/contentStore.ts';
   import { get } from 'svelte/store';
   import { createEventDispatcher, onMount } from 'svelte';
-  import ModalDebug from '../components/UI/ModalDebug.svelte';
+  import ModalDebugComponent from '../components/UI/ModalDebug.svelte';
   import { initializeAccountFromCookies } from '../stores/accountStore';
   import { 
     whatsappIcon, 
@@ -40,8 +40,17 @@
   let donateButtonText = $derived.by(() => t?.donateButton?.text || 'Support us');
   let donateButtonOpenText = $derived.by(() => t?.donateButton?.openText || 'Close');
   let fixedMenuTooltips = $derived.by(() => t?.fixedMenu?.tooltips || {});
+  
+  // Reactive store values for template use (Svelte 5 Runes)
+  let showDonateMenuValue = $derived(get(showDonateMenu));
   let selectedLink: string | undefined = undefined;
   let showDebugModal = $state(false);
+
+  // Dev-Mode einmalig berechnen, damit Template eine definierte Variable hat
+  const devMode = isDevelopment();
+
+  // Webpack/Svelte 5: explizite Zuweisung für stabile Komponenten-Referenz
+  const ModalDebug = ModalDebugComponent;
 
   // Toggle body overflow when menu opens/closes
   $effect(() => {
@@ -295,7 +304,7 @@
 {#if showMenu}
   <button aria-label="close opened menu"
     class="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-10"
-    on:click|preventDefault|stopPropagation={closeAll}
+    onclick={(e) => { e.preventDefault(); e.stopPropagation(); closeAll(); }}
     in:slide={{ y: 5, duration: 400, easing: cubicInOut }} 
     out:slide={{ y: -5, duration: 400, easing: cubicInOut }} 
   ></button>
@@ -321,7 +330,7 @@
           class:active={selectedLink === link} 
           rel={link.rel} 
           title={link.title} 
-          on:click={() => selectLink(shareLinks, link.id)}
+          onclick={() => selectLink(shareLinks, link.id)}
         >
           {#if link.svgContent}
             <svg class="w-5 h-5 mr-2 transition" viewBox="0 0 24 24" fill="currentColor" alt={link.alt || ''}>
@@ -339,7 +348,7 @@
     <div class="w-auto justify-center flex gap-2 rounded-full">
       <button 
         aria-label={$darkMode ? (fixedMenuTooltips?.lightMode || 'Switch to light mode') : (fixedMenuTooltips?.darkMode || 'Switch to dark mode')}
-        on:click={toggleDarkMode} 
+        onclick={toggleDarkMode} 
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
         title={$darkMode ? (fixedMenuTooltips?.lightMode || 'Switch to light mode') : (fixedMenuTooltips?.darkMode || 'Switch to dark mode')}
       >
@@ -348,7 +357,7 @@
       <button 
         id="share-menu-button"
         aria-label={showMenu ? (fixedMenuTooltips?.closeShare || 'Close share menu') : (fixedMenuTooltips?.openShare || 'Share Keymoji')}
-        on:click={(e) => toggleMenu('share', e)} 
+        onclick={(e) => toggleMenu('share', e)} 
         class="{showMenu ? 'opened' : 'closed'} btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
         title={showMenu ? (fixedMenuTooltips?.closeShare || 'Close share menu') : (fixedMenuTooltips?.openShare || 'Share Keymoji')}
         aria-expanded={showMenu}
@@ -359,27 +368,27 @@
       </button>
       <button 
         aria-label={fixedMenuTooltips?.contact || 'Contact us'}
-        on:click={navigateToContact} 
+        onclick={navigateToContact} 
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
         title={fixedMenuTooltips?.contact || 'Contact us'}
       >
         💌
       </button>
       <!-- Debug Button (DEV MODE ONLY!) -->
-      {#if isDevelopment()}
+      {#if devMode}
       <button 
         aria-label={fixedMenuTooltips?.debug || 'Open debug info (Dev only)'}
-        on:click={toggleDebugModal} 
+        onclick={toggleDebugModal} 
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
         title={fixedMenuTooltips?.debug || 'Open debug info (Dev only)'}
       >
         🐛
       </button>
       {/if}
-      {#if isDevelopment()}
+      {#if devMode}
       <button 
         aria-label="Clear localStorage"
-        on:click={clearLocalStorage} 
+        onclick={clearLocalStorage} 
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
         title="Clear all localStorage data (Dev only)"
       >
@@ -387,12 +396,12 @@
       </button>
       {/if}
       <button 
-        aria-label={$showDonateMenu ? (fixedMenuTooltips?.closeDonate || 'Close donation menu') : (fixedMenuTooltips?.donate || 'Support us')}
-        on:click={(e) => toggleMenu('donate', e)} 
+        aria-label={showDonateMenuValue ? (fixedMenuTooltips?.closeDonate || 'Close donation menu') : (fixedMenuTooltips?.donate || 'Support us')}
+        onclick={(e) => toggleMenu('donate', e)} 
         class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl md:hidden transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-        title={$showDonateMenu ? (fixedMenuTooltips?.closeDonate || 'Close donation menu') : (fixedMenuTooltips?.donate || 'Support us')}
+        title={showDonateMenuValue ? (fixedMenuTooltips?.closeDonate || 'Close donation menu') : (fixedMenuTooltips?.donate || 'Support us')}
       >
-        {#if $showDonateMenu}❌{:else}☕{/if}
+        {#if showDonateMenuValue}❌{:else}☕{/if}
       </button>
     </div>
   </nav>
@@ -401,18 +410,18 @@
   <div class="fixed bottom-4 right-4 z-50">
     <button 
       data-menu-type="donate"
-      aria-label={$showDonateMenu ? (fixedMenuTooltips?.closeDonate || 'Close donation menu') : (fixedMenuTooltips?.donate || 'Support us')}
-      on:click={(e) => toggleMenu('donate', e)} 
+      aria-label={showDonateMenuValue ? (fixedMenuTooltips?.closeDonate || 'Close donation menu') : (fixedMenuTooltips?.donate || 'Support us')}
+      onclick={(e) => toggleMenu('donate', e)} 
       class="hidden md:flex items-center btn border-4 p-3.5 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 rounded-full shadow-lg relative z-50 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-      title={$showDonateMenu ? donateButtonOpenText : donateButtonText}
+      title={showDonateMenuValue ? donateButtonOpenText : donateButtonText}
     >
-      <span class="text-xl mr-2">{#if $showDonateMenu}❌{:else}☕{/if}</span>
+      <span class="text-xl mr-2">{#if showDonateMenuValue}❌{:else}☕{/if}</span>
       <span class="text-sm font-semibold">
-          {$showDonateMenu ? donateButtonOpenText : donateButtonText}
+          {showDonateMenuValue ? donateButtonOpenText : donateButtonText}
       </span>
     </button>
     
-    {#if $showDonateMenu && donateLinks.length > 0}
+    {#if showDonateMenuValue && donateLinks.length > 0}
     <div class="md:absolute relative z-20 left-0 bottom-16 transform -translate-x-24 md:-translate-x-0 md:mr-0 md:ml-6 mr-4">
       <ul 
         class="w-44 rounded-t-xl shadow-lg bg-creme-500 dark:bg-aubergine-900 ring-1 ring-black ring-opacity-5 z-auto py-2"
@@ -432,7 +441,7 @@
             class:active={selectedLink === dlink} 
             rel={dlink.rel} 
             title={dlink.title} 
-            on:click={() => selectLink(donateLinks, dlink.id)}
+            onclick={() => selectLink(donateLinks, dlink.id)}
           >
             {#if dlink.svgContent}
               <svg class="w-5 h-5 mr-2 transition" viewBox="0 0 32 32" fill="currentColor" alt={dlink.alt || ''}>

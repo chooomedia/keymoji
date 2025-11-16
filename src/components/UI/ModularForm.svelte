@@ -165,7 +165,7 @@
     }
 </script>
 
-<form on:submit={handleSubmit} class="space-y-6">
+<form onsubmit={handleSubmit} class="space-y-6">
     <!-- Form Sections -->
     {#each Object.entries(groupedInputs) as [sectionKey, section]}
         <div class="space-y-4">
@@ -219,7 +219,7 @@
         {#if onCancel || cancelConfig}
             <button
                 type="button"
-                on:click={handleCancel}
+                onclick={handleCancel}
                 class="flex-1 flex items-center justify-center space-x-2 px-6 py-3 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
             >
                 {#if cancelConfig.icon}

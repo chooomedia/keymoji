@@ -57,7 +57,7 @@
 <a
   href={`#${targetId}`}
   class="skip-link"
-  on:click={handleSkip}
+  onclick={handleSkip}
   aria-label={label}
 >
   {label}

@@ -111,7 +111,7 @@
 <div class="w-full text-left px-4 rounded-lg bg-gray-200 dark:bg-aubergine-950 transition-colors">
     <button 
         class="w-full flex py-4 items-center justify-between transition-colors duration-200 ease-out group hover:bg-gray-100 dark:hover:bg-gray-800"
-        on:click={handleSectionToggle}
+        onclick={handleSectionToggle}
     >
         <div class="flex items-center space-x-4">
             <span class="text-xl">{section.icon}</span>

@@ -156,8 +156,8 @@
 {#if isVisible}
     <div 
         class="fixed inset-0 z-50"
-        on:click={handleBackdropClick}
-        on:keydown={handleKeydown}
+        onclick={handleBackdropClick}
+        onkeydown={handleKeydown}
         transition:fade={{ duration: 150 }}
     >
         <div 
@@ -167,7 +167,7 @@
         >
             {#each menuItems as item}
                 <button
-                    on:click={item.action}
+                    onclick={item.action}
                     class="w-full px-4 py-2 text-left text-sm flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 {item.color}"
                 >
                     <span class="text-lg">{item.icon}</span>

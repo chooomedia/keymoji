@@ -1,4 +1,145 @@
 export const versions = {
+    '0.7.7': {
+        date: 'November 16, 2025',
+        core: {
+            svelte5: {
+                title: '🧬 Full Svelte 5 Runes Store Migration',
+                improvements: [
+                    'Migrated all major stores (account, dailyUsage, userSettings, userData, content, SEO, modals, blog likes, appStores) to Svelte 5 runes',
+                    'Replaced legacy Svelte 3 stores with $state, $derived and $effect for predictable reactivity',
+                    'Removed duplicated state between stores and components in favor of a single source of truth per data domain',
+                    'Simplified store initialization flows for cleaner login, session restore and logout handling',
+                    'Reduced the number of reactive updates per interaction to improve perceived performance'
+                ]
+            },
+            typescript: {
+                title: '🧱 TypeScript Store & Schema Unification',
+                improvements: [
+                    'Introduced shared TypeScript interfaces for account, user profile, metadata, dailyUsage and settings',
+                    'Tightened type safety in all store functions (no implicit any, explicit return types)',
+                    'Added clear boundaries between raw backend payloads and normalized frontend models',
+                    'Improved editor IntelliSense for all store consumers across the app',
+                    'Documented the most important data shapes directly next to the store implementations'
+                ]
+            },
+            performance: {
+                title: '⚡ Store Performance & Memory Optimizations',
+                improvements: [
+                    'Eliminated unnecessary derived computations by memoizing repeated calculations',
+                    'Centralized expensive lookups (like effective settings and usage aggregation) into dedicated helpers',
+                    'Ensured all timeouts and intervals created in stores are cleaned up properly to prevent memory leaks',
+                    'Reduced cross-store chatter by routing updates through a few well-defined synchronization points',
+                    'Improved initial load by avoiding duplicate initialization work during session restore'
+                ]
+            }
+        },
+        fixes: {
+            stability: {
+                title: '🛡️ Stability & Edge Case Fixes',
+                improvements: [
+                    'Hardened session handling around race conditions when restoring account + dailyUsage in parallel',
+                    'Improved fallback chains when some store data is missing or corrupted in localStorage',
+                    'Fixed subtle bugs where reactive updates could trigger redundant API calls',
+                    'Aligned store defaults with tier-aware limit logic to avoid inconsistent daily limit checks',
+                    'Cleaned up leftover debug flags and legacy migration code that was no longer needed'
+                ]
+            },
+            ux: {
+                title: '🎨 UX Consistency Across Static & Dynamic Views',
+                improvements: [
+                    'Ensured Version History and other static pages use the same layout and scroll behavior as the home page',
+                    'Standardized back navigation buttons so they respect the current language-aware routing system',
+                    'Aligned loading and error states across store-driven views for a more predictable user experience',
+                    'Improved wording of several internal log messages and comments for easier debugging in development',
+                    'Verified that all store updates keep Story Mode, limits and account information in sync'
+                ]
+            }
+        }
+    },
+    '0.7.6': {
+        date: 'November 15, 2025',
+        core: {
+            architecture: {
+                title: '🏗️ Store Architecture & Single Source of Truth',
+                improvements: [
+                    'Refactored dailyUsage, account and userSettings to share a common data flow instead of ad-hoc updates',
+                    'Introduced clear priorities for where truth lives (backend → accountStore → dailyUsageStore → UI)',
+                    'Separated persistence concerns (localStorage, session) from pure in-memory store logic',
+                    'Improved metadata cleaning utilities to avoid duplicated fields across profile and metadata',
+                    'Added guardrails to prevent accidental overwrites of createdAt and historical usage data'
+                ]
+            },
+            dataFlow: {
+                title: '🔄 Data Flow Consolidation',
+                improvements: [
+                    'Centralized limit checks and daily usage updates so all generation paths share the same logic',
+                    'Aligned settings and account updates so both write and read paths use the same helpers',
+                    'Improved synchronization hooks between account changes and all dependent stores',
+                    'Reduced store-to-store imports by introducing small, focused utility modules',
+                    'Clarified the order of operations during login, logout and magic-link verification'
+                ]
+            }
+        },
+        fixes: {
+            bugs: {
+                title: '🐛 Regression & Edge Case Fixes',
+                improvements: [
+                    'Fixed edge cases where dailyUsage could be initialized twice with slightly different data',
+                    'Resolved inconsistencies between local cached data and freshly loaded backend responses',
+                    'Prevented accidental loss of usageHistory when applying partial updates from the backend',
+                    'Fixed several minor TypeScript type mismatches discovered during refactor',
+                    'Removed duplicated helper functions that had diverged over time'
+                ]
+            },
+            docs: {
+                title: '📚 Documentation & Developer Experience',
+                improvements: [
+                    'Updated internal documentation to reflect the new data flow architecture',
+                    'Added comments to complex store logic explaining why certain ordering is required',
+                    'Clarified how daily limits, tiers and Story Mode interact across stores',
+                    'Improved naming of several store methods to better match their responsibilities',
+                    'Documented migration steps for future store refactors'
+                ]
+            }
+        }
+    },
+    '0.7.5': {
+        date: 'November 14, 2025',
+        core: {
+            auth: {
+                title: '🔐 Magic-Link Authentication & Account Management',
+                improvements: [
+                    'Tightened integration between magic-link flows and the centralized account store',
+                    'Ensured session validation happens before any account-related operations',
+                    'Improved cross-tab communication for magic links so login state stays in sync',
+                    'Standardized how lastLogin and status are updated and propagated to the UI',
+                    'Prepared stores for future extension of account tiers and metadata fields'
+                ]
+            },
+            a11y: {
+                title: '♿ Accessibility & Interaction Polishing',
+                improvements: [
+                    'Ensured all important interactive elements have ARIA labels and proper focus states',
+                    'Aligned keyboard navigation behavior on settings, account and static pages',
+                    'Improved focus management for modals backed by the modalStore',
+                    'Refined button sizes and spacing to match the compact, side-by-side layout guidelines',
+                    'Verified that all views remain scrollable when content exceeds the viewport height'
+                ]
+            }
+        },
+        fixes: {
+            integration: {
+                title: '🧩 Integration & Consistency Fixes',
+                improvements: [
+                    'Resolved inconsistencies between language-aware routing and account-related redirects',
+                    'Fixed a few places where Story Mode, limits or settings would not respect the latest account data',
+                    'Cleaned up old utility functions that duplicated newer account management helpers',
+                    'Improved error handling around backend webhook calls and account synchronization',
+                    'Laid groundwork for the 0.7.x performance and data integrity improvements'
+                ]
+            }
+        }
+    },
     '0.7.4': {
         date: 'November 13, 2025',
         core: {

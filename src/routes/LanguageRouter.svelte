@@ -14,7 +14,8 @@
     import { changeLanguage, currentLanguage } from '../stores/contentStore';
     import { closeModal, isModalVisible } from '../stores/modalStore';
     import { devLog } from '../utils/environment';
-    import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore';
+    import { initializeAccountFromCookies } from '../stores/accountStore';
+    import { resetSessionFlags } from '../stores/accountSession';
     import { appVersion } from '../utils/version';
     import { getSupportedLanguageCodes } from '../utils/languages';
     
@@ -32,18 +33,38 @@
     let ErrorPage = $state<any>(null);
     let routesLoaded = $state(false);
     let loadingError = $state<Error | null>(null);
+    let isLoading = $state(false);
+    let loadingProgress = $state<string>('');
     
     // Lazy Load Page Components (Svelte 5 Best Practice)
     // Gemäß Svelte Docs: Dynamische Imports mit Error Handling und Loading States
     async function loadRoutes(): Promise<void> {
-        if (routesLoaded) return;
+        if (routesLoaded) {
+            console.log('✅ LanguageRouter: Routes already loaded, skipping');
+            return;
+        }
+        if (isLoading) {
+            console.log('⏳ LanguageRouter: Already loading, skipping duplicate call');
+            return; // Verhindere doppelte Loads
+        }
+        
+        isLoading = true;
+        loadingProgress = 'Initializing...';
+        console.log('🔄 LanguageRouter: Starting route loading...');
         
         try {
             devLog('🔄 LanguageRouter: Loading routes...');
+            loadingProgress = 'Loading route components...';
+            console.log('🔄 LanguageRouter: Starting dynamic imports...');
             
             // Svelte 5 Best Practice: Dynamische Imports mit expliziten Pfaden
             // Webpack erkennt diese als Code-Splitting-Punkte
-            const routeImports = await Promise.allSettled([
+            // Verwende Promise.all für bessere Performance (alle Routen parallel laden)
+            console.log('🔄 LanguageRouter: Importing routes...');
+            
+            // Svelte 5 Best Practice: Dynamische Imports mit besserem Error-Handling
+            // Verwende Promise.allSettled für robustes Error-Handling
+            const importResults = await Promise.allSettled([
                 import('./+page.svelte'),
                 import('./contact/+page.svelte'),
                 import('./account/+page.svelte'),
@@ -55,16 +76,23 @@
                 import('./+error.svelte')
             ]);
             
-            // Prüfe auf Fehler beim Laden
+            // Prüfe auf Fehler und extrahiere Module
+            const routeNames = [
+                'RootPage', 'ContactPage', 'AccountPage', 'VersionsPage',
+                'BlogPage', 'BlogPostPage', 'PrivacyPage', 'LegalPage', 'ErrorPage'
+            ];
+            
+            const modules: any[] = [];
             const errors: string[] = [];
-            routeImports.forEach((result, index) => {
-                if (result.status === 'rejected') {
-                    const routeNames = [
-                        'RootPage', 'ContactPage', 'AccountPage', 'VersionsPage',
-                        'BlogPage', 'BlogPostPage', 'PrivacyPage', 'LegalPage', 'ErrorPage'
-                    ];
-                    errors.push(`${routeNames[index]}: ${result.reason}`);
+            
+            importResults.forEach((result, index) => {
+                if (result.status === 'fulfilled') {
+                    modules.push(result.value);
+                    console.log(`✅ ${routeNames[index]} loaded successfully`);
+                } else {
                     console.error(`❌ Failed to load ${routeNames[index]}:`, result.reason);
+                    errors.push(`${routeNames[index]}: ${result.reason?.message || String(result.reason)}`);
+                    modules.push(null);
                 }
             });
             
@@ -72,31 +100,130 @@
                 throw new Error(`Failed to load ${errors.length} route(s): ${errors.join(', ')}`);
             }
             
+            const [
+                RootPageModule,
+                ContactPageModule,
+                AccountPageModule,
+                VersionsPageModule,
+                BlogPageModule,
+                BlogPostPageModule,
+                PrivacyPageModule,
+                LegalPageModule,
+                ErrorPageModule
+            ] = modules;
+            
+            console.log('✅ LanguageRouter: All imports completed');
+            
             // Extrahiere Default-Exports (Svelte 5 Best Practice)
-            RootPage = (routeImports[0] as PromiseFulfilledResult<any>).value.default;
-            ContactPage = (routeImports[1] as PromiseFulfilledResult<any>).value.default;
-            AccountPage = (routeImports[2] as PromiseFulfilledResult<any>).value.default;
-            VersionsPage = (routeImports[3] as PromiseFulfilledResult<any>).value.default;
-            BlogPage = (routeImports[4] as PromiseFulfilledResult<any>).value.default;
-            BlogPostPage = (routeImports[5] as PromiseFulfilledResult<any>).value.default;
-            PrivacyPage = (routeImports[6] as PromiseFulfilledResult<any>).value.default;
-            LegalPage = (routeImports[7] as PromiseFulfilledResult<any>).value.default;
-            ErrorPage = (routeImports[8] as PromiseFulfilledResult<any>).value.default;
+            // Validiere, dass default export existiert
+            console.log('🔄 LanguageRouter: Validating default exports...');
+            console.log('🔄 LanguageRouter: RootPageModule:', RootPageModule);
+            console.log('🔄 LanguageRouter: RootPageModule.default:', RootPageModule?.default);
+            
+            if (!RootPageModule?.default) {
+                console.error('❌ RootPageModule:', RootPageModule);
+                throw new Error('RootPage missing default export');
+            }
+            if (!ContactPageModule?.default) {
+                console.error('❌ ContactPageModule:', ContactPageModule);
+                throw new Error('ContactPage missing default export');
+            }
+            if (!AccountPageModule?.default) {
+                console.error('❌ AccountPageModule:', AccountPageModule);
+                throw new Error('AccountPage missing default export');
+            }
+            if (!VersionsPageModule?.default) {
+                console.error('❌ VersionsPageModule:', VersionsPageModule);
+                throw new Error('VersionsPage missing default export');
+            }
+            if (!BlogPageModule?.default) {
+                console.error('❌ BlogPageModule:', BlogPageModule);
+                throw new Error('BlogPage missing default export');
+            }
+            if (!BlogPostPageModule?.default) {
+                console.error('❌ BlogPostPageModule:', BlogPostPageModule);
+                throw new Error('BlogPostPage missing default export');
+            }
+            if (!PrivacyPageModule?.default) {
+                console.error('❌ PrivacyPageModule:', PrivacyPageModule);
+                throw new Error('PrivacyPage missing default export');
+            }
+            if (!LegalPageModule?.default) {
+                console.error('❌ LegalPageModule:', LegalPageModule);
+                throw new Error('LegalPage missing default export');
+            }
+            if (!ErrorPageModule?.default) {
+                console.error('❌ ErrorPageModule:', ErrorPageModule);
+                throw new Error('ErrorPage missing default export');
+            }
+            
+            console.log('✅ LanguageRouter: All default exports validated');
+            
+            // Zuweisen der Komponenten (Svelte 5 Best Practice: Direkte Zuweisung)
+            console.log('🔄 LanguageRouter: Assigning components...');
+            RootPage = RootPageModule.default;
+            ContactPage = ContactPageModule.default;
+            AccountPage = AccountPageModule.default;
+            VersionsPage = VersionsPageModule.default;
+            BlogPage = BlogPageModule.default;
+            BlogPostPage = BlogPostPageModule.default;
+            PrivacyPage = PrivacyPageModule.default;
+            LegalPage = LegalPageModule.default;
+            ErrorPage = ErrorPageModule.default;
+            console.log('✅ LanguageRouter: Components assigned');
             
             // Validiere, dass alle Komponenten geladen wurden
+            console.log('🔄 LanguageRouter: Final validation...');
             const allLoaded = RootPage && ContactPage && AccountPage && VersionsPage && 
                             BlogPage && BlogPostPage && PrivacyPage && LegalPage && ErrorPage;
             
+            console.log('🔄 LanguageRouter: Component status:', {
+                RootPage: !!RootPage,
+                ContactPage: !!ContactPage,
+                AccountPage: !!AccountPage,
+                VersionsPage: !!VersionsPage,
+                BlogPage: !!BlogPage,
+                BlogPostPage: !!BlogPostPage,
+                PrivacyPage: !!PrivacyPage,
+                LegalPage: !!LegalPage,
+                ErrorPage: !!ErrorPage,
+                allLoaded
+            });
+            
             if (!allLoaded) {
-                throw new Error('Some route components failed to load (missing default export)');
+                console.error('❌ LanguageRouter: Some components failed to load');
+                throw new Error('Some route components failed to load (null or undefined)');
             }
+            
+            loadingProgress = 'Validating components...';
+            console.log('✅ LanguageRouter: All components loaded successfully');
             
             routesLoaded = true;
             loadingError = null;
+            isLoading = false;
+            loadingProgress = 'Ready!';
+            
+            console.log('✅ LanguageRouter: routesLoaded set to true');
+            console.log('✅ LanguageRouter: isLoading set to false');
+            
             devLog('✅ LanguageRouter: Routes loaded successfully');
+            devLog('✅ LanguageRouter: Loaded components:', {
+                RootPage: !!RootPage,
+                ContactPage: !!ContactPage,
+                AccountPage: !!AccountPage,
+                VersionsPage: !!VersionsPage,
+                BlogPage: !!BlogPage,
+                BlogPostPage: !!BlogPostPage,
+                PrivacyPage: !!PrivacyPage,
+                LegalPage: !!LegalPage,
+                ErrorPage: !!ErrorPage
+            });
         } catch (err) {
             const error = err instanceof Error ? err : new Error(String(err));
             loadingError = error;
+            isLoading = false;
+            loadingProgress = 'Error occurred';
+            
             console.error('❌ LanguageRouter: Failed to load routes:', error);
             console.error('❌ LanguageRouter: Error details:', {
                 message: error.message,
@@ -206,7 +333,21 @@
             console.log('✅ LanguageRouter: Session flags reset for new page load');
             
             // PERFORMANCE: Load routes immediately (blocking for first render)
+            // Svelte 5 Best Practice: await für initiales Laden
+            // Der Loading-State reagiert automatisch auf isLoading und routesLoaded
             await loadRoutes();
+            
+            // Validiere, dass Routen geladen wurden
+            if (!routesLoaded) {
+                console.warn('⚠️ LanguageRouter: Routes not loaded after await');
+                loadingProgress = 'Retrying...';
+                // Retry nach kurzer Verzögerung
+                setTimeout(() => {
+                    if (!routesLoaded && !isLoading) {
+                        loadRoutes();
+                    }
+                }, 1000);
+            }
             
             // CRITICAL: Initialize daily usage for ALL users (logged in or guest)
             try {
@@ -287,78 +428,156 @@
     });
 </script>
   
-{#if !routesLoaded}
-    <!-- Loading State -->
-    <div class="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900">
+{#if !routesLoaded || isLoading}
+    <!-- Loading State (Svelte 5 Best Practice) -->
+    <!-- Reagiert auf isLoading und routesLoaded State -->
+    <div class="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900" role="status" aria-live="polite" aria-label="Loading application">
         <div class="text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
-            <p class="text-gray-600 dark:text-gray-400">Loading...</p>
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4" aria-hidden="true"></div>
+            <p class="text-gray-600 dark:text-gray-400 mb-2">Loading...</p>
+            {#if loadingProgress}
+                <p class="text-sm text-gray-500 dark:text-gray-500">{loadingProgress}</p>
+            {/if}
+        </div>
+    </div>
+{:else if loadingError}
+    <!-- Error State (Svelte 5 Best Practice) -->
+    <div class="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900" role="alert">
+        <div class="text-center max-w-md p-6">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Failed to Load Routes</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">{loadingError.message}</p>
+            <button 
+                class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                onclick={() => {
+                    routesLoaded = false;
+                    loadingError = null;
+                    loadRoutes();
+                }}
+            >
+                Retry
+            </button>
         </div>
     </div>
 {:else}
 <Router>
     <!-- PERFORMANCE: Lazy Loaded Routes mit +page.svelte (SvelteKit Pattern) -->
         <!-- Root Route (Home/Index) -->
-        <Route path="/" component={RootPage} />
-        <Route path="/:lang" component={RootPage} />
+        {#if RootPage}
+            <Route path="/" component={RootPage} />
+            <Route path="/:lang" component={RootPage} />
+        {/if}
         
         <!-- Versions Route -->
         <Route path="/versions" let:params>
-            <svelte:component this={VersionsPage} />
+            {#if VersionsPage}
+                {@const Component = VersionsPage}
+                <Component />
+            {/if}
         </Route>
         <Route path="/:lang/versions" let:params>
-            <svelte:component this={VersionsPage} />
+            {#if VersionsPage}
+                {@const Component = VersionsPage}
+                <Component />
+            {/if}
         </Route>
         
         <!-- Contact Route -->
         <Route path="/contact" let:params>
-            <svelte:component this={ContactPage} />
+            {#if ContactPage}
+                {@const Component = ContactPage}
+                <Component />
+            {/if}
         </Route>
         <Route path="/:lang/contact" let:params>
-            <svelte:component this={ContactPage} />
+            {#if ContactPage}
+                {@const Component = ContactPage}
+                <Component />
+            {/if}
         </Route>
         
         <!-- Account Route -->
         <Route path="/account" let:params>
-            <svelte:component this={AccountPage} />
+            {#if AccountPage}
+                {@const Component = AccountPage}
+                <Component />
+            {/if}
         </Route>
         <Route path="/:lang/account" let:params>
-            <svelte:component this={AccountPage} />
+            {#if AccountPage}
+                {@const Component = AccountPage}
+                <Component />
+            {/if}
         </Route>
         
         <!-- Blog Routes -->
         <Route path="/blog" let:params>
-            <svelte:component this={BlogPage} />
+            {#if BlogPage}
+                {@const Component = BlogPage}
+                <Component />
+            {/if}
         </Route>
         <Route path="/:lang/blog" let:params>
-            <svelte:component this={BlogPage} />
+            {#if BlogPage}
+                {@const Component = BlogPage}
+                <Component />
+            {/if}
         </Route>
         
         <!-- Blog Post Route (Dynamic Slug) -->
         <Route path="/blog/:slug" let:params>
-            <svelte:component this={BlogPostPage} slug={params.slug} />
+            {#if BlogPostPage}
+                {@const Component = BlogPostPage}
+                <Component slug={params.slug} />
+            {/if}
         </Route>
         <Route path="/:lang/blog/:slug" let:params>
-            <svelte:component this={BlogPostPage} slug={params.slug} />
+            {#if BlogPostPage}
+                {@const Component = BlogPostPage}
+                <Component slug={params.slug} />
+            {/if}
         </Route>
         
         <!-- Privacy Route -->
         <Route path="/privacy" let:params>
-            <svelte:component this={PrivacyPage} />
+            {#if PrivacyPage}
+                {@const Component = PrivacyPage}
+                <Component />
+            {/if}
         </Route>
         <Route path="/:lang/privacy" let:params>
-            <svelte:component this={PrivacyPage} />
+            {#if PrivacyPage}
+                {@const Component = PrivacyPage}
+                <Component />
+            {/if}
         </Route>
         
         <!-- Legal Route -->
         <Route path="/legal" let:params>
-            <svelte:component this={LegalPage} />
+            {#if LegalPage}
+                {@const Component = LegalPage}
+                <Component />
+            {/if}
         </Route>
         <Route path="/:lang/legal" let:params>
-            <svelte:component this={LegalPage} />
+            {#if LegalPage}
+                {@const Component = LegalPage}
+                <Component />
+            {/if}
         </Route>
         
         <!-- 404 Error Route -->
-        <Route component={ErrorPage} />
+        {#if ErrorPage}
+            <Route component={ErrorPage} />
+        {:else}
+            <Route>
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <h1 class="text-4xl font-bold mb-4">404</h1>
+                        <p class="text-gray-600">Page not found</p>
+                    </div>
+                </div>
+            </Route>
+        {/if}
 </Router>
 {/if}

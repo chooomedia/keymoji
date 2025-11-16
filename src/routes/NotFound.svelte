@@ -4,11 +4,15 @@
     import { fade, fly, scale } from 'svelte/transition';
     import { translations } from '../stores/contentStore';
     import { get } from 'svelte/store';
-    import PageLayout from '../components/Layout/PageLayout.svelte';
+    import PageLayoutComponent from '../components/Layout/PageLayout.svelte';
     import { STORAGE_KEYS, storageHelpers } from '../config/storage';
     import { navigateToRoute, navigateToHome } from '../utils/navigation';
-    import FeatureCard from '../components/Features/FeatureCard.svelte';
+    import FeatureCardComponent from '../components/Features/FeatureCard.svelte';
     
+    // Svelte 5 / Webpack: stabile Komponenten-Referenzen
+    const PageLayout = PageLayoutComponent;
+    const FeatureCard = FeatureCardComponent;
+
     // Reaktive PageLayout Props (Svelte 5 Runes)
     let pageTitle = $derived.by(() => get(translations)?.notFound?.pageTitle || '404 - Page Not Found');
     let pageDescription = $derived.by(() => get(translations)?.notFound?.pageDescription || 'The page you are looking for does not exist.');
@@ -323,7 +327,7 @@
                         <!-- Left Arrow -->
                         <button
                             class="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-white dark:bg-aubergine-900 rounded-full shadow-lg flex items-center justify-center hover:scale-105 focus:scale-105 active:scale-95 transition-all duration-200 ease-out cursor-pointer border border-gray-200 dark:border-gray-700 hover:shadow-xl focus:shadow-xl focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-                            on:click={slideLeft}
+                            onclick={slideLeft}
                             aria-label={$translations?.notFound?.prevEmoji || 'Previous emoji'}
                             title={$translations?.notFound?.prevEmoji || 'Previous emoji'}
                         >
@@ -335,7 +339,7 @@
                         <!-- Right Arrow -->
                         <button
                             class="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-white dark:bg-aubergine-900 rounded-full shadow-lg flex items-center justify-center hover:scale-105 focus:scale-105 active:scale-95 transition-all duration-200 ease-out cursor-pointer border border-gray-200 dark:border-gray-700 hover:shadow-xl focus:shadow-xl focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-                            on:click={slideRight}
+                            onclick={slideRight}
                             aria-label={$translations?.notFound?.nextEmoji || 'Next emoji'}
                             title={$translations?.notFound?.nextEmoji || 'Next emoji'}
                         >
@@ -349,19 +353,19 @@
                             bind:this={emojiSliderContainer}
                             class="flex overflow-x-auto scroll-smooth snap-x snap-proximity overscroll-x-contain gap-2 py-4 px-10 emoji-slider cursor-grab select-none border border-gray-200 dark:border-gray-700 rounded-xl [&>div]:snap-center [&>div]:transition-transform [&>div]:duration-300 [&>div]:ease-out"
                             style="scrollbar-width: none; -ms-overflow-style: none;"
-                            on:mousedown={handleMouseDown}
-                            on:mousemove={handleMouseMove}
-                            on:mouseup={handleMouseUp}
-                            on:mouseleave={handleMouseUp}
-                            on:touchstart={(e) => {
+                            onmousedown={handleMouseDown}
+                            onmousemove={handleMouseMove}
+                            onmouseup={handleMouseUp}
+                            onmouseleave={handleMouseUp}
+                            ontouchstart={(e) => {
                                 e.preventDefault();
                                 handleMouseDown(e.touches[0]);
                             }}
-                            on:touchmove={(e) => {
+                            ontouchmove={(e) => {
                                 e.preventDefault();
                                 handleMouseMove(e.touches[0]);
                             }}
-                            on:touchend={(e) => {
+                            ontouchend={(e) => {
                                 e.preventDefault();
                                 handleMouseUp();
                             }}
@@ -405,7 +409,7 @@
             <div class="text-center mt-8">
                 <button
                     class="w-full bg-yellow-500 text-black shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-                    on:click={navigateToHome}
+                    onclick={navigateToHome}
                     aria-label={$translations?.notFound?.backToHome || 'Back to Home'}
                     title={$translations?.notFound?.backToHome || 'Back to Home'}
                 >

@@ -1,6 +1,8 @@
 <script>
-    import Button from "../components/UI/Button.svelte";
-    let test = '';
+    import ButtonComponent from "../components/UI/Button.svelte";
+    
+    // Svelte 5 / Webpack: stabile Komponenten-Referenz
+    const Button = ButtonComponent;
 </script>
 
 <!-- GitButton für Header Integration -->

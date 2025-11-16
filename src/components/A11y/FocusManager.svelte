@@ -177,15 +177,28 @@
       document.removeEventListener('keydown', handleKeydown);
     });
     
-    // Watch for active state changes
-    $: if (active) {
-      localSafeSetTimeout(() => {
-        updateFocusableElements();
-        focusInitialElement();
-      }, 50);
-    } else if (previouslyFocused && restoreFocus) {
-      releaseFocus();
-    }
+    // Track vorherigen Aktiv-Status ohne Reaktivität (kein $state!)
+    let lastActive = active;
+    
+    // Watch for active state changes (Svelte 5 Runes, ohne Endlosschleife)
+    $effect(() => {
+      // Aktivierung: von false -> true
+      if (active && !lastActive) {
+        lastActive = active;
+        localSafeSetTimeout(() => {
+          updateFocusableElements();
+          focusInitialElement();
+        }, 50);
+      }
+      
+      // Deaktivierung: von true -> false
+      if (!active && lastActive) {
+        lastActive = active;
+        if (restoreFocus) {
+          releaseFocus();
+        }
+      }
+    });
   </script>
   
   <div bind:this={trapElement} class="focus-trap">

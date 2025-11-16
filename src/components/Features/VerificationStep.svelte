@@ -22,7 +22,7 @@
         variant="primary"
         size="md"
         fullWidth={true}
-        on:click={onResendMagicLink}
+        onclick={onResendMagicLink}
         disabled={isSubmitting}
     >
         {#if isSubmitting}
@@ -37,7 +37,7 @@
         variant="secondary"
         size="md"
         fullWidth={true}
-        on:click={onGoBack}
+        onclick={onGoBack}
     >
         {get(translations)?.accountManager?.buttons?.backToAccountOptions || '← Back to Account Options'}
     </Button>

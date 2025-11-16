@@ -266,7 +266,7 @@
     <div slot="before-content" class="relative w-full flex justify-center -mb-14">
         {#if !loading && !error && post}
             <button 
-                on:click={navigateBack}
+                onclick={navigateBack}
                 class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 z-20"
                 aria-label={backToPostsText}
                 title={backToPostsText}
@@ -357,7 +357,7 @@
                 <div class="flex justify-between items-center border-t border-gray-100 dark:border-gray-800 pt-6 mt-8">
                     <button 
                         aria-label={hasLikes ? 'Post already liked' : 'Like the blog post'}
-                        on:click={handleLike}
+                        onclick={handleLike}
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
                         title={hasLikes ? 'Already liked' : 'Like'}
                         disabled={isLiking || hasLikes}
@@ -411,7 +411,7 @@
     {#if previousPost}
         <span itemprop="name" class="sr-only">Previous blog post navigation</span>
         <button
-            on:click={navigateToPrevious}
+            onclick={navigateToPrevious}
             disabled={isTransitioning}
             class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
             aria-label="Go to previous blog post: {previousPost.title}"
@@ -435,7 +435,7 @@
     {#if nextPost}
         <span itemprop="name" class="sr-only">Next blog post navigation</span>
         <button
-            on:click={navigateToNext}
+            onclick={navigateToNext}
             disabled={isTransitioning}
             class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100"
             aria-label="Go to next blog post: {nextPost.title}"

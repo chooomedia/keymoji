@@ -450,10 +450,10 @@
                         <g 
                             class="cursor-pointer transition-transform hover:scale-125"
                             in:fade={{ duration: 400, delay: 800 + (i * 50) }}
-                            on:mouseenter={(e) => handlePointHover(e, point, i, false)}
-                            on:mouseleave={handlePointLeave}
-                            on:focus={(e) => handlePointHover(e, point, i, false)}
-                            on:blur={handlePointLeave}
+                            onmouseenter={(e) => handlePointHover(e, point, i, false)}
+                            onmouseleave={handlePointLeave}
+                            onfocus={(e) => handlePointHover(e, point, i, false)}
+                            onblur={handlePointLeave}
                             tabindex="0"
                             role="button"
                             aria-label="{formatDateFull(point.date)}: {point.value} random generations"
@@ -526,10 +526,10 @@
                         <g 
                             class="cursor-pointer transition-transform hover:scale-125"
                             in:fade={{ duration: 400, delay: 1000 + (i * 50) }}
-                            on:mouseenter={(e) => handlePointHover(e, point, i, true)}
-                            on:mouseleave={handlePointLeave}
-                            on:focus={(e) => handlePointHover(e, point, i, true)}
-                            on:blur={handlePointLeave}
+                            onmouseenter={(e) => handlePointHover(e, point, i, true)}
+                            onmouseleave={handlePointLeave}
+                            onfocus={(e) => handlePointHover(e, point, i, true)}
+                            onblur={handlePointLeave}
                             tabindex="0"
                             role="button"
                             aria-label="{formatDateFull(point.date)}: {point.value || 0} story generations"

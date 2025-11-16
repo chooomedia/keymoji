@@ -266,10 +266,10 @@
 <div 
     bind:this={badgeElement}
     class={containerClasses}
-    on:mouseenter={!alwaysVisible ? handleMouseEnter : undefined}
-    on:mouseleave={!alwaysVisible ? handleMouseLeave : undefined}
-    on:click={!alwaysVisible && (trigger === 'click' || trigger === 'both') ? handleClick : undefined}
-    on:keydown={!alwaysVisible && (trigger === 'click' || trigger === 'both') ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } } : undefined}
+    onmouseenter={!alwaysVisible ? handleMouseEnter : undefined}
+    onmouseleave={!alwaysVisible ? handleMouseLeave : undefined}
+    onclick={!alwaysVisible && (trigger === 'click' || trigger === 'both') ? handleClick : undefined}
+    onkeydown={!alwaysVisible && (trigger === 'click' || trigger === 'both') ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } } : undefined}
 >
     <!-- Slot for parent content -->
     <slot />

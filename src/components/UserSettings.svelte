@@ -145,17 +145,24 @@
     let currentProvider = $derived(activeProvider || 'apertus');
     
     // Reset UI state when provider changes
-    let previousProvider = $state(currentProvider);
+    // FIX: Initialize with concrete value, not $derived to prevent infinite loops
+    let previousProvider = $state<string | null>(null);
     $effect(() => {
-        if (currentProvider !== previousProvider) {
+        const current = currentProvider;
+        if (previousProvider === null) {
+            // First run: just set the initial value
+            previousProvider = current;
+            return;
+        }
+        if (current !== previousProvider) {
             showApiKey = false;
             isApiKeyFocused = false;
             localApiKeyValue = '';
-            if (testedProvider !== currentProvider) {
+            if (testedProvider !== current) {
                 apiTestSuccess = false;
                 testedProvider = null;
             }
-            previousProvider = currentProvider;
+            previousProvider = current;
         }
     });
     
@@ -1084,7 +1091,7 @@
             <div class="relative p-4">
                 <!-- Close Button (X) -->
                 <button
-                    on:click={dismissProBanner}
+                    onclick={dismissProBanner}
                     class="absolute top-2 right-2 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-all focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                     aria-label="Dismiss upgrade banner for 3 days"
                     title="Hide for 3 days"
@@ -1107,7 +1114,7 @@
                         </div>
                     </div>
                     <button
-                        on:click={handleUpgrade}
+                        onclick={handleUpgrade}
                         class="w-full inline-flex justify-center items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-800 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
                         aria-label="{translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}"
                         title="{translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}"
@@ -1144,7 +1151,7 @@
             >
                 <!-- Section Header -->
                 <button
-                    on:click={() => toggleSection(section.id)}
+                    onclick={() => toggleSection(section.id)}
                     class="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-all focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                     aria-label="{getLocalizedText(section.title)} - {activeSection === section.id ? 'Collapse' : 'Expand'}"
                     id="accordion-{section.id}"
@@ -1170,7 +1177,7 @@
                     <div class="flex items-center space-x-2">
                         {#if !isProUser && (section.id === 'security' || section.id === 'generation' || section.id === 'privacy' || section.id === 'pro')}
                             <button
-                                on:click|stopPropagation={() => handleProFeature(getLocalizedText(section.title), getLocalizedText(section.description))}
+                                onclick={(e) => { e.stopPropagation(); handleProFeature(getLocalizedText(section.title), getLocalizedText(section.description)); }}
                                 class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800 focus:bg-purple-200 dark:focus:bg-purple-800 active:bg-purple-300 dark:active:bg-purple-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-1"
                                 aria-label="Upgrade to unlock {getLocalizedText(section.title)}"
                                 title="Upgrade to Pro"
@@ -1310,18 +1317,18 @@
                                                                     id="storyMode.apiKeys"
                                                                     type={showApiKey ? 'text' : 'password'}
                                                                     value={currentApiKey || ''}
-                                                                    on:input={(e) => {
+                                                                    oninput={(e) => {
                                                                         localApiKeyValue = e.target.value;
                                                                         const newApiKeys = { ...apiKeys, [currentProvider]: e.target.value };
                                                                         handleSettingUpdate('storyMode.apiKeys', newApiKeys);
                                                                     }}
-                                                                    on:focus={() => {
+                                                                    onfocus={() => {
                                                                         isApiKeyFocused = true;
                                                                         const apiKeys = getCurrentValue({ id: 'storyMode.apiKeys' }) || {};
                                                                         const keyFromStore = (apiKeys && typeof apiKeys === 'object' ? apiKeys[currentProvider] : '') || '';
                                                                         localApiKeyValue = keyFromStore;
                                                                     }}
-                                                                    on:blur={() => {
+                                                                    onblur={() => {
                                                                         isApiKeyFocused = false;
                                                                         localApiKeyValue = currentApiKeyFromStore || '';
                                                                     }}
@@ -1349,7 +1356,7 @@
                                                                 {#if !isApertus && hasAnyKey}
                                                                     <button
                                                                         type="button"
-                                                                        on:click={() => showApiKey = !showApiKey}
+                                                                        onclick={() => showApiKey = !showApiKey}
                                                                         class="inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
                                                                         aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
                                                                         title={showApiKey ? 'Hide' : 'Show'}
@@ -1371,7 +1378,7 @@
                                                                 <button
                                                                     type="button"
                                                                     disabled={isTestingAPI}
-                                                                    on:click={testAPIConnection}
+                                                                    onclick={testAPIConnection}
                                                                     class="inline-flex items-center justify-center gap-1 px-2.5 h-8 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed
                                                                         {isTestSuccessful
                                                                             ? 'bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700'
@@ -1526,7 +1533,7 @@
                                                     max={item.max || 1}
                                                     step={item.step || 0.1}
                                                     value={safeTemperature}
-                                                    on:input={(e) => {
+                                                    oninput={(e) => {
                                                         const newValue = parseFloat(e.target.value);
                                                         if (!isNaN(newValue) && newValue >= 0 && newValue <= 1) {
                                                             console.log('🌡️ Temperature slider changed:', newValue);

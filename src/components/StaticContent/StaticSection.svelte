@@ -1,13 +1,34 @@
 <!-- src/components/StaticContent/StaticSection.svelte -->
 <!-- Wiederverwendbare Komponente für Sections in statischen Seiten -->
-<script>
-    export let section = {};
+<script lang="ts">
+    interface SectionItem {
+        type?: string;
+        value?: string;
+        title?: string;
+        text?: string;
+        items?: any[];
+        label?: string;
+        link?: string;
+    }
+
+    interface Section {
+        title?: string;
+        content?: SectionItem[];
+        type?: string;
+        columns?: number;
+    }
+
+    interface Props {
+        section?: Section;
+    }
+
+    let { section = {} as Section }: Props = $props();
     
-    // Section Props
-    $: title = section.title || '';
-    $: content = section.content || [];
-    $: type = section.type || 'default'; // 'default', 'card', 'warning', 'info', 'success'
-    $: columns = section.columns || 1;
+    // Section Props (Svelte 5 Runes)
+    let title = $derived(section.title || '');
+    let content = $derived(section.content || []);
+    let type = $derived(section.type || 'default'); // 'default', 'card', 'warning', 'info', 'success'
+    let columns = $derived(section.columns || 1);
 </script>
 
 <section class="mb-12">

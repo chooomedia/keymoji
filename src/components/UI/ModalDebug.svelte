@@ -312,8 +312,8 @@
 {#if isVisible}
     <div 
         class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-        on:click={handleBackdropClick}
-        on:keydown={(e) => e.key === 'Escape' && handleBackdropClick(e)}
+        onclick={handleBackdropClick}
+        onkeydown={(e) => e.key === 'Escape' && handleBackdropClick(e)}
         role="dialog"
         aria-modal="true"
         tabindex="-1"
@@ -337,7 +337,7 @@
                     </div>
                 </div>
                 <button
-                    on:click={closeModal}
+                    onclick={closeModal}
                     class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                     <span class="text-xl">×</span>
@@ -348,25 +348,25 @@
             <div class="flex border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-aubergine-900">
                 <button
                     class="flex-1 px-4 py-2 text-sm font-medium transition-colors {activeTab === 'account' ? 'text-blue-600 border-b-2 border-blue-600 bg-white dark:bg-aubergine-800' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}"
-                    on:click={() => activeTab = 'account'}
+                    onclick={() => activeTab = 'account'}
                 >
                     👤 Account
                 </button>
                 <button
                     class="flex-1 px-4 py-2 text-sm font-medium transition-colors {activeTab === 'system' ? 'text-blue-600 border-b-2 border-blue-600 bg-white dark:bg-aubergine-800' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}"
-                    on:click={() => activeTab = 'system'}
+                    onclick={() => activeTab = 'system'}
                 >
                     ⚙️ System
                 </button>
                 <button
                     class="flex-1 px-4 py-2 text-sm font-medium transition-colors {activeTab === 'modals' ? 'text-blue-600 border-b-2 border-blue-600 bg-white dark:bg-aubergine-800' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}"
-                    on:click={() => activeTab = 'modals'}
+                    onclick={() => activeTab = 'modals'}
                 >
                     📢 Modals
                 </button>
                 <button
                     class="flex-1 px-4 py-2 text-sm font-medium transition-colors {activeTab === 'actions' ? 'text-blue-600 border-b-2 border-blue-600 bg-white dark:bg-aubergine-800' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}"
-                    on:click={() => activeTab = 'actions'}
+                    onclick={() => activeTab = 'actions'}
                 >
                     🛠️ Actions
                 </button>
@@ -428,22 +428,22 @@
 
                         <!-- Account Test Buttons -->
                         <div class="grid grid-cols-2 gap-2">
-                            <button on:click={testLogin} class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={testLogin} class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 🔐 Test Login
                             </button>
-                            <button on:click={testProAccount} class="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={testProAccount} class="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 💎 {translations?.accountManager?.tiers?.proAccount || 'Pro Account'}
                             </button>
-                            <button on:click={testFreeAccount} class="px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={testFreeAccount} class="px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 ✨ {translations?.accountManager?.tiers?.freeAccount || 'Free Account'}
                             </button>
-                            <button on:click={testGuestAccount} class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={testGuestAccount} class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 👤 Guest Account
                             </button>
-                            <button on:click={testDailyLimit} class="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={testDailyLimit} class="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 📊 Set Limit (3/5)
                             </button>
-                            <button on:click={testDailyLimitExceeded} class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={testDailyLimitExceeded} class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 ⚠️ Exceed Limit
                             </button>
                         </div>
@@ -452,16 +452,16 @@
                         <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4 border border-indigo-200 dark:border-indigo-800">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Usage Testing (saves to API)</h3>
                             <div class="grid grid-cols-2 gap-2">
-                                <button on:click={testRandomUsage} class="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testRandomUsage} class="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     ➕ Random +1
                                 </button>
-                                <button on:click={testStoryUsage} class="px-3 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testStoryUsage} class="px-3 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     📝 Story +1
                                 </button>
-                                <button on:click={testMultipleRandomUsages} class="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testMultipleRandomUsages} class="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-medium transition-colors">
                                     ➕➕➕ Random +3
                                 </button>
-                                <button on:click={testMultipleStoryUsages} class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testMultipleStoryUsages} class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition-colors">
                                     📝📝📝 Story +3
                                 </button>
                             </div>
@@ -507,16 +507,16 @@
 
                         <!-- System Test Buttons -->
                         <div class="grid grid-cols-2 gap-2">
-                            <button on:click={testDarkMode} class="px-3 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={testDarkMode} class="px-3 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 🌙 Toggle Dark Mode
                             </button>
-                            <button on:click={testLanguageChange} class="px-3 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={testLanguageChange} class="px-3 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 🌍 Random Language
                             </button>
-                            <button on:click={testStoryGeneration} class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={testStoryGeneration} class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 📝 Generate Story
                             </button>
-                            <button on:click={testModalSystem} class="px-3 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={testModalSystem} class="px-3 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 📢 Test Modals
                             </button>
                         </div>
@@ -529,22 +529,22 @@
                         <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Magic Link Flow</h3>
                             <div class="grid grid-cols-2 gap-2">
-                                <button on:click={testMagicLinkSending} class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testMagicLinkSending} class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     📤 Sending
                                 </button>
-                                <button on:click={testMagicLinkSent} class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testMagicLinkSent} class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     ✅ Sent
                                 </button>
-                                <button on:click={testMagicLinkVerifying} class="px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testMagicLinkVerifying} class="px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     🔍 Verifying
                                 </button>
-                                <button on:click={testMagicLinkVerified} class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testMagicLinkVerified} class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     🎉 Verified
                                 </button>
-                                <button on:click={testMagicLinkVerificationFailed} class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testMagicLinkVerificationFailed} class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     ❌ Failed
                                 </button>
-                                <button on:click={testModalSequence} class="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testModalSequence} class="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     🔄 Complete Flow
                                 </button>
                             </div>
@@ -554,10 +554,10 @@
                         <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Account Actions</h3>
                             <div class="grid grid-cols-2 gap-2">
-                                <button on:click={testAccountLoginSuccess} class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testAccountLoginSuccess} class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     👋 Login Success
                                 </button>
-                                <button on:click={testAccountLogoutSuccess} class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={testAccountLogoutSuccess} class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     👋 Logout Success
                                 </button>
                             </div>
@@ -572,13 +572,13 @@
                         <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Data Management (Dev Only)</h3>
                             <div class="grid grid-cols-1 gap-2">
-                                <button on:click={clearAllData} class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={clearAllData} class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     🗑️ Clear All Data
                                 </button>
-                                <button on:click={eraseLocalStorage} class="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={eraseLocalStorage} class="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     🧹 Erase Storage
                                 </button>
-                                <button on:click={eraseAndReload} class="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                <button onclick={eraseAndReload} class="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     🔄 Erase & Reload
                                 </button>
                             </div>
@@ -610,7 +610,7 @@
                                 </div>
                                 {/if}
                             </div>
-                            <button on:click={testAccountData} class="w-full mt-3 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={testAccountData} class="w-full mt-3 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 📧 Set Account Data
                             </button>
                         </div>
@@ -626,7 +626,7 @@
                                     <span class="font-mono text-red-600">✓</span>
                                 </div>
                             </div>
-                            <button on:click={() => showError($loginError, 5000)} class="w-full mt-3 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors">
+                            <button onclick={() => showError($loginError, 5000)} class="w-full mt-3 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors">
                                 🚨 Show Error Modal
                             </button>
                         </div>
@@ -642,7 +642,7 @@
                         Press ESC to close
                     </span>
                     <button
-                        on:click={closeModal}
+                        onclick={closeModal}
                         class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition-colors"
                     >
                         Close

@@ -2,6 +2,7 @@
 // Debug: Inject test data directly into AccountManager for chart testing
 // TypeScript Migration: v0.7.7
 
+import { get } from 'svelte/store';
 import { currentAccount } from '../stores/appStores';
 import type { Account } from '../types/Account';
 
@@ -100,19 +101,24 @@ export function generateDramaticPattern(days: number = 14, tier: 'pro' | 'free' 
  */
 export function injectMockData(mockHistory: UsageHistoryEntry[]): boolean {
     try {
-        const account = currentAccount;
+        const account = get(currentAccount);
 
         if (!account) {
             console.error('❌ No account found. Please login first.');
             return false;
         }
 
-        // Update currentAccount with mock history (Svelte 5 Runes - direkte Zuweisung)
-        if (account.metadata && typeof account.metadata === 'object') {
-            (account.metadata as Record<string, unknown>).usageHistory = mockHistory;
-        } else {
-            account.metadata = { usageHistory: mockHistory } as Account['metadata'];
-        }
+        // Update currentAccount store properly (Svelte 5 Runes - use .update() instead of direct mutation)
+        currentAccount.update((acc: Account | null) => {
+            if (!acc) return acc;
+            return {
+                ...acc,
+                metadata: {
+                    ...(acc.metadata || {}),
+                    usageHistory: mockHistory
+                }
+            };
+        });
 
         console.log(
             '✅ Mock data injected into currentAccount:',

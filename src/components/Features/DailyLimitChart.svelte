@@ -55,7 +55,7 @@
             <div class="inline-flex gap-1">
                 {#each ['7d', '14d', '4w', '3m'] as period}
                     <button
-                        on:click={() => onPeriodChange(period)}
+                        onclick={() => onPeriodChange(period)}
                         class="px-3 py-1 text-xs font-semibold rounded-full transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-aubergine-900 {
                             selectedTimePeriod === period 
                                 ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-aubergine-900 shadow-md' 
@@ -71,7 +71,7 @@
             
             <!-- Refresh Button -->
             <button
-                on:click={onRefresh}
+                onclick={onRefresh}
                 disabled={isLoadingChartData}
                 class="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-bold bg-yellow-600/20 dark:bg-yellow-600/30 text-yellow-700 dark:text-yellow-400 border border-yellow-600/30 dark:border-yellow-600/40 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-aubergine-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                 aria-label="Refresh chart data from backend"
@@ -102,7 +102,7 @@
                     {chartDataError}
                 </p>
                 <Button
-                    on:click={onRetry}
+                    onclick={onRetry}
                     variant="primary"
                     size="sm"
                 >
@@ -124,7 +124,7 @@
                 </p>
                 <!-- Refresh Button -->
                 <button
-                    on:click={onRefresh}
+                    onclick={onRefresh}
                     disabled={chartDataError !== null || isLoadingChartData}
                     class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-medium rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 shadow-md"
                     title="Refresh usage data"
@@ -175,7 +175,7 @@
                                 {get(translations)?.accountManager?.demoChart?.description || 'Dies ist eine Beispiel-Ansicht. Generiere Emojis um deine echten Nutzungsdaten zu sammeln und hier anzuzeigen.'}
                             </p>
                             <button
-                                on:click={() => navigate('/')}
+                                onclick={() => navigate('/')}
                                 class="inline-flex items-center px-6 py-3 rounded-full text-sm font-bold bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600 focus:from-yellow-600 focus:to-orange-600 active:from-yellow-700 active:to-orange-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-yellow-300/50 dark:focus:ring-yellow-500/50 shadow-lg hover:shadow-xl"
                                 aria-label={get(translations)?.accountManager?.demoChart?.cta || 'Jetzt Emojis generieren'}
                             >

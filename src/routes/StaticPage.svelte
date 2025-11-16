@@ -4,8 +4,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { currentLanguage, translations } from '../stores/contentStore';
-    import PageLayout from '../components/Layout/PageLayout.svelte';
-    import StaticSection from '../components/StaticContent/StaticSection.svelte';
+    import PageLayoutComponent from '../components/Layout/PageLayout.svelte';
+    import StaticSectionComponent from '../components/StaticContent/StaticSection.svelte';
     import { staticPagesData } from '../data/staticPages.json.js';
     import { navigateToHome } from '../utils/navigation';
     import { appVersion } from '../utils/version';
@@ -37,6 +37,10 @@
     let pageTitle = $derived(pageData?.title || '');
     let pageDescription = $derived(pageData?.description || '');
     let sections = $derived(pageData?.sections || []);
+
+    // Svelte 5 / Webpack: stabile Komponenten-Referenzen
+    const PageLayout = PageLayoutComponent;
+    const StaticSection = StaticSectionComponent;
     
     // Format last updated date (Svelte 5 Runes)
     let formattedDate = $derived.by(() => {
@@ -61,7 +65,7 @@
         <!-- Back Button - Liegt ZUR HÄLFTE auf content-wrapper Rand -->
         <div slot="before-content" class="relative w-full flex justify-center -mb-14">
             <button 
-                on:click={navigateToHome}
+                onclick={navigateToHome}
                 class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 z-20"
                 aria-label={$translations?.index?.backToMainButtonText || 'Back to home'}
                 title={$translations?.index?.backToMainButtonText || 'Back to home'}
@@ -105,7 +109,7 @@
             <!-- Back to Top Button -->
             <div class="w-full mt-12 text-center">
             <button
-                on:click={() => {
+                onclick={() => {
                     console.log('🔝 Scrolling to top...');
                     
                     // ROBUST SCROLL - Try ALL methods immediately
@@ -159,7 +163,7 @@
                 The requested page does not exist.
             </p>
             <button
-                on:click={navigateToHome}
+                onclick={navigateToHome}
                 class="inline-flex items-center px-6 py-3 bg-yellow-500 text-black rounded-full font-medium hover:bg-yellow-600 transition-colors transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
             >
                 Go back home

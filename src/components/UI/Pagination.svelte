@@ -63,7 +63,7 @@
             <nav aria-label="Page navigation" class="w-full h-full relative flex items-center justify-center gap-2">
                 <!-- Previous Button -->
                 <button
-                    on:click={handlePrevious}
+                    onclick={handlePrevious}
                     disabled={currentPage === 1 || isLoading}
                     class="flex items-center justify-center w-14 h-14 rounded-full text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-200 font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 ease-in-out"
                     aria-label="Previous page"
@@ -82,7 +82,7 @@
                             </span>
                         {:else}
                             <button
-                                on:click={() => handlePageClick(page)}
+                                onclick={() => handlePageClick(page)}
                                 disabled={isLoading}
                                 aria-current={page === currentPage ? 'page' : undefined}
                                 class="flex items-center justify-center w-10 h-10 rounded-full text-md font-bold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
@@ -100,7 +100,7 @@
                 
                 <!-- Next Button -->
                 <button
-                    on:click={handleNext}
+                    onclick={handleNext}
                     disabled={currentPage === totalPages || isLoading}
                     class="flex items-center justify-center w-14 h-14 rounded-full text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-200 font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 ease-in-out"
                     aria-label="Next page"

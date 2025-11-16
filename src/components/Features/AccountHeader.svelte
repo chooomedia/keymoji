@@ -80,7 +80,7 @@
 
         <div class="relative context-menu">
             <button
-                on:click={toggleContextMenu}
+                onclick={toggleContextMenu}
                 class="p-2 rounded-full bg-powder-300 dark:bg-aubergine-950 text-gray-700 dark:text-white hover:bg-creme-600 dark:hover:bg-aubergine-900 focus:bg-creme-600 dark:focus:bg-aubergine-900 active:bg-creme-700 dark:active:bg-aubergine-800 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
                 aria-label={get(translations)?.accountManager?.contextMenu?.settingsMenu || 'Settings menu'}
                 title={get(translations)?.accountManager?.contextMenu?.settingsMenu || 'Settings menu'}
@@ -99,7 +99,7 @@
                 >
                     <div class="py-1">
                         <button
-                            on:click={() => { onExportSettings(); closeContextMenu(); }}
+                            onclick={() => { onExportSettings(); closeContextMenu(); }}
                             class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 focus:bg-gray-100 dark:focus:bg-aubergine-700 active:bg-gray-200 dark:active:bg-aubergine-600 transition-all flex items-center focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1"
                             aria-label={get(translations)?.accountManager?.contextMenu?.exportSettings || 'Export Settings'}
                         >
@@ -108,7 +108,7 @@
                         </button>
                         
                         <button
-                            on:click={() => { onTriggerFileInput(); closeContextMenu(); }}
+                            onclick={() => { onTriggerFileInput(); closeContextMenu(); }}
                             class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-aubergine-700 focus:bg-gray-100 dark:focus:bg-aubergine-700 active:bg-gray-200 dark:active:bg-aubergine-600 transition-all flex items-center focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1"
                             aria-label={get(translations)?.accountManager?.contextMenu?.importSettings || 'Import Settings'}
                         >
@@ -119,7 +119,7 @@
                         <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                         
                         <button
-                            on:click={() => { onResetSettings(); closeContextMenu(); }}
+                            onclick={() => { onResetSettings(); closeContextMenu(); }}
                             class="w-full text-left px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 focus:bg-orange-50 dark:focus:bg-orange-900/20 active:bg-orange-100 dark:active:bg-orange-900/30 transition-all flex items-center focus:ring-2 focus:ring-orange-300 focus:ring-offset-1"
                             aria-label={get(translations)?.accountManager?.contextMenu?.resetToDefault || 'Reset to Default'}
                         >
@@ -130,7 +130,7 @@
                         <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                         
                         <button
-                            on:click={() => { onLogout(); closeContextMenu(); }}
+                            onclick={() => { onLogout(); closeContextMenu(); }}
                             class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:bg-red-50 dark:focus:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 transition-all flex items-center focus:ring-2 focus:ring-red-300 focus:ring-offset-1"
                             aria-label={get(translations)?.accountManager?.contextMenu?.logout || 'Logout'}
                         >

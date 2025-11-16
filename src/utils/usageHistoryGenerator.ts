@@ -3,6 +3,7 @@
  * TypeScript Migration: v0.7.7
  */
 
+import { get } from 'svelte/store';
 import { currentAccount, accountTier } from '../stores/appStores';
 import { WEBHOOKS } from '../config/api';
 import type { Account } from '../types/Account';
@@ -141,8 +142,8 @@ export async function saveHistoryToAccount(
     history: UsageHistoryEntryExtended[]
 ): Promise<{ success: boolean; message?: string }> {
     try {
-        const account = currentAccount;
-        const tier = accountTier;
+        const account = get(currentAccount);
+        const tier = get(accountTier);
 
         if (!account || !account.userId) {
             throw new Error('No account found. Please login first.');

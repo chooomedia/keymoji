@@ -39,7 +39,8 @@
 
 {#if isMatch}
     {#if component}
-        <svelte:component this={component} {...params} />
+        {@const Component = component}
+        <Component {...params} />
     {:else}
         <slot {params} />
     {/if}

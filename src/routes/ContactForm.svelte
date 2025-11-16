@@ -7,25 +7,28 @@
         showError,
         showModal,
         showWarning, 
-        showSending, 
         closeModal,
         isModalVisible,
-        showModalWithContent,
-        showConfirmation,
         showInfo
     } from '../stores/modalStore';
     import { navigate } from '../utils/routing';
     import { fade, fly, scale } from 'svelte/transition';
-    import PageLayout from '../components/Layout/PageLayout.svelte';
+    import PageLayoutComponent from '../components/Layout/PageLayout.svelte';
     import { WEBHOOKS, API_CONFIG } from '../config/api';
     import { appVersion } from '../utils/version';
     import { navigateToHome } from '../utils/navigation';
-    import Input from '../components/UI/Input.svelte';
-    import Button from '../components/UI/Button.svelte';
-    import Checkbox from '../components/UI/Checkbox.svelte';
+    import InputComponent from '../components/UI/Input.svelte';
+    import ButtonComponent from '../components/UI/Button.svelte';
+    import CheckboxComponent from '../components/UI/Checkbox.svelte';
     import { isTestMode } from '../utils/environment';
     import { initializeAccountFromCookies } from '../stores/accountStore';
     import { get } from 'svelte/store';
+    
+    // Svelte 5 / Webpack: stabile Komponenten-Referenzen
+    const PageLayout = PageLayoutComponent;
+    const Input = InputComponent;
+    const Button = ButtonComponent;
+    const Checkbox = CheckboxComponent;
     
     // Reaktive Übersetzungen - optimiert (Svelte 5 Runes)
     let pageTitle = $derived.by(() => get(translations)?.contactForm?.pageTitle || 'Contact');
@@ -47,23 +50,23 @@
         }
     });
     
-    // Form state
-    let name = '';
-    let email = '';
-    let message = '';
-    let newsletterOptIn = false;
-    let honeypot = ''; // Hidden honeypot field
+    // Form state (Svelte 5 Runes)
+    let name = $state('');
+    let email = $state('');
+    let message = $state('');
+    let newsletterOptIn = $state(false);
+    let honeypot = $state(''); // Hidden honeypot field
     let emoijSmirkingFace = '/images/keymoji-animated-optimize-resize-160x160px.webp',
         realAuthorImage = '/images/chris-matt-keymoji-creator-frontend-developer.png',
-        whileLoading = "😏",
-        isImageLoaded = false,
-        showRealImage = false;
-    let isSubmitting = false;
-    let formErrors = {
+        whileLoading = '😏',
+        isImageLoaded = $state(false),
+        showRealImage = $state(false);
+    let isSubmitting = $state(false);
+    let formErrors = $state({
         name: '',
         email: '',
         message: ''
-    };
+    });
 
     // Redirect management
     let redirectTimeout = null;
@@ -111,7 +114,9 @@
         return isValid;
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (event: SubmitEvent) => {
+        // Prevent default form submission to handle via JS
+        event?.preventDefault();
         if (isSubmitting) return;
         
         const t = get(translations);
@@ -130,7 +135,7 @@
         }
         
         // Zeige "Sending"-Nachricht mit dem neuen Modal-System
-        showSending(t.contactForm.sendingMessage);
+        showInfo(t.contactForm.sendingMessage);
         
         // Prepare email content with translations
         const emailText = {
@@ -237,30 +242,8 @@
 
     // Test dynamic modal content - moved outside onMount
     function testDynamicModal() {
-        showModalWithContent({
-            title: 'Dynamisches Modal',
-            description: 'Dies ist ein Beispiel für ein dynamisches Modal mit Header, Body und Footer.',
-            html: '<div class="bg-yellow-100 dark:bg-yellow-900 p-3 rounded-lg mb-4"><strong>HTML Content:</strong> Hier können beliebige HTML-Inhalte angezeigt werden!</div>'
-        }, {
-            title: 'Test Modal',
-            icon: '🧪',
-            type: 'info',
-            buttons: [
-                {
-                    text: 'Abbrechen',
-                    variant: 'secondary',
-                    action: () => closeModal()
-                },
-                {
-                    text: 'Bestätigen',
-                    variant: 'primary',
-                    action: () => {
-                        showSuccess('Aktion bestätigt!', 2000);
-                        closeModal();
-                    }
-                }
-            ]
-        });
+        // Vereinfachter Test für das Modal-System ohne zusätzliche API-Funktionen
+        showInfo('Dynamisches Modal – Test des Modal-Systems.', 2000);
     }
 
     // Form validation (Svelte 5 Runes)
@@ -276,8 +259,8 @@
     <div slot="before-header" class="flex justify-center">
         <div 
             class="relative w-32 h-32 cursor-pointer rounded-full overflow-hidden border-4 border-yellow-200 dark:border-yellow-600 shadow-lg transform-gpu"
-            on:mouseenter={() => {showRealImage = true; console.log('Mouse enter - showing real image');}}
-            on:mouseleave={() => {showRealImage = false; console.log('Mouse leave - showing GIF');}}
+            onmouseenter={() => {showRealImage = true; console.log('Mouse enter - showing real image');}}
+            onmouseleave={() => {showRealImage = false; console.log('Mouse leave - showing GIF');}}
         >
             <!-- Animated GIF (default layer) -->
             <img 
@@ -285,8 +268,8 @@
                 alt={$translations.contactForm.smirkingFaceImageAlt}
                 class="w-full h-full object-cover rounded-full absolute inset-0 z-0 transition-opacity duration-500 ease-in-out"
                 class:opacity-0={showRealImage}
-                on:load={() => {handleImageLoad(); console.log('GIF loaded successfully');}}
-                on:error={() => console.log('Error loading GIF')}
+                onload={() => {handleImageLoad(); console.log('GIF loaded successfully');}}
+                onerror={() => console.log('Error loading GIF')}
             />
             
             <!-- Real Image (hover layer) -->
@@ -296,13 +279,13 @@
                 class="w-full h-full object-cover rounded-full absolute inset-0 z-10 transition-all duration-500 ease-in-out"
                 class:opacity-0={!showRealImage}
                 class:scale-105={showRealImage}
-                on:error={() => console.log('Error loading real author image')}
+                onerror={() => console.log('Error loading real author image')}
             />
         </div>
     </div>
 
     <!-- Contact Form Content -->
-    <form on:submit|preventDefault={handleSubmit}>
+    <form onsubmit={handleSubmit}>
         <!-- Honeypot Field -->
         <div class="hidden" aria-hidden="true">
             <input type="text" name="website" bind:value={honeypot} autocomplete="off" tabindex="-1" />
@@ -394,7 +377,7 @@
                 <Button
                     variant="secondary"
                     size="sm"
-                    on:click={testDynamicModal}
+                    onclick={testDynamicModal}
                 >
                     Test Dynamic Modal
                 </Button>
@@ -408,7 +391,7 @@
                 variant="secondary" 
                 size="md"
                 fullWidth={true}
-                on:click={() => navigateToHome()}
+                onclick={() => navigateToHome()}
                 disabled={isSubmitting}
             >
                 🏠 {$translations.contactForm.backToMainButton}

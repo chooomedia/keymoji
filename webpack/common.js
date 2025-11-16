@@ -26,7 +26,7 @@ module.exports = {
                         compilerOptions: {
                             runes: true,
                             // Svelte 5: Generiere Code für Browser
-                            generate: 'dom',
+                            generate: 'client',
                             dev: process.env.NODE_ENV !== 'production'
                         },
                         preprocess: require('svelte-preprocess')({

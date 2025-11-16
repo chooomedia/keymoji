@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import { navigate } from '../utils/routing';
     import { fade, fly, slide } from 'svelte/transition';
-    import PageLayout from '../components/Layout/PageLayout.svelte';
+    import PageLayoutComponent from '../components/Layout/PageLayout.svelte';
     // Footer wird automatisch über Layout-Konfiguration gerendert
     import { 
         isLoggedIn, 
@@ -40,21 +40,33 @@
         settingsStatus
     } from '../stores/userSettingsStore';
     import { storageHelpers, STORAGE_KEYS } from '../config/storage';
-    import UserSettings from '../components/UserSettings.svelte';
+    import UserSettingsComponent from '../components/UserSettings.svelte';
     import { isDevelopment } from '../utils/environment';
     // Feature Components
-    import AccountHeader from '../components/Features/AccountHeader.svelte';
-    import DailyLimitChart from '../components/Features/DailyLimitChart.svelte';
-    import AccountStatistics from '../components/Features/AccountStatistics.svelte';
-    import AccountBenefits from '../components/Features/AccountBenefits.svelte';
-    import AccountCreationForm from '../components/Features/AccountCreationForm.svelte';
-    import VerificationStep from '../components/Features/VerificationStep.svelte';
-    import ReturnUserView from '../components/Features/ReturnUserView.svelte';
+    import AccountHeaderComponent from '../components/Features/AccountHeader.svelte';
+    import DailyLimitChartComponent from '../components/Features/DailyLimitChart.svelte';
+    import AccountStatisticsComponent from '../components/Features/AccountStatistics.svelte';
+    import AccountBenefitsComponent from '../components/Features/AccountBenefits.svelte';
+    import AccountCreationFormComponent from '../components/Features/AccountCreationForm.svelte';
+    import VerificationStepComponent from '../components/Features/VerificationStep.svelte';
+    import ReturnUserViewComponent from '../components/Features/ReturnUserView.svelte';
     import { validateUserLimits } from '../config/limits';
     import { sendAnalyticsEvent } from '../stores/appStores';
-    import Button from '../components/UI/Button.svelte';
+    import ButtonComponent from '../components/UI/Button.svelte';
     import { getDaysSinceAccountCreation, formatAccountAge } from '../utils/accountHelpers';
     import { generateBenefitsStructuredData, injectStructuredData, formatCanonicalUrl } from '../utils/seo';
+
+    // Svelte 5 / Webpack: stabile Komponenten-Referenzen
+    const PageLayout = PageLayoutComponent;
+    const UserSettings = UserSettingsComponent;
+    const AccountHeader = AccountHeaderComponent;
+    const DailyLimitChart = DailyLimitChartComponent;
+    const AccountStatistics = AccountStatisticsComponent;
+    const AccountBenefits = AccountBenefitsComponent;
+    const AccountCreationForm = AccountCreationFormComponent;
+    const VerificationStep = VerificationStepComponent;
+    const ReturnUserView = ReturnUserViewComponent;
+    const Button = ButtonComponent;
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status (Svelte 5 Runes)
     let pageTitle = $derived.by(() => {
@@ -1219,7 +1231,7 @@
                                 size="md"
                                 fullWidth={true}
                                 disabled={!hasUnsavedChangesValue || settingsStatusValue.isSaving}
-                                on:click={async () => {
+                                onclick={async () => {
                                     try {
                                         await saveAllSettings();
                                         const t = get(translations);
@@ -1251,7 +1263,7 @@
                                 variant="secondary"
                                 size="md"
                                 fullWidth={true}
-                                on:click={navigateToHome}
+                                onclick={navigateToHome}
                             >
                                 {get(translations)?.accountManager?.actions?.backToHome || '🏠 Back to Home'}
                             </Button>
@@ -1297,7 +1309,7 @@
                                     variant="secondary"
                                     size="sm"
                                     fullWidth={true}
-                                    on:click={() => showExpandedView = false}
+                                    onclick={() => showExpandedView = false}
                                 >
                                     {$translations?.accountManager?.buttons?.compactView || 'Compact view'}
                                 </Button>
@@ -1355,7 +1367,7 @@
         bind:this={fileInput}
         type="file"
         accept=".json"
-        on:change={handleImportSettings}
+        onchange={handleImportSettings}
         class="hidden"
     />
 </PageLayout>

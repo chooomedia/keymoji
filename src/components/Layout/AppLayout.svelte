@@ -3,13 +3,14 @@
 <!-- Verwendet JSON-Konfiguration für Header, Footer und Modals -->
 <script lang="ts">
     import { fade } from 'svelte/transition';
+    import { get } from 'svelte/store';
     import { currentLanguage } from '../../stores/contentStore';
     import { darkMode } from '../../stores/appStores';
-    import Header from './Header.svelte';
-    import FixedMenu from '../../widgets/FixedMenu.svelte';
-    import Modal from '../UI/Modal.svelte';
-    import ModalDebug from '../UI/ModalDebug.svelte';
-    import FooterInfo from '../../widgets/FooterInfo.svelte';
+    import HeaderComponent from './Header.svelte';
+    import FixedMenuComponent from '../../widgets/FixedMenu.svelte';
+    import ModalComponent from '../UI/Modal.svelte';
+    import ModalDebugComponent from '../UI/ModalDebug.svelte';
+    import FooterInfoComponent from '../../widgets/FooterInfo.svelte';
     import { getLayoutConfig, type LayoutConfig } from '../../data/layoutConfig.json';
     
     // Props
@@ -32,6 +33,13 @@
         introTitle = '',
         introText = ''
     }: Props = $props();
+    
+    // Komponenten-Referenzen (Webpack/Svelte 5 stabilisieren)
+    const Header = HeaderComponent;
+    const FixedMenu = FixedMenuComponent;
+    const Modal = ModalComponent;
+    const ModalDebug = ModalDebugComponent;
+    const FooterInfo = FooterInfoComponent;
     
     // Component mapping für dynamisches Laden
     const componentMap: Record<string, any> = {
@@ -63,6 +71,9 @@
     const finalBgSrc = $derived(supportsWebP ? hieroglyphicEmojisWebP : hieroglyphicEmojisSrc);
     const bgImage = $derived(`background-image: url("${finalBgSrc}"), ${darkMode ? darkGradient : lightGradient}`);
     const bgBlendMode = $derived(darkMode ? 'multiply' : 'hue');
+
+    // Runes-kompatibler Sprachcode für data-Attribut
+    const langAttr = $derived(get(currentLanguage) || 'en');
     
     // WebP Support Detection
     import { onMount } from 'svelte';
@@ -96,7 +107,7 @@
 <main 
     class="app-container overflow-x-hidden route-transition hieroglyphemojis {darkMode ? 'dark' : ''} {backgroundLoaded ? 'bg-loaded' : 'bg-loading'}" 
     style="{bgImage}; background-size: 16%, cover; background-blend-mode: {bgBlendMode}; will-change: background-position;"
-    data-lang={currentLanguage}
+    data-lang={langAttr}
 >
     <!-- Main Content Container -->
     <div class="min-h-screen scroll-smooth overflow-x-hidden" in:fade={{duration: 300}} out:fade={{duration: 200}}>

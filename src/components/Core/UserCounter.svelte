@@ -1,6 +1,6 @@
 <!-- src/UserCounter.svelte -->
 <script>
-    import { userCounter, refreshUserCounter } from '../../stores/appStores'
+    import { userCounter, refreshUserCounter } from '../../stores/appStores';
     
     // Formatter basierend auf der Dokumentsprache (Svelte 5 Runes)
     let formatter = $derived(new Intl.NumberFormat(
@@ -31,7 +31,7 @@
             <span class="text-xs">•••</span>
         </span>
         <button 
-            on:click={handleRefresh}
+            onclick={handleRefresh}
             class="text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
             aria-label="Refresh counter"
             title="Refresh counter"
@@ -54,7 +54,7 @@
         </span>
         {#if $userCounter && $userCounter.isCached}
             <button 
-                on:click={handleRefresh}
+                onclick={handleRefresh}
                 class="text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                 aria-label="Refresh counter"
                 title="Refresh counter"

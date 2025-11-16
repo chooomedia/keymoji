@@ -1,7 +1,9 @@
-// src/stores/blogLikesStore.svelte.ts
+// src/stores/blogLikesStore.ts
 // Store für Blog Post Likes - Best Practices nach Svelte Doc
 // TypeScript Migration: v0.7.7
-// Runes sind Teil der Svelte-Syntax und funktionieren in .svelte.ts Dateien
+// WICHTIG: In .ts-Dateien KEINE Runes verwenden – klassische Svelte Stores nutzen
+
+import { writable, get, derived, type Readable } from 'svelte/store';
 import { fetchBlogPosts, likeBlogPost, type BlogPost } from '../utils/blogApi';
 import type { LikeBlogPostResponse } from '../utils/blogApi';
 export interface LikeStatus {
@@ -36,7 +38,8 @@ export interface BlogLikesStore {
     getLikeStatus: (postId: string | number) => LikeStatus;
 }
 
-let blogLikesState = $state<BlogLikesState>({});
+// Interner State als klassischer Svelte-Store
+const blogLikesState = writable<BlogLikesState>({});
 let isInitialized = false;
 
 async function initialize(): Promise<void> {
@@ -117,7 +120,7 @@ async function initialize(): Promise<void> {
                 );
             }
 
-            Object.assign(blogLikesState, likesData);
+            blogLikesState.set(likesData);
             isInitialized = true;
             console.log(
                 '✅ [blogLikesStore] Initialized with backend values:',
@@ -125,12 +128,12 @@ async function initialize(): Promise<void> {
                 'posts'
             );
         } else {
-            Object.assign(blogLikesState, {});
+            blogLikesState.set({});
             isInitialized = true;
         }
     } catch (error) {
         console.error('❌ [blogLikesStore] Error initializing:', error);
-        Object.assign(blogLikesState, {});
+        blogLikesState.set({});
         isInitialized = true;
     }
 }
@@ -141,7 +144,8 @@ function updateLike(
     backendLikes: number | null = null
 ): void {
     const key = String(postId);
-    const current = blogLikesState[key] || { liked: false, likes: 0 };
+    const currentState = get(blogLikesState);
+    const current = currentState[key] || { liked: false, likes: 0 };
 
     let newLikes: number;
 
@@ -151,10 +155,13 @@ function updateLike(
         newLikes = liked ? current.likes + 1 : Math.max(0, current.likes - 1);
     }
 
-    blogLikesState[key] = {
-        liked: liked,
-        likes: Math.max(0, newLikes)
-    };
+    blogLikesState.update(state => ({
+        ...state,
+        [key]: {
+            liked: liked,
+            likes: Math.max(0, newLikes)
+        }
+    }));
 }
 
 async function addLike(
@@ -242,35 +249,41 @@ async function refreshFromBackend(): Promise<void> {
         });
 
         if (Array.isArray(posts) && posts.length > 0) {
-            posts.forEach((post: BlogPost) => {
-                const postId = post.id || post.row_number;
-                if (postId) {
-                    const key = String(postId);
-                    const current = blogLikesState[key] || {
-                        liked: false,
-                        likes: 0
-                    };
+            blogLikesState.update(currentState => {
+                const nextState: BlogLikesState = { ...currentState };
 
-                    const backendLikes =
-                        post.likes !== undefined && post.likes !== null
-                            ? parseInt(String(post.likes), 10)
-                            : 0;
+                posts.forEach((post: BlogPost) => {
+                    const postId = post.id || post.row_number;
+                    if (postId) {
+                        const key = String(postId);
+                        const current = nextState[key] || {
+                            liked: false,
+                            likes: 0
+                        };
 
-                    const finalLikes = Math.max(
-                        current.likes,
-                        Math.max(0, backendLikes)
-                    );
+                        const backendLikes =
+                            post.likes !== undefined && post.likes !== null
+                                ? parseInt(String(post.likes), 10)
+                                : 0;
 
-                    blogLikesState[key] = {
-                        liked: post.liked || false,
-                        likes: finalLikes
-                    };
-                }
+                        const finalLikes = Math.max(
+                            current.likes,
+                            Math.max(0, backendLikes)
+                        );
+
+                        nextState[key] = {
+                            liked: post.liked || false,
+                            likes: finalLikes
+                        };
+                    }
+                });
+
+                console.log(
+                    '✅ [blogLikesStore] Refreshed from backend (backend values have priority)'
+                );
+
+                return nextState;
             });
-
-            console.log(
-                '✅ [blogLikesStore] Refreshed from backend (backend values have priority)'
-            );
         }
     } catch (error) {
         console.error(
@@ -282,7 +295,8 @@ async function refreshFromBackend(): Promise<void> {
 
 function getLikeStatus(postId: string | number): LikeStatus {
     const key = String(postId);
-    return blogLikesState[key] || { liked: false, likes: 0 };
+    const state = get(blogLikesState);
+    return state[key] || { liked: false, likes: 0 };
 }
 
 export const blogLikesStore: BlogLikesStore = {
@@ -293,9 +307,10 @@ export const blogLikesStore: BlogLikesStore = {
     getLikeStatus
 };
 
-export function getPostLikes(postId: string | number) {
-    return $derived(() => {
-        const key = String(postId);
-        return blogLikesState[key] || { liked: false, likes: 0 };
+export function getPostLikes(postId: string | number): Readable<LikeStatus> {
+    const key = String(postId);
+    return derived(blogLikesState, state => {
+        return state[key] || { liked: false, likes: 0 };
     });
 }
+

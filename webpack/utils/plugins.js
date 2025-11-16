@@ -69,9 +69,10 @@ module.exports = {
     start: [
         new plugins.Define(createEnvForDefinePlugin(environment.development)),
         new plugins.Html({
-            inject: true,
+            inject: 'body', // Inject scripts in body (not head) for better compatibility
             template: paths.APP_HTML,
-            title: 'Keymoji - Development'
+            title: 'Keymoji - Development',
+            scriptLoading: 'defer' // Use defer for better performance
         })
     ],
     build: [
