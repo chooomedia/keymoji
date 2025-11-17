@@ -57,26 +57,10 @@ function svelteResolvePrePlugin() {
             // Verwende normalizedId für alle Prüfungen
             id = normalizedId;
             
-            // FALLBACK: svelte/store Resolution (nur wenn Vite es nicht auflösen kann)
-            // Normalerweise sollte Vite das über resolve.alias machen, aber als Fallback hier
-            if (id === 'svelte/store' || id.startsWith('svelte/store/')) {
-                const resolved = path.resolve(
-                    __dirname,
-                    'node_modules/svelte/src/store/index-client.js'
-                );
-                if (fs.existsSync(resolved)) {
-                    console.log(
-                        `[svelte-resolve] ✅ resolveId (fallback): ${id} → ${resolved
-                            .split('/')
-                            .pop()} from ${
-                            importer ? importer.split('/').pop() : 'unknown'
-                        }`
-                    );
-                    resolvedModules.set(id, resolved);
-                    return resolved;
-                }
-            }
-            
+            // WICHTIG: svelte/store NICHT hier auflösen - Vite soll das über resolve.alias machen
+            // Wenn wir hier auflösen, blockieren wir die normale Vite-Auflösung
+            // Nur interne Module benötigen spezielle Auflösung
+
             // Svelte 5 interne Module
             if (id === 'svelte/internal/disclose-version') {
                 const resolved = path.resolve(
@@ -162,21 +146,8 @@ function svelteResolvePrePlugin() {
                     return fs.readFileSync(resolvedPath, 'utf-8');
                 }
             }
-            // FALLBACK: svelte/store Loading (nur wenn Vite es nicht auflösen kann)
-            if (id === 'svelte/store' || id.includes('svelte/store')) {
-                const resolved = path.resolve(
-                    __dirname,
-                    'node_modules/svelte/src/store/index-client.js'
-                );
-                if (fs.existsSync(resolved)) {
-                    console.log(
-                        `[svelte-resolve] ✅ load (fallback): ${id} → ${resolved
-                            .split('/')
-                            .pop()}`
-                    );
-                    return fs.readFileSync(resolved, 'utf-8');
-                }
-            }
+            // WICHTIG: svelte/store NICHT hier laden - Vite soll das über resolve.alias machen
+            // Wenn wir hier laden, blockieren wir die normale Vite-Auflösung
             // Prüfe ob es ein svelte/internal/client Import ist (Fallback)
             if (id === 'svelte/internal/client') {
                 const resolved = path.resolve(
