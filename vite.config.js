@@ -45,6 +45,8 @@ export default defineConfig(({ mode }) => {
                     }
                 })
             }),
+            // TEST: Svelte 5 Module Resolution Plugin NACH svelte Plugin (Reihenfolge geändert)
+            ...svelteResolvePlugin(),
             // Bundle Analyzer (nur wenn ANALYZE=true)
             ...(process.env.ANALYZE === 'true'
                 ? [
