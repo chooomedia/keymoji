@@ -16,8 +16,7 @@ export default defineConfig(({ mode }) => {
 
     return {
         plugins: [
-            // Svelte 5 Module Resolution Plugin (muss VOR vite:import-analysis laufen)
-            ...svelteResolvePlugin(),
+            // TEST: Plugin-Reihenfolge angepasst - svelte Plugin ZUERST, dann resolve Plugin
             svelte({
                 compilerOptions: {
                     runes: true,
@@ -116,26 +115,30 @@ export default defineConfig(({ mode }) => {
                     entryFileNames: 'static/js/[name].[hash].js',
                     chunkFileNames: 'static/js/[name].[hash].chunk.js',
                     // Assets in static/
-                    assetFileNames: (assetInfo) => {
+                    assetFileNames: assetInfo => {
                         if (assetInfo.name.endsWith('.css')) {
                             return 'static/css/[name].[hash].css';
                         }
-                        if (/\.(woff|woff2|eot|ttf|otf)$/i.test(assetInfo.name)) {
+                        if (
+                            /\.(woff|woff2|eot|ttf|otf)$/i.test(assetInfo.name)
+                        ) {
                             return 'static/fonts/[name].[hash][extname]';
                         }
-                        if (/\.(png|jpe?g|gif|svg|webp)$/i.test(assetInfo.name)) {
+                        if (
+                            /\.(png|jpe?g|gif|svg|webp)$/i.test(assetInfo.name)
+                        ) {
                             return 'static/images/[name].[hash][extname]';
                         }
                         return 'static/[name].[hash][extname]';
                     },
                     // Code Splitting (wie Webpack splitChunks)
-                    // WICHTIG: svelte/store NICHT in manualChunks - wird automatisch aufgelöst
-                    manualChunks: {
-                        // Svelte Framework separat
-                        'svelte': ['svelte'],
-                        // Vendor Chunks
-                        'vendor': ['svelte-routing']
-                    }
+                    // TEMPORÄR ENTFERNT: manualChunks könnte Module-Auflösung beeinflussen
+                    // manualChunks: {
+                    //     // Svelte Framework separat
+                    //     svelte: ['svelte'],
+                    //     // Vendor Chunks
+                    //     vendor: ['svelte-routing']
+                    // }
                 }
             },
             // CSS Code Splitting
