@@ -16,7 +16,9 @@ export default defineConfig(({ mode }) => {
 
     return {
         plugins: [
-            // TEST: Plugin-Reihenfolge angepasst - svelte Plugin ZUERST, dann resolve Plugin
+            // OPTION 1: resolve Plugin ZUERST (mit enforce: 'pre' läuft es sowieso vor vite:import-analysis)
+            // Das svelte Plugin läuft danach, aber resolveId wird trotzdem zuerst aufgerufen
+            ...svelteResolvePlugin(),
             svelte({
                 compilerOptions: {
                     runes: true,
@@ -45,8 +47,6 @@ export default defineConfig(({ mode }) => {
                     }
                 })
             }),
-            // TEST: Svelte 5 Module Resolution Plugin NACH svelte Plugin (Reihenfolge geändert)
-            ...svelteResolvePlugin(),
             // Bundle Analyzer (nur wenn ANALYZE=true)
             ...(process.env.ANALYZE === 'true'
                 ? [
@@ -132,7 +132,7 @@ export default defineConfig(({ mode }) => {
                             return 'static/images/[name].[hash][extname]';
                         }
                         return 'static/[name].[hash][extname]';
-                    },
+                    }
                     // Code Splitting (wie Webpack splitChunks)
                     // TEMPORÄR ENTFERNT: manualChunks könnte Module-Auflösung beeinflussen
                     // manualChunks: {
