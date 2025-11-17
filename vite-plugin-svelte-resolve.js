@@ -456,25 +456,10 @@ function svelteResolveTransformPlugin() {
                     return resolved;
                 }
             }
-            // FALLBACK: svelte/store Resolution (nur wenn Vite es nicht auflösen kann)
-            if (
-                normalizedId === 'svelte/store' ||
-                normalizedId.startsWith('svelte/store/')
-            ) {
-                const resolved = path.resolve(
-                    __dirname,
-                    'node_modules/svelte/src/store/index-client.js'
-                );
-                if (fs.existsSync(resolved)) {
-                    console.log(
-                        `[svelte-resolve-transform] ✅ resolveId (fallback): ${normalizedId} → ${resolved
-                            .split('/')
-                            .pop()} from ${
-                            importer ? importer.split('/').pop() : 'unknown'
-                        }`
-                    );
-                    return resolved;
-                }
+            // WICHTIG: svelte/store NICHT hier auflösen - Vite soll das über resolve.alias machen
+            // Wir geben null zurück, damit Vite die normale Auflösung (resolve.alias) verwendet
+            if (normalizedId === 'svelte/store' || normalizedId.startsWith('svelte/store/')) {
+                return null; // null = Vite soll weiter suchen, undefined = nicht gefunden
             }
             return undefined;
         },
