@@ -97,6 +97,7 @@ export default defineConfig(({ mode }) => {
         // Build-Konfiguration
         build: {
             outDir: 'build',
+            assetsDir: 'static',
             sourcemap: isProduction ? 'source-map' : false,
             minify: isProduction ? 'terser' : false,
             terserOptions: isProduction
