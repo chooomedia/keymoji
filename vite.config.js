@@ -111,37 +111,14 @@ export default defineConfig(({ mode }) => {
                   }
                 : undefined,
             rollupOptions: {
-                input: path.resolve(__dirname, 'index.html'),
-                output: {
-                    // JavaScript in static/js/
-                    entryFileNames: 'static/js/[name].[hash].js',
-                    chunkFileNames: 'static/js/[name].[hash].chunk.js',
-                    // Assets in static/
-                    assetFileNames: assetInfo => {
-                        if (assetInfo.name.endsWith('.css')) {
-                            return 'static/css/[name].[hash].css';
-                        }
-                        if (
-                            /\.(woff|woff2|eot|ttf|otf)$/i.test(assetInfo.name)
-                        ) {
-                            return 'static/fonts/[name].[hash][extname]';
-                        }
-                        if (
-                            /\.(png|jpe?g|gif|svg|webp)$/i.test(assetInfo.name)
-                        ) {
-                            return 'static/images/[name].[hash][extname]';
-                        }
-                        return 'static/[name].[hash][extname]';
-                    }
-                    // Code Splitting (wie Webpack splitChunks)
-                    // TEMPORÄR ENTFERNT: manualChunks könnte Module-Auflösung beeinflussen
-                    // manualChunks: {
-                    //     // Svelte Framework separat
-                    //     svelte: ['svelte'],
-                    //     // Vendor Chunks
-                    //     vendor: ['svelte-routing']
-                    // }
-                }
+                input: path.resolve(__dirname, 'index.html')
+                // TEMPORÄR ENTFERNT: output-Konfiguration könnte Module-Auflösung beeinflussen
+                // Die Webpack-ähnliche Struktur (static/js/, static/css/, etc.) wird später wieder hinzugefügt
+                // output: {
+                //     entryFileNames: 'static/js/[name].[hash].js',
+                //     chunkFileNames: 'static/js/[name].[hash].chunk.js',
+                //     assetFileNames: assetInfo => { ... }
+                // }
             },
             // CSS Code Splitting
             cssCodeSplit: true,
