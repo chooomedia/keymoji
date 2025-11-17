@@ -41,7 +41,8 @@ function svelteResolvePrePlugin() {
             // Normalisiere ID (Windows/Unix Pfad-Unterschiede)
             const normalizedId = id.replace(/\\/g, '/');
 
-            // DEBUG: Logge ALLE resolveId Aufrufe für svelte/* Module (NICHT svelte/store - wird von Vite normal aufgelöst)
+            // DEBUG: Logge ALLE resolveId Aufrufe für svelte/* Module
+            // WICHTIG: svelte/store wird NICHT geloggt - wird von Vite über resolve.alias aufgelöst
             if (
                 normalizedId === 'svelte/internal/client' ||
                 normalizedId === 'svelte/internal/disclose-version' ||
@@ -59,6 +60,11 @@ function svelteResolvePrePlugin() {
             
             // WICHTIG: svelte/store NICHT hier auflösen - Vite soll das über resolve.alias machen
             // Wenn wir hier auflösen, blockieren wir die normale Vite-Auflösung
+            // Wir geben null zurück, damit Vite die normale Auflösung (resolve.alias) verwendet
+            if (id === 'svelte/store' || id.startsWith('svelte/store/')) {
+                return null; // null = Vite soll weiter suchen, undefined = nicht gefunden
+            }
+            
             // Nur interne Module benötigen spezielle Auflösung
 
             // Svelte 5 interne Module
