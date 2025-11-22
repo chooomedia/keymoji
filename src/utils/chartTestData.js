@@ -185,7 +185,11 @@ export function clearMockData() {
 }
 
 // Make available globally in development
-if (typeof window !== 'undefined' && (typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'development')) {
+if (
+    typeof window !== 'undefined' &&
+    typeof import.meta !== 'undefined' &&
+    import.meta.env?.MODE === 'development'
+) {
     window.keymojiChartTest = {
         // Quick tests
         pro4w: testProChart4Weeks,

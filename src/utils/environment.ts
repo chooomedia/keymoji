@@ -41,11 +41,15 @@ export function getEnvironment(): Environment {
         // Use import.meta.env.MODE (Vite) instead of process.env.NODE_ENV
         if (typeof import.meta !== 'undefined' && import.meta.env?.MODE) {
             const mode = import.meta.env.MODE;
-            if (mode === 'development' || mode === 'production' || mode === 'test') {
+            if (
+                mode === 'development' ||
+                mode === 'production' ||
+                mode === 'test'
+            ) {
                 return mode;
             }
         }
-        
+
         return 'production';
     } catch (e) {
         console.warn(
@@ -193,4 +197,3 @@ export function devWarn(...args: unknown[]): void {
         console.warn(...args);
     }
 }
-

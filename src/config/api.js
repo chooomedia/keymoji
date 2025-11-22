@@ -1,6 +1,6 @@
 // src/config/api.js
 // Central configuration for API endpoints and webhooks
-// 
+//
 // SECURITY: URLs can be overridden via environment variables to avoid exposing
 // internal endpoints in the public repository.
 
@@ -8,24 +8,24 @@
 // Priority: VITE_API_URL (env) > default
 // SECURITY: Always set VITE_API_URL in production via environment variables!
 const getApiUrl = () => {
-    const envUrl = 
+    const envUrl =
         (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) ||
         undefined;
-    
+
     // Check if envUrl exists and is not empty/just quotes
     if (envUrl) {
         // Remove any quotes, whitespace, or JSON stringification artifacts
         let cleanedUrl = String(envUrl).trim();
-        
+
         // Remove JSON stringification quotes (from webpack DefinePlugin)
         cleanedUrl = cleanedUrl.replace(/^["']|["']$/g, '');
-        
+
         // Remove URL-encoded quotes (%22)
         cleanedUrl = cleanedUrl.replace(/%22/g, '');
-        
+
         // Remove any remaining quotes
         cleanedUrl = cleanedUrl.replace(/["']/g, '');
-        
+
         // Debug: Log cleaning process
         console.log('🔍 [Config] VITE_API_URL cleaning:', {
             original: envUrl,
@@ -33,37 +33,63 @@ const getApiUrl = () => {
             length: cleanedUrl.length,
             isEmpty: !cleanedUrl || cleanedUrl.length === 0
         });
-        
+
         // Check if URL is empty or just quotes after cleaning
         // IMPORTANT: Must check length AFTER cleaning, not before
-        if (cleanedUrl && cleanedUrl.length > 0 && cleanedUrl !== '""' && cleanedUrl !== "''") {
+        if (
+            cleanedUrl &&
+            cleanedUrl.length > 0 &&
+            cleanedUrl !== '""' &&
+            cleanedUrl !== "''"
+        ) {
             // Validate URL format
-            if (cleanedUrl.startsWith('http://') || cleanedUrl.startsWith('https://')) {
+            if (
+                cleanedUrl.startsWith('http://') ||
+                cleanedUrl.startsWith('https://')
+            ) {
                 // Valid URL - remove trailing slash if present
                 const finalUrl = cleanedUrl.replace(/\/$/, '');
-                console.log('✅ [Config] Using VITE_API_URL from environment:', finalUrl.substring(0, 30) + '...');
+                console.log(
+                    '✅ [Config] Using VITE_API_URL from environment:',
+                    finalUrl.substring(0, 30) + '...'
+                );
                 return finalUrl;
             } else {
-                console.warn('⚠️ [Config] Invalid VITE_API_URL format (must start with http:// or https://):', cleanedUrl.substring(0, 50));
+                console.warn(
+                    '⚠️ [Config] Invalid VITE_API_URL format (must start with http:// or https://):',
+                    cleanedUrl.substring(0, 50)
+                );
             }
         } else {
             // Empty or invalid - fall through to default
-            console.log('ℹ️ [Config] VITE_API_URL is empty or invalid after cleaning, using fallback');
+            console.log(
+                'ℹ️ [Config] VITE_API_URL is empty or invalid after cleaning, using fallback'
+            );
         }
     }
-    
+
     // Fallback for development (should be overridden via env vars)
-    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-        console.warn('⚠️ [SECURITY] VITE_API_URL not set. Using default fallback. Set VITE_API_URL in .env.local for security.');
+    if (
+        typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1')
+    ) {
+        console.warn(
+            '⚠️ [SECURITY] VITE_API_URL not set. Using default fallback. Set VITE_API_URL in .env.local for security.'
+        );
     }
-    
+
     return 'https://its.keymoji.wtf/api'; // Default fallback
 };
 
 const API_URL = getApiUrl();
 
 // Debug: Log API URL (without exposing full URL in production)
-if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1')
+) {
     console.log('🔗 [Config] API_URL:', API_URL);
 }
 
@@ -71,24 +97,24 @@ if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' |
 // Priority: VITE_N8N_URL (env) > default
 // SECURITY: Always set VITE_N8N_URL in production via environment variables!
 const getN8NUrl = () => {
-    const envUrl = 
+    const envUrl =
         (typeof import.meta !== 'undefined' && import.meta.env?.VITE_N8N_URL) ||
         undefined;
-    
+
     // Check if envUrl exists and is not empty/just quotes
     if (envUrl) {
         // Remove any quotes, whitespace, or JSON stringification artifacts
         let cleanedUrl = String(envUrl).trim();
-        
+
         // Remove JSON stringification quotes (from webpack DefinePlugin)
         cleanedUrl = cleanedUrl.replace(/^["']|["']$/g, '');
-        
+
         // Remove URL-encoded quotes (%22)
         cleanedUrl = cleanedUrl.replace(/%22/g, '');
-        
+
         // Remove any remaining quotes
         cleanedUrl = cleanedUrl.replace(/["']/g, '');
-        
+
         // Debug: Log cleaning process
         console.log('🔍 [Config] VITE_N8N_URL cleaning:', {
             original: envUrl,
@@ -96,30 +122,52 @@ const getN8NUrl = () => {
             length: cleanedUrl.length,
             isEmpty: !cleanedUrl || cleanedUrl.length === 0
         });
-        
+
         // Check if URL is empty or just quotes after cleaning
         // IMPORTANT: Must check length AFTER cleaning, not before
-        if (cleanedUrl && cleanedUrl.length > 0 && cleanedUrl !== '""' && cleanedUrl !== "''") {
+        if (
+            cleanedUrl &&
+            cleanedUrl.length > 0 &&
+            cleanedUrl !== '""' &&
+            cleanedUrl !== "''"
+        ) {
             // Validate URL format
-            if (cleanedUrl.startsWith('http://') || cleanedUrl.startsWith('https://')) {
+            if (
+                cleanedUrl.startsWith('http://') ||
+                cleanedUrl.startsWith('https://')
+            ) {
                 // Valid URL - remove trailing slash if present
                 const finalUrl = cleanedUrl.replace(/\/$/, '');
-                console.log('✅ [Config] Using VITE_N8N_URL from environment:', finalUrl.substring(0, 30) + '...');
+                console.log(
+                    '✅ [Config] Using VITE_N8N_URL from environment:',
+                    finalUrl.substring(0, 30) + '...'
+                );
                 return finalUrl;
             } else {
-                console.warn('⚠️ [Config] Invalid VITE_N8N_URL format (must start with http:// or https://):', cleanedUrl.substring(0, 50));
+                console.warn(
+                    '⚠️ [Config] Invalid VITE_N8N_URL format (must start with http:// or https://):',
+                    cleanedUrl.substring(0, 50)
+                );
             }
         } else {
             // Empty or invalid - fall through to default
-            console.log('ℹ️ [Config] VITE_N8N_URL is empty or invalid after cleaning, using fallback');
+            console.log(
+                'ℹ️ [Config] VITE_N8N_URL is empty or invalid after cleaning, using fallback'
+            );
         }
     }
-    
+
     // Fallback for development (should be overridden via env vars)
-    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-        console.warn('⚠️ [SECURITY] VITE_N8N_URL not set. Using default fallback. Set VITE_N8N_URL in .env.local for security.');
+    if (
+        typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1')
+    ) {
+        console.warn(
+            '⚠️ [SECURITY] VITE_N8N_URL not set. Using default fallback. Set VITE_N8N_URL in .env.local for security.'
+        );
     }
-    
+
     return 'https://n8n.chooomedia.com/webhook'; // Default fallback
 };
 
@@ -135,13 +183,17 @@ const getN8NUrlDynamic = () => {
 };
 
 // Debug: Log N8N URL (without exposing full URL in production)
-if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1')
+) {
     const debugUrl = getN8NUrlDynamic();
     console.log('🔗 [Config] N8N_URL:', debugUrl);
 }
 
 // Helper function to build n8n webhook URLs dynamically
-const buildN8NUrl = (path) => {
+const buildN8NUrl = path => {
     const baseUrl = getN8NUrlDynamic();
     // Ensure path starts with /
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
@@ -155,20 +207,36 @@ export const WEBHOOKS = {
         READ: `${API_URL}/account`, // READ account data from Google Sheets
         UPDATE: `${API_URL}/account/update`, // Vercel proxy → n8n webhook
         // Direct n8n webhook for UPDATE (used in localhost/dev mode)
-        get UPDATE_DIRECT() { return buildN8NUrl('/xn--moji-pb73c-account-update'); },
+        get UPDATE_DIRECT() {
+            return buildN8NUrl('/xn--moji-pb73c-account-update');
+        },
         MAGIC_LINK_SEND: `${API_URL}/magic-link/send`,
         MAGIC_LINK_VERIFY: `${API_URL}/magic-link/verify`,
-        get CHECK_EXISTS() { return buildN8NUrl('/xn--moji-pb73c-account-check'); }, // n8n workflow endpoint
+        get CHECK_EXISTS() {
+            return buildN8NUrl('/xn--moji-pb73c-account-check');
+        }, // n8n workflow endpoint
         // Sichere Accounting-Endpunkte
-        get SECURE_CREATE() { return buildN8NUrl('/xn--moji-pb73c-account'); },
-        get SECURE_UPDATE() { return buildN8NUrl('/xn--moji-pb73c-account'); },
-        get SECURE_GET() { return buildN8NUrl('/xn--moji-pb73c-account'); },
-        get AUDIT_LOG() { return buildN8NUrl('/xn--moji-pb73c-accounting-audit-log'); }
+        get SECURE_CREATE() {
+            return buildN8NUrl('/xn--moji-pb73c-account');
+        },
+        get SECURE_UPDATE() {
+            return buildN8NUrl('/xn--moji-pb73c-account');
+        },
+        get SECURE_GET() {
+            return buildN8NUrl('/xn--moji-pb73c-account');
+        },
+        get AUDIT_LOG() {
+            return buildN8NUrl('/xn--moji-pb73c-accounting-audit-log');
+        }
     },
 
     // Analytics & User Counter
-    get USER_COUNTER() { return buildN8NUrl('/xn--moji-pb73c-counter'); },
-    get ANALYTICS() { return buildN8NUrl('/xn--moji-pb73c-analytics'); },
+    get USER_COUNTER() {
+        return buildN8NUrl('/xn--moji-pb73c-counter');
+    },
+    get ANALYTICS() {
+        return buildN8NUrl('/xn--moji-pb73c-analytics');
+    },
 
     // Contact Form
     CONTACT: {
@@ -187,10 +255,14 @@ export const WEBHOOKS = {
     },
 
     // Story Generator (AI)
-    get STORY_GENERATOR() { return buildN8NUrl('/xn--moji-pb73c-story-generator'); },
+    get STORY_GENERATOR() {
+        return buildN8NUrl('/xn--moji-pb73c-story-generator');
+    },
 
     // Apertus (Swiss LLM) via n8n
-    get APERTUS() { return buildN8NUrl('/apertus-test'); },
+    get APERTUS() {
+        return buildN8NUrl('/apertus-test');
+    },
 
     // Security & Audit
     SECURITY: {
@@ -204,16 +276,28 @@ export const WEBHOOKS = {
 
     // Accounting & Financial Security
     ACCOUNTING: {
-        get AUDIT_LOG() { return buildN8NUrl('/xn--moji-pb73c-accounting-audit-log'); },
-        get SECURITY_LOG() { return buildN8NUrl('/xn--moji-pb73c-accounting-security-log'); },
-        get VALIDATION() { return buildN8NUrl('/xn--moji-pb73c-accounting-validation'); },
-        get RATE_LIMIT() { return buildN8NUrl('/xn--moji-pb73c-accounting-rate-limit'); }
+        get AUDIT_LOG() {
+            return buildN8NUrl('/xn--moji-pb73c-accounting-audit-log');
+        },
+        get SECURITY_LOG() {
+            return buildN8NUrl('/xn--moji-pb73c-accounting-security-log');
+        },
+        get VALIDATION() {
+            return buildN8NUrl('/xn--moji-pb73c-accounting-validation');
+        },
+        get RATE_LIMIT() {
+            return buildN8NUrl('/xn--moji-pb73c-accounting-rate-limit');
+        }
     },
 
     // Blog Posts
     BLOG: {
-        get POSTS() { return buildN8NUrl('/xn--moji-pb73c-blog-posts'); },
-        get POST() { return buildN8NUrl('/xn--moji-pb73c-blog-post'); },
+        get POSTS() {
+            return buildN8NUrl('/xn--moji-pb73c-blog-posts');
+        },
+        get POST() {
+            return buildN8NUrl('/xn--moji-pb73c-blog-post');
+        },
         LIKE: `${API_URL}/blog/like` // Vercel API → n8n webhook
     }
 };
@@ -285,7 +369,9 @@ export const API_CONFIG = {
 // Default configuration
 const getNodeEnv = () => {
     if (typeof import.meta !== 'undefined' && import.meta.env?.MODE) {
-        return import.meta.env.MODE === 'development' ? 'development' : 'production';
+        return import.meta.env.MODE === 'development'
+            ? 'development'
+            : 'production';
     }
     return 'production';
 };

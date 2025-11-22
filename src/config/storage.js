@@ -52,31 +52,56 @@ export const storageHelpers = {
                 console.warn(`Invalid key type for localStorage:`, typeof key);
                 return false;
             }
-            
+
             // Warn if key is extremely long (might cause issues)
             if (key.length > 500) {
-                console.warn(`⚠️ localStorage key is very long (${key.length} chars):`, key.substring(0, 100) + '...');
+                console.warn(
+                    `⚠️ localStorage key is very long (${key.length} chars):`,
+                    key.substring(0, 100) + '...'
+                );
                 // Don't fail, but log warning - some browsers might have issues
             }
-            
+
             const serialized = JSON.stringify(value);
-            
+
             // Check if value is too large (localStorage has ~5-10MB limit)
             if (serialized.length > 5 * 1024 * 1024) {
-                console.error(`❌ Value too large for localStorage (${(serialized.length / 1024 / 1024).toFixed(2)}MB)`);
+                console.error(
+                    `❌ Value too large for localStorage (${(
+                        serialized.length /
+                        1024 /
+                        1024
+                    ).toFixed(2)}MB)`
+                );
                 return false;
             }
-            
+
             localStorage.setItem(key, serialized);
             return true;
         } catch (error) {
             // Check for specific localStorage errors
             if (error.name === 'QuotaExceededError' || error.code === 22) {
-                console.error(`❌ localStorage quota exceeded for key: ${key.substring(0, 100)}`);
+                console.error(
+                    `❌ localStorage quota exceeded for key: ${key.substring(
+                        0,
+                        100
+                    )}`
+                );
             } else if (error.name === 'SecurityError' || error.code === 18) {
-                console.error(`❌ localStorage security error (private browsing?): ${key.substring(0, 100)}`);
+                console.error(
+                    `❌ localStorage security error (private browsing?): ${key.substring(
+                        0,
+                        100
+                    )}`
+                );
             } else {
-                console.warn(`⚠️ Failed to save ${key.substring(0, 100)} to localStorage:`, error);
+                console.warn(
+                    `⚠️ Failed to save ${key.substring(
+                        0,
+                        100
+                    )} to localStorage:`,
+                    error
+                );
             }
             return false;
         }
@@ -225,12 +250,15 @@ export function migrateAndCleanupLocalStorage() {
             // New format: story_cache_story_<provider>_<model>_<count>_<hash> (hash is 8 hex chars)
             // New keys are typically < 100 chars, old keys can be 200+ chars
             if (key.length > 200) {
-                console.log(`🧹 [MIGRATION] Removing old-style long cache key (${key.length} chars):`, key.substring(0, 100) + '...');
+                console.log(
+                    `🧹 [MIGRATION] Removing old-style long cache key (${key.length} chars):`,
+                    key.substring(0, 100) + '...'
+                );
                 storageHelpers.remove(key);
                 invalidKeys++;
                 return;
             }
-            
+
             const cached = storageHelpers.get(key);
             if (cached?.timestamp) {
                 const age = Date.now() - cached.timestamp;
@@ -242,18 +270,30 @@ export function migrateAndCleanupLocalStorage() {
                 }
             } else if (!cached) {
                 // Invalid cache entry (null or corrupted)
-                console.log(`🧹 [MIGRATION] Removing invalid cache key:`, key.substring(0, 100));
+                console.log(
+                    `🧹 [MIGRATION] Removing invalid cache key:`,
+                    key.substring(0, 100)
+                );
                 storageHelpers.remove(key);
                 invalidKeys++;
             }
         } catch (error) {
             // If we can't read the key, try to remove it
-            console.warn(`⚠️ [MIGRATION] Error processing cache key ${key.substring(0, 100)}, removing:`, error);
+            console.warn(
+                `⚠️ [MIGRATION] Error processing cache key ${key.substring(
+                    0,
+                    100
+                )}, removing:`,
+                error
+            );
             try {
                 storageHelpers.remove(key);
                 invalidKeys++;
             } catch (removeError) {
-                console.error(`❌ [MIGRATION] Failed to remove invalid key:`, removeError);
+                console.error(
+                    `❌ [MIGRATION] Failed to remove invalid key:`,
+                    removeError
+                );
             }
         }
     });
@@ -263,7 +303,7 @@ export function migrateAndCleanupLocalStorage() {
             `🧹 [MIGRATION] Removed ${expiredCaches} expired cache entries`
         );
     }
-    
+
     if (invalidKeys > 0) {
         console.log(
             `🧹 [MIGRATION] Removed ${invalidKeys} invalid/old-style (long) cache keys`
@@ -360,7 +400,11 @@ export function debugLocalStorage() {
 }
 
 // Export to window for console access (development only)
-if (typeof window !== 'undefined' && (typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'development')) {
+if (
+    typeof window !== 'undefined' &&
+    typeof import.meta !== 'undefined' &&
+    import.meta.env?.MODE === 'development'
+) {
     window.debugLocalStorage = debugLocalStorage;
     window.clearLocalStorage = () => {
         const confirmed = confirm(

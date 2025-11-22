@@ -15,7 +15,13 @@ import { storageHelpers } from '../config/storage.js';
 import { isDevelopment } from './environment';
 
 // Type definitions
-export type AIProvider = 'openai' | 'gemini' | 'mistral' | 'claude' | 'custom' | 'apertus';
+export type AIProvider =
+    | 'openai'
+    | 'gemini'
+    | 'mistral'
+    | 'claude'
+    | 'custom'
+    | 'apertus';
 export type Tier = 'free' | 'pro';
 export type CustomFormat = 'openai' | 'claude' | 'raw';
 
@@ -220,7 +226,11 @@ function getAvailableEmojisForPrompt(): string {
  * Build AI prompt for emoji generation
  * Best Practice: Clear, specific instructions optimized per provider
  */
-function buildPrompt(text: string, emojiCount: number, provider: AIProvider): string {
+function buildPrompt(
+    text: string,
+    emojiCount: number,
+    provider: AIProvider
+): string {
     const emojiList = getAvailableEmojisForPrompt();
 
     const basePrompt = `You are an emoji password generator. Convert the following text into EXACTLY ${emojiCount} emojis.
@@ -270,7 +280,10 @@ Required output: ${emojiCount} emojis separated by spaces`;
 /**
  * Validate generated emojis
  */
-function validateGeneratedEmojis(response: string, emojiCount: number): string[] {
+function validateGeneratedEmojis(
+    response: string,
+    emojiCount: number
+): string[] {
     // Extract emojis from response
     const emojiRegex = /[\p{Emoji}]/gu;
     const matches = response.match(emojiRegex) || [];
@@ -299,13 +312,22 @@ function validateGeneratedEmojis(response: string, emojiCount: number): string[]
  * Get default model for each provider based on tier
  * Uses most stable, widely available models as defaults
  */
-export function getDefaultModel(provider: AIProvider, tier: Tier = 'free'): string {
+export function getDefaultModel(
+    provider: AIProvider,
+    tier: Tier = 'free'
+): string {
     const models: Record<AIProvider, Record<Tier, string>> = {
         openai: { free: 'gpt-3.5-turbo', pro: 'gpt-4o-mini' },
         gemini: { free: 'gemini-pro', pro: 'gemini-pro' }, // Most stable model
         mistral: { free: 'mistral-tiny', pro: 'mistral-small' },
-        claude: { free: 'claude-3-haiku-20240307', pro: 'claude-3-haiku-20240307' },
-        apertus: { free: 'swiss-ai/apertus-70b-instruct', pro: 'swiss-ai/apertus-70b-instruct' }, // Swiss LLM - strongest available model (70B)
+        claude: {
+            free: 'claude-3-haiku-20240307',
+            pro: 'claude-3-haiku-20240307'
+        },
+        apertus: {
+            free: 'swiss-ai/apertus-70b-instruct',
+            pro: 'swiss-ai/apertus-70b-instruct'
+        }, // Swiss LLM - strongest available model (70B)
         custom: { free: '', pro: '' } // No default for custom
     };
     return models[provider]?.[tier] || 'swiss-ai/apertus-70b-instruct'; // Default to strongest Swiss LLM
@@ -394,13 +416,17 @@ async function callOpenAIWithModel(
     );
 
     if (!response.ok) {
-        const error = await response.json().catch(() => ({})) as { error?: { message?: string } };
+        const error = (await response.json().catch(() => ({}))) as {
+            error?: { message?: string };
+        };
         throw new Error(
             error.error?.message || `OpenAI API error: ${response.status}`
         );
     }
 
-    const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const data = (await response.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+    };
     return data.choices?.[0]?.message?.content || '';
 }
 
@@ -484,7 +510,10 @@ async function callClaudeWithModel(
     );
 
     if (!response.ok) {
-        const error = await response.json().catch(() => ({})) as { error?: { message?: string }; message?: string };
+        const error = (await response.json().catch(() => ({}))) as {
+            error?: { message?: string };
+            message?: string;
+        };
         throw new Error(
             error.error?.message ||
                 error.message ||
@@ -492,7 +521,9 @@ async function callClaudeWithModel(
         );
     }
 
-    const data = await response.json() as { content?: Array<{ text?: string }> };
+    const data = (await response.json()) as {
+        content?: Array<{ text?: string }>;
+    };
     return data.content?.[0]?.text || '';
 }
 
@@ -521,8 +552,10 @@ async function callApertus(
     // In production, this should be set in .env files as VITE_N8N_APERTUS_TOKEN
     // SECURITY: Token is injected via webpack DefinePlugin from .env.local
     const rawToken =
-        typeof import.meta !== 'undefined' &&
-        (import.meta.env as { VITE_N8N_APERTUS_TOKEN?: string })?.VITE_N8N_APERTUS_TOKEN || '';
+        (typeof import.meta !== 'undefined' &&
+            (import.meta.env as { VITE_N8N_APERTUS_TOKEN?: string })
+                ?.VITE_N8N_APERTUS_TOKEN) ||
+        '';
 
     // Debug: Log raw token (before cleaning) - only in development
     if (
@@ -649,7 +682,10 @@ async function callApertus(
         let errorData: { error?: { message?: string }; message?: string } = {};
         try {
             if (responseText) {
-                errorData = JSON.parse(responseText) as { error?: { message?: string }; message?: string };
+                errorData = JSON.parse(responseText) as {
+                    error?: { message?: string };
+                    message?: string;
+                };
             }
         } catch (e) {
             // Not JSON, use text as error message
@@ -726,9 +762,11 @@ async function callApertus(
             // Check if item has response field (and it's not empty)
             if (item && typeof item === 'object') {
                 const itemObj = item as Record<string, unknown>;
-                
+
                 // Check for OpenAI-compatible format first (choices[0].message.content)
-                const choices = itemObj.choices as Array<{ message?: { content?: string } }> | undefined;
+                const choices = itemObj.choices as
+                    | Array<{ message?: { content?: string } }>
+                    | undefined;
                 if (choices && choices[0]?.message?.content) {
                     const content = choices[0].message.content;
                     if (content && content.trim().length > 0) {
@@ -742,7 +780,11 @@ async function callApertus(
 
                 // Check response field (must not be empty)
                 const response = itemObj.response as string | undefined;
-                if (response && typeof response === 'string' && response.trim().length > 0) {
+                if (
+                    response &&
+                    typeof response === 'string' &&
+                    response.trim().length > 0
+                ) {
                     console.log(
                         `✅ [Apertus] Found response in array[${i}]:`,
                         response.substring(0, 100)
@@ -752,7 +794,11 @@ async function callApertus(
 
                 // Check text field
                 const text = itemObj.text as string | undefined;
-                if (text && typeof text === 'string' && text.trim().length > 0) {
+                if (
+                    text &&
+                    typeof text === 'string' &&
+                    text.trim().length > 0
+                ) {
                     console.log(
                         `✅ [Apertus] Found text in array[${i}]:`,
                         text.substring(0, 100)
@@ -767,7 +813,9 @@ async function callApertus(
                     if (typeof content === 'string') {
                         contentStr = content;
                     } else if (typeof content === 'object') {
-                        const contentObj = content as { text?: string } | Array<{ text?: string }>;
+                        const contentObj = content as
+                            | { text?: string }
+                            | Array<{ text?: string }>;
                         if (Array.isArray(contentObj)) {
                             contentStr = contentObj[0]?.text || '';
                         } else {
@@ -796,7 +844,9 @@ async function callApertus(
             const firstItem = data[0] as Record<string, unknown>;
 
             // Try OpenAI format first
-            const choices = firstItem.choices as Array<{ message?: { content?: string } }> | undefined;
+            const choices = firstItem.choices as
+                | Array<{ message?: { content?: string } }>
+                | undefined;
             if (choices && choices[0]?.message?.content) {
                 const content = choices[0].message.content;
                 if (content && content.trim().length > 0) {
@@ -829,7 +879,8 @@ async function callApertus(
             // Check if success is true but response is empty (n8n workflow issue)
             if (
                 firstItem.success === true &&
-                (!firstItem.response || (firstItem.response as string).trim().length === 0)
+                (!firstItem.response ||
+                    (firstItem.response as string).trim().length === 0)
             ) {
                 console.warn(
                     '⚠️ [Apertus] n8n workflow returned success=true but empty response. Full data:',
@@ -861,9 +912,11 @@ async function callApertus(
     // Case 2: Response is an object
     if (data && typeof data === 'object' && !Array.isArray(data)) {
         const dataObj = data as Record<string, unknown>;
-        
+
         // Try OpenAI-compatible format first (most common)
-        const choices = dataObj.choices as Array<{ message?: { content?: string } }> | undefined;
+        const choices = dataObj.choices as
+            | Array<{ message?: { content?: string } }>
+            | undefined;
         if (choices && choices[0]?.message?.content) {
             const content = choices[0].message.content;
             if (content && content.trim().length > 0) {
@@ -877,7 +930,11 @@ async function callApertus(
 
         // The workflow returns: { response: "...", usage: {...}, ... }
         const response = dataObj.response as string | undefined;
-        if (response && typeof response === 'string' && response.trim().length > 0) {
+        if (
+            response &&
+            typeof response === 'string' &&
+            response.trim().length > 0
+        ) {
             console.log(
                 '✅ [Apertus] Found response field:',
                 response.substring(0, 100)
@@ -892,7 +949,9 @@ async function callApertus(
             if (typeof content === 'string') {
                 contentStr = content;
             } else if (typeof content === 'object') {
-                const contentObj = content as { text?: string } | Array<{ text?: string }>;
+                const contentObj = content as
+                    | { text?: string }
+                    | Array<{ text?: string }>;
                 if (Array.isArray(contentObj)) {
                     contentStr = contentObj[0]?.text || '';
                 } else {
@@ -918,7 +977,11 @@ async function callApertus(
         }
 
         const message = dataObj.message as string | undefined;
-        if (message && typeof message === 'string' && message.trim().length > 0) {
+        if (
+            message &&
+            typeof message === 'string' &&
+            message.trim().length > 0
+        ) {
             console.log(
                 '✅ [Apertus] Found message field:',
                 message.substring(0, 100)
@@ -927,7 +990,10 @@ async function callApertus(
         }
 
         // If response field exists but is empty, provide helpful error
-        if (dataObj.response !== undefined && (dataObj.response as string).trim().length === 0) {
+        if (
+            dataObj.response !== undefined &&
+            (dataObj.response as string).trim().length === 0
+        ) {
             console.warn(
                 '⚠️ [Apertus] Response field exists but is empty. Full data:',
                 JSON.stringify(dataObj, null, 2)
@@ -949,7 +1015,9 @@ async function callApertus(
     const responseType = Array.isArray(data) ? 'Array' : typeof data;
     const responseInfo = Array.isArray(data)
         ? `Array with ${data.length} elements`
-        : `Object with keys: ${Object.keys(data as Record<string, unknown>).join(', ')}`;
+        : `Object with keys: ${Object.keys(
+              data as Record<string, unknown>
+          ).join(', ')}`;
 
     console.error(
         '❌ [Apertus] Invalid response format. Response type:',
@@ -1108,13 +1176,15 @@ async function callGeminiWithVersion(
     );
 
     if (!response.ok) {
-        const error = await response.json().catch(() => ({})) as { error?: { message?: string } };
+        const error = (await response.json().catch(() => ({}))) as {
+            error?: { message?: string };
+        };
         throw new Error(
             error.error?.message || `Gemini API error: ${response.status}`
         );
     }
 
-    const data = await response.json() as {
+    const data = (await response.json()) as {
         candidates?: Array<{
             finishReason?: string;
             content?: {
@@ -1165,10 +1235,7 @@ async function callMistral(
             );
         } catch (error) {
             const err = error as Error;
-            console.warn(
-                `⚠️ Mistral model ${modelName} failed:`,
-                err.message
-            );
+            console.warn(`⚠️ Mistral model ${modelName} failed:`, err.message);
             lastError = err;
         }
     }
@@ -1216,7 +1283,10 @@ async function callMistralWithModel(
     );
 
     if (!response.ok) {
-        const error = await response.json().catch(() => ({})) as { message?: string; error?: { message?: string } };
+        const error = (await response.json().catch(() => ({}))) as {
+            message?: string;
+            error?: { message?: string };
+        };
         throw new Error(
             error.message ||
                 error.error?.message ||
@@ -1224,7 +1294,9 @@ async function callMistralWithModel(
         );
     }
 
-    const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const data = (await response.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+    };
     return data.choices?.[0]?.message?.content || '';
 }
 
@@ -1328,11 +1400,13 @@ async function callCustomAPI(config: CustomAPIConfig): Promise<string> {
         throw new Error(error || 'Custom API error');
     }
 
-    const data = await response.json() as Record<string, unknown>;
+    const data = (await response.json()) as Record<string, unknown>;
     console.log('✅ [Custom API] Response data:', data);
 
     // Try common response formats
-    const choices = data.choices as Array<{ message?: { content?: string } }> | undefined;
+    const choices = data.choices as
+        | Array<{ message?: { content?: string } }>
+        | undefined;
     const contentArray = data.content as Array<{ text?: string }> | undefined;
     const result =
         choices?.[0]?.message?.content || // OpenAI format
@@ -1354,7 +1428,7 @@ async function callCustomAPI(config: CustomAPIConfig): Promise<string> {
 function hashString(str: string): string {
     let hash = 5381;
     for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) + hash) + str.charCodeAt(i);
+        hash = (hash << 5) + hash + str.charCodeAt(i);
         hash = hash & hash; // Convert to 32-bit integer
     }
     // Convert to positive hex string (always 8 chars)
@@ -1366,35 +1440,52 @@ function hashString(str: string): string {
  * CRITICAL: Uses hash to prevent extremely long keys that break localStorage
  * localStorage keys should be short and safe (no special chars, reasonable length)
  */
-function getCacheKey(text: string, emojiCount: number, provider: AIProvider, model: string | undefined): string {
+function getCacheKey(
+    text: string,
+    emojiCount: number,
+    provider: AIProvider,
+    model: string | undefined
+): string {
     // Normalize text for consistent hashing
     const normalized = text.toLowerCase().trim();
-    
+
     // Create a unique string from all parameters
-    const keyString = `${provider}_${model || 'default'}_${emojiCount}_${normalized}`;
-    
+    const keyString = `${provider}_${
+        model || 'default'
+    }_${emojiCount}_${normalized}`;
+
     // Hash the key string to create a short, deterministic key
     // This prevents:
     // 1. Extremely long keys (localStorage has practical limits)
     // 2. Special character issues (Umlaute, spaces, slashes, etc.)
     // 3. Key collisions are extremely unlikely with hash
     const hash = hashString(keyString);
-    
+
     // Create final key: story_cache_<provider>_<model>_<emojiCount>_<hash>
     // This keeps it readable for debugging while being safe
-    const safeProvider = String(provider || 'unknown').replace(/[^a-z0-9]/gi, '_');
+    const safeProvider = String(provider || 'unknown').replace(
+        /[^a-z0-9]/gi,
+        '_'
+    );
     const safeModel = String(model || 'default').replace(/[^a-z0-9]/gi, '_');
-    
+
     return `story_${safeProvider}_${safeModel}_${emojiCount}_${hash}`;
 }
 
 /**
  * Get cached story result
  */
-function getCachedStory(text: string, emojiCount: number, provider: AIProvider, model: string | undefined): string[] | null {
+function getCachedStory(
+    text: string,
+    emojiCount: number,
+    provider: AIProvider,
+    model: string | undefined
+): string[] | null {
     try {
         const cacheKey = getCacheKey(text, emojiCount, provider, model);
-        const cached = storageHelpers.get(`story_cache_${cacheKey}`) as CacheEntry | null;
+        const cached = storageHelpers.get(
+            `story_cache_${cacheKey}`
+        ) as CacheEntry | null;
 
         if (cached && cached.emojis && cached.timestamp) {
             // Cache valid for 7 days
@@ -1648,7 +1739,7 @@ export function clearStoryCache(): number {
         if (typeof window === 'undefined' || !window.localStorage) {
             return 0;
         }
-        
+
         const keys = Object.keys(window.localStorage);
         const storyCacheKeys = keys.filter(key =>
             key.startsWith('story_cache_')
@@ -1674,7 +1765,7 @@ export function getStoryCacheStats(): CacheStats | null {
         if (typeof window === 'undefined' || !window.localStorage) {
             return null;
         }
-        
+
         const keys = Object.keys(window.localStorage);
         const storyCacheKeys = keys.filter(key =>
             key.startsWith('story_cache_')
@@ -1692,7 +1783,9 @@ export function getStoryCacheStats(): CacheStats | null {
 
         storyCacheKeys.forEach(key => {
             try {
-                const cached = JSON.parse(window.localStorage.getItem(key) || '{}') as CacheEntry;
+                const cached = JSON.parse(
+                    window.localStorage.getItem(key) || '{}'
+                ) as CacheEntry;
                 if (cached) {
                     totalSize += JSON.stringify(cached).length;
 
@@ -1731,7 +1824,9 @@ export function getStoryCacheStats(): CacheStats | null {
 /**
  * Test AI provider connection (without generating emojis)
  */
-export async function testAIProvider(storyModeConfig: StoryModeConfig): Promise<TestProviderResult> {
+export async function testAIProvider(
+    storyModeConfig: StoryModeConfig
+): Promise<TestProviderResult> {
     const testPrompt = 'Test connection: respond with a single emoji';
 
     try {
@@ -1877,10 +1972,13 @@ export async function testAIProvider(storyModeConfig: StoryModeConfig): Promise<
         }
 
         // Final validation: Ensure response is not empty before returning success
-        if (!response || (typeof response === 'string' && response.trim().length === 0)) {
+        if (
+            !response ||
+            (typeof response === 'string' && response.trim().length === 0)
+        ) {
             throw new Error(
                 'AI provider returned empty response. The API call succeeded but no content was returned. ' +
-                'Please check the API response format and ensure the content is properly extracted.'
+                    'Please check the API response format and ensure the content is properly extracted.'
             );
         }
 
@@ -1888,7 +1986,10 @@ export async function testAIProvider(storyModeConfig: StoryModeConfig): Promise<
             success: true,
             provider,
             model: usedModel,
-            response: typeof response === 'string' ? response.substring(0, 100) : String(response).substring(0, 100) // First 100 chars
+            response:
+                typeof response === 'string'
+                    ? response.substring(0, 100)
+                    : String(response).substring(0, 100) // First 100 chars
         };
     } catch (error) {
         const err = error as Error;
@@ -1997,4 +2098,3 @@ export default {
     getDefaultModel,
     getProviderInfo
 };
-

@@ -254,7 +254,11 @@ export async function clearUsageHistory() {
 }
 
 // Make available globally in development
-if (typeof window !== 'undefined' && (typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'development')) {
+if (
+    typeof window !== 'undefined' &&
+    typeof import.meta !== 'undefined' &&
+    import.meta.env?.MODE === 'development'
+) {
     window.keymojiUsageGenerator = {
         // Generators
         generate4Weeks: generate4WeeksData,

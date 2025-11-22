@@ -2,7 +2,7 @@
  * Shared Utility Functions - Keymoji
  * Zentrale Sammlung von wiederverwendbaren Helper-Funktionen
  * Apple/Airbnb Style: DRY (Don't Repeat Yourself) Principle
- * 
+ *
  * TypeScript Migration: v0.7.7
  */
 
@@ -15,7 +15,10 @@ const globalTimeouts = new Set<ReturnType<typeof setTimeout>>();
  * Safe Timeout mit automatischem Cleanup (Apple-Style Memory Management)
  * Verhindert Memory Leaks durch nicht geclearte Timeouts
  */
-export function safeSetTimeout(callback: () => void, delay: number): ReturnType<typeof setTimeout> {
+export function safeSetTimeout(
+    callback: () => void,
+    delay: number
+): ReturnType<typeof setTimeout> {
     const timeoutId = setTimeout(() => {
         globalTimeouts.delete(timeoutId);
         callback();
@@ -135,7 +138,13 @@ export function createResponsiveImageLoader(
  * Color Class Generator für konsistente UI (Apple/Airbnb Style)
  */
 export function generateColorClasses(
-    baseColor: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info',
+    baseColor:
+        | 'primary'
+        | 'secondary'
+        | 'success'
+        | 'warning'
+        | 'error'
+        | 'info',
     variant: string = 'default',
     darkMode: boolean = false
 ): string {
@@ -206,7 +215,13 @@ export function logError(
     error: Error | unknown,
     context: ErrorContext = {},
     userAgent: string = ''
-): ErrorContext & { message: string; stack?: string; timestamp: string; userAgent: string; url: string } {
+): ErrorContext & {
+    message: string;
+    stack?: string;
+    timestamp: string;
+    userAgent: string;
+    url: string;
+} {
     const errorInfo = {
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
@@ -350,7 +365,7 @@ export function generateClientFingerprint(): string {
         ctx.textBaseline = 'top';
         ctx.font = '14px Arial';
         ctx.fillText('Keymoji Security Fingerprint', 2, 2);
-        
+
         return canvas.toDataURL().substring(0, 32);
     } catch (error) {
         console.warn('⚠️ Failed to generate client fingerprint:', error);
@@ -377,4 +392,3 @@ export default {
     sendAnalyticsEvent,
     generateClientFingerprint
 };
-

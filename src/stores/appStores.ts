@@ -1,11 +1,17 @@
 // src/stores/appStores.ts
 /**
  * Central Application Stores
- * 
+ *
  * TypeScript Migration: v0.7.7
  */
 
-import { writable, derived, get, type Writable, type Readable } from 'svelte/store';
+import {
+    writable,
+    derived,
+    get,
+    type Writable,
+    type Readable
+} from 'svelte/store';
 // Content wird jetzt über contentStore verwaltet
 import {
     supportedLanguages,
@@ -164,10 +170,19 @@ export async function refreshUserCounter(): Promise<void> {
         // Debug: Log URL before fetch
         const counterUrl = WEBHOOKS.USER_COUNTER;
         console.log('📡 Fetching from:', counterUrl);
-        console.log('🔍 [Debug] URL type:', typeof counterUrl, 'Length:', counterUrl?.length);
+        console.log(
+            '🔍 [Debug] URL type:',
+            typeof counterUrl,
+            'Length:',
+            counterUrl?.length
+        );
 
         // Validate URL
-        if (!counterUrl || typeof counterUrl !== 'string' || !counterUrl.startsWith('http')) {
+        if (
+            !counterUrl ||
+            typeof counterUrl !== 'string' ||
+            !counterUrl.startsWith('http')
+        ) {
             console.error('❌ Invalid USER_COUNTER URL:', counterUrl);
             throw new Error('Invalid USER_COUNTER URL configuration');
         }
@@ -228,7 +243,10 @@ export async function refreshUserCounter(): Promise<void> {
                     console.warn('⚠️ Failed to cache counter:', e);
                 }
             } else {
-                console.warn('⚠️ Invalid counter value received:', data.counter);
+                console.warn(
+                    '⚠️ Invalid counter value received:',
+                    data.counter
+                );
                 userCounter.update((state: UserCounterState) => ({
                     ...state,
                     hasError: true,
@@ -236,7 +254,10 @@ export async function refreshUserCounter(): Promise<void> {
                 }));
             }
         } else {
-            console.error('❌ Counter fetch failed with status:', response.status);
+            console.error(
+                '❌ Counter fetch failed with status:',
+                response.status
+            );
             const errorText = await response.text();
             console.error('❌ Error response:', errorText);
             userCounter.update((state: UserCounterState) => ({
@@ -264,20 +285,29 @@ function detectWebappUsage(): boolean {
     }
 
     // Check for webapp indicators
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    const isFullscreen = window.matchMedia('(display-mode: fullscreen)').matches;
-    const hasWebappManifest = document.querySelector('link[rel="manifest"]') !== null;
+    const isStandalone = window.matchMedia(
+        '(display-mode: standalone)'
+    ).matches;
+    const isFullscreen = window.matchMedia(
+        '(display-mode: fullscreen)'
+    ).matches;
+    const hasWebappManifest =
+        document.querySelector('link[rel="manifest"]') !== null;
     const isPWA = 'serviceWorker' in navigator;
 
     // Check if launched from home screen
-    const isFromHomeScreen = (window.navigator as { standalone?: boolean }).standalone === true;
+    const isFromHomeScreen =
+        (window.navigator as { standalone?: boolean }).standalone === true;
 
     // Check for mobile webapp indicators
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-    );
+    const isMobile =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent
+        );
     const hasWebappViewport =
-        document.querySelector('meta[name="viewport"][content*="user-scalable=no"]') !== null;
+        document.querySelector(
+            'meta[name="viewport"][content*="user-scalable=no"]'
+        ) !== null;
 
     return (
         isStandalone ||
@@ -304,7 +334,11 @@ function getReferrerValue(): string {
 
 // Get detailed client information
 function getDetailedClientInfo(): DetailedClientInfo {
-    if (typeof window === 'undefined' || typeof navigator === 'undefined' || typeof screen === 'undefined') {
+    if (
+        typeof window === 'undefined' ||
+        typeof navigator === 'undefined' ||
+        typeof screen === 'undefined'
+    ) {
         // Return minimal info for SSR
         return {
             userAgent: '',
@@ -375,14 +409,17 @@ function getDetailedClientInfo(): DetailedClientInfo {
 
     // Webapp specific info
     if (isWebapp) {
-        clientInfo.displayMode = window.matchMedia('(display-mode: standalone)').matches
+        clientInfo.displayMode = window.matchMedia('(display-mode: standalone)')
+            .matches
             ? 'standalone'
             : window.matchMedia('(display-mode: fullscreen)').matches
             ? 'fullscreen'
             : 'browser';
-        clientInfo.standalone = (window.navigator as { standalone?: boolean }).standalone || false;
+        clientInfo.standalone =
+            (window.navigator as { standalone?: boolean }).standalone || false;
         clientInfo.hasServiceWorker = 'serviceWorker' in navigator;
-        clientInfo.hasWebAppManifest = document.querySelector('link[rel="manifest"]') !== null;
+        clientInfo.hasWebAppManifest =
+            document.querySelector('link[rel="manifest"]') !== null;
     }
 
     return {
@@ -410,10 +447,19 @@ export async function sendAnalyticsEvent(
         // Debug: Log URL before fetch
         const analyticsUrl = WEBHOOKS.ANALYTICS;
         console.log('📊 [Analytics] Sending to:', analyticsUrl);
-        console.log('🔍 [Debug] URL type:', typeof analyticsUrl, 'Length:', analyticsUrl?.length);
+        console.log(
+            '🔍 [Debug] URL type:',
+            typeof analyticsUrl,
+            'Length:',
+            analyticsUrl?.length
+        );
 
         // Validate URL
-        if (!analyticsUrl || typeof analyticsUrl !== 'string' || !analyticsUrl.startsWith('http')) {
+        if (
+            !analyticsUrl ||
+            typeof analyticsUrl !== 'string' ||
+            !analyticsUrl.startsWith('http')
+        ) {
             console.error('❌ Invalid ANALYTICS URL:', analyticsUrl);
             return null;
         }
@@ -469,8 +515,12 @@ function initializeUserCounter(): void {
 
     // Try to load from cache first
     try {
-        const cachedValue = storageHelpers.get(COUNTER_CACHE_KEY) as number | null;
-        const cachedTimestamp = storageHelpers.get(COUNTER_TIMESTAMP_KEY) as number | null;
+        const cachedValue = storageHelpers.get(COUNTER_CACHE_KEY) as
+            | number
+            | null;
+        const cachedTimestamp = storageHelpers.get(COUNTER_TIMESTAMP_KEY) as
+            | number
+            | null;
         const now = Date.now();
         const cacheAge = now - (cachedTimestamp || 0);
         const cacheValid = cacheAge < COUNTER_CACHE_DURATION;
@@ -482,9 +532,11 @@ function initializeUserCounter(): void {
                 isCached: true,
                 hasError: false
             }));
-            if (isDev) console.log('📦 Loaded counter from cache:', cachedValue);
+            if (isDev)
+                console.log('📦 Loaded counter from cache:', cachedValue);
         } else {
-            if (isDev) console.log('📦 No valid cache found, will fetch fresh data');
+            if (isDev)
+                console.log('📦 No valid cache found, will fetch fresh data');
         }
     } catch (error) {
         if (isDev) console.warn('⚠️ Failed to load counter from cache:', error);
@@ -501,8 +553,9 @@ function initializeUserCounter(): void {
 
 // === VERSION STORES ===
 export const version: Writable<string> = writable(appVersion);
-export const formattedVersion: Readable<string> = derived(version, ($version: string) =>
-    formatVersion($version)
+export const formattedVersion: Readable<string> = derived(
+    version,
+    ($version: string) => formatVersion($version)
 );
 
 // === UI STATE STORES ===
@@ -523,7 +576,9 @@ function initializeDarkMode(): boolean {
 
     let storedPreference: boolean | null = null;
     try {
-        const stored = storageHelpers.get(STORAGE_KEYS.DARK_MODE) as boolean | null;
+        const stored = storageHelpers.get(STORAGE_KEYS.DARK_MODE) as
+            | boolean
+            | null;
         if (stored !== null) {
             storedPreference = stored;
         }
@@ -541,7 +596,9 @@ export const darkMode: Writable<boolean> = localStore(
 
 // Setup dark mode media query listener
 if (typeof window !== 'undefined') {
-    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeMediaQuery = window.matchMedia(
+        '(prefers-color-scheme: dark)'
+    );
 
     const handleMediaQueryChange = (e: MediaQueryListEvent) => {
         try {
@@ -555,8 +612,18 @@ if (typeof window !== 'undefined') {
 
     if (darkModeMediaQuery.addEventListener) {
         darkModeMediaQuery.addEventListener('change', handleMediaQueryChange);
-    } else if ((darkModeMediaQuery as { addListener?: (e: MediaQueryListEvent) => void }).addListener) {
-        (darkModeMediaQuery as { addListener: (e: MediaQueryListEvent) => void }).addListener(handleMediaQueryChange);
+    } else if (
+        (
+            darkModeMediaQuery as {
+                addListener?: (e: MediaQueryListEvent) => void;
+            }
+        ).addListener
+    ) {
+        (
+            darkModeMediaQuery as {
+                addListener: (e: MediaQueryListEvent) => void;
+            }
+        ).addListener(handleMediaQueryChange);
     }
 }
 
@@ -575,7 +642,9 @@ function getInitialLanguage(): string {
     if (typeof window === 'undefined') return 'en';
 
     try {
-        const storedLang = storageHelpers.get(STORAGE_KEYS.LANGUAGE) as string | null;
+        const storedLang = storageHelpers.get(STORAGE_KEYS.LANGUAGE) as
+            | string
+            | null;
         if (storedLang && isLanguageSupported(storedLang)) {
             return storedLang;
         }
@@ -697,13 +766,19 @@ function initializeAccountStores(): InitialAccountState {
                         userId: userPrefs.userId || '',
                         email: userPrefs.email,
                         tier: userPrefs.tier || 'free',
-                        profile: userPrefs.profile || { name: userPrefs.name || 'User' },
+                        profile: userPrefs.profile || {
+                            name: userPrefs.name || 'User'
+                        },
                         metadata: userPrefs.metadata || {},
-                        lastLogin: userPrefs.lastLogin || new Date().toISOString(),
-                        createdAt: userPrefs.createdAt || new Date().toISOString(),
+                        lastLogin:
+                            userPrefs.lastLogin || new Date().toISOString(),
+                        createdAt:
+                            userPrefs.createdAt || new Date().toISOString(),
                         sessionId: userPrefs.sessionId
                     },
-                    userProfile: userPrefs.profile || { name: userPrefs.name || 'User' },
+                    userProfile: userPrefs.profile || {
+                        name: userPrefs.name || 'User'
+                    },
                     accountTier: userPrefs.tier || 'free'
                 };
             } else {
@@ -713,7 +788,10 @@ function initializeAccountStores(): InitialAccountState {
             }
         }
     } catch (error) {
-        console.warn('⚠️ [STORE INIT] Failed to load account from localStorage:', error);
+        console.warn(
+            '⚠️ [STORE INIT] Failed to load account from localStorage:',
+            error
+        );
     }
 
     console.log('🔓 [STORE INIT] No valid session, starting as guest');
@@ -729,10 +807,18 @@ function initializeAccountStores(): InitialAccountState {
 const initialAccountState = initializeAccountStores();
 
 // Create persistent account stores
-export const isLoggedIn: Writable<boolean> = writable(initialAccountState.isLoggedIn);
-export const currentAccount: Writable<Account | null> = writable(initialAccountState.currentAccount);
-export const userProfile: Writable<UserProfile | null> = writable(initialAccountState.userProfile);
-export const accountTier: Writable<'free' | 'pro'> = writable(initialAccountState.accountTier);
+export const isLoggedIn: Writable<boolean> = writable(
+    initialAccountState.isLoggedIn
+);
+export const currentAccount: Writable<Account | null> = writable(
+    initialAccountState.currentAccount
+);
+export const userProfile: Writable<UserProfile | null> = writable(
+    initialAccountState.userProfile
+);
+export const accountTier: Writable<'free' | 'pro'> = writable(
+    initialAccountState.accountTier
+);
 
 // Derived guest/pro flags (reactive)
 export const isGuestUser: Readable<boolean> = derived(
@@ -773,4 +859,3 @@ export function updateDailyLimit(
 if (typeof window !== 'undefined') {
     initializeUserCounter();
 }
-
