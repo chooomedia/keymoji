@@ -1,123 +1,150 @@
 name: Tests
 
 on:
-  push:
-    branches: [ staging, frontend, master ]
-  pull_request:
-    branches: [ staging, frontend, master ]
+    push:
+        branches: [staging, frontend, master]
+    pull_request:
+        branches: [staging, frontend, master]
 
 jobs:
-  lint-and-build:
-    name: Lint & Build Check
-    runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-      
-      - name: Run linter (if available)
-        continue-on-error: true
-        run: |
-          if npm run lint 2>/dev/null; then
-            npm run lint
-          else
-            echo "⚠️ No lint script found, skipping..."
-          fi
-      
-      - name: Check TypeScript (if available)
-        continue-on-error: true
-        run: |
-          if npx tsc --noEmit 2>/dev/null; then
-            npx tsc --noEmit
-          else
-            echo "⚠️ TypeScript check skipped..."
-          fi
-      
-      # Skip build - already done in build.yml workflow
-      # Only check if build directory exists (from previous workflow)
-      - name: Check build artifacts
-        continue-on-error: true
-        run: |
-          if [ ! -d "build" ]; then
-            echo "⚠️ Build directory not found - this is expected if build.yml hasn't run yet"
-            echo "ℹ️ Running build for test purposes..."
-            npm run build
-          else
-            echo "✅ Build directory found (from previous workflow)"
-          fi
-          ls -lh build/ | head -20
+    # Lint & TypeScript Check - keine Build-Duplikation
+    # Build wird von build.yml gemacht, hier nur Code-Qualitäts-Checks
+    lint-and-typecheck:
+        name: Lint & TypeScript Check
+        runs-on: ubuntu-latest
 
-  test-scripts:
-    name: Test Scripts
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-      
-      - name: Run test scripts
-        continue-on-error: true
-        run: |
-          echo "🧪 Running test scripts..."
-          
-          # Test if test files exist and can be executed
-          if [ -f "tests/test-backend.js" ]; then
-            echo "📡 Testing backend scripts..."
-            node tests/test-backend.js || echo "⚠️ Backend tests failed (non-critical)"
-          fi
-          
-          if [ -f "tests/test-usersettings.js" ]; then
-            echo "⚙️ Testing user settings..."
-            node tests/test-usersettings.js || echo "⚠️ User settings tests failed (non-critical)"
-          fi
-          
-          echo "✅ Test scripts completed"
+        strategy:
+            matrix:
+                node-version: [20.x]  # Nur Node 20.x (Production-Version)
 
-  security-audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-      
-      - name: Run npm audit
-        continue-on-error: true
-        run: npm audit --audit-level=moderate
-      
-      - name: Check for known vulnerabilities
-        run: |
-          echo "🔒 Security audit completed"
-          echo "⚠️ Note: Some vulnerabilities may be acceptable (e.g., Svelte 3 → 5 migration planned)"
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
+            - name: Setup Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci --legacy-peer-deps
+
+            - name: Run linter (if available)
+              continue-on-error: true
+              run: |
+                  if npm run lint 2>/dev/null; then
+                    npm run lint
+                  else
+                    echo "⚠️ No lint script found, skipping..."
+                  fi
+
+            - name: Check TypeScript (if available)
+              continue-on-error: true
+              run: |
+                  if npx tsc --noEmit 2>/dev/null; then
+                    npx tsc --noEmit
+                  else
+                    echo "⚠️ TypeScript check skipped..."
+                  fi
+
+    # Build-Verifikation - nutzt Build-Artefakte von build.yml
+    verify-build:
+        name: Verify Build Artifacts
+        runs-on: ubuntu-latest
+        # Warte auf build.yml Workflow (wenn es läuft)
+        # Falls build.yml nicht läuft, mache eigenen Build
+        if: always()
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20.x'
+                  cache: 'npm'
+
+            - name: Download build artifacts (if available)
+              uses: actions/download-artifact@v4
+              with:
+                  name: build-artifacts
+                  path: build/
+              continue-on-error: true
+
+            - name: Build project (if artifacts not available)
+              if: failure()
+              run: |
+                  npm ci --legacy-peer-deps
+                  npm run build
+
+            - name: Check build artifacts
+              run: |
+                  if [ ! -d "build" ]; then
+                    echo "❌ Build directory not found!"
+                    exit 1
+                  fi
+                  echo "✅ Build artifacts verified!"
+                  ls -lh build/ | head -20
+
+    test-scripts:
+        name: Test Scripts
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20.x'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci --legacy-peer-deps
+
+            - name: Run test scripts
+              continue-on-error: true
+              run: |
+                  echo "🧪 Running test scripts..."
+
+                  # Test if test files exist and can be executed
+                  if [ -f "tests/test-backend.js" ]; then
+                    echo "📡 Testing backend scripts..."
+                    node tests/test-backend.js || echo "⚠️ Backend tests failed (non-critical)"
+                  fi
+
+                  if [ -f "tests/test-usersettings.js" ]; then
+                    echo "⚙️ Testing user settings..."
+                    node tests/test-usersettings.js || echo "⚠️ User settings tests failed (non-critical)"
+                  fi
+
+                  echo "✅ Test scripts completed"
+
+    security-audit:
+        name: Security Audit
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20.x'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci --legacy-peer-deps
+
+            - name: Run npm audit
+              continue-on-error: true
+              run: npm audit --audit-level=moderate
+
+            - name: Check for known vulnerabilities
+              run: |
+                  echo "🔒 Security audit completed"
+                  echo "⚠️ Note: Some vulnerabilities may be acceptable (e.g., Svelte 3 → 5 migration planned)"
