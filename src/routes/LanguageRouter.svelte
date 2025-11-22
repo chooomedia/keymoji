@@ -318,10 +318,11 @@
   
 <Router {url}>
     <Route path="/" component={Index} />
-    <Route path="/:lang" component={Index} />
     
     <!-- PERFORMANCE: Lazy Loaded Routes mit svelte:component -->
     {#if routesLoaded}
+        <!-- CRITICAL: Spezifische Routes MÜSSEN vor /:lang kommen! -->
+        <!-- Sonst matched /:lang vor /:lang/contact und zeigt Index statt ContactForm -->
         <Route path="/versions" let:params>
             <svelte:component this={VersionHistory} />
         </Route>
@@ -406,6 +407,9 @@
         <Route path="/:lang/legal/" let:params>
             <svelte:component this={StaticPage} slug="legal" />
         </Route>
+        
+        <!-- CRITICAL: /:lang Route MUSS als letzte kommen, nach allen spezifischen Routes! -->
+        <Route path="/:lang" component={Index} />
         
         <Route component={NotFound} />
     {/if}
