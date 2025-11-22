@@ -464,7 +464,10 @@ export function debugLocalStorage(): DebugLocalStorageResult {
 
 // Export to window for console access (development only)
 if (typeof window !== 'undefined') {
-    const nodeEnv = typeof process !== 'undefined' ? process.env?.NODE_ENV : 'development';
+    // Use import.meta.env.MODE (Vite) instead of process.env.NODE_ENV
+    const nodeEnv = (typeof import.meta !== 'undefined' && (import.meta.env as { MODE?: string })?.MODE === 'production') 
+        ? 'production' 
+        : 'development';
     if (nodeEnv === 'development') {
         (window as { debugLocalStorage?: () => DebugLocalStorageResult }).debugLocalStorage = debugLocalStorage;
         (window as { clearLocalStorage?: () => void }).clearLocalStorage = () => {

@@ -57,14 +57,14 @@ function svelteResolvePrePlugin() {
 
             // Verwende normalizedId für alle Prüfungen
             id = normalizedId;
-            
+
             // WICHTIG: svelte/store NICHT hier auflösen - Vite soll das über resolve.alias machen
             // Wenn wir hier auflösen, blockieren wir die normale Vite-Auflösung
             // Wir geben null zurück, damit Vite die normale Auflösung (resolve.alias) verwendet
             if (id === 'svelte/store' || id.startsWith('svelte/store/')) {
                 return null; // null = Vite soll weiter suchen, undefined = nicht gefunden
             }
-            
+
             // Nur interne Module benötigen spezielle Auflösung
 
             // Svelte 5 interne Module
@@ -458,7 +458,10 @@ function svelteResolveTransformPlugin() {
             }
             // WICHTIG: svelte/store NICHT hier auflösen - Vite soll das über resolve.alias machen
             // Wir geben null zurück, damit Vite die normale Auflösung (resolve.alias) verwendet
-            if (normalizedId === 'svelte/store' || normalizedId.startsWith('svelte/store/')) {
+            if (
+                normalizedId === 'svelte/store' ||
+                normalizedId.startsWith('svelte/store/')
+            ) {
                 return null; // null = Vite soll weiter suchen, undefined = nicht gefunden
             }
             return undefined;

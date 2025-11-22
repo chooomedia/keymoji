@@ -143,8 +143,7 @@ export interface APIConfigMap {
 // SECURITY: Always set VITE_API_URL in production via environment variables!
 function getApiUrl(): string {
     const envUrl: string | undefined = 
-        (typeof import.meta !== 'undefined' && (import.meta.env as { VITE_API_URL?: string })?.VITE_API_URL) ||
-        (typeof process !== 'undefined' && process.env?.VITE_API_URL);
+        (typeof import.meta !== 'undefined' && (import.meta.env as { VITE_API_URL?: string })?.VITE_API_URL);
     
     // Check if envUrl exists and is not empty/just quotes
     if (envUrl) {
@@ -206,8 +205,7 @@ if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' |
 // SECURITY: Always set VITE_N8N_URL in production via environment variables!
 function getN8NUrl(): string {
     const envUrl: string | undefined = 
-        (typeof import.meta !== 'undefined' && (import.meta.env as { VITE_N8N_URL?: string })?.VITE_N8N_URL) ||
-        (typeof process !== 'undefined' && process.env?.VITE_N8N_URL);
+        (typeof import.meta !== 'undefined' && (import.meta.env as { VITE_N8N_URL?: string })?.VITE_N8N_URL);
     
     // Check if envUrl exists and is not empty/just quotes
     if (envUrl) {
@@ -421,7 +419,11 @@ export const API_CONFIG: APIConfigMap = {
 };
 
 // Default configuration
-const nodeEnv: 'development' | 'production' = (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') ? 'production' : 'development';
+// Use import.meta.env.MODE instead of process.env.NODE_ENV (Vite-specific)
+const nodeEnv: 'development' | 'production' = 
+    (typeof import.meta !== 'undefined' && (import.meta.env as { MODE?: string })?.MODE === 'production') 
+        ? 'production' 
+        : 'development';
 export const DEFAULT_CONFIG: APIConfig = API_CONFIG[nodeEnv];
 
 export default {

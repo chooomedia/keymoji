@@ -524,9 +524,7 @@ async function callApertus(
         typeof import.meta !== 'undefined' &&
         (import.meta.env as { VITE_N8N_APERTUS_TOKEN?: string })?.VITE_N8N_APERTUS_TOKEN
             ? (import.meta.env as { VITE_N8N_APERTUS_TOKEN: string }).VITE_N8N_APERTUS_TOKEN
-            : (typeof process !== 'undefined' &&
-                  (process.env as { VITE_N8N_APERTUS_TOKEN?: string })?.VITE_N8N_APERTUS_TOKEN) ||
-              '';
+            : '';
 
     // Debug: Log raw token (before cleaning) - only in development
     if (

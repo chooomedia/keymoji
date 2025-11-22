@@ -6,8 +6,7 @@ import { mount } from 'svelte';
 import { isProduction } from './utils/environment';
 import { closeModal, isModalVisible } from './stores/modalStore';
 import { updateSEO } from './utils/seo';
-import { currentLanguage } from './stores/contentStore';
-import { get } from 'svelte/store';
+import { currentLanguage } from './stores/appStores';
 import type { Component } from 'svelte';
 
 function displayKeymojiConsoleArt(): void {
@@ -219,7 +218,8 @@ function initializeApp(): Component {
             : null;
         
         // Use URL language if available, otherwise use store language, fallback to 'en'
-        const lang = urlLang || get(currentLanguage) || 'en';
+        // Runes: Direkter Zugriff ohne get()
+        const lang = urlLang || currentLanguage || 'en';
         
         // CRITICAL: Update HTML lang attribute IMMEDIATELY (before any rendering)
         if (document.documentElement) {

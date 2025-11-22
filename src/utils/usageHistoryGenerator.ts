@@ -298,7 +298,9 @@ export async function clearUsageHistory(): Promise<void> {
 }
 
 // Make available globally in development
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+// Use import.meta.env.MODE (Vite) instead of process.env.NODE_ENV
+if (typeof window !== 'undefined' && 
+    (typeof import.meta !== 'undefined' && (import.meta.env as { MODE?: string })?.MODE !== 'production')) {
     (window as unknown as {
         keymojiUsageGenerator?: {
             generate4Weeks: () => Promise<UsageHistoryEntryExtended[]>;

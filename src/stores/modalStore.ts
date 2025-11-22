@@ -1,8 +1,4 @@
 // src/stores/modalStore.ts
-// Modal State Management mit klassischen Svelte Stores
-// TypeScript Migration: v0.7.7
-// Klassische Stores verwenden (Runes funktionieren nur in .svelte Komponenten)
-
 import { writable, get, type Writable } from 'svelte/store';
 import { navigate } from '../utils/routing';
 import { currentLanguage } from './contentStore';
@@ -41,8 +37,11 @@ export const modalMessage: Writable<string> = writable<string>('');
 export const isModalVisible: Writable<boolean> = writable<boolean>(false);
 export const modalType: Writable<string> = writable<string>('info');
 export const modalData: Writable<ModalData> = writable<ModalData>({});
-export const isAsyncOperationPaused: Writable<boolean> = writable<boolean>(false);
-export const pausedOperations: Writable<Array<() => void>> = writable<Array<() => void>>([]);
+export const isAsyncOperationPaused: Writable<boolean> =
+    writable<boolean>(false);
+export const pausedOperations: Writable<Array<() => void>> = writable<
+    Array<() => void>
+>([]);
 
 export function closeModal(): void {
     isModalVisible.set(false);
@@ -121,7 +120,7 @@ export function showAccountLogoutSuccess(): void {
 export function showExistingAccountFound(): void {
     const lang = get(currentLanguage) || 'en';
     const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
-    
+
     showModal('Existing account found!', 'info', {
         primaryButton: {
             text: 'Zum Account',
@@ -142,7 +141,7 @@ export function showExistingAccountFound(): void {
 export function showNewAccountCreated(): void {
     const lang = get(currentLanguage) || 'en';
     const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
-    
+
     showModal('Account created successfully!', 'success', {
         primaryButton: {
             text: 'Zum Account',
@@ -159,4 +158,3 @@ export function showNewAccountCreated(): void {
         }
     });
 }
-

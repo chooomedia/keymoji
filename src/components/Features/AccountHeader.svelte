@@ -59,13 +59,13 @@
 
 <div class="flex items-center justify-between mb-6">
     <p class="text-gray-600 dark:text-gray-400">
-        {get(currentAccount)?.email}
+        {currentAccount?.email}
     </p>
 
     <!-- PRO Badge and Context Menu -->
     <div class="flex items-center gap-2">
         <ContextBadge 
-            tier={get(accountTier)} 
+            tier={accountTier} 
             {accountAgeLabel}
             translations={get(translations)?.accountManager?.accountAge}
             position="top"

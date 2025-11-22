@@ -3,7 +3,7 @@ Shared utility functions for common operations across the application.
 Provides timeout management, localization helpers, client fingerprinting, and utility functions.
 Implements DRY principle with reusable helper functions for memory management and i18n support.
 */
-import { isDebugMode } from './environment';
+import { isDebugMode, isDevelopment, isProduction } from './environment';
 
 function debugSharedHelpers(context: string, data?: unknown) {
     if (!isDebugMode()) return;
@@ -221,12 +221,12 @@ export function logError(
     };
 
     // In Development: Console-Logging
-    if (process.env.NODE_ENV === 'development') {
+    if (isDevelopment()) {
         debugSharedHelpers('🚨 Error:', errorInfo);
     }
 
     // In Production: Minimal Logging für Privacy
-    if (process.env.NODE_ENV === 'production') {
+    if (isProduction()) {
         debugSharedHelpers('Error occurred:', errorInfo.message);
     }
 
@@ -328,7 +328,7 @@ export function sendAnalyticsEvent(
     delete sanitizedProperties.personalInfo;
 
     // In Development: Console-Logging
-    if (process.env.NODE_ENV === 'development') {
+    if (isDevelopment()) {
         debugSharedHelpers('📊 Analytics Event:', eventName, sanitizedProperties);
     }
 

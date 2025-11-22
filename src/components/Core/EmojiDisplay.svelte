@@ -57,9 +57,9 @@ Manages state for emoji generation, story input, and UI animations.
             isDisabled: get(isDisabled)
         });
         console.log('Account:', {
-            isLoggedIn: get(isLoggedIn),
-            tier: get(accountTier),
-            email: get(currentAccount)?.email
+            isLoggedIn: isLoggedIn,
+            tier: accountTier,
+            email: currentAccount?.email
         });
         console.groupEnd();
     }
@@ -133,7 +133,7 @@ Manages state for emoji generation, story input, and UI animations.
         let storyModeSettings = null;
         const currentSettingsValue = get(currentSettings);
         const userSettingsValue = get(userSettings);
-        const currentAccountValue = get(currentAccount);
+        const currentAccountValue = currentAccount;
         
         if (currentSettingsValue?.storyMode) {
             storyModeSettings = currentSettingsValue.storyMode;
@@ -202,7 +202,7 @@ Manages state for emoji generation, story input, and UI animations.
         let storyModeSettings = null;
         const currentSettingsValue = get(currentSettings);
         const userSettingsValue = get(userSettings);
-        const currentAccountValue = get(currentAccount);
+        const currentAccountValue = currentAccount;
         
         // Try currentSettings first (most up-to-date)
         if (currentSettingsValue?.storyMode) {
@@ -221,7 +221,7 @@ Manages state for emoji generation, story input, and UI animations.
             const provider = storyModeSettings.provider || 'apertus';
             const model = storyModeSettings.model || '';
             const customModel = storyModeSettings.customModel || '';
-            const userTier = get(accountTier) || 'free';
+            const userTier = accountTier || 'free';
             
             // Create a stable key to compare model settings
             const modelKey = `${provider}:${model}:${customModel}:${userTier}`;
@@ -380,9 +380,9 @@ Manages state for emoji generation, story input, and UI animations.
     async function generateRandomEmojis(countTowardsLimit = true) {
       try {
         // UNIFIED Limit Check (single source of truth!)
-        const isLoggedInValue = get(isLoggedIn);
-        const accountTierValue = get(accountTier);
-        const dailyLimitValue = get(dailyLimit);
+        const isLoggedInValue = isLoggedIn;
+        const accountTierValue = accountTier;
+        const dailyLimitValue = dailyLimit;
         const limitCheck = validateUserLimits(isLoggedInValue, accountTierValue, dailyLimitValue?.used || 0);
         
         if (limitCheck.isReached) {
@@ -406,9 +406,9 @@ Manages state for emoji generation, story input, and UI animations.
     async function generateEmojis(forceRegenerate = true) {
       try {
         // UNIFIED Limit Check (same as generateRandomEmojis!)
-        const isLoggedInValue = get(isLoggedIn);
-        const accountTierValue = get(accountTier);
-        const dailyLimitValue = get(dailyLimit);
+        const isLoggedInValue = isLoggedIn;
+        const accountTierValue = accountTier;
+        const dailyLimitValue = dailyLimit;
         const limitCheck = validateUserLimits(isLoggedInValue, accountTierValue, dailyLimitValue?.used || 0);
         
         if (limitCheck.isReached) {

@@ -49,11 +49,6 @@ export function getEnvironment(): Environment {
             // import.meta nicht verfügbar (z.B. in Node.js ohne ES Modules)
         }
         
-        // Fallback to process.env (Webpack)
-        if (!env && typeof process !== 'undefined' && process.env && process.env.NODE_ENV) {
-            env = process.env.NODE_ENV;
-        }
-        
         // Default to production
         if (!env) {
             env = 'production';
