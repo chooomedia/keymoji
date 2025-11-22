@@ -186,22 +186,8 @@
                     console.log('🔄 LanguageRouter: Language already set to:', potentialLang);
                 }
             } else {
-                // Kein Sprachcode in URL - prüfe ob es eine bekannte Route ist
-                const knownRoutes = ['contact', 'account', 'versions', 'blog', 'privacy', 'legal'];
-                const isKnownRoute = pathSegments.length > 0 && knownRoutes.includes(pathSegments[0]);
-                
-                if (isKnownRoute) {
-                    // Route ohne Sprachpräfix - redirect zu /{lang}/route für SEO-Konsistenz
-                    const currentLang = $currentLanguage || 'en';
-                    const routePath = pathSegments[0];
-                    const newPath = `/${currentLang}/${routePath}`;
-                    const newUrl = newPath + (window.location.search || '');
-                    console.log('🔄 LanguageRouter: Redirecting route without language prefix:', normalizedPath, '→', newPath);
-                    navigate(newUrl, { replace: true });
-                    return; // Exit early, navigation will trigger handleRouteChange again
-                } else {
-                    console.log('🔄 LanguageRouter: No valid language in URL, using current:', $currentLanguage);
-                }
+                // Kein Sprachcode in URL - verwende aktuelle Sprache
+                console.log('🔄 LanguageRouter: No valid language in URL, using current:', $currentLanguage);
             }
             
             // Preserve URL parameters for magic link verification
@@ -281,16 +267,12 @@
                     await changeLanguage(potentialLang);
                 }
             } else {
-                // SEO-optimierte Store-Sprach-Synchronisation
-                const storeLang = $currentLanguage;
-                if (storeLang && storeLang !== 'en') {
-                    devLog('🔄 LanguageRouter: Store has language, updating URL');
-                    const newPath = `/${storeLang}${window.location.pathname}`;
-                    navigate(newPath, { replace: true });
-                }
+                // Kein Sprachcode in URL - keine Aktion nötig
+                // Routes ohne Sprachpräfix werden direkt gerendert
+                devLog('🔄 LanguageRouter: No language in URL, routes will handle it');
             }
             
-            // SEO-optimierte Route-Verarbeitung
+            // SEO-optimierte Route-Verarbeitung (nur einmal beim Mount)
             await handleRouteChange();
             initialRouteProcessed = true;
             
@@ -306,18 +288,9 @@
                 }
             });
             
-            // SEO-optimierte Sprachänderungen
-            const unsubscribe = currentLanguage.subscribe(async (lang) => {
-                if (initialRouteProcessed && lang && !processingRoute) {
-                    // REMOVED: setTimeout delay - Race Condition behoben, direkt aufrufen
-                    await handleRouteChange();
-                }
-            });
-            
             // SEO-optimierte Cleanup-Funktion
             return () => {
                 window.removeEventListener('popstate', handleRouteChange);
-                unsubscribe();
             };
         } catch (error) {
             devLog('❌ LanguageRouter: Error in onMount:', error);
@@ -331,11 +304,11 @@
   url={pageURL}
 />
   
-<Router {url}>
-    <Route path="/" component={Index} />
-    
-    <!-- PERFORMANCE: Lazy Loaded Routes mit svelte:component -->
-    {#if routesLoaded}
+{#if routesLoaded}
+    <Router {url}>
+        <Route path="/" component={Index} />
+        
+        <!-- PERFORMANCE: Lazy Loaded Routes mit svelte:component -->
         <!-- CRITICAL: Spezifische Routes MÜSSEN vor /:lang kommen! -->
         <!-- Sonst matched /:lang vor /:lang/contact und zeigt Index statt ContactForm -->
         <Route path="/versions" let:params>
@@ -427,5 +400,12 @@
         <Route path="/:lang" component={Index} />
         
         <Route component={NotFound} />
-    {/if}
-</Router>
+    </Router>
+{:else}
+    <!-- Loading state while routes are being loaded -->
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="text-center">
+            <p class="text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+    </div>
+{/if}
