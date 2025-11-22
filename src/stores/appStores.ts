@@ -149,7 +149,7 @@ export const userCounter: Writable<UserCounterState> = writable({
 
 // Extract counter logic into a reusable function
 export async function refreshUserCounter(): Promise<void> {
-    const isDev = typeof process !== 'undefined' && process.env.NODE_ENV === 'development';
+    const isDev = isDevelopment();
 
     console.log('🔄 Starting user counter refresh...');
 
@@ -465,7 +465,7 @@ export async function sendAnalyticsEvent(
 
 // Initialize counter on page load
 function initializeUserCounter(): void {
-    const isDev = typeof process !== 'undefined' && process.env.NODE_ENV === 'development';
+    const isDev = isDevelopment();
 
     // Try to load from cache first
     try {

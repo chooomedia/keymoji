@@ -11,7 +11,12 @@ function formatCanonicalUrl(url) {
     if (!url) return '';
     let canonical = url.startsWith('http') ? url : `https://keymoji.wtf${url}`;
     // Add trailing slash for directories
-    if (canonical && !canonical.endsWith('/') && !canonical.includes('.') && !canonical.includes('?')) {
+    if (
+        canonical &&
+        !canonical.endsWith('/') &&
+        !canonical.includes('.') &&
+        !canonical.includes('?')
+    ) {
         canonical = `${canonical}/`;
     }
     return canonical;

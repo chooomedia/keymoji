@@ -6,6 +6,8 @@
  * TypeScript Migration: v0.7.7
  */
 
+import { isDevelopment, isProduction } from './environment';
+
 // Globale Timeout-Tracking für Memory Leak Prevention
 const globalTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
@@ -216,12 +218,12 @@ export function logError(
     };
 
     // In Development: Console-Logging
-    if (process.env.NODE_ENV === 'development') {
+    if (isDevelopment()) {
         console.error('🚨 Error:', errorInfo);
     }
 
     // In Production: Minimal Logging für Privacy
-    if (process.env.NODE_ENV === 'production') {
+    if (isProduction()) {
         console.error('Error occurred:', errorInfo.message);
     }
 
@@ -323,7 +325,7 @@ export function sendAnalyticsEvent(
     delete sanitizedProperties.personalInfo;
 
     // In Development: Console-Logging
-    if (process.env.NODE_ENV === 'development') {
+    if (isDevelopment()) {
         console.log('📊 Analytics Event:', eventName, sanitizedProperties);
     }
 

@@ -38,15 +38,12 @@ export interface EnvironmentConfigMap {
  */
 export function getEnvironment(): Environment {
     try {
-        const env = typeof process !== 'undefined' &&
-            process.env &&
-            process.env.NODE_ENV
-            ? process.env.NODE_ENV
-            : 'production';
-        
-        // Type guard to ensure valid environment
-        if (env === 'development' || env === 'production' || env === 'test') {
-            return env;
+        // Use import.meta.env.MODE (Vite) instead of process.env.NODE_ENV
+        if (typeof import.meta !== 'undefined' && import.meta.env?.MODE) {
+            const mode = import.meta.env.MODE;
+            if (mode === 'development' || mode === 'production' || mode === 'test') {
+                return mode;
+            }
         }
         
         return 'production';

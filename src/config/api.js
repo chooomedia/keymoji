@@ -10,7 +10,7 @@
 const getApiUrl = () => {
     const envUrl = 
         (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) ||
-        process.env.VITE_API_URL;
+        undefined;
     
     // Check if envUrl exists and is not empty/just quotes
     if (envUrl) {
@@ -73,7 +73,7 @@ if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' |
 const getN8NUrl = () => {
     const envUrl = 
         (typeof import.meta !== 'undefined' && import.meta.env?.VITE_N8N_URL) ||
-        process.env.VITE_N8N_URL;
+        undefined;
     
     // Check if envUrl exists and is not empty/just quotes
     if (envUrl) {
@@ -283,7 +283,13 @@ export const API_CONFIG = {
 };
 
 // Default configuration
-export const DEFAULT_CONFIG = API_CONFIG[process.env.NODE_ENV || 'development'];
+const getNodeEnv = () => {
+    if (typeof import.meta !== 'undefined' && import.meta.env?.MODE) {
+        return import.meta.env.MODE === 'development' ? 'development' : 'production';
+    }
+    return 'production';
+};
+export const DEFAULT_CONFIG = API_CONFIG[getNodeEnv()];
 
 export default {
     WEBHOOKS,

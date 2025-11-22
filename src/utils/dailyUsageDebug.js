@@ -248,7 +248,7 @@ export async function runAllTests() {
 }
 
 // Make available globally in development
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+if (typeof window !== 'undefined' && (typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'development')) {
     window.keymojiDailyUsageDebug = {
         debug: debugDailyUsage,
         testIncrement: testIncrementUsage,

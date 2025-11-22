@@ -360,7 +360,7 @@ export function debugLocalStorage() {
 }
 
 // Export to window for console access (development only)
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+if (typeof window !== 'undefined' && (typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'development')) {
     window.debugLocalStorage = debugLocalStorage;
     window.clearLocalStorage = () => {
         const confirmed = confirm(
