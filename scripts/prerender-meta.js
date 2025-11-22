@@ -2,12 +2,41 @@
 const fs = require('fs');
 const path = require('path');
 
-// Import SEO utilities
-const {
-    DEFAULT_SEO,
-    formatCanonicalUrl,
-    getLocale
-} = require('../src/utils/seo.js');
+// SEO utilities (inline to avoid TypeScript import issues)
+const DEFAULT_SEO = {
+    image: '/images/keymoji-social-media-banner-10-2024-min.png'
+};
+
+function formatCanonicalUrl(url) {
+    if (!url) return '';
+    let canonical = url.startsWith('http') ? url : `https://keymoji.wtf${url}`;
+    // Add trailing slash for directories
+    if (canonical && !canonical.endsWith('/') && !canonical.includes('.') && !canonical.includes('?')) {
+        canonical = `${canonical}/`;
+    }
+    return canonical;
+}
+
+function getLocale(lang) {
+    const localeMap = {
+        en: 'en_US',
+        de: 'de_DE',
+        'de-CH': 'de_CH',
+        es: 'es_ES',
+        nl: 'nl_NL',
+        it: 'it_IT',
+        fr: 'fr_FR',
+        pl: 'pl_PL',
+        ru: 'ru_RU',
+        tr: 'tr_TR',
+        af: 'af_ZA',
+        ja: 'ja_JP',
+        ko: 'ko_KR',
+        tlh: 'tlh_US',
+        sjn: 'sjn_US'
+    };
+    return localeMap[lang] || 'en_US';
+}
 
 // Language configurations
 const supportedLanguages = [
