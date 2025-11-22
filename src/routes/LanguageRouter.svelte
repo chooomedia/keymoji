@@ -17,8 +17,12 @@
     
     // Lazy Load Components on mount (Preload für bessere UX)
     async function loadRoutes() {
-        if (routesLoaded) return;
+        if (routesLoaded) {
+            console.log('✅ LanguageRouter: Routes already loaded');
+            return;
+        }
         try {
+            console.log('🔄 LanguageRouter: Loading routes...');
             const [
                 BlogGridModule,
                 BlogPostModule,
@@ -45,8 +49,12 @@
             StaticPage = StaticPageModule.default;
             NotFound = NotFoundModule.default;
             routesLoaded = true;
+            console.log('✅ LanguageRouter: All routes loaded successfully');
         } catch (err) {
-            console.warn('⚠️ Failed to load routes:', err);
+            console.error('❌ LanguageRouter: Failed to load routes:', err);
+            // Set routesLoaded to true even on error to prevent infinite loading
+            // The NotFound component will handle missing routes
+            routesLoaded = true;
         }
     }
     import SEO from '../components/SEO.svelte';
@@ -204,8 +212,10 @@
             resetSessionFlags();
             console.log('✅ LanguageRouter: Session flags reset for new page load');
             
-            // PERFORMANCE: Load routes in background (non-blocking)
-            loadRoutes();
+            // CRITICAL: Load routes BEFORE router initialization to prevent routing issues
+            // Routes must be available when Router component mounts
+            await loadRoutes();
+            console.log('✅ LanguageRouter: Routes loaded, routesLoaded:', routesLoaded);
             
             // CRITICAL: Initialize daily usage for ALL users (logged in or guest)
             try {
