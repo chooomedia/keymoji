@@ -141,9 +141,21 @@
         processingRoute = true;
         
         try {
+            // Normalisiere URL: Entferne trailing slash (außer bei root)
+            let normalizedPath = window.location.pathname;
+            if (normalizedPath !== '/' && normalizedPath.endsWith('/')) {
+                normalizedPath = normalizedPath.slice(0, -1);
+                // Redirect zu URL ohne trailing slash für SEO-Konsistenz
+                if (window.location.pathname !== normalizedPath) {
+                    const newUrl = normalizedPath + (window.location.search || '');
+                    window.history.replaceState(null, '', newUrl);
+                    console.log('🔄 LanguageRouter: Normalized URL (removed trailing slash):', newUrl);
+                }
+            }
+            
             // Extrahiere den aktuellen Pfad
-            currentPath = window.location.pathname;
-            pageURL = currentPath; // Set pageURL for SEO component
+            currentPath = normalizedPath;
+            pageURL = normalizedPath; // Set pageURL for SEO component
             
             // Determine page type for SEO
             currentPageType = determinePageType(currentPath);
@@ -313,28 +325,52 @@
         <Route path="/versions" let:params>
             <svelte:component this={VersionHistory} />
         </Route>
+        <Route path="/versions/" let:params>
+            <svelte:component this={VersionHistory} />
+        </Route>
         <Route path="/:lang/versions" let:params>
+            <svelte:component this={VersionHistory} />
+        </Route>
+        <Route path="/:lang/versions/" let:params>
             <svelte:component this={VersionHistory} />
         </Route>
         
         <Route path="/contact" let:params>
             <svelte:component this={ContactForm} />
         </Route>
+        <Route path="/contact/" let:params>
+            <svelte:component this={ContactForm} />
+        </Route>
         <Route path="/:lang/contact" let:params>
+            <svelte:component this={ContactForm} />
+        </Route>
+        <Route path="/:lang/contact/" let:params>
             <svelte:component this={ContactForm} />
         </Route>
         
         <Route path="/account" let:params>
             <svelte:component this={AccountManager} />
         </Route>
+        <Route path="/account/" let:params>
+            <svelte:component this={AccountManager} />
+        </Route>
         <Route path="/:lang/account" let:params>
+            <svelte:component this={AccountManager} />
+        </Route>
+        <Route path="/:lang/account/" let:params>
             <svelte:component this={AccountManager} />
         </Route>
         
         <Route path="/blog" let:params>
             <svelte:component this={BlogGrid} />
         </Route>
+        <Route path="/blog/" let:params>
+            <svelte:component this={BlogGrid} />
+        </Route>
         <Route path="/:lang/blog" let:params>
+            <svelte:component this={BlogGrid} />
+        </Route>
+        <Route path="/:lang/blog/" let:params>
             <svelte:component this={BlogGrid} />
         </Route>
         
@@ -348,14 +384,26 @@
         <Route path="/privacy" let:params>
             <svelte:component this={StaticPage} slug="privacy" />
         </Route>
+        <Route path="/privacy/" let:params>
+            <svelte:component this={StaticPage} slug="privacy" />
+        </Route>
         <Route path="/:lang/privacy" let:params>
+            <svelte:component this={StaticPage} slug="privacy" />
+        </Route>
+        <Route path="/:lang/privacy/" let:params>
             <svelte:component this={StaticPage} slug="privacy" />
         </Route>
         
         <Route path="/legal" let:params>
             <svelte:component this={StaticPage} slug="legal" />
         </Route>
+        <Route path="/legal/" let:params>
+            <svelte:component this={StaticPage} slug="legal" />
+        </Route>
         <Route path="/:lang/legal" let:params>
+            <svelte:component this={StaticPage} slug="legal" />
+        </Route>
+        <Route path="/:lang/legal/" let:params>
             <svelte:component this={StaticPage} slug="legal" />
         </Route>
         
