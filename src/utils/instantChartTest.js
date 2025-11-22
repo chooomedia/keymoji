@@ -2,7 +2,7 @@
 // Instant Chart Data Verification & Testing
 
 import { get } from 'svelte/store';
-import { currentAccount } from '../stores/appStores'
+import { currentAccount } from 'stores/appStores';
 
 /**
  * INSTANT TEST - Run immediately after login

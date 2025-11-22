@@ -12,7 +12,7 @@
         isDisabled,
         currentLanguage,
         darkMode
-    } from '../../stores/appStores'
+    } from 'stores/appStores'
     import { isLoggingIn, loginError, loginWithMagicLink } from '../../stores/accountStore.js';
     import { 
         showSuccess, 

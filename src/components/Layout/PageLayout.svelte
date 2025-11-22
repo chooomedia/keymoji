@@ -2,7 +2,7 @@
 <script>
     import { fade } from 'svelte/transition';
     import { currentLanguage, translations } from '../../stores/contentStore.js';
-    import { darkMode } from '../../stores/appStores'
+    import { darkMode } from 'stores/appStores'
     import Header from './Header.svelte';
     import FixedMenu from '../../widgets/FixedMenu.svelte';
     

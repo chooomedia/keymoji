@@ -2,7 +2,7 @@
 // Debug: Inject test data directly into AccountManager for chart testing
 
 import { get } from 'svelte/store';
-import { currentAccount } from '../stores/appStores'
+import { currentAccount } from 'stores/appStores';
 
 /**
  * Generate PRO user mock data (high usage pattern)

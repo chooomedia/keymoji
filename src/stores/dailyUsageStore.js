@@ -7,7 +7,7 @@ import {
     isLoggedIn,
     accountTier,
     dailyLimit
-} from './appStores';
+} from 'stores/appStores';
 import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
 import { WEBHOOKS } from '../config/api.js';
 import {
@@ -16,10 +16,7 @@ import {
     getRemainingGenerations
 } from '../config/limits.js';
 import { isDevelopment } from '../utils/environment';
-import {
-    cachedFetchAccount,
-    invalidateCachePattern
-} from '../utils/apiCache';
+import { cachedFetchAccount, invalidateCachePattern } from '../utils/apiCache';
 
 // === STORES ===
 

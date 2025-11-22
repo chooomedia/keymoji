@@ -1,6 +1,6 @@
 // src/stores/userSettingsStore.js
 import { writable, derived, get } from 'svelte/store';
-import { accountTier, isLoggedIn, currentAccount } from './appStores';
+import { accountTier, isLoggedIn, currentAccount } from 'stores/appStores';
 import { WEBHOOKS } from '../config/api.js';
 import {
     setUserPreferences,
@@ -17,7 +17,7 @@ import {
 } from '../utils/settingsValidation';
 // Import dailyLimit store for dailyUsage preservation
 // Note: dailyLimit is exported from './appStores', not dailyUsageStore.js
-import { dailyLimit } from './appStores';
+import { dailyLimit } from 'stores/appStores';
 // Import metadata cleaner to prevent duplicate fields
 import {
     prepareMetadataForAPI,

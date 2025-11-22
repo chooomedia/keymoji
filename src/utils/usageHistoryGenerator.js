@@ -2,7 +2,7 @@
 // Generate test data for usage history charts
 
 import { get } from 'svelte/store';
-import { currentAccount, accountTier } from '../stores/appStores'
+import { currentAccount, accountTier } from 'stores/appStores';
 import { WEBHOOKS } from '../config/api.js';
 
 /**

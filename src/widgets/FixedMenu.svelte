@@ -4,7 +4,7 @@
   import { navigate } from 'svelte-routing';
   import { get } from 'svelte/store';
 
-  import { darkMode, showDonateMenu, isLoggedIn, currentAccount } from '../../stores/appStores';
+  import { darkMode, showDonateMenu, isLoggedIn, currentAccount } from 'stores/appStores';
   import { showLanguageMenu, translations } from '../stores/contentStore.js';
   import { createEventDispatcher, onMount } from 'svelte';
   import ModalDebug from '../components/UI/ModalDebug.svelte';

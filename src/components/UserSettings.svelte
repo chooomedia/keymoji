@@ -4,7 +4,7 @@
     import { fade, slide } from 'svelte/transition';
     import { get } from 'svelte/store';
     import { currentLanguage, translations } from '../stores/contentStore.js';
-    import { accountTier, currentAccount, darkMode } from '../stores/appStores'
+    import { accountTier, currentAccount, darkMode } from 'stores/appStores'
     import { 
         userSettings, 
         pendingChanges, 

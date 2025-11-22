@@ -2,11 +2,7 @@
 // Comprehensive Chart Data Flow Debugger
 
 import { get } from 'svelte/store';
-import {
-    currentAccount,
-    isLoggedIn,
-    accountTier
-} from '../stores/appStores'
+import { currentAccount, isLoggedIn, accountTier } from 'stores/appStores';
 
 /**
  * Complete chart data flow debugger

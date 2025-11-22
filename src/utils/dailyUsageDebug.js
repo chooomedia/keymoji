@@ -7,7 +7,7 @@ import {
     isLoggedIn,
     accountTier,
     currentAccount
-} from '../stores/appStores'
+} from 'stores/appStores';
 import {
     initializeDailyUsage,
     incrementDailyUsage,
@@ -65,7 +65,10 @@ export function debugDailyUsage() {
             userId: account?.userId,
             email: account?.email,
             // NEW STRUCTURE: dailyUsage from separate column (preferred!)
-            dailyUsage: account?.dailyUsage || account?.profile?.dailyUsage || account?.metadata?.dailyUsage
+            dailyUsage:
+                account?.dailyUsage ||
+                account?.profile?.dailyUsage ||
+                account?.metadata?.dailyUsage
         }
     };
 }
