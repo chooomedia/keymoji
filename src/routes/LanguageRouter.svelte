@@ -186,7 +186,22 @@
                     console.log('🔄 LanguageRouter: Language already set to:', potentialLang);
                 }
             } else {
-                console.log('🔄 LanguageRouter: No valid language in URL, using current:', $currentLanguage);
+                // Kein Sprachcode in URL - prüfe ob es eine bekannte Route ist
+                const knownRoutes = ['contact', 'account', 'versions', 'blog', 'privacy', 'legal'];
+                const isKnownRoute = pathSegments.length > 0 && knownRoutes.includes(pathSegments[0]);
+                
+                if (isKnownRoute) {
+                    // Route ohne Sprachpräfix - redirect zu /{lang}/route für SEO-Konsistenz
+                    const currentLang = $currentLanguage || 'en';
+                    const routePath = pathSegments[0];
+                    const newPath = `/${currentLang}/${routePath}`;
+                    const newUrl = newPath + (window.location.search || '');
+                    console.log('🔄 LanguageRouter: Redirecting route without language prefix:', normalizedPath, '→', newPath);
+                    navigate(newUrl, { replace: true });
+                    return; // Exit early, navigation will trigger handleRouteChange again
+                } else {
+                    console.log('🔄 LanguageRouter: No valid language in URL, using current:', $currentLanguage);
+                }
             }
             
             // Preserve URL parameters for magic link verification
