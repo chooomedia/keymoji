@@ -615,3 +615,16 @@ button:disabled {
     border: 2px solid rgb(31, 41, 55);
     background: rgb(217, 167, 0);
 }
+/* Elvish Font (Tengwar Annatar) for sjn language */
+:global(.font-elvish) {
+    font-family: 'Tengwar Annatar', serif;
+}
+
+/* Ensure @font-face is defined for Tengwar Annatar */
+@font-face {
+    font-family: 'Tengwar Annatar';
+    src: url('/fonts/tengwar_annatar.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
