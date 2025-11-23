@@ -308,36 +308,40 @@ function initializeApp() {
             console.warn('⚠️ Failed to initialize user data stores:', error);
         });
 
-    // Hide static loading screen before initializing Svelte
-    // This ensures only ONE loading screen is visible (the Svelte LoadingScreen component)
+    // Initialize Svelte App FIRST
+    // The LanguageRouter will handle hiding the static loading screen once it's ready
     const appElement = document.getElementById('app');
-    if (appElement) {
-        // Method 1: Hide by ID (most reliable)
-        const staticLoadingById = document.getElementById(
-            'static-loading-screen'
-        );
-        if (staticLoadingById) {
-            staticLoadingById.style.display = 'none';
-        }
-
-        // Method 2: Hide any static loading content inside #app (fallback)
-        const staticLoading = appElement.querySelector(
-            'div[style*="display: flex"][style*="justify-content: center"][style*="min-height: 100vh"]'
-        );
-        if (staticLoading && staticLoading.id !== 'static-loading-screen') {
-            staticLoading.style.display = 'none';
-        }
-
-        // Also hide noscript content if JavaScript is enabled
-        const noscriptContent = appElement.querySelector('noscript');
-        if (noscriptContent) {
-            noscriptContent.style.display = 'none';
-        }
-    }
-
-    // Initialize Svelte App
     const app = new LanguageRouter({
         target: appElement || document.body
+    });
+
+    // Hide static loading screen AFTER Svelte is initialized
+    // This ensures smooth transition from static to Svelte loading screen
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+        if (appElement) {
+            // Method 1: Hide by ID (most reliable)
+            const staticLoadingById = document.getElementById(
+                'static-loading-screen'
+            );
+            if (staticLoadingById) {
+                staticLoadingById.style.display = 'none';
+            }
+
+            // Method 2: Hide any static loading content inside #app (fallback)
+            const staticLoading = appElement.querySelector(
+                'div[style*="display: flex"][style*="justify-content: center"][style*="min-height: 100vh"]'
+            );
+            if (staticLoading && staticLoading.id !== 'static-loading-screen') {
+                staticLoading.style.display = 'none';
+            }
+
+            // Also hide noscript content if JavaScript is enabled
+            const noscriptContent = appElement.querySelector('noscript');
+            if (noscriptContent) {
+                noscriptContent.style.display = 'none';
+            }
+        }
     });
 
     return app;

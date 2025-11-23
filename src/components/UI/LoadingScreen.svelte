@@ -11,9 +11,11 @@
     
     let copySuccess = false;
     let errorLog = [];
+    let isMounted = false; // Track if component is mounted and ready
     
     // Collect errors from console and window events
     onMount(() => {
+        isMounted = true; // Mark as mounted - debug button is now functional
         if (typeof window === 'undefined') return;
         
         // Store original console methods
@@ -147,8 +149,8 @@ Version: 0.7.7${errorsText}`;
             {subMessage}
         </p>
         
-        <!-- Debug Button (wie Story Button) -->
-        {#if showDebugInfo}
+        <!-- Debug Button (wie Story Button) - Only show if mounted and functional -->
+        {#if showDebugInfo && isMounted}
             <button
                 on:click={copyDebugInfo}
                 class="w-full py-4 rounded-full bg-yellow-500 text-black border-2 border-yellow-500 shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 cursor-pointer"

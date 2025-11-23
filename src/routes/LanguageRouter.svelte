@@ -220,6 +220,16 @@
         try {
             devLog('🚀 LanguageRouter: Component mounted');
             
+            // CRITICAL: Hide static loading screen NOW that Svelte is ready
+            // This ensures smooth transition from static HTML to Svelte LoadingScreen
+            requestAnimationFrame(() => {
+                const staticLoading = document.getElementById('static-loading-screen');
+                if (staticLoading) {
+                    staticLoading.style.display = 'none';
+                    console.log('✅ LanguageRouter: Static loading screen hidden, Svelte LoadingScreen now visible');
+                }
+            });
+            
             // NOTE: localStorage migration runs SYNCHRONOUSLY on appStores.js import
             // This ensures all data is clean BEFORE any store initialization
             
@@ -530,5 +540,12 @@
         </Route>
     </Router>
 {:else}
-    <LoadingScreen loadingStartTime={loadingStartTime} />
+    <!-- Show LoadingScreen immediately when LanguageRouter mounts (before routes are loaded) -->
+    <!-- This ensures smooth transition from static HTML loading screen -->
+    <LoadingScreen 
+        message="Initializing Keymoji..." 
+        subMessage="Loading application..."
+        loadingStartTime={loadingStartTime} 
+        showDebugInfo={false} 
+    />
 {/if}
