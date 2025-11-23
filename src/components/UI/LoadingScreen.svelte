@@ -13,9 +13,16 @@
     let errorLog = [];
     let isMounted = false; // Track if component is mounted and ready
     
+    // Set isMounted immediately for SSR compatibility, but mark as ready in onMount
+    if (typeof window !== 'undefined') {
+        // In browser, we can set this immediately
+        // The button will be functional once onMount runs
+        isMounted = true;
+    }
+    
     // Collect errors from console and window events
     onMount(() => {
-        isMounted = true; // Mark as mounted - debug button is now functional
+        isMounted = true; // Ensure mounted state is set
         if (typeof window === 'undefined') return;
         
         // Store original console methods

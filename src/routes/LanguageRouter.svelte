@@ -546,6 +546,6 @@
         message="Initializing Keymoji..." 
         subMessage="Loading application..."
         loadingStartTime={loadingStartTime} 
-        showDebugInfo={false} 
+        showDebugInfo={true} 
     />
 {/if}
