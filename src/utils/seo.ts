@@ -991,30 +991,55 @@ export function updateMetaTags(seoData: SEOConfig, currentLanguage: string): voi
     });
 
     // Add/update hreflang links for all languages
+    // CRITICAL: Only add if not already present (avoid duplicates)
     alternateUrls.forEach(alt => {
+        // Check if link already exists (either static or dynamic)
         let hreflangLink = document.querySelector(`link[rel="alternate"][hreflang="${alt.lang}"]`) as HTMLLinkElement | null;
-        if (!hreflangLink) {
-            hreflangLink = document.createElement('link');
-            hreflangLink.setAttribute('rel', 'alternate');
-            hreflangLink.setAttribute('hreflang', alt.lang);
-            hreflangLink.setAttribute('data-dynamic', 'true');
-            document.head.appendChild(hreflangLink);
+        
+        // If link exists and is static, update href if needed (but don't duplicate)
+        if (hreflangLink && hreflangLink.hasAttribute('data-static')) {
+            // Static link exists - just update href if different
+            if (hreflangLink.getAttribute('href') !== alt.url) {
+                hreflangLink.setAttribute('href', alt.url);
+            }
+            return; // Don't create duplicate
         }
+        
+        // If link exists but is dynamic, just update href
+        if (hreflangLink) {
+            hreflangLink.setAttribute('href', alt.url);
+            return;
+        }
+        
+        // No link exists - create new one
+        hreflangLink = document.createElement('link');
+        hreflangLink.setAttribute('rel', 'alternate');
+        hreflangLink.setAttribute('hreflang', alt.lang);
+        hreflangLink.setAttribute('data-dynamic', 'true');
         hreflangLink.setAttribute('href', alt.url);
+        document.head.appendChild(hreflangLink);
     });
 
-    // Ensure x-default link exists
+    // Ensure x-default link exists (avoid duplicates)
     let xDefaultLink = document.querySelector('link[rel="alternate"][hreflang="x-default"]') as HTMLLinkElement | null;
-    if (!xDefaultLink) {
+    
+    // x-default should point to English version
+    const englishUrl = alternateUrls.find(alt => alt.lang === 'en')?.url || 'https://keymoji.wtf/';
+    
+    if (xDefaultLink) {
+        // Link exists - just update href if different (whether static or dynamic)
+        if (xDefaultLink.getAttribute('href') !== englishUrl) {
+            xDefaultLink.setAttribute('href', englishUrl);
+        }
+    } else {
+        // No link exists - create new one
         xDefaultLink = document.createElement('link');
         xDefaultLink.setAttribute('rel', 'alternate');
         xDefaultLink.setAttribute('hreflang', 'x-default');
         xDefaultLink.setAttribute('data-dynamic', 'true');
+        xDefaultLink.setAttribute('href', englishUrl);
         document.head.appendChild(xDefaultLink);
     }
-    // x-default should point to English version
-    const englishUrl = alternateUrls.find(alt => alt.lang === 'en')?.url || 'https://keymoji.wtf/';
-    xDefaultLink.setAttribute('href', englishUrl);
 }
 
 /**

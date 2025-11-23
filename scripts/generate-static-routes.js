@@ -450,6 +450,7 @@ function generateRouteHTML(route, lang = 'en', buildAssets = { css: [], js: [] }
     <link rel="canonical" href="${canonicalUrl}">
     
     <!-- Language Alternates (hreflang) - Required for SEO -->
+    <!-- data-static="true" prevents updateMetaTags() from removing/duplicating these -->
     ${supportedLanguages
         .map(l => {
             const altPath = route.path === '/' ? '' : route.path;
@@ -464,12 +465,12 @@ function generateRouteHTML(route, lang = 'en', buildAssets = { css: [], js: [] }
                 // No file extension, add trailing slash
                 altUrl = `${altUrl}/`;
             }
-            return `<link rel="alternate" hreflang="${l}" href="${altUrl}">`;
+            return `<link rel="alternate" hreflang="${l}" href="${altUrl}" data-static="true">`;
         })
         .join('\n    ')}
     <link rel="alternate" hreflang="x-default" href="${baseUrl}${
         route.path === '/' ? '/' : route.path
-    }">
+    }" data-static="true">
     
     <!-- Structured Data -->
     <script type="application/ld+json">
