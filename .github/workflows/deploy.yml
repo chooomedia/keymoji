@@ -68,8 +68,8 @@ jobs:
                   RewriteRule ^(.*)$ /social-preview.php?path=$1 [L]
 
                   # Check for static HTML files in subdirectories first (e.g., /account/index.html)
+                  # This handles both /account and /account/ URLs
                   RewriteCond %{REQUEST_FILENAME} !-f
-                  RewriteCond %{REQUEST_FILENAME} !-d
                   RewriteCond %{REQUEST_URI} ^/([^/]+)/?$
                   RewriteCond %{DOCUMENT_ROOT}/%1/index.html -f
                   RewriteRule ^(.*)$ /%1/index.html [L]
