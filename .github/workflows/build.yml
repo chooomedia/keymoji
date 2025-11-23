@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ staging, frontend, master ]
   workflow_dispatch:
+  
+# OPTIMIZATION: Verhindere doppelte Builds
+# - build.yml: Einziger Workflow der tatsächlich baut
+# - tests.yml: Nur Lint/TypeScript, kein Build
+# - deploy.yml: Nur auf main, verwendet build.yml Artifacts
 
 jobs:
   build:

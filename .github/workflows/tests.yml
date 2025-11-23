@@ -6,6 +6,9 @@ on:
     pull_request:
         branches: [staging, frontend, master]
 
+# OPTIMIZATION: Kein Build hier - nur Code-Qualitäts-Checks
+# Build wird von build.yml gemacht, hier nur Lint/TypeScript/Tests
+
 jobs:
     # Lint & TypeScript Check - keine Build-Duplikation
     # Build wird von build.yml gemacht, hier nur Code-Qualitäts-Checks
