@@ -7,6 +7,7 @@
     import { closeModal, isModalVisible } from '../stores/modalStore';
     import { devLog } from '../utils/environment';
     import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore.js';
+    import { darkMode } from 'stores/appStores';
     // PERFORMANCE: Index bleibt synchron (Hauptseite, muss schnell laden)
     import Index from '../index.svelte';
     
@@ -14,6 +15,7 @@
     // Diese Komponenten werden nur geladen, wenn die Route besucht wird
     let BlogGrid, BlogPost, VersionHistory, ContactForm, AccountManager, StaticPage, NotFound;
     let routesLoaded = false;
+    let loadingTimeout = null;
     
     // Lazy Load Components on mount (Preload für bessere UX)
     async function loadRoutes() {
@@ -622,10 +624,43 @@
         </Route>
     </Router>
 {:else}
-    <!-- Loading state while routes are being loaded -->
-    <div class="flex items-center justify-center min-h-screen">
-        <div class="text-center">
-            <p class="text-gray-600 dark:text-gray-400">Loading...</p>
+    <!-- Optimized Loading Screen with Dark/Light Mode Support -->
+    <div 
+        class="flex items-center justify-center min-h-screen bg-creme-50 dark:bg-aubergine-950 transition-colors duration-300"
+        role="status"
+        aria-live="polite"
+        aria-label="Loading application..."
+    >
+        <div class="text-center px-4">
+            <!-- Keymoji Logo/Emoji -->
+            <div class="mb-6 animate-pulse">
+                <div class="text-6xl md:text-8xl mb-4">🔑</div>
+            </div>
+            
+            <!-- Spinner -->
+            <div class="flex justify-center mb-4">
+                <div class="relative w-16 h-16">
+                    <!-- Outer ring -->
+                    <div class="absolute inset-0 border-4 border-yellow-400 dark:border-yellow-500 border-t-transparent rounded-full animate-spin opacity-75"></div>
+                    <!-- Inner ring -->
+                    <div class="absolute inset-2 border-4 border-yellow-500 dark:border-yellow-400 border-t-transparent rounded-full animate-spin" style="animation-direction: reverse; animation-duration: 0.8s;"></div>
+                </div>
+            </div>
+            
+            <!-- Loading Text -->
+            <p class="text-lg md:text-xl font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Loading Keymoji...
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-500">
+                Preparing your secure emoji password generator
+            </p>
+            
+            <!-- Loading Dots Animation -->
+            <div class="flex justify-center gap-1 mt-4">
+                <div class="w-2 h-2 bg-yellow-500 dark:bg-yellow-400 rounded-full animate-pulse" style="animation-delay: 0s;"></div>
+                <div class="w-2 h-2 bg-yellow-500 dark:bg-yellow-400 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+                <div class="w-2 h-2 bg-yellow-500 dark:bg-yellow-400 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
+            </div>
         </div>
     </div>
     {/if}
