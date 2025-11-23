@@ -25,6 +25,35 @@
             clearTimeout(timeoutId);
         });
         activeTimeouts.clear();
+        
+        // Cleanup: Remove all event listeners (safety net)
+        if (navigator.serviceWorker) {
+            try {
+                navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+                navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
+            } catch (error) {
+                // Ignore errors during cleanup
+                if (debugMode) {
+                    console.warn('⚠️ ServiceWorkerHandler: Error during cleanup:', error);
+                }
+            }
+        }
+        
+        if (registration) {
+            try {
+                registration.removeEventListener('updatefound', handleUpdateFound);
+            } catch (error) {
+                // Ignore errors during cleanup
+            }
+        }
+        
+        if (newWorker) {
+            try {
+                newWorker.removeEventListener('statechange', handleWorkerStateChange);
+            } catch (error) {
+                // Ignore errors during cleanup
+            }
+        }
     });
   
     // State
@@ -32,6 +61,65 @@
     let registration = null;
     let newWorker = null;
     let debugMode = isDebugMode();
+
+    // Event handler functions (defined outside onMount for proper cleanup)
+    function handleControllerChange() {
+        console.log('Service worker controller changed - new version active');
+        
+        // We could reload the page here, but it's often better to let the user decide
+        // If a reload hasn't happened within 5 seconds since the controllerchange,
+        // show a notification with a manual reload option
+        localSafeSetTimeout(() => {
+            const refreshPrompt = $translations.serviceWorker?.manualRefreshNeeded || 'Manual refresh needed';
+            
+            showInfo(refreshPrompt, 8000);
+        }, 5000);
+    }
+    
+    function handleUpdateFound() {
+        if (!registration) return;
+        
+        newWorker = registration.installing;
+        if (!newWorker) return;
+        
+        newWorker.addEventListener('statechange', handleWorkerStateChange);
+    }
+    
+    function handleWorkerStateChange() {
+        if (!newWorker) return;
+        
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            updateAvailable = true;
+            
+            const updateMessage = translations.serviceWorker.updateAvailable;
+            
+            // Dispatch a custom event so other components can react
+            try {
+                window.dispatchEvent(new CustomEvent('swUpdateAvailable', {
+                    detail: { registration, newWorker }
+                }));
+            } catch (error) {
+                if (debugMode) {
+                    console.warn('⚠️ ServiceWorkerHandler: Failed to dispatch swUpdateAvailable event:', error);
+                }
+            }
+        }
+    }
+    
+    function handleServiceWorkerMessage(event) {
+        try {
+            if (event.data?.type === 'SW_UPDATED') {
+                console.log(`Service Worker updated to version ${event.data.version}`);
+                
+                // Show success notification
+                showInfo('App updated successfully! 🎉', 3000);
+            }
+        } catch (error) {
+            if (debugMode) {
+                console.warn('⚠️ ServiceWorkerHandler: Error handling message:', error);
+            }
+        }
+    }
 
     onMount(async () => {
         if (!('serviceWorker' in navigator)) return;
@@ -45,67 +133,48 @@
             }
             
             // Listen for controller change events (indicates a new service worker taking over)
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                console.log('Service worker controller changed - new version active');
-                
-                // We could reload the page here, but it's often better to let the user decide
-                // If a reload hasn't happened within 5 seconds since the controllerchange,
-                // show a notification with a manual reload option
-                localSafeSetTimeout(() => {
-                    const refreshPrompt = $translations.serviceWorker?.manualRefreshNeeded || 'Manual refresh needed';
-                    
-                    showInfo(refreshPrompt, 8000);
-                }, 5000);
-            });
+            navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
             
             // Listen for update events
-            registration.addEventListener('updatefound', () => {
-                newWorker = registration.installing;
-                
-                newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        updateAvailable = true;
-                        
-                        const updateMessage = translations.serviceWorker.updateAvailable;
-                        
-                        // Show update notification using centralized modal system
-                        // showWarning(
-                        //     updateMessage,
-                        //     0, // Don't auto-close
-                        //     {
-                        //         buttonText: 'Update Now',
-                        //         buttonAction: () => {
-                        //             updateServiceWorker();
-                        //         }
-                        //     }
-                        // );
-                        
-                        // Dispatch a custom event so other components can react
-                        window.dispatchEvent(new CustomEvent('swUpdateAvailable', {
-                            detail: { registration, newWorker }
-                        }));
-                    }
-                });
-            });
+            registration.addEventListener('updatefound', handleUpdateFound);
             
             // Listen for messages from the service worker
-            navigator.serviceWorker.addEventListener('message', (event) => {
-                if (event.data?.type === 'SW_UPDATED') {
-                    console.log(`Service Worker updated to version ${event.data.version}`);
-                    
-                    // Show success notification
-                    showInfo('App updated successfully! 🎉', 3000);
-                }
-            });
+            navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
             
             // Check for updates right away (for users who have been offline)
-            registration.update();
+            try {
+                await registration.update();
+            } catch (updateError) {
+                // Silently handle update errors (common when offline)
+                if (debugMode) {
+                    console.warn('⚠️ ServiceWorkerHandler: Update check failed (may be offline):', updateError);
+                }
+            }
         } catch (error) {
             console.error('Service worker registration or update failed:', error);
             
-            // Show error notification
-            // showWarning('Service worker registration failed. Some features may not work properly.', 5000);
+            // Show error notification only in debug mode
+            if (debugMode) {
+                console.warn('⚠️ Service worker registration failed. Some features may not work properly.');
+            }
         }
+        
+        // Return cleanup function
+        return () => {
+            // Remove all event listeners
+            if (navigator.serviceWorker) {
+                navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+                navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
+            }
+            
+            if (registration) {
+                registration.removeEventListener('updatefound', handleUpdateFound);
+            }
+            
+            if (newWorker) {
+                newWorker.removeEventListener('statechange', handleWorkerStateChange);
+            }
+        };
     });
   
     // Functions to manage service worker updates
@@ -117,7 +186,19 @@
         }
         
         // Tell the service worker to skip waiting and activate
-        newWorker.postMessage({ type: 'SKIP_WAITING' });
+        // Wrap in try-catch to handle message port errors
+        try {
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+        } catch (error) {
+            // Handle message port closed errors gracefully
+            if (error.message?.includes('port') || error.message?.includes('closed')) {
+                if (debugMode) {
+                    console.warn('⚠️ ServiceWorkerHandler: Message port closed, worker may have already activated');
+                }
+            } else {
+                console.error('❌ ServiceWorkerHandler: Failed to send message to service worker:', error);
+            }
+        }
         
         // Reset state
         updateAvailable = false;
