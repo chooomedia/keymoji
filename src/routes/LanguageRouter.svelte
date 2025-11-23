@@ -338,16 +338,48 @@
         </Route>
         
         <Route path="/account" let:params>
-            <svelte:component this={AccountManager} />
+            {#if AccountManager}
+                <svelte:component this={AccountManager} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading account...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/account/" let:params>
-            <svelte:component this={AccountManager} />
+            {#if AccountManager}
+                <svelte:component this={AccountManager} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading account...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/account" let:params>
-            <svelte:component this={AccountManager} />
+            {#if AccountManager}
+                <svelte:component this={AccountManager} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading account...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/account/" let:params>
-            <svelte:component this={AccountManager} />
+            {#if AccountManager}
+                <svelte:component this={AccountManager} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading account...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         
         <Route path="/blog" let:params>
