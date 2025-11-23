@@ -69,6 +69,13 @@ jobs:
                   RewriteCond %{REQUEST_FILENAME} !-f
                   RewriteRule ^(.*)$ /social-preview.php?path=$1 [L]
 
+                  # Check for static HTML files in language-prefixed subdirectories (e.g., /de/account/index.html)
+                  # This handles /:lang/account, /:lang/contact, etc.
+                  RewriteCond %{REQUEST_FILENAME} !-f
+                  RewriteCond %{REQUEST_URI} ^/([^/]+)/([^/]+)/?$
+                  RewriteCond %{DOCUMENT_ROOT}/%1/%2/index.html -f
+                  RewriteRule ^(.*)$ /%1/%2/index.html [L]
+
                   # Check for static HTML files in subdirectories first (e.g., /account/index.html)
                   # This handles both /account and /account/ URLs
                   RewriteCond %{REQUEST_FILENAME} !-f
