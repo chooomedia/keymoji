@@ -78,7 +78,7 @@ const seoData = {
     privacy: {
         title: 'Keymoji Privacy Policy - Your Data Protection',
         description:
-            'Read Keymoji\'s privacy policy to understand how we protect your data and ensure your privacy when using our emoji password generator.',
+            "Read Keymoji's privacy policy to understand how we protect your data and ensure your privacy when using our emoji password generator.",
         keywords:
             'keymoji privacy, privacy policy, data protection, GDPR, user privacy',
         image: '/images/keymoji-social-media-banner-10-2024-min.png'
@@ -86,7 +86,7 @@ const seoData = {
     legal: {
         title: 'Keymoji Legal Information - Terms & Conditions',
         description:
-            'Read Keymoji\'s terms and conditions, legal information, and usage guidelines for our emoji password generator service.',
+            "Read Keymoji's terms and conditions, legal information, and usage guidelines for our emoji password generator service.",
         keywords:
             'keymoji legal, terms and conditions, legal information, usage guidelines',
         image: '/images/keymoji-social-media-banner-10-2024-min.png'
@@ -157,7 +157,9 @@ function generateRouteHTML(route, lang = 'en') {
             return `<link rel="alternate" hreflang="${l}" href="${altUrl}">`;
         })
         .join('\n    ')}
-    <link rel="alternate" hreflang="x-default" href="${baseUrl}${route.path === '/' ? '/' : route.path}">
+    <link rel="alternate" hreflang="x-default" href="${baseUrl}${
+        route.path === '/' ? '/' : route.path
+    }">
     
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -273,20 +275,20 @@ function generateStaticRoutes() {
         if (route.path !== '/') {
             const routePath = route.path;
             const dir = path.join(buildDir, routePath);
-            
+
             // Erstelle Verzeichnis falls nicht vorhanden
             if (!fs.existsSync(dir)) {
                 fs.mkdirSync(dir, { recursive: true });
             }
-            
+
             // Generiere HTML für Route ohne Sprachpräfix (default: en)
             const html = generateRouteHTML(route, 'en');
             const filePath = path.join(dir, 'index.html');
-            
+
             fs.writeFileSync(filePath, html);
             console.log(`✅ Generated: ${route.path}/index.html`);
         }
-        
+
         // Generiere HTML für jede Sprache
         supportedLanguages.forEach(lang => {
             const routePath = route.path === '/' ? '' : route.path;
