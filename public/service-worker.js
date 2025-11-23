@@ -298,9 +298,17 @@ self.addEventListener('message', event => {
     // Handle reload requests
     if (event.data === 'promptForReload') {
         // Reply to client with confirmation to show prompt
-        event.ports[0].postMessage({
-            accepted: true,
-            version: CACHE_VERSION
-        });
+        // CRITICAL: Check if port exists and is not closed before posting
+        if (event.ports && event.ports.length > 0 && event.ports[0]) {
+            try {
+                event.ports[0].postMessage({
+                    accepted: true,
+                    version: CACHE_VERSION
+                });
+            } catch (error) {
+                // Handle message port closed errors gracefully
+                console.warn('⚠️ Service Worker: Message port closed, cannot send response:', error);
+            }
+        }
     }
 });

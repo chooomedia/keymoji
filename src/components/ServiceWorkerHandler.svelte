@@ -188,7 +188,24 @@
         // Tell the service worker to skip waiting and activate
         // Wrap in try-catch to handle message port errors
         try {
-        newWorker.postMessage({ type: 'SKIP_WAITING' });
+            // CRITICAL: Check for runtime.lastError before posting
+            if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError) {
+                const lastError = chrome.runtime.lastError;
+                if (lastError) {
+                    if (debugMode) {
+                        console.warn('⚠️ ServiceWorkerHandler: Chrome runtime error before postMessage:', lastError.message);
+                    }
+                }
+            }
+            
+            // Check if worker is still valid before posting
+            if (newWorker && newWorker.state !== 'redundant') {
+                newWorker.postMessage({ type: 'SKIP_WAITING' });
+            } else {
+                if (debugMode) {
+                    console.warn('⚠️ ServiceWorkerHandler: Worker is redundant, cannot send message');
+                }
+            }
         } catch (error) {
             // Handle message port closed errors gracefully
             if (error.message?.includes('port') || error.message?.includes('closed')) {
