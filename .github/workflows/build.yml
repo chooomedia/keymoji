@@ -1,95 +1,94 @@
 name: Build
 
 on:
-  push:
-    branches: [ staging, frontend, master ]
-  pull_request:
-    branches: [ staging, frontend, master ]
-  workflow_dispatch:
-  
+    push:
+        branches: [staging, frontend, master]
+    pull_request:
+        branches: [staging, frontend, master]
+    workflow_dispatch:
+
 # OPTIMIZATION: Verhindere doppelte Builds
 # - build.yml: Einziger Workflow der tatsächlich baut
 # - tests.yml: Nur Lint/TypeScript, kein Build
 # - deploy.yml: Nur auf main, verwendet build.yml Artifacts
 
 jobs:
-  build:
-    name: Build Production
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-      
-      - name: Run prebuild scripts
-        run: npm run prebuild
-      
-      - name: Build project
-        run: npm run build
-      
-      - name: Run postbuild scripts
-        run: npm run postbuild
-      
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            build/
-            !build/**/*.map
-          retention-days: 7
-      
-      - name: Build size report
-        run: |
-          echo "📦 Build Size Report" >> $GITHUB_STEP_SUMMARY
-          echo "===================" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          if [ -d "build" ]; then
-            TOTAL_SIZE=$(du -sh build | cut -f1)
-            JS_SIZE=$(du -sh build/static/js 2>/dev/null | cut -f1 || echo "N/A")
-            CSS_SIZE=$(du -sh build/static/css 2>/dev/null | cut -f1 || echo "N/A")
-            
-            echo "Total: $TOTAL_SIZE" >> $GITHUB_STEP_SUMMARY
-            echo "JS: $JS_SIZE" >> $GITHUB_STEP_SUMMARY
-            echo "CSS: $CSS_SIZE" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            echo "📊 Total Build Size: $TOTAL_SIZE"
-            echo "📊 JS Size: $JS_SIZE"
-            echo "📊 CSS Size: $CSS_SIZE"
-          else
-            echo "❌ Build directory not found!" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          fi
-      
-      - name: Check build quality
-        run: |
-          echo "🔍 Checking build quality..."
-          
-          # Check for source maps (should exist in production)
-          if [ -f "build/static/js/*.map" ]; then
-            echo "✅ Source maps found"
-          else
-            echo "⚠️ No source maps found (may be expected)"
-          fi
-          
-          # Check for index.html
-          if [ -f "build/index.html" ]; then
-            echo "✅ index.html found"
-          else
-            echo "❌ index.html not found!"
-            exit 1
-          fi
-          
-          echo "✅ Build quality check passed"
+    build:
+        name: Build Production
+        runs-on: ubuntu-latest
 
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20.x'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci --legacy-peer-deps
+
+            - name: Run prebuild scripts
+              run: npm run prebuild
+
+            - name: Build project
+              run: npm run build
+
+            - name: Run postbuild scripts
+              run: npm run postbuild
+
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: build-artifacts
+                  path: |
+                      build/
+                      !build/**/*.map
+                  retention-days: 7
+
+            - name: Build size report
+              run: |
+                  echo "📦 Build Size Report" >> $GITHUB_STEP_SUMMARY
+                  echo "===================" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+
+                  if [ -d "build" ]; then
+                    TOTAL_SIZE=$(du -sh build | cut -f1)
+                    JS_SIZE=$(du -sh build/static/js 2>/dev/null | cut -f1 || echo "N/A")
+                    CSS_SIZE=$(du -sh build/static/css 2>/dev/null | cut -f1 || echo "N/A")
+                    
+                    echo "Total: $TOTAL_SIZE" >> $GITHUB_STEP_SUMMARY
+                    echo "JS: $JS_SIZE" >> $GITHUB_STEP_SUMMARY
+                    echo "CSS: $CSS_SIZE" >> $GITHUB_STEP_SUMMARY
+                    echo "" >> $GITHUB_STEP_SUMMARY
+                    
+                    echo "📊 Total Build Size: $TOTAL_SIZE"
+                    echo "📊 JS Size: $JS_SIZE"
+                    echo "📊 CSS Size: $CSS_SIZE"
+                  else
+                    echo "❌ Build directory not found!" >> $GITHUB_STEP_SUMMARY
+                    exit 1
+                  fi
+
+            - name: Check build quality
+              run: |
+                  echo "🔍 Checking build quality..."
+
+                  # Check for source maps (should exist in production)
+                  if [ -f "build/static/js/*.map" ]; then
+                    echo "✅ Source maps found"
+                  else
+                    echo "⚠️ No source maps found (may be expected)"
+                  fi
+
+                  # Check for index.html
+                  if [ -f "build/index.html" ]; then
+                    echo "✅ index.html found"
+                  else
+                    echo "❌ index.html not found!"
+                    exit 1
+                  fi
+
+                  echo "✅ Build quality check passed"

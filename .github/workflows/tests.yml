@@ -18,7 +18,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [20.x]  # Nur Node 20.x (Production-Version)
+                node-version: [20.x] # Nur Node 20.x (Production-Version)
 
         steps:
             - name: Checkout code
