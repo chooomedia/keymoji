@@ -13,6 +13,7 @@
     export let display = 'full'; // full, compact
     export let showLabels = true;
     
+    // CRITICAL: Reaktive Sprachwahl - selectedLang wird automatisch aktualisiert wenn currentLanguage sich ändert
     let selectedLang = $currentLanguage;
     let elvishFontLoaded = false;
     let menuRef;
@@ -283,7 +284,8 @@
         };
     });
     
-    // Update selectedLang when currentLanguage changes
+    // CRITICAL: Reaktive Sprachwahl - selectedLang wird automatisch aktualisiert wenn currentLanguage sich ändert
+    // Dies ist wichtig für die UI-Reaktivität wenn die Sprache von außen geändert wird (z.B. durch URL-Änderung)
     $: selectedLang = $currentLanguage;
     
     // Reaktive Schriftart-Anwendung
