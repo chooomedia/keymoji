@@ -12,15 +12,17 @@
 
 <!-- Footer slot content with E-E-A-T-S Schema Markup for SEO -->
 <!-- Mobile: Flex-col (vertikal) - Desktop: Flex-row (horizontal) -->
+<!-- Mobile Layout: 1. Creator (LinkedIn + Name), 2. Version + Visits -->
+<!-- Desktop Layout: Version · Creator · Visits -->
 <footer 
     class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-0 md:space-x-1 text-sm text-gray-400 transform -translate-y-4"
     itemscope 
     itemtype="https://schema.org/Person"
     aria-label="Site information">
     
-    <!-- Mobile: Erste Zeile - Creator Attribution -->
-    <!-- Desktop: In der Mitte zwischen Version und Visits -->
-    <div class="flex flex-col md:flex-row items-center md:order-2">
+    <!-- Mobile: Erste Zeile - Creator Attribution (LinkedIn Icon + Name) -->
+    <!-- Desktop: In der Mitte zwischen Version und Visits (md:order-3) -->
+    <div class="flex items-center justify-center md:order-3">
         <span>Created by</span>
         <a 
             href="https://www.linkedin.com/in/chooomedia/" 
@@ -48,9 +50,11 @@
     </div>
     
     <!-- Mobile: Zweite Zeile - Version und Visits nebeneinander -->
-    <!-- Desktop: Version links, Visits rechts -->
-    <div class="flex items-center justify-center gap-2 md:gap-0 md:space-x-1 md:order-1">
-        <!-- Version Information -->
+    <!-- Desktop: Version links (md:order-1), Visits rechts (md:order-5) -->
+    <!-- CRITICAL: Version und Visits müssen getrennt sein für Desktop-Reihenfolge -->
+    
+    <!-- Version Information - Desktop: Links (md:order-1) -->
+    <div class="flex items-center justify-center md:order-1">
         <button 
             on:click={navigateToVersion}
             class="hover:text-yellow-500 focus:text-yellow-500 active:text-yellow-600 transition-all duration-200 transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-1 rounded px-1"
@@ -59,18 +63,21 @@
             title={$translations?.footer?.versionHistory || 'View version history'}>
             {$translations?.header?.pageVersion || 'v0.4.3'}
         </button>
-        
-        <span class="px-2 hidden md:inline" aria-hidden="true">·</span>
-        
-        <!-- User Counter with accessibility -->
+    </div>
+    
+    <!-- Desktop: Separator nach Version (md:order-2) -->
+    <span class="px-2 hidden md:inline md:order-2" aria-hidden="true">·</span>
+    
+    <!-- Desktop: Separator nach Creator (md:order-4) -->
+    <span class="px-2 hidden md:inline md:order-4" aria-hidden="true">·</span>
+    
+    <!-- User Counter - Desktop: Rechts (md:order-5) -->
+    <div class="flex items-center justify-center md:order-5">
         <div class="inline-flex items-center" role="status" aria-live="polite">
             <UserCounter />
             <span class="ml-1">Visits</span>
         </div>
     </div>
-    
-    <!-- Desktop: Separator nach Creator -->
-    <span class="px-2 hidden md:inline md:order-3" aria-hidden="true">·</span>
 
     <!-- Hidden Schema Markup for Software/Website -->
     <div style="display: none;">
