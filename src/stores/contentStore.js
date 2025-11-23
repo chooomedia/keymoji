@@ -480,6 +480,11 @@ export async function changeLanguage(lang) {
     }
 
     try {
+        // CRITICAL: Setze currentLanguage SOFORT für UI-Reaktivität
+        // loadLanguage() setzt es auch, aber sofortiges Setzen verbessert UX
+        currentLanguage.set(lang);
+        storageHelpers.set(STORAGE_KEYS.LANGUAGE, lang);
+        
         // Immer neu laden, auch wenn bereits geladen
         await loadLanguage(lang);
 
