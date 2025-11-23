@@ -605,7 +605,9 @@
         </Route>
         
         <!-- CRITICAL: /:lang Route MUSS als letzte kommen, nach allen spezifischen Routes! -->
-        <Route path="/:lang" component={Index} />
+        <Route path="/:lang" let:params>
+            <Index />
+        </Route>
         
         <Route>
             {#if NotFound}

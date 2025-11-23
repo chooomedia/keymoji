@@ -621,10 +621,6 @@ button:disabled {
 }
 
 /* Ensure @font-face is defined for Tengwar Annatar */
-@font-face {
-    font-family: 'Tengwar Annatar';
-    src: url('/fonts/tengwar_annatar.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
+/* NOTE: Font wird dynamisch via JavaScript geladen (LanguageSwitcher.svelte, Layout.svelte) */
+/* @font-face wird dort auch dynamisch hinzugefügt, daher nicht hier nötig */
+/* Der absolute Pfad /fonts/tengwar_annatar.ttf funktioniert zur Laufzeit */
