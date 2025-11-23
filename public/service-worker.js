@@ -307,7 +307,10 @@ self.addEventListener('message', event => {
                 });
             } catch (error) {
                 // Handle message port closed errors gracefully
-                console.warn('⚠️ Service Worker: Message port closed, cannot send response:', error);
+                console.warn(
+                    '⚠️ Service Worker: Message port closed, cannot send response:',
+                    error
+                );
             }
         }
     }

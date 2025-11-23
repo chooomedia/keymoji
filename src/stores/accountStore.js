@@ -2666,20 +2666,33 @@ export function notifyMagicLinkVerification(accountData) {
     // CRITICAL: Check for runtime.lastError before posting
     try {
         // Check if Chrome extension context is available
-        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError) {
+        if (
+            typeof chrome !== 'undefined' &&
+            chrome.runtime &&
+            chrome.runtime.lastError
+        ) {
             // Clear any existing errors
             const lastError = chrome.runtime.lastError;
             if (lastError) {
-                console.warn('⚠️ Chrome runtime error before postMessage:', lastError.message);
+                console.warn(
+                    '⚠️ Chrome runtime error before postMessage:',
+                    lastError.message
+                );
             }
         }
-        
+
         window.postMessage(message, window.location.origin);
         console.log('🔗 postMessage sent to all tabs:', message);
     } catch (error) {
         // Handle message port closed errors gracefully
-        if (error.message?.includes('port') || error.message?.includes('closed')) {
-            console.warn('⚠️ Message port closed, cannot send postMessage:', error);
+        if (
+            error.message?.includes('port') ||
+            error.message?.includes('closed')
+        ) {
+            console.warn(
+                '⚠️ Message port closed, cannot send postMessage:',
+                error
+            );
         } else {
             console.error('❌ Failed to send postMessage:', error);
         }
