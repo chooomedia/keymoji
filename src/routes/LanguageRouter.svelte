@@ -232,6 +232,15 @@
             await loadRoutes();
             console.log('✅ LanguageRouter: Routes loaded, routesLoaded:', routesLoaded);
             
+            // CRITICAL: Timeout-Fallback für Loading-Screen (verhindert hängende Screens)
+            // Falls routesLoaded nach 10 Sekunden noch false ist, forciere true
+            loadingTimeout = setTimeout(() => {
+                if (!routesLoaded) {
+                    console.warn('⚠️ LanguageRouter: Loading timeout - forcing routesLoaded to true');
+                    routesLoaded = true;
+                }
+            }, 10000);
+            
             // CRITICAL: Initialize daily usage for ALL users (logged in or guest)
             try {
                 const { initializeDailyUsage } = await import('../stores/dailyUsageStore.js');
@@ -293,6 +302,11 @@
             // SEO-optimierte Cleanup-Funktion
             return () => {
                 window.removeEventListener('popstate', handleRouteChange);
+                // Cleanup Loading-Timeout
+                if (loadingTimeout) {
+                    clearTimeout(loadingTimeout);
+                    loadingTimeout = null;
+                }
             };
         } catch (error) {
             devLog('❌ LanguageRouter: Error in onMount:', error);
