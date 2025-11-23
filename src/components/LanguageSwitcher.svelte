@@ -143,15 +143,29 @@
         
         console.log('🔄 LanguageSwitcher: Calling changeLanguage...');
         
-        // Set language in store (contentStore.js)
-        await changeLanguage(langCode);
+        // CRITICAL: Setze selectedLang SOFORT für UI-Feedback
         selectedLang = langCode;
+        
+        // Set language in store (contentStore.js)
+        // CRITICAL: Warte auf changeLanguage() damit Content geladen ist
+        await changeLanguage(langCode);
+        
+        // CRITICAL: Prüfe ob Content wirklich geladen wurde
+        const { translations } = await import('../stores/contentStore.js');
+        const { get } = await import('svelte/store');
+        const currentTranslations = get(translations);
+        
+        if (!currentTranslations || !currentTranslations.contactForm) {
+            console.warn('⚠️ LanguageSwitcher: Translations not loaded, waiting...');
+            // Warte kurz und prüfe nochmal
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
         console.log('🔄 LanguageSwitcher: Language changed to:', selectedLang);
         
         // CRITICAL: Sync with userSettings store
         try {
             const { updateSetting, userSettings } = await import('../stores/userSettingsStore.js');
-            const { get } = await import('svelte/store');
             
             // Update userSettings.language to stay in sync
             const currentSettings = get(userSettings);
@@ -171,6 +185,8 @@
         
         // CRITICAL: Use replace: false to trigger route change
         // replace: true würde nur die URL ändern ohne Route neu zu rendern
+        // CRITICAL: Warte kurz damit Content Store aktualisiert ist
+        await new Promise(resolve => setTimeout(resolve, 50));
         navigate(newPath, { replace: false });
         
         // Close menu

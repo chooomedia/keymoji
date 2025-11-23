@@ -485,8 +485,17 @@ export async function changeLanguage(lang) {
         currentLanguage.set(lang);
         storageHelpers.set(STORAGE_KEYS.LANGUAGE, lang);
         
-        // Immer neu laden, auch wenn bereits geladen
+        // CRITICAL: Warte auf loadLanguage() bevor wir weitermachen
+        // Das stellt sicher, dass content Store aktualisiert ist bevor UI rendert
         await loadLanguage(lang);
+        
+        // CRITICAL: Zusätzliche Validierung - prüfe ob Content wirklich geladen wurde
+        const loadedContent = get(content);
+        if (!loadedContent || !loadedContent._meta) {
+            devWarn('⚠️ contentStore: Content not loaded after changeLanguage, retrying...');
+            // Retry einmal
+            await loadLanguage(lang);
+        }
 
         // Zusätzliche Validierung der Reaktivität
         const currentContent = get(content);

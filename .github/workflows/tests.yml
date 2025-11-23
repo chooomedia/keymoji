@@ -1,10 +1,12 @@
 name: Tests
 
 on:
-    push:
-        branches: [staging, frontend, master]
+    # OPTIMIZATION: Tests nur auf Pull Requests, nicht auf Push
+    # Build läuft auf Push (build.yml), Tests nur bei PRs
     pull_request:
         branches: [staging, frontend, master]
+    # OPTIMIZATION: workflow_dispatch für manuelle Tests
+    workflow_dispatch:
 
 # OPTIMIZATION: Kein Build hier - nur Code-Qualitäts-Checks
 # Build wird von build.yml gemacht, hier nur Lint/TypeScript/Tests
