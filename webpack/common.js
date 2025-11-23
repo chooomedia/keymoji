@@ -90,6 +90,16 @@ module.exports = {
     resolve: {
         alias: {
             svelte: path.resolve(__dirname, '..', 'node_modules', 'svelte'),
+            // CRITICAL: svelte/store Alias für Svelte 3 Kompatibilität
+            // modalStore.ts und andere Stores benötigen diesen Import
+            'svelte/store': path.resolve(
+                __dirname,
+                '..',
+                'node_modules',
+                'svelte',
+                'store',
+                'index.js'
+            ),
             // Direct alias for appStores to ensure TypeScript file is resolved
             // This works around svelte-loader not properly forwarding TypeScript imports to Webpack
             'stores/appStores': path.resolve(
