@@ -166,9 +166,9 @@ const getN8NUrl = () => {
     ) {
         const warningKey = 'n8n_url_warning_shown';
         if (!sessionStorage.getItem(warningKey)) {
-            console.warn(
-                '⚠️ [SECURITY] VITE_N8N_URL not set. Using default fallback. Set VITE_N8N_URL in .env.local for security.'
-            );
+        console.warn(
+            '⚠️ [SECURITY] VITE_N8N_URL not set. Using default fallback. Set VITE_N8N_URL in .env.local for security.'
+        );
             sessionStorage.setItem(warningKey, 'true');
         }
     }

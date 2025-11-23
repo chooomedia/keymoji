@@ -167,8 +167,8 @@ function generateRouteHTML(route, lang = 'en', buildAssets = { css: [], js: [] }
                 </p>
             </div>
         </noscript>
-        <!-- Loading state for better UX (hidden when noscript is active) -->
-        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <!-- Loading state for better UX (hidden when noscript is active or when Svelte loads) -->
+        <div id="static-loading-screen" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             <div style="text-align: center;">
                 <h1 style="color: #253852; margin-bottom: 1rem; font-size: 1.5rem;">🔑 Keymoji</h1>
                 <p style="color: #666; margin-bottom: 2rem;">${lang === 'de' || lang === 'de-CH' ? 'Lade Versionshistorie...' : 'Loading Version History...'}</p>
@@ -204,8 +204,8 @@ function generateRouteHTML(route, lang = 'en', buildAssets = { css: [], js: [] }
                 </p>
             </div>
         </noscript>
-        <!-- Loading state for better UX (hidden when noscript is active) -->
-        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <!-- Loading state for better UX (hidden when noscript is active or when Svelte loads) -->
+        <div id="static-loading-screen" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             <div style="text-align: center;">
                 <h1 style="color: #253852; margin-bottom: 1rem; font-size: 1.5rem;">🔑 Keymoji</h1>
                 <p style="color: #666; margin-bottom: 2rem;">${isGerman ? 'Lade Kontaktformular...' : 'Loading Contact Form...'}</p>
@@ -263,8 +263,8 @@ function generateRouteHTML(route, lang = 'en', buildAssets = { css: [], js: [] }
                 </p>
             </div>
         </noscript>
-        <!-- Loading state for better UX (hidden when noscript is active) -->
-        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <!-- Loading state for better UX (hidden when noscript is active or when Svelte loads) -->
+        <div id="static-loading-screen" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             <div style="text-align: center;">
                 <h1 style="color: #253852; margin-bottom: 1rem; font-size: 1.5rem;">🔑 Keymoji</h1>
                 <p style="color: #666; margin-bottom: 2rem;">${isGerman ? 'Lade Datenschutzerklärung...' : 'Loading Privacy Policy...'}</p>
@@ -318,8 +318,8 @@ function generateRouteHTML(route, lang = 'en', buildAssets = { css: [], js: [] }
                 </p>
             </div>
         </noscript>
-        <!-- Loading state for better UX (hidden when noscript is active) -->
-        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <!-- Loading state for better UX (hidden when noscript is active or when Svelte loads) -->
+        <div id="static-loading-screen" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             <div style="text-align: center;">
                 <h1 style="color: #253852; margin-bottom: 1rem; font-size: 1.5rem;">🔑 Keymoji</h1>
                 <p style="color: #666; margin-bottom: 2rem;">${isGerman ? 'Lade Impressum...' : 'Loading Legal Notice...'}</p>
@@ -354,8 +354,8 @@ function generateRouteHTML(route, lang = 'en', buildAssets = { css: [], js: [] }
                 </p>
             </div>
         </noscript>
-        <!-- Loading state for better UX (hidden when noscript is active) -->
-        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <!-- Loading state for better UX (hidden when noscript is active or when Svelte loads) -->
+        <div id="static-loading-screen" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             <div style="text-align: center;">
                 <h1 style="color: #253852; margin-bottom: 1rem; font-size: 1.5rem;">🔑 Keymoji</h1>
                 <p style="color: #666; margin-bottom: 2rem;">${isGerman ? 'Lade Account-Verwaltung...' : 'Loading Account Management...'}</p>
@@ -390,8 +390,8 @@ function generateRouteHTML(route, lang = 'en', buildAssets = { css: [], js: [] }
                 </p>
             </div>
         </noscript>
-        <!-- Loading state for better UX (hidden when noscript is active) -->
-        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <!-- Loading state for better UX (hidden when noscript is active or when Svelte loads) -->
+        <div id="static-loading-screen" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             <div style="text-align: center;">
                 <h1 style="color: #253852; margin-bottom: 1rem; font-size: 1.5rem;">🔑 Keymoji</h1>
                 <p style="color: #666; margin-bottom: 2rem;">${isGerman ? 'Lade Blog...' : 'Loading Blog...'}</p>
@@ -403,8 +403,8 @@ function generateRouteHTML(route, lang = 'en', buildAssets = { css: [], js: [] }
         // Default loading state for home and other routes
         const isGerman = lang === 'de' || lang === 'de-CH';
         return `
-        <!-- Loading state for better UX -->
-        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <!-- Loading state for better UX (hidden when Svelte loads) -->
+        <div id="static-loading-screen" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             <div style="text-align: center;">
                 <h1 style="color: #253852; margin-bottom: 1rem; font-size: 1.5rem;">🔑 Keymoji</h1>
                 <p style="color: #666; margin-bottom: 2rem;">${isGerman ? 'Lade Emoji-Passwort-Generator...' : 'Loading Emoji Password Generator...'}</p>
@@ -516,20 +516,29 @@ function generateRouteHTML(route, lang = 'en', buildAssets = { css: [], js: [] }
     <link rel="preconnect" href="https://api.keymoji.wtf">
     <link rel="dns-prefetch" href="https://n8n.chooomedia.com">
     <link rel="dns-prefetch" href="https://api.keymoji.wtf">
-    <style>
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+        <style>
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
 </head>
 <body>
     <div id="app">
         ${generateFallbackContent(route.type, lang)}
     </div>
     
-    <!-- Svelte app will be mounted here -->
+    <!-- Hide static loading screen immediately when JavaScript loads (before Svelte initializes) -->
     <script>
+        // CRITICAL: Hide static loading screen BEFORE Svelte initializes
+        // This ensures only ONE loading screen is visible (the Svelte LoadingScreen component)
+        (function() {
+            const staticLoading = document.getElementById('static-loading-screen');
+            if (staticLoading) {
+                staticLoading.style.display = 'none';
+            }
+        })();
+        
         // Preload critical data
         window.__PRELOADED_STATE__ = {
             route: "${route.path}",

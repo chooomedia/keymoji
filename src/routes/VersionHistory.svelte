@@ -127,16 +127,16 @@
 
 <PageLayout {pageTitle} {pageDescription}>
     
-    <!-- Back Button - Liegt ZUR HÄLFTE auf content-wrapper Rand -->
+    <!-- Back Button - Muted style like Random button -->
     <div slot="before-content" class="relative w-full flex justify-center -mb-14">
         <button 
             on:click={navigateBack}
-            class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 z-20"
-            aria-label={$translations?.index?.backToMainButtonText || 'Back to home'}
-            title={$translations?.index?.backToMainButtonText || 'Back to home'}
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 ease-in-out transform focus:ring-2 focus:ring-offset-2 z-20 bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 focus:ring-yellow-400"
+            aria-label="Back"
+            title="Back"
         >
             <span class="text-lg">←</span>
-            <span class="font-semibold">{$translations?.index?.backToMainButtonText || 'Go back home'}</span>
+            <span class="font-semibold">Back</span>
         </button>
     </div>
     
