@@ -2667,9 +2667,13 @@ export function notifyMagicLinkVerification(accountData) {
     try {
         // Check if Chrome extension context is available and clear errors
         if (typeof chrome !== 'undefined' && chrome.runtime) {
-            if (chrome.runtime.lastError) {
-                // Clear the error silently (it's just a warning)
-                void chrome.runtime.lastError;
+            try {
+                if (chrome.runtime.lastError) {
+                    // Clear the error silently (it's just a warning from browser extensions)
+                    void chrome.runtime.lastError;
+                }
+            } catch (e) {
+                // Ignore errors when checking runtime.lastError
             }
         }
 
@@ -2689,12 +2693,20 @@ export function notifyMagicLinkVerification(accountData) {
                 }
             } catch (postError) {
                 // Silently handle message port closed errors (common during navigation)
+                const errorMessage = postError?.message || postError?.toString() || '';
+                const errorName = postError?.name || '';
+                
                 if (
-                    postError.message?.includes('port') ||
-                    postError.message?.includes('closed') ||
-                    postError.name === 'InvalidStateError'
+                    errorMessage.includes('port') ||
+                    errorMessage.includes('closed') ||
+                    errorMessage.includes('runtime.lastError') ||
+                    errorMessage.includes('Extension context invalidated') ||
+                    errorMessage.includes('The message port closed before a response was received') ||
+                    errorName === 'InvalidStateError' ||
+                    errorName === 'DOMException'
                 ) {
-                    // Silent - this is expected during page transitions
+                    // Silent - this is expected during page transitions or from browser extensions
+                    return;
                 } else {
                     console.error('❌ Failed to send postMessage:', postError);
                 }
@@ -2702,12 +2714,20 @@ export function notifyMagicLinkVerification(accountData) {
         }, 0);
     } catch (error) {
         // Handle message port closed errors gracefully
+        const errorMessage = error?.message || error?.toString() || '';
+        const errorName = error?.name || '';
+        
         if (
-            error.message?.includes('port') ||
-            error.message?.includes('closed') ||
-            error.name === 'InvalidStateError'
+            errorMessage.includes('port') ||
+            errorMessage.includes('closed') ||
+            errorMessage.includes('runtime.lastError') ||
+            errorMessage.includes('Extension context invalidated') ||
+            errorMessage.includes('The message port closed before a response was received') ||
+            errorName === 'InvalidStateError' ||
+            errorName === 'DOMException'
         ) {
-            // Silent - this is expected during page transitions
+            // Silent - this is expected during page transitions or from browser extensions
+            return;
         } else {
             console.error('❌ Failed to send postMessage:', error);
         }

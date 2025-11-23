@@ -24,12 +24,14 @@ export default {
         pageKeywords:
             'Keymoji, 이모지 비밀번호, 비밀번호 생성기, 보안, 온라인 보안',
         pageInstruction: [
-            '"📝 스토리"를 클릭하여 AI 이모지 이야기를 받으세요 📖',
+            'AI를 선택하고 Keymoji 스토리를 만드세요',
             '"랜덤"은 자명합니다 😜.',
             '생성 후 클립보드에 저장됩니다! 📋'
         ],
-        setupStoryMode: 'AI 설정',
+        setupStoryMode: '자신의 AI 사용',
+        setupStoryModeShort: '자신의 AI 사용',
         setupStoryModeSwiss: '스위스 AI 사용',
+        setupStoryModeSwissShort: '스위스 AI',
         setupStoryModeOr: '또는',
         setupStoryModeDescription:
             'AI에 연결하여 개인화된 이모지 비밀번호를 받으세요.',

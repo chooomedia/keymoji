@@ -4,64 +4,39 @@ import LanguageRouter from './routes/LanguageRouter.svelte';
 import { isProduction } from './utils/environment';
 import { closeModal, isModalVisible } from './stores/modalStore';
 
-/**
- * ASCII Art Logo Generator für Keymoji (Apple/Airbnb Style)
- * Debug Devil - Interner Code-Name für diese Version
- */
 function displayKeymojiConsoleArt() {
     if (!isProduction()) return; // Nur im Build anzeigen
 
     const asciiArt = `
     ╔══════════════════════════════════════════════════════════════════════╗
     ║                                                                      ║
-    ║    ██   ██ ███████ ██    ██ ███    ███  ██████       ██ ██           ║
-    ║    ██  ██  ██       ██  ██  ████  ████ ██    ██      ██ ██           ║
-    ║    █████   █████     ████   ██ ████ ██ ██    ██      ██ ██           ║
-    ║    ██  ██  ██         ██    ██  ██  ██ ██    ██ ██   ██ ██           ║
-    ║    ██   ██ ███████    ██    ██      ██  ██████  ████████ ██           ║
+    ║       ██   ██ ███████ ██    ██ ███    ███  ██████       ██  ██       ║
+    ║       ██  ██  ██       ██  ██  ████  ████ ██    ██      ██  ██       ║
+    ║       █████   █████     ████   ██ ████ ██ ██    ██      ██  ██       ║
+    ║       ██  ██  ██         ██    ██  ██  ██ ██    ██ ██   ██  ██       ║
+    ║       ██   ██ ███████    ██    ██      ██  ██████  ████████ ██       ║
     ║                                                                      ║
-    ║                        🔑 KEYMOJI - Debug Devil 😈                   ║
-    ║                                                                      ║
-    ║              Emoji Shortcuts für Profis & Enthusiasten              ║
+    ║                           Emoji Security                             ║
     ║                                                                      ║
     ╠══════════════════════════════════════════════════════════════════════╣
     ║                                                                      ║
-    ║  💻 Entwickelt von: Chris Matt (C. Matt)                            ║
-    ║  🌐 Web: https://keymoji.wtf                                        ║
-    ║  📧 Kontakt: hello@keymoji.wtf                                      ║
-    ║  🎯 Version: Debug Devil - Brown to Greenfield Migration            ║
+    ║  Developed by: Christopher E. Matt                                   ║
+    ║  Web: https://keymoji.wtf                                            ║
+    ║  Kontakt: hello@keymoji.wtf                                          ║
     ║                                                                      ║
-    ║  🚀 Tech Stack:                                                      ║
-    ║     • Frontend: Svelte + Tailwind CSS + Webpack                     ║
-    ║     • Backend: Vercel Serverless + n8n Automation                   ║
-    ║     • Storage: Google Sheets + Brevo Email                          ║
-    ║     • Payment: Stripe Integration                                    ║
+    ║  Tech Stack:                                                         ║
+    ║     • Frontend: Svelte + Tailwind CSS + Webpack                      ║
+    ║     • Backend: Vercel Serverless + Automations                       ║
     ║                                                                      ║
-    ║  ⚡ Features:                                                         ║
-    ║     • 15+ Sprachen Support (inkl. Klingonisch & Elbisch)           ║
-    ║     • Dark/Light Mode mit automatischer Erkennung                   ║
-    ║     • PWA-Ready mit Service Worker                                   ║
-    ║     • Responsive Design für alle Geräte                             ║
-    ║     • Premium Features mit Stripe Payment                           ║
+    ║  Features:                                                           ║
+    ║     • 15+ Languages Support (incl. klingon & elvish)                 ║
+    ║     • PWA-Ready with Service Worker                                  ║
+    ║     • Premium Features with Stripe Payment (so                       ║
     ║                                                                      ║
-    ║  🎨 UX/UI inspiriert von Apple & Airbnb Design Language             ║
-    ║  🔐 Privacy-First mit GDPR-konformer Datenverarbeitung             ║
-    ║                                                                      ║
-    ║  📈 Stats: Über 1000+ Emoji-Kombinationen verfügbar                ║
-    ║  🌟 GitHub: https://github.com/chooomedia/keymoji                   ║
+    ║  Stats: over 10.000+ Emoji-Combinations avaiable                     ║
+    ║  GitHub: https://github.com/chooomedia/keymoji                       ║
     ║                                                                      ║
     ╚══════════════════════════════════════════════════════════════════════╝
-    
-    🎉 Welcome to Keymoji - Debug Devil Edition! 
-    
-    Dieses Release fokussiert sich auf:
-    • 🧹 Code-Cleanup & Best Practices
-    • ⚡ Performance-Optimierungen  
-    • 🎨 Enhanced UX mit Apple/Airbnb Style
-    • 🔐 Security-Verbesserungen
-    • 📱 Mobile-First Responsive Design
-    
-    Happy Emoji Shortcuts! 🔥✨
     `;
 
     // Style the console output
@@ -72,25 +47,14 @@ function displayKeymojiConsoleArt() {
 
     // Additional styled credits
     console.log(
-        '%c🔑 KEYMOJI %c- Debug Devil',
+        '%c🔑 KEYMOJI %c v0.7.7',
         'color: #fbbf24; font-weight: bold; font-size: 16px;',
         'color: #ef4444; font-weight: bold; font-size: 14px;'
     );
 
     console.log(
-        '%cEntwickelt mit ❤️ von Chris Matt (C. Matt) in Deutschland 🇩🇪',
-        'color: #10b981; font-style: italic; font-size: 12px;'
-    );
-
-    console.log(
         '%cTech-Stack: Svelte ⚡ Tailwind 🎨 Vercel 🚀 n8n 🤖',
         'color: #6366f1; font-size: 11px;'
-    );
-
-    // Internal development info (only in production build)
-    console.log(
-        '%c[Debug Devil] - Internal Code Name für Brown-to-Greenfield Migration',
-        'color: #6b7280; font-size: 10px; font-style: italic;'
     );
 }
 
@@ -147,8 +111,105 @@ function cleanupOnUnload() {
     }
 }
 
+// Global Error Handler for Browser Extension runtime.lastError
+// This prevents "Unchecked runtime.lastError" errors from appearing in console
+// Based on Chrome Extension best practices: https://developer.chrome.com/docs/extensions/reference/runtime/#property-lastError
+function setupGlobalErrorHandlers() {
+    // Handle Chrome/Browser Extension runtime.lastError
+    if (typeof window !== 'undefined') {
+        // CRITICAL: Catch all window errors (including runtime.lastError from extensions)
+        window.addEventListener(
+            'error',
+            event => {
+                const errorMessage =
+                    event.message || event.error?.message || '';
+                const errorName = event.error?.name || '';
+
+                // Filter out benign browser extension errors
+                if (
+                    errorMessage.includes('runtime.lastError') ||
+                    errorMessage.includes('message port closed') ||
+                    errorMessage.includes('Extension context invalidated') ||
+                    errorMessage.includes(
+                        'The message port closed before a response was received'
+                    ) ||
+                    errorName === 'InvalidStateError' ||
+                    errorName === 'DOMException'
+                ) {
+                    // Prevent these errors from appearing in console
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                }
+            },
+            true
+        ); // Use capture phase to catch errors early
+
+        // Override console.error to silently catch runtime.lastError
+        const originalError = console.error;
+        console.error = function (...args) {
+            // Filter out runtime.lastError messages
+            const message = args[0]?.toString() || '';
+            if (
+                message.includes('runtime.lastError') ||
+                message.includes('message port closed') ||
+                message.includes('Extension context invalidated') ||
+                message.includes(
+                    'The message port closed before a response was received'
+                )
+            ) {
+                // Silently ignore - these are expected from browser extensions
+                return;
+            }
+            // Call original console.error for other errors
+            originalError.apply(console, args);
+        };
+
+        // Global error handler for unhandled promise rejections
+        window.addEventListener('unhandledrejection', event => {
+            const error = event.reason;
+            const errorMessage = error?.message || error?.toString() || '';
+            const errorName = error?.name || '';
+
+            if (
+                errorMessage.includes('runtime.lastError') ||
+                errorMessage.includes('message port closed') ||
+                errorMessage.includes('Extension context invalidated') ||
+                errorMessage.includes(
+                    'The message port closed before a response was received'
+                ) ||
+                errorName === 'InvalidStateError' ||
+                errorName === 'DOMException'
+            ) {
+                // Prevent these errors from appearing in console
+                event.preventDefault();
+                return;
+            }
+        });
+
+        // Handle Chrome extension context errors
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+            // Periodically clear runtime.lastError to prevent accumulation
+            // This is a Chrome Extension best practice
+            setInterval(() => {
+                try {
+                    if (chrome.runtime.lastError) {
+                        // Access lastError to clear it (prevents "Unchecked" warnings)
+                        void chrome.runtime.lastError;
+                    }
+                } catch (e) {
+                    // Ignore errors when clearing
+                }
+            }, 1000);
+        }
+    }
+}
+
 // Application Initialization mit enhanced UX
 function initializeApp() {
+    // Setup global error handlers FIRST to catch all errors
+    setupGlobalErrorHandlers();
+
     // Display console art on production build
     displayKeymojiConsoleArt();
 

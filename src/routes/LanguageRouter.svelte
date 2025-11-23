@@ -8,6 +8,9 @@
     import { devLog } from '../utils/environment';
     import { initializeAccountFromCookies, resetSessionFlags } from '../stores/accountStore.js';
     import { darkMode } from 'stores/appStores';
+    import { appVersion } from '../utils/version';
+    import LoadingScreen from '../components/UI/LoadingScreen.svelte';
+    import SEO from '../components/SEO.svelte';
     // PERFORMANCE: Index bleibt synchron (Hauptseite, muss schnell laden)
     import Index from '../index.svelte';
     
@@ -16,6 +19,7 @@
     let BlogGrid, BlogPost, VersionHistory, ContactForm, AccountManager, StaticPage, NotFound;
     let routesLoaded = false;
     let loadingTimeout = null;
+    let loadingStartTime = Date.now();
     
     // Lazy Load Components on mount (Preload für bessere UX)
     async function loadRoutes() {
@@ -59,11 +63,6 @@
             routesLoaded = true;
         }
     }
-    import SEO from '../components/SEO.svelte';
-    import { appVersion } from '../utils/version';
-    
-    export const url = "";
-    export const currentVersion = appVersion;
     
     // Hole die unterstützten Sprachcodes direkt aus der utils/languages.js
     import { getSupportedLanguageCodes } from '../utils/languages';
@@ -73,6 +72,7 @@
     let currentPath = "";
     let currentPageType = "home";
     let pageURL = "";
+    let url = null; // For svelte-routing Router component
     let initialRouteProcessed = false;
     let processingRoute = false; // Verhindert gleichzeitige Route-Verarbeitung
     
@@ -331,44 +331,28 @@
             {#if VersionHistory}
                 <svelte:component this={VersionHistory} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading version history...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading version history..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/versions/" let:params>
             {#if VersionHistory}
                 <svelte:component this={VersionHistory} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading version history...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading version history..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/versions" let:params>
             {#if VersionHistory}
                 <svelte:component this={VersionHistory} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading version history...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading version history..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/versions/" let:params>
             {#if VersionHistory}
                 <svelte:component this={VersionHistory} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading version history...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading version history..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         
@@ -376,44 +360,28 @@
             {#if ContactForm}
                 <svelte:component this={ContactForm} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading contact form...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading contact form..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/contact/" let:params>
             {#if ContactForm}
                 <svelte:component this={ContactForm} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading contact form...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading contact form..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/contact" let:params>
             {#if ContactForm}
                 <svelte:component this={ContactForm} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading contact form...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading contact form..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/contact/" let:params>
             {#if ContactForm}
                 <svelte:component this={ContactForm} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading contact form...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading contact form..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         
@@ -421,44 +389,28 @@
             {#if AccountManager}
                 <svelte:component this={AccountManager} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading account...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading account..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/account/" let:params>
             {#if AccountManager}
             <svelte:component this={AccountManager} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading account...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading account..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/account" let:params>
             {#if AccountManager}
                 <svelte:component this={AccountManager} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading account...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading account..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/account/" let:params>
             {#if AccountManager}
             <svelte:component this={AccountManager} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading account...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading account..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         
@@ -466,44 +418,28 @@
             {#if BlogGrid}
                 <svelte:component this={BlogGrid} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading blog...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading blog..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/blog/" let:params>
             {#if BlogGrid}
                 <svelte:component this={BlogGrid} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading blog...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading blog..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/blog" let:params>
             {#if BlogGrid}
                 <svelte:component this={BlogGrid} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading blog...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading blog..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/blog/" let:params>
             {#if BlogGrid}
                 <svelte:component this={BlogGrid} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading blog...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading blog..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         
@@ -511,22 +447,14 @@
             {#if BlogPost}
                 <svelte:component this={BlogPost} slug={params.slug} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading blog post...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading blog post..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/blog/:slug" let:params>
             {#if BlogPost}
                 <svelte:component this={BlogPost} slug={params.slug} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading blog post...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading blog post..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         
@@ -534,44 +462,28 @@
             {#if StaticPage}
                 <svelte:component this={StaticPage} slug="privacy" />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/privacy/" let:params>
             {#if StaticPage}
                 <svelte:component this={StaticPage} slug="privacy" />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/privacy" let:params>
             {#if StaticPage}
                 <svelte:component this={StaticPage} slug="privacy" />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/privacy/" let:params>
             {#if StaticPage}
                 <svelte:component this={StaticPage} slug="privacy" />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         
@@ -579,44 +491,28 @@
             {#if StaticPage}
                 <svelte:component this={StaticPage} slug="legal" />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/legal/" let:params>
             {#if StaticPage}
                 <svelte:component this={StaticPage} slug="legal" />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/legal" let:params>
             {#if StaticPage}
                 <svelte:component this={StaticPage} slug="legal" />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/legal/" let:params>
             {#if StaticPage}
                 <svelte:component this={StaticPage} slug="legal" />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         
@@ -629,52 +525,10 @@
             {#if NotFound}
                 <svelte:component this={NotFound} />
             {:else}
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="text-center">
-                        <p class="text-gray-600 dark:text-gray-400">Page not found</p>
-                    </div>
-                </div>
+                <LoadingScreen message="Loading..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
     </Router>
 {:else}
-    <!-- Optimized Loading Screen with Dark/Light Mode Support -->
-    <div 
-        class="flex items-center justify-center min-h-screen bg-creme-50 dark:bg-aubergine-950 transition-colors duration-300"
-        role="status"
-        aria-live="polite"
-        aria-label="Loading application..."
-    >
-        <div class="text-center px-4">
-            <!-- Keymoji Logo/Emoji -->
-            <div class="mb-6 animate-pulse">
-                <div class="text-6xl md:text-8xl mb-4">🔑</div>
-            </div>
-            
-            <!-- Spinner -->
-            <div class="flex justify-center mb-4">
-                <div class="relative w-16 h-16">
-                    <!-- Outer ring -->
-                    <div class="absolute inset-0 border-4 border-yellow-400 dark:border-yellow-500 border-t-transparent rounded-full animate-spin opacity-75"></div>
-                    <!-- Inner ring -->
-                    <div class="absolute inset-2 border-4 border-yellow-500 dark:border-yellow-400 border-t-transparent rounded-full animate-spin" style="animation-direction: reverse; animation-duration: 0.8s;"></div>
-                </div>
-            </div>
-            
-            <!-- Loading Text -->
-            <p class="text-lg md:text-xl font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Loading Keymoji...
-            </p>
-            <p class="text-sm text-gray-500 dark:text-gray-500">
-                Preparing your secure emoji password generator
-            </p>
-            
-            <!-- Loading Dots Animation -->
-            <div class="flex justify-center gap-1 mt-4">
-                <div class="w-2 h-2 bg-yellow-500 dark:bg-yellow-400 rounded-full animate-pulse" style="animation-delay: 0s;"></div>
-                <div class="w-2 h-2 bg-yellow-500 dark:bg-yellow-400 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
-                <div class="w-2 h-2 bg-yellow-500 dark:bg-yellow-400 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
-            </div>
-        </div>
-    </div>
-    {/if}
+    <LoadingScreen loadingStartTime={loadingStartTime} />
+{/if}

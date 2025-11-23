@@ -24,12 +24,14 @@ export default {
         pageKeywords:
             'Keymoji, пароль эмодзи, генератор паролей, безопасность, онлайн безопасность',
         pageInstruction: [
-            'Нажмите "📝 История" для вашей ИИ истории эмодзи 📖',
+            'Выберите свой ИИ и создайте свою историю Keymoji',
             '"Случайный" говорит сам за себя 😜.',
             'После генерации копируется в буфер обмена! 📋'
         ],
-        setupStoryMode: 'Настройте ваш ИИ',
+        setupStoryMode: 'Используйте свой ИИ',
+        setupStoryModeShort: 'Используйте свой ИИ',
         setupStoryModeSwiss: 'Использовать швейцарский ИИ',
+        setupStoryModeSwissShort: 'Швейцарский ИИ',
         setupStoryModeOr: 'или',
         setupStoryModeDescription:
             'Подключитесь к вашему ИИ для персонализированных паролей эмодзи.',

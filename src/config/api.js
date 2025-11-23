@@ -158,14 +158,19 @@ const getN8NUrl = () => {
     }
 
     // Fallback for development (should be overridden via env vars)
+    // Only show warning once per session to avoid console spam
     if (
         typeof window !== 'undefined' &&
         (window.location.hostname === 'localhost' ||
             window.location.hostname === '127.0.0.1')
     ) {
-        console.warn(
-            '⚠️ [SECURITY] VITE_N8N_URL not set. Using default fallback. Set VITE_N8N_URL in .env.local for security.'
-        );
+        const warningKey = 'n8n_url_warning_shown';
+        if (!sessionStorage.getItem(warningKey)) {
+            console.warn(
+                '⚠️ [SECURITY] VITE_N8N_URL not set. Using default fallback. Set VITE_N8N_URL in .env.local for security.'
+            );
+            sessionStorage.setItem(warningKey, 'true');
+        }
     }
 
     return 'https://n8n.chooomedia.com/webhook'; // Default fallback

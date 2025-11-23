@@ -8,7 +8,6 @@
     import { 
         isLoggedIn, 
         dailyLimit, 
-        accountSettings, 
         isGuestUser, 
         isProUser, 
         currentAccount, 
@@ -1169,7 +1168,7 @@
                                 <div class="relative context-menu">
                                     <button
                                         on:click={toggleContextMenu}
-                                        class="p-2 rounded-full bg-powder-300 dark:bg-aubergine-950 text-gray-700 dark:text-white hover:bg-creme-600 dark:hover:bg-aubergine-900 focus:bg-creme-600 dark:focus:bg-aubergine-900 active:bg-creme-700 dark:active:bg-aubergine-800 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+                                        class="p-2 rounded-full bg-powder-300 dark:bg-aubergine-950 text-gray-700 dark:text-white hover:bg-creme-600 dark:hover:bg-aubergine-900 focus:bg-creme-600 dark:focus:bg-aubergine-900 active:bg-creme-700 dark:active:bg-aubergine-800 transition-all transform hover:scale-105 focus:scale-105 active:scale-95"
                                         aria-label="{$translations?.accountManager?.contextMenu?.settingsMenu || 'Settings menu'}"
                                         title="{$translations?.accountManager?.contextMenu?.settingsMenu || 'Settings menu'}"
                                     >
@@ -1316,7 +1315,7 @@
                                         <button
                                             on:click={() => refreshUsageHistory(true)}
                                             disabled={chartDataError || isLoadingChartData}
-                                            class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-medium rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 shadow-md"
+                                            class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-black font-medium rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 shadow-md"
                                             title="Refresh usage data"
                                             aria-label="Refresh usage data"
                                         >
@@ -1572,7 +1571,7 @@
                                 ></div>
                                 <div class="w-full h-full relative flex justify-around">
                                     <button
-                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10 hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10 hover:scale-105 focus:scale-105 active:scale-95"
                                         on:click={() => selectAccountType('free')}
                                     aria-label={$translations?.accountManager?.tiers?.free || 'Select Free account'}
                                     title={$translations?.accountManager?.freeDescription || 'Free account'}
@@ -1585,7 +1584,7 @@
                                     </span>
                                 </button>
                                 <button
-                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10 hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
+                                    class="flex flex-col items-center justify-center rounded-full transition-all duration-300 z-10 hover:scale-105 focus:scale-105 active:scale-95"
                                     on:click={() => selectAccountType('pro')}
                                     aria-label={$translations?.accountManager?.tiers?.pro || 'Select Pro account'}
                                     title={$translations?.accountManager?.proDescription || 'Pro account'}

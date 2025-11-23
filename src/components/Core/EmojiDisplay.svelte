@@ -38,11 +38,10 @@
     let emojiCount = 9; // Updated: Default 9 emojis for FREE users
     let showTextArea = false;
     
+  
     // Button animation state
     let swissButtonHover = false;
     let swissButtonClick = false;
-    let yellowButtonHover = false;
-    let yellowButtonClick = false;
   
     // Story Mode - Persistent text input
     const STORY_INPUT_KEY = 'keymoji_story_input';
@@ -893,6 +892,21 @@
     }
   
     function toggleStoryMode() {
+      // CRITICAL: Check if user is logged in first
+      if (!$isLoggedIn) {
+        console.warn('⚠️ Story Mode requires login');
+        showWarning(
+          $translations?.emojiDisplay?.storyModeLoginRequired || 
+          'Please log in to use Story Mode. Create an account to access AI-generated emoji passwords.',
+          5000
+        );
+        // Navigate to account page for login
+        const lang = $currentLanguage || 'en';
+        const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
+        setTimeout(() => navigate(accountPath), 2000);
+        return;
+      }
+      
       // Only allow toggle if Story Mode is properly configured
       if (!storyModeEnabled || !storyModeConfigured) {
         console.warn('⚠️ Story Mode not available:', { enabled: storyModeEnabled, configured: storyModeConfigured });
@@ -953,15 +967,21 @@
     <div class="flex flex-wrap justify-center items-center">
       <h2 class="mt-1 text-xs text-center dark:text-white z-10 ">
         {#each $translations.index.pageInstruction as instruction, i}
-          {#if i === 0 && storyModeEnabled && storyModeConfigured}
-            <!-- Show AI ready message when fully configured -->
+          {#if i === 0 && $isLoggedIn && storyModeEnabled && storyModeConfigured}
+            <!-- Show AI ready message when fully configured AND logged in -->
             <p>{$translations.index.storyModeReady || 'AI-generated emoji passwords ready 🤖'}</p>
-          {:else if i === 0 && !storyModeEnabled}
-            <!-- Show setup chips when Story Mode is NOT enabled -->
-            <div class="flex flex-wrap items-center justify-center gap-2">
-              <!-- Swiss LLM Button - Primary recommendation -->
+          {:else if i === 0 && (!$isLoggedIn || !storyModeEnabled || !storyModeConfigured)}
+            <!-- Show setup chips when NOT logged in OR Story Mode is NOT enabled/configured -->
+            <div class="flex flex-col items-center justify-center gap-4">              
+              <!-- Modern button group -->
+              <div class="flex items-center justify-center gap-3 flex-wrap">
+              <!-- Swiss LLM Button - With Animations -->
               <button
                 on:click={() => {
+                  swissButtonClick = true;
+                  setTimeout(() => {
+                    swissButtonClick = false;
+                  }, 600);
                   const lang = $currentLanguage || 'en';
                   const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
                   navigate(accountPath);
@@ -976,38 +996,28 @@
                     }, 100);
                   }, 400);
                 }}
-                class="swiss-ai-button inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 cursor-pointer relative overflow-hidden h-8 transition-all duration-300 ease-in-out {swissButtonHover ? 'swiss-hover' : ''} {swissButtonClick ? 'swiss-click' : ''}"
+                class="swiss-ai-button relative inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 cursor-pointer overflow-hidden transition-all duration-300 ease-in-out {swissButtonHover ? 'swiss-hover' : ''} {swissButtonClick ? 'swiss-click' : ''}"
                 style="background: linear-gradient(135deg, rgba(218, 41, 28, 0.15) 0%, rgba(218, 41, 28, 0.1) 100%); border: 1px solid rgba(218, 41, 28, 0.25); color: rgb(218, 41, 28);"
                 title={$translations.index.setupStoryModeSwissTooltip || 'Swiss AI (Apertus) - Privacy-first AI hosted in Switzerland'}
-                aria-label={$translations.index.setupStoryModeSwiss || 'Use Swiss AI'}
-                on:mouseenter={() => {
-                  swissButtonHover = true;
-                }}
-                on:mouseleave={() => {
-                  swissButtonHover = false;
-                }}
-                on:click={() => {
-                  swissButtonClick = true;
-                  setTimeout(() => {
-                    swissButtonClick = false;
-                  }, 600);
-                }}
+                aria-label={$translations.index.setupStoryModeSwiss || 'Swiss AI'}
+                on:mouseenter={() => swissButtonHover = true}
+                on:mouseleave={() => swissButtonHover = false}
               >
                 <!-- Background overlay - Auto-Animation alle 7 Sekunden (nur wenn nicht gehovered/geklickt) -->
                 <div class="swiss-auto-bg absolute inset-0 bg-red-600 rounded-full pointer-events-none {swissButtonHover || swissButtonClick ? 'opacity-0' : ''}" style="background-color: rgb(218, 41, 28);"></div>
                 <!-- Background overlay - bei Hover/Klick -->
                 <div class="swiss-hover-bg absolute inset-0 bg-red-600 rounded-full pointer-events-none {swissButtonHover || swissButtonClick ? 'opacity-100' : 'opacity-0'}" style="background-color: rgb(218, 41, 28); transition: opacity 0.3s ease-in-out;"></div>
                 <!-- Content -->
-                <span class="swiss-text text-sm relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;" aria-hidden="true">🇨🇭</span>
-                <span class="swiss-text relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;">{$translations.index.setupStoryModeSwiss || 'Use Swiss AI 🇨🇭'}</span>
+                <span class="swiss-text text-base relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;" aria-hidden="true">🇨🇭</span>
+                <span class="swiss-text relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;">{$translations.index.setupStoryModeSwissShort || $translations.index.setupStoryModeSwiss || 'Swiss AI'}</span>
               </button>
               
-              <!-- "or" separator -->
-              <span class="text-xs text-gray-500 dark:text-gray-400 px-1 relative z-10">
+              <!-- Elegant divider -->
+              <span class="text-xs text-gray-400 dark:text-gray-500 font-light whitespace-nowrap">
                 {$translations.index.setupStoryModeOr || 'oder'}
               </span>
               
-              <!-- Standard LLM Setup Button -->
+              <!-- Standard LLM Setup Button - Elegant & Minimalist -->
               <button
                 on:click={() => {
                   const lang = $currentLanguage || 'en';
@@ -1024,32 +1034,22 @@
                     }, 100);
                   }, 400);
                 }}
-                class="standard-ai-button inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer relative overflow-hidden h-8 transition-all duration-300 ease-in-out {yellowButtonHover ? 'yellow-hover' : ''} {yellowButtonClick ? 'yellow-click' : ''}"
-                style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"
+                class="relative inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer
+                  bg-white dark:bg-gray-800 border border-yellow-200 dark:border-yellow-800/30 text-yellow-600 dark:text-yellow-400
+                  hover:bg-yellow-50 dark:hover:bg-yellow-900/20 hover:border-yellow-300 dark:hover:border-yellow-700/50 hover:shadow-sm
+                  active:scale-95"
                 title={$translations.index.setupStoryModeDescription || 'Setup your AI for AI-generated emoji passwords'}
-                aria-label={$translations.index.setupStoryMode || 'Setup your AI'}
-                on:mouseenter={() => {
-                  yellowButtonHover = true;
-                }}
-                on:mouseleave={() => {
-                  yellowButtonHover = false;
-                }}
-                on:click={() => {
-                  yellowButtonClick = true;
-                  setTimeout(() => {
-                    yellowButtonClick = false;
-                  }, 600);
-                }}
+                aria-label={$translations.index.setupStoryModeShort || $translations.index.setupStoryMode || 'Setup AI'}
               >
-                <!-- Background overlay - bei Hover/Klick -->
-                <div class="yellow-hover-bg absolute inset-0 bg-yellow-500 rounded-full pointer-events-none {yellowButtonHover || yellowButtonClick ? 'opacity-100' : 'opacity-0'}" style="background-color: rgb(234, 179, 8); transition: opacity 0.3s ease-in-out;"></div>
-                <!-- Content -->
-                <svg class="yellow-text w-3 h-3 relative z-20 {yellowButtonHover || yellowButtonClick ? 'text-black' : ''}" style="transition: color 0.3s ease-in-out;" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span class="yellow-text relative z-20 {yellowButtonHover || yellowButtonClick ? 'text-black' : ''}" style="transition: color 0.3s ease-in-out;">{$translations.index.setupStoryMode || 'Setup your AI'}</span>
+                <span class="text-base" aria-hidden="true">⚙️</span>
+                <span>{$translations.index.setupStoryModeShort || $translations.index.setupStoryMode || 'Setup AI'}</span>
               </button>
+                <!-- Elegant text above buttons -->
+                <p class="text-xs text-gray-700 dark:text-gray-300 font-medium text-center leading-relaxed">
+                    {instruction}
+                </p>
+              </div>
+              
             </div>
           {:else if i === 0 && storyModeEnabled && !storyModeConfigured}
             <!-- Show "Configure API" chip if enabled but no API key -->
@@ -1130,6 +1130,7 @@
           rows="5"
           aria-describedby="char-counter"
           aria-busy={isGeneratingStory}
+        ></textarea>
         />
         
         <!-- Loading Overlay für Story Generation (Fancy UX) -->
@@ -1371,27 +1372,43 @@
           {$translations.emojiDisplay.randomButton}
         </button>
       {:else}
-        <!-- Story Mode Toggle Button: gelb wenn in Settings aktiviert -->
+        <!-- Story Mode Toggle Button: gelb wenn in Settings aktiviert und eingeloggt -->
+        {@const isStoryModeAvailable = $isLoggedIn && storyModeEnabled && storyModeConfigured}
+        {@const buttonDisabled = !$isLoggedIn || !storyModeEnabled || !storyModeConfigured || $isDisabled}
         <button 
-          aria-label={storyModeEnabled && storyModeConfigured 
+          aria-label={isStoryModeAvailable
             ? ($translations.emojiDisplay.storyButton || 'Story mode')
-            : (!storyModeEnabled 
-              ? 'Story mode - Enable in settings'
-              : 'Story mode - Configure API key in settings')}
-          on:click={storyModeEnabled && storyModeConfigured ? toggleStoryMode : null} 
-          class="w-1/2 py-4 rounded-full transition-all duration-300 ease-in-out transform focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
-            {storyModeEnabled && storyModeConfigured 
+            : (!$isLoggedIn
+              ? ($translations.emojiDisplay.storyButtonLoginRequired || 'Story mode - Login required')
+              : (!storyModeEnabled 
+                ? ($translations.emojiDisplay.storyButtonEnableRequired || 'Story mode - Enable in settings')
+                : ($translations.emojiDisplay.storyButtonConfigureRequired || 'Story mode - Configure API key in settings')))}
+          on:click={isStoryModeAvailable ? toggleStoryMode : (buttonDisabled ? null : () => {
+            if (!$isLoggedIn) {
+              showWarning(
+                $translations?.emojiDisplay?.storyModeLoginRequired || 
+                'Please log in to use Story Mode. Create an account to access AI-generated emoji passwords.',
+                5000
+              );
+            }
+          })} 
+          class="w-1/2 py-4 rounded-full transition-all duration-300 ease-in-out transform focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100
+            {isStoryModeAvailable
               ? 'bg-yellow-500 text-black border-2 border-yellow-500 shadow-md hover:scale-105 focus:scale-105 active:scale-95 cursor-pointer focus:ring-yellow-50' 
               : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-500 border-2 border-gray-300 dark:border-gray-700 opacity-60 cursor-not-allowed focus:ring-gray-200'}"
-          disabled={!storyModeEnabled || !storyModeConfigured || $isDisabled}
-          title={storyModeEnabled && storyModeConfigured 
+          disabled={buttonDisabled}
+          title={isStoryModeAvailable
             ? ($translations.emojiDisplay.storyButton || 'Story mode')
-            : (!storyModeEnabled 
-              ? 'Enable Story Mode in settings'
-              : 'Configure API key in settings')}
+            : (!$isLoggedIn
+              ? ($translations.emojiDisplay.storyButtonLoginRequired || 'Story mode - Login required')
+              : (!storyModeEnabled 
+                ? ($translations.emojiDisplay.storyButtonEnableRequired || 'Enable Story Mode in settings')
+                : ($translations.emojiDisplay.storyButtonConfigureRequired || 'Configure API key in settings')))}
         >
-          {#if storyModeEnabled && storyModeConfigured}
+          {#if isStoryModeAvailable}
             {$translations.emojiDisplay.storyButton}
+          {:else if !$isLoggedIn}
+            🔐 {$translations.emojiDisplay.storyButton || 'Story Mode'}
           {:else if !storyModeEnabled}
             🔒 Story Mode
           {:else}
@@ -1496,37 +1513,6 @@
   }
   
   /* ===== STANDARD BUTTON ===== */
-  
-  /* Hover: Zoom + Background + Text */
-  .standard-ai-button.yellow-hover {
-    transform: scale(1.12);
-  }
-  
-  .standard-ai-button.yellow-hover .yellow-hover-bg {
-    opacity: 1;
-  }
-  
-  .standard-ai-button.yellow-hover .yellow-text {
-    color: rgb(0, 0, 0);
-  }
-  
-  /* Klick: Animation */
-  .standard-ai-button.yellow-click {
-    animation: yellowClickPulse 0.6s ease-in-out;
-  }
-  
-  .standard-ai-button.yellow-click .yellow-hover-bg {
-    opacity: 1;
-  }
-  
-  .standard-ai-button.yellow-click .yellow-text {
-    color: rgb(0, 0, 0);
-  }
-  
-  @keyframes yellowClickPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.12); }
-    100% { transform: scale(1); }
-  }
+  /* Removed unused CSS selectors for .yellow-hover and .yellow-click */
   
 </style>

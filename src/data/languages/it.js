@@ -24,12 +24,14 @@ export default {
         pageKeywords:
             'Keymoji, password emoji, generatore password, sicurezza, sicurezza online',
         pageInstruction: [
-            'Clicca "📝 Storia" per la tua favola emoji IA 📖',
+            'Scegli la tua IA e crea la tua storia Keymoji',
             '"Casuale" è autoesplicativo 😜.',
             'Dopo la generazione, viene salvato negli appunti! 📋'
         ],
-        setupStoryMode: 'Configura la tua IA',
+        setupStoryMode: 'Usa la tua IA',
+        setupStoryModeShort: 'Usa la tua IA',
         setupStoryModeSwiss: 'Usa IA svizzera',
+        setupStoryModeSwissShort: 'IA svizzera',
         setupStoryModeOr: 'o',
         setupStoryModeDescription:
             'Connettiti con la tua IA per password emoji personalizzate.',

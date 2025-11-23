@@ -24,7 +24,7 @@ export default {
         pageKeywords:
             "Keymoji, emoji gwedh, gwedh echad, thand, De' thand, De' thand chu'",
         pageInstruction: [
-            '"📝 Narn" yI\'ang, echad i narn emoji lín 📖',
+            'Echad echad i echad lín, echad echad i Keymoji narn lín',
             '"Random" ú-echad – Qapchu\' 😜.',
             "Echadlu'DI', De' línDaq pollu'! 📋"
         ],

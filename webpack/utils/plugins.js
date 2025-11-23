@@ -71,7 +71,13 @@ module.exports = {
         new plugins.Html({
             inject: true,
             template: paths.APP_HTML,
-            title: 'Keymoji - Development'
+            title: 'Keymoji - Development',
+            minify: false, // Don't minify in development
+            // Ensure DOCTYPE is preserved
+            meta: {
+                charset: 'UTF-8',
+                viewport: 'width=device-width, initial-scale=1.0, user-scalable=yes'
+            }
         })
     ],
     build: [

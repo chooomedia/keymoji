@@ -24,7 +24,7 @@ export default {
         pageKeywords:
             "Keymoji, emoji mu'ghom, mu'ghom chenwI', Qan, De' Qanbogh, De' Qan chu'", // Doppelte Anführungszeichen für gültige Syntax
         pageInstruction: [
-            "📝 lut yI'ang, QIn SaghwI' emoji lutlIj HevmeH 📖",
+            "QIn SaghwI' lIj yI'ang, 'ej Keymoji lutlIj yI'ang",
             "Random QIjbe'lu' – Qapchu' 😜.",
             "DachenmoHDI', De' QInlIjDaq pollu'! 📋"
         ],

@@ -1080,7 +1080,7 @@
                 <!-- Close Button (X) -->
                 <button
                     on:click={dismissProBanner}
-                    class="absolute top-2 right-2 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-all focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+                    class="absolute top-2 right-2 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-all"
                     aria-label="Dismiss upgrade banner for 3 days"
                     title="Hide for 3 days"
                 >
@@ -1138,41 +1138,31 @@
                 data-accordion="{section.id}"
             >
                 <!-- Section Header -->
-                <button
-                    on:click={() => toggleSection(section.id)}
-                    class="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-all focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
-                    aria-label="{getLocalizedText(section.title)} - {activeSection === section.id ? 'Collapse' : 'Expand'}"
-                    id="accordion-{section.id}"
-                >
-                    <div class="flex items-center space-x-3">
-                        <span class="text-xl">{section.icon}</span>
-                        <div class="text-left">
-                            <div class="flex items-center space-x-2">
-                                <h3 class="font-semibold text-gray-900 dark:text-white">
-                                    {getLocalizedText(section.title)}
-                                </h3>
-                                {#if !isProUser && (section.id === 'security' || section.id === 'generation' || section.id === 'privacy' || section.id === 'pro')}
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                                        {$translations?.accountManager?.tiers?.proAccount || '💎 Pro'}
-                                    </span>
-                                {/if}
+                <div class="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+                    <button
+                        on:click={() => toggleSection(section.id)}
+                        class="flex-1 flex items-center justify-between focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-all"
+                        aria-label="{getLocalizedText(section.title)} - {activeSection === section.id ? 'Collapse' : 'Expand'}"
+                        id="accordion-{section.id}"
+                    >
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xl">{section.icon}</span>
+                            <div class="text-left">
+                                <div class="flex items-center space-x-2">
+                                    <h3 class="font-semibold text-gray-900 dark:text-white">
+                                        {getLocalizedText(section.title)}
+                                    </h3>
+                                    {#if !isProUser && (section.id === 'security' || section.id === 'generation' || section.id === 'privacy' || section.id === 'pro')}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                            {$translations?.accountManager?.tiers?.proAccount || '💎 Pro'}
+                                        </span>
+                                    {/if}
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    {getLocalizedText(section.description)}
+                                </p>
                             </div>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">
-                                {getLocalizedText(section.description)}
-                            </p>
                         </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        {#if !isProUser && (section.id === 'security' || section.id === 'generation' || section.id === 'privacy' || section.id === 'pro')}
-                            <button
-                                on:click|stopPropagation={() => handleProFeature(getLocalizedText(section.title), getLocalizedText(section.description))}
-                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800 focus:bg-purple-200 dark:focus:bg-purple-800 active:bg-purple-300 dark:active:bg-purple-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-1"
-                                aria-label="Upgrade to unlock {getLocalizedText(section.title)}"
-                                title="Upgrade to Pro"
-                            >
-                                Upgrade
-                            </button>
-                        {/if}
                         <svg 
                             class="w-5 h-5 text-gray-400 transition-transform duration-200 ease-out {activeSection === section.id ? 'transform rotate-180' : ''}" 
                             fill="none" 
@@ -1181,8 +1171,18 @@
                         >
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
-                    </div>
-                </button>
+                    </button>
+                    {#if !isProUser && (section.id === 'security' || section.id === 'generation' || section.id === 'privacy' || section.id === 'pro')}
+                        <button
+                            on:click={() => handleProFeature(getLocalizedText(section.title), getLocalizedText(section.description))}
+                            class="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800 focus:bg-purple-200 dark:focus:bg-purple-800 active:bg-purple-300 dark:active:bg-purple-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-1"
+                            aria-label="Upgrade to unlock {getLocalizedText(section.title)}"
+                            title="Upgrade to Pro"
+                        >
+                            Upgrade
+                        </button>
+                    {/if}
+                </div>
 
                 <!-- Section Content -->
                 {#if activeSection === section.id}

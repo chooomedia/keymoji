@@ -24,12 +24,14 @@ export default {
         pageKeywords:
             'Keymoji, contraseña emoji, generador de contraseñas, seguridad, seguridad en línea',
         pageInstruction: [
-            'Haz clic en "📝 Historia" para tu cuento emoji de IA 📖',
+            'Elige tu IA y crea tu historia Keymoji',
             '"Aleatorio" es autoexplicativo 😜.',
             '¡Después de generar, se guarda en tu portapapeles! 📋'
         ],
-        setupStoryMode: 'Configura tu IA',
+        setupStoryMode: 'Usa tu propia IA',
+        setupStoryModeShort: 'Usa tu propia IA',
         setupStoryModeSwiss: 'Usar IA suiza',
+        setupStoryModeSwissShort: 'IA suiza',
         setupStoryModeOr: 'o',
         setupStoryModeDescription:
             'Conéctate con tu IA para contraseñas emoji personalizadas.',

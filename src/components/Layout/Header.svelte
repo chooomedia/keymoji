@@ -137,7 +137,7 @@
                 <h2 class="flex flex-wrap md:text-2xl font-semibold items-center whitespace-nowrap dark:text-white">
                     <Link 
                         to={$currentLanguage === 'en' ? '/' : `/${$currentLanguage}`}
-                        class="flex items-center hover:text-yellow transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-aubergine-800 rounded-lg"
+                        class="flex items-center hover:text-yellow transition-colors focus:outline-none rounded-lg"
                         aria-label={headerTitle}
                     >
                         <!-- Keymoji Logo SVG from shapes.js -->

@@ -24,12 +24,14 @@ export default {
         pageKeywords:
             'Keymoji, emoji passwort, passwort generator, sicherheit, online sicherheit',
         pageInstruction: [
-            'Klick "📝 Gschicht" für dini KI Emoji-Gschicht 📖',
+            'Wähl dini KI und erstell dini Keymoji-Gschicht',
             '"Zufällig" isch selbsterklärend 😜.',
             'Nach em Generiere wirds in dini Zwischeablage kopiert! 📋'
         ],
-        setupStoryMode: 'Dine KI yrichte',
+        setupStoryMode: 'Eigeni KI bruche',
+        setupStoryModeShort: 'Eigeni KI bruche',
         setupStoryModeSwiss: 'Schwiizer KI bruche',
+        setupStoryModeSwissShort: 'Schwiizer KI',
         setupStoryModeOr: 'oder',
         setupStoryModeDescription:
             'Verbind di mit dim KI für personalisiereti Emoji-Passwörter.',

@@ -24,12 +24,14 @@ export default {
         pageKeywords:
             'Keymoji, emoji passwort, passwort generator, sicherheit, online sicherheit',
         pageInstruction: [
-            'Klicke "📝 Story" für deine KI Emoji-Geschichte 📖',
+            'Wähle deine KI und erstelle deine Keymoji-Story',
             '"Random" ist selbsterklärend 😜.',
             'Nach dem Generieren wird es in deine Zwischenablage kopiert! 📋'
         ],
-        setupStoryMode: 'Richte deine KI ein',
+        setupStoryMode: 'Eigene KI nutzen',
+        setupStoryModeShort: 'Eigene KI nutzen',
         setupStoryModeSwiss: 'Schweizer KI nutzen',
+        setupStoryModeSwissShort: 'Schweizer KI',
         setupStoryModeOr: 'oder',
         setupStoryModeDescription:
             'Verbinde dich mit deiner KI für personalisierte Emoji-Passwörter.',

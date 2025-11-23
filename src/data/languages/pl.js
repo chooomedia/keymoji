@@ -24,12 +24,14 @@ export default {
         pageKeywords:
             'Keymoji, hasło emoji, generator haseł, bezpieczeństwo, bezpieczeństwo online',
         pageInstruction: [
-            'Kliknij "📝 Historia" dla swojej historii emoji AI 📖',
+            'Wybierz swoją AI i stwórz swoją historię Keymoji',
             '"Losowe" mówi samo za siebie 😜.',
             'Po wygenerowaniu zostanie skopiowane do schowka! 📋'
         ],
-        setupStoryMode: 'Skonfiguruj swoją AI',
+        setupStoryMode: 'Użyj własnej AI',
+        setupStoryModeShort: 'Użyj własnej AI',
         setupStoryModeSwiss: 'Użyj szwajcarskiej AI',
+        setupStoryModeSwissShort: 'Szwajcarska AI',
         setupStoryModeOr: 'lub',
         setupStoryModeDescription:
             'Połącz się ze swoją AI dla spersonalizowanych haseł emoji.',

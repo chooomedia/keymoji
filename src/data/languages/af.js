@@ -24,12 +24,14 @@ export default {
         pageKeywords:
             'Keymoji, emoji wagwoord, wagwoord generator, sekuriteit, aanlyn sekuriteit',
         pageInstruction: [
-            'Klik "📝 Storie" vir jou AI emoji storie 📖',
+            'Kies jou AI en skep jou Keymoji storie',
             '"Lukraak" spreek vanself 😜.',
             'Na generering word dit na jou knipbord gekopieer! 📋'
         ],
-        setupStoryMode: 'Stel jou AI op',
+        setupStoryMode: 'Gebruik jou eie AI',
+        setupStoryModeShort: 'Gebruik jou eie AI',
         setupStoryModeSwiss: 'Gebruik Switserse AI',
+        setupStoryModeSwissShort: 'Switserse AI',
         setupStoryModeOr: 'of',
         setupStoryModeDescription:
             'Koppel met jou AI vir gepersonaliseerde emoji-wagwoorde.',

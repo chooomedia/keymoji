@@ -24,12 +24,14 @@ export default {
         pageKeywords:
             'Keymoji, emoji şifre, şifre üreticisi, güvenlik, çevrimiçi güvenlik',
         pageInstruction: [
-            'AI emoji hikayeniz için "📝 Hikaye"ye tıklayın 📖',
+            'AI\'nizi seçin ve Keymoji hikayenizi oluşturun',
             '"Rastgele" kendini açıklıyor 😜.',
             'Üretildikten sonra panoya kopyalanır! 📋'
         ],
-        setupStoryMode: "AI'nizi Yapılandırın",
+        setupStoryMode: "Kendi AI'nızı kullanın",
+        setupStoryModeShort: "Kendi AI'nızı kullanın",
         setupStoryModeSwiss: 'İsviçre AI kullan',
+        setupStoryModeSwissShort: 'İsviçre AI',
         setupStoryModeOr: 'veya',
         setupStoryModeDescription:
             "Kişiselleştirilmiş emoji şifreleri için AI'nize bağlanın.",

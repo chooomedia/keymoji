@@ -334,7 +334,7 @@
         id="language-toggle-button"
         bind:this={buttonRef}
         type="button"
-        class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14"
+        class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14"
         on:click={toggleLanguageMenu}
         aria-label={$showLanguageMenu ? ($translations?.languageSwitcher?.closeMenu || 'Close language menu') : ($translations?.languageSwitcher?.changeLanguage || 'Change language')}
         aria-haspopup="true"
@@ -387,7 +387,7 @@
                     {#each languages as lang}
                         <li role="none" lang={lang.ogLocale}>
                             <button
-                                class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 dark:hover:bg-aubergine-800 focus:bg-aubergine-50 dark:focus:bg-aubergine-800 active:bg-aubergine-100 dark:active:bg-aubergine-700 text-sm transition-all text-black dark:text-white focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+                                class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 dark:hover:bg-aubergine-800 focus:bg-aubergine-50 dark:focus:bg-aubergine-800 active:bg-aubergine-100 dark:active:bg-aubergine-700 text-sm transition-all text-black dark:text-white"
                                 role="menuitem"
                                 on:click={() => handleLanguageChange(lang.code)}
                                 on:keydown={(e) => handleMenuKeydown(e, lang.code)}

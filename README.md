@@ -2,7 +2,7 @@
 
 > Secure, memorable passwords with emojis. AI-resistant. Privacy-first. Open Source.
 
-[![Version](https://img.shields.io/badge/version-0.7.4-blue.svg)](https://github.com/chooomedia/keymoji)
+[![Version](https://img.shields.io/badge/version-0.7.7-blue.svg)](https://github.com/chooomedia/keymoji)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Made with Svelte](https://img.shields.io/badge/made%20with-svelte-ff3e00.svg)](https://svelte.dev)
 
@@ -148,6 +148,7 @@ Reusable UI layer for all forms:
 
 | Version | Date       | Highlights                                                                           |
 | ------- | ---------- | ------------------------------------------------------------------------------------ |
+| 0.7.7   | 2025-11-16 | Loading screen consolidation, debug info improvements, code cleanup, version update |
 | 0.7.4   | 2025-11-13 | Performance optimization, API call reduction (50-70%), code quality improvements, centralized utilities |
 | 0.7.3   | 2025-11-13 | Data integrity fixes, Magic-Link settings fix, metadata cleaner, dailyUsage preservation |
 | 0.7.2   | 2025-11-07 | Security improvements, environment variables best practices, configuration cleanup   |

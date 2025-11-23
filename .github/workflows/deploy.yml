@@ -70,6 +70,11 @@ jobs:
                   RewriteCond %{REQUEST_FILENAME} !-f
                   RewriteRule ^(.*)$ /social-preview.php?path=$1 [L]
 
+                  # CRITICAL: Exclude static assets and API routes from routing
+                  RewriteCond %{REQUEST_URI} ^/(static|images|fonts|api|favicon|manifest|robots|sitemap) [NC,OR]
+                  RewriteCond %{REQUEST_URI} \.(js|css|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot|json|xml|txt|php)$ [NC]
+                  RewriteRule ^ - [L]
+                  
                   # Check for static HTML files in language-prefixed subdirectories (e.g., /de/account/index.html)
                   # This handles /:lang/account, /:lang/contact, etc.
                   RewriteCond %{REQUEST_FILENAME} !-f
@@ -77,7 +82,7 @@ jobs:
                   RewriteCond %{DOCUMENT_ROOT}/%1/%2/index.html -f
                   RewriteRule ^(.*)$ /%1/%2/index.html [L]
 
-                  # Check for static HTML files in subdirectories first (e.g., /account/index.html)
+                  # Check for static HTML files in subdirectories (e.g., /account/index.html)
                   # This handles both /account and /account/ URLs
                   RewriteCond %{REQUEST_FILENAME} !-f
                   RewriteCond %{REQUEST_URI} ^/([^/]+)/?$

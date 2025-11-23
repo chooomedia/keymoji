@@ -1,4 +1,234 @@
 export const versions = {
+    '0.7.7': {
+        date: 'November 16, 2025',
+        core: {
+            codeQuality: {
+                title: '🧹 Code Cleanup & Quality Improvements',
+                improvements: [
+                    'Console.log Cleanup: Removed all console.log statements except dedicated debug functions',
+                    'Comment Standardization: Added three-line English header comments to all files',
+                    'Debug Function Consolidation: One debug function per component/utility',
+                    'Code Deduplication: Removed redundant variables and unused code',
+                    'Import/Export Consistency: Fixed all import/export inconsistencies',
+                    'TypeScript Migration: Continued migration of utils and stores to TypeScript'
+                ]
+            },
+            ui: {
+                title: '🎨 UI/UX Optimizations',
+                improvements: [
+                    'Loading Screen Consolidation: Single reusable LoadingScreen component with debug info',
+                    'Story Mode Buttons: Optimized Swiss AI and Custom AI buttons with animations',
+                    'Button States: Story Mode button disabled when not logged in',
+                    'Text Optimization: Shortened button texts for better UX (one-line only)',
+                    'Emoji Consistency: Removed duplicate emojis, consistent emoji usage',
+                    'Footer Layout: Optimized mobile and desktop footer layouts',
+                    'Dark/Light Mode: Consistent styling across all components'
+                ]
+            },
+            routing: {
+                title: '🛣️ Routing & Static HTML Generation',
+                improvements: [
+                    'Static Route Generation: Improved script to use actual build assets with contenthash',
+                    '.htaccess Optimization: Better handling of static assets and language-prefixed routes',
+                    'Route Priority: Fixed route matching order for proper SPA routing',
+                    'Trailing Slash Handling: Consistent URL normalization across all routes',
+                    'Static HTML Files: Generated for all routes and languages for better SEO',
+                    'Asset Path Resolution: Dynamic asset path detection in generated HTML files'
+                ]
+            },
+            translations: {
+                title: '🌍 Translation Updates',
+                improvements: [
+                    'Story Mode Instructions: Updated all languages with clearer AI selection guidance',
+                    'Button Labels: Consistent translations for "Swiss AI" and "Use your own AI"',
+                    'Short Labels: Added setupStoryModeShort and setupStoryModeSwissShort for compact buttons',
+                    'Language Coverage: All 15 languages updated with new instruction texts'
+                ]
+            }
+        },
+        fixes: {
+            critical: {
+                title: '🐛 Critical Bug Fixes',
+                improvements: [
+                    'Fixed: runtime.lastError handling for Chrome extension compatibility',
+                    'Fixed: Memory leaks in AccountManager (duplicate onMount blocks)',
+                    'Fixed: Missing closing div tags in EmojiDisplay component',
+                    'Fixed: TypeScript compilation errors in multiple stores and utils',
+                    'Fixed: Import resolution issues with svelte/store and appStores',
+                    'Fixed: Language switching reactivity issues'
+                ]
+            },
+            errorHandling: {
+                title: '🛡️ Error Handling Improvements',
+                improvements: [
+                    'Global Error Handler: Added window error listeners for runtime.lastError',
+                    'Service Worker: Improved error handling for message port closed errors',
+                    'Magic Link Listener: Added cleanup on page unload to prevent memory leaks',
+                    'Event Listener Cleanup: Proper cleanup of all event listeners',
+                    'Chrome Extension Compatibility: Silent handling of benign extension errors'
+                ]
+            },
+            build: {
+                title: '🔧 Build & Deployment Fixes',
+                improvements: [
+                    'GitHub Actions: Optimized workflows to prevent duplicate builds',
+                    'Staging Branch: Enabled automatic FTP deployment for staging branch',
+                    'Webpack Alias: Added svelte/store alias for modalStore.ts compatibility',
+                    'Static Assets: Fixed asset path resolution in generated HTML files',
+                    'Font Loading: Fixed font paths and @font-face declarations',
+                    'Build Cache: Improved cache invalidation for better build reliability'
+                ]
+            }
+        }
+    },
+    '0.7.6': {
+        date: 'November 15, 2025',
+        core: {
+            routing: {
+                title: '🛣️ Routing & Static Site Generation',
+                improvements: [
+                    'Static HTML Generation: Script generates HTML files for all routes and languages',
+                    'Route Handling: Improved handling of routes without language prefix (/account, /contact)',
+                    '.htaccess Rules: Enhanced rules for language-prefixed routes and static files',
+                    'Trailing Slash: Consistent URL normalization with trailing slash handling',
+                    'Route Matching: Fixed route priority order for proper SPA fallback',
+                    'SEO Optimization: Static HTML files with proper meta tags for better indexing'
+                ]
+            },
+            environment: {
+                title: '⚙️ Environment & Build System',
+                improvements: [
+                    'Environment Variables: Complete migration from process.env to import.meta.env',
+                    'Webpack Configuration: Fixed module resolution for TypeScript files',
+                    'Build Scripts: Optimized static route generation and asset handling',
+                    'TypeScript Support: Improved TypeScript compilation in build process',
+                    'Asset Management: Better handling of versioned assets with contenthash'
+                ]
+            },
+            seo: {
+                title: '🔍 SEO & Meta Tags',
+                improvements: [
+                    'Hreflang Links: Removed duplicate hreflang tags, static tags in index.html',
+                    'Meta Tag Management: Improved updateMetaTags to respect static tags',
+                    'Social Preview: Updated social-preview.php to use SVG logo instead of emoji',
+                    'Structured Data: Enhanced structured data generation for better SEO',
+                    'Canonical URLs: Proper canonical URL handling for all routes'
+                ]
+            }
+        },
+        fixes: {
+            critical: {
+                title: '🐛 Critical Routing Fixes',
+                improvements: [
+                    'Fixed: Redirect loops in route handling',
+                    'Fixed: Routes not loading before Router initialization',
+                    'Fixed: Missing static HTML files for routes without language prefix',
+                    'Fixed: Route matching order causing incorrect component rendering',
+                    'Fixed: Trailing slash inconsistencies causing 404 errors'
+                ]
+            },
+            build: {
+                title: '🔧 Build System Fixes',
+                improvements: [
+                    'Fixed: Import resolution errors in AccountManager and FixedMenu',
+                    'Fixed: TypeScript compilation errors in multiple files',
+                    'Fixed: Webpack alias issues for appStores.ts',
+                    'Fixed: Prerender-meta.js SEO functions inline definition',
+                    'Fixed: Font path issues in CSS causing build errors'
+                ]
+            },
+            ui: {
+                title: '🎨 UI Fixes',
+                improvements: [
+                    'Fixed: White screen issue in AccountManager',
+                    'Fixed: Font loading for Sindarin (sjn) language',
+                    'Fixed: Footer layout issues on mobile and desktop',
+                    'Fixed: Language switching reactivity problems',
+                    'Fixed: Permissions-Policy header warnings'
+                ]
+            }
+        }
+    },
+    '0.7.5': {
+        date: 'November 14, 2025',
+        core: {
+            typescript: {
+                title: '📘 TypeScript Migration Foundation',
+                improvements: [
+                    'TypeScript Setup: Created tsconfig.json with Svelte support',
+                    'Type Definitions: Added Account, API, and Settings type interfaces',
+                    'Store Migration: Migrated appStores, modalStore, blogLikesStore, seoStore to TypeScript',
+                    'Utils Migration: Migrated storyModeAI, blogApi, apiCache, accountHelpers to TypeScript',
+                    'Type Safety: Improved function signatures and parameter validation',
+                    'Build Integration: TypeScript loader configured in Webpack'
+                ]
+            },
+            codeQuality: {
+                title: '🔧 Code Quality & Architecture',
+                improvements: [
+                    'Code Consolidation: Centralized safeSetTimeout and generateClientFingerprint utilities',
+                    'API Call Optimization: Eliminated duplicate API calls during login flow',
+                    'Race Condition Fixes: Removed setTimeout delays in async flows',
+                    'Error Handling: Standardized error handling patterns across stores',
+                    'Code Deduplication: Removed duplicate code across multiple files',
+                    'Import Cleanup: Fixed import/export inconsistencies'
+                ]
+            },
+            performance: {
+                title: '⚡ Performance Optimizations',
+                improvements: [
+                    'Lazy Loading: Implemented dynamic route loading for better performance',
+                    'Code Splitting: Optimized Webpack configuration with separate chunks',
+                    'Cache Strategy: Improved cache invalidation and management',
+                    'Bundle Size: Reduced maxSize from 244KB to 200KB for better loading',
+                    'Store Synchronization: Improved cross-store data consistency',
+                    'Reactive Optimization: Memoized expensive computations'
+                ]
+            },
+            tailwind: {
+                title: '🎨 Tailwind CSS Optimization',
+                improvements: [
+                    'PurgeCSS Configuration: Optimized with proper safelist',
+                    'Custom Utilities: Added scrollbar styles and common patterns',
+                    'Build Optimization: Fixed custom utilities for Tailwind 2.2.19 compatibility',
+                    'CSS Minimization: Improved CSS minification in production builds',
+                    'Dark Mode: Enhanced dark mode support across all components'
+                ]
+            }
+        },
+        fixes: {
+            critical: {
+                title: '🐛 Critical Bug Fixes',
+                improvements: [
+                    'Fixed: Race conditions from setTimeout delays in async flows',
+                    'Fixed: Duplicate API calls during login (reduced by 50-70%)',
+                    'Fixed: Import resolution errors in TypeScript files',
+                    'Fixed: Build errors from Tailwind custom utilities',
+                    'Fixed: Code duplication across multiple stores and utils'
+                ]
+            },
+            ci: {
+                title: '🔄 CI/CD Improvements',
+                improvements: [
+                    'GitHub Actions: Created workflows for tests, builds, and deployment',
+                    'Automated Testing: Added test workflows for code quality',
+                    'Build Verification: Improved build verification in CI pipeline',
+                    'Deployment: Optimized FTP deployment process',
+                    'Version Management: Automated version bumping with Git hooks'
+                ]
+            },
+            documentation: {
+                title: '📚 Documentation & Planning',
+                improvements: [
+                    'Cursor Rules: Created comprehensive .cursorrules for code standards',
+                    'Refactor Plan: Documented complete refactoring strategy',
+                    'Migration Guide: Created Svelte 5 migration guide',
+                    'Session Summary: Comprehensive documentation of refactoring session',
+                    'Code Analysis: Detailed analysis of codebase structure and improvements'
+                ]
+            }
+        }
+    },
     '0.7.4': {
         date: 'November 13, 2025',
         core: {

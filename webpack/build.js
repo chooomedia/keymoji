@@ -215,7 +215,7 @@ module.exports = merge(common, {
                 removeComments: true,
                 collapseWhitespace: true,
                 removeRedundantAttributes: true,
-                useShortDoctype: true,
+                useShortDoctype: false, // Keep full DOCTYPE for compatibility
                 removeEmptyAttributes: true,
                 removeStyleLinkTypeAttributes: true,
                 keepClosingSlash: true,

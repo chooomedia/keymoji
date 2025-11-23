@@ -24,12 +24,14 @@ export default {
         pageKeywords:
             'Keymoji, 絵文字パスワード, パスワードジェネレーター, セキュリティ, オンラインセキュリティ',
         pageInstruction: [
-            '"📝 ストーリー"をクリックしてAI絵文字物語を取得 📖',
+            'AIを選択してKeymojiストーリーを作成',
             '"ランダム"は自明です 😜。',
             '生成後、クリップボードに保存されます！📋'
         ],
-        setupStoryMode: 'AIをセットアップ',
+        setupStoryMode: '自分のAIを使用',
+        setupStoryModeShort: '自分のAIを使用',
         setupStoryModeSwiss: 'スイスAIを使用',
+        setupStoryModeSwissShort: 'スイスAI',
         setupStoryModeOr: 'または',
         setupStoryModeDescription:
             'AIに接続してパーソナライズされた絵文字パスワードを取得。',

@@ -189,30 +189,66 @@
         // Wrap in try-catch to handle message port errors
         try {
             // CRITICAL: Check for runtime.lastError before posting
-            if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError) {
-                const lastError = chrome.runtime.lastError;
-                if (lastError) {
-                    if (debugMode) {
-                        console.warn('⚠️ ServiceWorkerHandler: Chrome runtime error before postMessage:', lastError.message);
+            if (typeof chrome !== 'undefined' && chrome.runtime) {
+                try {
+                    if (chrome.runtime.lastError) {
+                        // Silently clear the error - it's expected from browser extensions
+                        void chrome.runtime.lastError;
                     }
+                } catch (e) {
+                    // Ignore errors when checking runtime.lastError
                 }
             }
             
             // Check if worker is still valid before posting
             if (newWorker && newWorker.state !== 'redundant') {
-                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                try {
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                } catch (postError) {
+                    // Silently handle message port closed errors
+                    const errorMessage = postError?.message || postError?.toString() || '';
+                    const errorName = postError?.name || '';
+                    
+                    if (
+                        errorMessage.includes('port') ||
+                        errorMessage.includes('closed') ||
+                        errorMessage.includes('runtime.lastError') ||
+                        errorMessage.includes('Extension context invalidated') ||
+                        errorMessage.includes('The message port closed before a response was received') ||
+                        errorName === 'InvalidStateError' ||
+                        errorName === 'DOMException'
+                    ) {
+                        // Silent - expected during page transitions or from browser extensions
+                        return;
+                    } else if (debugMode) {
+                        console.warn('⚠️ ServiceWorkerHandler: Failed to post message:', postError);
+                    }
+                }
             } else {
                 if (debugMode) {
                     console.warn('⚠️ ServiceWorkerHandler: Worker is redundant, cannot send message');
                 }
             }
         } catch (error) {
-            // Handle message port closed errors gracefully
-            if (error.message?.includes('port') || error.message?.includes('closed')) {
-                if (debugMode) {
-                    console.warn('⚠️ ServiceWorkerHandler: Message port closed, worker may have already activated');
-                }
-            } else {
+            // Silently handle runtime.lastError and message port errors
+            const errorMessage = error?.message || error?.toString() || '';
+            const errorName = error?.name || '';
+            
+            if (
+                errorMessage.includes('runtime.lastError') ||
+                errorMessage.includes('port') ||
+                errorMessage.includes('closed') ||
+                errorMessage.includes('Extension context invalidated') ||
+                errorMessage.includes('The message port closed before a response was received') ||
+                errorName === 'InvalidStateError' ||
+                errorName === 'DOMException'
+            ) {
+                // Silent - expected from browser extensions or during page transitions
+                return;
+            }
+            
+            // Log other errors only in debug mode
+            if (debugMode) {
                 console.error('❌ ServiceWorkerHandler: Failed to send message to service worker:', error);
             }
         }

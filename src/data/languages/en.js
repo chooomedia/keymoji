@@ -24,12 +24,14 @@ export default {
         pageKeywords:
             'Keymoji, emoji password, password generator, security, online security',
         pageInstruction: [
-            'Click "📝 Story" for your AI emoji tale 📖',
+            'Choose your AI and create your Keymoji story',
             '"Random" is self-explanatory 😜.',
             "After generating, it's saved to your clipboard! 📋"
         ],
-        setupStoryMode: 'Setup your AI',
+        setupStoryMode: 'Use your own AI',
+        setupStoryModeShort: 'Use your own AI',
         setupStoryModeSwiss: 'Use Swiss AI',
+        setupStoryModeSwissShort: 'Swiss AI',
         setupStoryModeOr: 'or',
         setupStoryModeDescription:
             'Connect with your AI for personalized emoji passwords.',

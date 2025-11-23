@@ -94,7 +94,7 @@ const seoData = {
 };
 
 // Generiere HTML für eine Route
-function generateRouteHTML(route, lang = 'en') {
+function generateRouteHTML(route, lang = 'en', buildAssets = { css: [], js: [] }) {
     const baseUrl = 'https://keymoji.wtf';
     const url =
         route.path === '/'
@@ -102,6 +102,21 @@ function generateRouteHTML(route, lang = 'en') {
             : `${baseUrl}/${lang}${route.path}`;
     const canonicalUrl = url.endsWith('/') ? url : `${url}/`;
     const data = seoData[route.type];
+    
+    // Verwende tatsächliche Asset-Pfade oder Fallbacks
+    const cssFiles = buildAssets.css.length > 0 ? buildAssets.css : ['/static/css/styles.css'];
+    const jsFiles = buildAssets.js.length > 0 ? buildAssets.js : ['/static/js/app.js'];
+    
+    // Generiere Link-Tags für CSS
+    const cssLinks = cssFiles.map(css => 
+        `<link rel="stylesheet" href="${css}">`
+    ).join('\n    ');
+    
+    // Generiere Preload-Tags für kritische Assets
+    const preloadTags = [
+        ...cssFiles.map(css => `<link rel="preload" href="${css}" as="style">`),
+        ...jsFiles.slice(0, 2).map(js => `<link rel="preload" href="${js}" as="script">`)
+    ].join('\n    ');
 
     return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -187,8 +202,10 @@ function generateRouteHTML(route, lang = 'en') {
     </script>
     
     <!-- Preload critical resources -->
-    <link rel="preload" href="/static/css/styles.css" as="style">
-    <link rel="preload" href="/static/js/app.js" as="script">
+    ${preloadTags}
+    
+    <!-- Stylesheets -->
+    ${cssLinks}
     
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -232,6 +249,9 @@ function generateRouteHTML(route, lang = 'en') {
             seoData: ${JSON.stringify(data)}
         };
     </script>
+    
+    <!-- JavaScript bundles -->
+    ${jsFiles.map(js => `<script src="${js}"></script>`).join('\n    ')}
 </body>
 </html>`;
 }
@@ -258,6 +278,45 @@ function getLocale(lang) {
     return localeMap[lang] || 'en_US';
 }
 
+// Finde die tatsächlichen Asset-Dateien im Build-Verzeichnis
+function findBuildAssets(buildDir) {
+    const assets = {
+        css: [],
+        js: []
+    };
+    
+    try {
+        const staticDir = path.join(buildDir, 'static');
+        if (fs.existsSync(staticDir)) {
+            // Finde CSS-Dateien
+            const cssDir = path.join(staticDir, 'css');
+            if (fs.existsSync(cssDir)) {
+                const cssFiles = fs.readdirSync(cssDir).filter(f => f.endsWith('.css'));
+                assets.css = cssFiles.map(f => `/static/css/${f}`);
+            }
+            
+            // Finde JS-Dateien (app.js und runtime.js)
+            const jsDir = path.join(staticDir, 'js');
+            if (fs.existsSync(jsDir)) {
+                const jsFiles = fs.readdirSync(jsDir).filter(f => f.endsWith('.js'));
+                // Sortiere: app.js zuerst, dann runtime.js, dann chunks
+                jsFiles.sort((a, b) => {
+                    if (a.startsWith('app.')) return -1;
+                    if (b.startsWith('app.')) return 1;
+                    if (a.startsWith('runtime.')) return -1;
+                    if (b.startsWith('runtime.')) return 1;
+                    return a.localeCompare(b);
+                });
+                assets.js = jsFiles.map(f => `/static/js/${f}`);
+            }
+        }
+    } catch (error) {
+        console.warn('⚠️ Could not find build assets, using fallback paths:', error.message);
+    }
+    
+    return assets;
+}
+
 // Hauptfunktion
 function generateStaticRoutes() {
     const buildDir = path.join(__dirname, '../build');
@@ -268,6 +327,13 @@ function generateStaticRoutes() {
     }
 
     console.log('🚀 Generating static routes for SEO...');
+    
+    // Finde die tatsächlichen Asset-Dateien
+    const buildAssets = findBuildAssets(buildDir);
+    console.log('📦 Found build assets:', {
+        css: buildAssets.css.length,
+        js: buildAssets.js.length
+    });
 
     // Generiere HTML für jede Route und Sprache
     routes.forEach(route => {
@@ -282,7 +348,7 @@ function generateStaticRoutes() {
             }
 
             // Generiere HTML für Route ohne Sprachpräfix (default: en)
-            const html = generateRouteHTML(route, 'en');
+            const html = generateRouteHTML(route, 'en', buildAssets);
             const filePath = path.join(dir, 'index.html');
 
             fs.writeFileSync(filePath, html);
@@ -300,7 +366,7 @@ function generateStaticRoutes() {
             }
 
             // Generiere HTML
-            const html = generateRouteHTML(route, lang);
+            const html = generateRouteHTML(route, lang, buildAssets);
             const filePath = path.join(dir, 'index.html');
 
             fs.writeFileSync(filePath, html);
