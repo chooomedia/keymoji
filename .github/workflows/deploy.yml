@@ -4,9 +4,10 @@ on:
     push:
         branches:
             - main
+            - staging
     workflow_dispatch:
-        # OPTIMIZATION: Deploy nur auf main
-        # Für staging: build.yml macht den Build, deploy.yml wird manuell via workflow_dispatch getriggert
+        # OPTIMIZATION: Deploy automatisch auf main und staging
+        # Für manuelles Deployment: workflow_dispatch verwenden
         inputs:
             branch:
                 description: 'Branch to deploy'

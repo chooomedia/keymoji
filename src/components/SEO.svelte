@@ -104,10 +104,8 @@
     }
 </script>
   
-<svelte:head>
-    <!-- Language alternates are static and can be here -->
-    {#each alternateUrls as alt}
-        <link rel="alternate" hreflang={alt.lang} href={alt.url} />
-    {/each}
-    <link rel="alternate" hreflang="x-default" href="https://keymoji.wtf/en/" />
-</svelte:head>
+<!-- 
+    CRITICAL: hreflang Links sind bereits in index.html vorhanden (data-static="true")
+    Diese werden NICHT dynamisch hinzugefügt, um Duplikate zu vermeiden
+    Die statischen Links in index.html werden von updateMetaTags() respektiert
+-->
