@@ -1,6 +1,6 @@
 <!-- src/routes/AccountManager.svelte -->
 <script>
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { navigate } from 'svelte-routing';
     import { fade, fly, slide, crossfade } from 'svelte/transition';
     import { tick } from 'svelte';
@@ -261,10 +261,17 @@
     
     // ROBUST: Watch currentAccount changes and trigger load
     // This works for BOTH soft reload AND hard reload!
+    let accountUnsubscribe = null;
+    
     function watchAccountChanges() {
         console.log('👀 [CHART] Setting up currentAccount watcher...');
         
-        currentAccount.subscribe(async (account) => {
+        // Cleanup existing subscription if any
+        if (accountUnsubscribe) {
+            accountUnsubscribe();
+        }
+        
+        accountUnsubscribe = currentAccount.subscribe(async (account) => {
             // Only proceed if logged in and account exists
             if (!account || !$isLoggedIn) {
                 console.log('👀 [CHART WATCH] No account or not logged in, skipping');
@@ -277,18 +284,6 @@
             await refreshUsageHistory();
         });
     }
-    
-    // CRITICAL: Setup watcher on mount, cleanup on destroy
-    onMount(async () => {
-        console.log('🔄 [CHART] Component mounted, setting up watchers...');
-        watchAccountChanges();
-        
-        // Initial load (uses cache if valid!)
-        if ($isLoggedIn) {
-            console.log('🔄 [CHART] Initial data load on mount...');
-            await refreshUsageHistory();
-        }
-    });
     
     // Reactive: Determine final usage history to display (real or demo)
     $: finalUsageHistory = (() => {
@@ -964,15 +959,45 @@
                 name = $currentAccount.name || '';
             }
             
+            // Setup chart watcher
+            console.log('🔄 [CHART] Setting up watchers...');
+            watchAccountChanges();
+            
+            // Initial chart load (uses cache if valid!)
+            if ($isLoggedIn) {
+                console.log('🔄 [CHART] Initial data load on mount...');
+                await refreshUsageHistory();
+            }
+            
             // Add global click listener for context menu
             document.addEventListener('click', handleClickOutside);
             
             return () => {
+                // Cleanup: Remove event listener
                 document.removeEventListener('click', handleClickOutside);
+                
+                // Cleanup: Unsubscribe from account store
+                if (accountUnsubscribe) {
+                    accountUnsubscribe();
+                    accountUnsubscribe = null;
+                }
             };
             
         } catch (error) {
             console.error('❌ AccountManager onMount error:', error);
+            // Ensure cleanup even on error
+            if (accountUnsubscribe) {
+                accountUnsubscribe();
+                accountUnsubscribe = null;
+            }
+        }
+    });
+    
+    // Cleanup on component destroy (safety net)
+    onDestroy(() => {
+        if (accountUnsubscribe) {
+            accountUnsubscribe();
+            accountUnsubscribe = null;
         }
     });
 
