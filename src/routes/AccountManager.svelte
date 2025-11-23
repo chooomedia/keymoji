@@ -156,15 +156,19 @@
     
     // Debug: Log when daysSinceCreation changes
     $: if (daysSinceCreation !== undefined) {
-        console.log('🔄 [AccountManager] daysSinceCreation updated:', {
-            daysSinceCreation,
-            createdAt: $currentAccount?.createdAt,
-            createdAtType: typeof $currentAccount?.createdAt,
-            hasCurrentAccount: !!$currentAccount,
-            isLoggedIn: $isLoggedIn
-        });
-        const label = $isLoggedIn ? formatAccountAge(daysSinceCreation, $translations?.accountManager?.accountAge) : '';
-        console.log('🔄 [AccountManager] accountAgeLabel will be:', label);
+        try {
+            console.log('🔄 [AccountManager] daysSinceCreation updated:', {
+                daysSinceCreation,
+                createdAt: $currentAccount?.createdAt,
+                createdAtType: typeof $currentAccount?.createdAt,
+                hasCurrentAccount: !!$currentAccount,
+                isLoggedIn: $isLoggedIn
+            });
+            const label = $isLoggedIn ? formatAccountAge(daysSinceCreation, $translations?.accountManager?.accountAge || {}) : '';
+            console.log('🔄 [AccountManager] accountAgeLabel will be:', label);
+        } catch (error) {
+            console.error('❌ [AccountManager] Error in daysSinceCreation reactive statement:', error);
+        }
     }
     
     // Return user view state
@@ -577,12 +581,19 @@
     
     // Account age label for tooltip - zeigt wie lange User den Account hat (NUR Zeitangabe)
     // CRITICAL: Nur für eingeloggte User - berechnet aus createdAt
-    $: accountAgeLabel = $isLoggedIn 
-        ? formatAccountAge(
-            daysSinceCreation, 
-            $translations?.accountManager?.accountAge
-        )
-        : ''; // Nicht eingeloggte User verwenden freeDescription/proDescription
+    $: accountAgeLabel = (() => {
+        try {
+            return $isLoggedIn 
+                ? formatAccountAge(
+                    daysSinceCreation, 
+                    $translations?.accountManager?.accountAge || {}
+                )
+                : ''; // Nicht eingeloggte User verwenden freeDescription/proDescription
+        } catch (error) {
+            console.error('❌ [AccountManager] Error calculating accountAgeLabel:', error);
+            return ''; // Fallback to empty string on error
+        }
+    })();
     
     // Tier badge text - zeigt NUR den Tier-Status
     $: tierBadgeText = getTierBadgeText($accountTier);
