@@ -211,10 +211,13 @@ export async function refreshUserCounter(): Promise<void> {
         });
 
         console.log('📥 Response status:', response.status);
-        console.log(
-            '📥 Response headers:',
-            Object.fromEntries(response.headers.entries())
-        );
+        // CRITICAL: Headers.entries() exists but TypeScript types may not include it
+        // Use Array.from() for better compatibility
+        const headersObj: Record<string, string> = {};
+        response.headers.forEach((value, key) => {
+            headersObj[key] = value;
+        });
+        console.log('📥 Response headers:', headersObj);
 
         if (response.ok) {
             const data: CounterResponse = await response.json();
@@ -551,7 +554,7 @@ function initializeUserCounter(): void {
 export const version: Writable<string> = writable(appVersion);
 export const formattedVersion: Readable<string> = derived(
     version,
-    ($version: string) => formatVersion($version)
+    () => formatVersion(true) // Always include 'v' prefix
 );
 
 // === UI STATE STORES ===
