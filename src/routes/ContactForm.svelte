@@ -79,28 +79,31 @@
     const validateForm = () => {
         formErrors = { name: '', email: '', message: '' };
         let isValid = true;
+        
+        // Use fallbacks if translations not loaded yet
+        const validation = $translations?.contactForm?.validation || {};
 
         if (!name.trim()) {
-            formErrors.name = $translations.contactForm.validation.nameRequired;
+            formErrors.name = validation.nameRequired || 'Name is required';
             isValid = false;
         } else if (name.length < 2) {
-            formErrors.name = $translations.contactForm.validation.nameLength;
+            formErrors.name = validation.nameLength || 'Name must be at least 2 characters';
             isValid = false;
         }
 
         if (!email.trim()) {
-            formErrors.email = $translations.contactForm.validation.emailRequired;
+            formErrors.email = validation.emailRequired || 'Email is required';
             isValid = false;
         } else if (!validateEmail(email)) {
-            formErrors.email = $translations.contactForm.validation.emailInvalid;
+            formErrors.email = validation.emailInvalid || 'Please enter a valid email address';
             isValid = false;
         }
 
         if (!message.trim()) {
-            formErrors.message = $translations.contactForm.validation.messageRequired;
+            formErrors.message = validation.messageRequired || 'Message is required';
             isValid = false;
         } else if (message.length < MIN_MESSAGE_LENGTH) {
-            formErrors.message = $translations.contactForm.validation.messageLength.replace('{min}', MIN_MESSAGE_LENGTH);
+            formErrors.message = (validation.messageLength || 'Message must be at least {min} characters').replace('{min}', MIN_MESSAGE_LENGTH);
             isValid = false;
         }
 
@@ -112,7 +115,7 @@
         
         if (!validateForm()) {
             // Zeige Validierungsfehler mit dem neuen Modal-System
-            showWarning($translations.contactForm.validationErrorMessage);
+            showWarning($translations?.contactForm?.validationErrorMessage || 'Please check your form and try again');
             return;
         }
 
@@ -125,25 +128,26 @@
         }
         
         // Zeige "Sending"-Nachricht mit dem neuen Modal-System
-        showSending($translations.contactForm.sendingMessage);
+        showSending($translations?.contactForm?.sendingMessage || 'Sending your message...');
         
-        // Prepare email content with translations
-        const emailText = {
-            greeting: $translations.contactForm.emailText.greeting,
-            intro: $translations.contactForm.emailText.intro,
-            confirmationText: $translations.contactForm.emailText.confirmationText,
-            doubleCheck: $translations.contactForm.emailText.doubleCheck,
-            button: $translations.contactForm.emailText.button
+        // Prepare email content with translations (with fallbacks)
+        const emailText = $translations?.contactForm?.emailText || {};
+        const emailTextData = {
+            greeting: emailText.greeting || 'Hello',
+            intro: emailText.intro || 'Thank you for contacting us.',
+            confirmationText: emailText.confirmationText || 'Please confirm your request.',
+            doubleCheck: emailText.doubleCheck || "We've received your message with the following details:",
+            button: emailText.button || 'Confirm Your Email'
         };
         
         const emailContent = {
-            greeting: emailText.greeting || 'Hello',
-            intro: emailText.intro || 'Thank you for contacting us.',
-            doubleCheck: emailText.doubleCheck || "We've received your message with the following details:",
-            button: emailText.button || 'Confirm Your Email',
-            subject: $translations.contactForm.emailText.subject || `Your message to Keymoji has been received`,
-            privacy: $translations.contactForm.emailText.privacy || 'Your data is handled securely.',
-            footer: $translations.contactForm.footerText,
+            greeting: emailTextData.greeting,
+            intro: emailTextData.intro,
+            doubleCheck: emailTextData.doubleCheck,
+            button: emailTextData.button,
+            subject: emailText.subject || `Your message to Keymoji has been received`,
+            privacy: emailText.privacy || 'Your data is handled securely.',
+            footer: $translations?.contactForm?.footerText || '',
             newsletterOptIn // Pass newsletter option to email template
         };
 
@@ -173,7 +177,7 @@
 
             // Success message with new modal system
             showSuccess(
-                $translations.contactForm.successMessage,
+                $translations?.contactForm?.successMessage || 'Message sent successfully!',
                 REDIRECT_DELAY // Auto-close after redirect delay
             );
             
@@ -191,7 +195,7 @@
             console.error('Submission error:', error);
             
             // Show error message with new modal system
-            showError($translations.contactForm.requestErrorMessage);
+            showError($translations?.contactForm?.requestErrorMessage || 'Failed to send message. Please try again.');
         } finally {
             isSubmitting = false;
         }
@@ -265,6 +269,8 @@
 
 </script>
 
+<!-- Ensure content is always visible - even if translations are loading -->
+{#if $translations?.contactForm || true}
 <PageLayout {pageTitle} {pageDescription}>
     <!-- GIF Image in before-header slot -->
     <div slot="before-header" class="flex justify-center">
@@ -276,7 +282,7 @@
             <!-- Animated GIF (default layer) -->
             <img 
                 src={emoijSmirkingFace} 
-                alt={$translations.contactForm.smirkingFaceImageAlt}
+                alt={$translations?.contactForm?.smirkingFaceImageAlt || 'Keymoji emoji smirkingface'}
                 class="w-full h-full object-cover rounded-full absolute inset-0 z-0 transition-opacity duration-500 ease-in-out"
                 class:opacity-0={showRealImage}
                 on:load={() => {handleImageLoad(); console.log('GIF loaded successfully');}}
@@ -286,7 +292,7 @@
             <!-- Real Image (hover layer) -->
             <img 
                 src={realAuthorImage} 
-                alt="Chris Matt - Creator of Keymoji the {$translations.index.pageTitle}"
+                alt="Chris Matt - Creator of Keymoji the {$translations?.index?.pageTitle || 'Emoji Password Generator'}"
                 class="w-full h-full object-cover rounded-full absolute inset-0 z-10 transition-all duration-500 ease-in-out"
                 class:opacity-0={!showRealImage}
                 class:scale-105={showRealImage}
@@ -305,12 +311,12 @@
         <!-- Name & Email Fields -->
         <div class="grid md:grid-cols-2 gap-4 mb-4">
             <div>
-                <label for="name" class="sr-only">{$translations.contactForm.nameLabel}</label>
+                <label for="name" class="sr-only">{$translations?.contactForm?.nameLabel || 'Your Name'}</label>
                 <Input
                     id="name"
                     type="text"
                     bind:value={name}
-                    placeholder={$translations.contactForm.nameLabel}
+                    placeholder={$translations?.contactForm?.nameLabel || 'Your Name'}
                     disabled={isSubmitting}
                     invalid={!!formErrors.name}
                     valid={!formErrors.name && name.trim().length >= 2}
@@ -322,12 +328,12 @@
             </div>
 
             <div>
-                <label for="email" class="sr-only">{$translations.contactForm.emailLabel}</label> 
+                <label for="email" class="sr-only">{$translations?.contactForm?.emailLabel || 'Your Email'}</label> 
                 <Input
                     id="email"
                     type="email"
                     bind:value={email}
-                    placeholder={$translations.contactForm.emailLabel}
+                    placeholder={$translations?.contactForm?.emailLabel || 'Your Email'}
                     disabled={isSubmitting}
                     invalid={!!formErrors.email}
                     valid={!formErrors.email && email.trim() && EMAIL_REGEX.test(email)}
@@ -341,12 +347,12 @@
 
         <!-- Message Field -->
         <div>
-            <label for="message" class="sr-only">{$translations.contactForm.messageLabel}</label>
+            <label for="message" class="sr-only">{$translations?.contactForm?.messageLabel || 'Your Message'}</label>
             <Input
                 id="message"
                 type="textarea"
                 bind:value={message}
-                placeholder={$translations.contactForm.messageLabel}
+                placeholder={$translations?.contactForm?.messageLabel || 'Your Message'}
                 disabled={isSubmitting}
                 invalid={!!formErrors.message}
                 valid={!formErrors.message && message.trim().length >= MIN_MESSAGE_LENGTH}
@@ -368,15 +374,15 @@
                 iconSize="lg"
                 labelHtml={$translations?.contactForm?.newsletterText ? 
                     $translations.contactForm.newsletterText.replace('{privacyPolicy}', 
-                        `<a href="${$translations.contactForm.privacyPolicyUrl}" 
+                        `<a href="${$translations?.contactForm?.privacyPolicyUrl || '/privacy'}" 
                             class="text-yellow-500 dark:text-yellow-700 hover:text-yellow-600 dark:hover:text-yellow-600 underline transition-colors duration-200"
-                            aria-label="${$translations.contactForm.privacyPolicyLink}"
+                            aria-label="${$translations?.contactForm?.privacyPolicyLink || 'Privacy Policy'}"
                             itemscope itemtype="http://schema.org/WebPage"
                             itemprop="url">
-                            ${$translations.contactForm.privacyPolicyLink}
+                            ${$translations?.contactForm?.privacyPolicyLink || 'Privacy Policy'}
                         </a>`
                     ) : 
-                    $translations?.contactForm?.newsletterOptIn || 'Subscribe to newsletter'
+                    ($translations?.contactForm?.newsletterOptIn || 'Subscribe to newsletter')
                 }
                 labelClass="text-sm text-gray-600 dark:text-gray-300 cursor-pointer"
             />
@@ -405,7 +411,7 @@
                 on:click={() => navigateToHome()}
                 disabled={isSubmitting}
             >
-                🏠 {$translations.contactForm.backToMainButton}
+                🏠 {$translations?.contactForm?.backToMainButton || 'Back to home'}
             </Button>
             
             <Button
@@ -422,10 +428,10 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        {$translations.contactForm.sendingButton}
+                        {$translations?.contactForm?.sendingButton || 'Sending...'}
                     </span>
                 {:else}
-                    {$translations.contactForm.sendButton}
+                    {$translations?.contactForm?.sendButton || 'Send'}
                 {/if}
             </Button>
         </div>
@@ -434,3 +440,13 @@
     <!-- Footer Information Component -->
     <FooterInfo slot="footer" />
 </PageLayout>
+{/if}
+{#if !$translations?.contactForm}
+    <!-- Fallback: Show loading state if translations not ready -->
+    <div class="flex items-center justify-center min-h-[400px]">
+        <div class="text-center">
+            <div class="w-12 h-12 border-4 border-yellow-200 dark:border-yellow-900 border-t-yellow-500 dark:border-t-yellow-400 rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-gray-600 dark:text-gray-400">Loading contact form...</p>
+        </div>
+    </div>
+{/if}
