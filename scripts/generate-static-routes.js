@@ -269,6 +269,25 @@ function generateStaticRoutes() {
 
     // Generiere HTML für jede Route und Sprache
     routes.forEach(route => {
+        // Generiere auch Route ohne Sprachpräfix (für /account, /contact, etc.)
+        if (route.path !== '/') {
+            const routePath = route.path;
+            const dir = path.join(buildDir, routePath);
+            
+            // Erstelle Verzeichnis falls nicht vorhanden
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            
+            // Generiere HTML für Route ohne Sprachpräfix (default: en)
+            const html = generateRouteHTML(route, 'en');
+            const filePath = path.join(dir, 'index.html');
+            
+            fs.writeFileSync(filePath, html);
+            console.log(`✅ Generated: ${route.path}/index.html`);
+        }
+        
+        // Generiere HTML für jede Sprache
         supportedLanguages.forEach(lang => {
             const routePath = route.path === '/' ? '' : route.path;
             const dir = path.join(buildDir, lang, routePath);
