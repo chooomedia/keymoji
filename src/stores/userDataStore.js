@@ -77,7 +77,7 @@ function safeJSONParse(data, fallback = {}) {
             // Handle double-escaped JSON from Google Sheets
             if (typeof parsed === 'string') {
                 try {
-                    parsed = JSON.parse(parsed);
+                parsed = JSON.parse(parsed);
                 } catch {
                     return fallback;
                 }
@@ -124,13 +124,13 @@ function getTodayDateString() {
  */
 async function mergeTodayIntoHistory(history) {
     if (!Array.isArray(history)) return history;
-
+    
     const today = getTodayDateString();
     const todayIndex = history.findIndex(entry => entry.date === today);
-
+    
     // Get current dailyUsage from multiple sources (priority order)
     let todayUsage = null;
-
+    
     // Priority 1: Try dailyLimit store (synchronous)
     try {
         // Dynamic import to avoid circular dependencies
@@ -140,16 +140,16 @@ async function mergeTodayIntoHistory(history) {
     } catch (e) {
         // Store not available yet, try localStorage
     }
-
+    
     // Priority 2: Fallback to localStorage
     if (!todayUsage) {
         todayUsage = storageHelpers.get(STORAGE_KEYS.DAILY_USAGE);
     }
-
+    
     // Only merge if we have usage data and it's not all zeros
     if (todayUsage && (todayUsage.used > 0 || todayUsage.storyUsed > 0)) {
         let todayEntry;
-
+        
         if (todayIndex >= 0) {
             // CRITICAL: Merge with existing entry to preserve both used AND storyUsed
             // This ensures that if story was created first, then random, both values are preserved
@@ -182,13 +182,13 @@ async function mergeTodayIntoHistory(history) {
             };
             history.push(todayEntry);
         }
-
+        
         // Sort by date (newest first) and keep only last 365 days
         history = history
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .slice(0, 365);
     }
-
+    
     return history;
 }
 
@@ -269,26 +269,26 @@ export async function refreshUserSettings(force = false) {
         const { initializeSettingsForUser } = await import(
             './userSettingsStore.js'
         );
-
+        
         if (account && account.userId) {
             console.log('🔄 [USER SETTINGS] Initializing settings for user...');
             const loadedSettings = await initializeSettingsForUser();
-
+            
             if (loadedSettings && Object.keys(loadedSettings).length > 0) {
                 console.log(
                     '✅ [USER SETTINGS] Settings initialized successfully:',
                     {
-                        hasName: !!loadedSettings.name,
-                        hasLanguage: !!loadedSettings.language,
-                        hasTheme: !!loadedSettings.theme,
-                        hasStoryMode: !!loadedSettings.storyMode
+                    hasName: !!loadedSettings.name,
+                    hasLanguage: !!loadedSettings.language,
+                    hasTheme: !!loadedSettings.theme,
+                    hasStoryMode: !!loadedSettings.storyMode
                     }
                 );
-
+                
                 // Update cache
                 storageHelpers.set(CACHE_KEYS.SETTINGS, loadedSettings);
                 storageHelpers.set(CACHE_KEYS.SETTINGS_TIMESTAMP, Date.now());
-
+                
                 // Update userSettings store (for compatibility with old code)
                 userSettings.update(state => ({
                     ...state,
@@ -298,11 +298,11 @@ export async function refreshUserSettings(force = false) {
                     hasError: false,
                     lastUpdate: Date.now()
                 }));
-
+                
                 return loadedSettings;
             }
         }
-
+        
         // Fallback: If no account or initialization failed, try to load from cache
         if (
             !force &&
@@ -324,19 +324,19 @@ export async function refreshUserSettings(force = false) {
                 return cachedSettings;
             }
         }
-
+        
         console.log('💡 [USER SETTINGS] No settings available');
         return null;
     } catch (error) {
         console.error('❌ [USER SETTINGS] Refresh error:', error);
-
+        
         userSettings.update(state => ({
             ...state,
             hasError: true,
             isLoading: false,
             errorMessage: error.message
         }));
-
+        
         // Try to return cached data even on error
         const cachedSettings = storageHelpers.get(CACHE_KEYS.SETTINGS);
         if (cachedSettings) {
@@ -345,7 +345,7 @@ export async function refreshUserSettings(force = false) {
             );
             return cachedSettings;
         }
-
+        
         return null;
     }
 }
@@ -392,14 +392,14 @@ export async function refreshUsageHistory(force = false, accountData = null) {
             if (cachedData && Array.isArray(cachedData)) {
                 // CRITICAL: Merge today's dailyUsage into cached history
                 cachedData = await mergeTodayIntoHistory(cachedData);
-
+                
                 // Update cache with merged data
                 if (
                     cachedData !== storageHelpers.get(CACHE_KEYS.USAGE_HISTORY)
                 ) {
                     storageHelpers.set(CACHE_KEYS.USAGE_HISTORY, cachedData);
                 }
-
+                
                 console.log(
                     '📦 [USAGE HISTORY] Using cached data:',
                     cachedData.length,
@@ -427,7 +427,7 @@ export async function refreshUsageHistory(force = false, accountData = null) {
             // Handle both string and object formats
             let parsedMetadata = {};
             let parsedProfile = {};
-
+            
             if (typeof account.metadata === 'string') {
                 parsedMetadata = safeJSONParse(account.metadata, {});
             } else if (
@@ -436,7 +436,7 @@ export async function refreshUsageHistory(force = false, accountData = null) {
             ) {
                 parsedMetadata = account.metadata;
             }
-
+            
             if (typeof account.profile === 'string') {
                 parsedProfile = safeJSONParse(account.profile, {});
             } else if (account.profile && typeof account.profile === 'object') {
@@ -446,7 +446,7 @@ export async function refreshUsageHistory(force = false, accountData = null) {
             // Check BOTH locations for usageHistory
             let history =
                 parsedMetadata.usageHistory || parsedProfile.usageHistory || [];
-
+            
             // Ensure all history entries have storyUsed field (migration support)
             if (Array.isArray(history)) {
                 history = history.map(entry => ({
@@ -458,7 +458,7 @@ export async function refreshUsageHistory(force = false, accountData = null) {
             if (Array.isArray(history) && history.length > 0) {
                 // CRITICAL: Merge today's dailyUsage into history
                 history = await mergeTodayIntoHistory(history);
-
+                
                 console.log(
                     '✅ [USAGE HISTORY] Loaded from currentAccount:',
                     history.length,
@@ -493,7 +493,7 @@ export async function refreshUsageHistory(force = false, accountData = null) {
             Array.isArray(accountData.metadata.usageHistory)
         ) {
             let history = accountData.metadata.usageHistory;
-
+            
             // Ensure all history entries have storyUsed field
             history = history.map(entry => ({
                 ...entry,
@@ -502,7 +502,7 @@ export async function refreshUsageHistory(force = false, accountData = null) {
 
             // CRITICAL: Merge today's dailyUsage into history
             history = await mergeTodayIntoHistory(history);
-
+            
             console.log(
                 '✅ [USAGE HISTORY] Loaded from accountData (prevents duplicate API call!):',
                 history.length,
@@ -557,7 +557,7 @@ export async function refreshUsageHistory(force = false, accountData = null) {
                     parsedMetadata.usageHistory ||
                     parsedProfile.usageHistory ||
                     [];
-
+                
                 // Ensure all history entries have storyUsed field
                 if (Array.isArray(history)) {
                     history = history.map(entry => ({
@@ -568,7 +568,7 @@ export async function refreshUsageHistory(force = false, accountData = null) {
 
                 // CRITICAL: Merge today's dailyUsage into history
                 history = await mergeTodayIntoHistory(history);
-
+                
                 console.log(
                     '✅ [USAGE HISTORY] Loaded from API:',
                     history.length,
@@ -680,7 +680,7 @@ export function initializeUserData() {
                 STORAGE_KEYS.DAILY_USAGE
             );
             let mergedHistory = cachedHistory;
-
+            
             if (
                 localStorageUsage &&
                 (localStorageUsage.used > 0 || localStorageUsage.storyUsed > 0)
@@ -696,19 +696,19 @@ export function initializeUserData() {
                     limit: localStorageUsage.limit || 0,
                     timestamp: new Date().toISOString()
                 };
-
+                
                 if (todayIndex >= 0) {
                     mergedHistory[todayIndex] = todayEntry;
                 } else {
                     mergedHistory.push(todayEntry);
                 }
-
+                
                 mergedHistory = mergedHistory
                     .sort((a, b) => new Date(b.date) - new Date(a.date))
                     .slice(0, 365);
             }
             const stats = calculateUsageStats(mergedHistory);
-
+            
             usageHistory.update(state => ({
                 ...state,
                 data: mergedHistory,

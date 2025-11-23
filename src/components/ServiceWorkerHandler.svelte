@@ -165,7 +165,7 @@
             if (navigator.serviceWorker) {
                 navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
                 navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
-            }
+        }
             
             if (registration) {
                 registration.removeEventListener('updatefound', handleUpdateFound);
@@ -188,7 +188,7 @@
         // Tell the service worker to skip waiting and activate
         // Wrap in try-catch to handle message port errors
         try {
-            newWorker.postMessage({ type: 'SKIP_WAITING' });
+        newWorker.postMessage({ type: 'SKIP_WAITING' });
         } catch (error) {
             // Handle message port closed errors gracefully
             if (error.message?.includes('port') || error.message?.includes('closed')) {

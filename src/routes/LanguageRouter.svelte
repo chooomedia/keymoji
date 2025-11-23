@@ -305,10 +305,10 @@
 />
   
 {#if routesLoaded}
-    <Router {url}>
-        <Route path="/" component={Index} />
-        
-        <!-- PERFORMANCE: Lazy Loaded Routes mit svelte:component -->
+<Router {url}>
+    <Route path="/" component={Index} />
+    
+    <!-- PERFORMANCE: Lazy Loaded Routes mit svelte:component -->
         <!-- CRITICAL: Spezifische Routes MÜSSEN vor /:lang kommen! -->
         <!-- Sonst matched /:lang vor /:lang/contact und zeigt Index statt ContactForm -->
         <Route path="/versions" let:params>
@@ -350,7 +350,7 @@
         </Route>
         <Route path="/account/" let:params>
             {#if AccountManager}
-                <svelte:component this={AccountManager} />
+            <svelte:component this={AccountManager} />
             {:else}
                 <div class="flex items-center justify-center min-h-screen">
                     <div class="text-center">
@@ -372,7 +372,7 @@
         </Route>
         <Route path="/:lang/account/" let:params>
             {#if AccountManager}
-                <svelte:component this={AccountManager} />
+            <svelte:component this={AccountManager} />
             {:else}
                 <div class="flex items-center justify-center min-h-screen">
                     <div class="text-center">
@@ -440,4 +440,4 @@
             <p class="text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
     </div>
-{/if}
+    {/if}
