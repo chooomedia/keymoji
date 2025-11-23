@@ -2579,7 +2579,7 @@ function handleMagicLinkStorage(event) {
 // Setup magic link listener for cross-tab communication
 export function setupMagicLinkListener() {
     if (typeof window === 'undefined') return;
-    
+
     // Prevent duplicate setup
     if (magicLinkListenerSetup) {
         console.log('🔗 Magic link listener already setup, skipping');
@@ -2607,7 +2607,7 @@ export function setupMagicLinkListener() {
 // Cleanup magic link listener
 export function cleanupMagicLinkListener() {
     if (typeof window === 'undefined') return;
-    
+
     if (magicLinkMessageHandler) {
         try {
             window.removeEventListener('message', magicLinkMessageHandler);
@@ -2616,7 +2616,7 @@ export function cleanupMagicLinkListener() {
             console.warn('⚠️ Error removing message listener:', error);
         }
     }
-    
+
     if (magicLinkStorageHandler) {
         try {
             window.removeEventListener('storage', magicLinkStorageHandler);
@@ -2625,7 +2625,7 @@ export function cleanupMagicLinkListener() {
             console.warn('⚠️ Error removing storage listener:', error);
         }
     }
-    
+
     magicLinkListenerSetup = false;
     console.log('🔗 Magic link listener cleaned up');
 }

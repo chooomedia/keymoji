@@ -50,6 +50,7 @@
       initializeSettingsForUser();
       
       // Setup cross-tab communication for magic links
+      // Note: setupMagicLinkListener is called once globally, cleanup is handled on page unload
       setupMagicLinkListener();
       
       // Clean up any modals when arriving at home page

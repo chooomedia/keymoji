@@ -131,14 +131,19 @@ function ensureLanguageInPath() {
 function cleanupOnUnload() {
     if (typeof window !== 'undefined') {
         // Import cleanup function dynamically
-        import('./stores/accountStore.js').then(module => {
-            if (module.cleanupMagicLinkListener) {
-                module.cleanupMagicLinkListener();
-            }
-        }).catch(error => {
-            // Silently handle import errors during cleanup
-            console.warn('⚠️ Failed to cleanup magic link listener:', error);
-        });
+        import('./stores/accountStore.js')
+            .then(module => {
+                if (module.cleanupMagicLinkListener) {
+                    module.cleanupMagicLinkListener();
+                }
+            })
+            .catch(error => {
+                // Silently handle import errors during cleanup
+                console.warn(
+                    '⚠️ Failed to cleanup magic link listener:',
+                    error
+                );
+            });
     }
 }
 
