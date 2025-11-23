@@ -67,7 +67,14 @@ jobs:
                   RewriteCond %{REQUEST_FILENAME} !-f
                   RewriteRule ^(.*)$ /social-preview.php?path=$1 [L]
 
-                  # Regular SPA routing
+                  # Check for static HTML files in subdirectories first (e.g., /account/index.html)
+                  RewriteCond %{REQUEST_FILENAME} !-f
+                  RewriteCond %{REQUEST_FILENAME} !-d
+                  RewriteCond %{REQUEST_URI} ^/([^/]+)/?$
+                  RewriteCond %{DOCUMENT_ROOT}/%1/index.html -f
+                  RewriteRule ^(.*)$ /%1/index.html [L]
+                  
+                  # Regular SPA routing (fallback to index.html)
                   RewriteCond %{REQUEST_FILENAME} !-f
                   RewriteCond %{REQUEST_FILENAME} !-d
                   RewriteRule ^ index.html [QSA,L]
@@ -190,6 +197,21 @@ jobs:
                       '/blog' => [
                           'title' => 'Keymoji Blog - Password Security & Tips',
                           'description' => 'Learn about emoji passwords, security tips, and updates from Keymoji. Stay informed about the latest in password security.',
+                          'image' => '/images/keymoji-social-media-banner-10-2024-min.png'
+                      ],
+                      '/account' => [
+                          'title' => 'Keymoji Account - Manage Your Account',
+                          'description' => 'Manage your Keymoji account, view your password history, and access premium features. Secure emoji password management.',
+                          'image' => '/images/keymoji-social-media-banner-10-2024-min.png'
+                      ],
+                      '/privacy' => [
+                          'title' => 'Keymoji Privacy Policy - Your Data Protection',
+                          'description' => "Read Keymoji's privacy policy to understand how we protect your data and ensure your privacy when using our emoji password generator.",
+                          'image' => '/images/keymoji-social-media-banner-10-2024-min.png'
+                      ],
+                      '/legal' => [
+                          'title' => 'Keymoji Legal Information - Terms & Conditions',
+                          'description' => "Read Keymoji's terms and conditions, legal information, and usage guidelines for our emoji password generator service.",
                           'image' => '/images/keymoji-social-media-banner-10-2024-min.png'
                       ]
                   ];
