@@ -127,6 +127,21 @@ function ensureLanguageInPath() {
     }
 }
 
+// Cleanup function for magic link listener
+function cleanupOnUnload() {
+    if (typeof window !== 'undefined') {
+        // Import cleanup function dynamically
+        import('./stores/accountStore.js').then(module => {
+            if (module.cleanupMagicLinkListener) {
+                module.cleanupMagicLinkListener();
+            }
+        }).catch(error => {
+            // Silently handle import errors during cleanup
+            console.warn('⚠️ Failed to cleanup magic link listener:', error);
+        });
+    }
+}
+
 // Application Initialization mit enhanced UX
 function initializeApp() {
     // Display console art on production build

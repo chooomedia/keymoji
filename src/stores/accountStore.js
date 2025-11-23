@@ -2445,16 +2445,157 @@ export function hasValidUserSession() {
     }
 }
 
+// Event handler functions (defined outside for proper cleanup)
+let magicLinkMessageHandler = null;
+let magicLinkStorageHandler = null;
+let magicLinkListenerSetup = false;
+
+function handleMagicLinkMessage(event) {
+    try {
+        console.log('🔗 Received message:', event.data);
+
+        // Ignore Metamask and other extension messages
+        if (
+            event.source !== window ||
+            event.data?.target === 'metamask-inpage'
+        ) {
+            console.log('🔗 Ignoring non-app message:', event.data?.target);
+            return;
+        }
+
+        if (event.data && event.data.type === 'MAGIC_LINK_VERIFIED') {
+            console.log('🔗 Magic link verified in another tab:', event.data);
+
+            // Update account state
+            if (event.data.success && event.data.email) {
+                // CRITICAL: Preserve createdAt from existing localStorage or event.data
+                const existingPrefs = storageHelpers.get(
+                    STORAGE_KEYS.USER_PREFERENCES,
+                    {}
+                );
+                const createdAt =
+                    event.data.createdAt || existingPrefs.createdAt || null;
+
+                const accountData = {
+                    email: event.data.email,
+                    name: event.data.name || '',
+                    userId: event.data.userId || `user_${Date.now()}`,
+                    tier: event.data.tier || 'free',
+                    lastLogin: new Date().toISOString(),
+                    // CRITICAL: Only use createdAt from event or existing localStorage - never create new!
+                    ...(createdAt ? { createdAt } : {})
+                };
+
+                console.log(
+                    '🔗 Updating account state from cross-tab message:',
+                    accountData
+                );
+
+                currentAccount.set(accountData);
+                isLoggedIn.set(true);
+
+                // Update localStorage preferences - preserve createdAt!
+                const userPrefsUpdate = {
+                    email: accountData.email,
+                    name: accountData.name,
+                    userId: accountData.userId,
+                    tier: accountData.tier,
+                    lastLogin: accountData.lastLogin,
+                    ...(createdAt ? { createdAt } : {}) // Only add if exists
+                };
+
+                // Preserve existing createdAt if not in update
+                if (!userPrefsUpdate.createdAt && existingPrefs.createdAt) {
+                    userPrefsUpdate.createdAt = existingPrefs.createdAt;
+                    console.log(
+                        '✅ [CROSS-TAB] Preserved existing createdAt:',
+                        existingPrefs.createdAt
+                    );
+                }
+
+                storageHelpers.set(
+                    STORAGE_KEYS.USER_PREFERENCES,
+                    userPrefsUpdate
+                );
+
+                // Show success modal
+                showExistingAccountFound(accountData.email);
+
+                // Log security event
+                logSecurityEvent('LOGIN_SUCCESS', {
+                    userId: accountData.userId,
+                    email: accountData.email,
+                    method: 'magic_link_verification'
+                });
+            }
+        }
+    } catch (error) {
+        console.warn('⚠️ Error handling magic link message:', error);
+    }
+}
+
+function handleMagicLinkStorage(event) {
+    try {
+        console.log('🔗 Storage event received:', event.key, event.newValue);
+
+        if (event.key === STORAGE_KEYS.USER_PREFERENCES && event.newValue) {
+            try {
+                const userPrefs = JSON.parse(event.newValue);
+                if (userPrefs.email && userPrefs.lastLogin) {
+                    console.log(
+                        '🔄 User preferences updated in another tab:',
+                        userPrefs
+                    );
+
+                    // Update account state from storage
+                    const accountData = {
+                        email: userPrefs.email,
+                        name: userPrefs.name || '',
+                        userId: userPrefs.userId || `user_${Date.now()}`,
+                        tier: userPrefs.tier || 'free',
+                        lastLogin: userPrefs.lastLogin
+                    };
+
+                    console.log(
+                        '🔗 Updating account state from storage event:',
+                        accountData
+                    );
+
+                    currentAccount.set(accountData);
+                    isLoggedIn.set(true);
+
+                    // Show success modal
+                    showExistingAccountFound(accountData.email);
+                }
+            } catch (error) {
+                console.warn('Error parsing storage update:', error);
+            }
+        }
+    } catch (error) {
+        console.warn('⚠️ Error handling storage event:', error);
+    }
+}
+
 // Setup magic link listener for cross-tab communication
 export function setupMagicLinkListener() {
     if (typeof window === 'undefined') return;
+    
+    // Prevent duplicate setup
+    if (magicLinkListenerSetup) {
+        console.log('🔗 Magic link listener already setup, skipping');
+        return;
+    }
 
     console.log(
         '🔗 Setting up magic link listener for cross-tab communication'
     );
 
+    // Store handler references for cleanup
+    magicLinkMessageHandler = handleMagicLinkMessage;
+    magicLinkStorageHandler = handleMagicLinkStorage;
+
     // Listen for magic link verification messages
-    window.addEventListener('message', event => {
+    window.addEventListener('message', magicLinkMessageHandler);
         console.log('🔗 Received message:', event.data);
 
         // Ignore Metamask and other extension messages
@@ -2535,45 +2676,36 @@ export function setupMagicLinkListener() {
     });
 
     // Also listen for storage changes (for cross-tab synchronization)
-    window.addEventListener('storage', event => {
-        console.log('🔗 Storage event received:', event.key, event.newValue);
+    window.addEventListener('storage', magicLinkStorageHandler);
 
-        if (event.key === STORAGE_KEYS.USER_PREFERENCES && event.newValue) {
-            try {
-                const userPrefs = JSON.parse(event.newValue);
-                if (userPrefs.email && userPrefs.lastLogin) {
-                    console.log(
-                        '🔄 User preferences updated in another tab:',
-                        userPrefs
-                    );
-
-                    // Update account state from storage
-                    const accountData = {
-                        email: userPrefs.email,
-                        name: userPrefs.name || '',
-                        userId: userPrefs.userId || `user_${Date.now()}`,
-                        tier: userPrefs.tier || 'free',
-                        lastLogin: userPrefs.lastLogin
-                    };
-
-                    console.log(
-                        '🔗 Updating account state from storage event:',
-                        accountData
-                    );
-
-                    currentAccount.set(accountData);
-                    isLoggedIn.set(true);
-
-                    // Show success modal
-                    showExistingAccountFound(accountData.email);
-                }
-            } catch (error) {
-                console.warn('Error parsing storage update:', error);
-            }
-        }
-    });
-
+    magicLinkListenerSetup = true;
     console.log('🔗 Magic link listener setup complete');
+}
+
+// Cleanup magic link listener
+export function cleanupMagicLinkListener() {
+    if (typeof window === 'undefined') return;
+    
+    if (magicLinkMessageHandler) {
+        try {
+            window.removeEventListener('message', magicLinkMessageHandler);
+            magicLinkMessageHandler = null;
+        } catch (error) {
+            console.warn('⚠️ Error removing message listener:', error);
+        }
+    }
+    
+    if (magicLinkStorageHandler) {
+        try {
+            window.removeEventListener('storage', magicLinkStorageHandler);
+            magicLinkStorageHandler = null;
+        } catch (error) {
+            console.warn('⚠️ Error removing storage listener:', error);
+        }
+    }
+    
+    magicLinkListenerSetup = false;
+    console.log('🔗 Magic link listener cleaned up');
 }
 
 // Send magic link verification to all tabs with enhanced security
