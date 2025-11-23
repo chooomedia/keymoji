@@ -253,4 +253,10 @@ function initializeApp() {
 // Initialize App with error handling
 const app = initializeApp();
 
+// Setup cleanup on page unload
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', cleanupOnUnload);
+    window.addEventListener('unload', cleanupOnUnload);
+}
+
 export default app;
