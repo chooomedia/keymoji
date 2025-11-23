@@ -125,6 +125,8 @@
     <meta name="description" content={pageDescription} />
 </svelte:head>
 
+<!-- Ensure content is always visible - even if translations are loading -->
+{#if $translations?.versions || true}
 <PageLayout {pageTitle} {pageDescription}>
     
     <!-- Back Button - Muted style like Random button -->
@@ -306,6 +308,16 @@
     <!-- Footer Information Component -->
     <FooterInfo slot="footer" />
 </PageLayout>
+{/if}
+{#if !$translations?.versions}
+    <!-- Fallback: Show loading state if translations not ready -->
+    <div class="flex items-center justify-center min-h-[400px]">
+        <div class="text-center">
+            <div class="w-12 h-12 border-4 border-yellow-200 dark:border-yellow-900 border-t-yellow-500 dark:border-t-yellow-400 rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-gray-600 dark:text-gray-400">Loading version history...</p>
+        </div>
+    </div>
+{/if}
 
 <style>
     /* Critical Lesson Learned - Elegant & Filigran */
