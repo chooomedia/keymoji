@@ -312,29 +312,93 @@
         <!-- CRITICAL: Spezifische Routes MÜSSEN vor /:lang kommen! -->
         <!-- Sonst matched /:lang vor /:lang/contact und zeigt Index statt ContactForm -->
         <Route path="/versions" let:params>
-            <svelte:component this={VersionHistory} />
+            {#if VersionHistory}
+                <svelte:component this={VersionHistory} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading version history...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/versions/" let:params>
-            <svelte:component this={VersionHistory} />
+            {#if VersionHistory}
+                <svelte:component this={VersionHistory} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading version history...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/versions" let:params>
-            <svelte:component this={VersionHistory} />
+            {#if VersionHistory}
+                <svelte:component this={VersionHistory} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading version history...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/versions/" let:params>
-            <svelte:component this={VersionHistory} />
+            {#if VersionHistory}
+                <svelte:component this={VersionHistory} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading version history...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         
         <Route path="/contact" let:params>
-            <svelte:component this={ContactForm} />
+            {#if ContactForm}
+                <svelte:component this={ContactForm} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading contact form...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/contact/" let:params>
-            <svelte:component this={ContactForm} />
+            {#if ContactForm}
+                <svelte:component this={ContactForm} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading contact form...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/contact" let:params>
-            <svelte:component this={ContactForm} />
+            {#if ContactForm}
+                <svelte:component this={ContactForm} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading contact form...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/contact/" let:params>
-            <svelte:component this={ContactForm} />
+            {#if ContactForm}
+                <svelte:component this={ContactForm} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading contact form...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         
         <Route path="/account" let:params>
@@ -383,55 +447,177 @@
         </Route>
         
         <Route path="/blog" let:params>
-            <svelte:component this={BlogGrid} />
+            {#if BlogGrid}
+                <svelte:component this={BlogGrid} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading blog...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/blog/" let:params>
-            <svelte:component this={BlogGrid} />
+            {#if BlogGrid}
+                <svelte:component this={BlogGrid} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading blog...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/blog" let:params>
-            <svelte:component this={BlogGrid} />
+            {#if BlogGrid}
+                <svelte:component this={BlogGrid} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading blog...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/blog/" let:params>
-            <svelte:component this={BlogGrid} />
+            {#if BlogGrid}
+                <svelte:component this={BlogGrid} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading blog...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         
         <Route path="/blog/:slug" let:params>
-            <svelte:component this={BlogPost} slug={params.slug} />
+            {#if BlogPost}
+                <svelte:component this={BlogPost} slug={params.slug} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading blog post...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/blog/:slug" let:params>
-            <svelte:component this={BlogPost} slug={params.slug} />
+            {#if BlogPost}
+                <svelte:component this={BlogPost} slug={params.slug} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading blog post...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         
         <Route path="/privacy" let:params>
-            <svelte:component this={StaticPage} slug="privacy" />
+            {#if StaticPage}
+                <svelte:component this={StaticPage} slug="privacy" />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/privacy/" let:params>
-            <svelte:component this={StaticPage} slug="privacy" />
+            {#if StaticPage}
+                <svelte:component this={StaticPage} slug="privacy" />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/privacy" let:params>
-            <svelte:component this={StaticPage} slug="privacy" />
+            {#if StaticPage}
+                <svelte:component this={StaticPage} slug="privacy" />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/privacy/" let:params>
-            <svelte:component this={StaticPage} slug="privacy" />
+            {#if StaticPage}
+                <svelte:component this={StaticPage} slug="privacy" />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         
         <Route path="/legal" let:params>
-            <svelte:component this={StaticPage} slug="legal" />
+            {#if StaticPage}
+                <svelte:component this={StaticPage} slug="legal" />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/legal/" let:params>
-            <svelte:component this={StaticPage} slug="legal" />
+            {#if StaticPage}
+                <svelte:component this={StaticPage} slug="legal" />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/legal" let:params>
-            <svelte:component this={StaticPage} slug="legal" />
+            {#if StaticPage}
+                <svelte:component this={StaticPage} slug="legal" />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         <Route path="/:lang/legal/" let:params>
-            <svelte:component this={StaticPage} slug="legal" />
+            {#if StaticPage}
+                <svelte:component this={StaticPage} slug="legal" />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Loading page...</p>
+                    </div>
+                </div>
+            {/if}
         </Route>
         
         <!-- CRITICAL: /:lang Route MUSS als letzte kommen, nach allen spezifischen Routes! -->
         <Route path="/:lang" component={Index} />
         
-        <Route component={NotFound} />
+        <Route>
+            {#if NotFound}
+                <svelte:component this={NotFound} />
+            {:else}
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="text-center">
+                        <p class="text-gray-600 dark:text-gray-400">Page not found</p>
+                    </div>
+                </div>
+            {/if}
+        </Route>
     </Router>
 {:else}
     <!-- Loading state while routes are being loaded -->
