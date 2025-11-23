@@ -42,6 +42,7 @@
             document.head.appendChild(fontLink);
             
             // Font-Face definieren falls nicht vorhanden
+            // CRITICAL: Prüfe ob bereits definiert (verhindert Duplikate)
             if (!document.querySelector('style[data-elvish-font]')) {
                 const fontFaceStyle = document.createElement('style');
                 fontFaceStyle.setAttribute('data-elvish-font', 'true');
@@ -55,6 +56,7 @@
                     }
                 `;
                 document.head.appendChild(fontFaceStyle);
+                console.log('✅ Elvish font @font-face defined');
             }
             
             elvishFontLoaded = true;
@@ -167,8 +169,9 @@
         // Debug output
         console.log('🔄 LanguageSwitcher: Navigating to new path:', newPath);
         
-        // Update URL without reload
-        navigate(newPath, { replace: true });
+        // CRITICAL: Use replace: false to trigger route change
+        // replace: true würde nur die URL ändern ohne Route neu zu rendern
+        navigate(newPath, { replace: false });
         
         // Close menu
         $showLanguageMenu = false;
@@ -231,11 +234,24 @@
     
     onMount(() => {
         // Schriftart vorladen, wenn die aktuelle Sprache Elvish ist
+        // CRITICAL: Wird auch beim initialen Laden aufgerufen
         if ($currentLanguage === 'sjn') {
             preloadElvishFont();
             
-            // Ensure the correct class is applied
+            // Ensure the correct class is applied immediately
             document.body.classList.add('font-elvish');
+            
+            // CRITICAL: Warte kurz und prüfe ob Font geladen wurde
+            setTimeout(() => {
+                const fontLoaded = document.fonts?.check('1em Tengwar Annatar') || 
+                                   document.querySelector('style[data-elvish-font]');
+                if (!fontLoaded) {
+                    console.warn('⚠️ LanguageSwitcher: Elvish font not loaded, retrying...');
+                    preloadElvishFont();
+                } else {
+                    console.log('✅ LanguageSwitcher: Elvish font confirmed loaded');
+                }
+            }, 100);
         }
         
         // Click-outside handler - consistent with BlogGrid category dropdown

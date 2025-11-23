@@ -502,8 +502,10 @@ export async function changeLanguage(lang) {
                 : 'no contactForm'
         });
 
-        // URL synchronisieren
-        syncUrlWithLanguage();
+        // URL synchronisieren (nur wenn nötig, nicht bei Sprachwechsel durch LanguageSwitcher)
+        // LanguageSwitcher kümmert sich selbst um die Navigation
+        // syncUrlWithLanguage() wird nur für automatische Synchronisation verwendet
+        // (z.B. beim initialen Laden oder wenn Sprache von außen geändert wird)
 
         devLog(`✅ contentStore: Language changed to ${lang} successfully`);
     } catch (error) {

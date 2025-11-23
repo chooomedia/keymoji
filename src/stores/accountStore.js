@@ -2665,34 +2665,49 @@ export function notifyMagicLinkVerification(accountData) {
     // Sende Nachricht mit Origin-Validierung
     // CRITICAL: Check for runtime.lastError before posting
     try {
-        // Check if Chrome extension context is available
-        if (
-            typeof chrome !== 'undefined' &&
-            chrome.runtime &&
-            chrome.runtime.lastError
-        ) {
-            // Clear any existing errors
-            const lastError = chrome.runtime.lastError;
-            if (lastError) {
-                console.warn(
-                    '⚠️ Chrome runtime error before postMessage:',
-                    lastError.message
-                );
+        // Check if Chrome extension context is available and clear errors
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+            if (chrome.runtime.lastError) {
+                // Clear the error silently (it's just a warning)
+                void chrome.runtime.lastError;
             }
         }
 
-        window.postMessage(message, window.location.origin);
-        console.log('🔗 postMessage sent to all tabs:', message);
+        // CRITICAL: Check if window is still available and not closing
+        if (typeof window === 'undefined' || document.readyState === 'unloading') {
+            console.warn('⚠️ Window unavailable or unloading, skipping postMessage');
+            return;
+        }
+
+        // Use setTimeout to ensure message is sent asynchronously
+        // This prevents "message port closed" errors during page transitions
+        setTimeout(() => {
+            try {
+                window.postMessage(message, window.location.origin);
+                if (isDevelopment()) {
+                    console.log('🔗 postMessage sent to all tabs:', message);
+                }
+            } catch (postError) {
+                // Silently handle message port closed errors (common during navigation)
+                if (
+                    postError.message?.includes('port') ||
+                    postError.message?.includes('closed') ||
+                    postError.name === 'InvalidStateError'
+                ) {
+                    // Silent - this is expected during page transitions
+                } else {
+                    console.error('❌ Failed to send postMessage:', postError);
+                }
+            }
+        }, 0);
     } catch (error) {
         // Handle message port closed errors gracefully
         if (
             error.message?.includes('port') ||
-            error.message?.includes('closed')
+            error.message?.includes('closed') ||
+            error.name === 'InvalidStateError'
         ) {
-            console.warn(
-                '⚠️ Message port closed, cannot send postMessage:',
-                error
-            );
+            // Silent - this is expected during page transitions
         } else {
             console.error('❌ Failed to send postMessage:', error);
         }

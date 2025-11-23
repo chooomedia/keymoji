@@ -82,22 +82,16 @@ import ModalDebug from '../UI/ModalDebug.svelte';
         }
         
         // Handle special fonts (Elvish/Sindarin)
+        // CRITICAL: Font wird von LanguageSwitcher.svelte geladen, hier nur Klasse anwenden
         if ($currentLanguage === 'sjn') {
             document.body.classList.add('font-elvish');
             
-            // Preload font if not already done
-            if (!document.querySelector('link[href*="tengwar_annatar.ttf"]')) {
-                try {
-                    const fontLink = document.createElement('link');
-                    fontLink.rel = 'preload';
-                    fontLink.href = '/fonts/tengwar_annatar.ttf';
-                    fontLink.as = 'font';
-                    fontLink.type = 'font/ttf';
-                    fontLink.crossOrigin = 'anonymous';
-                    document.head.appendChild(fontLink);
-                } catch (error) {
-                    console.warn('Failed to preload Elvish font:', error);
-                }
+            // CRITICAL: Prüfe ob Font bereits geladen wurde (verhindert Duplikate)
+            // Font wird von LanguageSwitcher.svelte geladen, hier nur sicherstellen dass Klasse gesetzt ist
+            if (!document.querySelector('link[href*="tengwar_annatar.ttf"]') && !document.querySelector('style[data-elvish-font]')) {
+                // Font noch nicht geladen - trigger load via LanguageSwitcher logic
+                // (wird automatisch beim nächsten Render geladen)
+                console.log('⚠️ Layout: Elvish font not yet loaded, will be loaded by LanguageSwitcher');
             }
         } else {
             document.body.classList.remove('font-elvish');

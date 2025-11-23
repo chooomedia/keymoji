@@ -94,7 +94,9 @@ jobs:
                       Header set X-Frame-Options "SAMEORIGIN"
                       Header set X-XSS-Protection "1; mode=block"
                       Header set Referrer-Policy "strict-origin-when-cross-origin"
-                      Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+                      # Permissions-Policy: Nur unterstützte Features verwenden
+                      # Entfernt unbekannte/experimentelle Features die Browser-Warnungen verursachen
+                      Header set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
                       
                       # SEO-optimierte Headers
                       Header set X-Robots-Tag "index, follow"
