@@ -63,7 +63,7 @@ const supportedLanguages = [
 ];
 
 // Routes that need meta tags
-const routes = ['/', '/blog', '/versions', '/contact'];
+const routes = ['/', '/blog', '/versions', '/contact', '/account', '/privacy', '/legal'];
 
 // Meta tag templates for each route
 const metaTemplates = {
@@ -92,6 +92,24 @@ const metaTemplates = {
         description:
             'Have questions or feedback about Keymoji? Contact us for support, suggestions, or collaboration.',
         keywords: 'contact keymoji, support, feedback, get in touch'
+    },
+    '/account': {
+        title: 'Keymoji Account - Manage Your Account',
+        description:
+            'Manage your Keymoji account, view your password history, and access premium features. Secure emoji password management.',
+        keywords: 'keymoji account, account management, password history, premium features, user account'
+    },
+    '/privacy': {
+        title: 'Keymoji Privacy Policy - Your Data Protection',
+        description:
+            'Read Keymoji\'s privacy policy to understand how we protect your data and ensure your privacy when using our emoji password generator.',
+        keywords: 'keymoji privacy, privacy policy, data protection, GDPR, user privacy'
+    },
+    '/legal': {
+        title: 'Keymoji Legal Information - Terms & Conditions',
+        description:
+            'Read Keymoji\'s terms and conditions, legal information, and usage guidelines for our emoji password generator service.',
+        keywords: 'keymoji legal, terms and conditions, legal information, usage guidelines'
     }
 };
 

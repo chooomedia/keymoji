@@ -8,7 +8,10 @@ const routes = [
     { path: '/', type: 'home' },
     { path: '/versions', type: 'versions' },
     { path: '/contact', type: 'contact' },
-    { path: '/blog', type: 'blog' }
+    { path: '/account', type: 'account' },
+    { path: '/blog', type: 'blog' },
+    { path: '/privacy', type: 'privacy' },
+    { path: '/legal', type: 'legal' }
 ];
 
 // Unterstützte Sprachen
@@ -62,6 +65,30 @@ const seoData = {
             'Learn about emoji passwords, security tips, and updates from Keymoji. Stay informed about the latest in password security.',
         keywords:
             'password security, emoji passwords, security blog, keymoji blog, password tips',
+        image: '/images/keymoji-social-media-banner-10-2024-min.png'
+    },
+    account: {
+        title: 'Keymoji Account - Manage Your Account',
+        description:
+            'Manage your Keymoji account, view your password history, and access premium features. Secure emoji password management.',
+        keywords:
+            'keymoji account, account management, password history, premium features, user account',
+        image: '/images/keymoji-social-media-banner-10-2024-min.png'
+    },
+    privacy: {
+        title: 'Keymoji Privacy Policy - Your Data Protection',
+        description:
+            'Read Keymoji\'s privacy policy to understand how we protect your data and ensure your privacy when using our emoji password generator.',
+        keywords:
+            'keymoji privacy, privacy policy, data protection, GDPR, user privacy',
+        image: '/images/keymoji-social-media-banner-10-2024-min.png'
+    },
+    legal: {
+        title: 'Keymoji Legal Information - Terms & Conditions',
+        description:
+            'Read Keymoji\'s terms and conditions, legal information, and usage guidelines for our emoji password generator service.',
+        keywords:
+            'keymoji legal, terms and conditions, legal information, usage guidelines',
         image: '/images/keymoji-social-media-banner-10-2024-min.png'
     }
 };
