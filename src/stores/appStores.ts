@@ -27,8 +27,8 @@ import {
     storageHelpers,
     migrateAndCleanupLocalStorage
 } from '../config/storage.js';
-import { isDevelopment, devWarn } from '../utils/environment';
-import { getDailyLimitForUser, validateUserLimits } from '../config/limits.js';
+import { isDevelopment } from '../utils/environment';
+import { getDailyLimitForUser } from '../config/limits.js';
 import type { Account, UserProfile } from '../types/Account';
 
 // ============================================
@@ -120,7 +120,8 @@ type LanguageChangeListener = (lang: string) => void;
 function localStore<T>(key: string, initial: T): Writable<T> {
     if (typeof window === 'undefined') return writable(initial);
 
-    const saved = storageHelpers.get(key, initial);
+    // CRITICAL: storageHelpers.get returns T | null, so we need to handle null case
+    const saved = (storageHelpers.get(key, null) ?? initial) as T;
     const { subscribe, set, update } = writable(saved);
 
     return {
@@ -155,8 +156,6 @@ export const userCounter: Writable<UserCounterState> = writable({
 
 // Extract counter logic into a reusable function
 export async function refreshUserCounter(): Promise<void> {
-    const isDev = isDevelopment();
-
     console.log('🔄 Starting user counter refresh...');
 
     // Set loading state
@@ -291,9 +290,6 @@ function detectWebappUsage(): boolean {
     const isFullscreen = window.matchMedia(
         '(display-mode: fullscreen)'
     ).matches;
-    const hasWebappManifest =
-        document.querySelector('link[rel="manifest"]') !== null;
-    const isPWA = 'serviceWorker' in navigator;
 
     // Check if launched from home screen
     const isFromHomeScreen =
@@ -612,18 +608,14 @@ if (typeof window !== 'undefined') {
 
     if (darkModeMediaQuery.addEventListener) {
         darkModeMediaQuery.addEventListener('change', handleMediaQueryChange);
-    } else if (
-        (
-            darkModeMediaQuery as {
-                addListener?: (e: MediaQueryListEvent) => void;
-            }
-        ).addListener
-    ) {
-        (
-            darkModeMediaQuery as {
-                addListener: (e: MediaQueryListEvent) => void;
-            }
-        ).addListener(handleMediaQueryChange);
+    } else {
+        // Fallback for older browsers (Safari < 14)
+        const legacyMediaQuery = darkModeMediaQuery as unknown as {
+            addListener?: (callback: (e: MediaQueryListEvent) => void) => void;
+        };
+        if (legacyMediaQuery.addListener) {
+            legacyMediaQuery.addListener(handleMediaQueryChange);
+        }
     }
 }
 
