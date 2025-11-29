@@ -60,17 +60,21 @@ function logSecurityEvent(event, details) {
     console.log('🔒 Security Event:', securityLog);
 
     // In production, this would be sent to a security monitoring service
+    // NOTE: Backend endpoint /api/security/log doesn't exist yet, so we silently skip it
+    // This is expected behavior - security events are logged to console for now
+    // TODO: Create backend endpoint or use n8n webhook for security logging
     if (
+        false && // Disabled until backend endpoint is created
         typeof window !== 'undefined' &&
         window.location.hostname !== 'localhost'
     ) {
-        // Send to security monitoring service
+        // Send to security monitoring service (disabled - endpoint doesn't exist)
         fetch('/api/security/log', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(securityLog)
         }).catch(error => {
-            console.warn('Failed to log security event:', error);
+            // Silent - endpoint doesn't exist, this is expected
         });
     }
 }
@@ -2452,14 +2456,30 @@ let magicLinkListenerSetup = false;
 
 function handleMagicLinkMessage(event) {
     try {
-        console.log('🔗 Received message:', event.data);
-
-        // Ignore Metamask and other extension messages
-        if (
+        // CRITICAL: Filter out browser extension messages early to prevent errors
+        // Brave Browser and other extensions inject messages that can cause issues
+        
+        // Check for common extension message patterns
+        const data = event.data || {};
+        const isExtensionMessage = 
+            data.target === 'metamask-inpage' ||
+            data.target === 'brave-extension' ||
+            data.target === 'chrome-extension' ||
+            data.extensionId ||
+            data.__isExtensionMessage ||
             event.source !== window ||
-            event.data?.target === 'metamask-inpage'
-        ) {
-            console.log('🔗 Ignoring non-app message:', event.data?.target);
+            typeof data.type === 'undefined' ||
+            (event.origin && !event.origin.includes(window.location.hostname));
+        
+        if (isExtensionMessage) {
+            // Silent ignore - these are from browser extensions (Brave, Metamask, etc.)
+            return;
+        }
+
+        console.log('🔗 Received message:', data);
+
+        // Additional validation: Only process our own messages
+        if (!data.type || !data.type.startsWith('MAGIC_LINK')) {
             return;
         }
 
