@@ -10,7 +10,12 @@ on:
 # OPTIMIZATION: Verhindere doppelte Builds
 # - build.yml: Einziger Workflow der tatsächlich baut
 # - tests.yml: Nur Lint/TypeScript, kein Build
-# - deploy.yml: Nur auf main, verwendet build.yml Artifacts
+# - deploy.yml: Wartet auf build.yml und verwendet Artifacts
+
+# Concurrency: Nur ein Build gleichzeitig pro Branch
+concurrency:
+    group: build-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
     build:
