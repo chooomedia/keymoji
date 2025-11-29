@@ -13,7 +13,7 @@ module.exports = {
         fontFamily: {
             sans: ['Graphik', 'sans-serif'],
             serif: ['Merriweather', 'serif'],
-            elvish: ['tengwar_annatar', 'serif'] // für Elbisch/sjn
+            elvish: ['Tengwar Annatar', 'serif'] // für Elbisch/sjn
         },
         extend: {
             maxWidth: {

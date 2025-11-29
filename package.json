@@ -18,9 +18,9 @@
     },
     "scripts": {
         "dev": "webpack serve --config webpack/start.js",
-        "prebuild": "node scripts/update-timestamp.js && node scripts/generate-sitemap.js",
+        "prebuild": "node scripts/update-timestamp.js",
         "build": "webpack --config webpack/build.js && node scripts/generate-static-routes.js && node scripts/optimize-build.js",
-        "postbuild": "node scripts/prerender-meta.js",
+        "postbuild": "node scripts/prerender-meta.js && node scripts/generate-sitemap.js",
         "check:images": "node scripts/check-social-images.js",
         "setup:fonts": "node scripts/setup-fonts.js",
         "validate:schema": "node scripts/validate-structured-data.js",
@@ -37,6 +37,7 @@
     "devDependencies": {
         "@babel/cli": "^7.28.3",
         "@babel/core": "^7.28.5",
+        "@babel/plugin-bugfix-firefox-class-in-computed-class-key": "^7.28.5",
         "@babel/preset-env": "^7.28.5",
         "@types/node": "^22.19.1",
         "autoprefixer": "^10.4.22",

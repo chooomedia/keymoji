@@ -617,11 +617,87 @@ button:disabled {
 }
 
 /* Elvish Font (Tengwar Annatar) for sjn language */
-:global(.font-elvish) {
-    font-family: 'Tengwar Annatar', serif;
+/* CRITICAL: @font-face muss statisch definiert sein, damit die Schrift geladen wird */
+/* NOTE: Font-Pfad muss relativ zum assets-Ordner sein für Webpack */
+@font-face {
+    font-family: 'Tengwar Annatar';
+    src: url('../public/fonts/tengwar_annatar.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    /* Anpassung der Font-Metriken für bessere Emoji-Ausrichtung */
+    /* Tengwar hat eine sehr hohe Baseline - wir senken sie stark ab */
+    ascent-override: 70%;
+    descent-override: 40%;
+    line-gap-override: 0%;
 }
 
-/* Ensure @font-face is defined for Tengwar Annatar */
-/* NOTE: Font wird dynamisch via JavaScript geladen (LanguageSwitcher.svelte, Layout.svelte) */
-/* @font-face wird dort auch dynamisch hinzugefügt, daher nicht hier nötig */
-/* Der absolute Pfad /fonts/tengwar_annatar.ttf funktioniert zur Laufzeit */
+:global(.font-elvish) {
+    font-family: 'Tengwar Annatar', serif !important;
+    /* Höhere line-height für bessere Emoji-Zentrierung */
+    line-height: 2 !important;
+}
+
+:global(.font-elvish *) {
+    font-family: 'Tengwar Annatar', serif !important;
+}
+
+/* ============================================
+   TENGWAR EMOJI ALIGNMENT FIX
+   Die Tengwar-Schrift hat eine ungewöhnliche Baseline.
+   Emojis werden mit translateY(11px) nach unten verschoben.
+   ============================================ */
+
+/* 1. EMOJI-DISPLAY: Die Emoji-Spans im Passwort-Display */
+/* Struktur: #emoji-display > div.flex > span.text-2xl */
+:global(.font-elvish) #emoji-display > .flex > span {
+    transform: translateY(11px) !important;
+}
+
+/* 2. LANGUAGE BUTTON: Flag-Emoji im Language-Switcher */
+/* Struktur: #language-toggle-button > div > div > span.flag-icon */
+:global(.font-elvish) #language-toggle-button .flag-icon {
+    transform: translateY(11px) !important;
+}
+
+/* 3. SWISS AI BUTTON: Emoji-Spans im Button */
+:global(.font-elvish) .swiss-ai-button span {
+    transform: translateY(11px) !important;
+}
+
+/* 4. SETTINGS BUTTON: Zahnrad-Emoji Spans */
+:global(.font-elvish) .settings-button span {
+    transform: translateY(11px) !important;
+}
+
+/* 5. ALLE SPANS IN H2/H3 (für Buttons und Text) */
+:global(.font-elvish) h2 span,
+:global(.font-elvish) h3 span {
+    transform: translateY(11px) !important;
+}
+
+/* Flex-Container behalten ihre Ausrichtung */
+:global(.font-elvish) .flex {
+    align-items: center !important;
+}
+
+/* Buttons - Flexbox für vertikale Zentrierung */
+:global(.font-elvish) button {
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+/* Text-Elemente mit angepasster line-height */
+:global(.font-elvish) p,
+:global(.font-elvish) h1,
+:global(.font-elvish) h2,
+:global(.font-elvish) h3,
+:global(.font-elvish) h4,
+:global(.font-elvish) label {
+    line-height: 1.8 !important;
+}
+
+/* Div-Container */
+:global(.font-elvish) div {
+    line-height: 1.6 !important;
+}

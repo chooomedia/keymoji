@@ -23,46 +23,18 @@
     // Direkter Zugriff auf die supportedLanguages aus languageUtils
     const languages = supportedLanguages;
     
-    // Funktion zum Vorladen der Elvish-Schriftart
+    // Funktion zum Prüfen ob die Elvish-Schriftart geladen ist
+    // NOTE: @font-face ist jetzt statisch in index.css definiert - kein dynamisches Laden mehr nötig
     function preloadElvishFont() {
-        // Prüfen ob die Schriftart bereits vorgeladen wurde
-        if (document.querySelector('link[href*="tengwar_annatar.ttf"]')) {
+        // Font ist jetzt statisch in index.css definiert und wird automatisch geladen
+        // Wir prüfen nur ob sie verfügbar ist
+        if (document.fonts?.check('1em Tengwar Annatar')) {
             elvishFontLoaded = true;
-            return;
-        }
-        
-        try {
-            // Schriftart vorladen
-            const fontLink = document.createElement('link');
-            fontLink.rel = 'preload';
-            fontLink.href = '/fonts/tengwar_annatar.ttf';
-            fontLink.as = 'font';
-            fontLink.type = 'font/ttf';
-            fontLink.crossOrigin = 'anonymous';
-            document.head.appendChild(fontLink);
-            
-            // Font-Face definieren falls nicht vorhanden
-            // CRITICAL: Prüfe ob bereits definiert (verhindert Duplikate)
-            if (!document.querySelector('style[data-elvish-font]')) {
-                const fontFaceStyle = document.createElement('style');
-                fontFaceStyle.setAttribute('data-elvish-font', 'true');
-                fontFaceStyle.textContent = `
-                    @font-face {
-                        font-family: 'Tengwar Annatar';
-                        src: url('/fonts/tengwar_annatar.ttf') format('truetype');
-                        font-weight: normal;
-                        font-style: normal;
-                        font-display: swap;
-                    }
-                `;
-                document.head.appendChild(fontFaceStyle);
-                console.log('✅ Elvish font @font-face defined');
-            }
-            
+            console.log('✅ Elvish font already loaded from CSS');
+        } else {
+            // Font wird automatisch geladen wenn .font-elvish Klasse angewendet wird
             elvishFontLoaded = true;
-            console.log('Elvish font preloaded and ready');
-        } catch (error) {
-            console.warn('Failed to preload Elvish font:', error);
+            console.log('✅ Elvish font will be loaded from CSS when needed');
         }
     }
     
@@ -344,13 +316,15 @@
     >
         <div class="flex items-center justify-between w-full">
             <div class="flex items-center">
-                <span class="flag-icon mr-3">{getCurrentLanguageInfo(selectedLang).flag}</span>
+                <span class="flag-icon md:mr-3">{getCurrentLanguageInfo(selectedLang).flag}</span>
                 {#if showLabels || display === 'full'}
-                    <span class="lang-code uppercase">{getDisplayCode(selectedLang)}</span>
+                    <!-- Auf Mobile versteckt, nur auf md+ sichtbar -->
+                    <span class="lang-code uppercase hidden md:inline">{getDisplayCode(selectedLang)}</span>
                 {/if}
             </div>
             {#if display === 'full'}
-                <div class="flex items-center ml-3">
+                <!-- Chevron auf Mobile versteckt, nur auf md+ sichtbar -->
+                <div class="items-center ml-3 hidden md:flex">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200 {$showLanguageMenu ? 'transform rotate-180' : ''}">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
@@ -373,11 +347,8 @@
         >
             <div 
                 class="w-48 mx-auto bg-white dark:bg-aubergine-900 
-                    rounded-xl shadow-xl 
-                    md:rounded-t-none md:rounded-b-xl 
-                    md:border-t-0 md:border-l-0 md:border-r-0 
-                    md:border-b md:border-transparent
-                    md:shadow-lg
+                    rounded-t-none rounded-b-xl 
+                    shadow-lg
                     overflow-hidden"
                 in:slide={{ y: -5, duration: 400, easing: cubicInOut }}
                 out:slide={{ y: 5, duration: 400, easing: cubicInOut }}

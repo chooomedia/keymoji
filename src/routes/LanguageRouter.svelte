@@ -254,6 +254,15 @@
         try {
             devLog('🚀 LanguageRouter: Component mounted');
             
+            // CRITICAL: Set loading timeout FIRST - before any async operations!
+            // This ensures the timeout is always set, even if loadRoutes() fails
+            loadingTimeout = setTimeout(() => {
+                if (!routesLoaded) {
+                    console.warn('⚠️ LanguageRouter: Loading timeout - forcing routesLoaded to true');
+                    routesLoaded = true;
+                }
+            }, 10000);
+            
             // CRITICAL: Hide static loading screen NOW that Svelte is ready
             // This ensures smooth transition from static HTML to Svelte LoadingScreen
             requestAnimationFrame(() => {
@@ -275,15 +284,6 @@
             // Routes must be available when Router component mounts
             await loadRoutes();
             console.log('✅ LanguageRouter: Routes loaded, routesLoaded:', routesLoaded);
-            
-            // CRITICAL: Timeout-Fallback für Loading-Screen (verhindert hängende Screens)
-            // Falls routesLoaded nach 10 Sekunden noch false ist, forciere true
-            loadingTimeout = setTimeout(() => {
-                if (!routesLoaded) {
-                    console.warn('⚠️ LanguageRouter: Loading timeout - forcing routesLoaded to true');
-                    routesLoaded = true;
-                }
-            }, 10000);
             
             // CRITICAL: Initialize daily usage for ALL users (logged in or guest)
             try {
