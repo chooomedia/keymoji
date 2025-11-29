@@ -97,12 +97,12 @@ Crawl-delay: 1
 # Block unnecessary files
 Disallow: /api/
 Disallow: /admin/
-Disallow: /*.json$
-Disallow: /*.xml$
 Disallow: /static/js/
 Disallow: /static/css/
 
-# Allow important files
+# Allow important files for SEO
+Allow: /sitemap.xml
+Allow: /sitemap-index.xml
 Allow: /manifest.json
 Allow: /service-worker.js
 Allow: /favicon.ico
