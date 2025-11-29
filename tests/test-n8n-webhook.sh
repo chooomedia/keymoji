@@ -26,12 +26,19 @@ if [ -f .env.local ]; then
     echo -e "${GREEN}✅ Token gefunden${NC}"
     
     # Webhook URL aus .env.local lesen (falls gesetzt), sonst Fallback
-    N8N_BASE=$(grep VITE_N8N_URL .env.local | cut -d '=' -f2 | tr -d '"' | tr -d "'")
-    if [ -z "$N8N_BASE" ]; then
-        echo -e "${YELLOW}⚠️  VITE_N8N_URL nicht in .env.local gefunden, verwende Fallback${NC}"
-        N8N_BASE="https://n8n.chooomedia.com/webhook"
+    # SECURITY: Try VITE_WEBHOOK_APERTUS_TEST first (full URL from secret)
+    WEBHOOK_URL=$(grep VITE_WEBHOOK_APERTUS_TEST .env.local | cut -d '=' -f2 | tr -d '"' | tr -d "'")
+    if [ -z "$WEBHOOK_URL" ]; then
+        # Fallback: Build from base URL + path
+        N8N_BASE=$(grep VITE_N8N_URL .env.local | cut -d '=' -f2 | tr -d '"' | tr -d "'")
+        if [ -z "$N8N_BASE" ]; then
+            echo -e "${YELLOW}⚠️  VITE_WEBHOOK_APERTUS_TEST und VITE_N8N_URL nicht in .env.local gefunden, verwende Fallback${NC}"
+            N8N_BASE="https://n8n.chooomedia.com/webhook"
+        fi
+        WEBHOOK_URL="${N8N_BASE}/apertus-test"
+    else
+        echo -e "${GREEN}✅ Using VITE_WEBHOOK_APERTUS_TEST from .env.local (SECRET)${NC}"
     fi
-    WEBHOOK_URL="${N8N_BASE}/apertus-test"
 else
     echo -e "${RED}❌ .env.local nicht gefunden${NC}"
     exit 1

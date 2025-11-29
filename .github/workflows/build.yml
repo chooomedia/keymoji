@@ -38,6 +38,27 @@ jobs:
             - name: Run prebuild scripts
               run: npm run prebuild
 
+            - name: Generate .env.production with secrets
+              run: |
+                  # SECURITY: Set webhook URLs from GitHub Secrets for build
+                  # These are injected at build-time via VITE_ prefix for frontend access
+                  
+                  # Existing secrets (preserved for backward compatibility)
+                  if [ -n "${{ secrets.WEBHOOK_BASE }}" ]; then
+                    echo "VITE_N8N_URL=${{ secrets.WEBHOOK_BASE }}" > .env.production
+                  fi
+                  if [ -n "${{ secrets.WEBHOOK_TEST_BASE }}" ]; then
+                    echo "WEBHOOK_TEST_BASE=${{ secrets.WEBHOOK_TEST_BASE }}" >> .env.production
+                  fi
+                  
+                  # SECURITY: Apertus webhook URL as secret (full URL)
+                  # This is the secure way - URL is hidden from codebase
+                  if [ -n "${{ secrets.WEBHOOK_APERTUS_TEST }}" ]; then
+                    echo "VITE_WEBHOOK_APERTUS_TEST=${{ secrets.WEBHOOK_APERTUS_TEST }}" >> .env.production
+                  else
+                    echo "⚠️ WARNING: WEBHOOK_APERTUS_TEST secret not set! Using fallback URL (less secure)."
+                  fi
+
             - name: Build project
               run: npm run build
 

@@ -129,6 +129,16 @@ module.exports = {
             }
             // Return empty string if not set (will be handled by callApertus)
             return stringify('');
+        })(),
+        // SECURITY: Apertus webhook URL as secret (full URL: https://n8n.chooomedia.com/webhook/apertus-test)
+        VITE_WEBHOOK_APERTUS_TEST: (() => {
+            const url = developmentEnv.VITE_WEBHOOK_APERTUS_TEST || developmentEnv.WEBHOOK_APERTUS_TEST;
+            // Only stringify if URL exists and is not empty
+            if (url && url.trim() && url.trim() !== '""' && url.trim() !== "''") {
+                return stringify(url.trim());
+            }
+            // Return empty string (will use fallback in api.js)
+            return stringify('');
         })()
     },
     production: {
@@ -159,6 +169,16 @@ module.exports = {
                 return stringify(token.trim());
             }
             // Return empty string if not set (will be handled by callApertus)
+            return stringify('');
+        })(),
+        // SECURITY: Apertus webhook URL as secret (full URL: https://n8n.chooomedia.com/webhook/apertus-test)
+        VITE_WEBHOOK_APERTUS_TEST: (() => {
+            const url = productionEnv.VITE_WEBHOOK_APERTUS_TEST || productionEnv.WEBHOOK_APERTUS_TEST;
+            // Only stringify if URL exists and is not empty
+            if (url && url.trim() && url.trim() !== '""' && url.trim() !== "''") {
+                return stringify(url.trim());
+            }
+            // Return empty string (will use fallback in api.js)
             return stringify('');
         })()
     }

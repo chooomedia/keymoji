@@ -56,9 +56,24 @@ jobs:
                   echo "⚠️ Artifacts not available, building locally..."
                   npm ci --legacy-peer-deps
                   
-                  echo "WEBHOOK_BASE=${{ secrets.WEBHOOK_BASE }}" > .env.production
-                  echo "WEBHOOK_TEST_BASE=${{ secrets.WEBHOOK_TEST_BASE }}" >> .env.production
-                  echo "API_TIMEOUT=10000" >> .env.production
+                  # SECURITY: Set webhook URLs from GitHub Secrets
+                  # These are injected at build-time via VITE_ prefix for frontend access
+                  
+                  # Existing secrets (preserved for backward compatibility)
+                  if [ -n "${{ secrets.WEBHOOK_BASE }}" ]; then
+                    echo "VITE_N8N_URL=${{ secrets.WEBHOOK_BASE }}" >> .env.production
+                  fi
+                  if [ -n "${{ secrets.WEBHOOK_TEST_BASE }}" ]; then
+                    echo "WEBHOOK_TEST_BASE=${{ secrets.WEBHOOK_TEST_BASE }}" >> .env.production
+                  fi
+                  
+                  # SECURITY: Apertus webhook URL as secret (full URL)
+                  # This is the secure way - URL is hidden from codebase
+                  if [ -n "${{ secrets.WEBHOOK_APERTUS_TEST }}" ]; then
+                    echo "VITE_WEBHOOK_APERTUS_TEST=${{ secrets.WEBHOOK_APERTUS_TEST }}" >> .env.production
+                  else
+                    echo "⚠️ WARNING: WEBHOOK_APERTUS_TEST secret not set! Using fallback URL (less secure)."
+                  fi
                   
                   npm run build
 

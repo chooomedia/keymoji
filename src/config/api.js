@@ -265,7 +265,42 @@ export const WEBHOOKS = {
     },
 
     // Apertus (Swiss LLM) via n8n
+    // SECURITY: Uses VITE_WEBHOOK_APERTUS_TEST from environment (GitHub Secrets)
+    // Full URL should be set as secret: https://n8n.chooomedia.com/webhook/apertus-test
     get APERTUS() {
+        // Try to get full URL from environment variable first (secure secret)
+        const envUrl =
+            (typeof import.meta !== 'undefined' && import.meta.env?.VITE_WEBHOOK_APERTUS_TEST) ||
+            undefined;
+
+        if (envUrl) {
+            // Clean the URL (remove quotes, whitespace, etc.)
+            let cleanedUrl = String(envUrl).trim();
+            cleanedUrl = cleanedUrl.replace(/^["']|["']$/g, '');
+            cleanedUrl = cleanedUrl.replace(/%22/g, '');
+            cleanedUrl = cleanedUrl.replace(/["']/g, '');
+
+            // Validate URL format
+            if (
+                cleanedUrl &&
+                cleanedUrl.length > 0 &&
+                cleanedUrl !== '""' &&
+                cleanedUrl !== "''" &&
+                (cleanedUrl.startsWith('http://') || cleanedUrl.startsWith('https://'))
+            ) {
+                const finalUrl = cleanedUrl.replace(/\/$/, '');
+                console.log(
+                    '✅ [Config] Using VITE_WEBHOOK_APERTUS_TEST from environment (SECRET)'
+                );
+                return finalUrl;
+            }
+        }
+
+        // Fallback: Build URL from base URL + path (less secure, but works)
+        // This is used if VITE_WEBHOOK_APERTUS_TEST is not set
+        console.warn(
+            '⚠️ [SECURITY] VITE_WEBHOOK_APERTUS_TEST not set. Using fallback. Set as GitHub Secret for production security!'
+        );
         return buildN8NUrl('/apertus-test');
     },
 
