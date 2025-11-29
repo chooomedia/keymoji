@@ -22,45 +22,77 @@
     let loadingStartTime = Date.now();
     
     // Lazy Load Components on mount (Preload für bessere UX)
+    // ROBUST: Load each route individually to prevent single failures from blocking all routes
     async function loadRoutes() {
         if (routesLoaded) {
             console.log('✅ LanguageRouter: Routes already loaded');
             return;
         }
-        try {
-            console.log('🔄 LanguageRouter: Loading routes...');
-            const [
-                BlogGridModule,
-                BlogPostModule,
-                VersionHistoryModule,
-                ContactFormModule,
-                AccountManagerModule,
-                StaticPageModule,
-                NotFoundModule
-            ] = await Promise.all([
-                import('../components/Features/BlogGrid.svelte'),
-                import('../components/Features/BlogPost.svelte'),
-                import('./VersionHistory.svelte'),
-                import('./ContactForm.svelte'),
-                import('./AccountManager.svelte'),
-                import('./StaticPage.svelte'),
-                import('./NotFound.svelte')
-            ]);
-            
-            BlogGrid = BlogGridModule.default;
-            BlogPost = BlogPostModule.default;
-            VersionHistory = VersionHistoryModule.default;
-            ContactForm = ContactFormModule.default;
-            AccountManager = AccountManagerModule.default;
-            StaticPage = StaticPageModule.default;
-            NotFound = NotFoundModule.default;
-            routesLoaded = true;
-            console.log('✅ LanguageRouter: All routes loaded successfully');
-        } catch (err) {
-            console.error('❌ LanguageRouter: Failed to load routes:', err);
-            // Set routesLoaded to true even on error to prevent infinite loading
-            // The NotFound component will handle missing routes
-            routesLoaded = true;
+        
+        console.log('🔄 LanguageRouter: Loading routes...');
+        const routeLoaders = [
+            {
+                name: 'BlogGrid',
+                loader: () => import('../components/Features/BlogGrid.svelte'),
+                setter: (module) => { BlogGrid = module.default; }
+            },
+            {
+                name: 'BlogPost',
+                loader: () => import('../components/Features/BlogPost.svelte'),
+                setter: (module) => { BlogPost = module.default; }
+            },
+            {
+                name: 'VersionHistory',
+                loader: () => import('./VersionHistory.svelte'),
+                setter: (module) => { VersionHistory = module.default; }
+            },
+            {
+                name: 'ContactForm',
+                loader: () => import('./ContactForm.svelte'),
+                setter: (module) => { ContactForm = module.default; }
+            },
+            {
+                name: 'AccountManager',
+                loader: () => import('./AccountManager.svelte'),
+                setter: (module) => { AccountManager = module.default; }
+            },
+            {
+                name: 'StaticPage',
+                loader: () => import('./StaticPage.svelte'),
+                setter: (module) => { StaticPage = module.default; }
+            },
+            {
+                name: 'NotFound',
+                loader: () => import('./NotFound.svelte'),
+                setter: (module) => { NotFound = module.default; }
+            }
+        ];
+        
+        // Load routes in parallel but handle each failure individually
+        const loadPromises = routeLoaders.map(async (route) => {
+            try {
+                const module = await route.loader();
+                route.setter(module);
+                console.log(`✅ LanguageRouter: ${route.name} loaded`);
+                return { success: true, name: route.name };
+            } catch (err) {
+                console.error(`❌ LanguageRouter: Failed to load ${route.name}:`, err);
+                return { success: false, name: route.name, error: err };
+            }
+        });
+        
+        const results = await Promise.all(loadPromises);
+        const successCount = results.filter(r => r.success).length;
+        const failureCount = results.filter(r => !r.success).length;
+        
+        console.log(`✅ LanguageRouter: Routes loaded - ${successCount} success, ${failureCount} failures`);
+        
+        // Always set routesLoaded to true to prevent infinite loading
+        // Even if some routes fail, the Router can still function with available routes
+        routesLoaded = true;
+        
+        if (failureCount > 0) {
+            console.warn('⚠️ LanguageRouter: Some routes failed to load. App will continue with available routes.');
         }
     }
     
@@ -72,7 +104,8 @@
     let currentPath = "";
     let currentPageType = "home";
     let pageURL = "";
-    let url = null; // For svelte-routing Router component
+    // Initialize url for Router - use window.location.pathname if available, otherwise null
+    let url = typeof window !== 'undefined' ? window.location.pathname : null;
     let initialRouteProcessed = false;
     let processingRoute = false; // Verhindert gleichzeitige Route-Verarbeitung
     
@@ -158,6 +191,7 @@
             // Extrahiere den aktuellen Pfad
             currentPath = normalizedPath;
             pageURL = normalizedPath; // Set pageURL for SEO component
+            url = normalizedPath; // Update url for Router component
             
             // Determine page type for SEO
             currentPageType = determinePageType(currentPath);
@@ -268,6 +302,7 @@
             // SEO-optimierte Initialisierung
             currentPath = window.location.pathname;
             pageURL = currentPath;
+            url = currentPath; // Initialize url for Router
             currentPageType = determinePageType(currentPath);
             
             // SEO-optimierte Sprach-Erkennung
