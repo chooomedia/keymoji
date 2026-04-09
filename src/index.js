@@ -351,9 +351,12 @@ function initializeApp() {
 const app = initializeApp();
 
 // Setup cleanup on page unload
+// Note: 'unload' is deprecated - using 'pagehide' instead (more reliable, works with BFCache)
 if (typeof window !== 'undefined') {
+    // beforeunload: fires before page unloads (user confirmation dialogs)
     window.addEventListener('beforeunload', cleanupOnUnload);
-    window.addEventListener('unload', cleanupOnUnload);
+    // pagehide: modern alternative to 'unload' - fires reliably even with BFCache
+    window.addEventListener('pagehide', cleanupOnUnload);
 }
 
 export default app;

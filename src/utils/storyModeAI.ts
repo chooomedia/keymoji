@@ -750,7 +750,7 @@ async function callApertus(
 
     // Handle n8n workflow response format
     // n8n can return either an object or an array (depending on workflow configuration)
-    
+
     // CRITICAL: Check for success field first (before extracting response)
     // The webhook may return { success: true/false, response: "...", error: "..." }
     function checkSuccessField(obj: Record<string, unknown>): boolean {
@@ -929,14 +929,14 @@ async function callApertus(
                 if (!hasValidResponse) {
                     console.error(
                         '❌ [Apertus] n8n workflow returned success=true but no valid response field found. Full data:',
-                        JSON.stringify(firstItem, null, 2)
-                    );
-                    throw new Error(
+                    JSON.stringify(firstItem, null, 2)
+                );
+                throw new Error(
                         'Apertus API returned success: true but no valid response content found. ' +
                             'The workflow executed successfully but the response field is missing or empty. ' +
                             'Please check the n8n workflow "Format Response" node - it should extract the content and set it in the "response" field. ' +
                             `Current response structure: ${JSON.stringify(firstItem, null, 2)}`
-                    );
+                );
                 }
             }
         }
@@ -1059,7 +1059,7 @@ async function callApertus(
                 );
             }
         }
-        
+
         // If response field exists but is empty, provide helpful error
         if (
             dataObj.response !== undefined &&
