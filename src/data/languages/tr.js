@@ -649,6 +649,13 @@ export default {
         freeBadge: '✨ ÜCRETSİZ',
         proBadge: '💎 PRO',
 
+        // Demo grafik (gerçek veri yokken)
+        demoChart: {
+            title: 'Veri yok',
+            description: 'Gerçek kullanım verilerini toplamak ve burada görüntülemek için emoji oluştur.',
+            cta: 'Keymoji Oluştur'
+        },
+
         // Açıklamalar
         freeDescription: '✨ Ücretsiz Güvenlik',
         proDescription: '💎 Kurumsal Güvenlik'

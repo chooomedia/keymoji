@@ -644,6 +644,13 @@ export default {
         freeBadge: '✨ 無料',
         proBadge: '💎 PRO',
 
+        // デモグラフ（実データがない場合）
+        demoChart: {
+            title: 'データなし',
+            description: '絵文字を生成して実際の使用データを収集し、ここに表示しよう。',
+            cta: 'Keymojiを始める'
+        },
+
         // 説明
         freeDescription: '✨ 無料セキュリティ',
         proDescription: '💎 エンタープライズセキュリティ'

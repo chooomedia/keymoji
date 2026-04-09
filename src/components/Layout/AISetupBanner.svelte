@@ -119,8 +119,8 @@
             on:click={dismiss}
             class="absolute right-2 p-0.5 rounded text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400
                    transition-colors focus:outline-none focus:ring-1 focus:ring-gray-400"
-            aria-label="Banner schließen"
-            title="Schließen"
+            aria-label="Close banner"
+            title="Close"
         >
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />

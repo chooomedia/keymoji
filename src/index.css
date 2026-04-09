@@ -245,7 +245,7 @@ button:disabled {
     z-index: 40;
 }
 
-/* Main content area - positioned between fixed header and footer */
+/* Main content area - padding handled via Tailwind in PageLayout.svelte */
 .main-content {
     width: 100%;
     min-height: 100vh;
@@ -259,17 +259,13 @@ button:disabled {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     gap: 2rem;
-    padding-top: 152px; /* fixed wrapper: 32px banner + ~80px header + 40px gap */
-    padding-bottom: 120px;
-    /* Space for fixed footer */
     box-sizing: border-box;
 }
 
 /* Mobile responsive padding and fixed positioning optimizations */
 @media (max-width: 768px) {
     .main-content {
-        padding-top: 140px; /* mobile: slightly less gap, banner still counted */
-        padding-bottom: 100px;
+        /* padding handled via Tailwind responsive classes */
     }
 
     /* Header is inside fixed wrapper — hardware acceleration only */

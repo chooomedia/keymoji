@@ -656,6 +656,13 @@ export default {
         freeBadge: '✨ GRATIS',
         proBadge: '💎 PRO',
 
+        // Demo grafiek (bij geen echte data)
+        demoChart: {
+            title: 'Geen gegevens',
+            description: 'Genereer emoji\'s om je echte gebruiksgegevens te verzamelen en hier weer te geven.',
+            cta: 'Maak Keymoji'
+        },
+
         // Beschrijvingen
         freeDescription: '✨ Gratis beveiliging',
         proDescription: '💎 Enterprise beveiliging'
