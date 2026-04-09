@@ -1129,6 +1129,19 @@ export async function initializeSettingsForUser() {
             loadedSettings.name = account.name;
         }
 
+        // AUTO-ENABLE Story Mode for Apertus when user is logged in
+        // Apertus requires no API key (token is loaded from environment)
+        // If storyMode was never explicitly configured, auto-enable it with Apertus
+        if (
+            loadedSettings.storyMode &&
+            loadedSettings.storyMode.enabled === false &&
+            (!loadedSettings.storyMode.provider || loadedSettings.storyMode.provider === 'apertus')
+        ) {
+            loadedSettings.storyMode.enabled = true;
+            loadedSettings.storyMode.provider = 'apertus';
+            console.log('🤖 Auto-enabling Story Mode with Apertus for logged-in user');
+        }
+
         // CRITICAL: ALWAYS sync language and theme from active stores
         // This ensures UI dropdowns show the correct current values
 

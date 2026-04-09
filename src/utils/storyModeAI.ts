@@ -1994,12 +1994,15 @@ export async function testAIProvider(
                     '🧪 [Apertus Test] Calling callApertus with empty API key (token loaded from env)'
                 );
                 try {
+                    // Use a proper test prompt that reliably gets emoji output
+                    // Short max_tokens with the standard test prompt causes empty/whitespace responses
+                    const apertusTestPrompt = 'Output exactly 3 emojis for: sun, heart, star. ONLY emojis, no text.';
                     response = await callApertus(
                         '', // Empty API key for Apertus (token handled internally via VITE_N8N_APERTUS_TOKEN)
-                        testPrompt,
+                        apertusTestPrompt,
                         usedModel,
-                        10,
-                        0.5
+                        30, // Need enough tokens for emoji output
+                        0.7
                     );
 
                     // Additional check: Even if callApertus didn't throw, verify response is not empty

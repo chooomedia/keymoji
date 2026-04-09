@@ -295,7 +295,7 @@ export function getDefaultSettings(tier: Tier = 'free'): UserSettings {
 
         // Story Mode AI Configuration (FREE & PRO)
         storyMode: {
-            enabled: false, // Story mode available when API key configured
+            enabled: true, // Auto-enabled with Apertus (no API key needed, token from environment)
             provider: 'apertus', // 'openai' | 'gemini' | 'mistral' | 'claude' | 'apertus' | 'custom' (default: apertus for Swiss LLM)
             apiKeys: {
                 // Separate API keys for each provider
@@ -358,7 +358,7 @@ export function getDefaultSettings(tier: Tier = 'free'): UserSettings {
             // Enhanced Story Mode (PRO can use premium models)
             storyMode: {
                 ...baseSettings.storyMode,
-                enabled: false,
+                enabled: true, // Auto-enabled with Apertus for PRO users
                 model: '', // Auto-selected based on provider (Best Practice)
                 maxTokens: 300, // PRO: more tokens
                 cacheResults: true
