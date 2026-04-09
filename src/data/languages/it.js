@@ -33,6 +33,7 @@ export default {
         setupStoryModeSwiss: 'Usa IA svizzera',
         setupStoryModeSwissShort: 'IA svizzera',
         setupStoryModeOr: 'o',
+        setupStoryModeBannerCta: '— Crea la tua Keymoji-Story',
         setupStoryModeDescription:
             'Connettiti con la tua IA per password emoji personalizzate.',
         setupStoryModeSwissDescription:

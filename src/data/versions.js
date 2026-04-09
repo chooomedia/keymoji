@@ -1,4 +1,27 @@
 export const versions = {
+    '0.7.9': {
+        date: 'April 9, 2026',
+        core: {
+            ui: {
+                title: '🎨 TopBar & Banner-Optimierung',
+                improvements: [
+                    'Hover-Hintergrund und Swiss-AI-Animation aus TopBar entfernt',
+                    'Opacity-Transition für cleanes, subtiles Hover-Feedback',
+                    'Banner-CTA-Text in alle 12 Sprachen übersetzt',
+                    'Neue setupStoryModeBannerCta Übersetzungskeys hinzugefügt'
+                ]
+            },
+            auth: {
+                title: '🔒 Security & UX Verbesserungen',
+                improvements: [
+                    'Rate Limiting für OTP-Anfragen (3 pro 10 Min)',
+                    'E-Mail-Validierung auf Client und Server',
+                    'Mehrsprachige E-Mail-Betreffzeilen',
+                    'N8N: Duplicate-Account-Schutz implementiert'
+                ]
+            }
+        }
+    },
     '0.7.8': {
         date: 'April 9, 2026',
         core: {

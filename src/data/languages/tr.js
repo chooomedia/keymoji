@@ -33,6 +33,7 @@ export default {
         setupStoryModeSwiss: 'İsviçre AI kullan',
         setupStoryModeSwissShort: 'İsviçre AI',
         setupStoryModeOr: 'veya',
+        setupStoryModeBannerCta: '— Keymoji Hikayeni Oluştur',
         setupStoryModeDescription:
             "Kişiselleştirilmiş emoji şifreleri için AI'nize bağlanın.",
         setupStoryModeSwissDescription:

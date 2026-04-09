@@ -20,7 +20,7 @@ export interface VersionInfo {
 }
 
 // Aktuelle Version der Anwendung
-export const appVersion: string = '0.7.8';
+export const appVersion: string = '0.7.9';
 
 // Versionsinformationen mit Datum der letzten Aktualisierung
 export const versionInfo: VersionInfo = {

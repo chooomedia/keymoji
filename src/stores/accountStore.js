@@ -1279,11 +1279,10 @@ export async function verifyMagicLinkFrontend(code, email) {
             const { refreshUserSettings, refreshUsageHistory } = await import(
                 './userDataStore.js'
             );
-            // CRITICAL: refreshUsageHistory will check currentAccount FIRST (Priority 2)
-            // before calling cachedFetchAccount (Priority 3), so no duplicate API call!
+            // Force refresh after login so stats are immediately correct
             await Promise.all([
-                refreshUserSettings(true), // Force refresh (may call API, but settings are separate)
-                refreshUsageHistory(false) // Use currentAccount data (already loaded!) - NO force to avoid duplicate API call
+                refreshUserSettings(true),
+                refreshUsageHistory(true)
             ]);
             console.log(
                 '✅ User data refreshed successfully (no duplicate API calls)'
