@@ -7,10 +7,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                928,
-                -944
+                8848,
+                7360
             ],
-            "id": "17e4f96d-0144-42f4-84e2-664f8ca53a1e",
+            "id": "538be4cf-bc0d-44b6-a869-dd712df9e221",
             "name": "Format Response1"
         },
         {
@@ -39,10 +39,10 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1.1,
             "position": [
-                1360,
-                -768
+                9280,
+                7536
             ],
-            "id": "dde93790-75f2-403b-aa9c-b634ebcdf395",
+            "id": "6762aca5-c4f9-4067-abb6-e292e3426b3c",
             "name": "Respond with Like Result"
         },
         {
@@ -52,10 +52,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                1216,
-                -768
+                9136,
+                7536
             ],
-            "id": "67f38ce0-fbbf-4055-8a35-bbb542e1df52",
+            "id": "ff65f08d-ed77-48c1-bb57-776bd8c1234f",
             "name": "Format Like Response"
         },
         {
@@ -116,10 +116,10 @@
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.5,
             "position": [
-                1072,
-                -768
+                8992,
+                7536
             ],
-            "id": "3e8bd36d-363a-4773-9a91-7744e8850042",
+            "id": "07e43c73-9cc9-4458-829c-b78b4a78af66",
             "name": "Save Like",
             "alwaysOutputData": true,
             "credentials": {
@@ -137,10 +137,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                912,
-                -768
+                8832,
+                7536
             ],
-            "id": "01a0f1b0-a8cc-47fe-9ada-f2c8e8aaaa9c",
+            "id": "d2b543f5-5d81-46f4-9117-c60ca59bd99d",
             "name": "Prepare Like Update"
         },
         {
@@ -164,10 +164,10 @@
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.5,
             "position": [
-                736,
-                -768
+                8656,
+                7536
             ],
-            "id": "5cd5ce6d-5a29-4e99-935f-cfc2a2fa8ef8",
+            "id": "496025a6-9947-4b04-9241-c63b2975c64a",
             "name": "Read Blog Row",
             "alwaysOutputData": true,
             "credentials": {
@@ -204,10 +204,10 @@
             "type": "n8n-nodes-base.if",
             "typeVersion": 2,
             "position": [
-                544,
-                -768
+                8464,
+                7536
             ],
-            "id": "9c41b994-a276-4478-9720-863d77fb8062",
+            "id": "e287961f-e26d-45ad-9c48-b438b46c6634",
             "name": "Check Request Method"
         },
         {
@@ -240,10 +240,10 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1.1,
             "position": [
-                144,
-                -896
+                8064,
+                7408
             ],
-            "id": "8b4d400e-1343-4ea3-acdc-b7b30fc88434",
+            "id": "0ba855a3-42c8-4109-b8f4-81dd65b8148e",
             "name": "Respond to OPTIONS"
         },
         {
@@ -273,10 +273,10 @@
             "type": "n8n-nodes-base.if",
             "typeVersion": 2,
             "position": [
-                -48,
-                -768
+                7872,
+                7536
             ],
-            "id": "1b3957e0-814f-4821-a5ef-fa24ecf89a82",
+            "id": "2fdefee9-0b1f-4a4c-98ae-9c8e8fa27348",
             "name": "Handle OPTIONS Request"
         },
         {
@@ -318,10 +318,10 @@
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2,
             "position": [
-                -272,
-                -768
+                7648,
+                7536
             ],
-            "id": "59376a0e-02ad-46d3-a675-75cc604e2a12",
+            "id": "20aba371-c984-4a68-8fb7-9dbd1f797ca4",
             "name": "Blog Posts Likes Webhook",
             "webhookId": "f2d1e3c4-5a6b-7c8d-9e0f-a1b2c3d4e5f6"
         },
@@ -332,10 +332,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                352,
-                -768
+                8272,
+                7536
             ],
-            "id": "04c2f9ad-ece6-4afb-8e70-a75268080e13",
+            "id": "62253737-0638-4ea8-be91-6a0b8e21fa78",
             "name": "Process Likes"
         },
         {
@@ -359,10 +359,10 @@
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.5,
             "position": [
-                144,
-                -768
+                8064,
+                7536
             ],
-            "id": "d490b0b8-647b-4eb4-b530-b87a4acf25c9",
+            "id": "47a60e17-ae0f-474c-8c6e-892ac00cf635",
             "name": "Get Likes Data",
             "alwaysOutputData": true,
             "credentials": {
@@ -398,10 +398,10 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1.1,
             "position": [
-                1360,
-                -944
+                9280,
+                7360
             ],
-            "id": "334c4aea-7a4d-4a89-96d9-21a334cdbc8d",
+            "id": "5c03900e-ffea-461c-8fd2-b3c661981e76",
             "name": "Respond with Posts"
         },
         {
@@ -411,10 +411,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                736,
-                -944
+                8656,
+                7360
             ],
-            "id": "7d558acb-b980-4d2b-b641-90de0d1d2157",
+            "id": "5a4e6726-71bb-4ebe-ab4b-6daa729ec96a",
             "name": "Clean Post Data"
         },
         {
@@ -424,10 +424,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                544,
-                -944
+                8464,
+                7360
             ],
-            "id": "af421af3-67ae-47cb-9e19-bd1eb4639be8",
+            "id": "a890a40b-8cbd-40b0-8b9f-ccc48b7c0979",
             "name": "Validate Blog Posts"
         },
         {
@@ -435,10 +435,10 @@
             "type": "n8n-nodes-base.merge",
             "typeVersion": 2.1,
             "position": [
-                352,
-                -944
+                8272,
+                7360
             ],
-            "id": "965e143f-a01d-4429-bd49-66f48a7b174b",
+            "id": "d443fe24-a422-49c5-8c6d-9c823527af5e",
             "name": "Merge With Likes"
         },
         {
@@ -462,10 +462,10 @@
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.5,
             "position": [
-                -48,
-                -960
+                7872,
+                7344
             ],
-            "id": "7f5e28a7-2de6-4fbe-ab52-afae384462d4",
+            "id": "049f8316-cc05-4d1a-8f9f-727a5c7926a9",
             "name": "Get Blog Posts",
             "alwaysOutputData": true,
             "credentials": {
@@ -510,10 +510,10 @@
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2,
             "position": [
-                -272,
-                -960
+                7648,
+                7344
             ],
-            "id": "270f95e7-875e-4ea7-9bca-da958ac6f2a7",
+            "id": "03e92e51-429f-48e7-9cfe-f937ff0b8f54",
             "name": "Blog Posts Webhook",
             "webhookId": "f2d1e3c4-5a6b-7c8d-9e0f-a1b2c3d4e5f6"
         },
@@ -526,28 +526,11 @@
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                -336,
-                -1056
+                7584,
+                7248
             ],
-            "id": "c0d605cb-244d-4889-b423-f4474afaddeb",
+            "id": "b4c87aa3-d4ce-4c12-8271-e01abcc068e6",
             "name": "Sticky Note9"
-        },
-        {
-            "parameters": {
-                "httpMethod": "POST",
-                "path": "xn--moji-pb73c-account-update",
-                "responseMode": "responseNode",
-                "options": {}
-            },
-            "id": "f4ca8ad7-6ac6-4102-971f-b3405e7a0d47",
-            "name": "UPDATE Account",
-            "type": "n8n-nodes-base.webhook",
-            "typeVersion": 1,
-            "position": [
-                -272,
-                1136
-            ],
-            "webhookId": "xn--moji-pb73c-account"
         },
         {
             "parameters": {
@@ -577,13 +560,13 @@
                     }
                 }
             },
-            "id": "d05776c8-3e64-4241-a9c3-b1ad3a01875c",
+            "id": "406ca2a8-5edf-4af1-b601-0e0f8b01816f",
             "name": "CHECK Account",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
             "position": [
-                -272,
-                1328
+                7648,
+                9632
             ],
             "webhookId": "account-check-webhook"
         },
@@ -622,10 +605,10 @@
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
             "position": [
-                656,
-                1392
+                8672,
+                9696
             ],
-            "id": "ae871a74-9d19-456d-87f3-0d276d435d5a",
+            "id": "21959d2a-3b45-4e41-8888-9e9bda0118b4",
             "name": "Account false"
         },
         {
@@ -663,10 +646,10 @@
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
             "position": [
-                656,
-                1264
+                8672,
+                9568
             ],
-            "id": "559ea889-b4f1-4b87-89e3-d87d4d82a429",
+            "id": "cb97cbf6-6c01-4022-b715-830d0614f3b9",
             "name": "Account True"
         },
         {
@@ -697,10 +680,10 @@
             "type": "n8n-nodes-base.if",
             "typeVersion": 2.2,
             "position": [
-                432,
-                1328
+                8464,
+                9632
             ],
-            "id": "45e8e558-3976-49c0-9d3b-39c40009d80d",
+            "id": "0c92d435-d9b8-4a78-b21d-e4c885c2afd1",
             "name": "If"
         },
         {
@@ -730,13 +713,13 @@
                     }
                 }
             },
-            "id": "3c37ee17-ab4b-494f-90bd-64b82afeb531",
+            "id": "58d014e4-e33b-4445-86b2-448a7afb69b3",
             "name": "Respond2",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1360,
-                1312
+                9280,
+                9616
             ]
         },
         {
@@ -768,13 +751,13 @@
                     "returnAllMatches": "returnFirstMatch"
                 }
             },
-            "id": "036c3766-a97c-4879-ba5b-985c1e23cce6",
+            "id": "1e3a9409-e29e-45dc-bc72-78e6fa0d7945",
             "name": "Read Accounts2",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                192,
-                1328
+                8272,
+                9632
             ],
             "alwaysOutputData": true,
             "credentials": {
@@ -789,10 +772,10 @@
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
             "position": [
-                1904,
-                1808
+                9824,
+                10112
             ],
-            "id": "4e2611f3-dfd9-46fe-880a-a65d624f544b",
+            "id": "e8fdb66c-9774-437a-a1ba-df9bcbba030b",
             "name": "Finished1"
         },
         {
@@ -800,10 +783,10 @@
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
             "position": [
-                3072,
-                1024
+                10992,
+                9328
             ],
-            "id": "96fc2496-4f69-4e6d-9a9c-c9aafbb3d9a3",
+            "id": "7a8e919c-ddd1-46e4-9d88-790916503fec",
             "name": "Finished"
         },
         {
@@ -814,10 +797,10 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1.4,
             "position": [
-                2880,
-                1024
+                10800,
+                9328
             ],
-            "id": "07cc2e30-55ce-44ab-8d91-146d7f2edc27",
+            "id": "8dff9835-a67b-4134-845e-b8cb971a8b72",
             "name": "Respond to Webhook1"
         },
         {
@@ -826,13 +809,13 @@
                 "responseBody": "={\n  \"success\": true,\n  \"message\": \"Analytics saved\",\n  \"timestamp\": \"{{ new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' }) }}\"\n}",
                 "options": {}
             },
-            "id": "3375a1dd-0a47-4eac-ab9e-852133886fc3",
+            "id": "4ef4355d-c3ec-417a-98f2-fcd22ade78bd",
             "name": "Analytics Response",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1344,
-                112
+                9264,
+                8416
             ]
         },
         {
@@ -1003,13 +986,13 @@
                 },
                 "options": {}
             },
-            "id": "4a124284-fdcc-4f10-a0e2-10c48efd2139",
+            "id": "cfe2e41a-8ccf-4272-9f77-ae6f52550255",
             "name": "Save to Analytics Sheet",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                416,
-                112
+                8336,
+                8416
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -1022,13 +1005,13 @@
             "parameters": {
                 "jsCode": "// Eingangsdaten aus dem Webhook abrufen\nconst webhookData = $input.first().json;\n\nconsole.log('=== ANALYTICS WEBHOOK ===');\nconsole.log('Raw webhook data:', JSON.stringify(webhookData, null, 2));\n\n// Body extrahieren\nconst data = webhookData.body || webhookData;\n\nconsole.log('Body data:', JSON.stringify(data, null, 2));\n\n// IP-Adresse aus Headers extrahieren (korrekt!)\nconst ipAddress = webhookData.headers?.['x-forwarded-for'] ||\n                  webhookData.headers?.['x-real-ip'] ||\n                  webhookData.headers?.['cf-connecting-ip'] ||\n                  'unknown';\n\nconsole.log('🌐 IP Address detected:', ipAddress);\n\n// Pflichtfeld-Prüfung\nif (!data.type) {\n    throw new Error('Missing required field: type');\n}\n\nconsole.log('✅ Analytics data validation passed');\nconsole.log('Event type:', data.type);\n\n// Formatierte Daten\nconst formattedData = {\n    type: data.type,\n    path: data.path || '/',\n    client: data.client || '',\n    version: data.version || '0.5.0',\n    timestamp: data.timestamp || new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' }),\n    language: data.language || 'en',\n    referrer: data.referrer || 'direct',\n    screen: data.screen || '',\n    data: data.data || '',\n    eventData: data.eventData || '',\n    ipAddress: ipAddress,\n    userAgent: data.userAgent || '',\n    platform: data.platform || '',\n    deviceType: data.deviceType || ''\n};\n\nconsole.log('📦 Formatted data for processing:', JSON.stringify(formattedData, null, 2));\n\nreturn { json: formattedData };"
             },
-            "id": "cd88f8da-73b0-4a1d-86cb-049f06fe07c0",
+            "id": "996fc1bc-ce08-4d89-a749-9b11e22c8237",
             "name": "Validate Analytics Data",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                -48,
-                112
+                7872,
+                8416
             ]
         },
         {
@@ -1055,13 +1038,13 @@
                     }
                 }
             },
-            "id": "b74b20a6-9eff-4c5c-8207-ac6be5bea24c",
+            "id": "4c469bd6-09ca-4588-b38b-f04e1d52182c",
             "name": "Analytics Only Webhook",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
             "position": [
-                -256,
-                112
+                7664,
+                8416
             ],
             "webhookId": "analytics-only-webhook"
         },
@@ -1071,13 +1054,13 @@
                 "responseBody": "={\n  \"success\": true,\n  \"message\": \"Counter updated successfully\",\n  \"counter\": {{ $json.counter }},\n  \"timestamp\": \"{{ $json.timestamp }}\"\n}",
                 "options": {}
             },
-            "id": "30bf9e8a-2df4-4f3d-ac32-28e17a663caf",
+            "id": "c33a1c53-eb50-423a-ac2e-b54e186e3111",
             "name": "Success Response",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1344,
-                352
+                9264,
+                8656
             ]
         },
         {
@@ -1128,13 +1111,13 @@
                 },
                 "options": {}
             },
-            "id": "8f0755b7-4b94-4f9a-be86-5a7831bf9a43",
+            "id": "b79e78ae-c549-4acf-ba1a-67cf4c2a6ef7",
             "name": "Save Updated Counter",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                848,
-                352
+                8768,
+                8656
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -1147,13 +1130,13 @@
             "parameters": {
                 "jsCode": "// Find the highest counter value from all rows\nconst items = $input.all();\nlet maxCounter = 0;\n\nconsole.log('=== FIND MAX COUNTER ===');\nconsole.log('Total rows:', items.length);\n\n// Go through all rows to find the highest counter\nitems.forEach((item, index) => {\n    const row = item.json;\n    console.log(`Row ${index}:`, row);\n    \n    // Try different possible counter field names (column B)\n    let counterValue = 0;\n    if (row.B) {\n        counterValue = parseInt(row.B) || 0;\n    } else if (row.counter) {\n        counterValue = parseInt(row.counter) || 0;\n    } else if (row.Counter) {\n        counterValue = parseInt(row.Counter) || 0;\n    } else if (row.COUNTER) {\n        counterValue = parseInt(row.COUNTER) || 0;\n    } else if (row[1]) {\n        counterValue = parseInt(row[1]) || 0;\n    }\n    \n    if (counterValue > maxCounter) {\n        maxCounter = counterValue;\n        console.log(`New max counter found: ${maxCounter} in row ${index}`);\n    }\n});\n\nconsole.log(`Final max counter: ${maxCounter}`);\n\n// Increment counter\nconst newCounter = maxCounter + 1;\nconsole.log(`New counter value: ${newCounter}`);\n\n// Format for Google Sheets append (ONLY counter and timestamp)\nconst updateData = {\n    counter: newCounter.toString(),\n    lastUpdate: new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })\n};\n\nconsole.log('Update data:', JSON.stringify(updateData, null, 2));\n\nreturn { json: updateData };"
             },
-            "id": "746111a7-59dc-4365-8924-c9ff59c60042",
+            "id": "6300155e-97b3-403b-9922-558eb6262d51",
             "name": "Update Counter Value",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                640,
-                352
+                8560,
+                8656
             ]
         },
         {
@@ -1174,13 +1157,13 @@
                 },
                 "options": {}
             },
-            "id": "3740b072-a7e7-482e-a1ad-d58f8f2744d1",
+            "id": "84b29f5d-de50-4fd8-a169-5401414f7640",
             "name": "Read Current Counter",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                416,
-                352
+                8336,
+                8656
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -1193,13 +1176,13 @@
             "parameters": {
                 "jsCode": "// Validate counter request\nconst webhookData = $input.first().json;\n\nconsole.log('=== COUNTER WEBHOOK ===');\nconsole.log('Raw webhook data:', JSON.stringify(webhookData, null, 2));\n\n// Extract body from webhook data\nconst data = webhookData.body || webhookData;\n\nconsole.log('Body data:', JSON.stringify(data, null, 2));\n\n// Validate required fields\nif (!data.type) {\n    throw new Error('Missing required field: type');\n}\n\nif (data.type !== 'user_counter') {\n    throw new Error('Invalid type: expected user_counter');\n}\n\nconsole.log('✅ Counter data validation passed');\nconsole.log('Event type:', data.type);\n\n// Format data for processing\nconst formattedData = {\n    type: data.type,\n    path: data.path || '/',\n    client: data.client || '',\n    version: data.version || '0.5.0',\n    timestamp: data.timestamp || new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' }),\n    language: data.language || 'en',\n    referrer: data.referrer || 'direct',\n    screen: data.screen || '',\n    data: data.data || ''\n};\n\nconsole.log('Formatted data for processing:', JSON.stringify(formattedData, null, 2));\n\nreturn { json: formattedData };"
             },
-            "id": "da676c70-f11f-4895-a27d-cc3fef3005db",
+            "id": "6b4b4f4e-66f8-478d-b267-e06db440835a",
             "name": "Validate Counter Data",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                -48,
-                352
+                7872,
+                8656
             ]
         },
         {
@@ -1226,13 +1209,13 @@
                     }
                 }
             },
-            "id": "88abd8af-e539-40ac-a3b5-f73afe3aff06",
+            "id": "503c5084-465b-47cb-8ba0-39ad346e0ab9",
             "name": "Counter Webhook",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
             "position": [
-                -256,
-                352
+                7664,
+                8656
             ],
             "webhookId": "counter-webhook"
         },
@@ -1245,10 +1228,10 @@
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                -336,
-                -64
+                7584,
+                8240
             ],
-            "id": "491fd0cb-9e91-47dc-a84e-a3142bbbd57b",
+            "id": "eb704ea9-3c9f-4586-a239-1956a85fda94",
             "name": "Sticky Note"
         },
         {
@@ -1260,10 +1243,10 @@
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                -336,
-                688
+                7584,
+                8992
             ],
-            "id": "c8522ab7-0f61-48b9-b5be-e8408d37e458",
+            "id": "e04143e6-b064-40a1-afaf-86c6a8001b82",
             "name": "Sticky Note1"
         },
         {
@@ -1375,13 +1358,13 @@
                 },
                 "options": {}
             },
-            "id": "1560361c-3a28-4246-8d5c-8c159184f68f",
+            "id": "1b323fbd-fd17-482f-b421-24134b6ef00d",
             "name": "Save Audit Log1",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                2448,
-                1024
+                10368,
+                9328
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -1394,26 +1377,26 @@
             "parameters": {
                 "jsCode": "// Success Response\nconst auditData = $input.first().json;\n\nconsole.log('=== AUDIT LOG SUCCESS ===');\nconsole.log('Audit data:', JSON.stringify(auditData, null, 2));\n\nconst successResponse = {\n  success: true,\n  message: 'Audit log entry created successfully',\n  event: auditData.event,\n  timestamp: auditData.timestamp,\n  auditId: auditData.timestamp\n};\n\nconsole.log('Success response:', JSON.stringify(successResponse, null, 2));\n\nreturn { json: successResponse };"
             },
-            "id": "a1bc1d67-0dd5-4f83-8d35-dc7b914b227a",
+            "id": "38273de7-8c35-4eac-8717-439beeaceb76",
             "name": "Audit Success Response",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                2672,
-                1024
+                10592,
+                9328
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Accounting Audit Log Processing\nconst webhookData = $input.first().json;\n\nconsole.log('=== ACCOUNTING AUDIT LOG ===');\nconsole.log('Raw webhook data:', JSON.stringify(webhookData, null, 2));\n\n// Extract body from webhook data\nconst data = webhookData.body || webhookData;\n\nconsole.log('=== AUDIT LOG DATA ===');\nconsole.log('Event:', data?.event);\nconsole.log('UserId:', data?.userId);\nconsole.log('Email:', data?.email);\nconsole.log('Client Fingerprint:', data?.clientFingerprint);\nconsole.log('Session ID:', data?.sessionId);\nconsole.log('Timestamp:', data?.timestamp);\nconsole.log('Details:', data?.details);\n\n// Validate audit log data\nif (!data?.event) {\n  console.log('❌ Missing event field');\n  throw new Error('Missing required field: event');\n}\n\nif (!data?.timestamp) {\n  console.log('❌ Missing timestamp field');\n  throw new Error('Missing required field: timestamp');\n}\n\n// Sanitize and prepare audit log data\nconst auditLogData = {\n  event: data.event,\n  timestamp: data.timestamp,\n  userId: data.userId || 'anonymous',\n  email: data.email || '',\n  clientFingerprint: data.clientFingerprint || '',\n  sessionId: data.sessionId || '',\n  details: data.details || {},\n  accountingEvent: data.accountingEvent || false,\n  sessionId: data.sessionId || '',\n  tier: data.tier || 'free',\n  action: data.action || data.event,\n  workflow: 'accounting_audit_log'\n};\n\nconsole.log('✅ Audit log data validation passed');\nconsole.log('Sanitized audit log data:', JSON.stringify(auditLogData, null, 2));\n\nreturn { json: auditLogData };"
             },
-            "id": "9d0a162c-3723-43fd-ac55-d323c4ee9909",
+            "id": "617124fa-ae69-403f-bf2b-945414f7ee47",
             "name": "Audit Log Processing",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                2224,
-                1024
+                10144,
+                9328
             ]
         },
         {
@@ -1444,13 +1427,13 @@
                     }
                 }
             },
-            "id": "216c494e-604c-41e6-9f0d-061fded21753",
+            "id": "b68d55cc-0855-490d-8eb1-74a041988f4f",
             "name": "Accounting Audit Log",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
             "position": [
-                2000,
-                1024
+                9920,
+                9328
             ],
             "webhookId": "accounting-audit-log"
         },
@@ -1463,10 +1446,10 @@
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                1936,
-                832
+                9856,
+                9136
             ],
-            "id": "a8ad6f60-ff4b-492e-9489-3dee2cec19ab",
+            "id": "a9dccf6c-2b00-40d3-b60c-0518dd7eaa96",
             "name": "Audit Log Note"
         },
         {
@@ -1478,10 +1461,10 @@
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                -336,
-                -496
+                7584,
+                7808
             ],
-            "id": "bd2e1c4b-6bc8-4e5e-8edf-25d3db9ca5f4",
+            "id": "d6979822-9200-4b86-b5d6-d7a4e2f7335a",
             "name": "Sticky Note7"
         },
         {
@@ -1507,10 +1490,10 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1.1,
             "position": [
-                1344,
-                -368
+                9264,
+                7936
             ],
-            "id": "7174f5d7-bcb1-4ce6-a360-b6fee58c127c",
+            "id": "26d84461-f51b-4ede-b2cb-590746a78401",
             "name": "Respond to Webhook"
         },
         {
@@ -1706,10 +1689,10 @@
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.5,
             "position": [
-                544,
-                -368
+                8464,
+                7936
             ],
-            "id": "5a5e07ce-6d9d-45ee-bfab-7aa333738359",
+            "id": "64466b60-e837-4509-887f-faa252e14d13",
             "name": "Append row in sheet",
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -1739,10 +1722,10 @@
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.5,
             "position": [
-                -64,
-                -368
+                7856,
+                7936
             ],
-            "id": "277f90fd-a064-4a7f-a592-c934dff0dac5",
+            "id": "f135cdca-c16c-4257-9a52-57c2a3a9c307",
             "name": "Get All Rows",
             "alwaysOutputData": true,
             "credentials": {
@@ -1779,10 +1762,10 @@
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2,
             "position": [
-                -256,
-                -368
+                7664,
+                7936
             ],
-            "id": "4b50f808-7938-4f79-9ff8-3a70a56dc54a",
+            "id": "c6b9de80-4c0a-4abe-8c17-fc2f39f4f305",
             "name": "GETCounter",
             "webhookId": "dee6669d-ef38-4792-a21d-ac64eac3d132"
         },
@@ -1793,10 +1776,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                144,
-                -368
+                8064,
+                7936
             ],
-            "id": "5c217cfb-8e21-4c25-b7a6-5e7da31c0bf8",
+            "id": "bc218ca2-6c9d-4fd3-9e5d-b17ed339338c",
             "name": "Find Max Counter1"
         },
         {
@@ -1806,10 +1789,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                320,
-                -368
+                8240,
+                7936
             ],
-            "id": "ab2d2c4d-be56-4799-9182-1579545d063c",
+            "id": "0b79ad74-2288-4b6e-bf57-8e256a4c8728",
             "name": "Process Counter"
         },
         {
@@ -1821,10 +1804,10 @@
             "type": "n8n-nodes-base.stripe",
             "typeVersion": 1,
             "position": [
-                400,
-                1728
+                8320,
+                10032
             ],
-            "id": "b615383a-2f0d-4c5f-84e5-06fee6797cb6",
+            "id": "e25413a9-34fb-49fd-9997-017fb152c2a6",
             "name": "Create a customer",
             "credentials": {
                 "stripeApi": {
@@ -1843,23 +1826,23 @@
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                -336,
-                4304
+                7584,
+                12608
             ],
-            "id": "95e3ca29-ceae-43fe-b3ca-3f12459d9875",
+            "id": "9db10b9d-052f-4079-8664-1cd3b7d3c7a6",
             "name": "Sticky Note6"
         },
         {
             "parameters": {
                 "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.email) {\n  throw new Error('Missing required fields: action, email');\n}\n\n// Validate action\nconst validActions = ['send'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be: send');\n}\n\n// Validate template\nconst validTemplates = ['welcome', 'subscription', 'payment', 'support'];\nif (!validTemplates.includes(data.template)) {\n  throw new Error('Invalid template. Must be one of: welcome, subscription, payment, support');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId || '',\n  email: data.email,\n  template: data.template,\n  data: data.data || {}\n};\n\nreturn { json: sanitizedData };"
             },
-            "id": "bc82fceb-923b-40cb-8473-00ec591937b0",
+            "id": "4a9d8649-6a7b-4b74-9f0f-4d2a55c89274",
             "name": "Validate Data6",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                -64,
-                4480
+                7856,
+                12784
             ]
         },
         {
@@ -1868,65 +1851,65 @@
                 "responseBody": "={\n  \"success\": true,\n  \"messageId\": \"{{ $json.messageId || 'sent' }}\",\n  \"sentAt\": \"{{ new Date().toISOString() }}\",\n  \"to\": \"{{ $json.to }}\",\n  \"template\": \"{{ $json.template }}\"\n}",
                 "options": {}
             },
-            "id": "d98c78a0-f37d-4f06-aefe-79f2dc9d4cc1",
+            "id": "944f370f-f14b-4fde-9ff9-b5986003ab96",
             "name": "Email Response",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                832,
-                4480
+                8752,
+                12784
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Support email template\nconst data = $input.first().json;\n\nconst emailData = {\n  to: data.email,\n  subject: 'Support Request Received - Keymoji 🆘',\n  html: `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h1 style=\"color: #f59e0b;\">Support Request Received</h1>\n      <p>Hi there! 📧</p>\n      <p>We've received your support request and will get back to you soon.</p>\n      <p>Request Details:</p>\n      <ul>\n        <li>Subject: {{ data.data.subject || 'Support Request' }}</li>\n        <li>Priority: {{ data.data.priority || 'Normal' }}</li>\n        <li>Ticket ID: {{ data.data.ticketId || 'N/A' }}</li>\n      </ul>\n      <p>We typically respond within 24 hours.</p>\n      <p>Thank you for your patience!</p>\n      <p>Best regards,<br>The Keymoji Support Team</p>\n    </div>\n  `,\n  text: `Support request received. We'll get back to you within 24 hours.`\n};\n\nreturn { json: emailData };"
             },
-            "id": "c8eaa991-ee5b-4565-9333-b31f77612b5c",
+            "id": "9dd95c80-d313-4e8b-bcd1-5866090520b8",
             "name": "Support Template",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                384,
-                4672
+                8304,
+                12976
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Payment email template\nconst data = $input.first().json;\n\nconst emailData = {\n  to: data.email,\n  subject: 'Payment Received - Keymoji Pro 💳',\n  html: `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h1 style=\"color: #f59e0b;\">Payment Confirmed!</h1>\n      <p>Hi there! ✅</p>\n      <p>We've received your payment for Keymoji Pro.</p>\n      <p>Payment Details:</p>\n      <ul>\n        <li>Amount: ${{ data.data.amount || '9.99' }}</li>\n        <li>Plan: Keymoji Pro</li>\n        <li>Date: {{ new Date().toLocaleDateString() }}</li>\n      </ul>\n      <p>Your subscription is now active!</p>\n      <a href=\"https://keymoji.wtf\" style=\"background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;\">Access Pro Features</a>\n      <p>Best regards,<br>The Keymoji Team</p>\n    </div>\n  `,\n  text: `Payment confirmed for Keymoji Pro. Your subscription is now active!`\n};\n\nreturn { json: emailData };"
             },
-            "id": "20e8763b-2374-4168-971f-70c665d8ab6c",
+            "id": "0a21f46c-7898-44b9-90c9-a93be40c9aa8",
             "name": "Payment Template",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                384,
-                4576
+                8304,
+                12880
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Subscription email template\nconst data = $input.first().json;\n\nconst emailData = {\n  to: data.email,\n  subject: 'Your Keymoji Subscription is Active! ⭐',\n  html: `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h1 style=\"color: #f59e0b;\">Subscription Activated!</h1>\n      <p>Hi there! 🎉</p>\n      <p>Your Keymoji Pro subscription is now active!</p>\n      <p>You now have access to:</p>\n      <ul>\n        <li>Unlimited emoji generation</li>\n        <li>Advanced analytics</li>\n        <li>Story mode (coming soon)</li>\n        <li>Priority support</li>\n      </ul>\n      <p>Thank you for supporting Keymoji!</p>\n      <a href=\"https://keymoji.wtf\" style=\"background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;\">Start Using Pro Features</a>\n      <p>Best regards,<br>The Keymoji Team</p>\n    </div>\n  `,\n  text: `Your Keymoji Pro subscription is now active! Enjoy unlimited emoji generation and advanced features.`\n};\n\nreturn { json: emailData };"
             },
-            "id": "ef4c186b-ed4c-4705-aa2e-a101178fc4c9",
+            "id": "18f63bc1-87f5-48a7-84a5-27b7b07fe2ae",
             "name": "Subscription Template",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                384,
-                4480
+                8304,
+                12784
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Welcome email template\nconst data = $input.first().json;\n\nconst emailData = {\n  to: data.email,\n  subject: 'Welcome to Keymoji! 🎉',\n  html: `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h1 style=\"color: #f59e0b;\">Welcome to Keymoji!</h1>\n      <p>Hi there! 👋</p>\n      <p>Thank you for joining Keymoji - the fun and secure emoji password generator!</p>\n      <p>With Keymoji, you can:</p>\n      <ul>\n        <li>Generate secure emoji passwords</li>\n        <li>Create memorable passphrases</li>\n        <li>Stay safe online with unique combinations</li>\n      </ul>\n      <p>Start generating your first emoji password now!</p>\n      <a href=\"https://keymoji.wtf\" style=\"background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;\">Get Started</a>\n      <p>Best regards,<br>The Keymoji Team</p>\n    </div>\n  `,\n  text: `Welcome to Keymoji! Thank you for joining us. Start generating secure emoji passwords at https://keymoji.wtf`\n};\n\nreturn { json: emailData };"
             },
-            "id": "567b0852-c34e-4a7f-8bab-338346ea2965",
+            "id": "78b6a6f2-9746-4801-bf8d-691d6c514271",
             "name": "Welcome Template",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                384,
-                4368
+                8304,
+                12672
             ]
         },
         {
@@ -1952,13 +1935,13 @@
                 },
                 "options": {}
             },
-            "id": "ee8ff6ba-505f-42a4-bca7-0e363bb3bd73",
+            "id": "199e5bd8-5ab7-431a-a954-24448552baf7",
             "name": "Route by Template",
             "type": "n8n-nodes-base.if",
             "typeVersion": 2,
             "position": [
-                176,
-                4480
+                8096,
+                12784
             ]
         },
         {
@@ -1970,13 +1953,13 @@
                     "allowedOrigins": "*"
                 }
             },
-            "id": "c9192808-e949-4181-9e95-ae549b4b69d3",
+            "id": "017c3f99-2db6-43fe-ab42-88c7395a2f36",
             "name": "Email Webhook",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
             "position": [
-                -272,
-                4480
+                7648,
+                12784
             ],
             "webhookId": "email-webhook",
             "disabled": true
@@ -1990,10 +1973,10 @@
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                -336,
-                3648
+                7584,
+                11952
             ],
-            "id": "18e1d09a-019d-42c7-9949-9ccd1554e4b8",
+            "id": "2306bffa-1675-4c3d-a638-27c4d95c5cb2",
             "name": "Sticky Note5"
         },
         {
@@ -2019,26 +2002,26 @@
                 },
                 "options": {}
             },
-            "id": "d5aabf64-c512-4ec6-958e-50bb144ac2d4",
+            "id": "b1ce4d9a-4398-4ca4-a134-edf8fad027d1",
             "name": "Route by Action4",
             "type": "n8n-nodes-base.if",
             "typeVersion": 2,
             "position": [
-                416,
-                3856
+                8336,
+                12160
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId || !data.testName) {\n  throw new Error('Missing required fields: action, userId, testName');\n}\n\n// Validate action\nconst validActions = ['assign', 'track', 'get_results'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: assign, track, get_results');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  testName: data.testName,\n  variant: data.variant || '',\n  conversion: data.conversion || false,\n  event: data.event || ''\n};\n\nreturn { json: sanitizedData };"
             },
-            "id": "67c7008e-ac71-499b-b7e6-8f19cb7b1431",
+            "id": "425e1545-0b90-41ad-9c3c-691d19cc343c",
             "name": "Validate Data5",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                -32,
-                3856
+                7888,
+                12160
             ]
         },
         {
@@ -2047,13 +2030,13 @@
                 "responseBody": "={\n  \"success\": true,\n  \"test\": {\n    \"name\": \"{{ $json.testName }}\",\n    \"results\": {{ $json.results }}\n  },\n  \"message\": \"A/B test results retrieved\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
                 "options": {}
             },
-            "id": "ecc3b82c-5163-41aa-80b0-08ea48e7310b",
+            "id": "b8354235-a678-4d72-9f8e-7e9428f21a3c",
             "name": "Results Response",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1072,
-                3952
+                8992,
+                12256
             ]
         },
         {
@@ -2062,39 +2045,39 @@
                 "responseBody": "={\n  \"success\": true,\n  \"test\": {\n    \"name\": \"{{ $json.testName }}\",\n    \"variant\": \"{{ $json.variant }}\",\n    \"assignedAt\": \"{{ $json.assignedAt }}\"\n  },\n  \"message\": \"Variant assigned successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
                 "options": {}
             },
-            "id": "4c44fb7d-41ad-4074-899d-e9f7ee4ae4bf",
+            "id": "8dc8047f-de95-4362-b4d5-06d5f568370d",
             "name": "Assign Response",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1072,
-                3744
+                8992,
+                12048
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Get A/B test results\nconst data = $input.first().json;\nconst abTests = $input.all();\nconst testName = data.testName;\n\n// Filter tests for this test name\nconst testResults = abTests.filter(test => test.testName === testName);\n\n// Calculate results by variant\nconst results = {\n  A: { participants: 0, conversions: 0, conversionRate: 0 },\n  B: { participants: 0, conversions: 0, conversionRate: 0 }\n};\n\n// Aggregate results\nfor (const test of testResults) {\n  const variant = test.variant;\n  results[variant].participants++;\n  if (test.conversion) {\n    results[variant].conversions++;\n  }\n}\n\n// Calculate conversion rates\nfor (const variant in results) {\n  if (results[variant].participants > 0) {\n    results[variant].conversionRate = \n      (results[variant].conversions / results[variant].participants) * 100;\n  }\n}\n\nreturn { json: { testName, results } };"
             },
-            "id": "f8d2b378-4a2d-412a-b15c-1f37324ece8a",
+            "id": "e81930c1-e8bf-44de-a12e-60ed033e50d5",
             "name": "Calculate Results",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                848,
-                3952
+                8768,
+                12256
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Track A/B test event\nconst data = $input.first().json;\nconst abTests = $input.all();\nconst userId = data.userId;\nconst testName = data.testName;\nconst event = data.event;\nconst conversion = data.conversion;\n\n// Find user's test\nconst userTest = abTests.find(test => \n  test.userId === userId && test.testName === testName\n);\n\nif (!userTest) {\n  throw new Error('A/B test not found for user');\n}\n\n// Update test with event\nconst updatedTest = {\n  ...userTest,\n  conversion: userTest.conversion || conversion,\n  events: [...(userTest.events || []), {\n    event,\n    conversion,\n    timestamp: new Date().toISOString()\n  }]\n};\n\nreturn { json: updatedTest };"
             },
-            "id": "6d32fc6e-e626-4ffa-b341-329547beee76",
+            "id": "fcb3300a-171e-41fb-9dcf-074c75cbc105",
             "name": "Track Event",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                624,
-                3952
+                8544,
+                12256
             ]
         },
         {
@@ -2124,13 +2107,13 @@
                 },
                 "options": {}
             },
-            "id": "a8c34038-1c6c-4693-8997-569c4f3379cd",
+            "id": "34ee7208-fc9d-4a3b-910a-b63818c4271c",
             "name": "Save Assignment",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                848,
-                3744
+                8768,
+                12048
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -2143,13 +2126,13 @@
             "parameters": {
                 "jsCode": "// Assign A/B test variant\nconst data = $input.first().json;\nconst abTests = $input.all();\nconst userId = data.userId;\nconst testName = data.testName;\n\n// Check if user already has a variant for this test\nconst existingTest = abTests.find(test => \n  test.userId === userId && test.testName === testName\n);\n\nif (existingTest) {\n  // User already has a variant\n  return { json: { userId, testName, variant: existingTest.variant } };\n}\n\n// Assign new variant (A or B)\nconst variant = Math.random() < 0.5 ? 'A' : 'B';\n\n// Create new test assignment\nconst newTest = {\n  userId,\n  testName,\n  variant,\n  assignedAt: new Date().toISOString(),\n  conversion: false,\n  events: []\n};\n\nreturn { json: newTest };"
             },
-            "id": "d2829bcb-38e6-471c-a3d2-1ff7ec3883be",
+            "id": "89d2ffd3-d139-4d9d-8807-f7e4ac076f5d",
             "name": "Assign Variant",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                624,
-                3744
+                8544,
+                12048
             ]
         },
         {
@@ -2170,13 +2153,13 @@
                 },
                 "options": {}
             },
-            "id": "0464d236-3149-42e6-82f8-fe8539fb6b18",
+            "id": "da9ec25e-e3b8-4719-b191-cb0023574530",
             "name": "Read A/B Tests",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                192,
-                3856
+                8112,
+                12160
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -2194,13 +2177,13 @@
                     "allowedOrigins": "*"
                 }
             },
-            "id": "f6ccb35c-aee3-4d59-91fb-cacadf25cc91",
+            "id": "6ef8cd5c-cb80-427e-9069-b81726a79fcb",
             "name": "A/B Test Webhook",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
             "position": [
-                -256,
-                3856
+                7664,
+                12160
             ],
             "webhookId": "ab-test-webhook",
             "disabled": true
@@ -2214,10 +2197,10 @@
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                -336,
-                2992
+                7584,
+                11296
             ],
-            "id": "e5547394-1cd0-479e-bc74-b6d14f15472b",
+            "id": "3f6135b5-80c8-4ce1-b1dc-e3d48038bc04",
             "name": "Sticky Note4"
         },
         {
@@ -2243,26 +2226,26 @@
                 },
                 "options": {}
             },
-            "id": "0bcf8acb-a7f1-413e-a90c-390672e801db",
+            "id": "f8142d9b-b95d-464c-9c73-758ec0004c22",
             "name": "Route by Action3",
             "type": "n8n-nodes-base.if",
             "typeVersion": 2,
             "position": [
-                656,
-                3136
+                8576,
+                11440
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId) {\n  throw new Error('Missing required fields: action, userId');\n}\n\n// Validate action\nconst validActions = ['track', 'get', 'reset'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: track, get, reset');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  feature: data.feature || 'emoji_generation',\n  usage: parseInt(data.usage) || 1,\n  period: data.period || 'daily'\n};\n\nreturn { json: sanitizedData };"
             },
-            "id": "9bb06c77-3c05-4e7f-9ac1-bbc23af6585e",
+            "id": "ec4c1a0b-7dc3-4bee-ac41-5304f877a42c",
             "name": "Validate Data4",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                -16,
-                3136
+                7904,
+                11440
             ]
         },
         {
@@ -2271,13 +2254,13 @@
                 "responseBody": "={\n  \"success\": true,\n  \"usage\": {\n    \"current\": {{ $json.currentUsage }},\n    \"limit\": {{ $json.limit }},\n    \"remaining\": {{ $json.limit - $json.currentUsage }},\n    \"resetDate\": \"{{ new Date(Date.now() + 24*60*60*1000).toISOString() }}\"\n  },\n  \"message\": \"Usage retrieved successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
                 "options": {}
             },
-            "id": "e4f08312-0f60-4844-b89b-335b025b8a66",
+            "id": "1a9ba491-f20d-49ad-baf8-8101feb96c0e",
             "name": "Get Usage Response",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                656,
-                3392
+                8576,
+                11696
             ]
         },
         {
@@ -2286,13 +2269,13 @@
                 "responseBody": "={\n  \"success\": true,\n  \"usage\": {\n    \"current\": {{ $json.usage }},\n    \"limit\": {{ $json.limit }},\n    \"remaining\": {{ $json.limit - $json.usage }},\n    \"resetDate\": \"{{ new Date(Date.now() + 24*60*60*1000).toISOString() }}\"\n  },\n  \"limitExceeded\": {{ $json.limitExceeded }},\n  \"message\": \"Usage tracked successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
                 "options": {}
             },
-            "id": "942dfa65-7d79-4598-a6f4-08df39f0fbbc",
+            "id": "4ee2c760-5550-4b0f-bf40-26bf6199b5f3",
             "name": "Track Response",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1312,
-                3024
+                9232,
+                11328
             ]
         },
         {
@@ -2322,13 +2305,13 @@
                 },
                 "options": {}
             },
-            "id": "c448ab9c-ce10-44fb-9a23-7a9d8072ce96",
+            "id": "233ae293-79d8-4350-9d63-c10979ed3c2a",
             "name": "Save Usage",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                1088,
-                3024
+                9008,
+                11328
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -2341,26 +2324,26 @@
             "parameters": {
                 "jsCode": "// Track usage\nconst data = $input.first().json;\nconst usage = data.usage;\nconst currentUsage = data.currentUsage;\nconst newUsage = currentUsage + usage;\n\n// Check if limit exceeded\nconst limitExceeded = newUsage > data.limit;\n\n// Update usage data\nconst updatedUsage = {\n  userId: data.userId,\n  feature: data.feature,\n  period: data.period,\n  tier: data.tier,\n  usage: newUsage,\n  limit: data.limit,\n  lastUpdated: new Date().toISOString()\n};\n\nreturn { json: { ...updatedUsage, limitExceeded } };"
             },
-            "id": "d333d4ec-e37d-4da6-b791-7625fb0cc5e0",
+            "id": "cb7c3d53-8887-4dc8-85be-37ace0dcde59",
             "name": "Track Usage",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                864,
-                3024
+                8784,
+                11328
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Process usage data\nconst data = $input.first().json;\nconst usageData = $input.all();\nconst userId = data.userId;\nconst feature = data.feature;\nconst period = data.period;\n\n// Find user's usage for this feature and period\nconst userUsage = usageData.find(u => \n  u.userId === userId && \n  u.feature === feature && \n  u.period === period\n);\n\n// Default limits based on feature\nconst limits = {\n  emoji_generation: { free: 10, pro: 100, experimental: 1000 },\n  story_generation: { free: 3, pro: 50, experimental: 500 },\n  analytics: { free: 5, pro: 100, experimental: 1000 }\n};\n\n// Get user tier (default to free)\nconst tier = userUsage?.tier || 'free';\nconst limit = limits[feature]?.[tier] || 10;\n\nreturn { json: { userId, feature, period, tier, limit, currentUsage: userUsage?.usage || 0 } };"
             },
-            "id": "c1b13ea6-edd1-4885-9951-95fe35d425fc",
+            "id": "c4928aee-bb3b-4985-b27a-297c8fedec98",
             "name": "Process Usage",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                432,
-                3136
+                8352,
+                11440
             ]
         },
         {
@@ -2381,13 +2364,13 @@
                 },
                 "options": {}
             },
-            "id": "de4a77e1-ed7a-4139-a46f-8285eba89573",
+            "id": "70995e74-fc2f-41f9-abd7-49036bcb5a18",
             "name": "Read Usage Data",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                208,
-                3136
+                8128,
+                11440
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -2405,13 +2388,13 @@
                     "allowedOrigins": "*"
                 }
             },
-            "id": "6b074f19-9949-4c23-9546-db1da8b3c92c",
+            "id": "b766eea5-a2c1-47e1-a067-58f5d1cc5f6d",
             "name": "Usage Webhook",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
             "position": [
-                -240,
-                3136
+                7680,
+                11440
             ],
             "webhookId": "usage-webhook",
             "disabled": true
@@ -2425,10 +2408,10 @@
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                -336,
-                2224
+                7584,
+                10528
             ],
-            "id": "268944e6-4253-462a-b0fd-42a2f2064e52",
+            "id": "39f112ff-28ad-44bc-851d-a9471124f093",
             "name": "Sticky Note3"
         },
         {
@@ -2454,26 +2437,26 @@
                 },
                 "options": {}
             },
-            "id": "40533aa3-0b6e-4d1f-b71b-001ac614f637",
+            "id": "7662589d-0cbc-4197-b677-8f0a088c4a6c",
             "name": "Route by Action2",
             "type": "n8n-nodes-base.if",
             "typeVersion": 2,
             "position": [
-                656,
-                2448
+                8576,
+                10752
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId) {\n  throw new Error('Missing required fields: action, userId');\n}\n\n// Validate action\nconst validActions = ['get_flags', 'update_flags'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: get_flags, update_flags');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  tier: data.tier || 'free',\n  features: data.features || {}\n};\n\nreturn { json: sanitizedData };"
             },
-            "id": "b89e1e17-6fb4-4019-9825-143c197fd3d1",
+            "id": "ce569673-2091-456b-aa62-c42d3d3fac39",
             "name": "Validate Data3",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                -16,
-                2448
+                7904,
+                10752
             ]
         },
         {
@@ -2482,13 +2465,13 @@
                 "responseBody": "={\n  \"success\": true,\n  \"features\": {{ $json.features }},\n  \"tier\": \"{{ $json.tier }}\",\n  \"message\": \"Feature flags updated successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
                 "options": {}
             },
-            "id": "a05292f3-308f-4e45-9f0c-0ea6fff755d5",
+            "id": "1a4e4bb6-177d-4766-bb57-537e1ba66cb2",
             "name": "Update Features Response",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1312,
-                2336
+                9232,
+                10640
             ]
         },
         {
@@ -2497,13 +2480,13 @@
                 "responseBody": "={\n  \"success\": true,\n  \"features\": {{ $json.features }},\n  \"tier\": \"{{ $json.tier }}\",\n  \"message\": \"Feature flags retrieved successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
                 "options": {}
             },
-            "id": "77b93e53-e322-4972-8a5e-45f65621ffd9",
+            "id": "d58b4bc5-9c2d-4a74-8323-81c7f7229d2a",
             "name": "Get Features Response",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                656,
-                2688
+                8576,
+                10992
             ]
         },
         {
@@ -2533,13 +2516,13 @@
                 },
                 "options": {}
             },
-            "id": "cd67bc38-ec21-45e5-96dc-eefa4391adbb",
+            "id": "65f0580d-c40e-4739-ad44-8ec539948fe2",
             "name": "Save Feature Flags",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                1088,
-                2336
+                9008,
+                10640
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -2552,26 +2535,26 @@
             "parameters": {
                 "jsCode": "// Update feature flags\nconst data = $input.first().json;\nconst updates = data.features;\n\n// Merge with existing flags\nconst updatedFlags = {\n  ...data.features,\n  ...updates,\n  updatedAt: new Date().toISOString()\n};\n\nreturn { json: { userId: data.userId, tier: data.tier, features: updatedFlags } };"
             },
-            "id": "0f9a639c-b3de-4fca-b5ec-ff87d57b2032",
+            "id": "d78d896a-ac72-4a48-a791-a76f5b188275",
             "name": "Update Feature Flags",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                864,
-                2336
+                8784,
+                10640
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Get user's feature flags\nconst data = $input.first().json;\nconst features = $input.all();\nconst userId = data.userId;\nconst tier = data.tier;\n\n// Find user's feature flags\nconst userFeatures = features.find(f => f.userId === userId);\n\n// Default feature flags based on tier\nconst defaultFlags = {\n  free: {\n    STORY_MODE: false,\n    ADVANCED_ANALYTICS: false,\n    NO_DAILY_LIMIT: false,\n    CUSTOM_EMOJIS: false,\n    EXPORT_HISTORY: false,\n    PRIORITY_SUPPORT: false\n  },\n  pro: {\n    STORY_MODE: true,\n    ADVANCED_ANALYTICS: true,\n    NO_DAILY_LIMIT: true,\n    CUSTOM_EMOJIS: false,\n    EXPORT_HISTORY: true,\n    PRIORITY_SUPPORT: false\n  },\n  experimental: {\n    STORY_MODE: true,\n    ADVANCED_ANALYTICS: true,\n    NO_DAILY_LIMIT: true,\n    CUSTOM_EMOJIS: true,\n    EXPORT_HISTORY: true,\n    PRIORITY_SUPPORT: true\n  }\n};\n\n// Return user's flags or default based on tier\nconst flags = userFeatures?.featureFlags || defaultFlags[tier] || defaultFlags.free;\n\nreturn { json: { userId, tier, features: flags } };"
             },
-            "id": "035b9cb0-dbc7-4d0a-9ac9-2cd5de3c6a31",
+            "id": "41a9309b-e999-4278-8345-430ea3db2912",
             "name": "Process Feature Flags",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                432,
-                2448
+                8352,
+                10752
             ]
         },
         {
@@ -2592,13 +2575,13 @@
                 },
                 "options": {}
             },
-            "id": "2318c8b2-cf3d-4cd0-8313-a87375c5e71d",
+            "id": "009b5aa3-0f9e-49bf-8c34-9cea25de9f85",
             "name": "Read Feature Flags",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                208,
-                2448
+                8128,
+                10752
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -2616,13 +2599,13 @@
                     "allowedOrigins": "*"
                 }
             },
-            "id": "5b571eec-c59f-445b-bd43-34231cc0dccd",
+            "id": "56817a8f-f07f-46d2-bc00-48a2dff85306",
             "name": "Feature Flags Webhook",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
             "position": [
-                -240,
-                2448
+                7680,
+                10752
             ],
             "webhookId": "feature-flags-webhook",
             "disabled": true
@@ -2636,10 +2619,10 @@
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                -336,
-                1632
+                7584,
+                9936
             ],
-            "id": "cb662cca-79bf-464e-967c-da49934a6112",
+            "id": "279f5529-7cee-488c-8887-f236c8e59ba6",
             "name": "Sticky Note2"
         },
         {
@@ -2648,13 +2631,13 @@
                 "responseBody": "={\n  \"success\": true,\n  \"subscription\": {\n    \"id\": \"{{ $json.subscriptionId }}\",\n    \"status\": \"{{ $json.status }}\",\n    \"plan\": \"{{ $json.plan }}\",\n    \"currentPeriodEnd\": \"{{ $json.currentPeriodEnd }}\",\n    \"cancelAtPeriodEnd\": {{ $json.cancelAtPeriodEnd }}\n  },\n  \"message\": \"Subscription retrieved successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
                 "options": {}
             },
-            "id": "285b637e-0bad-4249-a33f-4c66ff83ea63",
+            "id": "e97e01b5-7100-4c46-b80e-1de486d36f0b",
             "name": "Get Response1",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1072,
-                1936
+                8992,
+                10240
             ]
         },
         {
@@ -2680,26 +2663,26 @@
                 },
                 "options": {}
             },
-            "id": "9fc24244-964f-4fd1-b7ac-bd49472dec42",
+            "id": "3a274e20-64e0-4bdb-9610-74cae1f57a80",
             "name": "Route by Action1",
             "type": "n8n-nodes-base.if",
             "typeVersion": 2,
             "position": [
-                192,
-                1840
+                8112,
+                10144
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId) {\n  throw new Error('Missing required fields: action, userId');\n}\n\n// Validate action\nconst validActions = ['create', 'cancel', 'update', 'get'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: create, cancel, update, get');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  stripeCustomerId: data.stripeCustomerId || '',\n  subscriptionId: data.subscriptionId || '',\n  plan: data.plan || 'pro',\n  paymentMethod: data.paymentMethod || ''\n};\n\nreturn { json: sanitizedData };"
             },
-            "id": "c455bdd4-386e-4f73-b429-97023446b627",
+            "id": "71a6f539-9061-4214-b891-3a7a57d735b8",
             "name": "Validate Data2",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                -48,
-                1840
+                7872,
+                10144
             ]
         },
         {
@@ -2708,37 +2691,37 @@
                 "responseBody": "={\n  \"success\": true,\n  \"subscription\": {\n    \"id\": \"{{ $json.id }}\",\n    \"status\": \"canceled\",\n    \"plan\": \"{{ $json.plan }}\",\n    \"cancelAtPeriodEnd\": true\n  },\n  \"message\": \"Subscription canceled successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
                 "options": {}
             },
-            "id": "2e75d55d-90c9-407f-9eac-d71cd7d2388c",
+            "id": "83fc2b30-c9c2-4f1a-aeee-2ee303b5181d",
             "name": "Cancel Response",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1072,
-                1936
+                8992,
+                10240
             ]
         },
         {
             "parameters": {},
-            "id": "2fd26b72-b8da-41f3-88db-1d756b615686",
+            "id": "9719d1c6-e3b7-44a2-bbc0-57bb38818fed",
             "name": "Cancel Stripe Subscription",
             "type": "n8n-nodes-base.stripe",
             "typeVersion": 2,
             "position": [
-                848,
-                1936
+                8768,
+                10240
             ]
         },
         {
             "parameters": {
                 "jsCode": "// Find subscription by userId\nconst data = $input.first().json;\nconst subscriptions = $input.all();\nconst userId = data.userId;\n\n// Find subscription\nconst subscription = subscriptions.find(sub => sub.userId === userId);\n\nif (!subscription) {\n  throw new Error('Subscription not found');\n}\n\nreturn { json: subscription };"
             },
-            "id": "af094ca5-e5ae-4156-811f-f8b8d008a170",
+            "id": "c70e08c2-4ff2-42dd-b681-adbcd6878d45",
             "name": "Find Subscription",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                624,
-                1936
+                8544,
+                10240
             ]
         },
         {
@@ -2759,13 +2742,13 @@
                 },
                 "options": {}
             },
-            "id": "3d000845-aac0-4112-acef-77ccd19608a2",
+            "id": "f01e983b-e55c-4c5e-811e-1609e64dd43b",
             "name": "Read Subscriptions",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                400,
-                1936
+                8320,
+                10240
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -2801,13 +2784,13 @@
                 },
                 "options": {}
             },
-            "id": "53b3492c-e7c5-4833-ac55-fb6ee70af4d9",
+            "id": "15dcd527-c8e0-46b1-b4d2-8b4be91b65ce",
             "name": "Save Subscription",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4,
             "position": [
-                848,
-                1728
+                8768,
+                10032
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -2818,13 +2801,13 @@
         },
         {
             "parameters": {},
-            "id": "c5aa5db2-e019-400f-8746-7818b8830c9a",
+            "id": "a0154a30-166e-4fea-943f-fa6a523a9330",
             "name": "Create Stripe Subscription",
             "type": "n8n-nodes-base.stripe",
             "typeVersion": 2,
             "position": [
-                624,
-                1728
+                8544,
+                10032
             ]
         },
         {
@@ -2836,13 +2819,13 @@
                     "allowedOrigins": "*"
                 }
             },
-            "id": "6a7b23d4-2c16-48a1-a871-2322bd002f65",
+            "id": "f382ade2-c86f-451c-b28b-2beb846ae8ea",
             "name": "Subscription Webhook",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
             "position": [
-                -256,
-                1840
+                7664,
+                10144
             ],
             "webhookId": "subscription-webhook",
             "disabled": true
@@ -2867,13 +2850,13 @@
                     }
                 }
             },
-            "id": "333dbaf3-bc92-4ea4-960f-5a987c6517d6",
+            "id": "d5048e41-b6af-4073-9b43-78f12495f314",
             "name": "Account Webhook",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1.1,
             "position": [
-                -272,
-                944
+                7648,
+                9280
             ],
             "webhookId": "keymoji-account-webhook"
         },
@@ -2881,13 +2864,13 @@
             "parameters": {
                 "jsCode": "const input = $input.first().json;\nconst data = input.body || input;\nconsole.log('📥 Webhook received action:', data.action);\nreturn { json: data };"
             },
-            "id": "3b004c23-a13c-4142-8a7f-e7a021d6ab28",
+            "id": "f9b1ef0e-85a4-4eba-aa08-85cae1b3a9bb",
             "name": "Extract Body",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                -64,
-                944
+                7856,
+                9280
             ]
         },
         {
@@ -2967,26 +2950,26 @@
                     "renameFallbackOutput": "account_upsert"
                 }
             },
-            "id": "87c97647-45ed-426e-a28f-78467dc7b157",
+            "id": "37ec73ca-57c5-4619-86ef-04691ce44969",
             "name": "Action Router",
             "type": "n8n-nodes-base.switch",
-            "typeVersion": 3.2,
+            "typeVersion": 3,
             "position": [
-                128,
-                944
+                8048,
+                9248
             ]
         },
         {
             "parameters": {
-                "jsCode": "// Store OTP: save otpCode + otpExpiresAt for this email\nconst data = $input.first().json;\nconsole.log('💾 Storing OTP for:', data.email);\nreturn [{\n  json: {\n    email:        data.email,\n    userId:       data.userId || null,\n    otpCode:      String(data.otpCode),\n    otpExpiresAt: data.otpExpiresAt,\n    otpCreatedAt: new Date().toISOString()\n  }\n}];"
+                "jsCode": "// Store OTP: save otpCode + otpExpiresAt for this email\nconst data = $input.first().json;\nconsole.log('💾 Storing OTP for:', data.email);\nreturn {\n  json: {\n    email: data.email,\n    otpCode: String(data.otpCode),\n    otpExpiresAt: data.otpExpiresAt,\n    otpCreatedAt: new Date().toISOString()\n  }\n};"
             },
-            "id": "d6d13a22-6919-4094-a195-afa2e5faeedc",
+            "id": "aacc04f8-654d-415e-98f4-a15ead41d53d",
             "name": "Prepare OTP Store",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                352,
-                736
+                8272,
+                9040
             ]
         },
         {
@@ -3017,13 +3000,13 @@
                 },
                 "options": {}
             },
-            "id": "6c661a42-840e-4a2e-827b-b3176b1a0b08",
+            "id": "50bd8353-80cf-4be7-868b-414ad5058dfb",
             "name": "Store OTP in Sheets",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.4,
             "position": [
-                544,
-                736
+                8864,
+                9024
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -3038,13 +3021,13 @@
                 "responseBody": "={{ { \"success\": true, \"message\": \"OTP stored\" } }}",
                 "options": {}
             },
-            "id": "a75596c0-1741-4712-b5a2-2a21fa97ee08",
+            "id": "788075b6-1a3f-4af4-90fa-a3b0b6cf3a54",
             "name": "Respond OTP Stored",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                752,
-                736
+                9280,
+                9040
             ]
         },
         {
@@ -3057,13 +3040,13 @@
                     "cachedResultName": "keymoji"
                 }
             },
-            "id": "2bf08755-853c-4ac9-8307-864673bce064",
+            "id": "92c27158-b813-46b9-bbef-1f02e1e1919e",
             "name": "Lookup OTP Row",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.4,
             "position": [
-                352,
-                1024
+                8272,
+                9280
             ],
             "alwaysOutputData": true,
             "credentials": {
@@ -3075,15 +3058,15 @@
         },
         {
             "parameters": {
-                "jsCode": "// Validate OTP: compare code + check expiry\nconst sheetRow = $input.first().json;\n\n// Get original request data from Extract Body (before the router)\nlet requestData;\ntry {\n  requestData = $('Extract Body').first().json;\n} catch(e) {\n  requestData = sheetRow;\n}\n\nconst incomingCode = String(requestData.otpCode || '').trim();\nconst incomingEmail = String(requestData.email || '').trim();\n\nconsole.log('🔍 Verifying OTP for:', incomingEmail);\nconsole.log('🔍 Incoming code length:', incomingCode.length);\n\n// No row found in Sheets\nif (!sheetRow || !sheetRow.email) {\n  console.warn('❌ No account found for email:', incomingEmail);\n  return [{ json: { success: false, error: 'No account found for this email' } }];\n}\n\nconst storedCode = String(sheetRow.otp_code || '').trim();\nconst expiresAt = sheetRow.otp_expires_at;\n\n// Check code match\nif (!storedCode) {\n  console.warn('❌ No OTP stored for this email');\n  return [{ json: { success: false, error: 'No pending code found. Please request a new one.' } }];\n}\nif (storedCode !== incomingCode) {\n  console.warn('❌ OTP mismatch');\n  return [{ json: { success: false, error: 'Invalid code. Please check and try again.' } }];\n}\n\n// Check expiry\nif (expiresAt) {\n  const expiry = new Date(expiresAt);\n  const now = new Date();\n  if (now > expiry) {\n    console.warn('❌ OTP expired at:', expiresAt);\n    return [{ json: { success: false, error: 'Code has expired. Please request a new one.' } }];\n  }\n}\n\n// SUCCESS — pass userId + email forward for Clear OTP and Response nodes\nconsole.log('✅ OTP valid for:', incomingEmail);\nreturn [{\n  json: {\n    success: true,\n    userId: sheetRow.userId || sheetRow.user_id || null,\n    email: incomingEmail,\n    tier: sheetRow.tier || 'free'\n  }\n}];"
+                "jsCode": "// Validate OTP: compare code + check expiry\nconst sheetRow = $input.first().json;\n\n// Get original request from Extract Body (stable, before router)\nlet requestData = {};\ntry {\n  requestData = $('Extract Body').first().json;\n} catch(e) {\n  console.warn('Could not access Extract Body:', e.message);\n  requestData = sheetRow;\n}\n\nconst incomingCode = String(requestData.otpCode || '').trim();\nconst incomingEmail = String(requestData.email || '').trim();\n\nconsole.log('🔍 Verifying OTP for:', incomingEmail);\nconsole.log('🔍 Code length received:', incomingCode.length);\n\n// No row found\nif (!sheetRow || !sheetRow.email) {\n  console.warn('❌ No account row found for:', incomingEmail);\n  return [{ json: { success: false, error: 'No account found. Please register first.' } }];\n}\n\nconst storedCode = String(sheetRow.otp_code || '').trim();\nconst expiresAt  = sheetRow.otp_expires_at;\n\nif (!storedCode) {\n  console.warn('❌ No OTP stored for:', incomingEmail);\n  return [{ json: { success: false, error: 'No pending code found. Please request a new one.' } }];\n}\n\nif (storedCode !== incomingCode) {\n  console.warn('❌ OTP mismatch for:', incomingEmail);\n  return [{ json: { success: false, error: 'Invalid code. Please check and try again.' } }];\n}\n\nif (expiresAt) {\n  const expiry = new Date(expiresAt);\n  if (new Date() > expiry) {\n    console.warn('❌ OTP expired for:', incomingEmail);\n    return [{ json: { success: false, error: 'Code expired. Please request a new one.' } }];\n  }\n}\n\nconsole.log('✅ OTP valid! userId:', sheetRow.userId);\nreturn [{\n  json: {\n    success: true,\n    userId: sheetRow.userId || sheetRow.user_id || null,\n    email:  incomingEmail,\n    tier:   sheetRow.tier || 'free'\n  }\n}];"
             },
-            "id": "24eb9fa2-c5c9-410c-8267-e8e73be5cd71",
+            "id": "819ae6d6-48e9-4954-9eaa-f55df7a4a1ae",
             "name": "Validate OTP",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                544,
-                1024
+                8464,
+                9280
             ]
         },
         {
@@ -3108,13 +3091,13 @@
                 },
                 "options": {}
             },
-            "id": "3e8564c8-961b-4a1c-90d0-78d15c0fa9e1",
+            "id": "7381dbd3-318d-4db6-9929-f63c049d85d6",
             "name": "OTP Valid?",
             "type": "n8n-nodes-base.if",
             "typeVersion": 2.2,
             "position": [
-                752,
-                1024
+                8672,
+                9280
             ]
         },
         {
@@ -3145,13 +3128,13 @@
                 },
                 "options": {}
             },
-            "id": "28ed9bd5-ec76-4389-8865-9a668629c9c3",
+            "id": "d584eeb5-95dd-4eb0-bcde-ea739fa90836",
             "name": "Clear OTP (single-use)",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.4,
             "position": [
-                944,
-                944
+                8864,
+                9168
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -3163,33 +3146,33 @@
         {
             "parameters": {
                 "respondWith": "json",
-                "responseBody": "={{ \n  {\n    \"success\": true,\n    \"userId\":  $('Validate OTP').first().json.userId,\n    \"email\":   $('Validate OTP').first().json.email,\n    \"tier\":    $('Validate OTP').first().json.tier || \"free\",\n    \"message\": \"OTP verified\"\n  }\n}}",
+                "responseBody": "={{ \n  {\n    \"success\": true,\n    \"userId\": $('Validate OTP').first().json.userId,\n    \"email\": $('Validate OTP').first().json.email,\n    \"tier\": $('Validate OTP').first().json.tier || \"free\",\n    \"message\": \"OTP verified\"\n  }\n}}",
                 "options": {}
             },
-            "id": "3422c1a6-8698-42df-bd0c-7d355cace0aa",
+            "id": "2bcf7ff9-cd37-4cb0-9a19-63c61ca0bae5",
             "name": "Respond OTP Success",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1152,
-                944
+                9280,
+                9168
             ]
         },
         {
             "parameters": {
                 "respondWith": "json",
-                "responseBody": "={{ { \"success\": false, \"error\": $json.error } }}",
+                "responseBody": "={{ { \"success\": false, \"error\": $json.error || \"Invalid or expired code\" } }}",
                 "options": {
                     "responseCode": 400
                 }
             },
-            "id": "bd57aa2c-3620-4829-91e5-1fe3b44fa69e",
+            "id": "3770d919-f34b-4871-9fe2-e19ebebd82b3",
             "name": "Respond OTP Fail",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                944,
-                1120
+                9280,
+                9296
             ]
         },
         {
@@ -3202,13 +3185,13 @@
                     "cachedResultName": "keymoji"
                 }
             },
-            "id": "d57354dc-ff11-435e-87fb-4fdd30de098a",
+            "id": "d7f235c3-eec9-4708-91e1-664dac62ea62",
             "name": "Lookup Account",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.4,
             "position": [
-                352,
-                1264
+                8272,
+                9472
             ],
             "alwaysOutputData": true,
             "credentials": {
@@ -3220,15 +3203,15 @@
         },
         {
             "parameters": {
-                "jsCode": "// SMART MERGE: Preserves usageHistory from Google Sheets!\nconst items = $input.all();\n// Use Extract Body (before router) to get original webhook data reliably\nconst webhookData = $('Extract Body').first().json;\nconst existingData = items[0]?.json || null;\n\nconsole.log('📊 Account upsert for:', webhookData?.userId || webhookData?.email);\nconsole.log('📊 Existing data found:', !!existingData?.email);\n\nfunction parseJSON(val, fallback = {}) {\n  if (!val) return fallback;\n  if (typeof val === 'object') return val;\n  try { return JSON.parse(val); } catch { return fallback; }\n}\n\nconst existingProfile  = parseJSON(existingData?.profile, {});\nconst existingMetadata = parseJSON(existingData?.metadata, {});\nconst incomingProfile  = parseJSON(webhookData.profile, {});\nconst incomingMetadata = parseJSON(webhookData.metadata, {});\n\n// PRESERVE usageHistory — never overwrite with shorter array\nconst existingHistory = existingMetadata.usageHistory || [];\nconst incomingHistory = incomingMetadata.usageHistory || [];\nconst finalHistory    = incomingHistory.length > existingHistory.length\n  ? incomingHistory : existingHistory;\n\nconst mergedProfile  = { ...existingProfile,  ...incomingProfile };\nconst mergedMetadata = { ...existingMetadata, ...incomingMetadata, usageHistory: finalHistory };\n\nconst output = {\n  userId:    webhookData.userId,\n  email:     webhookData.email,\n  tier:      webhookData.tier      || existingData?.tier      || 'free',\n  createdAt: existingData?.createdAt || webhookData.createdAt || new Date().toISOString(),\n  lastLogin: webhookData.lastLogin  || new Date().toISOString(),\n  profile:   JSON.stringify(mergedProfile),\n  metadata:  JSON.stringify(mergedMetadata),\n  status:    webhookData.status    || existingData?.status    || 'active'\n};\n\nconsole.log('📤 Upsert ready — userId:', output.userId, 'historyEntries:', finalHistory.length);\nreturn { json: output };"
+                "jsCode": "// SMART MERGE: Preserves usageHistory from Google Sheets!\nconst items = $input.all();\nconst webhookData = $('Action Router').first().json;\nconst existingData = items[0]?.json || null;\n\nconsole.log('📊 Webhook data:', webhookData?.userId);\nconsole.log('📊 Existing data found:', !!existingData?.email);\n\nfunction parseJSON(val, fallback = {}) {\n  if (!val) return fallback;\n  if (typeof val === 'object') return val;\n  try { return JSON.parse(val); } catch { return fallback; }\n}\n\nconst existingProfile = parseJSON(existingData?.profile, {});\nconst existingMetadata = parseJSON(existingData?.metadata, {});\nconst incomingProfile = parseJSON(webhookData.profile, {});\nconst incomingMetadata = parseJSON(webhookData.metadata, {});\n\n// PRESERVE usageHistory\nconst existingUsageHistory = existingMetadata.usageHistory || [];\nconst incomingUsageHistory = incomingMetadata.usageHistory || [];\nconst finalUsageHistory = incomingUsageHistory.length > existingUsageHistory.length\n  ? incomingUsageHistory\n  : existingUsageHistory;\n\nconst mergedProfile = { ...existingProfile, ...incomingProfile };\nconst mergedMetadata = { ...existingMetadata, ...incomingMetadata, usageHistory: finalUsageHistory };\n\nconst output = {\n  userId: webhookData.userId,\n  email: webhookData.email,\n  tier: webhookData.tier || existingData?.tier || 'free',\n  createdAt: existingData?.createdAt || webhookData.createdAt || new Date().toISOString(),\n  lastLogin: webhookData.lastLogin || new Date().toISOString(),\n  profile: JSON.stringify(mergedProfile),\n  metadata: JSON.stringify(mergedMetadata),\n  status: webhookData.status || existingData?.status || 'active'\n};\n\nconsole.log('📤 Output ready for:', output.userId);\nreturn { json: output };"
             },
-            "id": "553e5e34-51d1-4787-90ae-95ef9c21ad94",
+            "id": "3cbf6acf-b908-4302-8490-c09e9ae62f32",
             "name": "Merge Data",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                544,
-                1264
+                8464,
+                9472
             ]
         },
         {
@@ -3263,13 +3246,13 @@
                 },
                 "options": {}
             },
-            "id": "2ba07a93-ceb7-4b0e-a501-ea0a33a6d9af",
+            "id": "622693b0-2fe6-46d9-a12f-c29ba727fe26",
             "name": "Update Sheets",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.4,
             "position": [
-                752,
-                1264
+                8864,
+                9472
             ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -3284,13 +3267,13 @@
                 "responseBody": "={{ \n  {\n    \"success\": true,\n    \"account\": {\n      \"userId\": $json.userId,\n      \"email\": $json.email,\n      \"tier\": $json.tier,\n      \"createdAt\": $json.createdAt,\n      \"lastLogin\": $json.lastLogin,\n      \"profile\": $json.profile,\n      \"metadata\": $json.metadata,\n      \"status\": $json.status\n    },\n    \"message\": \"Account operation successful\",\n    \"timestamp\": new Date().toISOString()\n  }\n}}",
                 "options": {}
             },
-            "id": "b348eba8-b2fb-4d16-aca5-5bd3477b84f1",
+            "id": "93e90f93-4032-4cc2-a665-8ba5b8433bd5",
             "name": "Send Response1",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                944,
-                1264
+                9280,
+                9472
             ]
         },
         {
@@ -3299,13 +3282,13 @@
                 "responseBody": "={\n  \"success\": true,\n  \"subscription\": {\n    \"id\": \"{{ $json.id }}\",\n    \"status\": \"{{ $json.status }}\",\n    \"plan\": \"{{ $json.plan }}\",\n    \"currentPeriodEnd\": \"{{ $json.current_period_end }}\",\n    \"cancelAtPeriodEnd\": false\n  },\n  \"message\": \"Subscription created successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
                 "options": {}
             },
-            "id": "2019e712-a36d-448e-8c2c-7898413308cc",
+            "id": "a7317ee7-43fe-4061-89bb-6ed2cba46fbb",
             "name": "Create Response1",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1072,
-                1728
+                8992,
+                10032
             ]
         }
     ],
@@ -3509,11 +3492,6 @@
                         "index": 0
                     }
                 ]
-            ]
-        },
-        "UPDATE Account": {
-            "main": [
-                []
             ]
         },
         "CHECK Account": {
@@ -4489,7 +4467,49 @@
             ]
         }
     },
-    "pinData": {},
+    "pinData": {
+        "Accounting Audit Log": [
+            {
+                "headers": {
+                    "host": "n8n.chooomedia.com",
+                    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+                    "content-length": "277",
+                    "accept": "*/*",
+                    "accept-encoding": "gzip, deflate, br, zstd",
+                    "accept-language": "en-GB,en;q=0.6",
+                    "content-type": "application/json",
+                    "origin": "https://keymoji.wtf",
+                    "priority": "u=1, i",
+                    "referer": "https://keymoji.wtf/",
+                    "sec-ch-ua": "\"Chromium\";v=\"146\", \"Not-A.Brand\";v=\"24\", \"Brave\";v=\"146\"",
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": "\"macOS\"",
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "cross-site",
+                    "sec-gpc": "1",
+                    "x-forwarded-for": "157.143.113.2",
+                    "x-forwarded-host": "n8n.chooomedia.com",
+                    "x-forwarded-proto": "https"
+                },
+                "params": {},
+                "query": {},
+                "body": {
+                    "operation": "VERIFY_LOGIN",
+                    "error": "token is not defined",
+                    "event": "OPERATION_FAILED",
+                    "accountingType": "account_management",
+                    "timestamp": "2026-04-09T21:10:47.336Z",
+                    "clientFingerprint": "data:image/png;base64,iVBORw0KGg",
+                    "sessionId": null,
+                    "tier": "free",
+                    "action": "OPERATION_FAILED"
+                },
+                "webhookUrl": "https://n8n.chooomedia.com/webhook/xn--moji-pb73c-accounting-audit-log",
+                "executionMode": "production"
+            }
+        ]
+    },
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "3dae61a0a24f0b093f057680559772c3c73ec97ec47a9bd2a5ad745c7d8f0365"
