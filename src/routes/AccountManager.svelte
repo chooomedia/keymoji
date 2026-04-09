@@ -843,14 +843,12 @@
 
         try {
             await secureVerifyOTP(clean, email);
-            showSuccess($translations?.accountManager?.messages?.otpVerified || 'Code confirmed — you are logged in!', 3000);
             markSuccessfulLogin(email);
             checkSessionStatus();
         } catch (error) {
             console.error('❌ OTP verification failed:', error);
             const msg = error.message || '';
             if (msg.includes('already') || msg.includes('exists') || msg.includes('logged in')) {
-                showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Logged in!', 2000);
                 checkSessionStatus();
             } else {
                 otpError = $translations?.accountManager?.verification?.codeInvalid || 'Invalid or expired code. Please request a new one.';
