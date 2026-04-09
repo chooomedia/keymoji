@@ -2968,8 +2968,10 @@
                 },
                 "sheetName": {
                     "__rl": true,
-                    "value": "accounts",
-                    "mode": "name"
+                    "value": 1278731717,
+                    "mode": "list",
+                    "cachedResultName": "accounts",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1278731717"
                 },
                 "columns": {
                     "mappingMode": "defineBelow",
@@ -3025,6 +3027,24 @@
                     "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
                     "mode": "list",
                     "cachedResultName": "keymoji"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1278731717,
+                    "mode": "list",
+                    "cachedResultName": "accounts",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1278731717"
+                },
+                "filtersUI": {
+                    "values": [
+                        {
+                            "lookupColumn": "email",
+                            "lookupValue": "={{ $('Extract Body').first().json.email }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "returnFirstMatch": true
                 }
             },
             "id": "f492b0c0-104b-4cdb-a6c3-63db85e2fca4",
@@ -3099,8 +3119,10 @@
                 },
                 "sheetName": {
                     "__rl": true,
-                    "value": "accounts",
-                    "mode": "name"
+                    "value": 1278731717,
+                    "mode": "list",
+                    "cachedResultName": "accounts",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1278731717"
                 },
                 "columns": {
                     "mappingMode": "defineBelow",
@@ -3172,6 +3194,24 @@
                     "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
                     "mode": "list",
                     "cachedResultName": "keymoji"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1278731717,
+                    "mode": "list",
+                    "cachedResultName": "accounts",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1278731717"
+                },
+                "filtersUI": {
+                    "values": [
+                        {
+                            "lookupColumn": "email",
+                            "lookupValue": "={{ $('Extract Body').first().json.email }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "returnFirstMatch": true
                 }
             },
             "id": "ecfea6c7-4e16-4970-9724-5d88c900f630",
