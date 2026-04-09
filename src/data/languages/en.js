@@ -464,11 +464,11 @@ export default {
         returnUserTitle: '👋 Welcome back!',
         returnUserDescription:
             'We recognized your email address. Log in quickly.',
-        verificationTitle: '📧 Check Your Email and Verify',
+        verificationTitle: '📧 Enter Your Code',
         verificationDescription:
-            'Check your email {email} and click the magic link to complete setup',
-        verifyingTitle: '🔗 Verifying Magic Link...',
-        verifyingDescription: 'Please wait while we verify your account.',
+            'Enter the 7-digit code we sent to {email}',
+        verifyingTitle: '🔑 Verifying Code...',
+        verifyingDescription: 'Please wait while we verify your code.',
         verificationErrorTitle: '❌ Verification Failed',
         verificationErrorDescription: 'An error occurred.',
 
@@ -483,8 +483,8 @@ export default {
             sessionExpired: 'Session expired - Login again',
             loginAgain: '🔐 Login again',
             createNewAccount: 'Create new account',
-            resendMagicLink: '🔄 Resend Magic Link',
-            backToAccountOptions: '← Back to Account Options',
+            resendMagicLink: '🔄 Send New Code',
+            backToAccountOptions: '← Back',
             addProfile: 'Add',
             hideProfile: 'Hide',
             profileData: 'Profile Data',
@@ -556,13 +556,28 @@ export default {
             }
         },
 
+        // Verification section
+        verification: {
+            titleNew: 'Registration Code',
+            titleReturn: 'Login Code',
+            sentTo: 'Code sent to',
+            codeLabel: '7-digit confirmation code',
+            codePlaceholder: '1234567',
+            submitCode: '✅ Confirm Code',
+            verifying: 'Verifying...',
+            codeError: 'Please enter the 7-digit code.',
+            codeInvalid: 'Invalid or expired code. Please request a new one.'
+        },
+
         // Help section
         help: {
             title: '💡 Need Help?',
             spamFolder: "• Check your spam folder if you don't see the email",
-            magicLinkExpiry: '• Magic links expire after 15 minutes',
-            requestNewLink: '• You can request a new link anytime',
-            noPassword: '• No password required - just click the link'
+            codeExpiry: '• The code is valid for 15 minutes',
+            magicLinkExpiry: '• Codes expire after 15 minutes',
+            requestNewLink: '• You can request a new code anytime',
+            noLink: '• No link click needed — just enter the code',
+            noPassword: '• No password required — just enter the code'
         },
 
         // Footer
@@ -597,14 +612,15 @@ export default {
             freeAccountActivated: 'Free account activated!',
             chartLoadFailed: 'Failed to load chart data',
             logoutSuccess: 'Successfully logged out',
-            accountFoundSendingLink:
-                'Account found! Sending magic link to existing account.',
-            creatingNewAccount: 'Creating new account and sending magic link.',
+            accountFoundSendingCode: 'Account found! Sending you a code.',
+            accountFoundSendingLink: 'Account found! Sending you a code.',
+            creatingNewAccount: 'Creating new account — check your email for the code.',
             magicLinkSent:
-                'Magic link sent! Check your email to complete login.',
-            magicLinkSendFailed: 'Failed to send magic link. Please try again.',
-            magicLinkVerified: 'Magic link verified successfully!',
-            magicLinkVerificationFailed: 'Magic link verification failed',
+                'Code sent! Enter the 7-digit code from your email.',
+            magicLinkSendFailed: 'Failed to send code. Please try again.',
+            otpVerified: 'Code confirmed — you are logged in!',
+            magicLinkVerified: 'Code verified successfully!',
+            magicLinkVerificationFailed: 'Code verification failed',
             chartDataRefreshed: 'Chart data refreshed successfully!',
             refreshFailed: 'Failed to refresh data',
             noNewData: 'No new data available'

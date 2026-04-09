@@ -499,10 +499,10 @@ export async function loginWithMagicLink(email, name = '', dev = false) {
     }
 }
 
-// Backend magic link verification (for server-side processing)
-export async function verifyMagicLink(token, email) {
+// Backend OTP code verification (calls Vercel API → n8n)
+export async function verifyOTPCode(code, email) {
     try {
-        console.log('🔗 Verifying magic link on backend:', { token, email });
+        console.log('🔑 Verifying OTP code on backend:', { email });
 
         const response = await fetch(WEBHOOKS.ACCOUNT.MAGIC_LINK_VERIFY, {
             method: 'POST',
@@ -511,7 +511,7 @@ export async function verifyMagicLink(token, email) {
                 'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
-                token: token,
+                code: code,
                 email: email,
                 clientFingerprint: generateClientFingerprint(),
                 timestamp: new Date().toISOString()
@@ -520,44 +520,39 @@ export async function verifyMagicLink(token, email) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(
-                errorData.error || 'Magic link verification failed'
-            );
+            throw new Error(errorData.error || 'OTP verification failed');
         }
 
         const result = await response.json();
 
-        // Log security event
-        logSecurityEvent('MAGIC_LINK_VERIFIED', {
+        logSecurityEvent('OTP_VERIFIED', {
             email,
             success: true,
             method: 'backend_verification'
         });
 
-        console.log('✅ Magic link verified on backend:', result);
+        console.log('✅ OTP verified on backend:', { email, success: result.success });
         return result;
     } catch (error) {
-        console.error('❌ Backend magic link verification error:', error);
-
-        // Log security event for failed verification
+        console.error('❌ Backend OTP verification error:', error);
         logSecurityEvent('VERIFICATION_FAILED', {
             email,
             error: error.message,
-            method: 'backend_verification'
+            method: 'otp_verification'
         });
-
         throw error;
     }
 }
 
-// Frontend-based magic link verification with enhanced security
-export async function verifyMagicLinkFrontend(token, email) {
+// Frontend OTP verification: validates code via backend, then handles account creation/login
+export async function verifyMagicLinkFrontend(code, email) {
     try {
-        console.log('🔗 Verifying magic link in frontend:', { token, email });
+        console.log('🔑 Verifying OTP code in frontend:', { email });
 
-        // Token-Validierung hinzufügen
-        if (!token || typeof token !== 'string' || token.length < 10) {
-            throw new Error('Invalid token format');
+        // Code-Validierung: genau 7 Ziffern
+        const cleanCode = String(code || '').trim();
+        if (!/^\d{7}$/.test(cleanCode)) {
+            throw new Error('Bitte gib den 7-stelligen Code aus deiner E-Mail ein.');
         }
 
         // Email-Validierung
@@ -566,17 +561,25 @@ export async function verifyMagicLinkFrontend(token, email) {
             throw new Error('Invalid email format');
         }
 
-        // Rate-Limiting für Verifikation
+        // Rate-Limiting für Verifikation (5 Sekunden Cooldown)
         const verificationKey = `verification_${email}`;
         const lastVerification = sessionStorage.getItem(verificationKey);
         const now = Date.now();
 
         if (lastVerification && now - parseInt(lastVerification) < 5000) {
-            throw new Error(
-                'Too many verification attempts. Please wait 5 seconds.'
-            );
+            throw new Error('Too many verification attempts. Please wait 5 seconds.');
         }
         sessionStorage.setItem(verificationKey, now.toString());
+
+        // OTP gegen Backend validieren (Vercel → n8n)
+        const otpResult = await verifyOTPCode(cleanCode, email);
+        if (!otpResult?.success) {
+            throw new Error(otpResult?.error || 'Invalid or expired code');
+        }
+
+        // Ab hier: Code ist gültig — weiter mit Account-Login/Erstellung
+        // Den sessionToken als "token" weiterreichen damit der restliche Flow unverändert bleibt
+        const token = otpResult.sessionToken;
 
         // Check if account already exists before creating
         console.log(
@@ -2913,7 +2916,7 @@ async function secureAccountingOperation(operation, data) {
                 );
                 break;
             case 'VERIFY_LOGIN':
-                result = await verifyMagicLinkFrontend(data.token, data.email);
+                result = await verifyMagicLinkFrontend(data.code, data.email);
                 break;
             default:
                 throw new Error(`Unknown accounting operation: ${operation}`);
@@ -2983,6 +2986,14 @@ export async function secureLoginWithMagicLink(email, name = '', dev = false) {
 export async function secureVerifyMagicLink(token, email) {
     return secureAccountingOperation('VERIFY_LOGIN', {
         token,
+        email
+    });
+}
+
+// New OTP-based verification (replaces magic link click)
+export async function secureVerifyOTP(code, email) {
+    return secureAccountingOperation('VERIFY_LOGIN', {
+        code,
         email
     });
 }

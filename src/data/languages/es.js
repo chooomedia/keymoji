@@ -473,8 +473,8 @@ export default {
             sessionExpired: 'Sesión expirada - Iniciar sesión nuevamente',
             loginAgain: '🔐 Iniciar sesión nuevamente',
             createNewAccount: 'Crear nueva cuenta',
-            resendMagicLink: '🔄 Reenviar enlace mágico',
-            backToAccountOptions: '← Volver a opciones de cuenta',
+            resendMagicLink: '🔄 Enviar nuevo código',
+            backToAccountOptions: '← Volver',
             addProfile: 'Agregar',
             hideProfile: 'Ocultar',
             profileData: 'Datos de perfil',
@@ -533,17 +533,29 @@ export default {
             }
         },
 
+        // Verificación OTP
+        verification: {
+            titleNew: 'Código de registro',
+            titleReturn: 'Código de inicio de sesión',
+            sentTo: 'Código enviado a',
+            codeLabel: 'Código de confirmación de 7 dígitos',
+            codePlaceholder: '1234567',
+            submitCode: '✅ Confirmar código',
+            verifying: 'Verificando...',
+            codeError: 'Por favor introduce el código de 7 dígitos.',
+            codeInvalid: 'Código inválido o expirado. Por favor solicita uno nuevo.'
+        },
+
         // Sección de ayuda
         help: {
             title: '💡 ¿Necesitas ayuda?',
             spamFolder:
                 '• Revisa tu carpeta de spam si no ves el correo electrónico',
-            magicLinkExpiry:
-                '• Los enlaces mágicos expiran después de 15 minutos',
-            requestNewLink:
-                '• Puedes solicitar un nuevo enlace en cualquier momento',
-            noPassword:
-                '• No se requiere contraseña - solo haz clic en el enlace'
+            codeExpiry: '• El código es válido durante 15 minutos',
+            magicLinkExpiry: '• Los códigos expiran después de 15 minutos',
+            requestNewLink: '• Puedes solicitar un nuevo código en cualquier momento',
+            noLink: '• No necesitas hacer clic en ningún enlace — solo introduce el código',
+            noPassword: '• No se requiere contraseña — solo introduce el código'
         },
 
         // Pie de página

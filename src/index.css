@@ -228,10 +228,22 @@ button:disabled {
     color-scheme: dark;
 }
 
+/* AI Setup Banner - fixed ganz oben, Header danach */
+.ai-setup-banner {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--banner-height, 32px);
+    z-index: 60;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
 /* Global fixed positioning for header and footer */
 .main-header {
     position: fixed !important;
-    top: 0;
+    top: var(--banner-height, 0px);
     left: 0;
     right: 0;
     transform: translateZ(0);
@@ -263,8 +275,8 @@ button:disabled {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     gap: 2rem;
-    padding-top: 120px;
-    /* Space for fixed header */
+    padding-top: calc(120px + var(--banner-height, 0px));
+    /* Space for fixed header + banner */
     padding-bottom: 120px;
     /* Space for fixed footer */
     box-sizing: border-box;
@@ -273,7 +285,7 @@ button:disabled {
 /* Mobile responsive padding and fixed positioning optimizations */
 @media (max-width: 768px) {
     .main-content {
-        padding-top: 120px;
+        padding-top: calc(120px + var(--banner-height, 0px));
         padding-bottom: 100px;
     }
 

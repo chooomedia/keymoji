@@ -27,7 +27,10 @@ export const STORAGE_KEYS = {
     CACHE_PREFIX: 'keymoji_cache_',
 
     // Debug/Development
-    DEBUG_MODE: 'keymoji_debug_mode'
+    DEBUG_MODE: 'keymoji_debug_mode',
+
+    // UI-Banner
+    BANNER_DISMISSED: 'keymoji_banner_dismissed'
 };
 
 // Helper-Funktionen für localStorage

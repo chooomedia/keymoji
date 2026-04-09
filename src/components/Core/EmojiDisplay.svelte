@@ -39,10 +39,6 @@
     let showTextArea = false;
     
   
-    // Button animation state
-    let swissButtonHover = false;
-    let swissButtonClick = false;
-  
     // Story Mode - Persistent text input
     const STORY_INPUT_KEY = 'keymoji_story_input';
   
@@ -971,86 +967,7 @@
             <!-- Show AI ready message when fully configured AND logged in -->
             <p>{$translations.index.storyModeReady || 'AI-generated emoji passwords ready 🤖'}</p>
           {:else if i === 0 && (!$isLoggedIn || !storyModeEnabled || !storyModeConfigured)}
-            <!-- Show setup chips when NOT logged in OR Story Mode is NOT enabled/configured -->
-            <div class="flex flex-col items-center justify-center gap-4">              
-              <!-- Modern button group -->
-              <div class="flex items-center justify-center gap-3 flex-wrap">
-              <!-- Swiss LLM Button - With Animations -->
-              <button
-                on:click={() => {
-                  swissButtonClick = true;
-                  setTimeout(() => {
-                    swissButtonClick = false;
-                  }, 600);
-                  const lang = $currentLanguage || 'en';
-                  const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
-                  navigate(accountPath);
-                  setTimeout(() => {
-                    const aiAccordion = document.querySelector('[data-accordion="story"]');
-                    const accordionButton = document.querySelector('#accordion-story');
-                    if (aiAccordion && !aiAccordion.querySelector('.p-4')) {
-                      accordionButton?.click();
-                    }
-                    setTimeout(() => {
-                      aiAccordion?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
-                  }, 400);
-                }}
-                class="swiss-ai-button relative inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 cursor-pointer overflow-hidden transition-all duration-300 ease-in-out {swissButtonHover ? 'swiss-hover' : ''} {swissButtonClick ? 'swiss-click' : ''}"
-                style="background: linear-gradient(135deg, rgba(218, 41, 28, 0.15) 0%, rgba(218, 41, 28, 0.1) 100%); border: 1px solid rgba(218, 41, 28, 0.25); color: rgb(218, 41, 28);"
-                title={$translations.index.setupStoryModeSwissTooltip || 'Swiss AI (Apertus) - Privacy-first AI hosted in Switzerland'}
-                aria-label={$translations.index.setupStoryModeSwiss || 'Swiss AI'}
-                on:mouseenter={() => swissButtonHover = true}
-                on:mouseleave={() => swissButtonHover = false}
-              >
-                <!-- Background overlay - Auto-Animation alle 7 Sekunden (nur wenn nicht gehovered/geklickt) -->
-                <div class="swiss-auto-bg absolute inset-0 bg-red-600 rounded-full pointer-events-none {swissButtonHover || swissButtonClick ? 'opacity-0' : ''}" style="background-color: rgb(218, 41, 28);"></div>
-                <!-- Background overlay - bei Hover/Klick -->
-                <div class="swiss-hover-bg absolute inset-0 bg-red-600 rounded-full pointer-events-none {swissButtonHover || swissButtonClick ? 'opacity-100' : 'opacity-0'}" style="background-color: rgb(218, 41, 28); transition: opacity 0.3s ease-in-out;"></div>
-                <!-- Content -->
-                <span class="swiss-text text-base relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;" aria-hidden="true">🇨🇭</span>
-                <span class="swiss-text relative z-20 {swissButtonHover || swissButtonClick ? 'text-white' : ''}" style="transition: color 0.3s ease-in-out;">{$translations.index.setupStoryModeSwissShort || $translations.index.setupStoryModeSwiss || 'Swiss AI'}</span>
-              </button>
-              
-              <!-- Elegant divider -->
-              <span class="text-xs text-gray-400 dark:text-gray-500 font-light whitespace-nowrap">
-                {$translations.index.setupStoryModeOr || 'oder'}
-              </span>
-              
-              <!-- Standard LLM Setup Button - Elegant & Minimalist -->
-              <button
-                on:click={() => {
-                  const lang = $currentLanguage || 'en';
-                  const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
-                  navigate(accountPath);
-                  setTimeout(() => {
-                    const aiAccordion = document.querySelector('[data-accordion="story"]');
-                    const accordionButton = document.querySelector('#accordion-story');
-                    if (aiAccordion && !aiAccordion.querySelector('.p-4')) {
-                      accordionButton?.click();
-                    }
-                    setTimeout(() => {
-                      aiAccordion?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
-                  }, 400);
-                }}
-                class="relative inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer
-                  bg-white dark:bg-gray-800 border border-yellow-200 dark:border-yellow-800/30 text-yellow-600 dark:text-yellow-400
-                  hover:bg-yellow-50 dark:hover:bg-yellow-900/20 hover:border-yellow-300 dark:hover:border-yellow-700/50 hover:shadow-sm
-                  active:scale-95"
-                title={$translations.index.setupStoryModeDescription || 'Setup your AI for AI-generated emoji passwords'}
-                aria-label={$translations.index.setupStoryModeShort || $translations.index.setupStoryMode || 'Setup AI'}
-              >
-                <span class="text-base" aria-hidden="true">⚙️</span>
-                <span>{$translations.index.setupStoryModeShort || $translations.index.setupStoryMode || 'Setup AI'}</span>
-              </button>
-                <!-- Elegant text above buttons -->
-                <p class="text-xs text-gray-700 dark:text-gray-300 font-medium text-center leading-relaxed">
-                    {instruction}
-                </p>
-              </div>
-              
-            </div>
+            <p>{instruction}</p>
           {:else if i === 0 && storyModeEnabled && !storyModeConfigured}
             <!-- Show "Configure API" chip if enabled but no API key -->
             <button
@@ -1434,85 +1351,3 @@
     </div>
 </div>
 
-<style>
-  /* ===== SWISS BUTTON ===== */
-  
-  /* Hover: Zoom + Background + Text */
-  .swiss-ai-button.swiss-hover {
-    transform: scale(1.12);
-  }
-  
-  .swiss-ai-button.swiss-hover .swiss-hover-bg {
-    opacity: 1;
-  }
-  
-  .swiss-ai-button.swiss-hover .swiss-text {
-    color: rgb(255, 255, 255);
-  }
-  
-  /* Klick: Animation */
-  .swiss-ai-button.swiss-click {
-    animation: swissClickPulse 0.6s ease-in-out;
-  }
-  
-  .swiss-ai-button.swiss-click .swiss-hover-bg {
-    opacity: 1;
-  }
-  
-  .swiss-ai-button.swiss-click .swiss-text {
-    color: rgb(255, 255, 255);
-  }
-  
-  /* Auto-Animation alle 7 Sekunden (nur wenn nicht gehovered/geklickt) */
-  /* Animation dauert 2.5 Sekunden (64.3% bis 100%), dann 4.5 Sekunden Pause (0% bis 64.3%) */
-  @keyframes swissAutoPulse {
-    0%, 64.3% { 
-      transform: scale(1);
-    }
-    75% { 
-      transform: scale(1.12);
-    }
-    82% { 
-      transform: scale(1.12);
-    }
-    100% { 
-      transform: scale(1);
-    }
-  }
-  
-  @keyframes swissAutoBg {
-    0%, 64.3% { opacity: 0; }
-    75% { opacity: 1; }
-    82% { opacity: 1; }
-    100% { opacity: 0; }
-  }
-  
-  @keyframes swissAutoText {
-    0%, 64.3% { color: rgb(218, 41, 28); }
-    75% { color: rgb(255, 255, 255); }
-    82% { color: rgb(255, 255, 255); }
-    100% { color: rgb(218, 41, 28); }
-  }
-  
-  .swiss-ai-button:not(.swiss-hover):not(.swiss-click) {
-    animation: swissAutoPulse 7s ease-in-out infinite;
-  }
-  
-  .swiss-ai-button:not(.swiss-hover):not(.swiss-click) .swiss-auto-bg {
-    animation: swissAutoBg 7s ease-in-out infinite;
-  }
-  
-  .swiss-ai-button:not(.swiss-hover):not(.swiss-click) .swiss-text {
-    animation: swissAutoText 7s ease-in-out infinite;
-  }
-  
-  @keyframes swissClickPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.12); }
-    100% { transform: scale(1); }
-  }
-  
-  /* ===== STANDARD BUTTON ===== */
-  /* Removed unused CSS selectors for .yellow-hover and .yellow-click */
-  
-</style>

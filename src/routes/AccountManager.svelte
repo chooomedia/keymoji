@@ -35,7 +35,7 @@
         secureUpdateAccount,
         secureGetAccount,
         secureLoginWithMagicLink,
-        secureVerifyMagicLink,
+        secureVerifyOTP,
         logAccountingEvent
     } from '../stores/accountStore.js';
     import { showSuccess, showError, showWarning, showInfo } from '../stores/modalStore';
@@ -70,11 +70,8 @@
 
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
     $: pageTitle = (() => {
-        if (isVerifyingMagicLink) {
-            return $translations?.accountManager?.verifyingTitle || '🔗 Verifiziere Magic Link...';
-        }
-        if (magicLinkStatus === 'error') {
-            return $translations?.accountManager?.verificationErrorTitle || '❌ Verifikation Fehlgeschlagen';
+        if (isVerifyingOTP) {
+            return $translations?.accountManager?.verifyingTitle || '🔑 Code wird geprüft...';
         }
         if ($isLoggedIn) {
             // Get user name from multiple sources with smart fallback (Priority Order!)
@@ -98,11 +95,8 @@
     })();
 
     $: pageDescription = (() => {
-        if (isVerifyingMagicLink) {
-            return $translations?.accountManager?.verifyingDescription || 'Bitte warte, während wir deinen Account verifizieren.';
-        }
-        if (magicLinkStatus === 'error') {
-            return magicLinkError || ($translations?.accountManager?.verificationErrorDescription || 'Ein Fehler ist aufgetreten.');
+        if (isVerifyingOTP) {
+            return $translations?.accountManager?.verifyingDescription || 'Bitte warte, während wir deinen Code prüfen.';
         }
         if ($isLoggedIn) {
             return $translations?.accountManager?.welcomeDescription || 'Ready to create some amazing emoji passwords? Your account is secure and ready to go!';
@@ -133,6 +127,12 @@
     let checkingAccount = false;
     let sessionExpired = false;
     let hasValidSession = false;
+
+    // OTP verification
+    let otpCode = '';
+    let isVerifyingOTP = false;
+    let otpError = '';
+    let isNewUser = false; // true = Registrierung, false = Login
     
     // Reactive calculation for days since account creation
     // Übergebe $currentAccount damit API-Daten (Google Sheets) bevorzugt werden!
@@ -477,9 +477,6 @@
     }
 
     // Magic Link verification state
-    let isVerifyingMagicLink = false;
-    let magicLinkStatus = null; // 'verifying', 'success', 'error'
-    let magicLinkError = '';
 
     // Context menu state
     let showContextMenu = false;
@@ -716,13 +713,13 @@
             const accountCheck = await checkAccountExists(email, name);
             
             if (accountCheck.exists) {
-                console.log('✅ Account already exists, proceeding with magic link');
-                // Account exists, proceed with magic link
-                showInfo($translations?.accountManager?.messages?.accountFoundSendingLink || 'Account found! Sending magic link to existing account.', 3000);
+                console.log('✅ Account already exists, sending OTP code');
+                isNewUser = false;
+                showInfo($translations?.accountManager?.messages?.accountFoundSendingCode || 'Account gefunden! Wir senden dir einen Code.', 3000);
             } else {
                 console.log('🆕 No existing account found, will create new account');
-                // Account doesn't exist, will be created during magic link verification
-                showInfo($translations?.accountManager?.messages?.creatingNewAccount || 'Creating new account and sending magic link.', 3000);
+                isNewUser = true;
+                showInfo($translations?.accountManager?.messages?.creatingNewAccount || 'Neues Konto wird erstellt – Code kommt per E-Mail.', 3000);
             }
 
             // Determine if we're in development mode
@@ -769,7 +766,42 @@
     }
 
     function resendMagicLink() {
+        otpCode = '';
+        otpError = '';
         handleLogin(new Event('submit'));
+    }
+
+    async function handleOTPSubmit(event) {
+        if (event) event.preventDefault();
+        if (isVerifyingOTP) return;
+
+        const clean = String(otpCode || '').replace(/\s/g, '');
+        if (!/^\d{7}$/.test(clean)) {
+            otpError = $translations?.accountManager?.verification?.codeError || 'Bitte gib den 7-stelligen Code ein.';
+            return;
+        }
+
+        otpError = '';
+        isVerifyingOTP = true;
+
+        try {
+            await secureVerifyOTP(clean, email);
+            showSuccess($translations?.accountManager?.messages?.otpVerified || 'Code bestätigt – du bist eingeloggt!', 3000);
+            markSuccessfulLogin(email);
+            checkSessionStatus();
+        } catch (error) {
+            console.error('❌ OTP verification failed:', error);
+            const msg = error.message || '';
+            if (msg.includes('already') || msg.includes('exists') || msg.includes('logged in')) {
+                showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Eingeloggt!', 2000);
+                checkSessionStatus();
+            } else {
+                otpError = $translations?.accountManager?.verification?.codeInvalid || 'Ungültiger oder abgelaufener Code. Bitte neu anfordern.';
+                showError(otpError, 5000);
+            }
+        } finally {
+            isVerifyingOTP = false;
+        }
     }
 
     onMount(async () => {
@@ -789,143 +821,8 @@
             // Chart loading is handled by watchAccountChanges() and onMount refreshUsageHistory()
             // No manual forcing needed with new robust pattern!
             
-            // Check for magic link verification - this works for both direct URL access and new tabs
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token') || urlParams.get('t'); // Support both long and short parameter
-            const magicLinkEmail = urlParams.get('email') || urlParams.get('e'); // Support both long and short parameter
-            const isDevMode = urlParams.get('dev') === 'true';
-            
-            // Debug: Log all URL parameters
-            console.log('🔍 All URL parameters:', {
-                search: window.location.search,
-                href: window.location.href,
-                pathname: window.location.pathname,
-                hash: window.location.hash
-            });
-            
-            // Debug: Log all search params
-            for (const [key, value] of urlParams.entries()) {
-                console.log(`🔍 URL param: ${key} = ${value}`);
-            }
-            
-            console.log('🔍 URL Parameters check:', {
-                search: window.location.search,
-                token: token,
-                email: magicLinkEmail,
-                isDevMode: isDevMode,
-                pathname: window.location.pathname
-            });
-            
-            // Handle magic link with language prefix redirect
-            if (token && magicLinkEmail) {
-                console.log('🔗 Magic link verification detected:', { token, email: magicLinkEmail, isDevMode });
-                
-                // Check if user is already logged in with the same email
-                const currentLoggedIn = get(isLoggedIn);
-                const currentAccountEmail = get(currentAccount)?.email;
-                const isAlreadyLoggedIn = currentLoggedIn && currentAccountEmail === magicLinkEmail;
-                
-                console.log('🔍 Login status check:', {
-                    currentLoggedIn,
-                    currentAccountEmail,
-                    magicLinkEmail,
-                    isAlreadyLoggedIn
-                });
-                
-                // If already logged in with same email, just refresh session and clean URL
-                if (isAlreadyLoggedIn) {
-                    console.log('✅ User already logged in with same email, refreshing session...');
-                    magicLinkStatus = 'success';
-                    
-                    // Mark successful login for return user tracking
-                    markSuccessfulLogin(magicLinkEmail);
-                    
-                    // Clean up URL parameters but keep the account page
-                    const newUrl = window.location.pathname;
-                    window.history.replaceState({}, '', newUrl);
-                    console.log('🧹 URL parameters cleaned up:', newUrl);
-                    
-                    // Refresh session status
-                    checkSessionStatus();
-                    
-                    // Show success message
-                    showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
-                    return; // Exit early, no need to verify again
-                }
-                
-                // Check if we're on a language-prefixed route (e.g., /de/account)
-                const currentPath = window.location.pathname;
-                const pathSegments = currentPath.split('/').filter(segment => segment !== '');
-                const hasLanguagePrefix = pathSegments.length > 1 && pathSegments[0] && pathSegments[1] === 'account';
-                
-                console.log('🔍 Route analysis:', {
-                    currentPath: currentPath,
-                    pathSegments: pathSegments,
-                    hasLanguagePrefix: hasLanguagePrefix,
-                    currentLanguage: get(currentLanguage)
-                });
-                
-                // If we're on /account (without language prefix), redirect to /de/account (or current language)
-                if (currentPath === '/account') {
-                    const currentLang = get(currentLanguage);
-                    const redirectPath = `/${currentLang}/account?t=${token}&e=${magicLinkEmail}${isDevMode ? '&dev=true' : ''}`;
-                    console.log('🔄 Redirecting magic link to language-prefixed route:', redirectPath);
-                    navigate(redirectPath, { replace: true });
-                    return; // Exit early, let the redirect handle the verification
-                }
-                
-                // If we're already on a language-prefixed route, proceed with verification
-                if (hasLanguagePrefix || currentPath === '/account') {
-                    console.log('✅ Proceeding with magic link verification');
-                    isVerifyingMagicLink = true;
-                    magicLinkStatus = 'verifying';
-                    
-                    try {
-                        console.log('🔒 Starting secure magic link verification...');
-                        await secureVerifyMagicLink(token, magicLinkEmail);
-                        magicLinkStatus = 'success';
-                        showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 3000);
-                        
-                        // Mark successful login for return user tracking (only on successful verification)
-                        markSuccessfulLogin(magicLinkEmail);
-                        
-                        // Clean up URL parameters but keep the account page
-                        const newUrl = window.location.pathname;
-                        window.history.replaceState({}, '', newUrl);
-                        console.log('🧹 URL parameters cleaned up:', newUrl);
-                        
-                        // Update the account view to show logged-in state
-                        checkSessionStatus();
-                        
-                    } catch (error) {
-                        console.error('❌ Magic link verification failed:', error);
-                        magicLinkStatus = 'error';
-                        magicLinkError = error.message || 'Verification failed';
-                        
-                        // Check if error is due to already logged in or account exists
-                        const errorMessage = error.message || '';
-                        if (errorMessage.includes('already') || errorMessage.includes('exists') || errorMessage.includes('logged in')) {
-                            // User is already logged in or account exists - treat as success
-                            console.log('⚠️ Account already exists or user already logged in, treating as success');
-                            magicLinkStatus = 'success';
-                            magicLinkError = '';
-                            
-                            // Refresh session
-                            checkSessionStatus();
-                            showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Magic link verified successfully!', 2000);
-                        } else {
-                            // Real error - show error message
-                        showError($translations?.accountManager?.messages?.magicLinkVerificationFailed || 'Magic link verification failed', 5000);
-                        }
-                    } finally {
-                        isVerifyingMagicLink = false;
-                    }
-                } else {
-                    console.log('❌ Invalid route for magic link verification:', currentPath);
-                }
-            } else {
-                console.log('🔍 No magic link parameters found in URL');
-            }
+            // OTP flow: no URL-parameter verification needed — user enters code manually
+            console.log('🔑 OTP auth flow active — awaiting manual code entry');
             
             // Check session status
             checkSessionStatus();
@@ -1476,42 +1373,108 @@
                         </div>
                     </div>
                 {:else if accountCreationStep === 'verification'}
-                    <!-- Verification Step -->
-                    <div class="space-y-4">
-                        <Button
-                            variant="primary"
-                            size="md"
-                            fullWidth={true}
-                            on:click={resendMagicLink}
-                            disabled={isSubmitting}
-                        >
-                            {#if isSubmitting}
-                                <span class="animate-spin mr-1">⏳</span>
-                                {$translations?.accountManager?.buttons?.sendingMagicLink || 'Sending...'}
-                            {:else}
-                                {$translations?.accountManager?.buttons?.resendMagicLink || '🔄 Resend Magic Link'}
-                            {/if}
-                        </Button>
-                        
-                        <Button
-                            variant="secondary"
-                            size="md"
-                            fullWidth={true}
-                            on:click={goBackToBenefits}
-                        >
-                            {$translations?.accountManager?.buttons?.backToAccountOptions || '← Back to Account Options'}
-                        </Button>
-                        
+                    <!-- OTP Verification Step -->
+                    <div class="space-y-5">
+                        <!-- Heading / Smart Label -->
+                        <div class="text-center">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                {isNewUser
+                                    ? ($translations?.accountManager?.verification?.titleNew || 'Code zur Registrierung')
+                                    : ($translations?.accountManager?.verification?.titleReturn || 'Code zum Einloggen')}
+                            </p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                {$translations?.accountManager?.verification?.sentTo || 'Code gesendet an'} <strong class="text-gray-700 dark:text-gray-300">{email}</strong>
+                            </p>
+                        </div>
+
+                        <!-- OTP Input Form -->
+                        <form on:submit|preventDefault={handleOTPSubmit} class="space-y-3">
+                            <div class="flex flex-col items-center gap-2">
+                                <label for="otp-input" class="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                    {$translations?.accountManager?.verification?.codeLabel || '7-stelliger Bestätigungscode'}
+                                </label>
+                                <input
+                                    id="otp-input"
+                                    type="text"
+                                    inputmode="numeric"
+                                    autocomplete="one-time-code"
+                                    maxlength="7"
+                                    pattern="[0-9]{7}"
+                                    bind:value={otpCode}
+                                    placeholder={$translations?.accountManager?.verification?.codePlaceholder || '1234567'}
+                                    disabled={isVerifyingOTP}
+                                    on:input={() => { otpError = ''; }}
+                                    class="w-48 text-center text-3xl font-bold tracking-[0.3em] py-3 px-4
+                                           rounded-xl border-2 transition-all duration-200
+                                           bg-white dark:bg-aubergine-900
+                                           text-gray-900 dark:text-white
+                                           placeholder-gray-300 dark:placeholder-gray-600
+                                           focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2
+                                           disabled:opacity-50 disabled:cursor-not-allowed
+                                           {otpError
+                                             ? 'border-red-400 dark:border-red-500'
+                                             : otpCode.length === 7
+                                               ? 'border-green-400 dark:border-green-500'
+                                               : 'border-gray-300 dark:border-gray-600'}"
+                                />
+                                {#if otpError}
+                                    <p class="text-xs text-red-500 dark:text-red-400">{otpError}</p>
+                                {/if}
+                            </div>
+
+                            <Button
+                                variant="primary"
+                                size="md"
+                                fullWidth={true}
+                                disabled={isVerifyingOTP || otpCode.length !== 7}
+                                type="submit"
+                            >
+                                {#if isVerifyingOTP}
+                                    <span class="animate-spin mr-2">⏳</span>
+                                    {$translations?.accountManager?.verification?.verifying || 'Wird geprüft...'}
+                                {:else}
+                                    {$translations?.accountManager?.verification?.submitCode || '✅ Code bestätigen'}
+                                {/if}
+                            </Button>
+                        </form>
+
+                        <!-- Resend + Back -->
+                        <div class="flex flex-col gap-2">
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                fullWidth={true}
+                                on:click={resendMagicLink}
+                                disabled={isSubmitting || isVerifyingOTP}
+                            >
+                                {#if isSubmitting}
+                                    <span class="animate-spin mr-1">⏳</span>
+                                    {$translations?.accountManager?.buttons?.sendingMagicLink || 'Wird gesendet...'}
+                                {:else}
+                                    {$translations?.accountManager?.buttons?.resendMagicLink || '🔄 Neuen Code senden'}
+                                {/if}
+                            </Button>
+
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                fullWidth={true}
+                                on:click={goBackToBenefits}
+                            >
+                                {$translations?.accountManager?.buttons?.backToAccountOptions || '← Zurück'}
+                            </Button>
+                        </div>
+
                         <!-- Help Section -->
-                        <div class="mt-6 p-4 bg-creme-600 dark:bg-aubergine-900 rounded-xl">
-                            <h3 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                                {$translations?.accountManager?.help?.title || '💡 Need Help?'}
+                        <div class="p-4 bg-creme-600 dark:bg-aubergine-900 rounded-xl">
+                            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                {$translations?.accountManager?.help?.title || '💡 Hilfe'}
                             </h3>
-                            <ul class="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                                <li>{$translations?.accountManager?.help?.spamFolder || "• Check your spam folder if you don't see the email"}</li>
-                                <li>{$translations?.accountManager?.help?.magicLinkExpiry || '• Magic links expire after 15 minutes'}</li>
-                                <li>{$translations?.accountManager?.help?.requestNewLink || '• You can request a new link anytime'}</li>
-                                <li>{$translations?.accountManager?.help?.noPassword || '• No password required - just click the link'}</li>
+                            <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                                <li>{$translations?.accountManager?.help?.spamFolder || '• Prüfe deinen Spam-Ordner falls du keine E-Mail siehst'}</li>
+                                <li>{$translations?.accountManager?.help?.codeExpiry || '• Der Code ist 15 Minuten gültig'}</li>
+                                <li>{$translations?.accountManager?.help?.requestNewLink || '• Du kannst jederzeit einen neuen Code anfordern'}</li>
+                                <li>{$translations?.accountManager?.help?.noLink || '• Kein Link-Klick nötig – einfach Code eingeben'}</li>
                             </ul>
                         </div>
                     </div>

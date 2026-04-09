@@ -470,8 +470,8 @@ export default {
             sessionExpired: 'Сессия истекла - Повторный вход',
             loginAgain: '🔐 Войти снова',
             createNewAccount: 'Создать новый аккаунт',
-            resendMagicLink: '🔄 Отправить волшебную ссылку повторно',
-            backToAccountOptions: '← Вернуться к опциям аккаунта',
+            resendMagicLink: '🔄 Отправить новый код',
+            backToAccountOptions: '← Назад',
             addProfile: 'Добавить',
             hideProfile: 'Скрыть',
             profileData: 'Данные профиля',
@@ -529,13 +529,28 @@ export default {
             }
         },
 
+        // Верификация OTP
+        verification: {
+            titleNew: 'Код регистрации',
+            titleReturn: 'Код для входа',
+            sentTo: 'Код отправлен на',
+            codeLabel: '7-значный код подтверждения',
+            codePlaceholder: '1234567',
+            submitCode: '✅ Подтвердить код',
+            verifying: 'Проверка...',
+            codeError: 'Пожалуйста, введите 7-значный код.',
+            codeInvalid: 'Неверный или просроченный код. Запросите новый.'
+        },
+
         // Секция помощи
         help: {
             title: '💡 Нужна помощь?',
             spamFolder: '• Проверьте папку спам, если не видите письмо',
-            magicLinkExpiry: '• Волшебные ссылки истекают через 15 минут',
-            requestNewLink: '• Вы можете запросить новую ссылку в любое время',
-            noPassword: '• Пароль не требуется - просто нажмите на ссылку'
+            codeExpiry: '• Код действителен 15 минут',
+            magicLinkExpiry: '• Коды истекают через 15 минут',
+            requestNewLink: '• Вы можете запросить новый код в любое время',
+            noLink: '• Не нужно кликать по ссылке — просто введите код',
+            noPassword: '• Пароль не требуется — просто введите код'
         },
 
         // Подвал

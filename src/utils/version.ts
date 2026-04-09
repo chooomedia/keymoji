@@ -20,13 +20,13 @@ export interface VersionInfo {
 }
 
 // Aktuelle Version der Anwendung
-export const appVersion: string = '0.7.7';
+export const appVersion: string = '0.7.8';
 
 // Versionsinformationen mit Datum der letzten Aktualisierung
 export const versionInfo: VersionInfo = {
     version: appVersion,
-    updated: '2025-11-16',
-    codename: 'Performance & Code Quality'
+    updated: '2026-04-09',
+    codename: 'OTP Auth Flow & AI Topbar'
 };
 
 /**

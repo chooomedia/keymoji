@@ -4,6 +4,7 @@
     import { currentLanguage, translations } from '../../stores/contentStore.js';
     import { darkMode } from 'stores/appStores'
     import Header from './Header.svelte';
+    import AISetupBanner from './AISetupBanner.svelte';
     import FixedMenu from '../../widgets/FixedMenu.svelte';
     
     // Modal-Komponenten hinzufügen
@@ -44,6 +45,9 @@
 <!-- Modal-Komponenten - Immer verfügbar -->
 <Modal />
 <ModalDebug />
+
+<!-- AI Setup Banner - ganz oben, vor dem Header -->
+<AISetupBanner />
 
 <!-- Header - AUßERHALB des main Containers für echtes fixed positioning -->
 <Header />

@@ -466,8 +466,8 @@ export default {
             sessionExpired: '세션 만료 - 다시 로그인',
             loginAgain: '🔐 다시 로그인',
             createNewAccount: '새 계정 만들기',
-            resendMagicLink: '🔄 매직 링크 재전송',
-            backToAccountOptions: '← 계정 옵션으로 돌아가기',
+            resendMagicLink: '🔄 새 코드 보내기',
+            backToAccountOptions: '← 뒤로',
             addProfile: '추가',
             hideProfile: '숨기기',
             profileData: '프로필 데이터',
@@ -524,12 +524,26 @@ export default {
         },
 
         // 도움말 섹션
+        verification: {
+            titleNew: '등록 코드',
+            titleReturn: '로그인 코드',
+            sentTo: '코드 발송:',
+            codeLabel: '7자리 확인 코드',
+            codePlaceholder: '1234567',
+            submitCode: '✅ 코드 확인',
+            verifying: '확인 중...',
+            codeError: '7자리 코드를 입력하세요.',
+            codeInvalid: '유효하지 않거나 만료된 코드입니다. 새 코드를 요청하세요.'
+        },
+
         help: {
             title: '💡 도움이 필요하신가요?',
             spamFolder: '• 이메일이 보이지 않으면 스팸 폴더를 확인하세요',
-            magicLinkExpiry: '• 매직 링크는 15분 후 만료됩니다',
-            requestNewLink: '• 언제든지 새 링크를 요청할 수 있습니다',
-            noPassword: '• 비밀번호 불필요 - 링크만 클릭하세요'
+            codeExpiry: '• 코드는 15분 동안 유효합니다',
+            magicLinkExpiry: '• 코드는 15분 후 만료됩니다',
+            requestNewLink: '• 언제든지 새 코드를 요청할 수 있습니다',
+            noLink: '• 링크 클릭 불필요 — 코드만 입력하세요',
+            noPassword: '• 비밀번호 불필요 — 코드만 입력하세요'
         },
 
         // 푸터

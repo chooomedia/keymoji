@@ -469,8 +469,8 @@ export default {
             sessionExpired: 'Sessione scaduta - Accedi nuovamente',
             loginAgain: '🔐 Accedi nuovamente',
             createNewAccount: 'Crea nuovo account',
-            resendMagicLink: '🔄 Reinvia link magico',
-            backToAccountOptions: '← Torna alle opzioni account',
+            resendMagicLink: '🔄 Invia nuovo codice',
+            backToAccountOptions: '← Indietro',
             addProfile: 'Aggiungi',
             hideProfile: 'Nascondi',
             profileData: 'Dati profilo',
@@ -530,15 +530,28 @@ export default {
             }
         },
 
+        // Verifica OTP
+        verification: {
+            titleNew: 'Codice di registrazione',
+            titleReturn: 'Codice di accesso',
+            sentTo: 'Codice inviato a',
+            codeLabel: 'Codice di conferma a 7 cifre',
+            codePlaceholder: '1234567',
+            submitCode: '✅ Conferma codice',
+            verifying: 'Verifica in corso...',
+            codeError: 'Inserisci il codice a 7 cifre.',
+            codeInvalid: 'Codice non valido o scaduto. Richiedine uno nuovo.'
+        },
+
         // Sezione aiuto
         help: {
             title: '💡 Hai bisogno di aiuto?',
             spamFolder: "• Controlla la cartella spam se non vedi l'email",
-            magicLinkExpiry: '• I link magici scadono dopo 15 minuti',
-            requestNewLink:
-                '• Puoi richiedere un nuovo link in qualsiasi momento',
-            noPassword:
-                '• Nessuna password richiesta - clicca semplicemente sul link'
+            codeExpiry: '• Il codice è valido per 15 minuti',
+            magicLinkExpiry: '• I codici scadono dopo 15 minuti',
+            requestNewLink: '• Puoi richiedere un nuovo codice in qualsiasi momento',
+            noLink: '• Nessun clic su link necessario — inserisci semplicemente il codice',
+            noPassword: '• Nessuna password richiesta — inserisci semplicemente il codice'
         },
 
         // Footer

@@ -470,8 +470,8 @@ export default {
             sessionExpired: 'Session abgloffe - Nomol ihlogge',
             loginAgain: '🔐 Nomol ihlogge',
             createNewAccount: 'Neue Account erstelle',
-            resendMagicLink: '🔄 Magic-Link nomol sende',
-            backToAccountOptions: '← Zrugg zu Account-Optione',
+            resendMagicLink: '🔄 Neue Code sende',
+            backToAccountOptions: '← Zrugg',
             addProfile: 'Hinzufüge',
             hideProfile: 'Verstecke',
             profileData: 'Profil-Date',
@@ -529,14 +529,29 @@ export default {
             }
         },
 
+        // Verifikation
+        verification: {
+            titleNew: 'Code zur Registrierig',
+            titleReturn: 'Code zum Ilogge',
+            sentTo: 'Code gschickt an',
+            codeLabel: '7-stellige Bestätigungscode',
+            codePlaceholder: '1234567',
+            submitCode: '✅ Code bestätige',
+            verifying: 'Wird überprüft...',
+            codeError: 'Bitte gib de 7-stellige Code ii.',
+            codeInvalid: 'Ungültige oder abglaufene Code. Bitte neue Code aafroge.'
+        },
+
         // Hilf-Sektion
         help: {
             title: '💡 Bruchsch Hilf?',
             spamFolder:
                 '• Überprüf din Spam-Ordner falls du d E-Mail nöd gsehsch',
-            magicLinkExpiry: '• Magic-Links laufe nach 15 Minute ab',
-            requestNewLink: '• Du chasch jederziit e neue Link aafroge',
-            noPassword: '• Kei Passwort nötig - klick eifach uf de Link'
+            codeExpiry: '• De Code isch 15 Minute gültig',
+            magicLinkExpiry: '• Codes laufe nach 15 Minute ab',
+            requestNewLink: '• Du chasch jederziit e neue Code aafroge',
+            noLink: '• Kein Link-Klick nötig – einfach Code iigee',
+            noPassword: '• Kei Passwort nötig – einfach Code iigee'
         },
 
         // Footer

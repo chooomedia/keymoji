@@ -469,8 +469,8 @@ export default {
             sessionExpired: 'Oturum süresi doldu - Tekrar giriş yapın',
             loginAgain: '🔐 Tekrar giriş yapın',
             createNewAccount: 'Yeni hesap oluştur',
-            resendMagicLink: '🔄 Sihirli Bağlantıyı Tekrar Gönder',
-            backToAccountOptions: '← Hesap Seçeneklerine Geri Dön',
+            resendMagicLink: '🔄 Yeni Kod Gönder',
+            backToAccountOptions: '← Geri',
             addProfile: 'Ekle',
             hideProfile: 'Gizle',
             profileData: 'Profil Verileri',
@@ -529,13 +529,26 @@ export default {
         },
 
         // Yardım bölümü
+        verification: {
+            titleNew: 'Kayıt kodu',
+            titleReturn: 'Giriş kodu',
+            sentTo: 'Kod gönderildi:',
+            codeLabel: '7 haneli onay kodu',
+            codePlaceholder: '1234567',
+            submitCode: '✅ Kodu Onayla',
+            verifying: 'Doğrulanıyor...',
+            codeError: 'Lütfen 7 haneli kodu girin.',
+            codeInvalid: 'Geçersiz veya süresi dolmuş kod. Lütfen yeni bir tane isteyin.'
+        },
+
         help: {
             title: '💡 Yardıma mı ihtiyacınız var?',
             spamFolder: '• E-postayı görmüyorsanız spam klasörünü kontrol edin',
-            magicLinkExpiry: '• Sihirli bağlantılar 15 dakika sonra sona erer',
-            requestNewLink:
-                '• İstediğiniz zaman yeni bir bağlantı isteyebilirsiniz',
-            noPassword: '• Şifre gerekmez - sadece bağlantıya tıklayın'
+            codeExpiry: '• Kod 15 dakika geçerlidir',
+            magicLinkExpiry: '• Kodlar 15 dakika sonra sona erer',
+            requestNewLink: '• İstediğiniz zaman yeni bir kod isteyebilirsiniz',
+            noLink: '• Bağlantıya tıklamaya gerek yok — sadece kodu girin',
+            noPassword: '• Şifre gerekmez — sadece kodu girin'
         },
 
         // Alt bilgi

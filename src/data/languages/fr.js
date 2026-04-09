@@ -475,8 +475,8 @@ export default {
             sessionExpired: 'Session expirée - Reconnexion',
             loginAgain: '🔐 Se reconnecter',
             createNewAccount: 'Créer un nouveau compte',
-            resendMagicLink: '🔄 Renvoyer le lien magique',
-            backToAccountOptions: '← Retour aux options de compte',
+            resendMagicLink: '🔄 Renvoyer le code',
+            backToAccountOptions: '← Retour',
             addProfile: 'Ajouter',
             hideProfile: 'Masquer',
             profileData: 'Données de profil',
@@ -536,16 +536,29 @@ export default {
             }
         },
 
+        // Vérification OTP
+        verification: {
+            titleNew: "Code d'inscription",
+            titleReturn: 'Code de connexion',
+            sentTo: 'Code envoyé à',
+            codeLabel: 'Code de confirmation à 7 chiffres',
+            codePlaceholder: '1234567',
+            submitCode: '✅ Confirmer le code',
+            verifying: 'Vérification...',
+            codeError: 'Veuillez saisir le code à 7 chiffres.',
+            codeInvalid: 'Code invalide ou expiré. Veuillez en demander un nouveau.'
+        },
+
         // Section d'aide
         help: {
             title: "💡 Besoin d'aide ?",
             spamFolder:
                 "• Vérifiez votre dossier spam si vous ne voyez pas l'e-mail",
-            magicLinkExpiry: '• Les liens magiques expirent après 15 minutes',
-            requestNewLink:
-                '• Vous pouvez demander un nouveau lien à tout moment',
-            noPassword:
-                '• Aucun mot de passe requis - cliquez simplement sur le lien'
+            codeExpiry: '• Le code est valable 15 minutes',
+            magicLinkExpiry: '• Les codes expirent après 15 minutes',
+            requestNewLink: '• Vous pouvez demander un nouveau code à tout moment',
+            noLink: '• Pas besoin de cliquer sur un lien – entrez simplement le code',
+            noPassword: '• Aucun mot de passe requis – entrez simplement le code'
         },
 
         // Pied de page

@@ -467,8 +467,8 @@ export default {
             sessionExpired: 'セッションが期限切れ - 再ログイン',
             loginAgain: '🔐 再ログイン',
             createNewAccount: '新しいアカウントを作成',
-            resendMagicLink: '🔄 マジックリンクを再送信',
-            backToAccountOptions: '← アカウントオプションに戻る',
+            resendMagicLink: '🔄 新しいコードを送る',
+            backToAccountOptions: '← 戻る',
             addProfile: '追加',
             hideProfile: '非表示',
             profileData: 'プロフィールデータ',
@@ -526,13 +526,26 @@ export default {
         },
 
         // ヘルプセクション
+        verification: {
+            titleNew: '登録コード',
+            titleReturn: 'ログインコード',
+            sentTo: 'コードを送信先:',
+            codeLabel: '7桁の確認コード',
+            codePlaceholder: '1234567',
+            submitCode: '✅ コードを確認',
+            verifying: '確認中...',
+            codeError: '7桁のコードを入力してください。',
+            codeInvalid: '無効または期限切れのコードです。新しいコードをリクエストしてください。'
+        },
+
         help: {
             title: '💡 ヘルプが必要ですか？',
-            spamFolder:
-                '• メールが見えない場合はスパムフォルダを確認してください',
-            magicLinkExpiry: '• マジックリンクは15分後に期限切れになります',
-            requestNewLink: '• いつでも新しいリンクをリクエストできます',
-            noPassword: '• パスワード不要 - リンクをクリックするだけ'
+            spamFolder: '• メールが見えない場合はスパムフォルダを確認してください',
+            codeExpiry: '• コードは15分間有効です',
+            magicLinkExpiry: '• コードは15分後に期限切れになります',
+            requestNewLink: '• いつでも新しいコードをリクエストできます',
+            noLink: '• リンクをクリックする必要はありません — コードを入力するだけ',
+            noPassword: '• パスワード不要 — コードを入力するだけ'
         },
 
         // フッター

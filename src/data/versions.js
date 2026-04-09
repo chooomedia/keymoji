@@ -1,4 +1,38 @@
 export const versions = {
+    '0.7.8': {
+        date: 'April 9, 2026',
+        core: {
+            auth: {
+                title: '🔑 OTP Code Authentication',
+                improvements: [
+                    'Replaced Magic Link click-flow with 7-digit OTP code via email',
+                    'Cryptographically secure code generation (crypto.randomInt)',
+                    'Smart label: Registration Code vs. Login Code based on account existence',
+                    'New OTP input UI: large centered numeric input, auto-submit on 7 digits',
+                    'Removed URL-parameter auto-verify logic from onMount',
+                    'New secureVerifyOTP() export in accountStore'
+                ]
+            },
+            ui: {
+                title: '🎨 AI Setup Topbar',
+                improvements: [
+                    'Swiss AI and Own AI buttons moved to fixed announcement topbar',
+                    'Removed border and border-radius from topbar buttons for smoother look',
+                    'Banner auto-dismissal with 3-day localStorage TTL',
+                    'Dynamic banner height via CSS custom property --banner-height'
+                ]
+            },
+            cleanup: {
+                title: '🧹 Code Cleanup',
+                improvements: [
+                    'Removed unused verify-magic-link.js and send-magic-link.js stubs',
+                    'Removed isVerifyingMagicLink / magicLinkStatus / magicLinkError state',
+                    'Updated resend-magic-link.js to OTP logic with 15min expiry',
+                    'Added createOtpEmail() template to email-templates.js'
+                ]
+            }
+        }
+    },
     '0.7.7': {
         date: 'November 16, 2025',
         core: {

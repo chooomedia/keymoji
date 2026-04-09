@@ -470,8 +470,8 @@ export default {
             sessionExpired: 'Sessie verlopen - Opnieuw inloggen',
             loginAgain: '🔐 Opnieuw inloggen',
             createNewAccount: 'Nieuw account aanmaken',
-            resendMagicLink: '🔄 Magische link opnieuw verzenden',
-            backToAccountOptions: '← Terug naar accountopties',
+            resendMagicLink: '🔄 Nieuwe code versturen',
+            backToAccountOptions: '← Terug',
             addProfile: 'Toevoegen',
             hideProfile: 'Verbergen',
             profileData: 'Profielgegevens',
@@ -530,12 +530,26 @@ export default {
         },
 
         // Help sectie
+        verification: {
+            titleNew: 'Registratiecode',
+            titleReturn: 'Inlogcode',
+            sentTo: 'Code verzonden naar',
+            codeLabel: '7-cijferige bevestigingscode',
+            codePlaceholder: '1234567',
+            submitCode: '✅ Code bevestigen',
+            verifying: 'Controleren...',
+            codeError: 'Voer de 7-cijferige code in.',
+            codeInvalid: 'Ongeldige of verlopen code. Vraag een nieuwe aan.'
+        },
+
         help: {
             title: '💡 Heb je hulp nodig?',
             spamFolder: '• Controleer je spam-map als je de e-mail niet ziet',
-            magicLinkExpiry: '• Magische links verlopen na 15 minuten',
-            requestNewLink: '• Je kunt altijd een nieuwe link aanvragen',
-            noPassword: '• Geen wachtwoord nodig - klik gewoon op de link'
+            codeExpiry: '• De code is 15 minuten geldig',
+            magicLinkExpiry: '• Codes verlopen na 15 minuten',
+            requestNewLink: '• Je kunt altijd een nieuwe code aanvragen',
+            noLink: '• Geen link klikken nodig — voer gewoon de code in',
+            noPassword: '• Geen wachtwoord nodig — voer gewoon de code in'
         },
 
         // Footer

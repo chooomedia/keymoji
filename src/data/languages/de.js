@@ -470,12 +470,12 @@ export default {
         returnUserTitle: '👋 Willkommen zurück!',
         returnUserDescription:
             'Wir haben deine E-Mail erkannt. Melde dich schnell wieder an.',
-        verificationTitle: '📧 E-Mail prüfen und verifizieren',
+        verificationTitle: '📧 Code eingeben',
         verificationDescription:
-            'Prüfe deine E-Mail {email} und klicke auf den Magic Link, um die Einrichtung abzuschließen',
-        verifyingTitle: '🔗 Magic Link wird verifiziert...',
+            'Gib den 7-stelligen Code ein, den wir an {email} gesendet haben',
+        verifyingTitle: '🔑 Code wird geprüft...',
         verifyingDescription:
-            'Bitte warte, während wir deinen Account verifizieren.',
+            'Bitte warte, während wir deinen Code verifizieren.',
         verificationErrorTitle: '❌ Verifikation fehlgeschlagen',
         verificationErrorDescription: 'Ein Fehler ist aufgetreten.',
 
@@ -490,8 +490,8 @@ export default {
             sessionExpired: 'Session abgelaufen – bitte neu anmelden',
             loginAgain: '🔐 Erneut einloggen',
             createNewAccount: 'Neues Konto erstellen',
-            resendMagicLink: '🔄 Magic Link erneut senden',
-            backToAccountOptions: '← Zurück zu den Account-Optionen',
+            resendMagicLink: '🔄 Neuen Code senden',
+            backToAccountOptions: '← Zurück',
             addProfile: 'Profil hinzufügen',
             hideProfile: 'Profil ausblenden',
             profileData: 'Profildaten',
@@ -563,14 +563,29 @@ export default {
             }
         },
 
+        // Verifikations-Bereich
+        verification: {
+            titleNew: 'Code zur Registrierung',
+            titleReturn: 'Code zum Einloggen',
+            sentTo: 'Code gesendet an',
+            codeLabel: '7-stelliger Bestätigungscode',
+            codePlaceholder: '1234567',
+            submitCode: '✅ Code bestätigen',
+            verifying: 'Wird geprüft...',
+            codeError: 'Bitte gib den 7-stelligen Code ein.',
+            codeInvalid: 'Ungültiger oder abgelaufener Code. Bitte neuen Code anfordern.'
+        },
+
         // Hilfe-Bereich
         help: {
             title: '💡 Hilfe benötigt?',
             spamFolder:
                 '• Prüfe deinen Spam-Ordner, falls du keine E-Mail siehst',
-            magicLinkExpiry: '• Magic Links verfallen nach 15 Minuten',
-            requestNewLink: '• Du kannst jederzeit einen neuen Link anfordern',
-            noPassword: '• Kein Passwort nötig – einfach Link klicken'
+            codeExpiry: '• Der Code ist 15 Minuten gültig',
+            magicLinkExpiry: '• Codes verfallen nach 15 Minuten',
+            requestNewLink: '• Du kannst jederzeit einen neuen Code anfordern',
+            noLink: '• Kein Link-Klick nötig – einfach Code eingeben',
+            noPassword: '• Kein Passwort nötig – einfach Code eingeben'
         },
 
         // Footer
@@ -624,16 +639,16 @@ export default {
             freeAccountActivated: 'Kostenloser Account aktiviert!',
             chartLoadFailed: 'Chart-Daten konnten nicht geladen werden',
             logoutSuccess: 'Erfolgreich abgemeldet',
-            accountFoundSendingLink:
-                'Account gefunden! Sende Magic Link an bestehendes Konto.',
-            creatingNewAccount: 'Erstelle neues Konto und sende Magic Link.',
+            accountFoundSendingCode: 'Account gefunden! Wir senden dir einen Code.',
+            accountFoundSendingLink: 'Account gefunden! Wir senden dir einen Code.',
+            creatingNewAccount: 'Neues Konto wird erstellt – Code kommt per E-Mail.',
             magicLinkSent:
-                'Magic Link gesendet! Überprüfe deine E-Mails um den Login abzuschließen.',
+                'Code gesendet! Gib den 7-stelligen Code aus deiner E-Mail ein.',
             magicLinkSendFailed:
-                'Magic Link konnte nicht gesendet werden. Bitte versuche es erneut.',
-            magicLinkVerified: 'Magic Link erfolgreich verifiziert!',
-            magicLinkVerificationFailed:
-                'Magic Link Verifizierung fehlgeschlagen',
+                'Code konnte nicht gesendet werden. Bitte versuche es erneut.',
+            otpVerified: 'Code bestätigt – du bist eingeloggt!',
+            magicLinkVerified: 'Code erfolgreich bestätigt!',
+            magicLinkVerificationFailed: 'Code-Überprüfung fehlgeschlagen',
             chartDataRefreshed: 'Chart-Daten erfolgreich aktualisiert!',
             refreshFailed: 'Aktualisierung fehlgeschlagen',
             noNewData: 'Keine neuen Daten verfügbar'

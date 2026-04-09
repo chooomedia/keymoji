@@ -471,8 +471,8 @@ export default {
             sessionExpired: 'Sesja wygasła - Ponowne logowanie',
             loginAgain: '🔐 Zaloguj się ponownie',
             createNewAccount: 'Utwórz nowe konto',
-            resendMagicLink: '🔄 Wyślij ponownie magiczny link',
-            backToAccountOptions: '← Wróć do opcji konta',
+            resendMagicLink: '🔄 Wyślij nowy kod',
+            backToAccountOptions: '← Wróć',
             addProfile: 'Dodaj',
             hideProfile: 'Ukryj',
             profileData: 'Dane profilu',
@@ -531,12 +531,26 @@ export default {
         },
 
         // Sekcja pomocy
+        verification: {
+            titleNew: 'Kod rejestracyjny',
+            titleReturn: 'Kod logowania',
+            sentTo: 'Kod wysłany do',
+            codeLabel: '7-cyfrowy kod potwierdzający',
+            codePlaceholder: '1234567',
+            submitCode: '✅ Potwierdź kod',
+            verifying: 'Weryfikacja...',
+            codeError: 'Wprowadź 7-cyfrowy kod.',
+            codeInvalid: 'Nieprawidłowy lub wygasły kod. Poproś o nowy.'
+        },
+
         help: {
             title: '💡 Potrzebujesz pomocy?',
             spamFolder: '• Sprawdź folder spam, jeśli nie widzisz emaila',
-            magicLinkExpiry: '• Magiczne linki wygasają po 15 minutach',
-            requestNewLink: '• Możesz poprosić o nowy link w dowolnym momencie',
-            noPassword: '• Brak hasła wymagane - po prostu kliknij link'
+            codeExpiry: '• Kod jest ważny przez 15 minut',
+            magicLinkExpiry: '• Kody wygasają po 15 minutach',
+            requestNewLink: '• Możesz poprosić o nowy kod w dowolnym momencie',
+            noLink: '• Nie trzeba klikać linku — po prostu wpisz kod',
+            noPassword: '• Nie jest wymagane hasło — po prostu wpisz kod'
         },
 
         // Stopka
