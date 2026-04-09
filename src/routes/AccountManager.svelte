@@ -71,7 +71,7 @@
     // Reaktive PageLayout Props - dynamisch basierend auf Account-Status
     $: pageTitle = (() => {
         if (isVerifyingOTP) {
-            return $translations?.accountManager?.verifyingTitle || '🔑 Code wird geprüft...';
+            return $translations?.accountManager?.verifyingTitle || '🔑 Verifying code...';
         }
         if ($isLoggedIn) {
             // Get user name from multiple sources with smart fallback (Priority Order!)
@@ -89,14 +89,14 @@
             return $translations?.accountManager?.verificationTitle || '📧 Check Your Email and Verify';
         }
         if (shouldShowSimplifiedView) {
-            return $translations?.accountManager?.returnUserTitle || '👋 Willkommen zurück!';
+            return $translations?.accountManager?.returnUserTitle || '👋 Welcome back!';
         }
         return $translations?.accountManager?.pageTitle || 'Account Manager';
     })();
 
     $: pageDescription = (() => {
         if (isVerifyingOTP) {
-            return $translations?.accountManager?.verifyingDescription || 'Bitte warte, während wir deinen Code prüfen.';
+            return $translations?.accountManager?.verifyingDescription || 'Please wait while we verify your code.';
         }
         if ($isLoggedIn) {
             return $translations?.accountManager?.welcomeDescription || 'Ready to create some amazing emoji passwords? Your account is secure and ready to go!';
@@ -105,7 +105,7 @@
             return ($translations?.accountManager?.verificationDescription || 'Check your email {email} and click the magic link to complete setup').replace('{email}', email);
         }
         if (shouldShowSimplifiedView) {
-            return $translations?.accountManager?.returnUserDescription || 'Wir haben deine E-Mail-Adresse erkannt. Logge dich schnell wieder ein.';
+            return $translations?.accountManager?.returnUserDescription || 'We recognised your email. Log back in quickly.';
         }
         return $translations?.accountManager?.pageDescription || 'Manage your security settings and account preferences';
     })();
@@ -765,11 +765,11 @@
             if (accountCheck.exists) {
                 console.log('✅ Account already exists, sending OTP code');
                 isNewUser = false;
-                showInfo($translations?.accountManager?.messages?.accountFoundSendingCode || 'Account gefunden! Wir senden dir einen Code.', 3000);
+                showInfo($translations?.accountManager?.messages?.accountFoundSendingCode || 'Account found! Sending you a code.', 3000);
             } else {
                 console.log('🆕 No existing account found, will create new account');
                 isNewUser = true;
-                showInfo($translations?.accountManager?.messages?.creatingNewAccount || 'Neues Konto wird erstellt – Code kommt per E-Mail.', 3000);
+                showInfo($translations?.accountManager?.messages?.creatingNewAccount || 'Creating new account — check your email for the code.', 3000);
             }
 
             // Determine if we're in development mode
@@ -811,9 +811,9 @@
             console.error('Login error:', error);
             const errMsg = error?.message || '';
             if (errMsg.includes('429') || errMsg.toLowerCase().includes('too many') || errMsg.toLowerCase().includes('rate limit')) {
-                showError($translations?.accountManager?.login?.rateLimitExceeded || 'Zu viele Versuche. Bitte 10 Minuten warten.', 8000);
+                showError($translations?.accountManager?.login?.rateLimitExceeded || 'Too many attempts. Please wait 10 minutes.', 8000);
             } else {
-                showError($translations?.accountManager?.messages?.magicLinkSendFailed || 'Code konnte nicht gesendet werden. Bitte erneut versuchen.', 5000);
+                showError($translations?.accountManager?.messages?.magicLinkSendFailed || 'Failed to send code. Please try again.', 5000);
             }
         } finally {
             isSubmitting = false;
@@ -834,7 +834,7 @@
 
         const clean = String(otpCode || '').replace(/\s/g, '');
         if (!/^\d{7}$/.test(clean)) {
-            otpError = $translations?.accountManager?.verification?.codeError || 'Bitte gib den 7-stelligen Code ein.';
+            otpError = $translations?.accountManager?.verification?.codeError || 'Please enter the 7-digit code.';
             return;
         }
 
@@ -843,17 +843,17 @@
 
         try {
             await secureVerifyOTP(clean, email);
-            showSuccess($translations?.accountManager?.messages?.otpVerified || 'Code bestätigt – du bist eingeloggt!', 3000);
+            showSuccess($translations?.accountManager?.messages?.otpVerified || 'Code confirmed — you are logged in!', 3000);
             markSuccessfulLogin(email);
             checkSessionStatus();
         } catch (error) {
             console.error('❌ OTP verification failed:', error);
             const msg = error.message || '';
             if (msg.includes('already') || msg.includes('exists') || msg.includes('logged in')) {
-                showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Eingeloggt!', 2000);
+                showSuccess($translations?.accountManager?.messages?.magicLinkVerified || 'Logged in!', 2000);
                 checkSessionStatus();
             } else {
-                otpError = $translations?.accountManager?.verification?.codeInvalid || 'Ungültiger oder abgelaufener Code. Bitte neu anfordern.';
+                otpError = $translations?.accountManager?.verification?.codeInvalid || 'Invalid or expired code. Please request a new one.';
                 showError(otpError, 5000);
                 // Felder leeren und Fokus auf erstes Feld
                 otpDigits = ['', '', '', '', '', '', ''];
@@ -1440,11 +1440,11 @@
                         <div class="text-center space-y-1">
                             <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {isNewUser
-                                    ? ($translations?.accountManager?.verification?.titleNew || 'Code zur Registrierung')
-                                    : ($translations?.accountManager?.verification?.titleReturn || 'Code zum Einloggen')}
+                                    ? ($translations?.accountManager?.verification?.titleNew || 'Registration Code')
+                                    : ($translations?.accountManager?.verification?.titleReturn || 'Login Code')}
                             </p>
                             <p class="text-xs text-gray-400 dark:text-gray-500">
-                                {$translations?.accountManager?.verification?.sentTo || 'Code gesendet an'}
+                                {$translations?.accountManager?.verification?.sentTo || 'Code sent to'}
                                 <strong class="text-gray-600 dark:text-gray-300">{email}</strong>
                             </p>
                         </div>

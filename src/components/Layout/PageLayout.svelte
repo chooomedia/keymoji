@@ -61,7 +61,7 @@
     <!-- Main Content Container -->
     <div class="min-h-screen scroll-smooth overflow-x-hidden" in:fade={{duration: 300}} out:fade={{duration: 200}}>
         <!-- Main Content -->
-        <section class="main-content flex flex-col justify-center items-center min-h-screen py-8 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
+        <section class="main-content flex flex-col justify-center items-center min-h-screen pt-4 pb-8 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
 
             <!-- Content before header (e.g. images) -->
             <slot name="before-header"></slot>
