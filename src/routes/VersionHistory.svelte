@@ -1,193 +1,377 @@
 <!-- src/routes/VersionHistory.svelte -->
 <script>
-    import { fly } from 'svelte/transition';
     import { onMount, onDestroy } from 'svelte';
-    import { navigate } from "svelte-routing";
-    import { versions } from '../versions.js';
-    import { updateSeo } from '../stores/seoStore.js';
-    import Header from '../Header.svelte';
-    import FixedMenu from '../widgets/FixedMenu.svelte';
-  
-    export let currentVersion;
+    import { fly, slide } from 'svelte/transition';
+    import { versions } from '../data/versions.js';
+    import { updateSeo } from '../stores/seoStore';
+    import { currentLanguage, translations } from '../stores/contentStore.js';
+    import { navigate } from 'svelte-routing';
+    import PageLayout from '../components/Layout/PageLayout.svelte';
+    import { versionInfo, appVersion } from '../utils/version';
+    import FooterInfo from '../widgets/FooterInfo.svelte';
+
+    // Reaktive PageLayout Props
+    $: pageTitle = $translations?.versions?.pageTitle || 'Version History';
+    $: pageDescription = $translations?.versions?.pageDescription || 'Check out the development history and changelog of Keymoji.';
+   
+    // Verwende appVersion statt currentVersion Prop
+    let currentVersion = appVersion;
     let timelineHeight = 0;
     let versionItems = [];
-    const DOT_HEIGHT = 42; // w-4 h-4 = 16px für jeden Timeline-Punkt
-  
-    // Berechnet die Höhe der Timeline basierend auf den Elementen und Timeline-Punkten
+    
+    // Accordion State - Only one version open at a time
+    // Current Version initial geöffnet
+    let expandedVersion = currentVersion; // Only store the currently expanded version
+   
+    // Berechnet die Timeline-Höhe: Vom ersten Dot bis zum letzten Dot
     function calculateTimelineHeight() {
-      if (!versionItems.length) return 0;
-      
-      // Gesamthöhe aller Elemente berechnen
-      const totalHeight = versionItems.reduce((acc, item, index) => {
-        if (!item) return acc;
-        const rect = item.getBoundingClientRect();
+        if (!versionItems.length) return 0;
         
-        // Höhe des Elements plus Höhe des Timeline-Punkts
-        const elementHeight = rect.height + DOT_HEIGHT;
+        const firstItem = versionItems[0];
+        const lastItem = versionItems[versionItems.length - 1];
         
-        // Wenn es das letzte Element ist, bis zur Mitte des letzten Punktes
-        if (index === versionItems.length - 1) {
-          return acc + (DOT_HEIGHT / 2);
-        }
+        if (!firstItem || !lastItem) return 0;
         
-        return acc + elementHeight;
-      }, 0);
-  
-      return totalHeight;
+        const firstRect = firstItem.getBoundingClientRect();
+        const lastRect = lastItem.getBoundingClientRect();
+        
+        // Abstand zwischen erstem und letztem Element
+        // Da alle Dots bei top: 20px positioniert sind
+        const distance = lastRect.top - firstRect.top;
+        
+        // Timeline geht von erstem Dot (20px) bis letztem Dot (20px)
+        return distance; // Perfekt aligned
     }
-  
-    // Timeline-Höhe aktualisieren wenn sich Elemente ändern
+   
+    // Timeline-Höhe aktualisieren - mit Throttle für Performance
+    let isUpdating = false;
     function updateTimelineHeight() {
-      timelineHeight = calculateTimelineHeight();
+        if (isUpdating) return;
+        isUpdating = true;
+        
+        requestAnimationFrame(() => {
+            const newHeight = calculateTimelineHeight();
+            if (newHeight !== timelineHeight) {
+                timelineHeight = newHeight;
+            }
+            isUpdating = false;
+        });
     }
-  
-    onMount(() => {
-      // Update SEO settings for this page
-      updateSeo({
-        title: "Version History - Keymoji",
-        description: "Check out the development history and changelog of Keymoji, the emoji password generator.",
-        url: window.location.pathname,
-        pageType: "versions"
-      });
-      
-      updateTimelineHeight();
-      // Listener für Größenänderungen
-      window.addEventListener('resize', updateTimelineHeight);
-      
-      // Schema injection
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.textContent = JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Keymoji",
-        "applicationCategory": "UtilityApplication",
-        "operatingSystem": "Any",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "softwareVersion": currentVersion,
-        "releaseNotes": Object.entries(versions).map(([version, details]) => ({
-          "@type": "SoftwareApplication",
-          "version": version,
-          "datePublished": details.date,
-          "description": Object.entries(details)
-            .filter(([category]) => category !== 'date')
-            .map(([_, content]) => 
-              Object.values(content)
-                .map(data => `${data.title}: ${data.improvements.join(', ')}`)
-                .join('. ')
-            ).join('. ')
-        }))
-      });
-      document.head.appendChild(script);
-      
-      return () => {
-        window.removeEventListener('resize', updateTimelineHeight);
-        if (script.parentNode) {
-          document.head.removeChild(script);
-        }
-      };
-    });
-  
+
+    // Navigation zur Home-Seite
     function navigateBack() {
-      navigate("/", { replace: true });
+        const lang = $currentLanguage || 'en';
+        const fullPath = lang === 'en' ? '/' : `/${lang}`;
+        navigate(fullPath, { replace: true });
     }
-  
-    // MutationObserver für dynamische Inhaltsänderungen
-    let observer;
+    
+    // Toggle Version Expansion - Accordion behavior (only one open at a time)
+    function toggleVersion(version) {
+        // If clicking the same version that's already open, close it
+        // Otherwise, open the clicked version and close all others
+        expandedVersion = expandedVersion === version ? null : version;
+        
+        // Smooth timeline height update während der Animation
+        requestAnimationFrame(() => {
+            updateTimelineHeight();
+            setTimeout(() => updateTimelineHeight(), 50);
+            setTimeout(() => updateTimelineHeight(), 100);
+            setTimeout(() => updateTimelineHeight(), 150);
+            setTimeout(() => updateTimelineHeight(), 200);
+            setTimeout(() => updateTimelineHeight(), 250);
+            setTimeout(() => updateTimelineHeight(), 300);
+            setTimeout(() => updateTimelineHeight(), 350);
+        });
+    }
+
     onMount(() => {
-      observer = new MutationObserver(updateTimelineHeight);
-      versionItems.forEach(item => {
-        if (item) {
-          observer.observe(item, { 
-            childList: true, 
-            subtree: true, 
-            attributes: true 
-          });
-        }
-      });
-  
-      return () => observer.disconnect();
+        // Update SEO settings for this page
+        updateSeo({
+            title: pageTitle,
+            description: pageDescription,
+            url: window.location.pathname,
+            pageType: "versions"
+        });
+        
+        // Initial Timeline-Höhe berechnen - mehrfach für smooth initial render
+        requestAnimationFrame(() => {
+            updateTimelineHeight();
+            setTimeout(() => updateTimelineHeight(), 100);
+            setTimeout(() => updateTimelineHeight(), 200);
+            setTimeout(() => updateTimelineHeight(), 400);
+            setTimeout(() => updateTimelineHeight(), 600);
+        });
+        
+        // Timeline-Höhe bei Resize neu berechnen (debounced)
+        let resizeTimeout;
+        const handleResize = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                updateTimelineHeight();
+            }, 150);
+        };
+        
+        window.addEventListener('resize', handleResize);
+        
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            clearTimeout(resizeTimeout);
+        };
     });
 </script>
-  
-<Header />
-  
-<div class="container mx-auto px-4 py-8">
-    <div class="my-8 text-center pt-10">
-      <h1 class="text-3xl font-bold text-black dark:text-white">
-        Version History
-      </h1>
-      <button 
-        on:click={navigateBack}
-        class="mb-6 inline-flex items-center text-gray-600 dark:text-gray hover:text-yellow transition-all duration-300"
-      >
-        <span class="mr-2">←</span> Back to App
-      </button>
-    </div>
-  
-    <div class="max-w-3xl mx-auto relative">
-      <!-- Dynamische Timeline-Linie -->
-      <div 
-        style="left:23px; height: {timelineHeight}px;" 
-        class="absolute top-2 w-0.5 bg-creme dark:bg-aubergine duration-300"
-      />
-  
-      {#each Object.entries(versions).sort((a, b) => b[0].localeCompare(a[0])) as [version, details], i (version)}
-        <div 
-          bind:this={versionItems[i]}
-          class="relative mb-12 pl-12 lg:pl-16"
-          in:fly={{ y: 20, duration: 300, delay: i * 100 }}
-          on:animationend={updateTimelineHeight}
+
+<svelte:head>
+    <title>{pageTitle} - Keymoji</title>
+    <meta name="description" content={pageDescription} />
+</svelte:head>
+
+<!-- Ensure content is always visible - even if translations are loading -->
+{#if $translations?.versions || true}
+<PageLayout {pageTitle} {pageDescription}>
+    
+    <!-- Back Button - Muted style like Random button -->
+    <div slot="before-content" class="relative w-full flex justify-center -mb-14">
+        <button 
+            on:click={navigateBack}
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 ease-in-out transform focus:ring-2 focus:ring-offset-2 z-20 bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 focus:ring-yellow-400"
+            aria-label="Back"
+            title="Back"
         >
-          <!-- Timeline dot -->
-          <div class="absolute left-6 top-2 w-4 h-4 rounded-full bg-yellow border-4 border-creme dark:border-aubergine transform -translate-x-1/2"></div>
-          
-          <!-- Version content -->
-          <div class="flex items-center gap-4 mb-4">
-            
-            <time class="text-sm font-normal dark:text-gray">
-              {details.date}
-            </time>
-            <h2 class="text-xl font-semibold text-black dark:text-white inline-flex items-center">
-              v{version}
-              {#if version === currentVersion}
-                <span class="ml-3 px-3 py-1 text-xs bg-yellow text-black rounded-full">
-                  Current
-                </span>
-              {/if}
-            </h2>
-          </div>
-  
-          <!-- Version details -->
-          {#each Object.entries(details) as [category, content]}
-            {#if category !== 'date'}
-              {#each Object.entries(content) as [subcategory, data]}
-                <div class="mb-6 bg-creme-50 dark:bg-aubergine-50 rounded-xl p-4">
-                  <h3 class="text-lg font-semibold text-black dark:text-white mb-3">
-                    {data.title}
-                  </h3>
-                  <ul class="space-y-2">
-                    {#each data.improvements as improvement}
-                      <li class="flex items-start">
-                        <span class="mr-2">•</span>
-                        <span class="text-gray">
-                          {improvement}
-                        </span>
-                      </li>
-                    {/each}
-                  </ul>
-                </div>
-              {/each}
-            {/if}
-          {/each}
-        </div>
-      {/each}
+            <span class="text-lg">←</span>
+            <span class="font-semibold">Back</span>
+        </button>
     </div>
-</div>
-  
-  <!-- Fixed Menu -->
-<FixedMenu align={'bottom'} />
+    
+    <!-- Content Container - Filigranes Spacing oben -->
+    <div class="container mx-auto pt-8 pb-4">
+
+        <!-- Version History Content - Breiter und scrollbar -->
+        <div class="w-full max-w-2xl mx-auto">
+            <div class="relative">
+                <div class="mx-auto relative timeline-container pb-8">
+                    <!-- Timeline-Linie: Perfekt von erstem bis letztem Dot -->
+                    <div 
+                        style="left: 5px; top: 20px; height: {timelineHeight}px; transition: height 350ms cubic-bezier(0.4, 0, 0.2, 1); will-change: height;" 
+                        class="absolute w-0.5 bg-gradient-to-b from-yellow-500 via-aubergine-200 to-yellow-500 dark:from-yellow-500 dark:via-secondary dark:to-yellow-500 opacity-30 transform-gpu"
+                    />
+
+                    {#each Object.entries(versions).sort((a, b) => b[0].localeCompare(a[0])) as [version, details], i (version)}
+                        {@const isExpanded = expandedVersion === version}
+                        
+                        <div 
+                            bind:this={versionItems[i]}
+                            class="relative mb-6 pl-8"
+                            in:fly={{ y: 20, duration: 400, delay: i * 80 }}
+                            on:introend={() => {
+                                updateTimelineHeight();
+                            }}
+                        >
+                            <!-- Timeline Dot: Perfekt zentriert auf Button-Höhe -->
+                            <div 
+                                style="left: 0; top: 20px;"
+                                class="absolute w-3 h-3 rounded-full bg-yellow-500 shadow-md transition-all duration-200"
+                            ></div>
+                            
+                            <!-- Collapsible Version Header - Elegant & Filigran -->
+                            <button
+                                on:click={() => toggleVersion(version)}
+                                class="w-full text-left bg-creme-200 dark:bg-aubergine-900 rounded-xl p-3.5 hover:bg-creme-300 dark:hover:bg-aubergine-800 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
+                                aria-expanded={isExpanded}
+                                aria-controls={`version-${version}-content`}
+                            >
+                                <div class="flex items-center justify-between gap-3">
+                                    <!-- Version & Date - Gleiche Höhe, elegante Ausrichtung -->
+                                    <div class="flex items-baseline gap-3 flex-1">
+                                        <h2 class="text-lg font-semibold text-black dark:text-white inline-flex items-center gap-2">
+                                            v{version}
+                                            {#if version === currentVersion}
+                                                <span class="px-2 py-0.5 font-semibold text-xs bg-yellow-500 text-black rounded-full">
+                                                    Current
+                                                </span>
+                                            {/if}
+                                        </h2>
+                                        <time class="text-xs font-normal text-gray-500 dark:text-gray-400">
+                                            {details.date}
+                                        </time>
+                                    </div>
+                                    
+                                    <!-- Chevron Icon - Rotates on toggle -->
+                                    <svg 
+                                        class="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0 transition-transform duration-300 ease-in-out transform {isExpanded ? 'rotate-180' : 'rotate-0'}" 
+                                        fill="none" 
+                                        stroke="currentColor" 
+                                        viewBox="0 0 24 24"
+                                        stroke-width="2.5"
+                                        aria-hidden="true"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </button>
+
+                            <!-- Collapsible Version Content - Elegant & Kompakt -->
+                            {#if isExpanded}
+                                <div 
+                                    id={`version-${version}-content`}
+                                    class="mt-3 space-y-3"
+                                    transition:slide={{ duration: 350, easing: (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t }}
+                                >
+                                    {#if details.note}
+                                        <!-- Simple note version (for minor iterations) -->
+                                        <div class="bg-white/50 dark:bg-aubergine-800/50 rounded-lg p-3 border border-gray-200 dark:border-aubergine-700">
+                                            <p class="text-sm text-gray-600 dark:text-gray-300 italic">
+                                                {details.note}
+                                            </p>
+                                        </div>
+                                    {:else}
+                                        <!-- Full changelog version -->
+                                        {#each Object.entries(details) as [category, content]}
+                                            {#if category !== 'date' && category !== 'note'}
+                                                {#each Object.entries(content) as [subcategory, data]}
+                                                    {#if data && data.title}
+                                                        <div class="bg-white/50 dark:bg-aubergine-800/50 rounded-lg p-3 border border-gray-200 dark:border-aubergine-700 {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-lesson' : ''}">
+                                                            <h3 class="text-sm font-semibold text-black dark:text-white mb-2 {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-title' : ''}">
+                                                                {data.title}
+                                                            </h3>
+                                                            {#if data.improvements && data.improvements.length > 0}
+                                                                <ul class="space-y-1.5">
+                                                                    {#each data.improvements as improvement}
+                                                                        <li class="flex items-start {data.title === 'CRITICAL LESSON LEARNED' ? 'critical-item' : ''}">
+                                                                            <span class="mr-2 text-yellow-500 text-xs mt-0.5">•</span>
+                                                                            <span class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                                                                                {improvement}
+                                                                            </span>
+                                                                        </li>
+                                                                    {/each}
+                                                                </ul>
+                                                            {/if}
+                                                        </div>
+                                                    {/if}
+                                                {/each}
+                                            {/if}
+                                        {/each}
+                                    {/if}
+                                </div>
+                            {/if}
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Back to Top Button (konsistent mit Static Pages) -->
+        <div class="w-full mt-12 text-center">
+            <button
+                on:click={() => {
+                    console.log('🔝 Scrolling to top...');
+                    
+                    // ROBUST SCROLL - Try ALL methods immediately
+                    try {
+                        // Method 1: window.scrollTo (most reliable)
+                        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                        
+                        // Method 2: document elements (immediate)
+                        document.documentElement.scrollTop = 0;
+                        document.body.scrollTop = 0;
+                        
+                        // Method 3: All scrollable containers
+                        const scrollableElements = [
+                            document.querySelector('.app-container'),
+                            document.querySelector('.main-content'),
+                            document.querySelector('main'),
+                            document.querySelector('.wrapper'),
+                            document.querySelector('[class*="scroll"]')
+                        ];
+                        
+                        scrollableElements.forEach(el => {
+                            if (el) {
+                                el.scrollTop = 0;
+                                el.scrollTo?.({ top: 0, behavior: 'smooth' });
+                            }
+                        });
+                        
+                        console.log('✅ Scroll to top triggered');
+                    } catch (error) {
+                        console.error('❌ Scroll error:', error);
+                    }
+                }}
+                class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-yellow-500 text-black dark:bg-aubergine-900 dark:text-white rounded-full font-medium shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none"
+                aria-label="Back to top"
+                title="Back to top"
+            >
+                <span class="text-xl">↑</span>
+                <span>Back to top</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer Information Component -->
+    <FooterInfo slot="footer" />
+</PageLayout>
+{/if}
+{#if !$translations?.versions}
+    <!-- Fallback: Show loading state if translations not ready -->
+    <div class="flex items-center justify-center min-h-[400px]">
+        <div class="text-center">
+            <div class="w-12 h-12 border-4 border-yellow-200 dark:border-yellow-900 border-t-yellow-500 dark:border-t-yellow-400 rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-gray-600 dark:text-gray-400">Loading version history...</p>
+        </div>
+    </div>
+{/if}
+
+<style>
+    /* Critical Lesson Learned - Elegant & Filigran */
+    .critical-lesson {
+        background: linear-gradient(135deg, #fef3c720 0%, #fde68a30 30%, #f59f0b25 70%, #d9770630 100%) !important;
+        border: 1px solid #d9770650 !important;
+        box-shadow: 0 0 12px rgba(217, 119, 6, 0.15);
+        animation: criticalPulse 4s ease-in-out infinite;
+    }
+
+    .critical-title {
+        text-shadow: 0 0 6px rgba(217, 119, 6, 0.3);
+        animation: criticalGlow 3s ease-in-out infinite alternate;
+    }
+
+    .critical-item {
+        background: rgba(217, 119, 6, 0.08);
+        border-radius: 4px;
+        padding: 4px 6px;
+        margin: 2px 0;
+        border-left: 2px solid #d97706;
+        transition: all 0.2s ease;
+    }
+
+    .critical-item > span {
+        color: #000000 !important;
+    }
+
+    :global(.dark) .critical-item > span {
+        color: #ffffff !important;
+    }
+
+    .critical-item:hover {
+        background: rgba(217, 119, 6, 0.12);
+        transform: translateX(2px);
+        border-left: 2px solid #f59e0b;
+        cursor: pointer;
+    }
+
+    @keyframes criticalPulse {
+        0%, 100% {
+            box-shadow: 0 0 12px rgba(217, 119, 6, 0.15);
+        }
+        50% {
+            box-shadow: 0 0 18px rgba(217, 119, 6, 0.25);
+        }
+    }
+
+    @keyframes criticalGlow {
+        0% {
+            text-shadow: 0 0 6px rgba(217, 119, 6, 0.3);
+        }
+        100% {
+            text-shadow: 0 0 12px rgba(217, 119, 6, 0.5);
+        }
+    }
+</style>

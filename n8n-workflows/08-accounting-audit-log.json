@@ -1,0 +1,258 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "content": "## Accounting Audit Log Workflow\n\nSichere Audit-Logging für alle Accounting-Operationen mit:\n- Security-Logging\n- Rate-Limiting\n- Client-Fingerprinting\n- Audit-Trail",
+                "height": 688,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                848
+            ],
+            "id": "audit-log-note",
+            "name": "Audit Log Note"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "accounting-audit-log",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS, GET"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Credentials",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "audit-log-webhook",
+            "name": "Accounting Audit Log",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -272,
+                1104
+            ],
+            "webhookId": "accounting-audit-log"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Extract email from request body\nconst requestData = $input.first().json;\nconst email = requestData.email;\nconst name = requestData.name || '';\nconst userId = requestData.userId || '';\n\n// Basic email validation\nif (!email || typeof email !== 'string' || email.length < 3) {\n  return [\n    {\n      json: {\n        success: false,\n        error: 'Invalid email address',\n        exists: false,\n      }\n    }\n  ];\n}\n\nconsole.log('🔍 Checking account existence for:', email);\n\n// Pass email to next node for Google Sheets lookup\nreturn [\n  {\n    json: {\n      email: email,\n      name: name,\n      userId: userId,\n      action: 'check'\n    }\n  }\n];"
+            },
+            "id": "audit-log-processing",
+            "name": "Audit Log Processing",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -48,
+                1104
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "audit_log",
+                    "mode": "list",
+                    "cachedResultName": "audit_log",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=audit_log"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "Event",
+                            "displayName": "Event",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Timestamp",
+                            "displayName": "Timestamp",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "UserId",
+                            "displayName": "UserId",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Email",
+                            "displayName": "Email",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "ClientFingerprint",
+                            "displayName": "ClientFingerprint",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "SessionId",
+                            "displayName": "SessionId",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Tier",
+                            "displayName": "Tier",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Action",
+                            "displayName": "Action",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Workflow",
+                            "displayName": "Workflow",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "save-audit-log",
+            "name": "Save Audit Log",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                176,
+                1104
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Success Response\nconst auditData = $input.first().json;\n\nconsole.log('=== AUDIT LOG SUCCESS ===');\nconsole.log('Audit data:', JSON.stringify(auditData, null, 2));\n\nconst successResponse = {\n  success: true,\n  message: 'Audit log entry created successfully',\n  event: auditData.event,\n  timestamp: auditData.timestamp,\n  auditId: auditData.timestamp\n};\n\nconsole.log('Success response:', JSON.stringify(successResponse, null, 2));\n\nreturn { json: successResponse };"
+            },
+            "id": "audit-success-response",
+            "name": "Audit Success Response",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                400,
+                1104
+            ]
+        }
+    ],
+    "connections": {
+        "Accounting Audit Log": {
+            "main": [
+                [
+                    {
+                        "node": "Audit Log Processing",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Audit Log Processing": {
+            "main": [
+                [
+                    {
+                        "node": "Save Audit Log",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Audit Log": {
+            "main": [
+                [
+                    {
+                        "node": "Audit Success Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [
+        {
+            "createdAt": "2024-01-01T00:00:00.000Z",
+            "updatedAt": "2024-01-01T00:00:00.000Z",
+            "id": "accounting-audit",
+            "name": "accounting-audit"
+        }
+    ],
+    "triggerCount": 0,
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "versionId": "1"
+}

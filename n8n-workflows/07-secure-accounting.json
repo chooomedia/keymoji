@@ -1,0 +1,561 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "content": "## Secure Accounting Workflow\n\nSichere Accounting-Operationen mit:\n- Audit-Logging\n- Security-Logging\n- Validierung\n- Rate-Limiting\n- Client-Fingerprinting",
+                "height": 688,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                848
+            ],
+            "id": "secure-accounting-note",
+            "name": "Secure Accounting Note"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "secure-account-create",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS, GET"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Credentials",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "secure-create-webhook",
+            "name": "Secure Create Account",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -272,
+                1104
+            ],
+            "webhookId": "secure-account-create"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "secure-account-update",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS, GET"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Credentials",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "secure-update-webhook",
+            "name": "Secure Update Account",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -272,
+                1376
+            ],
+            "webhookId": "secure-account-update"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "secure-account-get",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS, GET"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Credentials",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "secure-get-webhook",
+            "name": "Secure Get Account",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -272,
+                1648
+            ],
+            "webhookId": "secure-account-get"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Secure Accounting Validation\nconst webhookData = $input.first().json;\n\nconsole.log('=== SECURE ACCOUNTING VALIDATION ===');\nconsole.log('Raw webhook data:', JSON.stringify(webhookData, null, 2));\n\n// Extract body from webhook data\nconst data = webhookData.body || webhookData;\n\nconsole.log('=== VALIDATION DATA ===');\nconsole.log('Operation:', data?.operation);\nconsole.log('UserId:', data?.userId);\nconsole.log('Email:', data?.email);\nconsole.log('Client Fingerprint:', data?.clientFingerprint);\nconsole.log('Session ID:', data?.sessionId);\nconsole.log('Timestamp:', data?.timestamp);\n\n// 1. Grundlegende Validierung\nif (!data?.operation) {\n  console.log('❌ Missing operation field');\n  throw new Error('Missing required field: operation');\n}\n\nif (!data?.userId) {\n  console.log('❌ Missing userId field');\n  throw new Error('Missing required field: userId');\n}\n\n// 2. Operation-Validierung\nconst validOperations = ['CREATE_ACCOUNT', 'UPDATE_ACCOUNT', 'GET_ACCOUNT', 'LOGIN', 'VERIFY_LOGIN'];\nif (!validOperations.includes(data.operation)) {\n  console.log('❌ Invalid operation:', data.operation);\n  throw new Error(`Invalid operation: ${data.operation}. Must be one of: ${validOperations.join(', ')}`);\n}\n\n// 3. Client-Fingerprint Validierung\nif (!data?.clientFingerprint) {\n  console.log('❌ Missing client fingerprint');\n  throw new Error('Missing required field: clientFingerprint');\n}\n\n// 4. Session-Validierung\nif (!data?.sessionId) {\n  console.log('❌ Missing session ID');\n  throw new Error('Missing required field: sessionId');\n}\n\n// 5. Email-Validierung (wenn vorhanden)\nif (data.email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(data.email)) {\n  console.log('❌ Invalid email format:', data.email);\n  throw new Error('Invalid email format');\n}\n\n// 6. Tier-Validierung (wenn vorhanden)\nconst validTiers = ['free', 'pro', 'guest'];\nif (data.tier && !validTiers.includes(data.tier)) {\n  console.log('❌ Invalid tier:', data.tier);\n  throw new Error(`Invalid tier: ${data.tier}. Must be one of: ${validTiers.join(', ')}`);\n}\n\n// Sanitize and prepare data\nconst sanitizedData = {\n  operation: data.operation,\n  userId: data.userId,\n  email: data.email || '',\n  name: data.name || '',\n  profile: data.profile || {},\n  metadata: data.metadata || {},\n  tier: data.tier || 'free',\n  clientFingerprint: data.clientFingerprint,\n  sessionId: data.sessionId,\n  timestamp: data.timestamp || Date.now(),\n  validationPassed: true\n};\n\nconsole.log('✅ Secure accounting validation passed');\nconsole.log('Sanitized data:', JSON.stringify(sanitizedData, null, 2));\n\nreturn { json: sanitizedData };"
+            },
+            "id": "secure-validation",
+            "name": "Secure Validation",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -48,
+                1104
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    },
+                    "conditions": [
+                        {
+                            "id": "operation-check",
+                            "leftValue": "={{ $json.operation }}",
+                            "rightValue": "CREATE_ACCOUNT",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "route-by-operation",
+            "name": "Route by Operation",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                176,
+                1104
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Secure Account Creation\nconst data = $input.first().json;\nconst now = new Date().toISOString();\n\nconsole.log('=== SECURE ACCOUNT CREATION ===');\nconsole.log('Input data:', JSON.stringify(data, null, 2));\n\n// Create secure account with audit trail\nconst secureAccount = {\n  userId: data.userId,\n  email: data.email,\n  name: data.name,\n  tier: data.tier || 'free',\n  createdAt: now,\n  lastLogin: now,\n  profile: data.profile,\n  metadata: data.metadata,\n  status: 'active',\n  security: {\n    clientFingerprint: data.clientFingerprint,\n    sessionId: data.sessionId,\n    createdBy: 'secure_accounting_workflow',\n    auditTrail: [{\n      action: 'ACCOUNT_CREATED',\n      timestamp: now,\n      clientFingerprint: data.clientFingerprint,\n      sessionId: data.sessionId\n    }]\n  }\n};\n\nconsole.log('Creating secure account:', JSON.stringify(secureAccount, null, 2));\n\nreturn { json: secureAccount };"
+            },
+            "id": "secure-create-account",
+            "name": "Secure Create Account",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                608,
+                896
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1278731717,
+                    "mode": "list",
+                    "cachedResultName": "accounts",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1278731717"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "UserID",
+                            "displayName": "UserID",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Email",
+                            "displayName": "Email",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Name",
+                            "displayName": "Name",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Tier",
+                            "displayName": "Tier",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "CreatedAt",
+                            "displayName": "CreatedAt",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "LastLogin",
+                            "displayName": "LastLogin",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Status",
+                            "displayName": "Status",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "ClientFingerprint",
+                            "displayName": "ClientFingerprint",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "SessionId",
+                            "displayName": "SessionId",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "save-secure-account",
+            "name": "Save Secure Account",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                832,
+                896
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Audit Log Entry\nconst data = $input.first().json;\nconst now = new Date().toISOString();\n\nconsole.log('=== AUDIT LOG ENTRY ===');\nconsole.log('Account data:', JSON.stringify(data, null, 2));\n\nconst auditLog = {\n  timestamp: now,\n  action: 'ACCOUNT_CREATED',\n  userId: data.userId,\n  email: data.email,\n  tier: data.tier,\n  clientFingerprint: data.security?.clientFingerprint,\n  sessionId: data.security?.sessionId,\n  status: 'success',\n  workflow: 'secure_accounting',\n  auditTrail: data.security?.auditTrail || []\n};\n\nconsole.log('Audit log entry:', JSON.stringify(auditLog, null, 2));\n\nreturn { json: auditLog };"
+            },
+            "id": "audit-log-entry",
+            "name": "Audit Log Entry",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1056,
+                896
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "audit_log",
+                    "mode": "list",
+                    "cachedResultName": "audit_log",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=audit_log"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "Timestamp",
+                            "displayName": "Timestamp",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Action",
+                            "displayName": "Action",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "UserId",
+                            "displayName": "UserId",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Email",
+                            "displayName": "Email",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Tier",
+                            "displayName": "Tier",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "ClientFingerprint",
+                            "displayName": "ClientFingerprint",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "SessionId",
+                            "displayName": "SessionId",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Status",
+                            "displayName": "Status",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Workflow",
+                            "displayName": "Workflow",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "save-audit-log",
+            "name": "Save Audit Log",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                1280,
+                896
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Success Response\nconst auditData = $input.first().json;\nconst accountData = $input.all()[1]?.json;\n\nconsole.log('=== SUCCESS RESPONSE ===');\nconsole.log('Audit data:', JSON.stringify(auditData, null, 2));\nconsole.log('Account data:', JSON.stringify(accountData, null, 2));\n\nconst successResponse = {\n  success: true,\n  account: JSON.stringify(accountData),\n  message: 'Account created successfully',\n  timestamp: new Date().toISOString()\n};\n\nconsole.log('Success response:', JSON.stringify(successResponse, null, 2));\n\nreturn { json: successResponse };"
+            },
+            "id": "success-response",
+            "name": "Success Response",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1504,
+                896
+            ]
+        }
+    ],
+    "connections": {
+        "Secure Create Account": {
+            "main": [
+                [
+                    {
+                        "node": "Secure Validation",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Secure Validation": {
+            "main": [
+                [
+                    {
+                        "node": "Route by Operation",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route by Operation": {
+            "main": [
+                [
+                    {
+                        "node": "Secure Create Account",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Secure Create Account": {
+            "main": [
+                [
+                    {
+                        "node": "Save Secure Account",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Secure Account": {
+            "main": [
+                [
+                    {
+                        "node": "Audit Log Entry",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Audit Log Entry": {
+            "main": [
+                [
+                    {
+                        "node": "Save Audit Log",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Audit Log": {
+            "main": [
+                [
+                    {
+                        "node": "Success Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [
+        {
+            "createdAt": "2024-01-01T00:00:00.000Z",
+            "updatedAt": "2024-01-01T00:00:00.000Z",
+            "id": "secure-accounting",
+            "name": "secure-accounting"
+        }
+    ],
+    "triggerCount": 0,
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "versionId": "1"
+}

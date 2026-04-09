@@ -3,16 +3,38 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-::-webkit-scrollbar {
-    display: none;
-}
-
+/* Enhanced Hieroglyphic Background Animation - Apple/Airbnb Performance Style */
 .hieroglyphemojis {
-    animation: gradient 270s ease infinite;
-    background-size: 16%;
+    animation: hieroglyphic-gradient 270s ease infinite;
+    background-size: 16%, cover;
+    background-attachment: fixed;
     min-height: 100vh;
+    /* Performance-Optimierung */
+    will-change: background-position;
+    transform: translateZ(0);
+    /* GPU-Layer forcing */
+    backface-visibility: hidden;
 }
 
+.core-button {
+    @apply max-w-105 flex flex-row h-16 justify-center items-center scale-114 rounded-full shadow-md transition duration-300 ease-in-out hover:scale-117 gap-2 md:px-0 border-4 z-10;
+}
+
+button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+}
+
+.bg-loading .hieroglyphemojis {
+    /* Smooth transition while loading */
+    background-size: 0%, cover;
+    transition: background-size 0.3s ease-out;
+}
+
+.bg-loaded .hieroglyphemojis {
+    background-size: 16%, cover;
+}
+
+/* Fancy Gradient Animation for Demo Overlay Button */
 @keyframes gradient {
     0% {
         background-position: 0% 50%;
@@ -27,63 +49,282 @@
     }
 }
 
+.animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 3s ease infinite;
+}
+
+.bg-size-200 {
+    background-size: 200% 200%;
+}
+
+.bg-pos-0 {
+    background-position: 0% 50%;
+}
+
+.hover\:bg-pos-100:hover {
+    background-position: 100% 50%;
+}
+
+/* Performance-optimierte Keyframes für Hieroglyphic Background */
+@keyframes hieroglyphic-gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    25% {
+        background-position: 100% 50%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    75% {
+        background-position: 0% 100%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Reduced motion support (Apple Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+    .hieroglyphemojis {
+        animation: none;
+        background-position: 0% 50%;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .hieroglyphemojis {
+        background-blend-mode: normal !important;
+    }
+}
+
 :global(html) {
     height: 100%;
     box-sizing: border-box;
-    scroll-behavior: smooth;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 :global(body) {
     margin: 0;
     padding: 0;
     min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+    /* Modal-Open Klasse wird von Modal.svelte verwaltet */
+}
+
+/* Alle Scrollbars unsichtbar machen (außer custom-scrollbar) */
+/* WICHTIG: Diese Styles müssen VOR den custom-scrollbar Styles stehen */
+/* Verwende explizite Ausnahme für custom-scrollbar */
+:global(*) {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+:global(*::-webkit-scrollbar) {
+    display: none !important;
+}
+
+/* Explizite Ausnahme für custom-scrollbar - MUSS nach den globalen Styles stehen */
+:global(.custom-scrollbar),
+:global(*.custom-scrollbar),
+:global(div.custom-scrollbar),
+:global(textarea.custom-scrollbar),
+:global(select.custom-scrollbar) {
+    scrollbar-width: auto !important;
+    -ms-overflow-style: auto !important;
+}
+
+:global(.custom-scrollbar::-webkit-scrollbar),
+:global(*.custom-scrollbar::-webkit-scrollbar),
+:global(div.custom-scrollbar::-webkit-scrollbar),
+:global(textarea.custom-scrollbar::-webkit-scrollbar),
+:global(select.custom-scrollbar::-webkit-scrollbar) {
+    display: block !important;
+}
+
+
+/* Smooth Route Transitions */
+:global(.route-transition) {
+    position: relative;
+}
+
+:global(.route-transition > *) {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Range Slider Custom Styling for Temperature */
+:global(input[type="range"]) {
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+:global(input[type="range"]::-webkit-slider-thumb) {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(234, 179, 8);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+:global(input[type="range"]::-webkit-slider-thumb:hover) {
+    transform: scale(1.2);
+    background: rgb(217, 167, 0);
+}
+
+:global(input[type="range"]::-moz-range-thumb) {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(234, 179, 8);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+:global(input[type="range"]::-moz-range-thumb:hover) {
+    transform: scale(1.2);
+    background: rgb(217, 167, 0);
+}
+
+/* Dark mode for range slider */
+:global(.dark input[type="range"]::-webkit-slider-thumb) {
+    border: 2px solid rgb(31, 41, 55);
+    background: rgb(217, 167, 0);
+}
+
+:global(.dark input[type="range"]::-moz-range-thumb) {
+    border: 2px solid rgb(31, 41, 55);
+    background: rgb(217, 167, 0);
+}
+
+/* Modal/Menu Status Management */
+:global(body.modal-open) {
+    overflow: hidden;
+    padding-right: 0px;
+}
+
+:global(body.menu-open) {
+    overflow: hidden;
+    padding-right: 0px;
 }
 
 :global(.dark) {
     color-scheme: dark;
 }
 
+/* Global fixed positioning for header and footer */
+/* Banner + Header are stacked inside a single fixed wrapper in PageLayout.svelte */
+.main-header {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.main-footer {
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    z-index: 40;
+}
+
+/* Main content area - positioned between fixed header and footer */
 .main-content {
     width: 100%;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    gap: 2rem;
+    padding-top: 152px; /* fixed wrapper: 32px banner + ~80px header + 40px gap */
+    padding-bottom: 120px;
+    /* Space for fixed footer */
+    box-sizing: border-box;
 }
+
+/* Mobile responsive padding and fixed positioning optimizations */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 140px; /* mobile: slightly less gap, banner still counted */
+        padding-bottom: 100px;
+    }
+
+    /* Header is inside fixed wrapper — hardware acceleration only */
+    .main-header {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+
+    .main-footer {
+        position: fixed !important;
+        transform: translateZ(0);
+        /* Force hardware acceleration */
+        -webkit-transform: translateZ(0);
+    }
+
+    /* Mobile Safari viewport fixes */
+    .app-container {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+
+    .main-header,
+    .main-footer {
+        position: fixed !important;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+}
+
+/* Minimal spacing since header/footer are now in normal document flow */
+:root {
+    --content-gap: 2rem;
+}
+
+/* Remove pseudo-elements since we don't need header/footer spacing anymore */
+/* Content spacing is now handled by flexbox gap and natural document flow */
 
 @media (prefers-reduced-motion: reduce) {
     .hieroglyphemojis {
         animation: none;
     }
 
-    :global(html) {
+    .app-container {
         scroll-behavior: auto;
     }
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-* {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
-}
-
-/* Ensure content is always scrollable but scrollbar hidden */
-html,
-body {
-    overflow-y: auto;
-    overflow-x: hidden;
-    margin-right: 0 !important;
-    /* Prevent layout shift */
-    width: 100vw;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
 }
 
 /* Container styles to ensure proper scrolling behavior */
 .scroll-container {
     height: 100vh;
     overflow-y: auto;
-    overflow-x: hidden;
     position: relative;
     -webkit-overflow-scrolling: touch;
     /* Smooth scrolling on iOS */
@@ -91,209 +332,365 @@ body {
 
 /* Prevent horizontal scrollbar */
 .wrapper {
-    overflow-x: clip;
     position: relative;
     width: 100%;
 }
 
-@layer components {
+/* Main Wrapper - Scrollbar-frei aber scrollbar */
+.app-container {
+    height: 100vh;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+    /* Verhindert Bounce-Effekte */
+    /* KEINE Scrollbar-Styles mehr - komplett unsichtbar */
+}
 
-    .contact-input {
-        @apply w-full bg-white dark:bg-aubergine-dark dark:text-white rounded-xl p-4 border border-gray-light dark:border-aubergine focus:ring-1 focus:ring-yellow focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
+/* WebKit: Unsichtbare Scrollbar für Main Wrapper */
+.app-container::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Heart Bounce Animation für Like Buttons */
+@keyframes heart-bounce {
+    0% {
+        transform: scale(1);
     }
 
-    .contact-checkbox {
-        @apply bg-white dark:bg-aubergine-dark rounded-xl p-4 border border-gray-light dark:border-aubergine focus:ring-1 focus:ring-yellow focus:border-transparent transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light;
+    25% {
+        transform: scale(1.3) rotate(-5deg);
     }
 
-    .form-error {
-        @apply text-red-500 text-xs mt-1 pl-2;
+    50% {
+        transform: scale(1.5) rotate(5deg);
     }
 
-    .btn-primary {
-        @apply bg-yellow hover:bg-yellow text-black px-6 py-3 rounded-full font-medium transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow focus:ring-offset-2 w-full;
+    75% {
+        transform: scale(1.2) rotate(-3deg);
     }
 
-    .btn-secondary {
-        @apply bg-powder dark:bg-aubergine-dark text-black dark:text-powder px-6 py-3 rounded-full border border-transparent hover:border-yellow transition-all duration-200 w-full;
-    }
-
-    .btn-primary:disabled {
-        @apply opacity-50 cursor-not-allowed hover:scale-100;
-    }
-
-    .btn {
-        @apply transition transform hover:scale-105 focus:outline-none rounded-full;
-    }
-
-    .btn-default {
-        @apply relative bg-powder text-black dark:bg-aubergine-dark dark:text-powder;
-    }
-
-    .btn-fixed {
-        @apply fixed bg-powder text-black dark:bg-aubergine-dark dark:text-powder border-4 border-creme dark:border-aubergine;
-    }
-
-    .btn-yellow {
-        @apply bg-yellow text-black;
-    }
-
-    .btn-sm {
-        @apply px-3 py-2 text-sm;
-    }
-
-    .btn-md {
-        @apply px-4 text-xl;
-        padding-top: 14px;
-        padding-bottom: 14px;
-    }
-
-    .btn-menu {
-        @apply px-4 text-xl;
-        padding-top: 12px;
-        padding-bottom: 12px;
-    }
-
-    .btn-lg {
-        @apply px-6 py-4 text-3xl;
-    }
-
-    .columns {
-        columns: 3 300px;
-        column-gap: 1.5rem;
-        width: 100%;
-    }
-
-    .content-wrapper {
-        box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
-    }
-
-    .dark .content-wrapper {
-        box-shadow: 20px 20px 60px #0c0d22, 10px 0 60px #7878784e;
-    }
-
-    .app-container {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-    }
-
-    /* Sicherstellen der Inhalts-Sichtbarkeit während Animationen */
-    :global(body) {
-        overflow-x: hidden;
-    }
-
-    /* Barrierefreiheitsverbesserungen */
-    :global(button:focus-visible),
-    :global(a:focus-visible) {
-        outline: 2px solid #f4ab25;
-        outline-offset: 2px;
-    }
-
-    /* Animationen reduzieren falls gewünscht */
-    @media (prefers-reduced-motion: reduce) {
-        :global(div[in], div[out]) {
-            transition: none !important;
-            animation: none !important;
-        }
-    }
-
-    .focus-trap {
-        width: 100%;
-        height: 100%;
-        display: contents;
-    }
-
-    /* Global styles for focus visibility - add to your global CSS */
-    :global(:focus-visible) {
-        outline: 2px solid #f4ab25;
-        outline-offset: 2px;
-    }
-
-
-    .language-switcher {
-        position: relative;
-        z-index: 50;
-    }
-
-    .language-dropdown {
-        position: absolute;
-        min-width: 12rem;
-        left: 0;
-    }
-
-    /* Focus styles for accessibility */
-    button:focus-visible {
-        outline: 2px solid #f4ab25;
-        outline-offset: 2px;
-    }
-
-    /* Special style for elvish language option */
-    .elvish-language-option {
-        position: relative;
-    }
-
-    .elvish-language-option:hover::after {
-        opacity: 1;
-    }
-
-    .skip-link {
-        position: absolute;
-        top: -40px;
-        left: 0;
-        padding: 8px 16px;
-        background-color: #f4ab25;
-        color: #000;
-        font-weight: bold;
-        text-decoration: none;
-        z-index: 9999;
-        transition: top 0.2s ease;
-        border-radius: 0 0 4px 0;
-        display: inline-block;
-    }
-
-    .skip-link:focus {
-        top: 0;
-        outline: none;
-        box-shadow: 0 0 0 2px #000;
-    }
-
-    /* Optional: Verhindert Scrolling wenn Overlay aktiv ist */
-    :global(body.menu-open) {
-        overflow: hidden;
-    }
-
-    /* Optimierte Transitions */
-    :global(.menu-transition) {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-            opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    100% {
+        transform: scale(1);
     }
 }
 
-/* Elvish Font Definition */
+.animate-heart-bounce {
+    animation: heart-bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: inline-block;
+}
+
+/* Custom Scrollbar - Universelle Scrollbar-Klasse für alle scrollbaren Elemente */
+/* Verwendet in: Textareas, Dropdowns, Buttons, Modals, Selects, etc. */
+/* Orange minimalistisch - konsistent mit Design System */
+/* NACH globalen Styles für maximale Priorität - funktioniert in allen Browsern */
+
+/* Firefox & Edge (Legacy) - scrollbar-width & scrollbar-color */
+:global(.custom-scrollbar) {
+    scrollbar-width: thin !important;
+    -ms-overflow-style: auto !important;
+    scrollbar-color: rgb(249, 115, 22) rgb(245, 245, 245) !important;
+    /* Orange thumb, creme track */
+}
+
+/* WebKit (Chrome, Brave, Safari, Edge) - Überschreibt globale display: none */
+/* Höhere Spezifität durch mehrfache Klassen-Selektoren für maximale Priorität */
+:global(.custom-scrollbar.custom-scrollbar::-webkit-scrollbar),
+:global(*.custom-scrollbar::-webkit-scrollbar),
+:global(.custom-scrollbar::-webkit-scrollbar) {
+    display: block !important;
+    width: 8px !important;
+    height: 8px !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+}
+
+/* WebKit Scrollbar Track - Standard (Dropdowns, Divs, etc.) */
+/* Höhere Spezifität für maximale Priorität */
+:global(.custom-scrollbar.custom-scrollbar::-webkit-scrollbar-track),
+:global(*.custom-scrollbar::-webkit-scrollbar-track),
+:global(.custom-scrollbar::-webkit-scrollbar-track) {
+    background: rgb(245, 245, 245) !important;
+    /* creme-500 */
+    border-radius: 4px !important;
+    -webkit-border-radius: 4px !important;
+}
+
+/* WebKit Scrollbar Track - Speziell für Textareas (transparent mit Margin) */
+:global(textarea.custom-scrollbar::-webkit-scrollbar-track) {
+    background: transparent !important;
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    margin: 16px 4px !important;
+    /* Abstand zu border-radius (rounded-2xl = 16px) */
+}
+
+/* WebKit Scrollbar Thumb - Standard */
+/* Höhere Spezifität für maximale Priorität */
+:global(.custom-scrollbar.custom-scrollbar::-webkit-scrollbar-thumb),
+:global(*.custom-scrollbar::-webkit-scrollbar-thumb),
+:global(.custom-scrollbar::-webkit-scrollbar-thumb) {
+    background: rgb(249, 115, 22) !important;
+    /* orange-500 */
+    border-radius: 4px !important;
+    -webkit-border-radius: 4px !important;
+    transition: background 0.2s ease !important;
+    -webkit-transition: background 0.2s ease !important;
+    border: none !important;
+}
+
+:global(.custom-scrollbar.custom-scrollbar::-webkit-scrollbar-thumb:hover),
+:global(*.custom-scrollbar::-webkit-scrollbar-thumb:hover),
+:global(.custom-scrollbar::-webkit-scrollbar-thumb:hover) {
+    background: rgb(234, 88, 12) !important;
+    /* orange-600 */
+}
+
+:global(.custom-scrollbar.custom-scrollbar::-webkit-scrollbar-thumb:active),
+:global(*.custom-scrollbar::-webkit-scrollbar-thumb:active),
+:global(.custom-scrollbar::-webkit-scrollbar-thumb:active) {
+    background: rgb(194, 65, 12) !important;
+    /* orange-700 */
+}
+
+/* Dark Mode - Firefox & Edge (Legacy) */
+:global(.dark .custom-scrollbar) {
+    scrollbar-color: rgb(249, 115, 22) rgb(37, 56, 82) !important;
+    /* Orange thumb, aubergine-800 track */
+}
+
+/* Dark Mode - WebKit Scrollbar Track - Standard */
+/* Höhere Spezifität für maximale Priorität */
+:global(.dark .custom-scrollbar.custom-scrollbar::-webkit-scrollbar-track),
+:global(.dark *.custom-scrollbar::-webkit-scrollbar-track),
+:global(.dark .custom-scrollbar::-webkit-scrollbar-track) {
+    background: rgb(37, 56, 82) !important;
+    /* aubergine-800 */
+    border-radius: 4px !important;
+    -webkit-border-radius: 4px !important;
+}
+
+/* Dark Mode - WebKit Scrollbar Track - Speziell für Textareas (transparent) */
+:global(.dark textarea.custom-scrollbar::-webkit-scrollbar-track) {
+    background: transparent !important;
+}
+
+/* Dark Mode - WebKit Scrollbar Thumb */
+/* Höhere Spezifität für maximale Priorität */
+:global(.dark .custom-scrollbar.custom-scrollbar::-webkit-scrollbar-thumb),
+:global(.dark *.custom-scrollbar::-webkit-scrollbar-thumb),
+:global(.dark .custom-scrollbar::-webkit-scrollbar-thumb) {
+    background: rgb(249, 115, 22) !important;
+    /* orange-500 */
+    border-radius: 4px !important;
+    -webkit-border-radius: 4px !important;
+}
+
+:global(.dark .custom-scrollbar.custom-scrollbar::-webkit-scrollbar-thumb:hover),
+:global(.dark *.custom-scrollbar::-webkit-scrollbar-thumb:hover),
+:global(.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover) {
+    background: rgb(234, 88, 12) !important;
+    /* orange-600 */
+}
+
+:global(.dark .custom-scrollbar.custom-scrollbar::-webkit-scrollbar-thumb:active),
+:global(.dark *.custom-scrollbar::-webkit-scrollbar-thumb:active),
+:global(.dark .custom-scrollbar::-webkit-scrollbar-thumb:active) {
+    background: rgb(194, 65, 12) !important;
+    /* orange-700 */
+}
+
+/* Global Modal Styles - Ensure modals appear above everything */
+.modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(7px) !important;
+}
+
+.modal-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem !important;
+    pointer-events: none !important;
+    z-index: 10000 !important;
+}
+
+.modal-content {
+    @apply w-96 relative bg-white dark:bg-aubergine-900 text-gray-900 dark:text-powder-600 rounded-xl overflow-hidden pointer-events-auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    z-index: 10001 !important;
+}
+
+/* Ensure modals are always on top */
+[data-modal="true"] {
+    z-index: 9999 !important;
+    position: fixed !important;
+}
+
+/* Override any parent z-index issues */
+.modal-force-top {
+    z-index: 9999 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+}
+
+/* Smooth Route Transitions */
+:global(.route-transition) {
+    position: relative;
+}
+
+:global(.route-transition > *) {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Range Slider Custom Styling for Temperature */
+:global(input[type="range"]) {
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+:global(input[type="range"]::-webkit-slider-thumb) {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(234, 179, 8);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+:global(input[type="range"]::-webkit-slider-thumb:hover) {
+    transform: scale(1.2);
+    background: rgb(217, 167, 0);
+}
+
+:global(input[type="range"]::-moz-range-thumb) {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgb(234, 179, 8);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+:global(input[type="range"]::-moz-range-thumb:hover) {
+    transform: scale(1.2);
+    background: rgb(217, 167, 0);
+}
+
+/* Dark mode for range slider */
+:global(.dark input[type="range"]::-webkit-slider-thumb) {
+    border: 2px solid rgb(31, 41, 55);
+    background: rgb(217, 167, 0);
+}
+
+:global(.dark input[type="range"]::-moz-range-thumb) {
+    border: 2px solid rgb(31, 41, 55);
+    background: rgb(217, 167, 0);
+}
+
+/* Elvish Font (Tengwar Annatar) for sjn language */
+/* CRITICAL: @font-face muss statisch definiert sein, damit die Schrift geladen wird */
+/* NOTE: Font-Pfad muss relativ zum assets-Ordner sein für Webpack */
 @font-face {
     font-family: 'Tengwar Annatar';
-    src: url('./tengwar_annatar.ttf') format('truetype');
+    src: url('../public/fonts/tengwar_annatar.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
+    /* Anpassung der Font-Metriken für bessere Emoji-Ausrichtung */
+    /* Tengwar hat eine sehr hohe Baseline - wir senken sie stark ab */
+    ascent-override: 70%;
+    descent-override: 40%;
+    line-gap-override: 0%;
 }
 
-/* Use the font-elvish class instead of directly modifying html[lang="qya"] */
-.font-elvish {
-    /* Fallback to standard fonts if Tengwar Annatar is not available */
-    font-family: 'Tengwar Annatar', 'Graphik', Arial, sans-serif;
-    line-height: 1.5;
-    letter-spacing: 0.05em;
+:global(.font-elvish) {
+    font-family: 'Tengwar Annatar', serif !important;
+    /* Höhere line-height für bessere Emoji-Zentrierung */
+    line-height: 2 !important;
 }
 
-/* Special adjustments for emoji display in Elvish mode */
-.font-elvish #emoji-display {
-    @apply pt-7;
+:global(.font-elvish *) {
+    font-family: 'Tengwar Annatar', serif !important;
 }
 
-/* Keep menu buttons in standard font even in Elvish mode */
-.font-elvish #fixed-menu-nav button,
-.font-elvish #language-toggle-button {
-    @apply font-sans;
+/* ============================================
+   TENGWAR EMOJI ALIGNMENT FIX
+   Die Tengwar-Schrift hat eine ungewöhnliche Baseline.
+   Emojis werden mit translateY(11px) nach unten verschoben.
+   ============================================ */
+
+/* 1. EMOJI-DISPLAY: Die Emoji-Spans im Passwort-Display */
+/* Struktur: #emoji-display > div.flex > span.text-2xl */
+:global(.font-elvish) #emoji-display > .flex > span {
+    transform: translateY(11px) !important;
+}
+
+/* 2. LANGUAGE BUTTON: Flag-Emoji im Language-Switcher */
+/* Struktur: #language-toggle-button > div > div > span.flag-icon */
+:global(.font-elvish) #language-toggle-button .flag-icon {
+    transform: translateY(11px) !important;
+}
+
+/* 3. SWISS AI BUTTON: Emoji-Spans im Button */
+:global(.font-elvish) .swiss-ai-button span {
+    transform: translateY(11px) !important;
+}
+
+/* 4. SETTINGS BUTTON: Zahnrad-Emoji Spans */
+:global(.font-elvish) .settings-button span {
+    transform: translateY(11px) !important;
+}
+
+/* 5. ALLE SPANS IN H2/H3 (für Buttons und Text) */
+:global(.font-elvish) h2 span,
+:global(.font-elvish) h3 span {
+    transform: translateY(11px) !important;
+}
+
+/* Flex-Container behalten ihre Ausrichtung */
+:global(.font-elvish) .flex {
+    align-items: center !important;
+}
+
+/* Buttons - Flexbox für vertikale Zentrierung */
+:global(.font-elvish) button {
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+/* Text-Elemente mit angepasster line-height */
+:global(.font-elvish) p,
+:global(.font-elvish) h1,
+:global(.font-elvish) h2,
+:global(.font-elvish) h3,
+:global(.font-elvish) h4,
+:global(.font-elvish) label {
+    line-height: 1.8 !important;
+}
+
+/* Div-Container */
+:global(.font-elvish) div {
+    line-height: 1.6 !important;
 }

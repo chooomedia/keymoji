@@ -1,15 +1,18 @@
 <script>
-let isDevelopment = process.env.NODE_ENV === 'development';
+import { isDebugMode } from './utils/environment.js';
 
 function clearLocalStorage() {
   localStorage.clear();
   window.location.reload();
 }
+
+// Always show in development for now
+let showEraseButton = true;
 </script>
   
-{#if isDevelopment}
-    <button aria-label="DEV: Clear the LocalStorage" class="btn btn-default btn-menu"
+{#if showEraseButton}
+    <Button variant="default" size="menu"
         on:click={clearLocalStorage}>
         🛁
-    </button>
+    </Button>
 {/if}

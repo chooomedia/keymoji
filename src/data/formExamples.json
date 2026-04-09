@@ -1,0 +1,450 @@
+{
+    "contactForm": {
+        "title": {
+            "en": "Contact Form",
+            "de": "Kontaktformular"
+        },
+        "description": {
+            "en": "Get in touch with us",
+            "de": "Kontaktiere uns"
+        },
+        "config": [
+            {
+                "section": "personal",
+                "sectionIcon": "👤",
+                "sectionTitle": {
+                    "en": "Personal Information",
+                    "de": "Persönliche Informationen"
+                },
+                "config": {
+                    "id": "name",
+                    "type": "text",
+                    "icon": "👤",
+                    "label": {
+                        "en": "Full Name",
+                        "de": "Vollständiger Name"
+                    },
+                    "placeholder": {
+                        "en": "Enter your full name",
+                        "de": "Vollständigen Namen eingeben"
+                    },
+                    "description": {
+                        "en": "Your first and last name",
+                        "de": "Ihr Vor- und Nachname"
+                    },
+                    "required": true,
+                    "validation": {
+                        "minLength": 2,
+                        "maxLength": 50
+                    }
+                }
+            },
+            {
+                "config": {
+                    "id": "email",
+                    "type": "email",
+                    "icon": "📧",
+                    "label": {
+                        "en": "Email Address",
+                        "de": "E-Mail-Adresse"
+                    },
+                    "placeholder": {
+                        "en": "your@email.com",
+                        "de": "ihre@email.com"
+                    },
+                    "description": {
+                        "en": "We'll never share your email",
+                        "de": "Wir teilen Ihre E-Mail nie"
+                    },
+                    "required": true,
+                    "validation": {
+                        "pattern": "email"
+                    }
+                }
+            },
+            {
+                "config": {
+                    "id": "phone",
+                    "type": "text",
+                    "icon": "📞",
+                    "label": {
+                        "en": "Phone Number",
+                        "de": "Telefonnummer"
+                    },
+                    "placeholder": {
+                        "en": "+1 (555) 123-4567",
+                        "de": "+49 123 456789"
+                    },
+                    "description": {
+                        "en": "Optional - for urgent matters",
+                        "de": "Optional - für dringende Angelegenheiten"
+                    },
+                    "validation": {
+                        "pattern": "phone"
+                    }
+                }
+            },
+            {
+                "section": "message",
+                "sectionIcon": "💬",
+                "sectionTitle": {
+                    "en": "Message",
+                    "de": "Nachricht"
+                },
+                "config": {
+                    "id": "subject",
+                    "type": "select",
+                    "icon": "📋",
+                    "label": {
+                        "en": "Subject",
+                        "de": "Betreff"
+                    },
+                    "description": {
+                        "en": "What is this about?",
+                        "de": "Worum geht es?"
+                    },
+                    "required": true,
+                    "options": [
+                        {
+                            "value": "general",
+                            "label": {
+                                "en": "General Inquiry",
+                                "de": "Allgemeine Anfrage"
+                            }
+                        },
+                        {
+                            "value": "support",
+                            "label": {
+                                "en": "Technical Support",
+                                "de": "Technischer Support"
+                            }
+                        },
+                        {
+                            "value": "feedback",
+                            "label": {
+                                "en": "Feedback",
+                                "de": "Feedback"
+                            }
+                        },
+                        {
+                            "value": "bug",
+                            "label": {
+                                "en": "Bug Report",
+                                "de": "Fehlerbericht"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "config": {
+                    "id": "message",
+                    "type": "textarea",
+                    "icon": "✍️",
+                    "label": {
+                        "en": "Message",
+                        "de": "Nachricht"
+                    },
+                    "placeholder": {
+                        "en": "Tell us more about your inquiry...",
+                        "de": "Erzählen Sie uns mehr über Ihre Anfrage..."
+                    },
+                    "description": {
+                        "en": "Be as detailed as possible",
+                        "de": "Seien Sie so detailliert wie möglich"
+                    },
+                    "required": true,
+                    "rows": 5,
+                    "validation": {
+                        "minLength": 10,
+                        "maxLength": 1000
+                    }
+                }
+            },
+            {
+                "section": "preferences",
+                "sectionIcon": "⚙️",
+                "sectionTitle": {
+                    "en": "Preferences",
+                    "de": "Präferenzen"
+                },
+                "config": {
+                    "id": "newsletter",
+                    "type": "toggle",
+                    "icon": "📰",
+                    "label": {
+                        "en": "Newsletter Subscription",
+                        "de": "Newsletter-Abonnement"
+                    },
+                    "description": {
+                        "en": "Receive updates about new features",
+                        "de": "Updates über neue Features erhalten"
+                    },
+                    "color": "green"
+                }
+            },
+            {
+                "config": {
+                    "id": "priority",
+                    "type": "radio",
+                    "icon": "🚨",
+                    "label": {
+                        "en": "Priority Level",
+                        "de": "Prioritätsstufe"
+                    },
+                    "description": {
+                        "en": "How urgent is your request?",
+                        "de": "Wie dringend ist Ihre Anfrage?"
+                    },
+                    "options": [
+                        {
+                            "value": "low",
+                            "label": {
+                                "en": "Low - General question",
+                                "de": "Niedrig - Allgemeine Frage"
+                            }
+                        },
+                        {
+                            "value": "medium",
+                            "label": {
+                                "en": "Medium - Feature request",
+                                "de": "Mittel - Feature-Anfrage"
+                            }
+                        },
+                        {
+                            "value": "high",
+                            "label": {
+                                "en": "High - Bug or issue",
+                                "de": "Hoch - Fehler oder Problem"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "submitConfig": {
+            "text": {
+                "en": "Send Message",
+                "de": "Nachricht senden"
+            },
+            "icon": "📤",
+            "color": "blue"
+        },
+        "cancelConfig": {
+            "text": {
+                "en": "Cancel",
+                "de": "Abbrechen"
+            },
+            "icon": "❌",
+            "color": "gray"
+        }
+    },
+    "settingsForm": {
+        "title": {
+            "en": "Account Settings",
+            "de": "Kontoeinstellungen"
+        },
+        "description": {
+            "en": "Customize your account preferences",
+            "de": "Passen Sie Ihre Kontoeinstellungen an"
+        },
+        "config": [
+            {
+                "section": "profile",
+                "sectionIcon": "👤",
+                "sectionTitle": {
+                    "en": "Profile Settings",
+                    "de": "Profileinstellungen"
+                },
+                "config": {
+                    "id": "displayName",
+                    "type": "text",
+                    "icon": "👤",
+                    "label": {
+                        "en": "Display Name",
+                        "de": "Anzeigename"
+                    },
+                    "placeholder": {
+                        "en": "Enter your display name",
+                        "de": "Anzeigenamen eingeben"
+                    },
+                    "validation": {
+                        "minLength": 2,
+                        "maxLength": 30
+                    }
+                }
+            },
+            {
+                "config": {
+                    "id": "bio",
+                    "type": "textarea",
+                    "icon": "📝",
+                    "label": {
+                        "en": "Bio",
+                        "de": "Biografie"
+                    },
+                    "placeholder": {
+                        "en": "Tell us about yourself...",
+                        "de": "Erzählen Sie uns von sich..."
+                    },
+                    "rows": 3,
+                    "validation": {
+                        "maxLength": 200
+                    }
+                }
+            },
+            {
+                "section": "notifications",
+                "sectionIcon": "🔔",
+                "sectionTitle": {
+                    "en": "Notification Settings",
+                    "de": "Benachrichtigungseinstellungen"
+                },
+                "config": {
+                    "id": "emailNotifications",
+                    "type": "toggle",
+                    "icon": "📧",
+                    "label": {
+                        "en": "Email Notifications",
+                        "de": "E-Mail-Benachrichtigungen"
+                    },
+                    "description": {
+                        "en": "Receive important updates via email",
+                        "de": "Wichtige Updates per E-Mail erhalten"
+                    },
+                    "color": "blue"
+                }
+            },
+            {
+                "config": {
+                    "id": "pushNotifications",
+                    "type": "toggle",
+                    "icon": "📱",
+                    "label": {
+                        "en": "Push Notifications",
+                        "de": "Push-Benachrichtigungen"
+                    },
+                    "description": {
+                        "en": "Get instant notifications",
+                        "de": "Sofortige Benachrichtigungen erhalten"
+                    },
+                    "color": "green"
+                }
+            },
+            {
+                "config": {
+                    "id": "notificationFrequency",
+                    "type": "select",
+                    "icon": "⏰",
+                    "label": {
+                        "en": "Notification Frequency",
+                        "de": "Benachrichtigungshäufigkeit"
+                    },
+                    "description": {
+                        "en": "How often should we notify you?",
+                        "de": "Wie oft sollen wir Sie benachrichtigen?"
+                    },
+                    "options": [
+                        {
+                            "value": "immediate",
+                            "label": {
+                                "en": "Immediate",
+                                "de": "Sofort"
+                            }
+                        },
+                        {
+                            "value": "daily",
+                            "label": {
+                                "en": "Daily Digest",
+                                "de": "Tägliche Zusammenfassung"
+                            }
+                        },
+                        {
+                            "value": "weekly",
+                            "label": {
+                                "en": "Weekly Digest",
+                                "de": "Wöchentliche Zusammenfassung"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "section": "privacy",
+                "sectionIcon": "🔒",
+                "sectionTitle": {
+                    "en": "Privacy Settings",
+                    "de": "Datenschutzeinstellungen"
+                },
+                "config": {
+                    "id": "profileVisibility",
+                    "type": "select",
+                    "icon": "👁️",
+                    "label": {
+                        "en": "Profile Visibility",
+                        "de": "Profil-Sichtbarkeit"
+                    },
+                    "description": {
+                        "en": "Who can see your profile?",
+                        "de": "Wer kann Ihr Profil sehen?"
+                    },
+                    "options": [
+                        {
+                            "value": "public",
+                            "label": {
+                                "en": "Public",
+                                "de": "Öffentlich"
+                            }
+                        },
+                        {
+                            "value": "friends",
+                            "label": {
+                                "en": "Friends Only",
+                                "de": "Nur Freunde"
+                            }
+                        },
+                        {
+                            "value": "private",
+                            "label": {
+                                "en": "Private",
+                                "de": "Privat"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "config": {
+                    "id": "dataSharing",
+                    "type": "toggle",
+                    "icon": "📊",
+                    "label": {
+                        "en": "Data Sharing",
+                        "de": "Datenaustausch"
+                    },
+                    "description": {
+                        "en": "Allow anonymous data collection for improvements",
+                        "de": "Anonyme Datensammlung für Verbesserungen erlauben"
+                    },
+                    "color": "purple"
+                }
+            }
+        ],
+        "submitConfig": {
+            "text": {
+                "en": "Save Settings",
+                "de": "Einstellungen speichern"
+            },
+            "icon": "💾",
+            "color": "green"
+        },
+        "cancelConfig": {
+            "text": {
+                "en": "Reset to Default",
+                "de": "Auf Standard zurücksetzen"
+            },
+            "icon": "🔄",
+            "color": "gray"
+        }
+    }
+}

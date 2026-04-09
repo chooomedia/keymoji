@@ -2,35 +2,75 @@
 const fs = require('fs');
 const path = require('path');
 
+// SEO utilities (inline to avoid TypeScript import issues)
+const DEFAULT_SEO = {
+    image: '/images/keymoji-social-media-banner-10-2024-min.png'
+};
+
+function formatCanonicalUrl(url) {
+    if (!url) return '';
+    let canonical = url.startsWith('http') ? url : `https://keymoji.wtf${url}`;
+    // Add trailing slash for directories
+    if (
+        canonical &&
+        !canonical.endsWith('/') &&
+        !canonical.includes('.') &&
+        !canonical.includes('?')
+    ) {
+        canonical = `${canonical}/`;
+    }
+    return canonical;
+}
+
+function getLocale(lang) {
+    const localeMap = {
+        en: 'en_US',
+        de: 'de_DE',
+        'de-CH': 'de_CH',
+        es: 'es_ES',
+        nl: 'nl_NL',
+        it: 'it_IT',
+        fr: 'fr_FR',
+        pl: 'pl_PL',
+        ru: 'ru_RU',
+        tr: 'tr_TR',
+        af: 'af_ZA',
+        ja: 'ja_JP',
+        ko: 'ko_KR',
+        tlh: 'tlh_US',
+        sjn: 'sjn_US'
+    };
+    return localeMap[lang] || 'en_US';
+}
+
 // Language configurations
-const languages = [
+const supportedLanguages = [
     'en',
     'de',
-    'dech',
+    'de-CH',
     'es',
     'nl',
     'it',
     'fr',
     'pl',
-    'da',
     'ru',
     'tr',
     'af',
     'ja',
     'ko',
     'tlh',
-    'qya'
+    'sjn'
 ];
 
 // Routes that need meta tags
-const routes = ['/', '/blog', '/versions', '/contact'];
+const routes = ['/', '/blog', '/versions', '/contact', '/account', '/privacy', '/legal'];
 
 // Meta tag templates for each route
 const metaTemplates = {
     '/': {
         title: 'Keymoji - Emoji Password Generator',
         description:
-            'Generate secure, AI-resistant emoji passwords. Create memorable passwords with emojis in 15+ languages. Free, open-source, and privacy-focused.',
+            'Generate secure, AI-resistant emoji passwords. Create memorable passwords with emojis in 15+ languages.',
         keywords:
             'emoji password, password generator, secure passwords, AI resistant, keymoji'
     },
@@ -52,6 +92,24 @@ const metaTemplates = {
         description:
             'Have questions or feedback about Keymoji? Contact us for support, suggestions, or collaboration.',
         keywords: 'contact keymoji, support, feedback, get in touch'
+    },
+    '/account': {
+        title: 'Keymoji Account - Manage Your Account',
+        description:
+            'Manage your Keymoji account, view your password history, and access premium features. Secure emoji password management.',
+        keywords: 'keymoji account, account management, password history, premium features, user account'
+    },
+    '/privacy': {
+        title: 'Keymoji Privacy Policy - Your Data Protection',
+        description:
+            'Read Keymoji\'s privacy policy to understand how we protect your data and ensure your privacy when using our emoji password generator.',
+        keywords: 'keymoji privacy, privacy policy, data protection, GDPR, user privacy'
+    },
+    '/legal': {
+        title: 'Keymoji Legal Information - Terms & Conditions',
+        description:
+            'Read Keymoji\'s terms and conditions, legal information, and usage guidelines for our emoji password generator service.',
+        keywords: 'keymoji legal, terms and conditions, legal information, usage guidelines'
     }
 };
 
@@ -61,7 +119,9 @@ function generateMetaTags(route, lang = 'en') {
     const baseUrl = 'https://keymoji.wtf';
     const url =
         route === '/' ? `${baseUrl}/${lang}` : `${baseUrl}/${lang}${route}`;
-    const imageUrl = `${baseUrl}/images/keymoji-social-media-banner-10-2024-min.png`;
+    const canonicalUrl = formatCanonicalUrl(url);
+    const imageUrl = `${baseUrl}${DEFAULT_SEO.image}`;
+    const locale = getLocale(lang);
 
     return `
     <!-- Primary Meta Tags -->
@@ -72,47 +132,41 @@ function generateMetaTags(route, lang = 'en') {
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="${url}">
+    <meta property="og:url" content="${canonicalUrl}">
     <meta property="og:title" content="${meta.title}">
     <meta property="og:description" content="${meta.description}">
     <meta property="og:image" content="${imageUrl}">
     <meta property="og:image:width" content="1640">
     <meta property="og:image:height" content="924">
     <meta property="og:site_name" content="Keymoji">
-    <meta property="og:locale" content="${getLocale(lang)}">
+    <meta property="og:locale" content="${locale}">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="${url}">
+    <meta property="twitter:url" content="${canonicalUrl}">
     <meta property="twitter:title" content="${meta.title}">
     <meta property="twitter:description" content="${meta.description}">
     <meta property="twitter:image" content="${imageUrl}">
     
     <!-- Canonical -->
-    <link rel="canonical" href="${url}">`;
-}
-
-// Get locale string from language code
-function getLocale(lang) {
-    const localeMap = {
-        en: 'en_US',
-        de: 'de_DE',
-        dech: 'de_CH',
-        es: 'es_ES',
-        nl: 'nl_NL',
-        it: 'it_IT',
-        fr: 'fr_FR',
-        pl: 'pl_PL',
-        da: 'da_DK',
-        ru: 'ru_RU',
-        tr: 'tr_TR',
-        af: 'af_ZA',
-        ja: 'ja_JP',
-        ko: 'ko_KR',
-        tlh: 'tlh',
-        qya: 'qya'
-    };
-    return localeMap[lang] || 'en_US';
+    <link rel="canonical" href="${canonicalUrl}">
+    
+    <!-- Language Alternates (hreflang) - Required for SEO -->
+    ${supportedLanguages
+        .map(l => {
+            const altPath = route === '/' ? '' : route;
+            const altUrl =
+                l === 'en'
+                    ? `${baseUrl}${altPath}`
+                    : `${baseUrl}/${l}${altPath}`;
+            // Ensure trailing slash for directories
+            const finalUrl = altUrl.endsWith('/') ? altUrl : `${altUrl}/`;
+            return `<link rel="alternate" hreflang="${l}" href="${finalUrl}">`;
+        })
+        .join('\n    ')}
+    <link rel="alternate" hreflang="x-default" href="${baseUrl}${
+        route === '/' ? '/' : route
+    }">`;
 }
 
 // Update index.html with proper meta tags
@@ -141,7 +195,7 @@ function updateIndexHtml() {
 function createRouteFiles() {
     const buildDir = path.join(__dirname, '../build');
 
-    languages.forEach(lang => {
+    supportedLanguages.forEach(lang => {
         routes.forEach(route => {
             const routePath = route === '/' ? '' : route;
             const dir = path.join(buildDir, lang, routePath);

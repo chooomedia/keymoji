@@ -7,21 +7,21 @@
             content="width=device-width, initial-scale=1.0, user-scalable=yes"
         />
 
-        <!-- Primary Meta Tags -->
+        <!-- Essential Meta Tags (will be updated dynamically) -->
         <title>Keymoji - Emoji Password Generator</title>
         <meta name="title" content="Keymoji - Emoji Password Generator" />
         <meta
             name="description"
-            content="Generate secure, AI-resistant emoji passwords. Create memorable passwords with emojis in 15+ languages. Free, open-source, and privacy-focused."
+            content="Generate secure, AI-resistant emoji passwords. Create memorable passwords with emojis in 15+ languages."
         />
         <meta
             name="keywords"
-            content="emoji password, password generator, secure passwords, AI resistant, keymoji, password security"
+            content="emoji password, password generator, secure passwords, AI resistant, keymoji"
         />
         <meta name="author" content="Christopher Matt" />
         <meta name="robots" content="index, follow" />
 
-        <!-- Open Graph / Facebook -->
+        <!-- Open Graph / Facebook (will be updated dynamically) -->
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://keymoji.wtf/" />
         <meta
@@ -45,7 +45,7 @@
         <meta property="og:site_name" content="Keymoji" />
         <meta property="og:locale" content="en_US" />
 
-        <!-- Twitter -->
+        <!-- Twitter (will be updated dynamically) -->
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://keymoji.wtf/" />
         <meta
@@ -62,6 +62,7 @@
         />
 
         <!-- Additional Meta Tags -->
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Keymoji" />
@@ -69,8 +70,109 @@
         <meta name="msapplication-TileColor" content="#253852" />
         <meta name="theme-color" content="#253852" />
 
-        <!-- Canonical URL -->
+        <!-- Canonical URL (will be updated dynamically) -->
         <link rel="canonical" href="https://keymoji.wtf/" />
+
+        <!-- Language Alternates (hreflang) - Required for SEO -->
+        <!-- These tell search engines which language versions of the page exist -->
+        <!-- data-static attribute prevents dynamic removal by updateMetaTags() -->
+        <link
+            rel="alternate"
+            hreflang="en"
+            href="https://keymoji.wtf/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="de"
+            href="https://keymoji.wtf/de/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="de-CH"
+            href="https://keymoji.wtf/de-CH/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="es"
+            href="https://keymoji.wtf/es/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="nl"
+            href="https://keymoji.wtf/nl/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="it"
+            href="https://keymoji.wtf/it/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="fr"
+            href="https://keymoji.wtf/fr/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="pl"
+            href="https://keymoji.wtf/pl/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="ru"
+            href="https://keymoji.wtf/ru/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="tr"
+            href="https://keymoji.wtf/tr/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="af"
+            href="https://keymoji.wtf/af/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="ja"
+            href="https://keymoji.wtf/ja/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="ko"
+            href="https://keymoji.wtf/ko/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="tlh"
+            href="https://keymoji.wtf/tlh/"
+            data-static="true"
+        />
+        <link
+            rel="alternate"
+            hreflang="sjn"
+            href="https://keymoji.wtf/sjn/"
+            data-static="true"
+        />
+        <!-- x-default specifies the default language version (English) -->
+        <link
+            rel="alternate"
+            hreflang="x-default"
+            href="https://keymoji.wtf/"
+            data-static="true"
+        />
 
         <!-- Favicons -->
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -105,18 +207,27 @@
         <noscript>
             <div
                 style="
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
                     text-align: center;
-                    padding: 50px;
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
                         Roboto, sans-serif;
+                    background-color: #253852;
+                    color: white;
                 "
             >
-                <h1>🔑 Keymoji - Emoji Password Generator</h1>
-                <p>You need to enable JavaScript to run this application.</p>
-                <p>
-                    Generate secure emoji passwords for better online security.
-                </p>
+                <div>
+                    <h1>🔑 Keymoji</h1>
+                    <p>
+                        You need to enable JavaScript to run this application.
+                    </p>
+                </div>
             </div>
         </noscript>
+
+        <!-- Svelte App Mount Point -->
+        <div id="app"></div>
     </body>
 </html>

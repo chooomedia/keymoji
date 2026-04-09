@@ -1,175 +1,362 @@
-// src/index.js - Optimierter Haupteinstiegspunkt
-import Root from './routes/LanguageRouter.svelte';
-import './index.css';
-import { appVersion, versionInfo } from './utils/version.js';
-import { showSuccess, showWarning } from './stores/modalStore.js';
-import content from './content.js';
+// src/index.js
+import './index.css'; // Essential: Import Tailwind CSS
+import LanguageRouter from './routes/LanguageRouter.svelte';
+import { isProduction } from './utils/environment';
+import { closeModal, isModalVisible } from './stores/modalStore';
 
-// Get the current URL
-const currentUrl = window.location.pathname;
+function displayKeymojiConsoleArt() {
+    if (!isProduction()) return; // Nur im Build anzeigen
 
-// Umgebungsvariablen sicher abfragen
-const getEnvironment = () => {
-    try {
-        return typeof process !== 'undefined' &&
-            process.env &&
-            process.env.NODE_ENV
-            ? process.env.NODE_ENV
-            : 'production';
-    } catch (e) {
-        console.warn(
-            'Could not access environment variables, defaulting to production'
-        );
-        return 'production';
-    }
-};
+    const asciiArt = `
+    ╔══════════════════════════════════════════════════════════════════════╗
+    ║                                                                      ║
+    ║       ██   ██ ███████ ██    ██ ███    ███  ██████       ██  ██       ║
+    ║       ██  ██  ██       ██  ██  ████  ████ ██    ██      ██  ██       ║
+    ║       █████   █████     ████   ██ ████ ██ ██    ██      ██  ██       ║
+    ║       ██  ██  ██         ██    ██  ██  ██ ██    ██ ██   ██  ██       ║
+    ║       ██   ██ ███████    ██    ██      ██  ██████  ████████ ██       ║
+    ║                                                                      ║
+    ║                           Emoji Security                             ║
+    ║                                                                      ║
+    ╠══════════════════════════════════════════════════════════════════════╣
+    ║                                                                      ║
+    ║  Developed by: Christopher E. Matt                                   ║
+    ║  Web: https://keymoji.wtf                                            ║
+    ║  Kontakt: hello@keymoji.wtf                                          ║
+    ║                                                                      ║
+    ║  Tech Stack:                                                         ║
+    ║     • Frontend: Svelte + Tailwind CSS + Webpack                      ║
+    ║     • Backend: Vercel Serverless + Automations                       ║
+    ║                                                                      ║
+    ║  Features:                                                           ║
+    ║     • 15+ Languages Support (incl. klingon & elvish)                 ║
+    ║     • PWA-Ready with Service Worker                                  ║
+    ║     • Premium Features with Stripe Payment (so                       ║
+    ║                                                                      ║
+    ║  Stats: over 10.000+ Emoji-Combinations avaiable                     ║
+    ║  GitHub: https://github.com/chooomedia/keymoji                       ║
+    ║                                                                      ║
+    ╚══════════════════════════════════════════════════════════════════════╝
+    `;
 
-// Überprüfe, ob die aktuelle URL den Sprachcode enthält
-// Falls nicht, sollte der Server-Redirect bereits stattgefunden haben
-const ensureLanguageInPath = () => {
-    const path = window.location.pathname;
-    const pathSegments = path.split('/').filter(segment => segment !== '');
+    // Style the console output
+    console.log(
+        '%c' + asciiArt,
+        'color: #9333ea; font-family: monospace; font-size: 11px; line-height: 1.2;'
+    );
 
-    // Wenn die Pfadsegmente leer sind (Wurzel-URL) oder das erste Segment
-    // nicht wie ein Sprachcode aussieht, logge eine Warnung
-    if (pathSegments.length === 0 || pathSegments[0].length !== 2) {
-        console.warn(
-            'URL does not contain language code, server-side redirect may have failed:',
-            path
-        );
-    }
-};
+    // Additional styled credits
+    console.log(
+        '%c🔑 KEYMOJI %c v0.7.7',
+        'color: #fbbf24; font-weight: bold; font-size: 16px;',
+        'color: #ef4444; font-weight: bold; font-size: 14px;'
+    );
 
-const environment = getEnvironment();
-console.log(
-    'Starting app with URL:',
-    currentUrl,
-    'Version:',
-    appVersion,
-    'Environment:',
-    environment
-);
-
-// Sprachcode-Prüfung im Development-Modus
-if (environment === 'development') {
-    ensureLanguageInPath();
+    console.log(
+        '%cTech-Stack: Svelte ⚡ Tailwind 🎨 Vercel 🚀 n8n 🤖',
+        'color: #6366f1; font-size: 11px;'
+    );
 }
 
-const app = new Root({
-    target: document.body,
-    props: {
-        url: currentUrl,
-        currentVersion: appVersion
+/**
+ * Enhanced Language Path Validation (Apple/Airbnb Style)
+ */
+function ensureLanguageInPath() {
+    const path = window.location.pathname;
+    const supportedLanguages = [
+        'en',
+        'de',
+        'fr',
+        'es',
+        'it',
+        'ja',
+        'ko',
+        'nl',
+        'pl',
+        'ru',
+        'tr',
+        'af',
+        'tlh',
+        'sjn'
+    ];
+
+    // Check if path starts with a supported language
+    const pathParts = path.split('/').filter(part => part.length > 0);
+    const firstPart = pathParts[0];
+
+    if (!supportedLanguages.includes(firstPart)) {
+        console.warn(
+            '🌐 Language code missing in URL path. Server-side redirects should handle this.'
+        );
     }
-});
+}
 
-// Enhanced Service Worker Registration with update handling
-if ('serviceWorker' in navigator && environment === 'production') {
-    window.addEventListener('load', async () => {
-        try {
-            const registration = await navigator.serviceWorker.register(
-                '/service-worker.js'
-            );
-            console.log(
-                'ServiceWorker registration successful with scope:',
-                registration.scope
-            );
-
-            // Handle service worker updates
-            registration.addEventListener('updatefound', () => {
-                const newWorker = registration.installing;
-
-                // Track state changes of the new service worker
-                newWorker.addEventListener('statechange', () => {
-                    if (
-                        newWorker.state === 'installed' &&
-                        navigator.serviceWorker.controller
-                    ) {
-                        // New version installed but waiting to activate
-                        console.log(
-                            'New version available! Ready when you are...'
-                        );
-
-                        // Store update availability in session storage
-                        sessionStorage.setItem('swUpdateAvailable', 'true');
-
-                        // Zeige Update-Meldung mit dem einheitlichen Modal-System
-                        const defaultMessage =
-                            'A new version is available. Refresh to update!';
-
-                        // Use the unified modal system
-                        showWarning(
-                            content.en?.serviceWorker?.updateAvailable ||
-                                defaultMessage,
-                            0, // Don't auto-close
-                            {
-                                buttonText: 'Refresh Now',
-                                buttonAction: () => {
-                                    newWorker.postMessage({
-                                        type: 'SKIP_WAITING'
-                                    });
-                                    window.location.reload();
-                                }
-                            }
-                        );
-                    }
-                });
-            });
-
-            // Handle messages from service worker
-            navigator.serviceWorker.addEventListener('message', event => {
-                if (event.data && event.data.type === 'SW_UPDATED') {
-                    console.log(
-                        `Service Worker updated to version ${event.data.version}`
-                    );
+// Cleanup function for magic link listener
+function cleanupOnUnload() {
+    if (typeof window !== 'undefined') {
+        // Import cleanup function dynamically
+        import('./stores/accountStore.js')
+            .then(module => {
+                if (module.cleanupMagicLinkListener) {
+                    module.cleanupMagicLinkListener();
                 }
+            })
+            .catch(error => {
+                // Silently handle import errors during cleanup
+                console.warn(
+                    '⚠️ Failed to cleanup magic link listener:',
+                    error
+                );
             });
+    }
+}
 
-            // Check for updates periodically (every 60 minutes)
-            setInterval(() => {
-                registration.update();
-            }, 60 * 60 * 1000);
+// Global Error Handler for Browser Extension runtime.lastError
+// This prevents "Unchecked runtime.lastError" errors from appearing in console
+// Based on Chrome Extension best practices: https://developer.chrome.com/docs/extensions/reference/runtime/#property-lastError
+function setupGlobalErrorHandlers() {
+    // Handle Chrome/Browser Extension runtime.lastError
+    if (typeof window !== 'undefined') {
+        // CRITICAL: Catch all window errors (including runtime.lastError from extensions)
+        window.addEventListener(
+            'error',
+            event => {
+                const errorMessage =
+                    event.message || event.error?.message || '';
+                const errorName = event.error?.name || '';
 
-            // Set up periodic sync if supported
-            if ('periodicSync' in registration) {
-                try {
-                    await registration.periodicSync.register('update-cache', {
-                        minInterval: 24 * 60 * 60 * 1000 // Once a day
-                    });
-                } catch (error) {
-                    console.log(
-                        'Periodic Sync could not be registered:',
-                        error
-                    );
+                // Filter out benign browser extension errors
+                if (
+                    errorMessage.includes('runtime.lastError') ||
+                    errorMessage.includes('message port closed') ||
+                    errorMessage.includes('Extension context invalidated') ||
+                    errorMessage.includes(
+                        'The message port closed before a response was received'
+                    ) ||
+                    errorName === 'InvalidStateError' ||
+                    errorName === 'DOMException'
+                ) {
+                    // Prevent these errors from appearing in console
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
                 }
+            },
+            true
+        ); // Use capture phase to catch errors early
+
+        // Override console.error to silently catch runtime.lastError
+        const originalError = console.error;
+        console.error = function (...args) {
+            // Filter out runtime.lastError messages
+            const message = args[0]?.toString() || '';
+            if (
+                message.includes('runtime.lastError') ||
+                message.includes('message port closed') ||
+                message.includes('Extension context invalidated') ||
+                message.includes(
+                    'The message port closed before a response was received'
+                )
+            ) {
+                // Silently ignore - these are expected from browser extensions
+                return;
             }
+            // Call original console.error for other errors
+            originalError.apply(console, args);
+        };
 
-            // Handle offline/online status changes
-            window.addEventListener('online', async () => {
+        // Global error handler for unhandled promise rejections
+        window.addEventListener('unhandledrejection', event => {
+            const error = event.reason;
+            const errorMessage = error?.message || error?.toString() || '';
+            const errorName = error?.name || '';
+
+            if (
+                errorMessage.includes('runtime.lastError') ||
+                errorMessage.includes('message port closed') ||
+                errorMessage.includes('Extension context invalidated') ||
+                errorMessage.includes(
+                    'The message port closed before a response was received'
+                ) ||
+                errorName === 'InvalidStateError' ||
+                errorName === 'DOMException'
+            ) {
+                // Prevent these errors from appearing in console
+                event.preventDefault();
+                return;
+            }
+        });
+
+        // Handle Chrome extension context errors
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+            // Periodically clear runtime.lastError to prevent accumulation
+            // This is a Chrome Extension best practice
+            setInterval(() => {
                 try {
-                    const reg = await navigator.serviceWorker.ready;
-                    if ('sync' in reg) {
-                        await reg.sync.register('syncData');
+                    if (chrome.runtime.lastError) {
+                        // Access lastError to clear it (prevents "Unchecked" warnings)
+                        void chrome.runtime.lastError;
                     }
-                } catch (error) {
-                    console.error(
-                        'Background sync registration failed:',
-                        error
-                    );
+                } catch (e) {
+                    // Ignore errors when clearing
                 }
-            });
-        } catch (error) {
-            console.error('ServiceWorker registration failed:', error);
+            }, 1000);
+        }
+    }
+}
+
+// Application Initialization mit enhanced UX
+function initializeApp() {
+    // Setup global error handlers FIRST to catch all errors
+    setupGlobalErrorHandlers();
+
+    // Display console art on production build
+    displayKeymojiConsoleArt();
+
+    // Initialize API cache (cleanup expired entries, load debug tools)
+    import('./utils/apiCache').then(module => {
+        module.initializeCache();
+        console.log('✅ API cache initialized (prevents 429 errors)');
+        if (!isProduction()) {
+            console.log('🔧 apiCache debug: window.apiCache.stats()');
         }
     });
-} else {
-    console.log(`Running in ${environment} mode - Service Worker disabled`);
+
+    // Import debug tools in development
+    if (!isProduction()) {
+        import('./utils/loadRealDataHelper.js').then(module => {
+            console.log('🔧 Real Data Loader available: window.loadRealData()');
+        });
+
+        import('./utils/settingsDebug.js').then(module => {
+            console.log('🔧 Settings Debug Tools loaded');
+            window.keymojiDebug = module;
+        });
+
+        import('./utils/dailyUsageDebug.js').then(module => {
+            console.log('🔧 Daily Usage Debug Tools loaded');
+        });
+
+        import('./utils/usageHistoryGenerator.js').then(module => {
+            console.log('🔧 Usage History Generator loaded');
+            console.log(
+                '📊 Quick: await window.keymojiUsageGenerator.generate4Weeks()'
+            );
+        });
+
+        import('./utils/chartTestData.js').then(module => {
+            console.log('🎨 Chart Test Tools loaded');
+            console.log(
+                '⚡ Quick: window.keymojiChartTest.pro4w() for instant animation'
+            );
+        });
+
+        import('./utils/chartDebugger.js').then(module => {
+            console.log('🔧 Chart Debugger loaded');
+            console.log('⚡ Quick: window.chartDebugger.fullDiagnosis()');
+        });
+
+        import('./utils/instantChartTest.js').then(module => {
+            console.log('⚡ Instant Chart Test loaded');
+            console.log('⚡ Quick: window.instantChartTest()');
+        });
+
+        import('./utils/testAPIDirectly.js').then(module => {
+            console.log('🧪 Direct API Test loaded');
+            console.log('⚡ Quick: await window.testAPIDirectly()');
+        });
+    }
+
+    // Validate language path
+    ensureLanguageInPath();
+
+    // Enhanced keyboard shortcuts (Apple Style)
+    document.addEventListener('keydown', event => {
+        // ESC to close modal
+        if (event.key === 'Escape' && isModalVisible.get()) {
+            event.preventDefault();
+            closeModal();
+        }
+
+        // CMD/CTRL + K für Quick Actions (Apple/Airbnb Style)
+        if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+            event.preventDefault();
+            // Future: Quick Action Modal
+            console.log('🔥 Quick Actions - Coming Soon!');
+        }
+    });
+
+    // Enhanced click outside modal handler
+    document.addEventListener('click', event => {
+        const modalElement = document.querySelector('.modal-overlay');
+        if (
+            modalElement &&
+            event.target === modalElement &&
+            isModalVisible.get()
+        ) {
+            closeModal();
+        }
+    });
+
+    // NEW: Initialize user data stores (robust pattern like userCounter!)
+    import('./stores/userDataStore.js')
+        .then(module => {
+            module.initializeUserData();
+            console.log('✅ User data stores initialized');
+        })
+        .catch(error => {
+            console.warn('⚠️ Failed to initialize user data stores:', error);
+        });
+
+    // Initialize Svelte App FIRST
+    // The LanguageRouter will handle hiding the static loading screen once it's ready
+    const appElement = document.getElementById('app');
+    const app = new LanguageRouter({
+        target: appElement || document.body
+    });
+
+    // Hide static loading screen AFTER Svelte is initialized
+    // This ensures smooth transition from static to Svelte loading screen
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+        if (appElement) {
+            // Method 1: Hide by ID (most reliable)
+            const staticLoadingById = document.getElementById(
+                'static-loading-screen'
+            );
+            if (staticLoadingById) {
+                staticLoadingById.style.display = 'none';
+            }
+
+            // Method 2: Hide any static loading content inside #app (fallback)
+            const staticLoading = appElement.querySelector(
+                'div[style*="display: flex"][style*="justify-content: center"][style*="min-height: 100vh"]'
+            );
+            if (staticLoading && staticLoading.id !== 'static-loading-screen') {
+                staticLoading.style.display = 'none';
+            }
+
+            // Also hide noscript content if JavaScript is enabled
+            const noscriptContent = appElement.querySelector('noscript');
+            if (noscriptContent) {
+                noscriptContent.style.display = 'none';
+            }
+        }
+    });
+
+    return app;
 }
 
-// Add version info to console
-console.info(
-    `%c Keymoji ${appVersion} (${versionInfo.codename}) `,
-    'background: #f4ab25; color: #000; padding: 4px; border-radius: 4px;'
-);
+// Initialize App with error handling
+const app = initializeApp();
+
+// Setup cleanup on page unload
+// Note: 'unload' is deprecated - using 'pagehide' instead (more reliable, works with BFCache)
+if (typeof window !== 'undefined') {
+    // beforeunload: fires before page unloads (user confirmation dialogs)
+    window.addEventListener('beforeunload', cleanupOnUnload);
+    // pagehide: modern alternative to 'unload' - fires reliably even with BFCache
+    window.addEventListener('pagehide', cleanupOnUnload);
+}
 
 export default app;

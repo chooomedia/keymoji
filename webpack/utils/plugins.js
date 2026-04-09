@@ -10,22 +10,58 @@ const plugins = {
 };
 
 // Hilft dabei, Umgebungsvariablen korrekt in den Browser zu bringen
+// Unterstützt sowohl process.env.* als auch import.meta.env.* (Vite-Stil)
 function createEnvForDefinePlugin(env) {
     const processEnv = {};
+    const importMetaEnv = {};
 
     // Konvertiere alle Umgebungsvariablen in das korrekte Format
     // Entferne NODE_ENV, da es bereits durch webpack.DefinePlugin.__definierte__ gesetzt wird
     for (const key in env) {
         if (key !== 'NODE_ENV') {
-            if (typeof env[key] === 'string') {
-                processEnv[key] = JSON.stringify(env[key]);
-            } else {
-                processEnv[key] = env[key];
+            let value = env[key];
+            
+            // Handle stringified values (from webpack/utils/environment.js)
+            // If value is already a JSON string (starts and ends with quotes), parse it first
+            if (typeof value === 'string' && value.startsWith('"') && value.endsWith('"')) {
+                try {
+                    value = JSON.parse(value);
+                } catch (e) {
+                    // If parsing fails, use as-is
+                }
+            }
+            
+            const stringified = typeof value === 'string' 
+                ? JSON.stringify(value) 
+                : value;
+            
+            // Alle Variablen für process.env
+            processEnv[key] = stringified;
+            
+            // VITE_* Variablen auch für import.meta.env (Vite-Stil)
+            if (key.startsWith('VITE_')) {
+                importMetaEnv[key] = stringified;
             }
         }
     }
 
-    return { 'process.env': processEnv };
+    // Erstelle DefinePlugin-Konfiguration
+    const defineConfig = {
+        'process.env': processEnv
+    };
+    
+    // Füge import.meta.env hinzu (nur wenn VITE_ Variablen vorhanden)
+    // Webpack DefinePlugin benötigt ein verschachteltes Objekt-Format
+    if (Object.keys(importMetaEnv).length > 0) {
+        // Erstelle verschachteltes Objekt: import.meta.env.VITE_*
+        const importMetaEnvObj = {};
+        for (const key in importMetaEnv) {
+            importMetaEnvObj[key] = importMetaEnv[key];
+        }
+        defineConfig['import.meta.env'] = JSON.stringify(importMetaEnvObj);
+    }
+    
+    return defineConfig;
 }
 
 module.exports = {
@@ -35,7 +71,13 @@ module.exports = {
         new plugins.Html({
             inject: true,
             template: paths.APP_HTML,
-            title: 'Keymoji - Development'
+            title: 'Keymoji - Development',
+            minify: false, // Don't minify in development
+            // Ensure DOCTYPE is preserved
+            meta: {
+                charset: 'UTF-8',
+                viewport: 'width=device-width, initial-scale=1.0, user-scalable=yes'
+            }
         })
     ],
     build: [

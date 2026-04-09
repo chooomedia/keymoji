@@ -1,0 +1,330 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-abtest",
+                "responseMode": "responseNode",
+                "options": {
+                    "allowedOrigins": "*"
+                }
+            },
+            "id": "f6ccb35c-aee3-4d59-91fb-cacadf25cc91",
+            "name": "A/B Test Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -240,
+                4096
+            ],
+            "webhookId": "ab-test-webhook",
+            "disabled": true
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1295571492,
+                    "mode": "list",
+                    "cachedResultName": "abtests",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1295571492"
+                },
+                "options": {}
+            },
+            "id": "0464d236-3149-42e6-82f8-fe8539fb6b18",
+            "name": "Read A/B Tests",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                208,
+                4096
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Assign A/B test variant\nconst data = $input.first().json;\nconst abTests = $input.all();\nconst userId = data.userId;\nconst testName = data.testName;\n\n// Check if user already has a variant for this test\nconst existingTest = abTests.find(test => \n  test.userId === userId && test.testName === testName\n);\n\nif (existingTest) {\n  // User already has a variant\n  return { json: { userId, testName, variant: existingTest.variant } };\n}\n\n// Assign new variant (A or B)\nconst variant = Math.random() < 0.5 ? 'A' : 'B';\n\n// Create new test assignment\nconst newTest = {\n  userId,\n  testName,\n  variant,\n  assignedAt: new Date().toISOString(),\n  conversion: false,\n  events: []\n};\n\nreturn { json: newTest };"
+            },
+            "id": "d2829bcb-38e6-471c-a3d2-1ff7ec3883be",
+            "name": "Assign Variant",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                640,
+                3984
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1295571492,
+                    "mode": "list",
+                    "cachedResultName": "abtests",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1295571492"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": null,
+                    "matchingColumns": [],
+                    "schema": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "a8c34038-1c6c-4693-8997-569c4f3379cd",
+            "name": "Save Assignment",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                864,
+                3984
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Track A/B test event\nconst data = $input.first().json;\nconst abTests = $input.all();\nconst userId = data.userId;\nconst testName = data.testName;\nconst event = data.event;\nconst conversion = data.conversion;\n\n// Find user's test\nconst userTest = abTests.find(test => \n  test.userId === userId && test.testName === testName\n);\n\nif (!userTest) {\n  throw new Error('A/B test not found for user');\n}\n\n// Update test with event\nconst updatedTest = {\n  ...userTest,\n  conversion: userTest.conversion || conversion,\n  events: [...(userTest.events || []), {\n    event,\n    conversion,\n    timestamp: new Date().toISOString()\n  }]\n};\n\nreturn { json: updatedTest };"
+            },
+            "id": "6d32fc6e-e626-4ffa-b341-329547beee76",
+            "name": "Track Event",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                640,
+                4192
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Get A/B test results\nconst data = $input.first().json;\nconst abTests = $input.all();\nconst testName = data.testName;\n\n// Filter tests for this test name\nconst testResults = abTests.filter(test => test.testName === testName);\n\n// Calculate results by variant\nconst results = {\n  A: { participants: 0, conversions: 0, conversionRate: 0 },\n  B: { participants: 0, conversions: 0, conversionRate: 0 }\n};\n\n// Aggregate results\nfor (const test of testResults) {\n  const variant = test.variant;\n  results[variant].participants++;\n  if (test.conversion) {\n    results[variant].conversions++;\n  }\n}\n\n// Calculate conversion rates\nfor (const variant in results) {\n  if (results[variant].participants > 0) {\n    results[variant].conversionRate = \n      (results[variant].conversions / results[variant].participants) * 100;\n  }\n}\n\nreturn { json: { testName, results } };"
+            },
+            "id": "f8d2b378-4a2d-412a-b15c-1f37324ece8a",
+            "name": "Calculate Results",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                864,
+                4192
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"test\": {\n    \"name\": \"{{ $json.testName }}\",\n    \"variant\": \"{{ $json.variant }}\",\n    \"assignedAt\": \"{{ $json.assignedAt }}\"\n  },\n  \"message\": \"Variant assigned successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "4c44fb7d-41ad-4074-899d-e9f7ee4ae4bf",
+            "name": "Assign Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1088,
+                3984
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"test\": {\n    \"name\": \"{{ $json.testName }}\",\n    \"results\": {{ $json.results }}\n  },\n  \"message\": \"A/B test results retrieved\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "ecc3b82c-5163-41aa-80b0-08ea48e7310b",
+            "name": "Results Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1088,
+                4192
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId || !data.testName) {\n  throw new Error('Missing required fields: action, userId, testName');\n}\n\n// Validate action\nconst validActions = ['assign', 'track', 'get_results'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: assign, track, get_results');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  testName: data.testName,\n  variant: data.variant || '',\n  conversion: data.conversion || false,\n  event: data.event || ''\n};\n\nreturn { json: sanitizedData };"
+            },
+            "id": "67c7008e-ac71-499b-b7e6-8f19cb7b1431",
+            "name": "Validate Data5",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -16,
+                4096
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "action-check",
+                            "leftValue": "={{ $json.action }}",
+                            "rightValue": "assign",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "d5aabf64-c512-4ec6-958e-50bb144ac2d4",
+            "name": "Route by Action4",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                432,
+                4096
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## Ab Testing\n\n",
+                "height": 560,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -320,
+                3888
+            ],
+            "id": "18e1d09a-019d-42c7-9949-9ccd1554e4b8",
+            "name": "Sticky Note5"
+        }
+    ],
+    "connections": {
+        "A/B Test Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Data5",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read A/B Tests": {
+            "main": [
+                [
+                    {
+                        "node": "Route by Action4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Assign Variant": {
+            "main": [
+                [
+                    {
+                        "node": "Save Assignment",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Assignment": {
+            "main": [
+                [
+                    {
+                        "node": "Assign Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Track Event": {
+            "main": [
+                [
+                    {
+                        "node": "Calculate Results",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Calculate Results": {
+            "main": [
+                [
+                    {
+                        "node": "Results Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Data5": {
+            "main": [
+                [
+                    {
+                        "node": "Read A/B Tests",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route by Action4": {
+            "main": [
+                [
+                    {
+                        "node": "Assign Variant",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Track Event",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "3dae61a0a24f0b093f057680559772c3c73ec97ec47a9bd2a5ad745c7d8f0365"
+    }
+}

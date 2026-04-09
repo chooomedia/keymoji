@@ -1,6 +1,7 @@
 <!-- src/components/A11y/FocusManager.svelte -->
 <script>
     import { onMount, onDestroy } from 'svelte';
+    import { safeSetTimeout, clearAllTimeouts } from '../../utils/sharedHelpers';
     
     // Props
     export let active = true; // Whether focus trapping is active
@@ -15,6 +16,19 @@
     let trapElement;
     let previouslyFocused = null;
     let focusableElements = [];
+
+    // Timeout-Tracking für Memory Leak Prevention
+    let activeTimeouts = new Set();
+    
+    // Wrapper für safeSetTimeout mit lokalem Tracking (für onDestroy cleanup)
+    function localSafeSetTimeout(callback, delay) {
+        const timeoutId = safeSetTimeout(() => {
+            activeTimeouts.delete(timeoutId);
+            callback();
+        }, delay);
+        activeTimeouts.add(timeoutId);
+        return timeoutId;
+    }
     
     // Focus the first element when trap activates
     function focusInitialElement() {
@@ -132,7 +146,7 @@
       updateFocusableElements();
       
       if (active) {
-        window.setTimeout(() => {
+        localSafeSetTimeout(() => {
           focusInitialElement();
         }, 50); // Small delay to ensure DOM is settled
       }
@@ -142,6 +156,12 @@
     
     // Clean up when component is destroyed
     onDestroy(() => {
+      // Bereinige alle aktiven Timeouts
+      activeTimeouts.forEach(timeoutId => {
+        clearTimeout(timeoutId);
+      });
+      activeTimeouts.clear();
+      
       if (active && restoreFocus) {
         releaseFocus();
       }
@@ -151,7 +171,7 @@
     
     // Watch for active state changes
     $: if (active) {
-      window.setTimeout(() => {
+      localSafeSetTimeout(() => {
         updateFocusableElements();
         focusInitialElement();
       }, 50);

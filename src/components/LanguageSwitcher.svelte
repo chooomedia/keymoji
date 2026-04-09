@@ -2,8 +2,9 @@
     import { slide } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { onMount, createEventDispatcher } from 'svelte';
-    import { currentLanguage, setLanguage, showLanguageMenu } from '../stores/appStores.js';
-    import { supportedLanguages } from '../utils/languages.js';
+    import { get } from 'svelte/store';
+    import { currentLanguage, changeLanguage, showLanguageMenu, translations } from '../stores/contentStore.js';
+    import { supportedLanguages } from '../utils/languages';
     import { navigate } from "svelte-routing";
     
     const dispatch = createEventDispatcher();
@@ -12,42 +13,61 @@
     export let display = 'full'; // full, compact
     export let showLabels = true;
     
+    // CRITICAL: Reaktive Sprachwahl - selectedLang wird automatisch aktualisiert wenn currentLanguage sich ändert
     let selectedLang = $currentLanguage;
     let elvishFontLoaded = false;
+    let menuRef;
+    let buttonRef;
+    let dropdownTop = 0;
     
     // Direkter Zugriff auf die supportedLanguages aus languageUtils
     const languages = supportedLanguages;
     
-    // Funktion zum Vorladen der Elvish-Schriftart
+    // Funktion zum Prüfen ob die Elvish-Schriftart geladen ist
+    // NOTE: @font-face ist jetzt statisch in index.css definiert - kein dynamisches Laden mehr nötig
     function preloadElvishFont() {
-        // Prüfen ob die Schriftart bereits vorgeladen wurde
-        if (document.querySelector('link[href*="tengwar_annatar.ttf"]')) {
+        // Font ist jetzt statisch in index.css definiert und wird automatisch geladen
+        // Wir prüfen nur ob sie verfügbar ist
+        if (document.fonts?.check('1em Tengwar Annatar')) {
             elvishFontLoaded = true;
-            return;
-        }
-        
-        try {
-            // Schriftart vorladen
-            const fontLink = document.createElement('link');
-            fontLink.rel = 'preload';
-            fontLink.href = '/fonts/tengwar_annatar.ttf';
-            fontLink.as = 'font';
-            fontLink.type = 'font/ttf';
-            fontLink.crossOrigin = 'anonymous';
-            document.head.appendChild(fontLink);
-            
+            console.log('✅ Elvish font already loaded from CSS');
+        } else {
+            // Font wird automatisch geladen wenn .font-elvish Klasse angewendet wird
             elvishFontLoaded = true;
-            console.log('Elvish font preloaded');
-        } catch (error) {
-            console.warn('Failed to preload Elvish font:', error);
+            console.log('✅ Elvish font will be loaded from CSS when needed');
         }
     }
     
-    function toggleLanguageMenu() {
+    function toggleLanguageMenu(event) {
+        // Prevent event from bubbling to click-outside handler
+        if (event) {
+            event.stopPropagation();
+        }
+        
         $showLanguageMenu = !$showLanguageMenu;
         
-        // Font vorladen, wenn das Menü geöffnet wird (für schnelleres Umschalten)
+        // Schließe Category Dropdown, wenn Language Dropdown geöffnet wird
         if ($showLanguageMenu) {
+            // Calculate dropdown position once when opening
+            // Desktop: Position directly below header (no gap)
+            // Mobile: Small gap for better UX
+            if (buttonRef) {
+                const buttonRect = buttonRef.getBoundingClientRect();
+                const isDesktop = window.innerWidth >= 768; // md breakpoint
+                dropdownTop = isDesktop 
+                    ? buttonRect.bottom // Directly below, no gap
+                    : buttonRect.bottom + 4; // Small gap on mobile
+            }
+            
+            // Schließe Category Dropdown falls geöffnet
+            const categoryDropdown = document.querySelector('#category-dropdown-menu');
+            if (categoryDropdown) {
+                // Trigger close event für Category Dropdown
+                const categoryButton = document.querySelector('#category-toggle-button');
+                if (categoryButton && categoryButton.getAttribute('aria-expanded') === 'true') {
+                    categoryButton.click(); // Toggle schließt das Dropdown
+                }
+            }
             preloadElvishFont();
         }
     }
@@ -59,43 +79,91 @@
         // Split path to extract non-language part
         const pathSegments = path.split('/').filter(segment => segment !== '');
         
-        // Check if first segment is a language code
-        if (pathSegments.length > 0 && languages.some(lang => lang.code === pathSegments[0])) {
-            // Remove language code
-            pathSegments.shift();
-        }
+        // Remove ALL language codes from the path
+        const languageCodes = languages.map(lang => lang.code);
+        const nonLanguageSegments = pathSegments.filter(segment => !languageCodes.includes(segment));
         
         // Construct new URL with new language code
-        return `/${langCode}${pathSegments.length > 0 ? '/' + pathSegments.join('/') : ''}`;
+        const newPath = `/${langCode}${nonLanguageSegments.length > 0 ? '/' + nonLanguageSegments.join('/') : ''}`;
+        
+        console.log('🔄 updateCurrentPath:', {
+            originalPath: path,
+            pathSegments,
+            languageCodes,
+            nonLanguageSegments,
+            newPath
+        });
+        
+        return newPath;
     }
     
-    function handleLanguageChange(langCode) {
+    async function handleLanguageChange(langCode) {
+        console.log('🔄 LanguageSwitcher: handleLanguageChange called with:', langCode);
+        console.log('🔄 LanguageSwitcher: current selectedLang:', selectedLang);
+        
         // Do nothing if it's the same language
         if (langCode === selectedLang) {
+            console.log('🔄 LanguageSwitcher: Same language, closing menu');
             $showLanguageMenu = false;
             return;
         }
         
         // Vorladen der Elvish Schriftart, wenn auf Elvish gewechselt wird
-        if (langCode === 'qya') {
+        if (langCode === 'sjn') {
             preloadElvishFont();
         }
         
-        // Set language in store
-        setLanguage(langCode);
+        console.log('🔄 LanguageSwitcher: Calling changeLanguage...');
+        
+        // CRITICAL: Setze selectedLang SOFORT für UI-Feedback
         selectedLang = langCode;
+        
+        // Set language in store (contentStore.js)
+        // CRITICAL: Warte auf changeLanguage() damit Content geladen ist
+        await changeLanguage(langCode);
+        
+        // CRITICAL: Prüfe ob Content wirklich geladen wurde
+        const { translations } = await import('../stores/contentStore.js');
+        const { get } = await import('svelte/store');
+        const currentTranslations = get(translations);
+        
+        if (!currentTranslations || !currentTranslations.contactForm) {
+            console.warn('⚠️ LanguageSwitcher: Translations not loaded, waiting...');
+            // Warte kurz und prüfe nochmal
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        console.log('🔄 LanguageSwitcher: Language changed to:', selectedLang);
+        
+        // CRITICAL: Sync with userSettings store
+        try {
+            const { updateSetting, userSettings } = await import('../stores/userSettingsStore.js');
+            
+            // Update userSettings.language to stay in sync
+            const currentSettings = get(userSettings);
+            if (currentSettings.language !== langCode) {
+                updateSetting('language', langCode);
+                console.log('✅ userSettings.language synced:', langCode);
+            }
+        } catch (error) {
+            console.warn('⚠️ Failed to sync userSettings:', error);
+        }
         
         // Get new path with updated language
         const newPath = updateCurrentPath(langCode);
         
         // Debug output
-        console.log('Navigating to new path with language change:', newPath);
+        console.log('🔄 LanguageSwitcher: Navigating to new path:', newPath);
         
-        // Update URL without reload
-        navigate(newPath, { replace: true });
+        // CRITICAL: Use replace: false to trigger route change
+        // replace: true würde nur die URL ändern ohne Route neu zu rendern
+        // CRITICAL: Warte kurz damit Content Store aktualisiert ist
+        await new Promise(resolve => setTimeout(resolve, 50));
+        navigate(newPath, { replace: false });
         
         // Close menu
         $showLanguageMenu = false;
+        console.log('🔄 LanguageSwitcher: Menu closed');
         
         // Trigger event for parent components
         dispatch('languageChange', langCode);
@@ -104,112 +172,216 @@
     function getCurrentLanguageInfo(code) {
         return languages.find(lang => lang.code === code) || languages[0];
     }
+
+    // Funktion für die korrekte Anzeige des Sprachcodes
+    function getDisplayCode(code) {
+        // Spezielle Anzeige für Schweizerdeutsch
+        if (code === 'de-CH') {
+            return 'CH';
+        }
+        return code.toUpperCase();
+    }
+    
+    // Keyboard navigation - consistent with BlogGrid category dropdown
+    function handleKeydown(event) {
+        if (!$showLanguageMenu) return;
+        
+        switch (event.key) {
+            case 'Escape':
+                event.preventDefault();
+                $showLanguageMenu = false;
+                buttonRef?.focus();
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                const firstMenuItem = menuRef?.querySelector('[role="menuitem"]');
+                firstMenuItem?.focus();
+                break;
+        }
+    }
+    
+    function handleMenuKeydown(event, langCode) {
+        switch (event.key) {
+            case 'Enter':
+            case ' ':
+                event.preventDefault();
+                handleLanguageChange(langCode);
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                const nextItem = event.target.parentElement?.nextElementSibling?.querySelector('[role="menuitem"]');
+                nextItem?.focus();
+                break;
+            case 'ArrowUp':
+                event.preventDefault();
+                const prevItem = event.target.parentElement?.previousElementSibling?.querySelector('[role="menuitem"]');
+                prevItem?.focus();
+                break;
+        }
+    }
     
     onMount(() => {
         // Schriftart vorladen, wenn die aktuelle Sprache Elvish ist
-        if ($currentLanguage === 'qya') {
+        // CRITICAL: Wird auch beim initialen Laden aufgerufen
+        if ($currentLanguage === 'sjn') {
             preloadElvishFont();
             
-            // Ensure the correct class is applied
+            // Ensure the correct class is applied immediately
             document.body.classList.add('font-elvish');
+            
+            // CRITICAL: Warte kurz und prüfe ob Font geladen wurde
+            setTimeout(() => {
+                const fontLoaded = document.fonts?.check('1em Tengwar Annatar') || 
+                                   document.querySelector('style[data-elvish-font]');
+                if (!fontLoaded) {
+                    console.warn('⚠️ LanguageSwitcher: Elvish font not loaded, retrying...');
+                    preloadElvishFont();
+                } else {
+                    console.log('✅ LanguageSwitcher: Elvish font confirmed loaded');
+                }
+            }, 100);
         }
         
+        // Click-outside handler - consistent with BlogGrid category dropdown
+        // Use capture phase to ensure it runs before other handlers
         const handleClickOutside = (event) => {
-            if ($showLanguageMenu && !event.target.closest('#language-dropdown-menu') && !event.target.closest('#language-toggle-button')) {
-                $showLanguageMenu = false;
+            // Get current state from store (reactive)
+            const isMenuOpen = get(showLanguageMenu);
+            
+            if (!isMenuOpen) return;
+            
+            const target = event.target;
+            
+            // Check if click is on the language toggle button
+            const languageButton = document.getElementById('language-toggle-button');
+            const isInsideButton = languageButton && (languageButton.contains(target) || languageButton === target);
+            
+            // Check if click is on a clickable menu item (button) inside the dropdown
+            // NOT on the empty space of the fixed container
+            const isInsideClickableMenuItem = target.closest('#language-dropdown-menu [role="menuitem"]');
+            
+            // Also check other menus to avoid conflicts
+            const isInsideCategoryMenu = target.closest('#category-dropdown-menu [role="menuitem"]');
+            const isInsideCategoryButton = target.closest('#category-toggle-button');
+            const isInsideFixedMenu = target.closest('#fixed-menu');
+            const isInsideDonateMenu = target.closest('[data-menu-type="donate"]');
+            
+            // Close dropdown if click is outside all clickable elements
+            // This includes clicks on the empty space of the fixed container
+            if (!isInsideButton && 
+                !isInsideClickableMenuItem && 
+                !isInsideCategoryMenu && 
+                !isInsideCategoryButton && 
+                !isInsideFixedMenu && 
+                !isInsideDonateMenu) {
+                showLanguageMenu.set(false);
             }
         };
         
-        document.addEventListener('click', handleClickOutside);
+        // Use capture phase for better reliability
+        document.addEventListener('click', handleClickOutside, true);
+        document.addEventListener('keydown', handleKeydown);
         
         return () => {
-            document.removeEventListener('click', handleClickOutside);
+            document.removeEventListener('click', handleClickOutside, true);
+            document.removeEventListener('keydown', handleKeydown);
         };
     });
     
-    // Update selectedLang when currentLanguage changes
+    // CRITICAL: Reaktive Sprachwahl - selectedLang wird automatisch aktualisiert wenn currentLanguage sich ändert
+    // Dies ist wichtig für die UI-Reaktivität wenn die Sprache von außen geändert wird (z.B. durch URL-Änderung)
     $: selectedLang = $currentLanguage;
+    
+    // Reaktive Schriftart-Anwendung
+    $: if ($currentLanguage === 'sjn') {
+        preloadElvishFont();
+        document.body.classList.add('font-elvish');
+    } else {
+        document.body.classList.remove('font-elvish');
+    }
 </script>
     
 <div class="language-switcher {position} {display}">
     <button
-      id="language-toggle-button"
-      type="button"
-      class="btn btn-default btn-md flex items-center text-base"
-      on:click={toggleLanguageMenu}
-      aria-label="Change language"
-      aria-haspopup="true"
-      aria-expanded={$showLanguageMenu}
-      aria-controls="language-dropdown-menu"
+        id="language-toggle-button"
+        bind:this={buttonRef}
+        type="button"
+        class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14"
+        on:click={toggleLanguageMenu}
+        aria-label={$showLanguageMenu ? ($translations?.languageSwitcher?.closeMenu || 'Close language menu') : ($translations?.languageSwitcher?.changeLanguage || 'Change language')}
+        aria-haspopup="true"
+        aria-expanded={$showLanguageMenu}
+        aria-controls="language-dropdown-menu"
+        title={$translations?.languageSwitcher?.changeLanguage || 'Change language'}
     >
-      <span class="flag-icon mr-3">{getCurrentLanguageInfo(selectedLang).flag}</span>
-      {#if showLabels || display === 'full'}
-        <span class="lang-code uppercase">{getCurrentLanguageInfo(selectedLang).code}</span>
-        {#if display === 'full'}
-            <span class="dropdown-arrow ml-3">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{$showLanguageMenu ? 'transform rotate-180' : ''}">
-                <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-            </span>
-        {/if}
-      {/if}
-    </button>
-  
-    {#if $showLanguageMenu}
-    <!-- Mobile backdrop -->
-    <div 
-      class="fixed inset-0 bg-black bg-opacity-25 z-40 sm:hidden"
-      on:click={toggleLanguageMenu}
-      aria-hidden="true"
-    ></div>
-    
-    <div 
-      id="language-dropdown-menu" 
-      class="language-dropdown {position === 'top' ? 'top-full mt-2' : 'bottom-full mb-2'} 
-             w-48 sm:w-36 
-             max-h-[60vh] sm:max-h-96 
-             mx-auto rounded-xl shadow-lg bg-creme dark:bg-aubergine-dark 
-             ring-1 ring-black ring-opacity-5 z-50 
-             transform transition-all duration-300 ease-in-out
-             overflow-hidden"
-      role="menu" 
-      aria-orientation="vertical" 
-      aria-labelledby="language-toggle-button"
-    >
-      <div class="py-2 overflow-y-auto max-h-[calc(60vh-1rem)] sm:max-h-[calc(24rem-1rem)] overscroll-contain">
-        <ul>
-          {#each languages as lang}
-            <li
-              in:slide={{ y: -5, duration: 400, easing: cubicInOut }} 
-              out:slide={{ y: 5, duration: 400, easing: cubicInOut }}
-            >
-              <button
-                class="flex items-center w-full 
-                       px-4 py-4 sm:py-3 
-                       hover:bg-aubergine-50 
-                       text-sm transition-colors 
-                       active:bg-aubergine-50
-                       focus:bg-aubergine-50 focus:outline-none
-                       {selectedLang === lang.code ? 'font-bold bg-gray-50 dark:bg-aubergine-50' : ''} 
-                       {lang.code === 'qya' ? 'elvish-language-option' : ''}"
-                role="menuitem"
-                on:click={() => handleLanguageChange(lang.code)}
-                aria-current={selectedLang === lang.code ? 'true' : 'false'}
-              >
-                <span class="flag-icon text-xl mr-3" aria-hidden="true">{lang.flag}</span>
-                <span class="lang-name text-black dark:text-white flex-1 text-left">{lang.name}</span>
-                {#if selectedLang === lang.code}
-                  <span class="ml-auto text-yellow shrink-0" aria-label="Selected">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  </span>
+        <div class="flex items-center justify-between w-full">
+            <div class="flex items-center">
+                <span class="flag-icon md:mr-3">{getCurrentLanguageInfo(selectedLang).flag}</span>
+                {#if showLabels || display === 'full'}
+                    <!-- Auf Mobile versteckt, nur auf md+ sichtbar -->
+                    <span class="lang-code uppercase hidden md:inline">{getDisplayCode(selectedLang)}</span>
                 {/if}
-              </button>
-            </li>
-          {/each}
-        </ul>
-      </div>
-    </div>
+            </div>
+            {#if display === 'full'}
+                <!-- Chevron auf Mobile versteckt, nur auf md+ sichtbar -->
+                <div class="items-center ml-3 hidden md:flex">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200 {$showLanguageMenu ? 'transform rotate-180' : ''}">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            {/if}
+        </div>
+    </button>
+    
+    <!-- Dropdown Menu - Desktop: Directly below header, no top/left/right border -->
+    {#if $showLanguageMenu}
+        <div 
+            id="language-dropdown-menu"
+            bind:this={menuRef}
+            class="fixed w-full flex flex-wrap justify-center z-40 right-0 left-0"
+            style="top: {dropdownTop}px;"
+            role="menu"
+            aria-orientation="vertical"
+            aria-labelledby="language-toggle-button"
+            aria-label="Language selection menu"
+        >
+            <div 
+                class="w-48 mx-auto bg-white dark:bg-aubergine-900 
+                    rounded-t-none rounded-b-xl 
+                    shadow-lg
+                    overflow-hidden"
+                in:slide={{ y: -5, duration: 400, easing: cubicInOut }}
+                out:slide={{ y: 5, duration: 400, easing: cubicInOut }}
+            >
+                <div class="max-h-96 overflow-y-auto custom-scrollbar">
+                <ul class="py-2" role="none">
+                    {#each languages as lang}
+                        <li role="none" lang={lang.ogLocale}>
+                            <button
+                                class="flex items-center w-full px-4 py-3 hover:bg-aubergine-50 dark:hover:bg-aubergine-800 focus:bg-aubergine-50 dark:focus:bg-aubergine-800 active:bg-aubergine-100 dark:active:bg-aubergine-700 text-sm transition-all text-black dark:text-white"
+                                role="menuitem"
+                                on:click={() => handleLanguageChange(lang.code)}
+                                on:keydown={(e) => handleMenuKeydown(e, lang.code)}
+                                aria-current={$currentLanguage === lang.code ? 'true' : 'false'}
+                                tabindex="-1"
+                                aria-label="Switch to {lang.name} language"
+                                title={lang.name}
+                            >
+                                <span class="flag-icon text-xl mr-3" aria-hidden="true">{lang.flag}</span>
+                                <span class="lang-name flex-1 text-left">{lang.name}</span>
+                                {#if $currentLanguage === lang.code}
+                                    <span class="ml-auto text-yellow shrink-0" aria-label="Currently selected language">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                    </span>
+                                {/if}
+                            </button>
+                        </li>
+                    {/each}
+                </ul>
+                </div>
+            </div>
+        </div>
     {/if}
 </div>

@@ -1,0 +1,341 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-subscription",
+                "responseMode": "responseNode",
+                "options": {
+                    "allowedOrigins": "*"
+                }
+            },
+            "id": "6a7b23d4-2c16-48a1-a871-2322bd002f65",
+            "name": "Subscription Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -256,
+                1824
+            ],
+            "webhookId": "subscription-webhook",
+            "disabled": true
+        },
+        {
+            "parameters": {},
+            "id": "c5aa5db2-e019-400f-8746-7818b8830c9a",
+            "name": "Create Stripe Subscription",
+            "type": "n8n-nodes-base.stripe",
+            "typeVersion": 2,
+            "position": [
+                624,
+                1712
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1115491905,
+                    "mode": "list",
+                    "cachedResultName": "subscriptions",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1115491905"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": null,
+                    "matchingColumns": [],
+                    "schema": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "53b3492c-e7c5-4833-ac55-fb6ee70af4d9",
+            "name": "Save Subscription",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                848,
+                1712
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1115491905,
+                    "mode": "list",
+                    "cachedResultName": "subscriptions",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1115491905"
+                },
+                "options": {}
+            },
+            "id": "3d000845-aac0-4112-acef-77ccd19608a2",
+            "name": "Read Subscriptions",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                400,
+                1920
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Find subscription by userId\nconst data = $input.first().json;\nconst subscriptions = $input.all();\nconst userId = data.userId;\n\n// Find subscription\nconst subscription = subscriptions.find(sub => sub.userId === userId);\n\nif (!subscription) {\n  throw new Error('Subscription not found');\n}\n\nreturn { json: subscription };"
+            },
+            "id": "af094ca5-e5ae-4156-811f-f8b8d008a170",
+            "name": "Find Subscription",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                624,
+                1920
+            ]
+        },
+        {
+            "parameters": {},
+            "id": "2fd26b72-b8da-41f3-88db-1d756b615686",
+            "name": "Cancel Stripe Subscription",
+            "type": "n8n-nodes-base.stripe",
+            "typeVersion": 2,
+            "position": [
+                848,
+                1920
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"subscription\": {\n    \"id\": \"{{ $json.id }}\",\n    \"status\": \"canceled\",\n    \"plan\": \"{{ $json.plan }}\",\n    \"cancelAtPeriodEnd\": true\n  },\n  \"message\": \"Subscription canceled successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "2e75d55d-90c9-407f-9eac-d71cd7d2388c",
+            "name": "Cancel Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1072,
+                1920
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId) {\n  throw new Error('Missing required fields: action, userId');\n}\n\n// Validate action\nconst validActions = ['create', 'cancel', 'update', 'get'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: create, cancel, update, get');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  stripeCustomerId: data.stripeCustomerId || '',\n  subscriptionId: data.subscriptionId || '',\n  plan: data.plan || 'pro',\n  paymentMethod: data.paymentMethod || ''\n};\n\nreturn { json: sanitizedData };"
+            },
+            "id": "c455bdd4-386e-4f73-b429-97023446b627",
+            "name": "Validate Data2",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -48,
+                1824
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "action-check",
+                            "leftValue": "={{ $json.action }}",
+                            "rightValue": "create",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "9fc24244-964f-4fd1-b7ac-bd49472dec42",
+            "name": "Route by Action1",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                192,
+                1824
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"subscription\": {\n    \"id\": \"{{ $json.id }}\",\n    \"status\": \"{{ $json.status }}\",\n    \"plan\": \"{{ $json.plan }}\",\n    \"currentPeriodEnd\": \"{{ $json.current_period_end }}\",\n    \"cancelAtPeriodEnd\": false\n  },\n  \"message\": \"Subscription created successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "2019e712-a36d-448e-8c2c-7898413308cc",
+            "name": "Create Response1",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1072,
+                1712
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"subscription\": {\n    \"id\": \"{{ $json.subscriptionId }}\",\n    \"status\": \"{{ $json.status }}\",\n    \"plan\": \"{{ $json.plan }}\",\n    \"currentPeriodEnd\": \"{{ $json.currentPeriodEnd }}\",\n    \"cancelAtPeriodEnd\": {{ $json.cancelAtPeriodEnd }}\n  },\n  \"message\": \"Subscription retrieved successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "285b637e-0bad-4249-a33f-4c66ff83ea63",
+            "name": "Get Response1",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1072,
+                1920
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## Subscription Management\n\n",
+                "height": 496,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                1632
+            ],
+            "id": "cb662cca-79bf-464e-967c-da49934a6112",
+            "name": "Sticky Note2"
+        },
+        {
+            "parameters": {
+                "resource": "customer",
+                "operation": "create",
+                "additionalFields": {}
+            },
+            "type": "n8n-nodes-base.stripe",
+            "typeVersion": 1,
+            "position": [
+                400,
+                1712
+            ],
+            "id": "b615383a-2f0d-4c5f-84e5-06fee6797cb6",
+            "name": "Create a customer",
+            "credentials": {
+                "stripeApi": {
+                    "id": "rceyvGDH5jeuyFay",
+                    "name": "Stripe account"
+                }
+            },
+            "disabled": true
+        }
+    ],
+    "connections": {
+        "Subscription Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Data2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Subscription": {
+            "main": [
+                [
+                    {
+                        "node": "Create Response1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Subscriptions": {
+            "main": [
+                [
+                    {
+                        "node": "Find Subscription",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Find Subscription": {
+            "main": [
+                [
+                    {
+                        "node": "Get Response1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Data2": {
+            "main": [
+                [
+                    {
+                        "node": "Route by Action1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route by Action1": {
+            "main": [
+                [
+                    {
+                        "node": "Create a customer",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Read Subscriptions",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "3dae61a0a24f0b093f057680559772c3c73ec97ec47a9bd2a5ad745c7d8f0365"
+    }
+}
