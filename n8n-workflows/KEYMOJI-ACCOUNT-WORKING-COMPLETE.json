@@ -1,6 +1,2852 @@
 {
-    "name": "Keymoji Account Management - WORKING",
     "nodes": [
+        {
+            "parameters": {
+                "jsCode": "// Final formatting: Convert cleaned posts to array format\n// Handle both single items and arrays from Clean Post Data\nconst items = $input.all();\n\nif (!items || items.length === 0) {\n  console.warn('⚠️ [Format Response] No items to format, returning empty array');\n  return [{ json: [] }];\n}\n\n// Extract posts from items\nconst posts = [];\n\nfor (const item of items) {\n  const json = item.json || {};\n  \n  // If json is already an array, spread it\n  if (Array.isArray(json)) {\n    posts.push(...json);\n  } else if (json.posts && Array.isArray(json.posts)) {\n    // If json has a posts property\n    posts.push(...json.posts);\n  } else if (json.title || json.content || json.link) {\n    // Single post object\n    posts.push(json);\n  }\n}\n\nconsole.log('✅ [Format Response] Formatted posts for response:', posts.length);\n\n// Return as array for Respond with Posts\nreturn posts.map(post => ({ json: post }));"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                928,
+                -944
+            ],
+            "id": "17e4f96d-0144-42f4-84e2-664f8ca53a1e",
+            "name": "Format Response1"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ { success: $json.success || true, likes: $json.likes || 0, post_id: $json.post_id || null } }}",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "GET, POST, OPTIONS"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept, X-Requested-With"
+                            }
+                        ]
+                    }
+                }
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                1360,
+                -768
+            ],
+            "id": "dde93790-75f2-403b-aa9c-b634ebcdf395",
+            "name": "Respond with Like Result"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Format response data for Respond with Like Result\n// Get data from Save Like node (updated row) and Prepare Like Update node (postId)\nconst saveLikeData = $input.first().json;\nconst prepareData = $('Prepare Like Update').first().json;\n\n// Debug: Log what we received\nconsole.log('📡 [Format Like Response] Save Like data:', JSON.stringify(saveLikeData));\nconsole.log('📡 [Format Like Response] Prepare data:', JSON.stringify(prepareData));\n\n// Check if Save Like node returned empty (update failed)\nif (!saveLikeData || Object.keys(saveLikeData).length === 0) {\n  console.warn('⚠️ [Format Like Response] Save Like node returned empty, using prepareData');\n  // Use prepareData as fallback (optimistic update)\n  const likes = parseInt(prepareData.liked || 0, 10) || 0;\n  const postId = prepareData.postId || prepareData.row_number || null;\n  \n  return [{\n    json: {\n      success: true,\n      likes: likes,\n      post_id: postId,\n      warning: 'Update may have failed, using optimistic value'\n    }\n  }];\n}\n\n// Extract liked count from updated row\nconst likes = parseInt(saveLikeData.liked || prepareData.liked || 0, 10) || 0;\n\n// Extract postId from Prepare Like Update node\nconst postId = prepareData.postId || prepareData.row_number || saveLikeData.postId || saveLikeData.post_id || null;\n\nreturn [{\n  json: {\n    success: true,\n    likes: likes,\n    post_id: postId\n  }\n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1216,
+                -768
+            ],
+            "id": "67f38ce0-fbbf-4055-8a35-bbb542e1df52",
+            "name": "Format Like Response"
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1413482999,
+                    "mode": "list",
+                    "cachedResultName": "blog",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1413482999"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "title": "={{ $json.title }}",
+                        "liked": "={{ $json.liked }}"
+                    },
+                    "matchingColumns": [
+                        "title"
+                    ],
+                    "schema": [
+                        {
+                            "id": "title",
+                            "displayName": "title",
+                            "required": false,
+                            "defaultMatch": true,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "liked",
+                            "displayName": "liked",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": false,
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {
+                    "cellFormat": "USER_ENTERED"
+                }
+            },
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                1072,
+                -768
+            ],
+            "id": "3e8bd36d-363a-4773-9a91-7744e8850042",
+            "name": "Save Like",
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "jsCode": "// Prepare data for updating liked column\n// We need to merge data from two sources:\n// 1. Original request (from Check Request Method) - contains postId\n// 2. Row data (from Read Blog Row) - contains current liked value\n\n// Get original request data from Check Request Method node\nconst originalRequest = $('Check Request Method').first().json.body || $('Check Request Method').first().json;\nconst postId = originalRequest.postId || originalRequest.post_id || originalRequest.rowNumber || originalRequest.row_number;\n\n// Get all rows from Read Blog Row node\nconst allRows = $input.all();\n\n// Find the row that matches our rowNumber\n// Row number 700 means it's the 700th data row (row 701 in sheet, accounting for header)\nlet targetRow = null;\n\nif (postId) {\n  // Try to find row by index (postId should be the row number)\n  // The Read Blog Row node returns all rows, so we need to find the one at index (postId - 1)\n  const rowIndex = parseInt(postId, 10) - 1; // Convert to 0-based index\n  if (rowIndex >= 0 && rowIndex < allRows.length) {\n    targetRow = allRows[rowIndex].json;\n  } else {\n    // Fallback: use first row if index not found\n    targetRow = allRows[0]?.json || {};\n  }\n} else {\n  // No postId, use first row\n  targetRow = allRows[0]?.json || {};\n}\n\n// Extract current liked value and increment/decrement based on unlike flag\nconst currentLikes = parseInt(targetRow.liked || 0, 10) || 0;\nconst isUnlike = originalRequest.unlike === true || originalRequest.unlike === 'true';\nconst newLikes = isUnlike ? Math.max(0, currentLikes - 1) : currentLikes + 1;\n\n// Return data for update node\n// We need to provide a matching column value (title) and the updated liked value\n// Ensure title is trimmed and matches exactly\nconst title = (targetRow.title || '').trim();\n\nif (!title) {\n  console.error('❌ [Prepare Like Update] No title found for row:', postId);\n  return [{\n    json: {\n      error: 'No title found',\n      postId: postId,\n      row_number: postId\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    title: title, // Use title as matching column (trimmed)\n    liked: newLikes.toString(), // Update liked column\n    postId: postId,\n    row_number: postId\n  }\n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                912,
+                -768
+            ],
+            "id": "01a0f1b0-a8cc-47fe-9ada-f2c8e8aaaa9c",
+            "name": "Prepare Like Update"
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1413482999,
+                    "mode": "list",
+                    "cachedResultName": "blog",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1413482999"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                736,
+                -768
+            ],
+            "id": "5cd5ce6d-5a29-4e99-935f-cfc2a2fa8ef8",
+            "name": "Read Blog Row",
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "type": "string"
+                    },
+                    "conditions": [
+                        {
+                            "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                            "leftValue": "={{ $json.method || $json.headers[':method'] || $json.headers['x-http-method'] || $json.headers.method || 'GET' }}",
+                            "rightValue": "POST",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                544,
+                -768
+            ],
+            "id": "9c41b994-a276-4478-9720-863d77fb8062",
+            "name": "Check Request Method"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ {} }}",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "GET, POST, OPTIONS"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept, X-Requested-With"
+                            },
+                            {
+                                "name": "Access-Control-Max-Age",
+                                "value": "86400"
+                            }
+                        ]
+                    }
+                }
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                144,
+                -896
+            ],
+            "id": "8b4d400e-1343-4ea3-acdc-b7b30fc88434",
+            "name": "Respond to OPTIONS"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    },
+                    "conditions": [
+                        {
+                            "id": "opt-001",
+                            "leftValue": "={{ $json.method || $json.headers[':method'] || $json.headers['x-http-method'] || $json.headers.method || 'GET' }}",
+                            "rightValue": "OPTIONS",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                -48,
+                -768
+            ],
+            "id": "1b3957e0-814f-4821-a5ef-fa24ecf89a82",
+            "name": "Handle OPTIONS Request"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-blog-likes",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "GET, POST, OPTIONS"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept, X-Requested-With"
+                            },
+                            {
+                                "name": "Access-Control-Max-Age",
+                                "value": "86400"
+                            },
+                            {
+                                "name": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "name": "Cache-Control",
+                                "value": "max-age=900"
+                            }
+                        ]
+                    }
+                }
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                -272,
+                -768
+            ],
+            "id": "59376a0e-02ad-46d3-a675-75cc604e2a12",
+            "name": "Blog Posts Likes Webhook",
+            "webhookId": "f2d1e3c4-5a6b-7c8d-9e0f-a1b2c3d4e5f6"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Extract likes from blog sheet (liked column)\n// The blog sheet has columns: title, content, image, isodate, creator, category, link, liked\n// We need to map row numbers to liked counts\nconst likesData = [];\n\nfor (const item of $input.all()) {\n  // Each row from blog sheet has a liked column\n  // Row number is the index (1-based, but we need to account for header row)\n  const rowNumber = item.json.__rowNumber || item.json.row_number || (likesData.length + 1);\n  const likes = parseInt(item.json.liked || item.json.likes || 0, 10) || 0;\n  \n  likesData.push({\n    row_number: rowNumber,\n    likes: likes\n  });\n}\n\nreturn [{ json: { likesData: likesData } }];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                352,
+                -768
+            ],
+            "id": "04c2f9ad-ece6-4afb-8e70-a75268080e13",
+            "name": "Process Likes"
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1413482999,
+                    "mode": "list",
+                    "cachedResultName": "blog",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1413482999"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                144,
+                -768
+            ],
+            "id": "d490b0b8-647b-4eb4-b530-b87a4acf25c9",
+            "name": "Get Likes Data",
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "respondWith": "allIncomingItems",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "GET, POST, OPTIONS"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept, X-Requested-With"
+                            }
+                        ]
+                    }
+                }
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                1360,
+                -944
+            ],
+            "id": "334c4aea-7a4d-4a89-96d9-21a334cdbc8d",
+            "name": "Respond with Posts"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Format and clean blog post data\n// Ensure all required fields are present and properly formatted\nconst items = $input.all();\n\nif (!items || items.length === 0) {\n  return [{ json: [] }];\n}\n\nconst cleanedPosts = items.map((item, index) => {\n  const post = item.json || {};\n  \n  // Ensure required fields with defaults\n  const cleaned = {\n    id: post.id || post.row_number || post.__rowNumber || (index + 1),\n    row_number: post.row_number || post.__rowNumber || (index + 1),\n    title: post.title || 'Untitled',\n    content: post.content || post.body || '',\n    excerpt: post.excerpt || post.description || '',\n    image: post.image || post.thumbnail || '',\n    thumbnail: post.thumbnail || post.image || '',\n    isodate: post.isodate || post.date || new Date().toISOString(),\n    date: post.date || post.isodate || new Date().toISOString(),\n    creator: post.creator || post.author || 'Keymoji Team',\n    category: post.category || 'uncategorized',\n    link: post.link || '',\n    slug: post.slug || '',\n    likes: parseInt(post.likes || post.liked || 0, 10) || 0,\n    liked: post.liked === true || post.liked === 'true' || false\n  };\n  \n  // Generate slug from title if missing\n  if (!cleaned.slug && cleaned.title) {\n    cleaned.slug = cleaned.title\n      .toLowerCase()\n      .replace(/[^a-z0-9]+/g, '-')\n      .replace(/^-+|-+$/g, '');\n  }\n  \n  return { json: cleaned };\n});\n\nconsole.log('✅ [Clean Post Data] Cleaned posts:', cleanedPosts.length);\n\nreturn cleanedPosts;"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                736,
+                -944
+            ],
+            "id": "7d558acb-b980-4d2b-b641-90de0d1d2157",
+            "name": "Clean Post Data"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate and handle empty data from Google Sheets\n// If Google Sheets returns empty or restricted, return empty array\nconst items = $input.all();\n\nconsole.log('📊 [Validate Blog Posts] Received items:', items.length);\n\n// Check if we have valid data\nif (!items || items.length === 0) {\n  console.warn('⚠️ [Validate Blog Posts] No items received from Google Sheets');\n  // Return empty array instead of failing\n  return [{ json: { posts: [] } }];\n}\n\n// Check if first item has error\nconst firstItem = items[0];\nif (firstItem.error || firstItem.json?.error) {\n  console.error('❌ [Validate Blog Posts] Error from Google Sheets:', firstItem.error || firstItem.json?.error);\n  // Return empty array instead of failing\n  return [{ json: { posts: [] } }];\n}\n\n// Check if data structure is valid (should have title, content, etc.)\nconst validItems = items.filter(item => {\n  const json = item.json || {};\n  // At minimum, should have title or content\n  return json.title || json.content || json.link;\n});\n\nif (validItems.length === 0) {\n  console.warn('⚠️ [Validate Blog Posts] No valid blog posts found in data');\n  return [{ json: { posts: [] } }];\n}\n\nconsole.log('✅ [Validate Blog Posts] Valid posts found:', validItems.length);\n\n// Return valid items\nreturn validItems.map(item => ({ json: item.json }));"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                544,
+                -944
+            ],
+            "id": "af421af3-67ae-47cb-9e19-bd1eb4639be8",
+            "name": "Validate Blog Posts"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.merge",
+            "typeVersion": 2.1,
+            "position": [
+                352,
+                -944
+            ],
+            "id": "965e143f-a01d-4429-bd49-66f48a7b174b",
+            "name": "Merge With Likes"
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1413482999,
+                    "mode": "list",
+                    "cachedResultName": "blog",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1413482999"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                -48,
+                -960
+            ],
+            "id": "7f5e28a7-2de6-4fbe-ab52-afae384462d4",
+            "name": "Get Blog Posts",
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "path": "xn--moji-pb73c-blog-posts",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "GET, POST, OPTIONS"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept"
+                            },
+                            {
+                                "name": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "name": "Cache-Control",
+                                "value": "max-age=900"
+                            }
+                        ]
+                    }
+                }
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                -272,
+                -960
+            ],
+            "id": "270f95e7-875e-4ea7-9bca-da958ac6f2a7",
+            "name": "Blog Posts Webhook",
+            "webhookId": "f2d1e3c4-5a6b-7c8d-9e0f-a1b2c3d4e5f6"
+        },
+        {
+            "parameters": {
+                "content": "## Blog\n\n\n\n",
+                "height": 480,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                -1056
+            ],
+            "id": "c0d605cb-244d-4889-b423-f4474afaddeb",
+            "name": "Sticky Note9"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-account-update",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "f4ca8ad7-6ac6-4102-971f-b3405e7a0d47",
+            "name": "UPDATE Account",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -272,
+                1136
+            ],
+            "webhookId": "xn--moji-pb73c-account"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-account-check",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS, GET"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Credentials",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "d05776c8-3e64-4241-a9c3-b1ad3a01875c",
+            "name": "CHECK Account",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -272,
+                1328
+            ],
+            "webhookId": "account-check-webhook"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "4d15c31e-f60b-4b73-ae6d-99fc9772330f",
+                            "name": "success",
+                            "value": true,
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "02652a48-a80e-4dc3-bf5f-60d0436bbe1c",
+                            "name": "exists",
+                            "value": false,
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "432de590-1a7e-4b55-af04-e9d099b6e511",
+                            "name": "account",
+                            "value": "=No Account!",
+                            "type": "string"
+                        },
+                        {
+                            "id": "be1126bf-5455-4c39-b0ae-f3fec79bc454",
+                            "name": "message",
+                            "value": "No account found!",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                656,
+                1392
+            ],
+            "id": "ae871a74-9d19-456d-87f3-0d276d435d5a",
+            "name": "Account false"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "4d15c31e-f60b-4b73-ae6d-99fc9772330f",
+                            "name": "success",
+                            "value": true,
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "02652a48-a80e-4dc3-bf5f-60d0436bbe1c",
+                            "name": "exists",
+                            "value": true,
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "432de590-1a7e-4b55-af04-e9d099b6e511",
+                            "name": "account",
+                            "value": "={{ JSON.stringify({\n  userId: $json.userId || $json.UserID,\n  email: $json.email || $json.Email,\n  tier: $json.tier || $json.Tier,\n  createdAt: $json.createdAt || $json.CreatedAt,\n  lastLogin: $json.lastLogin || $json.LastLogin,\n  profile: typeof $json.profile === 'string' ? JSON.parse($json.profile || '{}') : ($json.profile || {}),\n  metadata: typeof $json.metadata === 'string' ? JSON.parse($json.metadata || '{}') : ($json.metadata || {}),\n  status: $json.status || $json.Status\n}) }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "be1126bf-5455-4c39-b0ae-f3fec79bc454",
+                            "name": "message",
+                            "value": "Account found!",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                656,
+                1264
+            ],
+            "id": "559ea889-b4f1-4b87-89e3-d87d4d82a429",
+            "name": "Account True"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "79476d68-4414-4110-a1f4-d1b6d91b14e3",
+                            "leftValue": "={{ $json.email }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "string",
+                                "operation": "exists",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                432,
+                1328
+            ],
+            "id": "45e8e558-3976-49c0-9d3b-39c40009d80d",
+            "name": "If"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json }}",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS, GET"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Credentials",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "3c37ee17-ab4b-494f-90bd-64b82afeb531",
+            "name": "Respond2",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1360,
+                1312
+            ]
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1278731717,
+                    "mode": "list",
+                    "cachedResultName": "accounts",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1278731717"
+                },
+                "filtersUI": {
+                    "values": [
+                        {
+                            "lookupColumn": "email",
+                            "lookupValue": "={{ $json.body.email }}"
+                        }
+                    ]
+                },
+                "combineFilters": "AND",
+                "options": {
+                    "returnAllMatches": "returnFirstMatch"
+                }
+            },
+            "id": "036c3766-a97c-4879-ba5b-985c1e23cce6",
+            "name": "Read Accounts2",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                192,
+                1328
+            ],
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.noOp",
+            "typeVersion": 1,
+            "position": [
+                1904,
+                1808
+            ],
+            "id": "4e2611f3-dfd9-46fe-880a-a65d624f544b",
+            "name": "Finished1"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.noOp",
+            "typeVersion": 1,
+            "position": [
+                3072,
+                1024
+            ],
+            "id": "96fc2496-4f69-4e6d-9a9c-c9aafbb3d9a3",
+            "name": "Finished"
+        },
+        {
+            "parameters": {
+                "respondWith": "allIncomingItems",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.4,
+            "position": [
+                2880,
+                1024
+            ],
+            "id": "07cc2e30-55ce-44ab-8d91-146d7f2edc27",
+            "name": "Respond to Webhook1"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"message\": \"Analytics saved\",\n  \"timestamp\": \"{{ new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' }) }}\"\n}",
+                "options": {}
+            },
+            "id": "3375a1dd-0a47-4eac-ab9e-852133886fc3",
+            "name": "Analytics Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1344,
+                112
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 949619593,
+                    "mode": "list",
+                    "cachedResultName": "analytics",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=949619593"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "type",
+                            "displayName": "type",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "path",
+                            "displayName": "path",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "client",
+                            "displayName": "client",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "version",
+                            "displayName": "version",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "timestamp",
+                            "displayName": "timestamp",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "language",
+                            "displayName": "language",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "referrer",
+                            "displayName": "referrer",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "screen",
+                            "displayName": "screen",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "data",
+                            "displayName": "data",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "eventData",
+                            "displayName": "eventData",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "ipAddress",
+                            "displayName": "ipAddress",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "userAgent",
+                            "displayName": "userAgent",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "platform",
+                            "displayName": "platform",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "deviceType",
+                            "displayName": "deviceType",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "4a124284-fdcc-4f10-a0e2-10c48efd2139",
+            "name": "Save to Analytics Sheet",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                416,
+                112
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Eingangsdaten aus dem Webhook abrufen\nconst webhookData = $input.first().json;\n\nconsole.log('=== ANALYTICS WEBHOOK ===');\nconsole.log('Raw webhook data:', JSON.stringify(webhookData, null, 2));\n\n// Body extrahieren\nconst data = webhookData.body || webhookData;\n\nconsole.log('Body data:', JSON.stringify(data, null, 2));\n\n// IP-Adresse aus Headers extrahieren (korrekt!)\nconst ipAddress = webhookData.headers?.['x-forwarded-for'] ||\n                  webhookData.headers?.['x-real-ip'] ||\n                  webhookData.headers?.['cf-connecting-ip'] ||\n                  'unknown';\n\nconsole.log('🌐 IP Address detected:', ipAddress);\n\n// Pflichtfeld-Prüfung\nif (!data.type) {\n    throw new Error('Missing required field: type');\n}\n\nconsole.log('✅ Analytics data validation passed');\nconsole.log('Event type:', data.type);\n\n// Formatierte Daten\nconst formattedData = {\n    type: data.type,\n    path: data.path || '/',\n    client: data.client || '',\n    version: data.version || '0.5.0',\n    timestamp: data.timestamp || new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' }),\n    language: data.language || 'en',\n    referrer: data.referrer || 'direct',\n    screen: data.screen || '',\n    data: data.data || '',\n    eventData: data.eventData || '',\n    ipAddress: ipAddress,\n    userAgent: data.userAgent || '',\n    platform: data.platform || '',\n    deviceType: data.deviceType || ''\n};\n\nconsole.log('📦 Formatted data for processing:', JSON.stringify(formattedData, null, 2));\n\nreturn { json: formattedData };"
+            },
+            "id": "cd88f8da-73b0-4a1d-86cb-049f06fe07c0",
+            "name": "Validate Analytics Data",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -48,
+                112
+            ]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-analytics",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "b74b20a6-9eff-4c5c-8207-ac6be5bea24c",
+            "name": "Analytics Only Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -256,
+                112
+            ],
+            "webhookId": "analytics-only-webhook"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"message\": \"Counter updated successfully\",\n  \"counter\": {{ $json.counter }},\n  \"timestamp\": \"{{ $json.timestamp }}\"\n}",
+                "options": {}
+            },
+            "id": "30bf9e8a-2df4-4f3d-ac32-28e17a663caf",
+            "name": "Success Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1344,
+                352
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "gid=0",
+                    "mode": "list",
+                    "cachedResultName": "counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=0"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "counter",
+                            "displayName": "counter",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "lastupdated",
+                            "displayName": "lastupdated",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "8f0755b7-4b94-4f9a-be86-5a7831bf9a43",
+            "name": "Save Updated Counter",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                848,
+                352
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Find the highest counter value from all rows\nconst items = $input.all();\nlet maxCounter = 0;\n\nconsole.log('=== FIND MAX COUNTER ===');\nconsole.log('Total rows:', items.length);\n\n// Go through all rows to find the highest counter\nitems.forEach((item, index) => {\n    const row = item.json;\n    console.log(`Row ${index}:`, row);\n    \n    // Try different possible counter field names (column B)\n    let counterValue = 0;\n    if (row.B) {\n        counterValue = parseInt(row.B) || 0;\n    } else if (row.counter) {\n        counterValue = parseInt(row.counter) || 0;\n    } else if (row.Counter) {\n        counterValue = parseInt(row.Counter) || 0;\n    } else if (row.COUNTER) {\n        counterValue = parseInt(row.COUNTER) || 0;\n    } else if (row[1]) {\n        counterValue = parseInt(row[1]) || 0;\n    }\n    \n    if (counterValue > maxCounter) {\n        maxCounter = counterValue;\n        console.log(`New max counter found: ${maxCounter} in row ${index}`);\n    }\n});\n\nconsole.log(`Final max counter: ${maxCounter}`);\n\n// Increment counter\nconst newCounter = maxCounter + 1;\nconsole.log(`New counter value: ${newCounter}`);\n\n// Format for Google Sheets append (ONLY counter and timestamp)\nconst updateData = {\n    counter: newCounter.toString(),\n    lastUpdate: new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })\n};\n\nconsole.log('Update data:', JSON.stringify(updateData, null, 2));\n\nreturn { json: updateData };"
+            },
+            "id": "746111a7-59dc-4365-8924-c9ff59c60042",
+            "name": "Update Counter Value",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                640,
+                352
+            ]
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "gid=0",
+                    "mode": "list",
+                    "cachedResultName": "counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=0"
+                },
+                "options": {}
+            },
+            "id": "3740b072-a7e7-482e-a1ad-d58f8f2744d1",
+            "name": "Read Current Counter",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                416,
+                352
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate counter request\nconst webhookData = $input.first().json;\n\nconsole.log('=== COUNTER WEBHOOK ===');\nconsole.log('Raw webhook data:', JSON.stringify(webhookData, null, 2));\n\n// Extract body from webhook data\nconst data = webhookData.body || webhookData;\n\nconsole.log('Body data:', JSON.stringify(data, null, 2));\n\n// Validate required fields\nif (!data.type) {\n    throw new Error('Missing required field: type');\n}\n\nif (data.type !== 'user_counter') {\n    throw new Error('Invalid type: expected user_counter');\n}\n\nconsole.log('✅ Counter data validation passed');\nconsole.log('Event type:', data.type);\n\n// Format data for processing\nconst formattedData = {\n    type: data.type,\n    path: data.path || '/',\n    client: data.client || '',\n    version: data.version || '0.5.0',\n    timestamp: data.timestamp || new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' }),\n    language: data.language || 'en',\n    referrer: data.referrer || 'direct',\n    screen: data.screen || '',\n    data: data.data || ''\n};\n\nconsole.log('Formatted data for processing:', JSON.stringify(formattedData, null, 2));\n\nreturn { json: formattedData };"
+            },
+            "id": "da676c70-f11f-4895-a27d-cc3fef3005db",
+            "name": "Validate Counter Data",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -48,
+                352
+            ]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-counter",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "88abd8af-e539-40ac-a3b5-f73afe3aff06",
+            "name": "Counter Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -256,
+                352
+            ],
+            "webhookId": "counter-webhook"
+        },
+        {
+            "parameters": {
+                "content": "## Analytics\n",
+                "height": 656,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                -64
+            ],
+            "id": "491fd0cb-9e91-47dc-a84e-a3142bbbd57b",
+            "name": "Sticky Note"
+        },
+        {
+            "parameters": {
+                "content": "## Account Management\n",
+                "height": 832,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                688
+            ],
+            "id": "c8522ab7-0f61-48b9-b5be-e8408d37e458",
+            "name": "Sticky Note1"
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1209026324,
+                    "mode": "list",
+                    "cachedResultName": "audit_log",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1209026324"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "Event",
+                            "displayName": "Event",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Timestamp",
+                            "displayName": "Timestamp",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "UserId",
+                            "displayName": "UserId",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Email\t",
+                            "displayName": "Email\t",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "ClientFingerprint\t",
+                            "displayName": "ClientFingerprint\t",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "SessionId",
+                            "displayName": "SessionId",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Tier",
+                            "displayName": "Tier",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Action",
+                            "displayName": "Action",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        },
+                        {
+                            "id": "Workflow",
+                            "displayName": "Workflow",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "1560361c-3a28-4246-8d5c-8c159184f68f",
+            "name": "Save Audit Log1",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                2448,
+                1024
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Success Response\nconst auditData = $input.first().json;\n\nconsole.log('=== AUDIT LOG SUCCESS ===');\nconsole.log('Audit data:', JSON.stringify(auditData, null, 2));\n\nconst successResponse = {\n  success: true,\n  message: 'Audit log entry created successfully',\n  event: auditData.event,\n  timestamp: auditData.timestamp,\n  auditId: auditData.timestamp\n};\n\nconsole.log('Success response:', JSON.stringify(successResponse, null, 2));\n\nreturn { json: successResponse };"
+            },
+            "id": "a1bc1d67-0dd5-4f83-8d35-dc7b914b227a",
+            "name": "Audit Success Response",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2672,
+                1024
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Accounting Audit Log Processing\nconst webhookData = $input.first().json;\n\nconsole.log('=== ACCOUNTING AUDIT LOG ===');\nconsole.log('Raw webhook data:', JSON.stringify(webhookData, null, 2));\n\n// Extract body from webhook data\nconst data = webhookData.body || webhookData;\n\nconsole.log('=== AUDIT LOG DATA ===');\nconsole.log('Event:', data?.event);\nconsole.log('UserId:', data?.userId);\nconsole.log('Email:', data?.email);\nconsole.log('Client Fingerprint:', data?.clientFingerprint);\nconsole.log('Session ID:', data?.sessionId);\nconsole.log('Timestamp:', data?.timestamp);\nconsole.log('Details:', data?.details);\n\n// Validate audit log data\nif (!data?.event) {\n  console.log('❌ Missing event field');\n  throw new Error('Missing required field: event');\n}\n\nif (!data?.timestamp) {\n  console.log('❌ Missing timestamp field');\n  throw new Error('Missing required field: timestamp');\n}\n\n// Sanitize and prepare audit log data\nconst auditLogData = {\n  event: data.event,\n  timestamp: data.timestamp,\n  userId: data.userId || 'anonymous',\n  email: data.email || '',\n  clientFingerprint: data.clientFingerprint || '',\n  sessionId: data.sessionId || '',\n  details: data.details || {},\n  accountingEvent: data.accountingEvent || false,\n  sessionId: data.sessionId || '',\n  tier: data.tier || 'free',\n  action: data.action || data.event,\n  workflow: 'accounting_audit_log'\n};\n\nconsole.log('✅ Audit log data validation passed');\nconsole.log('Sanitized audit log data:', JSON.stringify(auditLogData, null, 2));\n\nreturn { json: auditLogData };"
+            },
+            "id": "9d0a162c-3723-43fd-ac55-d323c4ee9909",
+            "name": "Audit Log Processing",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2224,
+                1024
+            ]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-accounting-audit-log",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin, Accept"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS, GET"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Credentials",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "216c494e-604c-41e6-9f0d-061fded21753",
+            "name": "Accounting Audit Log",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                2000,
+                1024
+            ],
+            "webhookId": "accounting-audit-log"
+        },
+        {
+            "parameters": {
+                "content": "## Accounting Audit Log Workflow\n\nSichere Audit-Logging für alle Accounting-Operationen mit:\n- Security-Logging\n- Rate-Limiting\n- Client-Fingerprinting\n- Audit-Trail",
+                "height": 688,
+                "width": 1312
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                1936,
+                832
+            ],
+            "id": "a8ad6f60-ff4b-492e-9489-3dee2cec19ab",
+            "name": "Audit Log Note"
+        },
+        {
+            "parameters": {
+                "content": "## LIVE Counter (old)\n\n\n",
+                "height": 352,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                -496
+            ],
+            "id": "bd2e1c4b-6bc8-4e5e-8edf-25d3db9ca5f4",
+            "name": "Sticky Note7"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"status\": \"success\",\n  \"message\": \"Visit tracked\",\n  \"counter\": {{ $json.counter }},\n  \"stats\": {\n    \"totalVisits\": {{ $json.counter }},\n    \"previousCounter\": {{ $json.stats?.previousCounter || ($json.counter - 1) }}\n  }\n}",
+                "options": {
+                    "responseCode": 200,
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ]
+                    }
+                }
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                1344,
+                -368
+            ],
+            "id": "7174f5d7-bcb1-4ce6-a360-b6fee58c127c",
+            "name": "Respond to Webhook"
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "gid=0",
+                    "mode": "list",
+                    "cachedResultName": "counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=0"
+                },
+                "columns": {
+                    "mappingMode": "autoMapInputData",
+                    "value": {
+                        "date": "={{ $json.sheetData.date }}",
+                        "time": "={{ $json.sheetData.time }}",
+                        "browser": "={{ $json.sheetData.browser }}",
+                        "language": "={{ $json.sheetData.language }}",
+                        "version": "={{ $json.sheetData.version }}",
+                        "screen": "={{ $json.sheetData.screen }}",
+                        "referrer": "={{ $json.sheetData.referrer }}",
+                        "counter": "={{ $json.sheetData.counter }}",
+                        "timestamp": "={{ $json.sheetData.timestamp }}",
+                        "path": "={{ $json.sheetData.path }}",
+                        "client": "={{ $json.sheetData.client }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "counter",
+                            "displayName": "counter",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "timestamp",
+                            "displayName": "timestamp",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "date",
+                            "displayName": "date",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "time",
+                            "displayName": "time",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "client",
+                            "displayName": "client",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "browser",
+                            "displayName": "browser",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "path",
+                            "displayName": "path",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "language",
+                            "displayName": "language",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "version",
+                            "displayName": "version",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "screen",
+                            "displayName": "screen",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "referrer",
+                            "displayName": "referrer",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "lastupdated",
+                            "displayName": "lastupdated",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "dailyvisits",
+                            "displayName": "dailyvisits",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "weeklyvisits",
+                            "displayName": "weeklyvisits",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        },
+                        {
+                            "id": "monthlyvisits",
+                            "displayName": "monthlyvisits",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "type": "string",
+                            "canBeUsedToMatch": true,
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                544,
+                -368
+            ],
+            "id": "5a5e07ce-6d9d-45ee-bfab-7aa333738359",
+            "name": "Append row in sheet",
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "gid=0",
+                    "mode": "list",
+                    "cachedResultName": "counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=0"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                -64,
+                -368
+            ],
+            "id": "277f90fd-a064-4a7f-a592-c934dff0dac5",
+            "name": "Get All Rows",
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-userCounter",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Methods",
+                                "value": "POST, OPTIONS"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, Origin"
+                            }
+                        ]
+                    }
+                }
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                -256,
+                -368
+            ],
+            "id": "4b50f808-7938-4f79-9ff8-3a70a56dc54a",
+            "name": "GETCounter",
+            "webhookId": "dee6669d-ef38-4792-a21d-ac64eac3d132"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Finde den höchsten Counter\nconst items = $input.all();\nlet maxCounter = 0;\n\n// Gehe durch alle Zeilen\nitems.forEach(item => {\n  const counter = parseInt(item.json.counter) || 0;\n  if (counter > maxCounter) {\n    maxCounter = counter;\n  }\n});\n\nconsole.log(`Found max counter: ${maxCounter} from ${items.length} rows`);\n\n// Return für nächsten Node\nreturn [{\n  json: {\n    lastCounter: maxCounter,\n    totalRows: items.length\n  }\n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                144,
+                -368
+            ],
+            "id": "5c217cfb-8e21-4c25-b7a6-5e7da31c0bf8",
+            "name": "Find Max Counter1"
+        },
+        {
+            "parameters": {
+                "jsCode": "// OPTIMIERTER Code Node für n8n\n// ===== COUNTER PROCESSING MIT VOLLSTÄNDIGEN DATEN =====\n\n// Hole Counter aus Google Sheets\nconst previousNodeData = $input.all()[0].json;\nconst lastCounter = previousNodeData.lastCounter || 0;\n\n// Hole Webhook-Daten\nconst webhookData = $node[\"GETCounter\"].json;\nconst body = webhookData.body || {};\nconst headers = webhookData.headers || {};\n\n// Neuer Counter\nconst newCounter = lastCounter + 1;\n\n// Parse User Agent für Browser-Info\nfunction getBrowserInfo(userAgent) {\n  if (!userAgent) return 'Unknown';\n  \n  if (userAgent.includes('Chrome')) return 'Chrome';\n  if (userAgent.includes('Firefox')) return 'Firefox';\n  if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';\n  if (userAgent.includes('Edge')) return 'Edge';\n  if (userAgent.includes('curl')) return 'API/curl';\n  \n  return 'Other';\n}\n\n// Erstelle Sheet-Daten mit allen Infos\nconst sheetData = {\n  counter: newCounter,\n  timestamp: new Date().toISOString(),\n  date: new Date().toISOString().split('T')[0],\n  time: new Date().toISOString().split('T')[1].split('.')[0],\n  \n  // Client Info\n  client: headers['x-forwarded-for'] || 'unknown',\n  browser: getBrowserInfo(body.client),\n  userAgent: body.client || headers['user-agent'] || 'unknown',\n  \n  // Page Info\n  path: body.path || 'unknown',\n  language: body.language || 'unknown',\n  version: body.version || 'unknown',\n  env: body.env || 'production',\n  \n  // Additional\n  screen: body.screen || 'unknown',\n  referrer: body.referrer || 'direct'\n};\n\nconsole.log(`Counter: ${lastCounter} -> ${newCounter}`);\nconsole.log('Sheet data:', sheetData);\n\nreturn [{\n  json: {\n    counter: newCounter,\n    sheetData: sheetData,\n    stats: {\n      totalVisits: newCounter,\n      previousCounter: lastCounter,\n      browser: sheetData.browser\n    }\n  }\n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                320,
+                -368
+            ],
+            "id": "ab2d2c4d-be56-4799-9182-1579545d063c",
+            "name": "Process Counter"
+        },
+        {
+            "parameters": {
+                "resource": "customer",
+                "operation": "create",
+                "additionalFields": {}
+            },
+            "type": "n8n-nodes-base.stripe",
+            "typeVersion": 1,
+            "position": [
+                400,
+                1728
+            ],
+            "id": "b615383a-2f0d-4c5f-84e5-06fee6797cb6",
+            "name": "Create a customer",
+            "credentials": {
+                "stripeApi": {
+                    "id": "rceyvGDH5jeuyFay",
+                    "name": "Stripe account"
+                }
+            },
+            "disabled": true
+        },
+        {
+            "parameters": {
+                "content": "## Email Notifiactions\n",
+                "height": 560,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                4304
+            ],
+            "id": "95e3ca29-ceae-43fe-b3ca-3f12459d9875",
+            "name": "Sticky Note6"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.email) {\n  throw new Error('Missing required fields: action, email');\n}\n\n// Validate action\nconst validActions = ['send'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be: send');\n}\n\n// Validate template\nconst validTemplates = ['welcome', 'subscription', 'payment', 'support'];\nif (!validTemplates.includes(data.template)) {\n  throw new Error('Invalid template. Must be one of: welcome, subscription, payment, support');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId || '',\n  email: data.email,\n  template: data.template,\n  data: data.data || {}\n};\n\nreturn { json: sanitizedData };"
+            },
+            "id": "bc82fceb-923b-40cb-8473-00ec591937b0",
+            "name": "Validate Data6",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -64,
+                4480
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"messageId\": \"{{ $json.messageId || 'sent' }}\",\n  \"sentAt\": \"{{ new Date().toISOString() }}\",\n  \"to\": \"{{ $json.to }}\",\n  \"template\": \"{{ $json.template }}\"\n}",
+                "options": {}
+            },
+            "id": "d98c78a0-f37d-4f06-aefe-79f2dc9d4cc1",
+            "name": "Email Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                832,
+                4480
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Support email template\nconst data = $input.first().json;\n\nconst emailData = {\n  to: data.email,\n  subject: 'Support Request Received - Keymoji 🆘',\n  html: `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h1 style=\"color: #f59e0b;\">Support Request Received</h1>\n      <p>Hi there! 📧</p>\n      <p>We've received your support request and will get back to you soon.</p>\n      <p>Request Details:</p>\n      <ul>\n        <li>Subject: {{ data.data.subject || 'Support Request' }}</li>\n        <li>Priority: {{ data.data.priority || 'Normal' }}</li>\n        <li>Ticket ID: {{ data.data.ticketId || 'N/A' }}</li>\n      </ul>\n      <p>We typically respond within 24 hours.</p>\n      <p>Thank you for your patience!</p>\n      <p>Best regards,<br>The Keymoji Support Team</p>\n    </div>\n  `,\n  text: `Support request received. We'll get back to you within 24 hours.`\n};\n\nreturn { json: emailData };"
+            },
+            "id": "c8eaa991-ee5b-4565-9333-b31f77612b5c",
+            "name": "Support Template",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                384,
+                4672
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Payment email template\nconst data = $input.first().json;\n\nconst emailData = {\n  to: data.email,\n  subject: 'Payment Received - Keymoji Pro 💳',\n  html: `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h1 style=\"color: #f59e0b;\">Payment Confirmed!</h1>\n      <p>Hi there! ✅</p>\n      <p>We've received your payment for Keymoji Pro.</p>\n      <p>Payment Details:</p>\n      <ul>\n        <li>Amount: ${{ data.data.amount || '9.99' }}</li>\n        <li>Plan: Keymoji Pro</li>\n        <li>Date: {{ new Date().toLocaleDateString() }}</li>\n      </ul>\n      <p>Your subscription is now active!</p>\n      <a href=\"https://keymoji.wtf\" style=\"background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;\">Access Pro Features</a>\n      <p>Best regards,<br>The Keymoji Team</p>\n    </div>\n  `,\n  text: `Payment confirmed for Keymoji Pro. Your subscription is now active!`\n};\n\nreturn { json: emailData };"
+            },
+            "id": "20e8763b-2374-4168-971f-70c665d8ab6c",
+            "name": "Payment Template",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                384,
+                4576
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Subscription email template\nconst data = $input.first().json;\n\nconst emailData = {\n  to: data.email,\n  subject: 'Your Keymoji Subscription is Active! ⭐',\n  html: `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h1 style=\"color: #f59e0b;\">Subscription Activated!</h1>\n      <p>Hi there! 🎉</p>\n      <p>Your Keymoji Pro subscription is now active!</p>\n      <p>You now have access to:</p>\n      <ul>\n        <li>Unlimited emoji generation</li>\n        <li>Advanced analytics</li>\n        <li>Story mode (coming soon)</li>\n        <li>Priority support</li>\n      </ul>\n      <p>Thank you for supporting Keymoji!</p>\n      <a href=\"https://keymoji.wtf\" style=\"background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;\">Start Using Pro Features</a>\n      <p>Best regards,<br>The Keymoji Team</p>\n    </div>\n  `,\n  text: `Your Keymoji Pro subscription is now active! Enjoy unlimited emoji generation and advanced features.`\n};\n\nreturn { json: emailData };"
+            },
+            "id": "ef4c186b-ed4c-4705-aa2e-a101178fc4c9",
+            "name": "Subscription Template",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                384,
+                4480
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Welcome email template\nconst data = $input.first().json;\n\nconst emailData = {\n  to: data.email,\n  subject: 'Welcome to Keymoji! 🎉',\n  html: `\n    <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n      <h1 style=\"color: #f59e0b;\">Welcome to Keymoji!</h1>\n      <p>Hi there! 👋</p>\n      <p>Thank you for joining Keymoji - the fun and secure emoji password generator!</p>\n      <p>With Keymoji, you can:</p>\n      <ul>\n        <li>Generate secure emoji passwords</li>\n        <li>Create memorable passphrases</li>\n        <li>Stay safe online with unique combinations</li>\n      </ul>\n      <p>Start generating your first emoji password now!</p>\n      <a href=\"https://keymoji.wtf\" style=\"background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;\">Get Started</a>\n      <p>Best regards,<br>The Keymoji Team</p>\n    </div>\n  `,\n  text: `Welcome to Keymoji! Thank you for joining us. Start generating secure emoji passwords at https://keymoji.wtf`\n};\n\nreturn { json: emailData };"
+            },
+            "id": "567b0852-c34e-4a7f-8bab-338346ea2965",
+            "name": "Welcome Template",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                384,
+                4368
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "template-check",
+                            "leftValue": "={{ $json.template }}",
+                            "rightValue": "welcome",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "ee8ff6ba-505f-42a4-bca7-0e363bb3bd73",
+            "name": "Route by Template",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                176,
+                4480
+            ]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-notifications",
+                "responseMode": "responseNode",
+                "options": {
+                    "allowedOrigins": "*"
+                }
+            },
+            "id": "c9192808-e949-4181-9e95-ae549b4b69d3",
+            "name": "Email Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -272,
+                4480
+            ],
+            "webhookId": "email-webhook",
+            "disabled": true
+        },
+        {
+            "parameters": {
+                "content": "## Ab Testing\n\n",
+                "height": 560,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                3648
+            ],
+            "id": "18e1d09a-019d-42c7-9949-9ccd1554e4b8",
+            "name": "Sticky Note5"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "action-check",
+                            "leftValue": "={{ $json.action }}",
+                            "rightValue": "assign",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "d5aabf64-c512-4ec6-958e-50bb144ac2d4",
+            "name": "Route by Action4",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                416,
+                3856
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId || !data.testName) {\n  throw new Error('Missing required fields: action, userId, testName');\n}\n\n// Validate action\nconst validActions = ['assign', 'track', 'get_results'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: assign, track, get_results');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  testName: data.testName,\n  variant: data.variant || '',\n  conversion: data.conversion || false,\n  event: data.event || ''\n};\n\nreturn { json: sanitizedData };"
+            },
+            "id": "67c7008e-ac71-499b-b7e6-8f19cb7b1431",
+            "name": "Validate Data5",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -32,
+                3856
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"test\": {\n    \"name\": \"{{ $json.testName }}\",\n    \"results\": {{ $json.results }}\n  },\n  \"message\": \"A/B test results retrieved\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "ecc3b82c-5163-41aa-80b0-08ea48e7310b",
+            "name": "Results Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1072,
+                3952
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"test\": {\n    \"name\": \"{{ $json.testName }}\",\n    \"variant\": \"{{ $json.variant }}\",\n    \"assignedAt\": \"{{ $json.assignedAt }}\"\n  },\n  \"message\": \"Variant assigned successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "4c44fb7d-41ad-4074-899d-e9f7ee4ae4bf",
+            "name": "Assign Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1072,
+                3744
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Get A/B test results\nconst data = $input.first().json;\nconst abTests = $input.all();\nconst testName = data.testName;\n\n// Filter tests for this test name\nconst testResults = abTests.filter(test => test.testName === testName);\n\n// Calculate results by variant\nconst results = {\n  A: { participants: 0, conversions: 0, conversionRate: 0 },\n  B: { participants: 0, conversions: 0, conversionRate: 0 }\n};\n\n// Aggregate results\nfor (const test of testResults) {\n  const variant = test.variant;\n  results[variant].participants++;\n  if (test.conversion) {\n    results[variant].conversions++;\n  }\n}\n\n// Calculate conversion rates\nfor (const variant in results) {\n  if (results[variant].participants > 0) {\n    results[variant].conversionRate = \n      (results[variant].conversions / results[variant].participants) * 100;\n  }\n}\n\nreturn { json: { testName, results } };"
+            },
+            "id": "f8d2b378-4a2d-412a-b15c-1f37324ece8a",
+            "name": "Calculate Results",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                848,
+                3952
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Track A/B test event\nconst data = $input.first().json;\nconst abTests = $input.all();\nconst userId = data.userId;\nconst testName = data.testName;\nconst event = data.event;\nconst conversion = data.conversion;\n\n// Find user's test\nconst userTest = abTests.find(test => \n  test.userId === userId && test.testName === testName\n);\n\nif (!userTest) {\n  throw new Error('A/B test not found for user');\n}\n\n// Update test with event\nconst updatedTest = {\n  ...userTest,\n  conversion: userTest.conversion || conversion,\n  events: [...(userTest.events || []), {\n    event,\n    conversion,\n    timestamp: new Date().toISOString()\n  }]\n};\n\nreturn { json: updatedTest };"
+            },
+            "id": "6d32fc6e-e626-4ffa-b341-329547beee76",
+            "name": "Track Event",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                624,
+                3952
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1295571492,
+                    "mode": "list",
+                    "cachedResultName": "abtests",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1295571492"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "a8c34038-1c6c-4693-8997-569c4f3379cd",
+            "name": "Save Assignment",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                848,
+                3744
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Assign A/B test variant\nconst data = $input.first().json;\nconst abTests = $input.all();\nconst userId = data.userId;\nconst testName = data.testName;\n\n// Check if user already has a variant for this test\nconst existingTest = abTests.find(test => \n  test.userId === userId && test.testName === testName\n);\n\nif (existingTest) {\n  // User already has a variant\n  return { json: { userId, testName, variant: existingTest.variant } };\n}\n\n// Assign new variant (A or B)\nconst variant = Math.random() < 0.5 ? 'A' : 'B';\n\n// Create new test assignment\nconst newTest = {\n  userId,\n  testName,\n  variant,\n  assignedAt: new Date().toISOString(),\n  conversion: false,\n  events: []\n};\n\nreturn { json: newTest };"
+            },
+            "id": "d2829bcb-38e6-471c-a3d2-1ff7ec3883be",
+            "name": "Assign Variant",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                624,
+                3744
+            ]
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1295571492,
+                    "mode": "list",
+                    "cachedResultName": "abtests",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1295571492"
+                },
+                "options": {}
+            },
+            "id": "0464d236-3149-42e6-82f8-fe8539fb6b18",
+            "name": "Read A/B Tests",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                192,
+                3856
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-abtest",
+                "responseMode": "responseNode",
+                "options": {
+                    "allowedOrigins": "*"
+                }
+            },
+            "id": "f6ccb35c-aee3-4d59-91fb-cacadf25cc91",
+            "name": "A/B Test Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -256,
+                3856
+            ],
+            "webhookId": "ab-test-webhook",
+            "disabled": true
+        },
+        {
+            "parameters": {
+                "content": "## Usage Tracking\n\n",
+                "height": 560,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                2992
+            ],
+            "id": "e5547394-1cd0-479e-bc74-b6d14f15472b",
+            "name": "Sticky Note4"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "action-check",
+                            "leftValue": "={{ $json.action }}",
+                            "rightValue": "track",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "0bcf8acb-a7f1-413e-a90c-390672e801db",
+            "name": "Route by Action3",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                656,
+                3136
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId) {\n  throw new Error('Missing required fields: action, userId');\n}\n\n// Validate action\nconst validActions = ['track', 'get', 'reset'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: track, get, reset');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  feature: data.feature || 'emoji_generation',\n  usage: parseInt(data.usage) || 1,\n  period: data.period || 'daily'\n};\n\nreturn { json: sanitizedData };"
+            },
+            "id": "9bb06c77-3c05-4e7f-9ac1-bbc23af6585e",
+            "name": "Validate Data4",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -16,
+                3136
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"usage\": {\n    \"current\": {{ $json.currentUsage }},\n    \"limit\": {{ $json.limit }},\n    \"remaining\": {{ $json.limit - $json.currentUsage }},\n    \"resetDate\": \"{{ new Date(Date.now() + 24*60*60*1000).toISOString() }}\"\n  },\n  \"message\": \"Usage retrieved successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "e4f08312-0f60-4844-b89b-335b025b8a66",
+            "name": "Get Usage Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                656,
+                3392
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"usage\": {\n    \"current\": {{ $json.usage }},\n    \"limit\": {{ $json.limit }},\n    \"remaining\": {{ $json.limit - $json.usage }},\n    \"resetDate\": \"{{ new Date(Date.now() + 24*60*60*1000).toISOString() }}\"\n  },\n  \"limitExceeded\": {{ $json.limitExceeded }},\n  \"message\": \"Usage tracked successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "942dfa65-7d79-4598-a6f4-08df39f0fbbc",
+            "name": "Track Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1312,
+                3024
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 834587958,
+                    "mode": "list",
+                    "cachedResultName": "usage",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=834587958"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "c448ab9c-ce10-44fb-9a23-7a9d8072ce96",
+            "name": "Save Usage",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                1088,
+                3024
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Track usage\nconst data = $input.first().json;\nconst usage = data.usage;\nconst currentUsage = data.currentUsage;\nconst newUsage = currentUsage + usage;\n\n// Check if limit exceeded\nconst limitExceeded = newUsage > data.limit;\n\n// Update usage data\nconst updatedUsage = {\n  userId: data.userId,\n  feature: data.feature,\n  period: data.period,\n  tier: data.tier,\n  usage: newUsage,\n  limit: data.limit,\n  lastUpdated: new Date().toISOString()\n};\n\nreturn { json: { ...updatedUsage, limitExceeded } };"
+            },
+            "id": "d333d4ec-e37d-4da6-b791-7625fb0cc5e0",
+            "name": "Track Usage",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                864,
+                3024
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Process usage data\nconst data = $input.first().json;\nconst usageData = $input.all();\nconst userId = data.userId;\nconst feature = data.feature;\nconst period = data.period;\n\n// Find user's usage for this feature and period\nconst userUsage = usageData.find(u => \n  u.userId === userId && \n  u.feature === feature && \n  u.period === period\n);\n\n// Default limits based on feature\nconst limits = {\n  emoji_generation: { free: 10, pro: 100, experimental: 1000 },\n  story_generation: { free: 3, pro: 50, experimental: 500 },\n  analytics: { free: 5, pro: 100, experimental: 1000 }\n};\n\n// Get user tier (default to free)\nconst tier = userUsage?.tier || 'free';\nconst limit = limits[feature]?.[tier] || 10;\n\nreturn { json: { userId, feature, period, tier, limit, currentUsage: userUsage?.usage || 0 } };"
+            },
+            "id": "c1b13ea6-edd1-4885-9951-95fe35d425fc",
+            "name": "Process Usage",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                432,
+                3136
+            ]
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 834587958,
+                    "mode": "list",
+                    "cachedResultName": "usage",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=834587958"
+                },
+                "options": {}
+            },
+            "id": "de4a77e1-ed7a-4139-a46f-8285eba89573",
+            "name": "Read Usage Data",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                208,
+                3136
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-usage",
+                "responseMode": "responseNode",
+                "options": {
+                    "allowedOrigins": "*"
+                }
+            },
+            "id": "6b074f19-9949-4c23-9546-db1da8b3c92c",
+            "name": "Usage Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -240,
+                3136
+            ],
+            "webhookId": "usage-webhook",
+            "disabled": true
+        },
+        {
+            "parameters": {
+                "content": "## Feature Flags\n",
+                "height": 672,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                2224
+            ],
+            "id": "268944e6-4253-462a-b0fd-42a2f2064e52",
+            "name": "Sticky Note3"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "action-check",
+                            "leftValue": "={{ $json.action }}",
+                            "rightValue": "update_flags",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "40533aa3-0b6e-4d1f-b71b-001ac614f637",
+            "name": "Route by Action2",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                656,
+                2448
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId) {\n  throw new Error('Missing required fields: action, userId');\n}\n\n// Validate action\nconst validActions = ['get_flags', 'update_flags'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: get_flags, update_flags');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  tier: data.tier || 'free',\n  features: data.features || {}\n};\n\nreturn { json: sanitizedData };"
+            },
+            "id": "b89e1e17-6fb4-4019-9825-143c197fd3d1",
+            "name": "Validate Data3",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -16,
+                2448
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"features\": {{ $json.features }},\n  \"tier\": \"{{ $json.tier }}\",\n  \"message\": \"Feature flags updated successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "a05292f3-308f-4e45-9f0c-0ea6fff755d5",
+            "name": "Update Features Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1312,
+                2336
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"features\": {{ $json.features }},\n  \"tier\": \"{{ $json.tier }}\",\n  \"message\": \"Feature flags retrieved successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "77b93e53-e322-4972-8a5e-45f65621ffd9",
+            "name": "Get Features Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                656,
+                2688
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1412122533,
+                    "mode": "list",
+                    "cachedResultName": "features",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1412122533"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "cd67bc38-ec21-45e5-96dc-eefa4391adbb",
+            "name": "Save Feature Flags",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                1088,
+                2336
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Update feature flags\nconst data = $input.first().json;\nconst updates = data.features;\n\n// Merge with existing flags\nconst updatedFlags = {\n  ...data.features,\n  ...updates,\n  updatedAt: new Date().toISOString()\n};\n\nreturn { json: { userId: data.userId, tier: data.tier, features: updatedFlags } };"
+            },
+            "id": "0f9a639c-b3de-4fca-b5ec-ff87d57b2032",
+            "name": "Update Feature Flags",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                864,
+                2336
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Get user's feature flags\nconst data = $input.first().json;\nconst features = $input.all();\nconst userId = data.userId;\nconst tier = data.tier;\n\n// Find user's feature flags\nconst userFeatures = features.find(f => f.userId === userId);\n\n// Default feature flags based on tier\nconst defaultFlags = {\n  free: {\n    STORY_MODE: false,\n    ADVANCED_ANALYTICS: false,\n    NO_DAILY_LIMIT: false,\n    CUSTOM_EMOJIS: false,\n    EXPORT_HISTORY: false,\n    PRIORITY_SUPPORT: false\n  },\n  pro: {\n    STORY_MODE: true,\n    ADVANCED_ANALYTICS: true,\n    NO_DAILY_LIMIT: true,\n    CUSTOM_EMOJIS: false,\n    EXPORT_HISTORY: true,\n    PRIORITY_SUPPORT: false\n  },\n  experimental: {\n    STORY_MODE: true,\n    ADVANCED_ANALYTICS: true,\n    NO_DAILY_LIMIT: true,\n    CUSTOM_EMOJIS: true,\n    EXPORT_HISTORY: true,\n    PRIORITY_SUPPORT: true\n  }\n};\n\n// Return user's flags or default based on tier\nconst flags = userFeatures?.featureFlags || defaultFlags[tier] || defaultFlags.free;\n\nreturn { json: { userId, tier, features: flags } };"
+            },
+            "id": "035b9cb0-dbc7-4d0a-9ac9-2cd5de3c6a31",
+            "name": "Process Feature Flags",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                432,
+                2448
+            ]
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1412122533,
+                    "mode": "list",
+                    "cachedResultName": "features",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1412122533"
+                },
+                "options": {}
+            },
+            "id": "2318c8b2-cf3d-4cd0-8313-a87375c5e71d",
+            "name": "Read Feature Flags",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                208,
+                2448
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-features",
+                "responseMode": "responseNode",
+                "options": {
+                    "allowedOrigins": "*"
+                }
+            },
+            "id": "5b571eec-c59f-445b-bd43-34231cc0dccd",
+            "name": "Feature Flags Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -240,
+                2448
+            ],
+            "webhookId": "feature-flags-webhook",
+            "disabled": true
+        },
+        {
+            "parameters": {
+                "content": "## Subscription Management\n\n",
+                "height": 496,
+                "width": 1888
+            },
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -336,
+                1632
+            ],
+            "id": "cb662cca-79bf-464e-967c-da49934a6112",
+            "name": "Sticky Note2"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"subscription\": {\n    \"id\": \"{{ $json.subscriptionId }}\",\n    \"status\": \"{{ $json.status }}\",\n    \"plan\": \"{{ $json.plan }}\",\n    \"currentPeriodEnd\": \"{{ $json.currentPeriodEnd }}\",\n    \"cancelAtPeriodEnd\": {{ $json.cancelAtPeriodEnd }}\n  },\n  \"message\": \"Subscription retrieved successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "285b637e-0bad-4249-a33f-4c66ff83ea63",
+            "name": "Get Response1",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1072,
+                1936
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "action-check",
+                            "leftValue": "={{ $json.action }}",
+                            "rightValue": "create",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "9fc24244-964f-4fd1-b7ac-bd49472dec42",
+            "name": "Route by Action1",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                192,
+                1840
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate input data\nconst data = $input.first().json;\n\n// Check required fields\nif (!data.action || !data.userId) {\n  throw new Error('Missing required fields: action, userId');\n}\n\n// Validate action\nconst validActions = ['create', 'cancel', 'update', 'get'];\nif (!validActions.includes(data.action)) {\n  throw new Error('Invalid action. Must be one of: create, cancel, update, get');\n}\n\n// Sanitize data\nconst sanitizedData = {\n  action: data.action,\n  userId: data.userId,\n  stripeCustomerId: data.stripeCustomerId || '',\n  subscriptionId: data.subscriptionId || '',\n  plan: data.plan || 'pro',\n  paymentMethod: data.paymentMethod || ''\n};\n\nreturn { json: sanitizedData };"
+            },
+            "id": "c455bdd4-386e-4f73-b429-97023446b627",
+            "name": "Validate Data2",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -48,
+                1840
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"subscription\": {\n    \"id\": \"{{ $json.id }}\",\n    \"status\": \"canceled\",\n    \"plan\": \"{{ $json.plan }}\",\n    \"cancelAtPeriodEnd\": true\n  },\n  \"message\": \"Subscription canceled successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "2e75d55d-90c9-407f-9eac-d71cd7d2388c",
+            "name": "Cancel Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1072,
+                1936
+            ]
+        },
+        {
+            "parameters": {},
+            "id": "2fd26b72-b8da-41f3-88db-1d756b615686",
+            "name": "Cancel Stripe Subscription",
+            "type": "n8n-nodes-base.stripe",
+            "typeVersion": 2,
+            "position": [
+                848,
+                1936
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Find subscription by userId\nconst data = $input.first().json;\nconst subscriptions = $input.all();\nconst userId = data.userId;\n\n// Find subscription\nconst subscription = subscriptions.find(sub => sub.userId === userId);\n\nif (!subscription) {\n  throw new Error('Subscription not found');\n}\n\nreturn { json: subscription };"
+            },
+            "id": "af094ca5-e5ae-4156-811f-f8b8d008a170",
+            "name": "Find Subscription",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                624,
+                1936
+            ]
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1115491905,
+                    "mode": "list",
+                    "cachedResultName": "subscriptions",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1115491905"
+                },
+                "options": {}
+            },
+            "id": "3d000845-aac0-4112-acef-77ccd19608a2",
+            "name": "Read Subscriptions",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                400,
+                1936
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji-counter",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": 1115491905,
+                    "mode": "list",
+                    "cachedResultName": "subscriptions",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs/edit#gid=1115491905"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                },
+                "options": {}
+            },
+            "id": "53b3492c-e7c5-4833-ac55-fb6ee70af4d9",
+            "name": "Save Subscription",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [
+                848,
+                1728
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {},
+            "id": "c5aa5db2-e019-400f-8746-7818b8830c9a",
+            "name": "Create Stripe Subscription",
+            "type": "n8n-nodes-base.stripe",
+            "typeVersion": 2,
+            "position": [
+                624,
+                1728
+            ]
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-subscription",
+                "responseMode": "responseNode",
+                "options": {
+                    "allowedOrigins": "*"
+                }
+            },
+            "id": "6a7b23d4-2c16-48a1-a871-2322bd002f65",
+            "name": "Subscription Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                -256,
+                1840
+            ],
+            "webhookId": "subscription-webhook",
+            "disabled": true
+        },
         {
             "parameters": {
                 "httpMethod": "POST",
@@ -21,22 +2867,28 @@
                     }
                 }
             },
-            "id": "webhook-node",
+            "id": "333dbaf3-bc92-4ea4-960f-5a987c6517d6",
             "name": "Account Webhook",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1.1,
-            "position": [240, 300],
+            "position": [
+                -272,
+                944
+            ],
             "webhookId": "keymoji-account-webhook"
         },
         {
             "parameters": {
                 "jsCode": "const input = $input.first().json;\nconst data = input.body || input;\nconsole.log('📥 Webhook received action:', data.action);\nreturn { json: data };"
             },
-            "id": "extract-body-node",
+            "id": "3b004c23-a13c-4142-8a7f-e7a021d6ab28",
             "name": "Extract Body",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [440, 300]
+            "position": [
+                -64,
+                944
+            ]
         },
         {
             "parameters": {
@@ -44,12 +2896,19 @@
                     "values": [
                         {
                             "conditions": {
-                                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+                                "options": {
+                                    "caseSensitive": false,
+                                    "leftValue": "",
+                                    "typeValidation": "strict"
+                                },
                                 "conditions": [
                                     {
                                         "leftValue": "={{ $json.action }}",
                                         "rightValue": "otp_sent",
-                                        "operator": { "type": "string", "operation": "equals" }
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        }
                                     }
                                 ],
                                 "combinator": "and"
@@ -59,12 +2918,19 @@
                         },
                         {
                             "conditions": {
-                                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+                                "options": {
+                                    "caseSensitive": false,
+                                    "leftValue": "",
+                                    "typeValidation": "strict"
+                                },
                                 "conditions": [
                                     {
                                         "leftValue": "={{ $json.action }}",
                                         "rightValue": "otp_resent",
-                                        "operator": { "type": "string", "operation": "equals" }
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        }
                                     }
                                 ],
                                 "combinator": "and"
@@ -74,12 +2940,19 @@
                         },
                         {
                             "conditions": {
-                                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+                                "options": {
+                                    "caseSensitive": false,
+                                    "leftValue": "",
+                                    "typeValidation": "strict"
+                                },
                                 "conditions": [
                                     {
                                         "leftValue": "={{ $json.action }}",
                                         "rightValue": "verify_otp",
-                                        "operator": { "type": "string", "operation": "equals" }
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        }
                                     }
                                 ],
                                 "combinator": "and"
@@ -94,21 +2967,27 @@
                     "renameFallbackOutput": "account_upsert"
                 }
             },
-            "id": "router-node",
+            "id": "87c97647-45ed-426e-a28f-78467dc7b157",
             "name": "Action Router",
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.2,
-            "position": [640, 300]
+            "position": [
+                128,
+                944
+            ]
         },
         {
             "parameters": {
-                "jsCode": "// Store OTP: save otpCode + otpExpiresAt for this email\nconst data = $input.first().json;\nconsole.log('💾 Storing OTP for:', data.email);\nreturn {\n  json: {\n    email: data.email,\n    otpCode: String(data.otpCode),\n    otpExpiresAt: data.otpExpiresAt,\n    otpCreatedAt: new Date().toISOString()\n  }\n};"
+                "jsCode": "// Store OTP: save otpCode + otpExpiresAt for this email\nconst data = $input.first().json;\nconsole.log('💾 Storing OTP for:', data.email);\nreturn [{\n  json: {\n    email:        data.email,\n    userId:       data.userId || null,\n    otpCode:      String(data.otpCode),\n    otpExpiresAt: data.otpExpiresAt,\n    otpCreatedAt: new Date().toISOString()\n  }\n}];"
             },
-            "id": "prepare-otp-store-node",
+            "id": "d6d13a22-6919-4094-a195-afa2e5faeedc",
             "name": "Prepare OTP Store",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [860, 100]
+            "position": [
+                352,
+                736
+            ]
         },
         {
             "parameters": {
@@ -132,15 +3011,20 @@
                         "otp_expires_at": "={{ $json.otpExpiresAt }}",
                         "otp_created_at": "={{ $json.otpCreatedAt }}"
                     },
-                    "matchingColumns": ["email"]
+                    "matchingColumns": [
+                        "email"
+                    ]
                 },
                 "options": {}
             },
-            "id": "store-otp-node",
+            "id": "6c661a42-840e-4a2e-827b-b3176b1a0b08",
             "name": "Store OTP in Sheets",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.4,
-            "position": [1060, 100],
+            "position": [
+                544,
+                736
+            ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
                     "id": "SjlKGbio83VCvDmo",
@@ -154,11 +3038,14 @@
                 "responseBody": "={{ { \"success\": true, \"message\": \"OTP stored\" } }}",
                 "options": {}
             },
-            "id": "respond-otp-stored-node",
+            "id": "a75596c0-1741-4712-b5a2-2a21fa97ee08",
             "name": "Respond OTP Stored",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
-            "position": [1260, 100]
+            "position": [
+                752,
+                736
+            ]
         },
         {
             "parameters": {
@@ -168,28 +3055,16 @@
                     "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
                     "mode": "list",
                     "cachedResultName": "keymoji"
-                },
-                "sheetName": {
-                    "__rl": true,
-                    "value": "accounts",
-                    "mode": "name"
-                },
-                "filters": {
-                    "conditions": [
-                        {
-                            "column": "email",
-                            "condition": "equals",
-                            "value": "={{ $json.email }}"
-                        }
-                    ]
-                },
-                "options": { "returnAllMatches": false }
+                }
             },
-            "id": "lookup-otp-node",
+            "id": "2bf08755-853c-4ac9-8307-864673bce064",
             "name": "Lookup OTP Row",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.4,
-            "position": [860, 380],
+            "position": [
+                352,
+                1024
+            ],
             "alwaysOutputData": true,
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -200,33 +3075,47 @@
         },
         {
             "parameters": {
-                "jsCode": "// Validate OTP: compare code + check expiry\nconst items = $input.all();\n\n// items[0] = incoming verify_otp request (from Extract Body via Router)\n// items[1] = Google Sheets row\n// IMPORTANT: With switch nodes, we need to get the original request differently\n// The lookup node output contains the sheet row; incoming data is in the first item\nconst sheetRow = items[0].json;\n\n// Get the verify request from the execution context\n// The incoming data was passed through as the sheet query used $json.email\n// so we need to re-fetch from earlier — use $('Action Router') to get original data\nlet requestData;\ntry {\n  requestData = $('Action Router').first().json;\n} catch(e) {\n  // fallback\n  requestData = items[0].json;\n}\n\nconst incomingCode = String(requestData.otpCode || '').trim();\nconst incomingEmail = String(requestData.email || '').trim();\n\nconsole.log('🔍 Verifying OTP for:', incomingEmail);\nconsole.log('🔍 Incoming code:', incomingCode);\nconsole.log('🔍 Sheet row:', JSON.stringify(sheetRow));\n\n// No row found\nif (!sheetRow || !sheetRow.email) {\n  console.warn('❌ No account found for email:', incomingEmail);\n  return { json: { success: false, error: 'No account found for this email' } };\n}\n\nconst storedCode = String(sheetRow.otp_code || '').trim();\nconst expiresAt = sheetRow.otp_expires_at;\n\n// Check code match\nif (!storedCode || storedCode !== incomingCode) {\n  console.warn('❌ OTP mismatch. Expected:', storedCode, 'Got:', incomingCode);\n  return { json: { success: false, error: 'Invalid code. Please check and try again.' } };\n}\n\n// Check expiry\nif (expiresAt) {\n  const expiry = new Date(expiresAt);\n  const now = new Date();\n  if (now > expiry) {\n    console.warn('❌ OTP expired at:', expiresAt);\n    return { json: { success: false, error: 'Code has expired. Please request a new one.' } };\n  }\n}\n\n// SUCCESS: clear OTP from sheet (security: single-use)\nconsole.log('✅ OTP valid for:', incomingEmail);\nreturn {\n  json: {\n    success: true,\n    userId: sheetRow.userId || null,\n    email: incomingEmail,\n    clearOtp: true  // signal to next node\n  }\n};"
+                "jsCode": "// Validate OTP: compare code + check expiry\nconst sheetRow = $input.first().json;\n\n// Get original request data from Extract Body (before the router)\nlet requestData;\ntry {\n  requestData = $('Extract Body').first().json;\n} catch(e) {\n  requestData = sheetRow;\n}\n\nconst incomingCode = String(requestData.otpCode || '').trim();\nconst incomingEmail = String(requestData.email || '').trim();\n\nconsole.log('🔍 Verifying OTP for:', incomingEmail);\nconsole.log('🔍 Incoming code length:', incomingCode.length);\n\n// No row found in Sheets\nif (!sheetRow || !sheetRow.email) {\n  console.warn('❌ No account found for email:', incomingEmail);\n  return [{ json: { success: false, error: 'No account found for this email' } }];\n}\n\nconst storedCode = String(sheetRow.otp_code || '').trim();\nconst expiresAt = sheetRow.otp_expires_at;\n\n// Check code match\nif (!storedCode) {\n  console.warn('❌ No OTP stored for this email');\n  return [{ json: { success: false, error: 'No pending code found. Please request a new one.' } }];\n}\nif (storedCode !== incomingCode) {\n  console.warn('❌ OTP mismatch');\n  return [{ json: { success: false, error: 'Invalid code. Please check and try again.' } }];\n}\n\n// Check expiry\nif (expiresAt) {\n  const expiry = new Date(expiresAt);\n  const now = new Date();\n  if (now > expiry) {\n    console.warn('❌ OTP expired at:', expiresAt);\n    return [{ json: { success: false, error: 'Code has expired. Please request a new one.' } }];\n  }\n}\n\n// SUCCESS — pass userId + email forward for Clear OTP and Response nodes\nconsole.log('✅ OTP valid for:', incomingEmail);\nreturn [{\n  json: {\n    success: true,\n    userId: sheetRow.userId || sheetRow.user_id || null,\n    email: incomingEmail,\n    tier: sheetRow.tier || 'free'\n  }\n}];"
             },
-            "id": "validate-otp-node",
+            "id": "24eb9fa2-c5c9-410c-8267-e8e73be5cd71",
             "name": "Validate OTP",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [1060, 380]
+            "position": [
+                544,
+                1024
+            ]
         },
         {
             "parameters": {
                 "conditions": {
-                    "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+                    "options": {
+                        "caseSensitive": false,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
                     "conditions": [
                         {
                             "leftValue": "={{ $json.success }}",
                             "rightValue": true,
-                            "operator": { "type": "boolean", "operation": "equals" }
+                            "operator": {
+                                "type": "boolean",
+                                "operation": "equals"
+                            }
                         }
                     ],
                     "combinator": "and"
-                }
+                },
+                "options": {}
             },
-            "id": "otp-success-check-node",
+            "id": "3e8564c8-961b-4a1c-90d0-78d15c0fa9e1",
             "name": "OTP Valid?",
             "type": "n8n-nodes-base.if",
             "typeVersion": 2.2,
-            "position": [1260, 380]
+            "position": [
+                752,
+                1024
+            ]
         },
         {
             "parameters": {
@@ -250,15 +3139,20 @@
                         "otp_expires_at": "",
                         "lastLogin": "={{ new Date().toISOString() }}"
                     },
-                    "matchingColumns": ["email"]
+                    "matchingColumns": [
+                        "email"
+                    ]
                 },
                 "options": {}
             },
-            "id": "clear-otp-node",
+            "id": "28ed9bd5-ec76-4389-8865-9a668629c9c3",
             "name": "Clear OTP (single-use)",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.4,
-            "position": [1460, 300],
+            "position": [
+                944,
+                944
+            ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
                     "id": "SjlKGbio83VCvDmo",
@@ -269,14 +3163,17 @@
         {
             "parameters": {
                 "respondWith": "json",
-                "responseBody": "={{ { \"success\": true, \"userId\": $json.userId, \"email\": $json.email, \"message\": \"OTP verified\" } }}",
+                "responseBody": "={{ \n  {\n    \"success\": true,\n    \"userId\":  $('Validate OTP').first().json.userId,\n    \"email\":   $('Validate OTP').first().json.email,\n    \"tier\":    $('Validate OTP').first().json.tier || \"free\",\n    \"message\": \"OTP verified\"\n  }\n}}",
                 "options": {}
             },
-            "id": "respond-otp-success-node",
+            "id": "3422c1a6-8698-42df-bd0c-7d355cace0aa",
             "name": "Respond OTP Success",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
-            "position": [1660, 300]
+            "position": [
+                1152,
+                944
+            ]
         },
         {
             "parameters": {
@@ -286,11 +3183,14 @@
                     "responseCode": 400
                 }
             },
-            "id": "respond-otp-fail-node",
+            "id": "bd57aa2c-3620-4829-91e5-1fe3b44fa69e",
             "name": "Respond OTP Fail",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
-            "position": [1460, 480]
+            "position": [
+                944,
+                1120
+            ]
         },
         {
             "parameters": {
@@ -300,28 +3200,16 @@
                     "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
                     "mode": "list",
                     "cachedResultName": "keymoji"
-                },
-                "sheetName": {
-                    "__rl": true,
-                    "value": "accounts",
-                    "mode": "name"
-                },
-                "filters": {
-                    "conditions": [
-                        {
-                            "column": "email",
-                            "condition": "equals",
-                            "value": "={{ $json.email }}"
-                        }
-                    ]
-                },
-                "options": { "returnAllMatches": false }
+                }
             },
-            "id": "lookup-node",
+            "id": "d57354dc-ff11-435e-87fb-4fdd30de098a",
             "name": "Lookup Account",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.4,
-            "position": [860, 620],
+            "position": [
+                352,
+                1264
+            ],
             "alwaysOutputData": true,
             "credentials": {
                 "googleSheetsOAuth2Api": {
@@ -332,13 +3220,16 @@
         },
         {
             "parameters": {
-                "jsCode": "// SMART MERGE: Preserves usageHistory from Google Sheets!\nconst items = $input.all();\nconst webhookData = $('Action Router').first().json;\nconst existingData = items[0]?.json || null;\n\nconsole.log('📊 Webhook data:', webhookData?.userId);\nconsole.log('📊 Existing data found:', !!existingData?.email);\n\nfunction parseJSON(val, fallback = {}) {\n  if (!val) return fallback;\n  if (typeof val === 'object') return val;\n  try { return JSON.parse(val); } catch { return fallback; }\n}\n\nconst existingProfile = parseJSON(existingData?.profile, {});\nconst existingMetadata = parseJSON(existingData?.metadata, {});\nconst incomingProfile = parseJSON(webhookData.profile, {});\nconst incomingMetadata = parseJSON(webhookData.metadata, {});\n\n// PRESERVE usageHistory\nconst existingUsageHistory = existingMetadata.usageHistory || [];\nconst incomingUsageHistory = incomingMetadata.usageHistory || [];\nconst finalUsageHistory = incomingUsageHistory.length > existingUsageHistory.length\n  ? incomingUsageHistory\n  : existingUsageHistory;\n\nconst mergedProfile = { ...existingProfile, ...incomingProfile };\nconst mergedMetadata = { ...existingMetadata, ...incomingMetadata, usageHistory: finalUsageHistory };\n\nconst output = {\n  userId: webhookData.userId,\n  email: webhookData.email,\n  tier: webhookData.tier || existingData?.tier || 'free',\n  createdAt: existingData?.createdAt || webhookData.createdAt || new Date().toISOString(),\n  lastLogin: webhookData.lastLogin || new Date().toISOString(),\n  profile: JSON.stringify(mergedProfile),\n  metadata: JSON.stringify(mergedMetadata),\n  status: webhookData.status || existingData?.status || 'active'\n};\n\nconsole.log('📤 Output ready for:', output.userId);\nreturn { json: output };"
+                "jsCode": "// SMART MERGE: Preserves usageHistory from Google Sheets!\nconst items = $input.all();\n// Use Extract Body (before router) to get original webhook data reliably\nconst webhookData = $('Extract Body').first().json;\nconst existingData = items[0]?.json || null;\n\nconsole.log('📊 Account upsert for:', webhookData?.userId || webhookData?.email);\nconsole.log('📊 Existing data found:', !!existingData?.email);\n\nfunction parseJSON(val, fallback = {}) {\n  if (!val) return fallback;\n  if (typeof val === 'object') return val;\n  try { return JSON.parse(val); } catch { return fallback; }\n}\n\nconst existingProfile  = parseJSON(existingData?.profile, {});\nconst existingMetadata = parseJSON(existingData?.metadata, {});\nconst incomingProfile  = parseJSON(webhookData.profile, {});\nconst incomingMetadata = parseJSON(webhookData.metadata, {});\n\n// PRESERVE usageHistory — never overwrite with shorter array\nconst existingHistory = existingMetadata.usageHistory || [];\nconst incomingHistory = incomingMetadata.usageHistory || [];\nconst finalHistory    = incomingHistory.length > existingHistory.length\n  ? incomingHistory : existingHistory;\n\nconst mergedProfile  = { ...existingProfile,  ...incomingProfile };\nconst mergedMetadata = { ...existingMetadata, ...incomingMetadata, usageHistory: finalHistory };\n\nconst output = {\n  userId:    webhookData.userId,\n  email:     webhookData.email,\n  tier:      webhookData.tier      || existingData?.tier      || 'free',\n  createdAt: existingData?.createdAt || webhookData.createdAt || new Date().toISOString(),\n  lastLogin: webhookData.lastLogin  || new Date().toISOString(),\n  profile:   JSON.stringify(mergedProfile),\n  metadata:  JSON.stringify(mergedMetadata),\n  status:    webhookData.status    || existingData?.status    || 'active'\n};\n\nconsole.log('📤 Upsert ready — userId:', output.userId, 'historyEntries:', finalHistory.length);\nreturn { json: output };"
             },
-            "id": "merge-node",
+            "id": "553e5e34-51d1-4787-90ae-95ef9c21ad94",
             "name": "Merge Data",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [1060, 620]
+            "position": [
+                544,
+                1264
+            ]
         },
         {
             "parameters": {
@@ -366,15 +3257,20 @@
                         "metadata": "={{ $json.metadata }}",
                         "status": "={{ $json.status }}"
                     },
-                    "matchingColumns": ["userId"]
+                    "matchingColumns": [
+                        "userId"
+                    ]
                 },
                 "options": {}
             },
-            "id": "update-node",
+            "id": "2ba07a93-ceb7-4b0e-a501-ea0a33a6d9af",
             "name": "Update Sheets",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.4,
-            "position": [1260, 620],
+            "position": [
+                752,
+                1264
+            ],
             "credentials": {
                 "googleSheetsOAuth2Api": {
                     "id": "SjlKGbio83VCvDmo",
@@ -388,61 +3284,1214 @@
                 "responseBody": "={{ \n  {\n    \"success\": true,\n    \"account\": {\n      \"userId\": $json.userId,\n      \"email\": $json.email,\n      \"tier\": $json.tier,\n      \"createdAt\": $json.createdAt,\n      \"lastLogin\": $json.lastLogin,\n      \"profile\": $json.profile,\n      \"metadata\": $json.metadata,\n      \"status\": $json.status\n    },\n    \"message\": \"Account operation successful\",\n    \"timestamp\": new Date().toISOString()\n  }\n}}",
                 "options": {}
             },
-            "id": "response-node",
-            "name": "Send Response",
+            "id": "b348eba8-b2fb-4d16-aca5-5bd3477b84f1",
+            "name": "Send Response1",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
-            "position": [1460, 620]
+            "position": [
+                944,
+                1264
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"subscription\": {\n    \"id\": \"{{ $json.id }}\",\n    \"status\": \"{{ $json.status }}\",\n    \"plan\": \"{{ $json.plan }}\",\n    \"currentPeriodEnd\": \"{{ $json.current_period_end }}\",\n    \"cancelAtPeriodEnd\": false\n  },\n  \"message\": \"Subscription created successfully\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+                "options": {}
+            },
+            "id": "2019e712-a36d-448e-8c2c-7898413308cc",
+            "name": "Create Response1",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1072,
+                1728
+            ]
         }
     ],
     "connections": {
+        "Format Response1": {
+            "main": [
+                [
+                    {
+                        "node": "Respond with Posts",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Respond with Like Result": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Format Like Response": {
+            "main": [
+                [
+                    {
+                        "node": "Respond with Like Result",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Like": {
+            "main": [
+                [
+                    {
+                        "node": "Format Like Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare Like Update": {
+            "main": [
+                [
+                    {
+                        "node": "Save Like",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Blog Row": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare Like Update",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Check Request Method": {
+            "main": [
+                [
+                    {
+                        "node": "Get Likes Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Read Blog Row",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Handle OPTIONS Request": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to OPTIONS",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Check Request Method",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Blog Posts Likes Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Handle OPTIONS Request",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Likes": {
+            "main": [
+                [
+                    {
+                        "node": "Merge With Likes",
+                        "type": "main",
+                        "index": 1
+                    }
+                ]
+            ]
+        },
+        "Get Likes Data": {
+            "main": [
+                [
+                    {
+                        "node": "Process Likes",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Respond with Posts": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Clean Post Data": {
+            "main": [
+                [
+                    {
+                        "node": "Format Response1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Blog Posts": {
+            "main": [
+                [
+                    {
+                        "node": "Clean Post Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Merge With Likes": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Blog Posts",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Blog Posts": {
+            "main": [
+                [
+                    {
+                        "node": "Merge With Likes",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Blog Posts Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Get Blog Posts",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "UPDATE Account": {
+            "main": [
+                []
+            ]
+        },
+        "CHECK Account": {
+            "main": [
+                [
+                    {
+                        "node": "Read Accounts2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Account false": {
+            "main": [
+                [
+                    {
+                        "node": "Respond2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Account True": {
+            "main": [
+                [
+                    {
+                        "node": "Respond2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If": {
+            "main": [
+                [
+                    {
+                        "node": "Account True",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Account false",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Respond2": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Accounts2": {
+            "main": [
+                [
+                    {
+                        "node": "If",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Respond to Webhook1": {
+            "main": [
+                [
+                    {
+                        "node": "Finished",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Analytics Response": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save to Analytics Sheet": {
+            "main": [
+                [
+                    {
+                        "node": "Analytics Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Analytics Data": {
+            "main": [
+                [
+                    {
+                        "node": "Save to Analytics Sheet",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Analytics Only Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Analytics Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Success Response": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Updated Counter": {
+            "main": [
+                [
+                    {
+                        "node": "Success Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Counter Value": {
+            "main": [
+                [
+                    {
+                        "node": "Save Updated Counter",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Current Counter": {
+            "main": [
+                [
+                    {
+                        "node": "Update Counter Value",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Counter Data": {
+            "main": [
+                [
+                    {
+                        "node": "Read Current Counter",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Counter Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Counter Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Audit Log1": {
+            "main": [
+                [
+                    {
+                        "node": "Audit Success Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Audit Success Response": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Audit Log Processing": {
+            "main": [
+                [
+                    {
+                        "node": "Save Audit Log1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Accounting Audit Log": {
+            "main": [
+                [
+                    {
+                        "node": "Audit Log Processing",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Respond to Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Append row in sheet": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get All Rows": {
+            "main": [
+                [
+                    {
+                        "node": "Find Max Counter1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "GETCounter": {
+            "main": [
+                [
+                    {
+                        "node": "Get All Rows",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Find Max Counter1": {
+            "main": [
+                [
+                    {
+                        "node": "Process Counter",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Counter": {
+            "main": [
+                [
+                    {
+                        "node": "Append row in sheet",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Data6": {
+            "main": [
+                [
+                    {
+                        "node": "Route by Template",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Support Template": {
+            "main": [
+                [
+                    {
+                        "node": "Email Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Payment Template": {
+            "main": [
+                [
+                    {
+                        "node": "Email Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Subscription Template": {
+            "main": [
+                [
+                    {
+                        "node": "Email Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Welcome Template": {
+            "main": [
+                [
+                    {
+                        "node": "Email Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route by Template": {
+            "main": [
+                [
+                    {
+                        "node": "Welcome Template",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Subscription Template",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Email Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Data6",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route by Action4": {
+            "main": [
+                [
+                    {
+                        "node": "Assign Variant",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Track Event",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Data5": {
+            "main": [
+                [
+                    {
+                        "node": "Read A/B Tests",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Results Response": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Assign Response": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Calculate Results": {
+            "main": [
+                [
+                    {
+                        "node": "Results Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Track Event": {
+            "main": [
+                [
+                    {
+                        "node": "Calculate Results",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Assignment": {
+            "main": [
+                [
+                    {
+                        "node": "Assign Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Assign Variant": {
+            "main": [
+                [
+                    {
+                        "node": "Save Assignment",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read A/B Tests": {
+            "main": [
+                [
+                    {
+                        "node": "Route by Action4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "A/B Test Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Data5",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route by Action3": {
+            "main": [
+                [
+                    {
+                        "node": "Track Usage",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Get Usage Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Data4": {
+            "main": [
+                [
+                    {
+                        "node": "Read Usage Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Usage Response": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Track Response": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Usage": {
+            "main": [
+                [
+                    {
+                        "node": "Track Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Track Usage": {
+            "main": [
+                [
+                    {
+                        "node": "Save Usage",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Usage": {
+            "main": [
+                [
+                    {
+                        "node": "Route by Action3",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Usage Data": {
+            "main": [
+                [
+                    {
+                        "node": "Process Usage",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Usage Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Data4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route by Action2": {
+            "main": [
+                [
+                    {
+                        "node": "Update Feature Flags",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Get Features Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Data3": {
+            "main": [
+                [
+                    {
+                        "node": "Read Feature Flags",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Features Response": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Features Response": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Feature Flags": {
+            "main": [
+                [
+                    {
+                        "node": "Update Features Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Feature Flags": {
+            "main": [
+                [
+                    {
+                        "node": "Save Feature Flags",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Feature Flags": {
+            "main": [
+                [
+                    {
+                        "node": "Route by Action2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Feature Flags": {
+            "main": [
+                [
+                    {
+                        "node": "Process Feature Flags",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Feature Flags Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Data3",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Response1": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route by Action1": {
+            "main": [
+                [
+                    {
+                        "node": "Create a customer",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Read Subscriptions",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Data2": {
+            "main": [
+                [
+                    {
+                        "node": "Route by Action1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Find Subscription": {
+            "main": [
+                [
+                    {
+                        "node": "Get Response1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Subscriptions": {
+            "main": [
+                [
+                    {
+                        "node": "Find Subscription",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Subscription": {
+            "main": [
+                [
+                    {
+                        "node": "Create Response1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Subscription Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Data2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
         "Account Webhook": {
-            "main": [[{ "node": "Extract Body", "type": "main", "index": 0 }]]
+            "main": [
+                [
+                    {
+                        "node": "Extract Body",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         },
         "Extract Body": {
-            "main": [[{ "node": "Action Router", "type": "main", "index": 0 }]]
+            "main": [
+                [
+                    {
+                        "node": "Action Router",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         },
         "Action Router": {
             "main": [
-                [{ "node": "Prepare OTP Store", "type": "main", "index": 0 }],
-                [{ "node": "Prepare OTP Store", "type": "main", "index": 0 }],
-                [{ "node": "Lookup OTP Row",    "type": "main", "index": 0 }],
-                [{ "node": "Lookup Account",    "type": "main", "index": 0 }]
+                [
+                    {
+                        "node": "Prepare OTP Store",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Prepare OTP Store",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Lookup OTP Row",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Lookup Account",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
             ]
         },
         "Prepare OTP Store": {
-            "main": [[{ "node": "Store OTP in Sheets", "type": "main", "index": 0 }]]
+            "main": [
+                [
+                    {
+                        "node": "Store OTP in Sheets",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         },
         "Store OTP in Sheets": {
-            "main": [[{ "node": "Respond OTP Stored", "type": "main", "index": 0 }]]
+            "main": [
+                [
+                    {
+                        "node": "Respond OTP Stored",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         },
         "Lookup OTP Row": {
-            "main": [[{ "node": "Validate OTP", "type": "main", "index": 0 }]]
+            "main": [
+                [
+                    {
+                        "node": "Validate OTP",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         },
         "Validate OTP": {
-            "main": [[{ "node": "OTP Valid?", "type": "main", "index": 0 }]]
+            "main": [
+                [
+                    {
+                        "node": "OTP Valid?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         },
         "OTP Valid?": {
             "main": [
-                [{ "node": "Clear OTP (single-use)", "type": "main", "index": 0 }],
-                [{ "node": "Respond OTP Fail",       "type": "main", "index": 0 }]
+                [
+                    {
+                        "node": "Clear OTP (single-use)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Respond OTP Fail",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
             ]
         },
         "Clear OTP (single-use)": {
-            "main": [[{ "node": "Respond OTP Success", "type": "main", "index": 0 }]]
+            "main": [
+                [
+                    {
+                        "node": "Respond OTP Success",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         },
         "Lookup Account": {
-            "main": [[{ "node": "Merge Data", "type": "main", "index": 0 }]]
+            "main": [
+                [
+                    {
+                        "node": "Merge Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         },
         "Merge Data": {
-            "main": [[{ "node": "Update Sheets", "type": "main", "index": 0 }]]
+            "main": [
+                [
+                    {
+                        "node": "Update Sheets",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         },
         "Update Sheets": {
-            "main": [[{ "node": "Send Response", "type": "main", "index": 0 }]]
+            "main": [
+                [
+                    {
+                        "node": "Send Response1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Create Response1": {
+            "main": [
+                [
+                    {
+                        "node": "Finished1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
     },
     "pinData": {},
-    "settings": {
-        "executionOrder": "v1"
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "3dae61a0a24f0b093f057680559772c3c73ec97ec47a9bd2a5ad745c7d8f0365"
     }
 }
