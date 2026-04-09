@@ -129,7 +129,7 @@
 </script>
 
 <!-- Header mit Logo links, Buttons rechts -->
-<div class="main-header w-full flex flex-wrap justify-center pt-5 mx-auto bg-transparent backdrop-blur-md" style="z-index: 50;">
+<div class="main-header w-full flex flex-wrap justify-center pt-5 mx-auto bg-transparent backdrop-blur-md">
     <nav class="md:w-1/3 w-full mx-3 bg-creme-500 dark:bg-aubergine-800 justify-center rounded-full p-1 relative z-30 shadow-lg">
         <div class="max-w-screen-2xl flex items-center justify-between">
             <!-- Logo und Titel links -->

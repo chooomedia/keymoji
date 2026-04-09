@@ -46,11 +46,11 @@
 <Modal />
 <ModalDebug />
 
-<!-- AI Setup Banner - ganz oben, vor dem Header -->
-<AISetupBanner />
-
-<!-- Header - AUßERHALB des main Containers für echtes fixed positioning -->
-<Header />
+<!-- Fixed top stack: Banner (optional 32px) + Header (≈80px) -->
+<div class="fixed top-0 left-0 right-0 z-50 flex flex-col w-full">
+    <AISetupBanner />
+    <Header />
+</div>
 
 <!-- App Container mit animiertem Background -->
 <main 

@@ -6,7 +6,6 @@
     import { translations, currentLanguage } from '../../stores/contentStore.js';
     import { effectiveSettings, userSettings } from '../../stores/userSettingsStore.js';
     import { darkMode } from 'stores/appStores';
-    import { onMount, onDestroy } from 'svelte';
     import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
 
     const DISMISS_TTL_MS = 3 * 24 * 60 * 60 * 1000; // 3 Tage
@@ -54,18 +53,6 @@
         dismissed = true;
     }
 
-    function updateBannerHeight() {
-        const h = (showBanner && !dismissed) ? 32 : 0;
-        document.documentElement.style.setProperty('--banner-height', h + 'px');
-    }
-
-    $: if (typeof document !== 'undefined') {
-        updateBannerHeight();
-    }
-
-    onMount(() => updateBannerHeight());
-    onDestroy(() => document.documentElement.style.setProperty('--banner-height', '0px'));
-
     function navigateToAISettings() {
         const lang = $currentLanguage || 'en';
         const path = lang === 'en' ? '/account' : `/${lang}/account`;
@@ -87,9 +74,9 @@
 
 {#if showBanner && !dismissed}
     <div
-        role="banner"
+        role="note"
         aria-label="KI-Setup"
-        class="ai-setup-banner w-full flex items-center justify-center relative px-8
+        class="w-full h-8 flex items-center justify-center relative px-8 shrink-0
                bg-creme-600 dark:bg-aubergine-900
                border-b border-creme-700 dark:border-aubergine-800
                text-gray-700 dark:text-gray-300"
