@@ -4,6 +4,7 @@
 // TypeScript Migration: v0.7.7
 
 import { storageHelpers } from '../config/storage';
+import { WEBHOOKS } from '../config/api';
 
 /**
  * Cache TTL Types
@@ -602,7 +603,7 @@ export async function cachedFetchAccount(
     email: string,
     action: string = 'get'
 ): Promise<unknown> {
-    const url = '/api/account';
+    const url = WEBHOOKS.ACCOUNT.CRUD;
     const options: FetchOptions = {
         method: 'POST',
         headers: {
@@ -626,7 +627,7 @@ export async function cachedFetchDailyUsage(
     userId: string,
     email: string
 ): Promise<unknown> {
-    const url = '/api/account';
+    const url = WEBHOOKS.ACCOUNT.CRUD;
     const options: FetchOptions = {
         method: 'POST',
         headers: {
