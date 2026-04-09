@@ -1457,14 +1457,18 @@
                                             bind:this={otpInputRefs[i]}
                                             type="text"
                                             inputmode="numeric"
-                                            autocomplete={i === 0 ? 'one-time-code' : 'off'}
-                                            maxlength="7"
+                                            autocomplete="off"
+                                            autocorrect="off"
+                                            autocapitalize="off"
+                                            spellcheck="false"
+                                            data-form-type="other"
+                                            maxlength="1"
                                             value={digit}
                                             on:input={(e) => handleOTPDigitInput(i, e)}
                                             on:keydown={(e) => handleOTPDigitKeydown(i, e)}
                                             on:focus={(e) => e.target.select()}
                                             aria-label="Ziffer {i + 1} von 7"
-                                            class="w-10 h-12 text-center text-xl font-bold
+                                            class="otp-digit w-10 h-12 text-center text-xl font-bold
                                                    rounded-xl border transition-all duration-200
                                                    focus:outline-none focus:ring-1 focus:ring-yellow-400 focus:border-transparent
                                                    disabled:opacity-50 disabled:cursor-not-allowed

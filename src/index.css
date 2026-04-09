@@ -694,3 +694,24 @@ button:disabled {
 :global(.font-elvish) div {
     line-height: 1.6 !important;
 }
+
+/* OTP digit inputs: override browser autofill background in dark mode */
+.otp-digit:-webkit-autofill,
+.otp-digit:-webkit-autofill:hover,
+.otp-digit:-webkit-autofill:focus,
+.otp-digit:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 9999px #1e0f2e inset !important;
+    box-shadow: 0 0 0 9999px #1e0f2e inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff;
+}
+
+/* Light mode autofill override */
+:not(.dark) .otp-digit:-webkit-autofill,
+:not(.dark) .otp-digit:-webkit-autofill:hover,
+:not(.dark) .otp-digit:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 9999px #ffffff inset !important;
+    box-shadow: 0 0 0 9999px #ffffff inset !important;
+    -webkit-text-fill-color: #111827 !important;
+    caret-color: #111827;
+}
