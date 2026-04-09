@@ -1450,12 +1450,8 @@
                                 <legend class="sr-only">{$translations?.accountManager?.verification?.codeLabel || '7-stelliger Bestätigungscode'}</legend>
 
                                 <!-- Digit boxes -->
-                                <div class="flex items-center justify-center gap-1.5 mb-4">
+                                <div class="flex items-center justify-center gap-2 mb-4">
                                     {#each otpDigits as digit, i}
-                                        {#if i === 3}
-                                            <!-- Trenner nach Ziffer 3 (Format: 3 – 4) -->
-                                            <span class="text-gray-400 dark:text-gray-500 text-lg font-medium select-none px-0.5" aria-hidden="true">–</span>
-                                        {/if}
                                         <input
                                             id="otp-digit-{i}"
                                             bind:this={otpInputRefs[i]}
