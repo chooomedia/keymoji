@@ -1,5 +1,5 @@
 # Keymoji Cursor Rules - Senior Web Dev Pro Level
-# Version: 0.7.7
+# Version: 0.8.0
 # Last Updated: 2025-01-XX
 
 ## 🎯 Projekt-Übersicht
@@ -216,7 +216,7 @@ try {
 
 #### Version Format
 - `MAJOR.MINOR.PATCH` (Semantic Versioning)
-- Aktuelle Version: `0.7.7`
+- Aktuelle Version: `0.8.0`
 - Pre-Release: `0.7.7-beta.1`
 
 ### 12. Build & Deployment

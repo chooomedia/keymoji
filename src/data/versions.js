@@ -1,4 +1,19 @@
 export const versions = {
+    '0.8.0': {
+        date: 'April 9, 2026',
+        core: {
+            bugfixes: {
+                title: '🐛 Critical Bugfix: StoryMode & Account API',
+                improvements: [
+                    'apiCache.ts: cachedFetchAccount/cachedFetchDailyUsage nutzen jetzt absolute URL (WEBHOOKS.ACCOUNT.CRUD)',
+                    'Verhindert 404-Fehler auf keymoji.wtf/api/account (falsches Host)',
+                    'StoryMode war blockiert weil Account-Daten nicht geladen werden konnten',
+                    'Alle Account-Stats nach Login werden jetzt sofort korrekt geladen',
+                    'CORS-Header korrekt gesetzt für Cross-Origin Requests von keymoji.wtf'
+                ]
+            }
+        }
+    },
     '0.7.9': {
         date: 'April 9, 2026',
         core: {
