@@ -202,6 +202,101 @@
         <link rel="preconnect" href="https://api.keymoji.wtf" />
         <link rel="dns-prefetch" href="https://n8n.chooomedia.com" />
         <link rel="dns-prefetch" href="https://api.keymoji.wtf" />
+
+        <!-- Schema Markup: WebApplication + Organization + FAQPage -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebApplication",
+              "@id": "https://keymoji.wtf/#webapp",
+              "name": "Keymoji",
+              "url": "https://keymoji.wtf/",
+              "description": "Keymoji is a secure, emoji-based password generator with AI Story Mode. Create memorable, AI-resistant passwords in 15+ languages.",
+              "applicationCategory": "SecurityApplication",
+              "operatingSystem": "Web",
+              "browserRequirements": "Requires JavaScript",
+              "offers": [
+                {
+                  "@type": "Offer",
+                  "name": "Free",
+                  "price": "0",
+                  "priceCurrency": "CHF",
+                  "description": "Free tier with daily generation limit"
+                },
+                {
+                  "@type": "Offer",
+                  "name": "Pro",
+                  "description": "Unlimited generations + AI Story Mode + advanced security"
+                }
+              ],
+              "featureList": [
+                "Emoji password generation",
+                "AI Story Mode",
+                "15+ language support",
+                "OTP authentication",
+                "Swiss AI (Apertus) integration",
+                "GDPR compliant",
+                "PWA / offline support"
+              ],
+              "screenshot": "https://keymoji.wtf/images/keymoji-social-media-banner-10-2024-min.png",
+              "inLanguage": ["en", "de", "fr", "it", "es", "pl", "nl", "ru", "tr", "ja", "ko"]
+            },
+            {
+              "@type": "Organization",
+              "@id": "https://keymoji.wtf/#org",
+              "name": "Keymoji",
+              "url": "https://keymoji.wtf/",
+              "logo": "https://keymoji.wtf/images/keymoji-logo-11-2023-simple.png",
+              "foundingLocation": "Switzerland",
+              "description": "Swiss-made emoji password generator for secure, memorable passwords.",
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer support",
+                "url": "https://keymoji.wtf/"
+              }
+            },
+            {
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": "What is Keymoji?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Keymoji is a free, emoji-based password generator. It creates memorable, secure passwords using emoji sequences in 15+ languages. You can also enable AI Story Mode to generate personalised emoji-password stories."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Are emoji passwords secure?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. Emoji passwords significantly increase the entropy of your password by using a much larger character set than standard ASCII. They are also resistant to common dictionary attacks and AI-based guessing."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Is Keymoji free to use?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Keymoji has a free tier with daily generation limits and a Pro tier for unlimited generations, AI Story Mode, and advanced security features."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "How does the OTP login work?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Keymoji uses a passwordless, 7-digit OTP (One-Time Password) sent to your email. Enter the code in the app to log in or create an account — no passwords needed."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+        </script>
     </head>
     <body>
         <noscript>

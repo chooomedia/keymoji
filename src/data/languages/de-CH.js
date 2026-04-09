@@ -33,6 +33,7 @@ export default {
         setupStoryModeSwiss: 'Schwiizer KI bruche',
         setupStoryModeSwissShort: 'Schwiizer KI',
         setupStoryModeOr: 'oder',
+        setupStoryModeBannerCta: '— Erstell dini Keymoji-Story',
         setupStoryModeDescription:
             'Verbind di mit dim KI für personalisiereti Emoji-Passwörter.',
         setupStoryModeSwissDescription:

@@ -33,6 +33,7 @@ export default {
         setupStoryModeSwiss: 'Использовать швейцарский ИИ',
         setupStoryModeSwissShort: 'Швейцарский ИИ',
         setupStoryModeOr: 'или',
+        setupStoryModeBannerCta: '— Создай свою историю Keymoji',
         setupStoryModeDescription:
             'Подключитесь к вашему ИИ для персонализированных паролей эмодзи.',
         setupStoryModeSwissDescription:

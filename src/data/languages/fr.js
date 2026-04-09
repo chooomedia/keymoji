@@ -33,6 +33,7 @@ export default {
         setupStoryModeSwiss: 'Utiliser l\'IA suisse',
         setupStoryModeSwissShort: 'IA suisse',
         setupStoryModeOr: 'ou',
+        setupStoryModeBannerCta: '— Crée ta Keymoji-Story',
         setupStoryModeDescription:
             'Connectez-vous avec votre IA pour des mots de passe emoji personnalisés.',
         setupStoryModeSwissDescription:
@@ -455,12 +456,12 @@ export default {
         returnUserTitle: '👋 Bon retour !',
         returnUserDescription:
             'Nous avons reconnu votre adresse e-mail. Connectez-vous rapidement.',
-        verificationTitle: '📧 Vérifiez votre e-mail et confirmez',
+        verificationTitle: '📧 Saisissez votre code',
         verificationDescription:
-            'Vérifiez votre e-mail {email} et cliquez sur le lien magique pour terminer la configuration',
-        verifyingTitle: '🔗 Vérification du lien magique...',
+            'Saisissez le code à 7 chiffres envoyé à {email}',
+        verifyingTitle: '🔑 Vérification du code...',
         verifyingDescription:
-            'Veuillez patienter pendant que nous vérifions votre compte.',
+            'Veuillez patienter pendant que nous vérifions votre code.',
         verificationErrorTitle: '❌ Échec de la vérification',
         verificationErrorDescription: "Une erreur s'est produite.",
 
@@ -546,7 +547,15 @@ export default {
             submitCode: '✅ Confirmer le code',
             verifying: 'Vérification...',
             codeError: 'Veuillez saisir le code à 7 chiffres.',
-            codeInvalid: 'Code invalide ou expiré. Veuillez en demander un nouveau.'
+            codeInvalid: 'Code invalide ou expiré. Veuillez en demander un nouveau.',
+            accountFoundSendingCode: 'Compte trouvé ! Nous vous envoyons un code.',
+            accountFoundSendingLink: 'Compte trouvé ! Nous vous envoyons un code.',
+            creatingNewAccount: 'Nouveau compte en cours de création — vérifiez votre e-mail.',
+            magicLinkSent: 'Code envoyé ! Saisissez le code à 7 chiffres de votre e-mail.',
+            magicLinkSendFailed: "Échec de l'envoi du code. Veuillez réessayer.",
+            otpVerified: 'Code confirmé — vous êtes connecté !',
+            magicLinkVerified: 'Code vérifié avec succès !',
+            magicLinkVerificationFailed: 'Échec de la vérification du code'
         },
 
         // Section d'aide
