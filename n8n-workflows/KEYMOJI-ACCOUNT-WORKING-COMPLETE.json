@@ -1,0 +1,448 @@
+{
+    "name": "Keymoji Account Management - WORKING",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "xn--moji-pb73c-account",
+                "responseMode": "responseNode",
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ]
+                    }
+                }
+            },
+            "id": "webhook-node",
+            "name": "Account Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1.1,
+            "position": [240, 300],
+            "webhookId": "keymoji-account-webhook"
+        },
+        {
+            "parameters": {
+                "jsCode": "const input = $input.first().json;\nconst data = input.body || input;\nconsole.log('📥 Webhook received action:', data.action);\nreturn { json: data };"
+            },
+            "id": "extract-body-node",
+            "name": "Extract Body",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [440, 300]
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.action }}",
+                                        "rightValue": "otp_sent",
+                                        "operator": { "type": "string", "operation": "equals" }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "otp_sent"
+                        },
+                        {
+                            "conditions": {
+                                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.action }}",
+                                        "rightValue": "otp_resent",
+                                        "operator": { "type": "string", "operation": "equals" }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "otp_resent"
+                        },
+                        {
+                            "conditions": {
+                                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.action }}",
+                                        "rightValue": "verify_otp",
+                                        "operator": { "type": "string", "operation": "equals" }
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "verify_otp"
+                        }
+                    ]
+                },
+                "options": {
+                    "fallbackOutput": "extra",
+                    "renameFallbackOutput": "account_upsert"
+                }
+            },
+            "id": "router-node",
+            "name": "Action Router",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.2,
+            "position": [640, 300]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Store OTP: save otpCode + otpExpiresAt for this email\nconst data = $input.first().json;\nconsole.log('💾 Storing OTP for:', data.email);\nreturn {\n  json: {\n    email: data.email,\n    otpCode: String(data.otpCode),\n    otpExpiresAt: data.otpExpiresAt,\n    otpCreatedAt: new Date().toISOString()\n  }\n};"
+            },
+            "id": "prepare-otp-store-node",
+            "name": "Prepare OTP Store",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [860, 100]
+        },
+        {
+            "parameters": {
+                "operation": "appendOrUpdate",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "accounts",
+                    "mode": "name"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "email": "={{ $json.email }}",
+                        "otp_code": "={{ $json.otpCode }}",
+                        "otp_expires_at": "={{ $json.otpExpiresAt }}",
+                        "otp_created_at": "={{ $json.otpCreatedAt }}"
+                    },
+                    "matchingColumns": ["email"]
+                },
+                "options": {}
+            },
+            "id": "store-otp-node",
+            "name": "Store OTP in Sheets",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.4,
+            "position": [1060, 100],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ { \"success\": true, \"message\": \"OTP stored\" } }}",
+                "options": {}
+            },
+            "id": "respond-otp-stored-node",
+            "name": "Respond OTP Stored",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [1260, 100]
+        },
+        {
+            "parameters": {
+                "operation": "search",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "accounts",
+                    "mode": "name"
+                },
+                "filters": {
+                    "conditions": [
+                        {
+                            "column": "email",
+                            "condition": "equals",
+                            "value": "={{ $json.email }}"
+                        }
+                    ]
+                },
+                "options": { "returnAllMatches": false }
+            },
+            "id": "lookup-otp-node",
+            "name": "Lookup OTP Row",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.4,
+            "position": [860, 380],
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Validate OTP: compare code + check expiry\nconst items = $input.all();\n\n// items[0] = incoming verify_otp request (from Extract Body via Router)\n// items[1] = Google Sheets row\n// IMPORTANT: With switch nodes, we need to get the original request differently\n// The lookup node output contains the sheet row; incoming data is in the first item\nconst sheetRow = items[0].json;\n\n// Get the verify request from the execution context\n// The incoming data was passed through as the sheet query used $json.email\n// so we need to re-fetch from earlier — use $('Action Router') to get original data\nlet requestData;\ntry {\n  requestData = $('Action Router').first().json;\n} catch(e) {\n  // fallback\n  requestData = items[0].json;\n}\n\nconst incomingCode = String(requestData.otpCode || '').trim();\nconst incomingEmail = String(requestData.email || '').trim();\n\nconsole.log('🔍 Verifying OTP for:', incomingEmail);\nconsole.log('🔍 Incoming code:', incomingCode);\nconsole.log('🔍 Sheet row:', JSON.stringify(sheetRow));\n\n// No row found\nif (!sheetRow || !sheetRow.email) {\n  console.warn('❌ No account found for email:', incomingEmail);\n  return { json: { success: false, error: 'No account found for this email' } };\n}\n\nconst storedCode = String(sheetRow.otp_code || '').trim();\nconst expiresAt = sheetRow.otp_expires_at;\n\n// Check code match\nif (!storedCode || storedCode !== incomingCode) {\n  console.warn('❌ OTP mismatch. Expected:', storedCode, 'Got:', incomingCode);\n  return { json: { success: false, error: 'Invalid code. Please check and try again.' } };\n}\n\n// Check expiry\nif (expiresAt) {\n  const expiry = new Date(expiresAt);\n  const now = new Date();\n  if (now > expiry) {\n    console.warn('❌ OTP expired at:', expiresAt);\n    return { json: { success: false, error: 'Code has expired. Please request a new one.' } };\n  }\n}\n\n// SUCCESS: clear OTP from sheet (security: single-use)\nconsole.log('✅ OTP valid for:', incomingEmail);\nreturn {\n  json: {\n    success: true,\n    userId: sheetRow.userId || null,\n    email: incomingEmail,\n    clearOtp: true  // signal to next node\n  }\n};"
+            },
+            "id": "validate-otp-node",
+            "name": "Validate OTP",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [1060, 380]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+                    "conditions": [
+                        {
+                            "leftValue": "={{ $json.success }}",
+                            "rightValue": true,
+                            "operator": { "type": "boolean", "operation": "equals" }
+                        }
+                    ],
+                    "combinator": "and"
+                }
+            },
+            "id": "otp-success-check-node",
+            "name": "OTP Valid?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [1260, 380]
+        },
+        {
+            "parameters": {
+                "operation": "appendOrUpdate",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "accounts",
+                    "mode": "name"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "email": "={{ $json.email }}",
+                        "otp_code": "",
+                        "otp_expires_at": "",
+                        "lastLogin": "={{ new Date().toISOString() }}"
+                    },
+                    "matchingColumns": ["email"]
+                },
+                "options": {}
+            },
+            "id": "clear-otp-node",
+            "name": "Clear OTP (single-use)",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.4,
+            "position": [1460, 300],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ { \"success\": true, \"userId\": $json.userId, \"email\": $json.email, \"message\": \"OTP verified\" } }}",
+                "options": {}
+            },
+            "id": "respond-otp-success-node",
+            "name": "Respond OTP Success",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [1660, 300]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ { \"success\": false, \"error\": $json.error } }}",
+                "options": {
+                    "responseCode": 400
+                }
+            },
+            "id": "respond-otp-fail-node",
+            "name": "Respond OTP Fail",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [1460, 480]
+        },
+        {
+            "parameters": {
+                "operation": "search",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "accounts",
+                    "mode": "name"
+                },
+                "filters": {
+                    "conditions": [
+                        {
+                            "column": "email",
+                            "condition": "equals",
+                            "value": "={{ $json.email }}"
+                        }
+                    ]
+                },
+                "options": { "returnAllMatches": false }
+            },
+            "id": "lookup-node",
+            "name": "Lookup Account",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.4,
+            "position": [860, 620],
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// SMART MERGE: Preserves usageHistory from Google Sheets!\nconst items = $input.all();\nconst webhookData = $('Action Router').first().json;\nconst existingData = items[0]?.json || null;\n\nconsole.log('📊 Webhook data:', webhookData?.userId);\nconsole.log('📊 Existing data found:', !!existingData?.email);\n\nfunction parseJSON(val, fallback = {}) {\n  if (!val) return fallback;\n  if (typeof val === 'object') return val;\n  try { return JSON.parse(val); } catch { return fallback; }\n}\n\nconst existingProfile = parseJSON(existingData?.profile, {});\nconst existingMetadata = parseJSON(existingData?.metadata, {});\nconst incomingProfile = parseJSON(webhookData.profile, {});\nconst incomingMetadata = parseJSON(webhookData.metadata, {});\n\n// PRESERVE usageHistory\nconst existingUsageHistory = existingMetadata.usageHistory || [];\nconst incomingUsageHistory = incomingMetadata.usageHistory || [];\nconst finalUsageHistory = incomingUsageHistory.length > existingUsageHistory.length\n  ? incomingUsageHistory\n  : existingUsageHistory;\n\nconst mergedProfile = { ...existingProfile, ...incomingProfile };\nconst mergedMetadata = { ...existingMetadata, ...incomingMetadata, usageHistory: finalUsageHistory };\n\nconst output = {\n  userId: webhookData.userId,\n  email: webhookData.email,\n  tier: webhookData.tier || existingData?.tier || 'free',\n  createdAt: existingData?.createdAt || webhookData.createdAt || new Date().toISOString(),\n  lastLogin: webhookData.lastLogin || new Date().toISOString(),\n  profile: JSON.stringify(mergedProfile),\n  metadata: JSON.stringify(mergedMetadata),\n  status: webhookData.status || existingData?.status || 'active'\n};\n\nconsole.log('📤 Output ready for:', output.userId);\nreturn { json: output };"
+            },
+            "id": "merge-node",
+            "name": "Merge Data",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [1060, 620]
+        },
+        {
+            "parameters": {
+                "operation": "appendOrUpdate",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
+                    "mode": "list",
+                    "cachedResultName": "keymoji"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "accounts",
+                    "mode": "name"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "userId": "={{ $json.userId }}",
+                        "email": "={{ $json.email }}",
+                        "tier": "={{ $json.tier }}",
+                        "createdAt": "={{ $json.createdAt }}",
+                        "lastLogin": "={{ $json.lastLogin }}",
+                        "profile": "={{ $json.profile }}",
+                        "metadata": "={{ $json.metadata }}",
+                        "status": "={{ $json.status }}"
+                    },
+                    "matchingColumns": ["userId"]
+                },
+                "options": {}
+            },
+            "id": "update-node",
+            "name": "Update Sheets",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.4,
+            "position": [1260, 620],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "SjlKGbio83VCvDmo",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ \n  {\n    \"success\": true,\n    \"account\": {\n      \"userId\": $json.userId,\n      \"email\": $json.email,\n      \"tier\": $json.tier,\n      \"createdAt\": $json.createdAt,\n      \"lastLogin\": $json.lastLogin,\n      \"profile\": $json.profile,\n      \"metadata\": $json.metadata,\n      \"status\": $json.status\n    },\n    \"message\": \"Account operation successful\",\n    \"timestamp\": new Date().toISOString()\n  }\n}}",
+                "options": {}
+            },
+            "id": "response-node",
+            "name": "Send Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [1460, 620]
+        }
+    ],
+    "connections": {
+        "Account Webhook": {
+            "main": [[{ "node": "Extract Body", "type": "main", "index": 0 }]]
+        },
+        "Extract Body": {
+            "main": [[{ "node": "Action Router", "type": "main", "index": 0 }]]
+        },
+        "Action Router": {
+            "main": [
+                [{ "node": "Prepare OTP Store", "type": "main", "index": 0 }],
+                [{ "node": "Prepare OTP Store", "type": "main", "index": 0 }],
+                [{ "node": "Lookup OTP Row",    "type": "main", "index": 0 }],
+                [{ "node": "Lookup Account",    "type": "main", "index": 0 }]
+            ]
+        },
+        "Prepare OTP Store": {
+            "main": [[{ "node": "Store OTP in Sheets", "type": "main", "index": 0 }]]
+        },
+        "Store OTP in Sheets": {
+            "main": [[{ "node": "Respond OTP Stored", "type": "main", "index": 0 }]]
+        },
+        "Lookup OTP Row": {
+            "main": [[{ "node": "Validate OTP", "type": "main", "index": 0 }]]
+        },
+        "Validate OTP": {
+            "main": [[{ "node": "OTP Valid?", "type": "main", "index": 0 }]]
+        },
+        "OTP Valid?": {
+            "main": [
+                [{ "node": "Clear OTP (single-use)", "type": "main", "index": 0 }],
+                [{ "node": "Respond OTP Fail",       "type": "main", "index": 0 }]
+            ]
+        },
+        "Clear OTP (single-use)": {
+            "main": [[{ "node": "Respond OTP Success", "type": "main", "index": 0 }]]
+        },
+        "Lookup Account": {
+            "main": [[{ "node": "Merge Data", "type": "main", "index": 0 }]]
+        },
+        "Merge Data": {
+            "main": [[{ "node": "Update Sheets", "type": "main", "index": 0 }]]
+        },
+        "Update Sheets": {
+            "main": [[{ "node": "Send Response", "type": "main", "index": 0 }]]
+        }
+    },
+    "pinData": {},
+    "settings": {
+        "executionOrder": "v1"
+    }
+}
