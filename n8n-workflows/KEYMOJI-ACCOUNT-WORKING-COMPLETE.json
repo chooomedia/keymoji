@@ -3021,7 +3021,6 @@
         },
         {
             "parameters": {
-                "operation": "search",
                 "documentId": {
                     "__rl": true,
                     "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
@@ -3188,7 +3187,6 @@
         },
         {
             "parameters": {
-                "operation": "search",
                 "documentId": {
                     "__rl": true,
                     "value": "1VvcsyNMhDmY4FSa3Yl0ZY4oHOPu0BATN2NXyGn_yDLs",
