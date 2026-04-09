@@ -599,7 +599,7 @@ export default {
         },
         
         // Apertus Info
-        apertusInfo: 'Exklusiv uf Keymoji: Apertus – s Schwiizer LLM. Erschtmalig für User nutzbar. Ghosted uf HuggingFace, bereitgstellt via n8n Workflow.',
+        apertusInfo: '🇨🇭 Koschtlose Schwiizer KI, ygbaut. Apertus — Open-Source-LLM vo EPFL & ETH Züri. Dini Date bliibe id Schwiiz. Kei API-Key nötig.',
 
         // Upgrade-Sektion
         upgrade: {

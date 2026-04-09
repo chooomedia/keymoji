@@ -591,8 +591,7 @@ export default {
         },
 
         // Apertus Info
-        apertusInfo:
-            'Keymoji 전용: Apertus – 스위스 LLM. 사용자에게 처음 제공. HuggingFace 호스팅, n8n 워크플로우로 제공.',
+        apertusInfo: '🇨🇭 무료 스위스 AI, 내장됨. Apertus — EPFL & ETH 취리히의 오픈소스 LLM. 데이터는 스위스에 보관. API 키 불필요.',
 
         // 업그레이드 섹션
         upgrade: {

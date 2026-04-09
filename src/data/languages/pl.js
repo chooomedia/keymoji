@@ -598,8 +598,7 @@ export default {
         },
 
         // Apertus Info
-        apertusInfo:
-            'Ekskluzywnie na Keymoji: Apertus – szwajcarski LLM. Po raz pierwszy dostępny dla użytkowników. Hostowany na HuggingFace, dostarczany przez workflow n8n.',
+        apertusInfo: '🇨🇭 Darmowa szwajcarska AI, wbudowana. Apertus — open-source LLM od EPFL & ETH Zurich. Twoje dane pozostają w Szwajcarii. Nie wymagany klucz API.',
 
         // Sekcja aktualizacji
         upgrade: {

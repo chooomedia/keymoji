@@ -108,15 +108,21 @@
         }
         
         if (storyModeSettings) {
-            const enabled = storyModeSettings.enabled ?? false;
             const currentProvider = storyModeSettings.provider || 'apertus';
             const apiKeys = storyModeSettings.apiKeys || {};
             const currentApiKey = apiKeys[currentProvider] || '';
             
-            // For Apertus: configured if enabled (token is loaded from environment)
+            // For Apertus: auto-enable when logged in (no API key needed, token from env)
+            // For other providers: only enabled if user explicitly enabled AND has API key
+            const isApertus = currentProvider === 'apertus';
+            const enabled = isApertus && $isLoggedIn
+                ? true // Always enable Apertus for logged-in users
+                : (storyModeSettings.enabled ?? false);
+            
+            // For Apertus: configured if logged in (token handled internally)
             // For other providers: configured if API key exists and is valid
-            const configured = currentProvider === 'apertus' 
-                ? enabled // Apertus is configured if Story Mode is enabled (token handled internally)
+            const configured = isApertus
+                ? $isLoggedIn // Apertus configured whenever user is logged in
                 : !!(currentApiKey && currentApiKey.length >= 10);
             
             // Always update (let Svelte handle change detection)
@@ -278,15 +284,19 @@
       
       // Story Mode Configuration - set immediately from getCurrentUserSettings
       if (userSettings?.storyMode) {
-        storyModeEnabled = userSettings.storyMode.enabled ?? false;
         const currentProvider = userSettings.storyMode.provider || 'apertus';
         const apiKeys = userSettings.storyMode.apiKeys || {};
         const currentApiKey = apiKeys[currentProvider] || '';
         
-        // For Apertus: configured if enabled (token is loaded from environment)
+        // For Apertus: auto-enable when logged in (no API key needed)
+        storyModeEnabled = currentProvider === 'apertus' && $isLoggedIn
+            ? true
+            : (userSettings.storyMode.enabled ?? false);
+        
+        // For Apertus: configured whenever user is logged in
         // For other providers: configured if API key exists and is valid
         storyModeConfigured = currentProvider === 'apertus'
-            ? storyModeEnabled // Apertus is configured if Story Mode is enabled
+            ? $isLoggedIn
             : !!(currentApiKey && currentApiKey.length >= 10);
         
         console.log('🎯 Auto-generate setting:', autoGenerateEnabled);
