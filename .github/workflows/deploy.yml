@@ -1,10 +1,6 @@
 name: Deploy to Production
 
 on:
-    workflow_run:
-        workflows: ["Build"]
-        types: [completed]
-        branches: [staging, main]
     workflow_dispatch:
         inputs:
             branch:

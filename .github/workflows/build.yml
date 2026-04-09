@@ -126,3 +126,119 @@ jobs:
                   fi
 
                   echo "✅ Build quality check passed"
+
+    deploy:
+        name: Deploy to Production
+        runs-on: ubuntu-latest
+        needs: build
+        if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main'
+
+        steps:
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  name: build-artifacts
+                  path: ./build
+
+            - name: Create .htaccess file
+              run: |
+                  cat > build/.htaccess << 'EOL'
+                  # Enable rewriting
+                  RewriteEngine On
+
+                  # Force HTTPS
+                  RewriteCond %{HTTPS} off
+                  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+                  # Redirect root to /en
+                  RewriteRule ^$ /en/ [R=301,L]
+
+                  # Social Media Bot Detection
+                  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|TelegramBot|Slackbot|Discordbot|Signal|embedly|quora|outbrain|pinterest|vkShare|W3C_Validator) [NC]
+                  RewriteCond %{REQUEST_URI} !^/api
+                  RewriteCond %{REQUEST_FILENAME} !-f
+                  RewriteRule ^(.*)$ /social-preview.php?path=$1 [L]
+
+                  # Exclude static assets
+                  RewriteCond %{REQUEST_URI} ^/(static|images|fonts|api|favicon|manifest|robots|sitemap) [NC,OR]
+                  RewriteCond %{REQUEST_URI} \.(js|css|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot|json|xml|txt|php)$ [NC]
+                  RewriteRule ^ - [L]
+
+                  # Language + subroute (e.g. /en/contact)
+                  RewriteCond %{REQUEST_FILENAME} !-f
+                  RewriteCond %{REQUEST_FILENAME} !-d
+                  RewriteCond %{REQUEST_URI} ^/([^/]+)/([^/]+)/?$
+                  RewriteCond %{DOCUMENT_ROOT}/%1/%2/index.html -f
+                  RewriteRule ^([^/]+)/([^/]+)/?$ /$1/$2/index.html [L]
+
+                  # Single segment (e.g. /en)
+                  RewriteCond %{REQUEST_FILENAME} !-f
+                  RewriteCond %{REQUEST_FILENAME} !-d
+                  RewriteCond %{REQUEST_URI} ^/([^/]+)/?$
+                  RewriteCond %{DOCUMENT_ROOT}/%1/index.html -f
+                  RewriteRule ^([^/]+)/?$ /$1/index.html [L]
+
+                  # SPA fallback
+                  RewriteCond %{REQUEST_FILENAME} !-f
+                  RewriteCond %{REQUEST_FILENAME} !-d
+                  RewriteRule ^ index.html [QSA,L]
+
+                  # Security Headers
+                  <IfModule mod_headers.c>
+                      Header set X-Content-Type-Options "nosniff"
+                      Header set X-Frame-Options "SAMEORIGIN"
+                      Header set X-XSS-Protection "1; mode=block"
+                      Header set Referrer-Policy "strict-origin-when-cross-origin"
+                      Header set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+                      Header set X-Robots-Tag "index, follow"
+                      Header set X-DNS-Prefetch-Control "on"
+                  </IfModule>
+
+                  # MIME types
+                  <IfModule mod_mime.c>
+                      AddType application/javascript .js
+                      AddType text/css .css
+                      AddType image/webp .webp
+                      AddCharset UTF-8 .html .css .js
+                  </IfModule>
+
+                  # Compression
+                  <IfModule mod_deflate.c>
+                      AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/javascript text/css application/javascript application/x-javascript image/svg+xml
+                  </IfModule>
+
+                  # Caching
+                  <IfModule mod_expires.c>
+                      ExpiresActive On
+                      ExpiresByType text/html "access plus 1 hour"
+                      ExpiresByType text/css "access plus 1 month"
+                      ExpiresByType application/javascript "access plus 1 month"
+                      ExpiresByType image/jpeg "access plus 1 year"
+                      ExpiresByType image/png "access plus 1 year"
+                      ExpiresByType image/svg+xml "access plus 1 year"
+                      ExpiresByType image/webp "access plus 1 year"
+                      ExpiresByType font/woff2 "access plus 1 year"
+                  </IfModule>
+                  EOL
+
+            - name: Verify build before deploy
+              run: |
+                  if [ ! -f "build/index.html" ]; then
+                    echo "❌ build/index.html not found!"
+                    exit 1
+                  fi
+                  echo "✅ Ready to deploy"
+
+            - name: 📂 Deploy via FTP
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+              with:
+                  server: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  password: ${{ secrets.PASSWORD }}
+                  server-dir: ${{ secrets.SERVERDIR }}
+                  local-dir: ./build/
+                  exclude: |
+                      **/.git*
+                      **/.git*/**
+                      **/node_modules/**
+                  log-level: verbose
