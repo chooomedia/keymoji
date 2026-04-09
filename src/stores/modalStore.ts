@@ -490,10 +490,19 @@ export function showSuccess(
  */
 export function showError(
     message: string,
-    duration: number | null = null,
+    duration: number | null = 5000,
     data: ModalData = {}
 ): (() => void) | null {
-    // Fehler-Nachrichten haben höchste Priorität, keine Duplikat-Prüfung
+    // Prevent duplicate error modals with same message
+    if (
+        isModalInQueue(message, 'error') ||
+        (get(isModalVisible) &&
+            get(modalMessage) === message &&
+            get(modalType) === 'error')
+    ) {
+        debugLog('ERROR_DUPLICATE_PREVENTED', { message });
+        return null;
+    }
     return showModal(message, 'error', duration, data);
 }
 
@@ -642,84 +651,30 @@ export function showAccountLogoutSuccess(): void {
 
 // Show existing account found modal
 export function showExistingAccountFound(email: string, name?: string): void {
-    // Use email username as fallback if name is undefined
     const displayName = name || email?.split('@')[0] || 'User';
-
-    modalMessage.set(`Account gefunden! Willkommen zurück, ${displayName}! 🎉`);
-    modalType.set('success');
-    modalData.set({
-        icon: '✅',
-        title: 'Account gefunden',
-        message: `Ein Account mit der E-Mail ${email} existiert bereits. Sie wurden automatisch angemeldet.`,
-        primaryButton: {
-            text: 'Zum Account',
-            action: () => {
-                // Navigate to account page using Svelte routing (language-aware!)
-                Promise.all([
-                    import('svelte-routing'),
-                    import('./contentStore.js')
-                ]).then(([{ navigate }, { currentLanguage }]) => {
-                    import('svelte/store').then(({ get }) => {
-                        const lang = get(currentLanguage) || 'en';
-                        const accountPath =
-                            lang === 'en' ? '/account' : `/${lang}/account`;
-                        closeModal();
-                        setTimeout(() => {
-                            navigate(accountPath, { replace: true });
-                        }, 100);
-                    });
-                });
-            }
-        },
-        secondaryButton: {
-            text: 'Schließen',
-            action: () => {
-                closeModal();
-            }
+    showModal(
+        `Welcome back, ${displayName}! 🎉`,
+        'success',
+        5000,
+        {
+            icon: '✅',
+            title: 'Account found'
         }
-    });
-    isModalVisible.set(true);
+    );
 }
 
 // Show new account created modal
 export function showNewAccountCreated(email: string, name?: string): void {
-    // Use email username as fallback if name is undefined
     const displayName = name || email?.split('@')[0] || 'User';
-
-    modalMessage.set(`Account erstellt! Willkommen, ${displayName}! 🎉`);
-    modalType.set('success');
-    modalData.set({
-        icon: '🎉',
-        title: 'Account erstellt',
-        message: `Ihr Account wurde erfolgreich erstellt. Sie sind jetzt angemeldet und können loslegen!`,
-        primaryButton: {
-            text: 'Zum Account',
-            action: () => {
-                // Navigate to account page using Svelte routing (language-aware!)
-                Promise.all([
-                    import('svelte-routing'),
-                    import('./contentStore.js')
-                ]).then(([{ navigate }, { currentLanguage }]) => {
-                    import('svelte/store').then(({ get }) => {
-                        const lang = get(currentLanguage) || 'en';
-                        const accountPath =
-                            lang === 'en' ? '/account' : `/${lang}/account`;
-                        closeModal();
-                        setTimeout(() => {
-                            navigate(accountPath, { replace: true });
-                        }, 100);
-                    });
-                });
-            }
-        },
-        secondaryButton: {
-            text: 'Schließen',
-            action: () => {
-                closeModal();
-            }
+    showModal(
+        `Account created! Welcome, ${displayName}! 🎉`,
+        'success',
+        5000,
+        {
+            icon: '🎉',
+            title: 'Account created'
         }
-    });
-    isModalVisible.set(true);
+    );
 }
 
 /**
@@ -806,8 +761,8 @@ export function showConfirmation(
     options: ConfirmationOptions = {}
 ): (() => void) | null {
     const {
-        confirmText = 'Bestätigen',
-        cancelText = 'Abbrechen',
+        confirmText = 'Confirm',
+        cancelText = 'Cancel',
         type = 'warning',
         icon = '⚠️',
         onConfirm = null,

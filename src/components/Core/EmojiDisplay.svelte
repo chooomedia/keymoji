@@ -425,8 +425,8 @@
         // Better error messages based on error type
         let errorMessage = $translations?.emojiDisplay?.errorMessage || 'Story generation failed';
         
-        if (error.message?.includes('API key')) {
-          errorMessage = '🔑 API Key Error\n\nPlease check your API key in Settings.';
+        if (error.message?.includes('API key') || error.message?.includes('401') || error.message?.includes('Unauthorized') || error.message?.includes('VITE_N8N')) {
+          errorMessage = '🔑 Authentication Error\n\nThe AI service could not authenticate. Please try again later.';
         } else if (error.message?.includes('quota') || error.message?.includes('429')) {
           errorMessage = '⚠️ API Quota Exceeded\n\nPlease wait a moment or check your billing.';
         } else if (error.message?.includes('timeout')) {
@@ -1058,7 +1058,6 @@
           aria-describedby="char-counter"
           aria-busy={isGeneratingStory}
         ></textarea>
-        />
         
         <!-- Loading Overlay für Story Generation (Fancy UX) -->
         {#if isGeneratingStory}

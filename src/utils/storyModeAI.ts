@@ -586,33 +586,21 @@ async function callApertus(
     // Remove any remaining quotes (shouldn't be necessary, but safety first)
     n8nToken = n8nToken.replace(/["']/g, '');
 
-    // Final validation: check if token is placeholder or empty
-    if (
+    // Check token validity - log warnings but proceed anyway to get server error
+    const isTokenInvalid =
         !n8nToken ||
         n8nToken.length === 0 ||
         n8nToken.includes('your_apertus_n8n_token_here') ||
         n8nToken === '""' ||
         n8nToken === "''" ||
-        n8nToken.length < 10
-    ) {
-        console.error(
-            '❌ [Apertus] VITE_N8N_APERTUS_TOKEN not set or is invalid. Webhook will reject request.'
-        );
-        console.error(
-            '   💡 Run: npm run check:apertus-token to verify configuration'
-        );
-        console.error('   🔍 Raw token value:', rawToken);
-        console.error('   🔍 Cleaned token:', n8nToken);
-        console.error('   🔍 Token length:', n8nToken?.length || 0);
+        n8nToken.length < 10;
 
-        // Throw error instead of silently continuing with empty token
-        throw new Error(
-            'VITE_N8N_APERTUS_TOKEN is not set or invalid. ' +
-                'Please set it in .env.local and restart the dev server. ' +
-                'Run: npm run check:apertus-token to verify.'
+    if (isTokenInvalid) {
+        console.warn(
+            '⚠️ [Apertus] Token appears missing or invalid — proceeding anyway, server will authenticate.'
         );
+        console.warn('   🔍 Token length:', n8nToken?.length || 0);
     } else {
-        // Debug: Log token status (without exposing the actual token)
         console.log('✅ [Apertus] Token loaded and validated:', {
             length: n8nToken.length,
             preview: `${n8nToken.substring(0, 4)}...${n8nToken.substring(

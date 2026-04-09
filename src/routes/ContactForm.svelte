@@ -237,24 +237,24 @@
     // Test dynamic modal content - moved outside onMount
     function testDynamicModal() {
         showModalWithContent({
-            title: 'Dynamisches Modal',
-            description: 'Dies ist ein Beispiel für ein dynamisches Modal mit Header, Body und Footer.',
-            html: '<div class="bg-yellow-100 dark:bg-yellow-900 p-3 rounded-lg mb-4"><strong>HTML Content:</strong> Hier können beliebige HTML-Inhalte angezeigt werden!</div>'
+            title: 'Dynamic Modal',
+            description: 'This is an example of a dynamic modal with header, body and footer.',
+            html: '<div class="bg-yellow-100 dark:bg-yellow-900 p-3 rounded-lg mb-4"><strong>HTML Content:</strong> Arbitrary HTML content can be displayed here!</div>'
         }, {
             title: 'Test Modal',
             icon: '🧪',
             type: 'info',
             buttons: [
                 {
-                    text: 'Abbrechen',
+                    text: 'Cancel',
                     variant: 'secondary',
                     action: () => closeModal()
                 },
                 {
-                    text: 'Bestätigen',
+                    text: 'Confirm',
                     variant: 'primary',
                     action: () => {
-                        showSuccess('Aktion bestätigt!', 2000);
+                        showSuccess('Action confirmed!', 2000);
                         closeModal();
                     }
                 }

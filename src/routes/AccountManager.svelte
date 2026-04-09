@@ -1319,12 +1319,12 @@
                                                     
                                                     <!-- Title -->
                                                     <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                                                        {$translations?.accountManager?.demoChart?.title || 'Demo Vorschau'}
+                                                        {$translations?.accountManager?.demoChart?.title || 'Demo Preview'}
                                                     </h3>
                                                     
                                                     <!-- Description -->
                                                     <p class="text-base text-gray-600 dark:text-gray-400 mb-8 leading-relaxed max-w-sm mx-auto">
-                                                        {$translations?.accountManager?.demoChart?.description || 'Dies ist eine Beispiel-Ansicht. Generiere Emojis um deine echten Nutzungsdaten zu sammeln und hier anzuzeigen.'}
+                                                        {$translations?.accountManager?.demoChart?.description || 'This is a demo preview. Generate emojis to collect your real usage data and display it here.'}
                                                     </p>
                                                     
                                                     <!-- CTA Button -->
@@ -1452,7 +1452,7 @@
                         <!-- 7-Digit OTP Boxes -->
                         <form on:submit|preventDefault={handleOTPSubmit}>
                             <fieldset disabled={isVerifyingOTP} class="border-0 p-0 m-0">
-                                <legend class="sr-only">{$translations?.accountManager?.verification?.codeLabel || '7-stelliger Bestätigungscode'}</legend>
+                                <legend class="sr-only">{$translations?.accountManager?.verification?.codeLabel || '7-digit confirmation code'}</legend>
 
                                 <!-- Digit boxes -->
                                 <div class="flex items-center justify-center gap-2 mb-4">
@@ -1506,9 +1506,9 @@
                                 >
                                     {#if isVerifyingOTP}
                                         <span class="animate-spin mr-2">⏳</span>
-                                        {$translations?.accountManager?.verification?.verifying || 'Wird geprüft...'}
+                                        {$translations?.accountManager?.verification?.verifying || 'Verifying...'}
                                     {:else}
-                                        {$translations?.accountManager?.verification?.submitCode || '✅ Code bestätigen'}
+                                        {$translations?.accountManager?.verification?.submitCode || '✅ Confirm code'}
                                     {/if}
                                 </Button>
                             </fieldset>
@@ -1519,12 +1519,12 @@
                             <span class="text-base shrink-0 mt-0.5" aria-hidden="true">📬</span>
                             <div class="space-y-1 min-w-0">
                                 <p class="text-xs font-medium text-gray-700 dark:text-gray-300">
-                                    {$translations?.accountManager?.help?.spamFolder || 'Prüfe deinen Spam-Ordner falls die E-Mail nicht ankommt'}
+                                    {$translations?.accountManager?.help?.spamFolder || 'Check your spam folder if the email does not arrive'}
                                 </p>
                                 <p class="text-xs text-gray-500 dark:text-gray-500">
-                                    {$translations?.accountManager?.help?.codeExpiry || 'Der Code ist 15 Minuten gültig'}
+                                    {$translations?.accountManager?.help?.codeExpiry || 'The code is valid for 15 minutes'}
                                     ·
-                                    {$translations?.accountManager?.help?.noLink || 'Kein Link-Klick nötig'}
+                                    {$translations?.accountManager?.help?.noLink || 'No link click needed'}
                                 </p>
                             </div>
                         </div>
@@ -1542,7 +1542,7 @@
                                     <span class="animate-spin mr-1">⏳</span>
                                     {$translations?.accountManager?.buttons?.sendingMagicLink || 'Wird gesendet...'}
                                 {:else}
-                                    {$translations?.accountManager?.buttons?.resendMagicLink || '🔄 Neuen Code senden'}
+                                    {$translations?.accountManager?.buttons?.resendMagicLink || '🔄 Resend code'}
                                 {/if}
                             </Button>
 
@@ -1552,7 +1552,7 @@
                                 fullWidth={true}
                                 on:click={goBackToBenefits}
                             >
-                                {$translations?.accountManager?.buttons?.backToAccountOptions || '← Zurück'}
+                                {$translations?.accountManager?.buttons?.backToAccountOptions || '← Back'}
                             </Button>
                         </div>
                     </div>
@@ -1621,7 +1621,7 @@
                                             {$translations?.accountManager?.tiers?.free || 'FREE'}
                                         </span>
                                                                             <span class="text-xs transition-colors duration-300 text-yellow-600">
-                                        {$translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit'}
+                                        {$translations?.accountManager?.freeDescription || '✨ Free Security'}
                                     </span>
                                 </button>
                                 <button
@@ -1847,7 +1847,7 @@
                                         FREE
                                     </span>
                                     <span class="text-xs transition-colors duration-300 text-yellow-600">
-                                        {$isLoggedIn ? accountAgeLabel : ($translations?.accountManager?.freeDescription || '✨ Kostenlose Sicherheit')}
+                                        {$isLoggedIn ? accountAgeLabel : ($translations?.accountManager?.freeDescription || '✨ Free Security')}
                                     </span>
                                 </button>
                                 <button
