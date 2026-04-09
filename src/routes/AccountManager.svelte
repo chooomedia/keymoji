@@ -1469,10 +1469,10 @@
                                                    focus:outline-none focus:ring-1 focus:ring-yellow-400 focus:border-transparent
                                                    disabled:opacity-50 disabled:cursor-not-allowed
                                                    {otpError
-                                                     ? 'border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-100'
+                                                     ? 'border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 text-gray-900 dark:text-white'
                                                      : digit
-                                                       ? 'border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-900/20 text-green-900 dark:text-green-100'
-                                                       : 'bg-white dark:bg-aubergine-900 dark:text-white border-gray-400 dark:border-aubergine-600'}"
+                                                       ? 'border-yellow-400 dark:border-yellow-400 bg-white dark:bg-aubergine-800 text-gray-900 dark:text-white'
+                                                       : 'bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white border-gray-400 dark:border-aubergine-600'}"
                                         />
                                     {/each}
                                 </div>
