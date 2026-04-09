@@ -651,11 +651,12 @@ async function callApertus(
             },
             body: JSON.stringify({
                 prompt: prompt,
+                system: 'You are an emoji password generator. You ONLY output emojis separated by spaces. NEVER write text, explanations, or notes. ONLY emojis.',
                 model: finalModel,
                 max_tokens: maxTokens || 512,
                 temperature: temperature ?? 0,
-                language: 'Deutsch', // Default language
-                token: n8nToken // n8n webhook authentication token (required for security)
+                language: 'Deutsch',
+                token: n8nToken
             })
         },
         120000 // 120 second timeout (n8n workflows can take longer)
