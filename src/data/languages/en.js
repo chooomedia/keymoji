@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Password Generator',
         pageDescription:
-            '🔑 Passwords reimagined. 🎯 Uncrackable emoji passwords. 🌈 Free. Secure. Innovative. 🤖 AI-resistant technology. 🌍 Available in 15+ languages.',
+            '🔑 Memorable passwords, zero effort. 🎯 Uncrackable emoji sequences. 🤖 Free Swiss AI built in — no API key needed. 🌍 15+ languages. GDPR-compliant.',
         pageKeywords:
             'Keymoji, emoji password, password generator, security, online security',
         pageInstruction: [
@@ -628,7 +628,7 @@ export default {
         },
         
         // Apertus Info
-        apertusInfo: 'Exclusive on Keymoji: Apertus – the Swiss LLM. First time available for users. Hosted on HuggingFace, delivered via n8n workflow.',
+        apertusInfo: '🇨🇭 Free Swiss AI, built in. Apertus — Switzerland\'s open-source LLM by EPFL & ETH Zurich. Your data stays in Switzerland. No API key needed.',
 
         // Upgrade section
         upgrade: {

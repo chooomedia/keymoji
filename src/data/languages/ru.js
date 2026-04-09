@@ -598,8 +598,7 @@ export default {
         },
 
         // Apertus Info
-        apertusInfo:
-            'Эксклюзивно на Keymoji: Apertus – швейцарский LLM. Впервые доступен для пользователей. Размещен на HuggingFace, доставляется через workflow n8n.',
+        apertusInfo: '🇨🇭 Бесплатный швейцарский ИИ, встроен. Apertus — open-source LLM от EPFL & ETH Zurich. Ваши данные остаются в Швейцарии. API-ключ не нужен.',
 
         // Секция обновления
         upgrade: {

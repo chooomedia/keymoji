@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Passwort Generator',
         pageDescription:
-            '🔑 Passwörter neu gedacht. 🎯 Unknackbare Emoji-Passwörter. 🌈 Kostenlos. Sicher. Innovativ. 🤖 KI-resistente Technologie. 🌍 Verfügbar in 15+ Sprachen.',
+            '🔑 Einprägsame Passwörter, kein Aufwand. 🎯 Unknackbare Emoji-Sequenzen. 🤖 Kostenlose Schweizer KI inklusive — kein API-Key nötig. 🌍 15+ Sprachen. DSGVO-konform.',
         pageKeywords:
             'Keymoji, emoji passwort, passwort generator, sicherheit, online sicherheit',
         pageInstruction: [
@@ -656,8 +656,7 @@ export default {
         },
 
         // Apertus Info
-        apertusInfo:
-            'Exklusiv auf Keymoji: Apertus – das Schweizer LLM. Erstmalig für User nutzbar. Gehostet auf HuggingFace, bereitgestellt via n8n Workflow.',
+        apertusInfo: '🇨🇭 Kostenlose Schweizer KI, inklusive. Apertus — Open-Source-LLM von EPFL & ETH Zürich. Deine Daten bleiben in der Schweiz. Kein API-Key nötig.',
 
         // Upgrade-Bereich
         upgrade: {

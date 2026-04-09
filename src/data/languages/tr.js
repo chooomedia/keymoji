@@ -596,8 +596,7 @@ export default {
         },
 
         // Apertus Info
-        apertusInfo:
-            "Keymoji'ye özel: Apertus – İsviçre LLM'si. Kullanıcılar için ilk kez kullanılabilir. HuggingFace'de barındırılıyor, n8n workflow ile sunuluyor.",
+        apertusInfo: '🇨🇭 Ücretsiz İsviçre yapay zekası, dahili. Apertus — EPFL & ETH Zurich\'in açık kaynak LLM\'i. Verileriniz İsviçre\'de kalır. API anahtarı gerekmez.',
 
         // Yükseltme bölümü
         upgrade: {

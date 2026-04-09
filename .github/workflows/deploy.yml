@@ -78,11 +78,15 @@ jobs:
                   fi
                   
                   # SECURITY: Apertus n8n token for webhook authentication
-                  # This token is required to authenticate requests to the Apertus webhook
+                  # REQUIRED: Set N8N_APERTUS_TOKEN in GitHub Secrets → Settings → Secrets and variables → Actions
                   if [ -n "${{ secrets.N8N_APERTUS_TOKEN }}" ]; then
                     echo "VITE_N8N_APERTUS_TOKEN=${{ secrets.N8N_APERTUS_TOKEN }}" >> .env.production
+                    echo "✅ VITE_N8N_APERTUS_TOKEN set from GitHub Secret."
                   else
-                    echo "⚠️ WARNING: N8N_APERTUS_TOKEN secret not set! Apertus API calls will fail."
+                    echo "❌ CRITICAL: N8N_APERTUS_TOKEN secret not set! Story Mode / Apertus will NOT work on live."
+                    echo "   → Go to: GitHub → Repository → Settings → Secrets and variables → Actions"
+                    echo "   → Add secret name: N8N_APERTUS_TOKEN"
+                    exit 1
                   fi
                   
                   npm run build

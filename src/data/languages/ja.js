@@ -593,8 +593,7 @@ export default {
         },
 
         // Apertus Info
-        apertusInfo:
-            'Keymoji限定：Apertus – スイス製LLM。ユーザー向けに初公開。HuggingFaceでホスト、n8nワークフロー経由で提供。',
+        apertusInfo: '🇨🇭 無料のスイスAI、内蔵済み。Apertus — EPFL & ETH チューリッヒ製オープンソースLLM。データはスイス国内に保管。APIキー不要。',
 
         // アップグレードセクション
         upgrade: {

@@ -1,15 +1,38 @@
 export const versions = {
+    '0.8.1': {
+        date: 'April 9, 2026',
+        core: {
+            storyMode: {
+                title: '🤖 Swiss AI Story Mode — Always On',
+                improvements: [
+                    'Story Mode auto-enabled for all logged-in users with Apertus (no API key required)',
+                    'Apertus LLM: improved system prompt for reliable emoji-only output',
+                    'Fixed: Apertus connection test in Settings used too few tokens (now 30 max_tokens)',
+                    'n8n workflow: Format Response node rewritten as Code Node to fix emoji Unicode serialization',
+                    'Story Mode no longer blocked after login — works immediately out of the box'
+                ]
+            },
+            bugfixes: {
+                title: '🐛 Bug Fixes',
+                improvements: [
+                    'Fixed VITE_N8N_APERTUS_TOKEN not available on live site (GitHub Secret)',
+                    'Story Mode reactivity: storyModeEnabled now correctly re-evaluates when user logs in',
+                    'EmojiDisplay: Apertus treated as configured whenever user is logged in'
+                ]
+            }
+        }
+    },
     '0.8.0': {
         date: 'April 9, 2026',
         core: {
             bugfixes: {
                 title: '🐛 Critical Bugfix: StoryMode & Account API',
                 improvements: [
-                    'apiCache.ts: cachedFetchAccount/cachedFetchDailyUsage nutzen jetzt absolute URL (WEBHOOKS.ACCOUNT.CRUD)',
-                    'Verhindert 404-Fehler auf keymoji.wtf/api/account (falsches Host)',
-                    'StoryMode war blockiert weil Account-Daten nicht geladen werden konnten',
-                    'Alle Account-Stats nach Login werden jetzt sofort korrekt geladen',
-                    'CORS-Header korrekt gesetzt für Cross-Origin Requests von keymoji.wtf'
+                    'apiCache.ts: cachedFetchAccount/cachedFetchDailyUsage now use absolute URL (WEBHOOKS.ACCOUNT.CRUD)',
+                    'Prevented 404 errors on keymoji.wtf/api/account (wrong host)',
+                    'StoryMode was blocked because account data could not be loaded',
+                    'All account stats after login now load correctly and immediately',
+                    'CORS headers correctly set for cross-origin requests from keymoji.wtf'
                 ]
             }
         }
@@ -18,21 +41,21 @@ export const versions = {
         date: 'April 9, 2026',
         core: {
             ui: {
-                title: '🎨 TopBar & Banner-Optimierung',
+                title: '🎨 TopBar & Banner Refinements',
                 improvements: [
-                    'Hover-Hintergrund und Swiss-AI-Animation aus TopBar entfernt',
-                    'Opacity-Transition für cleanes, subtiles Hover-Feedback',
-                    'Banner-CTA-Text in alle 12 Sprachen übersetzt',
-                    'Neue setupStoryModeBannerCta Übersetzungskeys hinzugefügt'
+                    'Removed hover background and Swiss AI pulse animation from TopBar',
+                    'Clean opacity transition for subtle, modern hover feedback',
+                    'Banner CTA text translated into all 12 languages',
+                    'New setupStoryModeBannerCta translation key added'
                 ]
             },
             auth: {
-                title: '🔒 Security & UX Verbesserungen',
+                title: '🔒 Security & UX Improvements',
                 improvements: [
-                    'Rate Limiting für OTP-Anfragen (3 pro 10 Min)',
-                    'E-Mail-Validierung auf Client und Server',
-                    'Mehrsprachige E-Mail-Betreffzeilen',
-                    'N8N: Duplicate-Account-Schutz implementiert'
+                    'Rate limiting for OTP requests (3 per 10 minutes)',
+                    'Email validation on client and server',
+                    'Multilingual email subject lines',
+                    'N8N: Duplicate account prevention implemented'
                 ]
             }
         }
