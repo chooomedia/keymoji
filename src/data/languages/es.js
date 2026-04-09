@@ -678,6 +678,13 @@ export default {
         freeBadge: '✨ GRATIS',
         proBadge: '💎 PRO',
 
+        // Demo Chart (cuando no hay datos reales)
+        demoChart: {
+            title: 'Sin datos',
+            description: 'Genera emojis para recopilar tus datos de uso reales y mostrarlos aquí.',
+            cta: 'Crear Keymoji'
+        },
+
         // Descripciones
         freeDescription: '✨ Seguridad gratuita',
         proDescription: '💎 Seguridad empresarial'

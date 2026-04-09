@@ -642,6 +642,13 @@ export default {
         freeBadge: '✨ 무료',
         proBadge: '💎 PRO',
 
+        // 데모 차트 (실제 데이터 없을 때)
+        demoChart: {
+            title: '데이터 없음',
+            description: '이모지를 생성하여 실제 사용 데이터를 수집하고 여기에 표시하세요.',
+            cta: 'Keymoji 시작하기'
+        },
+
         // 설명
         freeDescription: '✨ 무료 보안',
         proDescription: '�� 엔터프라이즈 보안'

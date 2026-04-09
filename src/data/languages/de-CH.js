@@ -653,6 +653,13 @@ export default {
         freeBadge: '✨ GRATIS',
         proBadge: '💎 PRO',
 
+        // Demo-Grafik (wenn kein Datä vorhanden)
+        demoChart: {
+            title: 'Kein Datä',
+            description: 'Generier Emojis zum Sammle vo dinä echten Nutzigsdatä und zum Azeige da.',
+            cta: 'Keymoji erstelle'
+        },
+
         // Beschreibige
         freeDescription: '✨ Gratis-Sicherheit',
         proDescription: '💎 Enterprise-Sicherheit'

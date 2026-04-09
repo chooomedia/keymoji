@@ -197,6 +197,18 @@ jobs:
                       Header set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
                       Header set X-Robots-Tag "index, follow"
                       Header set X-DNS-Prefetch-Control "on"
+
+                      # HTML files: never cache — ensures fresh chunk references after deploy
+                      <FilesMatch "\.(html)$">
+                          Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+                          Header set Pragma "no-cache"
+                          Header set Expires "0"
+                      </FilesMatch>
+
+                      # Hashed static assets (JS/CSS with contenthash): immutable long-term cache
+                      <FilesMatch "\.(js|css)$">
+                          Header set Cache-Control "public, max-age=31536000, immutable"
+                      </FilesMatch>
                   </IfModule>
 
                   # MIME types
@@ -212,12 +224,12 @@ jobs:
                       AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/javascript text/css application/javascript application/x-javascript image/svg+xml
                   </IfModule>
 
-                  # Caching
+                  # Caching (fallback for servers without mod_headers)
                   <IfModule mod_expires.c>
                       ExpiresActive On
-                      ExpiresByType text/html "access plus 1 hour"
-                      ExpiresByType text/css "access plus 1 month"
-                      ExpiresByType application/javascript "access plus 1 month"
+                      ExpiresByType text/html "access plus 0 seconds"
+                      ExpiresByType text/css "access plus 1 year"
+                      ExpiresByType application/javascript "access plus 1 year"
                       ExpiresByType image/jpeg "access plus 1 year"
                       ExpiresByType image/png "access plus 1 year"
                       ExpiresByType image/svg+xml "access plus 1 year"
