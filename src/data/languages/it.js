@@ -450,11 +450,11 @@ export default {
         returnUserTitle: '👋 Bentornato!',
         returnUserDescription:
             'Abbiamo riconosciuto il tuo indirizzo email. Accedi rapidamente.',
-        verificationTitle: '📧 Controlla la tua email e verifica',
+        verificationTitle: '📧 Inserisci il tuo codice',
         verificationDescription:
-            'Controlla la tua email {email} e clicca sul link magico per completare la configurazione',
-        verifyingTitle: '🔗 Verifica link magico...',
-        verifyingDescription: 'Attendi mentre verifichiamo il tuo account.',
+            'Inserisci il codice a 7 cifre inviato a {email}',
+        verifyingTitle: '🔑 Verifica codice...',
+        verifyingDescription: 'Attendi mentre verifichiamo il tuo codice.',
         verificationErrorTitle: '❌ Errore di verifica',
         verificationErrorDescription: 'Si è verificato un errore.',
 
@@ -540,7 +540,15 @@ export default {
             submitCode: '✅ Conferma codice',
             verifying: 'Verifica in corso...',
             codeError: 'Inserisci il codice a 7 cifre.',
-            codeInvalid: 'Codice non valido o scaduto. Richiedine uno nuovo.'
+            codeInvalid: 'Codice non valido o scaduto. Richiedine uno nuovo.',
+            accountFoundSendingCode: 'Account trovato! Ti inviamo un codice.',
+            accountFoundSendingLink: 'Account trovato! Ti inviamo un codice.',
+            creatingNewAccount: 'Nuovo account in creazione — controlla la tua email per il codice.',
+            magicLinkSent: 'Codice inviato! Inserisci il codice a 7 cifre dalla tua email.',
+            magicLinkSendFailed: "Invio del codice fallito. Riprova.",
+            otpVerified: 'Codice confermato — sei connesso!',
+            magicLinkVerified: 'Codice verificato con successo!',
+            magicLinkVerificationFailed: 'Verifica del codice fallita'
         },
 
         // Sezione aiuto

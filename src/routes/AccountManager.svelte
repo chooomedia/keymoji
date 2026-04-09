@@ -809,7 +809,12 @@
             setTimeout(() => otpInputRefs[0]?.focus(), 120);
         } catch (error) {
             console.error('Login error:', error);
-            showError($translations?.accountManager?.messages?.magicLinkSendFailed || 'Failed to send magic link. Please try again.', 5000);
+            const errMsg = error?.message || '';
+            if (errMsg.includes('429') || errMsg.toLowerCase().includes('too many') || errMsg.toLowerCase().includes('rate limit')) {
+                showError($translations?.accountManager?.login?.rateLimitExceeded || 'Zu viele Versuche. Bitte 10 Minuten warten.', 8000);
+            } else {
+                showError($translations?.accountManager?.messages?.magicLinkSendFailed || 'Code konnte nicht gesendet werden. Bitte erneut versuchen.', 5000);
+            }
         } finally {
             isSubmitting = false;
             checkingAccount = false;
