@@ -133,6 +133,56 @@
     let isVerifyingOTP = false;
     let otpError = '';
     let isNewUser = false; // true = Registrierung, false = Login
+
+    // 7 separate digit fields for OTP input
+    let otpDigits = ['', '', '', '', '', '', ''];
+    let otpInputRefs = [];
+
+    // Sync otpDigits → otpCode
+    $: otpCode = otpDigits.join('');
+
+    function handleOTPDigitInput(index, event) {
+        otpError = '';
+        const val = event.target.value.replace(/\D/g, '');
+        // If user pastes all 7 digits into first field
+        if (val.length > 1) {
+            const digits = val.slice(0, 7).split('');
+            digits.forEach((d, i) => { otpDigits[i] = d; });
+            otpDigits = [...otpDigits];
+            const nextRef = otpInputRefs[Math.min(digits.length, 6)];
+            if (nextRef) nextRef.focus();
+            return;
+        }
+        otpDigits[index] = val.slice(-1);
+        otpDigits = [...otpDigits];
+        if (val && index < 6) {
+            otpInputRefs[index + 1]?.focus();
+        }
+        // Auto-submit when all 7 filled
+        if (otpCode.length === 7) {
+            handleOTPSubmit(null);
+        }
+    }
+
+    function handleOTPDigitKeydown(index, event) {
+        if (event.key === 'Backspace' && !otpDigits[index] && index > 0) {
+            otpDigits[index - 1] = '';
+            otpDigits = [...otpDigits];
+            otpInputRefs[index - 1]?.focus();
+        }
+        if (event.key === 'ArrowLeft' && index > 0) otpInputRefs[index - 1]?.focus();
+        if (event.key === 'ArrowRight' && index < 6) otpInputRefs[index + 1]?.focus();
+    }
+
+    function focusFirstOTPInput() {
+        otpInputRefs[0]?.focus();
+    }
+
+    function focusFirstOTPInputAction(node) {
+        // Svelte action: focus first digit when step becomes visible
+        const t = setTimeout(() => otpInputRefs[0]?.focus(), 80);
+        return { destroy() { clearTimeout(t); } };
+    }
     
     // Reactive calculation for days since account creation
     // Übergebe $currentAccount damit API-Daten (Google Sheets) bevorzugt werden!
@@ -754,8 +804,9 @@
             // Show success message
             showSuccess($translations?.accountManager?.messages?.magicLinkSent || 'Magic link sent! Check your email to complete login.', 5000);
             
-            // Move to verification step
+            // Move to verification step + focus first digit
             accountCreationStep = 'verification';
+            setTimeout(() => otpInputRefs[0]?.focus(), 120);
         } catch (error) {
             console.error('Login error:', error);
             showError($translations?.accountManager?.messages?.magicLinkSendFailed || 'Failed to send magic link. Please try again.', 5000);
@@ -767,6 +818,7 @@
 
     function resendMagicLink() {
         otpCode = '';
+        otpDigits = ['', '', '', '', '', '', ''];
         otpError = '';
         handleLogin(new Event('submit'));
     }
@@ -798,6 +850,9 @@
             } else {
                 otpError = $translations?.accountManager?.verification?.codeInvalid || 'Ungültiger oder abgelaufener Code. Bitte neu anfordern.';
                 showError(otpError, 5000);
+                // Felder leeren und Fokus auf erstes Feld
+                otpDigits = ['', '', '', '', '', '', ''];
+                setTimeout(() => otpInputRefs[0]?.focus(), 50);
             }
         } finally {
             isVerifyingOTP = false;
@@ -1375,68 +1430,99 @@
                 {:else if accountCreationStep === 'verification'}
                     <!-- OTP Verification Step -->
                     <div class="space-y-5">
-                        <!-- Heading / Smart Label -->
-                        <div class="text-center">
-                            <p class="text-sm text-gray-500 dark:text-gray-400">
+
+                        <!-- Smart Label -->
+                        <div class="text-center space-y-1">
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {isNewUser
                                     ? ($translations?.accountManager?.verification?.titleNew || 'Code zur Registrierung')
                                     : ($translations?.accountManager?.verification?.titleReturn || 'Code zum Einloggen')}
                             </p>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                {$translations?.accountManager?.verification?.sentTo || 'Code gesendet an'} <strong class="text-gray-700 dark:text-gray-300">{email}</strong>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">
+                                {$translations?.accountManager?.verification?.sentTo || 'Code gesendet an'}
+                                <strong class="text-gray-600 dark:text-gray-300">{email}</strong>
                             </p>
                         </div>
 
-                        <!-- OTP Input Form -->
-                        <form on:submit|preventDefault={handleOTPSubmit} class="space-y-3">
-                            <div class="flex flex-col items-center gap-2">
-                                <label for="otp-input" class="text-xs font-medium text-gray-600 dark:text-gray-400">
-                                    {$translations?.accountManager?.verification?.codeLabel || '7-stelliger Bestätigungscode'}
-                                </label>
-                                <input
-                                    id="otp-input"
-                                    type="text"
-                                    inputmode="numeric"
-                                    autocomplete="one-time-code"
-                                    maxlength="7"
-                                    pattern="[0-9]{7}"
-                                    bind:value={otpCode}
-                                    placeholder={$translations?.accountManager?.verification?.codePlaceholder || '1234567'}
-                                    disabled={isVerifyingOTP}
-                                    on:input={() => { otpError = ''; }}
-                                    class="w-48 text-center text-3xl font-bold tracking-[0.3em] py-3 px-4
-                                           rounded-xl border-2 transition-all duration-200
-                                           bg-white dark:bg-aubergine-900
-                                           text-gray-900 dark:text-white
-                                           placeholder-gray-300 dark:placeholder-gray-600
-                                           focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2
-                                           disabled:opacity-50 disabled:cursor-not-allowed
-                                           {otpError
-                                             ? 'border-red-400 dark:border-red-500'
-                                             : otpCode.length === 7
-                                               ? 'border-green-400 dark:border-green-500'
-                                               : 'border-gray-300 dark:border-gray-600'}"
-                                />
-                                {#if otpError}
-                                    <p class="text-xs text-red-500 dark:text-red-400">{otpError}</p>
-                                {/if}
-                            </div>
+                        <!-- 7-Digit OTP Boxes -->
+                        <form on:submit|preventDefault={handleOTPSubmit}>
+                            <fieldset disabled={isVerifyingOTP} class="border-0 p-0 m-0">
+                                <legend class="sr-only">{$translations?.accountManager?.verification?.codeLabel || '7-stelliger Bestätigungscode'}</legend>
 
-                            <Button
-                                variant="primary"
-                                size="md"
-                                fullWidth={true}
-                                disabled={isVerifyingOTP || otpCode.length !== 7}
-                                type="submit"
-                            >
-                                {#if isVerifyingOTP}
-                                    <span class="animate-spin mr-2">⏳</span>
-                                    {$translations?.accountManager?.verification?.verifying || 'Wird geprüft...'}
-                                {:else}
-                                    {$translations?.accountManager?.verification?.submitCode || '✅ Code bestätigen'}
+                                <!-- Digit boxes -->
+                                <div class="flex items-center justify-center gap-1.5 mb-4">
+                                    {#each otpDigits as digit, i}
+                                        {#if i === 3}
+                                            <!-- Trenner nach Ziffer 3 (Format: 3 – 4) -->
+                                            <span class="text-gray-400 dark:text-gray-500 text-lg font-medium select-none px-0.5" aria-hidden="true">–</span>
+                                        {/if}
+                                        <input
+                                            id="otp-digit-{i}"
+                                            bind:this={otpInputRefs[i]}
+                                            type="text"
+                                            inputmode="numeric"
+                                            autocomplete={i === 0 ? 'one-time-code' : 'off'}
+                                            maxlength="7"
+                                            value={digit}
+                                            on:input={(e) => handleOTPDigitInput(i, e)}
+                                            on:keydown={(e) => handleOTPDigitKeydown(i, e)}
+                                            on:focus={(e) => e.target.select()}
+                                            aria-label="Ziffer {i + 1} von 7"
+                                            class="w-10 h-12 text-center text-xl font-bold
+                                                   rounded-xl border transition-all duration-200
+                                                   focus:outline-none focus:ring-1 focus:ring-yellow-400 focus:border-transparent
+                                                   disabled:opacity-50 disabled:cursor-not-allowed
+                                                   {otpError
+                                                     ? 'border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-100'
+                                                     : digit
+                                                       ? 'border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-900/20 text-green-900 dark:text-green-100'
+                                                       : 'bg-white dark:bg-aubergine-900 dark:text-white border-gray-400 dark:border-aubergine-600'}"
+                                        />
+                                    {/each}
+                                </div>
+
+                                <!-- Inline Error -->
+                                {#if otpError}
+                                    <div class="flex items-center gap-1.5 mb-3 px-1">
+                                        <svg class="w-3.5 h-3.5 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                        <p class="text-xs text-red-600 dark:text-red-400">{otpError}</p>
+                                    </div>
                                 {/if}
-                            </Button>
+
+                                <!-- Submit Button -->
+                                <Button
+                                    variant="primary"
+                                    size="md"
+                                    fullWidth={true}
+                                    disabled={isVerifyingOTP || otpCode.length !== 7}
+                                    type="submit"
+                                >
+                                    {#if isVerifyingOTP}
+                                        <span class="animate-spin mr-2">⏳</span>
+                                        {$translations?.accountManager?.verification?.verifying || 'Wird geprüft...'}
+                                    {:else}
+                                        {$translations?.accountManager?.verification?.submitCode || '✅ Code bestätigen'}
+                                    {/if}
+                                </Button>
+                            </fieldset>
                         </form>
+
+                        <!-- Hinweis-Box (passend zur Help Section im Rest der App) -->
+                        <div class="flex gap-3 p-3 bg-creme-600 dark:bg-aubergine-900 rounded-xl border border-creme-700 dark:border-aubergine-800">
+                            <span class="text-base shrink-0 mt-0.5" aria-hidden="true">📬</span>
+                            <div class="space-y-1 min-w-0">
+                                <p class="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                    {$translations?.accountManager?.help?.spamFolder || 'Prüfe deinen Spam-Ordner falls die E-Mail nicht ankommt'}
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-500">
+                                    {$translations?.accountManager?.help?.codeExpiry || 'Der Code ist 15 Minuten gültig'}
+                                    ·
+                                    {$translations?.accountManager?.help?.noLink || 'Kein Link-Klick nötig'}
+                                </p>
+                            </div>
+                        </div>
 
                         <!-- Resend + Back -->
                         <div class="flex flex-col gap-2">
@@ -1463,19 +1549,6 @@
                             >
                                 {$translations?.accountManager?.buttons?.backToAccountOptions || '← Zurück'}
                             </Button>
-                        </div>
-
-                        <!-- Help Section -->
-                        <div class="p-4 bg-creme-600 dark:bg-aubergine-900 rounded-xl">
-                            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {$translations?.accountManager?.help?.title || '💡 Hilfe'}
-                            </h3>
-                            <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                                <li>{$translations?.accountManager?.help?.spamFolder || '• Prüfe deinen Spam-Ordner falls du keine E-Mail siehst'}</li>
-                                <li>{$translations?.accountManager?.help?.codeExpiry || '• Der Code ist 15 Minuten gültig'}</li>
-                                <li>{$translations?.accountManager?.help?.requestNewLink || '• Du kannst jederzeit einen neuen Code anfordern'}</li>
-                                <li>{$translations?.accountManager?.help?.noLink || '• Kein Link-Klick nötig – einfach Code eingeben'}</li>
-                            </ul>
                         </div>
                     </div>
 
