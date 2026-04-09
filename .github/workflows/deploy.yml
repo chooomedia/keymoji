@@ -39,19 +39,20 @@ jobs:
               with:
                   workflow: build.yml
                   workflow_conclusion: success
+                  branch: ${{ github.ref_name }}
                   name: build-artifacts
                   if_no_artifact_found: warn
               continue-on-error: true
 
             - name: Set up Node.js (if building locally)
-              if: steps.download-artifacts.outcome == 'failure' || github.event_name == 'workflow_dispatch'
+              if: steps.download-artifacts.outcome != 'success' || github.event_name == 'workflow_dispatch'
               uses: actions/setup-node@v4
               with:
                   node-version: '20'
                   cache: 'npm'
 
             - name: Build locally if artifacts not available
-              if: steps.download-artifacts.outcome == 'failure' || github.event_name == 'workflow_dispatch'
+              if: steps.download-artifacts.outcome != 'success' || github.event_name == 'workflow_dispatch'
               run: |
                   echo "⚠️ Artifacts not available, building locally..."
                   npm ci --legacy-peer-deps

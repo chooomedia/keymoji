@@ -2,9 +2,9 @@ name: Build
 
 on:
     push:
-        branches: [staging, frontend, master]
+        branches: [staging, frontend, master, main]
     pull_request:
-        branches: [staging, frontend, master]
+        branches: [staging, frontend, master, main]
     workflow_dispatch:
 
 # OPTIMIZATION: Verhindere doppelte Builds
