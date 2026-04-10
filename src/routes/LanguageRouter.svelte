@@ -108,6 +108,7 @@
     let url = typeof window !== 'undefined' ? window.location.pathname : null;
     let initialRouteProcessed = false;
     let processingRoute = false; // Verhindert gleichzeitige Route-Verarbeitung
+    let isInvalidRoute = false; // SEO: noindex für Phantom-URLs
     
     // Bestimme den Seitentyp für SEO-Komponente
     function determinePageType(path) {
@@ -207,23 +208,38 @@
             // Extrahiere Pfadsegmente für die Spracherkennung
             const pathSegments = currentPath.split('/').filter(segment => segment !== '');
             const potentialLang = pathSegments[0];
-            console.log('🔄 LanguageRouter: Path segments:', pathSegments);
-            console.log('🔄 LanguageRouter: Potential language:', potentialLang);
-            console.log('🔄 LanguageRouter: Supported languages:', supportedLanguages);
-            
+            devLog('🔄 LanguageRouter: Path segments:', pathSegments);
+            devLog('🔄 LanguageRouter: Potential language:', potentialLang);
+
+            // SEO: Phantom-URL-Schutz
+            // Ungültige Multi-Segment-URLs (z.B. /qya/fr/de) → redirect zu /
+            // Ungültige Single-Segment-URLs (z.B. /qya) → noindex setzen
+            if (potentialLang && !supportedLanguages.includes(potentialLang)) {
+                if (pathSegments.length > 1) {
+                    devLog('🚫 LanguageRouter: Invalid multi-segment URL, redirecting to /', currentPath);
+                    isInvalidRoute = true;
+                    navigate('/', { replace: true });
+                    return;
+                }
+                devLog('🚫 LanguageRouter: Invalid lang segment, setting noindex:', currentPath);
+                isInvalidRoute = true;
+            } else {
+                isInvalidRoute = false;
+            }
+
             // Wenn das erste Segment ein gültiger Sprachcode ist
             if (potentialLang && supportedLanguages.includes(potentialLang)) {
-                console.log('🔄 LanguageRouter: Valid language found:', potentialLang);
+                devLog('🔄 LanguageRouter: Valid language found:', potentialLang);
                 // Setze die Sprache basierend auf der URL, wenn sie anders ist
                 if (potentialLang !== $currentLanguage) {
-                    console.log('🔄 LanguageRouter: Language different, changing from', $currentLanguage, 'to', potentialLang);
+                    devLog('🔄 LanguageRouter: Language different, changing from', $currentLanguage, 'to', potentialLang);
                     await changeLanguage(potentialLang);
                 } else {
-                    console.log('🔄 LanguageRouter: Language already set to:', potentialLang);
+                    devLog('🔄 LanguageRouter: Language already set to:', potentialLang);
                 }
             } else {
                 // Kein Sprachcode in URL - verwende aktuelle Sprache
-                console.log('🔄 LanguageRouter: No valid language in URL, using current:', $currentLanguage);
+                devLog('🔄 LanguageRouter: No valid language in URL, using current:', $currentLanguage);
             }
             
             // Preserve URL parameters for magic link verification
@@ -363,6 +379,7 @@
 <SEO 
   pageType={currentPageType} 
   url={pageURL}
+  noindex={isInvalidRoute}
 />
   
 {#if routesLoaded}

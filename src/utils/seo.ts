@@ -587,21 +587,21 @@ type PageTitles = Record<string, Record<string, string>>;
 export function getPageTitle(pageType: string, currentLanguage: string = 'en'): string {
     const titles: PageTitles = {
         home: {
-            en: 'Keymoji - Emoji Password Generator',
-            de: 'Keymoji - Emoji Passwort Generator',
-            dech: 'Keymoji - Emoji Passwort Generator',
-            es: 'Keymoji - Generador de Contraseñas con Emojis',
-            nl: 'Keymoji - Emoji Wachtwoord Generator',
-            it: 'Keymoji - Generatore di Password Emoji',
-            fr: 'Keymoji - Générateur de Mots de Passe Emoji',
-            pl: 'Keymoji - Generator Haseł Emoji',
-            ru: 'Keymoji - Генератор Паролей с Эмодзи',
-            tr: 'Keymoji - Emoji Şifre Oluşturucu',
-            af: 'Keymoji - Emoji Wagwoord Generator',
-            ja: 'Keymoji - 絵文字パスワードジェネレーター',
-            ko: 'Keymoji - 이모지 비밀번호 생성기',
-            tlh: 'Keymoji - Emoji Password Generator',
-            sjn: 'Keymoji - Emoji Password Generator'
+            en: 'Keymoji – Secure Emoji Passwords You\'ll Never Forget',
+            de: 'Keymoji – Sichere Emoji-Passwörter, die du nie vergisst',
+            dech: 'Keymoji – Sichere Emoji-Passwörter, wo du nie vergisst',
+            es: 'Keymoji – Contraseñas emoji seguras que nunca olvidarás',
+            nl: 'Keymoji – Veilige emoji-wachtwoorden die je nooit vergeet',
+            it: 'Keymoji – Password emoji sicure che non dimenticherai mai',
+            fr: 'Keymoji – Mots de passe emoji sécurisés, inoubliables',
+            pl: 'Keymoji – Bezpieczne hasła emoji, których nigdy nie zapomnisz',
+            ru: 'Keymoji – Безопасные пароли с эмодзи, которые ты не забудешь',
+            tr: 'Keymoji – Asla Unutmayacağın Güvenli Emoji Şifreleri',
+            af: 'Keymoji – Veilige emoji-wagwoorde wat jy nooit sal vergeet',
+            ja: 'Keymoji – 絶対忘れない、安全な絵文字パスワード',
+            ko: 'Keymoji – 절대 잊지 않는 안전한 이모지 비밀번호',
+            tlh: 'Keymoji – Secure Emoji Passwords You\'ll Never Forget',
+            sjn: 'Keymoji – Secure Emoji Passwords You\'ll Never Forget'
         },
         contact: {
             en: 'Contact - Keymoji',
@@ -691,21 +691,21 @@ type PageDescriptions = Record<string, Record<string, string>>;
 export function getPageDescription(pageType: string, currentLanguage: string = 'en'): string {
     const descriptions: PageDescriptions = {
         home: {
-            en: 'Generate secure, AI-resistant emoji passwords. Create memorable passwords with emojis in 15+ languages.',
-            de: 'Generiere sichere, KI-resistente Emoji-Passwörter. Erstelle merkbare Passwörter mit Emojis in 15+ Sprachen.',
-            dech: 'Generiere sichere, KI-resistente Emoji-Passwörter. Erstelle merkbare Passwörter mit Emojis in 15+ Sprachen.',
-            es: 'Genera contraseñas seguras con emojis resistentes a IA. Crea contraseñas memorables con emojis en 15+ idiomas.',
-            nl: "Genereer veilige, AI-resistente emoji-wachtwoorden. Maak memorabele wachtwoorden met emoji's in 15+ talen.",
-            it: "Genera password sicure con emoji resistenti all'IA. Crea password memorabili con emoji in 15+ lingue.",
-            fr: "Générez des mots de passe sécurisés avec des emojis résistants à l'IA. Créez des mots de passe mémorables avec des emojis en 15+ langues.",
-            pl: 'Generuj bezpieczne hasła z emoji odporne na AI. Twórz zapamiętywalne hasła z emoji w 15+ językach.',
-            ru: 'Генерируйте безопасные пароли с эмодзи, устойчивые к ИИ. Создавайте запоминающиеся пароли с эмодзи на 15+ языках.',
-            tr: 'Güvenli, yapay zeka dirençli emoji şifreleri oluşturun. 15+ dilde emoji ile akılda kalıcı şifreler oluşturun.',
-            af: "Genereer veilige, AI-weerstandige emoji-wagwoorde. Skep memorabele wagwoorde met emoji's in 15+ tale.",
-            ja: '安全でAIに耐性のある絵文字パスワードを生成します。15以上の言語で絵文字を使った覚えやすいパスワードを作成します。',
-            ko: '안전하고 AI에 저항하는 이모지 비밀번호를 생성합니다. 15개 이상의 언어로 이모지를 사용한 기억하기 쉬운 비밀번호를 만듭니다.',
-            tlh: 'Generate secure, AI-resistant emoji passwords. Create memorable passwords with emojis in 15+ languages.',
-            sjn: 'Generate secure, AI-resistant emoji passwords. Create memorable passwords with emojis in 15+ languages.'
+            en: 'Secure emoji passwords you\'ll actually remember. No app, no setup — generate yours free in seconds.',
+            de: 'Sichere Emoji-Passwörter, die du dir wirklich merkst. Kein Setup, keine App — kostenlos in Sekunden erstellen.',
+            dech: 'Sichere Emoji-Passwörter, wo du dir wirklich merksch. Kei Setup, kei App — gratis in Sekunde erstelle.',
+            es: 'Contraseñas emoji seguras que realmente recordarás. Sin app, sin configuración — genera la tuya gratis en segundos.',
+            nl: 'Veilige emoji-wachtwoorden die je echt onthoudt. Geen app, geen setup — genereer gratis in seconden.',
+            it: 'Password emoji sicure che ricorderai davvero. Nessuna app, nessuna configurazione — generala gratis in secondi.',
+            fr: 'Des mots de passe emoji sécurisés dont vous vous souviendrez vraiment. Sans app, sans configuration — générez gratuitement en secondes.',
+            pl: 'Bezpieczne hasła emoji, które naprawdę zapamiętasz. Bez aplikacji, bez konfiguracji — wygeneruj za darmo w sekundy.',
+            ru: 'Безопасные пароли с эмодзи, которые ты действительно запомнишь. Без приложения — создай бесплатно за секунды.',
+            tr: 'Gerçekten hatırlayacağın güvenli emoji şifreleri. Uygulama yok, kurulum yok — saniyeler içinde ücretsiz oluştur.',
+            af: 'Veilige emoji-wagwoorde wat jy regtig sal onthou. Geen app, geen opstelling — genereer gratis in sekondes.',
+            ja: '本当に覚えられる安全な絵文字パスワード。アプリ不要・設定不要 — 今すぐ無料で生成。',
+            ko: '진짜로 기억할 수 있는 안전한 이모지 비밀번호. 앱 없이, 설정 없이 — 지금 바로 무료로 생성하세요.',
+            tlh: 'Secure emoji passwords you\'ll actually remember. No app, no setup — generate yours free in seconds.',
+            sjn: 'Secure emoji passwords you\'ll actually remember. No app, no setup — generate yours free in seconds.'
         },
         contact: {
             en: 'Get in touch with Christopher Matt, Frontend Developer. Send a message for questions or suggestions about Keymoji.',
