@@ -239,6 +239,13 @@ module.exports = merge(common, {
         new webpack.DefinePlugin({
             'process.env.BUILD_TIME': JSON.stringify(new Date().toISOString()),
             'process.env.NODE_ENV': JSON.stringify('production'),
+            // Expose VITE_* env vars via import.meta.env (Webpack polyfill)
+            'import.meta.env.VITE_N8N_APERTUS_TOKEN': JSON.stringify(process.env.VITE_N8N_APERTUS_TOKEN || ''),
+            'import.meta.env.VITE_N8N_URL': JSON.stringify(process.env.VITE_N8N_URL || ''),
+            'import.meta.env.VITE_WEBHOOK_APERTUS_TEST': JSON.stringify(process.env.VITE_WEBHOOK_APERTUS_TEST || ''),
+            'import.meta.env.MODE': JSON.stringify('production'),
+            'import.meta.env.PROD': JSON.stringify(true),
+            'import.meta.env.DEV': JSON.stringify(false),
             // SEO-optimierte globale Variablen
             __SEO_ENABLED__: JSON.stringify(true),
             __PRELOAD_ENABLED__: JSON.stringify(true)
