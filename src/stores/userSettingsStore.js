@@ -82,8 +82,8 @@ function extractSettingsFromAccount(account) {
     const profile = account.profile || {};
 
     const extracted = {
-        // User profile
-        name: account.name || profile.name || '',
+        // User profile — Priorität: metadata.name > metadata.settings.name > profile.name > account.name
+        name: metadata.name || settings.name || profile.name || account.name || '',
         email: account.email || '',
 
         // Settings from metadata

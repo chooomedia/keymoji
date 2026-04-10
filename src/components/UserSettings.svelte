@@ -1206,7 +1206,17 @@
                     <div class="p-4" transition:slide={{ duration: 300 }}>
                         <!-- Regular Items -->
                         {#each section.items as item (item.id)}
-                            <div class="mb-4 last:mb-0">
+                            <div class="mb-4 last:mb-0 {item.comingSoon ? 'opacity-50 pointer-events-none select-none' : ''}">
+                                {#if item.comingSoon}
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="inline-flex items-center gap-1 text-xs font-medium text-gray-400 dark:text-gray-500">
+                                            {item.icon} {getLocalizedText(item.title)}
+                                        </span>
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500">
+                                            Coming soon
+                                        </span>
+                                    </div>
+                                {/if}
                                 <!-- Special handling for Story Mode Enabled Toggle -->
                                 {#if item.id === 'storyMode.enabled'}
                                     <ModularInput
