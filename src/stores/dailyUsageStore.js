@@ -647,24 +647,12 @@ async function saveUsageToAPI(account, usageData) {
                 'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
-                action: 'update', // Required for n8n
+                action: 'update',
                 userId: account.userId,
                 email: account.email,
-                // NEW: dailyUsage in eigene Spalte (vor metadata!)
-                dailyUsage: usageData, // ← NEU: Eigene Spalte in Google Sheets
-                // TODO: dailyExecutions wird später hinzugefügt
-                // dailyExecutions: {
-                //     date: getTodayDateString(),
-                //     randomExecutions: 0,
-                //     storyExecutions: 0,
-                //     lastReset: getTodayDateString()
-                // },
-                profile: {
-                    ...(account.profile || {})
-                    // REMOVED: dailyUsage from profile (now in own column)
-                },
-                metadata: cleanedMetadata, // Clean metadata without duplicates!
-                lastLogin: new Date().toISOString()
+                dailyUsage: usageData,        // Top-Level — eigene Spalte in Google Sheets
+                profile: { ...(account.profile || {}) },
+                metadata: cleanedMetadata     // lastLogin NICHT hier — nur beim echten Login!
             })
         });
 
