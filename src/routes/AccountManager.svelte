@@ -1480,25 +1480,25 @@
                                             on:focus={(e) => e.target.select()}
                                             aria-label="Ziffer {i + 1} von 7"
                                             class="otp-digit w-10 h-12 text-center text-xl font-bold
-                                                   rounded-xl border transition-all duration-200
-                                                   focus:outline-none focus:ring-1 focus:ring-yellow-400 focus:border-transparent
+                                                   rounded-xl border-2 transition-all duration-200
+                                                   focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent
                                                    disabled:opacity-50 disabled:cursor-not-allowed
                                                    {otpError
-                                                     ? 'border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 text-gray-900 dark:text-white'
+                                                     ? 'border-red-500 dark:border-red-500 bg-red-50 dark:bg-red-950/60 text-gray-900 dark:text-red-200 focus:ring-red-400'
                                                      : digit
                                                        ? 'border-yellow-400 dark:border-yellow-400 bg-white dark:bg-aubergine-800 text-gray-900 dark:text-white'
-                                                       : 'bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white border-gray-400 dark:border-aubergine-600'}"
+                                                       : 'border-gray-300 dark:border-aubergine-600 bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white'}"
                                         />
                                     {/each}
                                 </div>
 
                                 <!-- Inline Error -->
                                 {#if otpError}
-                                    <div class="flex items-center gap-1.5 mb-3 px-1">
-                                        <svg class="w-3.5 h-3.5 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                    <div class="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800">
+                                        <svg class="w-4 h-4 text-red-500 dark:text-red-400 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                                         </svg>
-                                        <p class="text-xs text-red-600 dark:text-red-400">{otpError}</p>
+                                        <p class="text-xs font-medium text-red-600 dark:text-red-400">{otpError}</p>
                                     </div>
                                 {/if}
 

@@ -16,7 +16,7 @@
   // State-specific classes
   const stateClasses = {
     default: "border-gray-light dark:border-aubergine-800 focus:ring-1 focus:ring-yellow-50 focus:border-transparent",
-    invalid: "border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-100 focus:ring-1 focus:ring-red-500 focus:border-red-500",
+    invalid: "border-2 border-red-500 dark:border-red-500 bg-red-50 dark:bg-red-950/60 text-red-900 dark:text-red-100 placeholder-red-400 dark:placeholder-red-600 focus:ring-2 focus:ring-red-500 focus:border-red-500",
     valid: "border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-900/20 text-green-900 dark:text-green-100 focus:ring-1 focus:ring-green-500 focus:border-green-500",
     disabled: "opacity-70 cursor-not-allowed bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600"
   };
