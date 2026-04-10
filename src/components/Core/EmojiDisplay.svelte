@@ -9,7 +9,9 @@
         dailyLimit,
         isLoggedIn,
         currentAccount,
-        accountTier
+        accountTier,
+        sessionGenerationCount,
+        incrementSessionCount
     } from 'stores/appStores'
     import { 
         showSuccess, 
@@ -215,37 +217,42 @@
     const DISABLE_DURATION_MS = 3000;
     
     // Generate static emoji arrays for loading animation (no re-render glitches)
+    // Uses cryptoRandInt which is defined below — hoisted via function declaration
+    function cryptoRandFloat() {
+        const arr = new Uint32Array(1);
+        crypto.getRandomValues(arr);
+        return (arr[0] >>> 0) / 0xFFFFFFFF;
+    }
+
     function generateEmojiConfig(count) {
-        return Array.from({ length: count }, () => {
-            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-            const randomSize = Math.floor(Math.random() * 8) + 16;
-            const randomOpacity = Math.random() * 0.2 + 0.4;
-            const randomMargin = Math.floor(Math.random() * 80) + 150;
-            return { emoji: randomEmoji, size: randomSize, opacity: randomOpacity, margin: randomMargin };
-        });
+        return Array.from({ length: count }, () => ({
+            emoji: emojis[Math.floor(cryptoRandFloat() * emojis.length)],
+            size: Math.floor(cryptoRandFloat() * 8) + 16,
+            opacity: cryptoRandFloat() * 0.2 + 0.4,
+            margin: Math.floor(cryptoRandFloat() * 80) + 150
+        }));
     }
     
     function generateMiddleLaneEmojis(count) {
-        // Choose random position for giant emoji (not always same position)
-        const giantEmojiPosition = Math.floor(Math.random() * count);
+        const giantPos = Math.floor(cryptoRandFloat() * count);
         return Array.from({ length: count }, (_, i) => {
-            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-            const isGiantEmoji = i === giantEmojiPosition;
-            const randomSize = isGiantEmoji ? 60 : Math.floor(Math.random() * 12) + 20;
-            const randomOpacity = isGiantEmoji ? 0.7 : Math.random() * 0.25 + 0.5;
-            const randomMargin = isGiantEmoji ? 180 : Math.floor(Math.random() * 70) + 140;
-            return { emoji: randomEmoji, size: randomSize, opacity: randomOpacity, margin: randomMargin };
+            const giant = i === giantPos;
+            return {
+                emoji: emojis[Math.floor(cryptoRandFloat() * emojis.length)],
+                size: giant ? 60 : Math.floor(cryptoRandFloat() * 12) + 20,
+                opacity: giant ? 0.7 : cryptoRandFloat() * 0.25 + 0.5,
+                margin: giant ? 180 : Math.floor(cryptoRandFloat() * 70) + 140
+            };
         });
     }
     
     function generateSlowLaneEmojis(count) {
-        return Array.from({ length: count }, () => {
-            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-            const randomSize = Math.floor(Math.random() * 10) + 12;
-            const randomOpacity = Math.random() * 0.15 + 0.35;
-            const randomMargin = Math.floor(Math.random() * 70) + 120;
-            return { emoji: randomEmoji, size: randomSize, opacity: randomOpacity, margin: randomMargin };
-        });
+        return Array.from({ length: count }, () => ({
+            emoji: emojis[Math.floor(cryptoRandFloat() * emojis.length)],
+            size: Math.floor(cryptoRandFloat() * 10) + 12,
+            opacity: cryptoRandFloat() * 0.15 + 0.35,
+            margin: Math.floor(cryptoRandFloat() * 70) + 120
+        }));
     }
     
     // Generate static emoji configurations ONCE with more emojis for variety
@@ -457,14 +464,13 @@
       showSuccessMessage($translations.emojiDisplay.successMessage);
       showTextArea = false;
       temporarilyDisableButton();
+      incrementSessionCount();
       
       // Only increment counter if this is a user-initiated action
       if (countTowardsLimit) {
         console.log('➕ Incrementing usage after successful generation');
-        // Use new centralized daily usage tracking (API + localStorage)
         await incrementDailyUsage().catch(error => {
           console.error('❌ CRITICAL: Failed to increment daily usage:', error);
-          // Still show error to user but don't block UX
         });
         console.log('📊 New daily limits after increment:', $dailyLimit);
       }
@@ -517,8 +523,8 @@
       // Keep textarea visible - user can edit and regenerate
       // showTextArea stays true for better UX
       
-      // Use new centralized daily usage tracking (API + localStorage)
-      // Pass true to indicate this is story mode usage
+      incrementSessionCount();
+      
       console.log('➕ [STORY MODE] Incrementing story usage after successful generation');
       await incrementDailyUsage(true).catch(error => {
         console.warn('⚠️ Failed to increment daily usage:', error);
@@ -567,18 +573,18 @@
         
         console.log('🤖 [STORY MODE] Generating story emojis:', { 
           provider, 
-          hasKey: true,
-          keyLength: apiKey.length,
+          hasKey: !!apiKey,
+          keyLength: apiKey?.length || 0,
           text: storyInput.substring(0, 30),
           count: emojiCount,
           forceRegenerate
         });
         
         // Generate emojis using AI
-        // For Apertus, use empty string as apiKey (n8n token is handled in callApertus)
+        // For Apertus: pass user-supplied token if available (storyModeAI.ts will prefer it over env token)
         const config = {
           provider,
-          apiKey: provider === 'apertus' ? '' : apiKey, // Empty for Apertus (token handled internally)
+          apiKey: apiKey || '', // Always pass; storyModeAI.ts handles env fallback for Apertus
           customApiUrl: storyMode.customApiUrl,
           customEndpoint: storyMode.customEndpoint,
           customFormat: storyMode.customFormat,
@@ -626,12 +632,22 @@
     }
   
     // Utility Functions
+
     function getRandomEmojis(count) {
       if (!emojis || !Array.isArray(emojis)) {
         console.error('Emojis array is not properly loaded');
         return [];
       }
-      return [...emojis].sort(() => Math.random() - 0.5).slice(0, count);
+      // Fisher-Yates shuffle using crypto random + timestamp entropy
+      const pool = [...emojis];
+      const ts = Date.now();
+      for (let i = pool.length - 1; i > 0; i--) {
+        const arr = new Uint32Array(1);
+        crypto.getRandomValues(arr);
+        const j = ((arr[0] ^ (ts >>> (i % 16))) >>> 0) % (i + 1);
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool.slice(0, count);
     }
   
     async function copyToClipboard(text) {

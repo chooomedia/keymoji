@@ -13,7 +13,6 @@
         currentAccount, 
         userProfile, 
         accountTier,
-        successfulStoryRequests,
         isDisabled
     } from 'stores/appStores';
     import { remainingGenerations as remainingGenerationsStore } from '../stores/dailyUsageStore.js';
@@ -144,13 +143,17 @@
     function handleOTPDigitInput(index, event) {
         otpError = '';
         const val = event.target.value.replace(/\D/g, '');
-        // If user pastes all 7 digits into first field
+        // Paste: fill all fields from first input
         if (val.length > 1) {
             const digits = val.slice(0, 7).split('');
             digits.forEach((d, i) => { otpDigits[i] = d; });
             otpDigits = [...otpDigits];
-            const nextRef = otpInputRefs[Math.min(digits.length, 6)];
-            if (nextRef) nextRef.focus();
+            const filled = otpDigits.join('');
+            const focusIdx = Math.min(digits.length, 6);
+            otpInputRefs[focusIdx]?.focus();
+            if (filled.length === 7) {
+                setTimeout(() => handleOTPSubmit(null), 50);
+            }
             return;
         }
         otpDigits[index] = val.slice(-1);
@@ -158,13 +161,20 @@
         if (val && index < 6) {
             otpInputRefs[index + 1]?.focus();
         }
-        // Auto-submit when all 7 filled
-        if (otpCode.length === 7) {
-            handleOTPSubmit(null);
+        // Auto-submit when all 7 fields are filled
+        const filled = otpDigits.join('');
+        if (filled.length === 7 && !otpDigits.includes('')) {
+            setTimeout(() => handleOTPSubmit(null), 50);
         }
     }
 
     function handleOTPDigitKeydown(index, event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            const filled = otpDigits.join('');
+            if (filled.length === 7) handleOTPSubmit(null);
+            return;
+        }
         if (event.key === 'Backspace' && !otpDigits[index] && index > 0) {
             otpDigits[index - 1] = '';
             otpDigits = [...otpDigits];
