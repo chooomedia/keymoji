@@ -548,17 +548,20 @@ async function callApertus(
     // Import WEBHOOKS dynamically to avoid circular dependencies
     const { WEBHOOKS } = await import('../config/api.js');
 
-    // Use user-supplied apiKey first (from Settings), then fall back to env token
-    // This allows users to supply their own Hugging Face / Apertus token
-    const userSuppliedToken = apiKey && apiKey.trim().length >= 10 ? apiKey.trim() : '';
+    // The n8n security token ALWAYS comes from the environment variable.
+    // apiKey here is a user-supplied Hugging Face token (hf_...) — only used
+    // if it starts with 'hf_', to forward to a direct HF call (future feature).
+    // NEVER use arbitrary apiKey as the n8n webhook auth token.
+    const userHFToken = apiKey && apiKey.trim().startsWith('hf_') ? apiKey.trim() : '';
     const envToken =
         (typeof import.meta !== 'undefined' &&
             (import.meta.env as { VITE_N8N_APERTUS_TOKEN?: string })
                 ?.VITE_N8N_APERTUS_TOKEN) ||
         '';
-    const rawToken = userSuppliedToken || envToken;
-    if (userSuppliedToken) {
-        console.log('🔑 [Apertus] Using user-supplied token from Settings');
+    // n8n webhook token: env token takes priority (security), HF token only as fallback
+    const rawToken = envToken || userHFToken;
+    if (userHFToken) {
+        console.log('🔑 [Apertus] User-supplied HF token detected (hf_...)');
     }
 
     // Debug: Log raw token (before cleaning) - only in development
