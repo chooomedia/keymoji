@@ -1,0 +1,56 @@
+---
+description: Core project principles for Keymoji — always active for every interaction
+alwaysApply: true
+---
+
+# Keymoji — Core Rules
+
+Keymoji ist eine Svelte-Anwendung für sichere Emoji-Passwort-Generierung mit Magic-Link-Auth (OTP per E-Mail), Account-Management via n8n/Google Sheets und AI Story Mode.
+
+## Code-Qualität
+
+- **IMMER TypeScript** — alle neuen Dateien müssen `.ts` oder `lang="ts"` sein
+- **DRY** — keine Duplikate, wiederverwendbare Komponenten/Utils
+- **Single Source of Truth** — jede Datenquelle hat genau einen Ort
+- **Performance First** — Funktionen nur so oft wie nötig ausführen
+- **Memory Leaks** — alle Timeouts/Intervals in `onDestroy` clearen
+- **Keine `any` Types** — immer spezifische TypeScript-Types
+
+## Verbotene Patterns
+
+1. Direkte `fetch()` Calls — immer `cachedFetch` aus `utils/apiCache.js`
+2. Klassische Svelte Stores wo Runes möglich
+3. Inline Styles — nur Tailwind CSS
+4. Doppelte API-Calls — Daten zwischen Komponenten weitergeben
+5. Console Logs in Production — nur via `isDevelopment()`
+6. Magic Numbers — immer Konstanten
+7. Nested Ternaries — klarere If-Statements
+8. Unused Imports
+
+## Naming Conventions
+
+- Komponenten: `PascalCase` (`UserSettings.svelte`)
+- Dateien/Funktionen: `camelCase` (`accountStore.js`, `getUserSettings()`)
+- Konstanten: `UPPER_SNAKE_CASE` (`STORAGE_KEYS`)
+- Types/Interfaces: `PascalCase` (`UserAccount`)
+
+## Datei-Struktur
+
+```
+src/
+├── components/   # A11y/, Core/, Features/, Layout/, UI/
+├── config/       # api.js, storage.js, limits.js
+├── data/         # languages/, userSettings.json
+├── routes/       # Page-Komponenten
+├── stores/       # accountStore, dailyUsageStore, userDataStore
+├── types/        # Account.ts, ...
+└── utils/        # apiCache, metadataCleaner, seo, ...
+```
+
+## Aktuelle Prioritäten
+
+1. Svelte 5 Runes überall
+2. TypeScript in allen Dateien
+3. Keine doppelten API-Calls
+4. Performance & Caching
+5. Vollständige A11y

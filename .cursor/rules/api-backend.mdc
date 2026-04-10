@@ -1,0 +1,65 @@
+---
+description: API, n8n, Google Sheets, storage and account management patterns for Keymoji
+globs:
+  - "src/stores/**"
+  - "src/config/**"
+  - "src/utils/apiCache*"
+  - "src/utils/metadataCleaner*"
+  - "n8n-workflows/**"
+alwaysApply: false
+---
+
+# API, Backend & Storage Patterns
+
+## API Calls — Pflichtregeln
+
+- **IMMER** `cachedFetch` / `cachedFetchAccount` aus `utils/apiCache.js`
+- **KEINE** direkten `fetch()` Calls außer in `apiCache.js`
+- **KEINE** doppelten API-Calls — Daten zwischen Komponenten weitergeben
+- **IMMER** try/catch mit user-freundlichen Error Messages
+- **IMMER** Loading States
+
+## Authentication (OTP / Magic Link)
+
+- `secureLoginWithMagicLink()` — Login initiieren
+- `secureVerifyOTP()` / `secureVerifyMagicLink()` — Code verifizieren
+- Session Validation vor jeder Account-Operation
+- Cross-Tab Communication via `BroadcastChannel`
+
+## Account Management
+
+- `accountStore.js` — einziger Ort für Account-Operationen
+- `syncAccountData()` nach Login/Update aufrufen
+- `currentAccount` Store = Single Source of Truth
+- Vor jedem API-Call: `prepareMetadataForAPI()` aus `metadataCleaner.ts`
+
+## n8n / Google Sheets
+
+- `WEBHOOKS` aus `config/api.js` verwenden — nie URLs hardcoden
+- Actions: `"get"` / `"read"` = read-only (kein Sheets-Write), `"update"` / `"create"` = Upsert
+- Google Sheets Spalten (Top-Level, NICHT in `metadata`):
+  - `userId`, `email`, `tier`, `createdAt`, `lastLogin`, `profile`, `dailyUsage`, `metadata`, `status`
+- `metadata` JSON enthält: `settings`, `updatedAt`, `updatedVia`, `lastSettingsSave`
+- `profile` JSON enthält: `name`, `avatar`
+- `dailyUsage` JSON: `{ date, used, storyUsed, limit, lastReset }`
+
+## localStorage / Storage
+
+- **IMMER** `storageHelpers` aus `config/storage.js`
+- **IMMER** `STORAGE_KEYS` Konstanten — nie String-Literals
+- `DAILY_USAGE_HISTORY` = lokale Chart-History (kein API-Feld!)
+- Quota-Exceeded-Errors immer abfangen
+
+## Daily Usage / Chart
+
+- `dailyUsageStore.js` — Zähler für heute, API-Sync
+- `userDataStore.js` — `persistDailyUsageToHistory()` nach jedem Increment
+- Chart liest aus `localStorage.DAILY_USAGE_HISTORY` — kein `metadata.usageHistory`
+- `action: "update"` sendet `dailyUsage` als Top-Level Feld, NICHT in `metadata`
+
+## Performance
+
+- `cachedFetch` mit TTL für alle API-Calls
+- Debouncing für User Input
+- Lazy Loading für große Komponenten
+- `$derived` für abgeleitete Werte, `$effect` für Side Effects

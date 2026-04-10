@@ -1,0 +1,72 @@
+---
+description: Svelte 5 and TypeScript patterns for Keymoji components and stores
+globs:
+  - "src/**/*.svelte"
+  - "src/**/*.ts"
+  - "src/**/*.js"
+alwaysApply: false
+---
+
+# Svelte 5 & TypeScript Patterns
+
+## Svelte Runes (bevorzugt gegenüber klassischen Stores)
+
+```typescript
+// ✅ GUT: Svelte 5 Runes
+let count = $state(0);
+let doubled = $derived(count * 2);
+$effect(() => console.log(count));
+
+// ⚠️ ALT: nur wenn nötig für Store-Kompatibilität
+import { writable } from 'svelte/store';
+```
+
+## Komponenten-Struktur (Pflicht-Reihenfolge)
+
+```svelte
+<script lang="ts">
+  // 1. Imports
+  // 2. TypeScript Interfaces
+  // 3. Props mit $props()
+  // 4. State mit $state()
+  // 5. Derived mit $derived()
+  // 6. Effects mit $effect()
+  // 7. Functions
+</script>
+```
+
+## TypeScript Schemas
+
+```typescript
+export interface Account {
+  userId: string;
+  email: string;
+  tier: 'free' | 'pro';
+  profile: UserProfile;
+  metadata: AccountMetadata;
+}
+```
+
+## Tailwind CSS
+
+- **NUR** Tailwind Utility-Klassen
+- **KEINE** `<style>` Tags (Ausnahme: CSS Animationen wie `@keyframes`)
+- Dark Mode via `dark:` Klassen
+- Error-States: `border-2 border-red-500 dark:border-red-500 bg-red-50 dark:bg-red-950/60`
+
+## A11y (Pflicht)
+
+- `aria-label` für alle Icon-Buttons
+- Keyboard Navigation (`onKeydown`)
+- Focus Management für Modals (`FocusManager.svelte`)
+- Semantisches HTML
+- Alt-Text für alle Bilder
+
+## Migration Svelte 3 → 5
+
+| Alt | Neu |
+|---|---|
+| `writable()` | `$state()` |
+| `derived()` | `$derived()` |
+| `$: reaktiv` | `$effect()` |
+| `export let prop` | `let { prop } = $props()` |

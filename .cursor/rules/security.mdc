@@ -1,0 +1,54 @@
+---
+description: Security, error handling and debugging rules for Keymoji
+alwaysApply: false
+---
+
+# Security & Error Handling
+
+## Sicherheit
+
+- Input Validation für alle User-Eingaben
+- XSS Prevention — keine direkte DOM-Manipulation mit User-Daten
+- CSRF Protection via `X-Requested-With` Header
+- Rate Limiting für alle API Calls
+- Secure Storage — keine sensitiven Daten im Klartext in localStorage
+- OTP/Magic-Link: Single-Use Tokens, Token Expiry prüfen, Rate Limiting
+
+## Error Handling (Pflicht-Pattern)
+
+```typescript
+try {
+  const result = await apiCall();
+  return result;
+} catch (error) {
+  console.error('API Error:', error);
+  showError('Failed to load data. Please try again.');
+  return defaultValue;
+}
+```
+
+- **IMMER** try/catch für async Operations
+- **IMMER** user-freundliche Error Messages (lokalisiert via `$translations`)
+- **IMMER** Fallback Values
+- Error Boundaries für kritische Komponenten
+
+## Debugging
+
+- `isDevelopment()` aus `utils/environment.js` für Debug-Code
+- Console Logs nur in Development — nie in Production-Pfaden
+- Console Logs mit Emojis für Kategorisierung:
+  - `✅` Erfolg, `❌` Fehler, `⚠️` Warning, `📊` Data, `🔄` Sync, `📡` API
+
+## JSDoc für Funktionen
+
+```typescript
+/**
+ * Loads account data from backend
+ * @param userId - The user ID
+ * @param options - Optional parameters
+ * @returns Promise with account data
+ */
+async function loadAccount(userId: string, options?: LoadOptions): Promise<Account> {
+  // ...
+}
+```

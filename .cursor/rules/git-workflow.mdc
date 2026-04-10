@@ -1,0 +1,38 @@
+---
+description: Git commit and workflow rules for Keymoji
+alwaysApply: true
+---
+
+# Git & Workflow Rules
+
+## Commit Messages — MANDATORY
+
+- **Language: ALWAYS English** — commit messages are ALWAYS written in English, no exceptions
+- **Prefix required**: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`, `style:`, `perf:`, `test:`
+- **Imperative mood**: "Add feature" not "Added feature"
+- **Detailed body** for larger changes (also in English)
+
+```
+feat: add OTP error state with red background in dark mode
+
+- border-2 red, dark:bg-red-950/60 for visibility
+- Input.svelte invalid state aligned
+- Error message box with icon and border
+```
+
+## Branches
+
+- Feature-Branches für neue Features: `feat/feature-name`
+- `main` Branch für Production
+- PR für Code Review vor Merge
+
+## Version
+
+- `MAJOR.MINOR.PATCH` (Semantic Versioning)
+- Aktuelle Version: `0.8.1`
+- `package.json` + `src/utils/version.js` immer synchron halten
+
+## Deployment
+
+- GitHub Actions → automatischer Build + FTP-Deploy bei Push auf `main`
+- n8n Workflows: manueller Import nach Änderungen an `n8n-workflows/*.json`
