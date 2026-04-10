@@ -3515,10 +3515,20 @@
                     "mode": "name"
                 },
                 "columns": {
-                    "mappingMode": "autoMapInputData",
+                    "mappingMode": "defineBelow",
                     "matchingColumns": [
                         "email"
                     ],
+                    "value": {
+                        "userId": "={{ $json.userId }}",
+                        "email": "={{ $json.email }}",
+                        "tier": "={{ $json.tier }}",
+                        "createdAt": "={{ $json.createdAt }}",
+                        "lastLogin": "={{ $json.lastLogin }}",
+                        "dailyUsage": "={{ $json.dailyUsage }}",
+                        "metadata": "={{ $json.metadata }}",
+                        "status": "={{ $json.status }}"
+                    },
                     "schema": [
                         {
                             "id": "userId",
@@ -3610,7 +3620,7 @@
                             "display": true,
                             "type": "string",
                             "canBeUsedToMatch": true,
-                            "removed": false
+                            "removed": true
                         },
                         {
                             "id": "otp_expires_at",
@@ -3620,7 +3630,7 @@
                             "display": true,
                             "type": "string",
                             "canBeUsedToMatch": true,
-                            "removed": false
+                            "removed": true
                         },
                         {
                             "id": "otp_created_at",
@@ -3630,7 +3640,7 @@
                             "display": true,
                             "type": "string",
                             "canBeUsedToMatch": true,
-                            "removed": false
+                            "removed": true
                         }
                     ]
                 },
