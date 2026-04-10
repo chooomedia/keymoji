@@ -1258,15 +1258,17 @@
                                                     {@const isCustom = currentProvider === 'custom'}
                                                     {@const providerInfo = getProviderInfo(currentProvider)}
                                                     {@const providerPlaceholders = {
-                                                        apertus: 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-                                                        openai: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-                                                        gemini: 'AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                                                        apertus: 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (optional)',
+                                                        openai: 'sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                                                        gemini: 'AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
                                                         claude: 'sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
                                                         mistral: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-                                                        custom: 'Enter your API key...'
+                                                        custom: 'https://your-api-endpoint.com/v1'
                                                     }}
-                                                    {@const currentPlaceholder = providerPlaceholders[currentProvider] || getLocalizedText(apiKeysItem.placeholder) || 'Enter your API key...'}
+                                                    {@const currentPlaceholder = providerPlaceholders[currentProvider] || 'Enter your API key...'}
                                                     {@const isTestSuccessful = apiTestSuccess && testedProvider === currentProvider}
+                                                    <!-- Test button enabled: Apertus always (has built-in token), others only with valid key -->
+                                                    {@const canTest = !isTestingAPI && (isApertus || hasValidKey)}
                                                         
                                                     <!-- API Key Configuration Card -->
                                                     <div class="space-y-3 bg-powder-100 dark:bg-aubergine-950 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
@@ -1313,7 +1315,7 @@
                                                                     isApiKeyFocused = false;
                                                                     localApiKeyValue = currentApiKeyFromStore || '';
                                                                 }}
-                                                                placeholder={isApertus ? 'hf_xxxxxxxx... (optional — leave empty for free built-in)' : currentPlaceholder}
+                                                                placeholder={currentPlaceholder}
                                                                 aria-describedby={isApertus ? 'apertus-token-info' : undefined}
                                                                 class="w-full p-4 {hasValidKey ? 'pr-32' : hasAnyKey ? 'pr-14' : 'pr-4'} bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50 placeholder-gray-400 dark:placeholder-gray-500"
                                                                 aria-label={getLocalizedText(apiKeysItem.title)}
@@ -1355,17 +1357,19 @@
                                                                     </button>
                                                                 {/if}
                                                                 
-                                                                <!-- Test Button -->
+                                                                <!-- Test Button: disabled when no key (except Apertus which has built-in token) -->
                                                                 <button
                                                                     type="button"
-                                                                    disabled={isTestingAPI}
+                                                                    disabled={!canTest}
                                                                     on:click={testAPIConnection}
                                                                     class="inline-flex items-center justify-center gap-1 px-2.5 h-8 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed
                                                                         {isTestSuccessful
                                                                             ? 'bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700'
-                                                                            : 'hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white'}"
-                                                                    aria-label={isTestingAPI ? 'Testing API connection' : isTestSuccessful ? 'API connection verified' : 'Test API connection'}
-                                                                    title={isTestingAPI ? 'Testing...' : isTestSuccessful ? 'API connection verified ✅' : 'Test'}
+                                                                            : canTest
+                                                                                ? 'hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white'
+                                                                                : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'}"
+                                                                    aria-label={isTestingAPI ? 'Testing API connection' : isTestSuccessful ? 'API connection verified' : !canTest ? 'Enter an API key first' : 'Test API connection'}
+                                                                    title={isTestingAPI ? 'Testing...' : isTestSuccessful ? 'API connection verified ✅' : !canTest ? 'Enter an API key to enable test' : 'Test connection'}
                                                                 >
                                                                     {#if isTestingAPI}
                                                                         <svg class="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
