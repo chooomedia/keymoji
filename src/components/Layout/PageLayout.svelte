@@ -64,13 +64,11 @@
         <section class="main-content flex flex-col justify-center items-center min-h-screen pb-24 md:pb-28 pt-28 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
 
             <!-- Content before header (e.g. images) -->
-            <div class="-mb-2">
-                <slot name="before-header"></slot>
-            </div>
+            <slot name="before-header"></slot>
 
             <!-- Generic Page Header - wenn pageTitle gesetzt -->
             {#if pageTitle}
-                <div class="w-11/12 md:w-27 flex flex-wrap justify-center" role="banner">
+                <div class="w-11/12 md:w-27 flex flex-wrap justify-center -mt-2" role="banner">
                     <h1 class="md:text-3xl text-xl font-semibold dark:text-white mb-2 text-center w-full">
                         {pageTitle}
                     </h1>
