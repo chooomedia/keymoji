@@ -256,15 +256,15 @@
   $: donateLinks = [
     {
       id: 'ko-fi',
-      name: $translations?.donateButton?.text || 'Buy me a coffee',
-      href: 'https://ko-fi.com/chooomedia',
+      name: 'Ko-Fi',
+      href: 'https://ko-fi.com/keymoji',
       target: '_blank',
       svgContent: kofiIcon
     },
     {
       id: 'paypal',
       name: 'PayPal',
-      href: 'https://paypal.me/choooomedia/2',
+      href: 'https://paypal.me/keymoji/2',
       target: '_blank',
       svgContent: paypalIcon
     }
@@ -300,7 +300,7 @@
           class:active={selectedLink === link} 
           rel={link.rel} 
           title={link.title} 
-          on:click={() => selectLink(shareLinks, link.id)}
+          on:click={() => selectLink(1, link.id)}
         >
           {#if link.svgContent}
             <svg class="w-5 h-5 mr-2 transition" viewBox="0 0 24 24" fill="currentColor" alt={link.alt || ''}>

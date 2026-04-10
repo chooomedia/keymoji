@@ -574,7 +574,8 @@ export default {
             submitCode: '✅ Code bestätigen',
             verifying: 'Wird geprüft...',
             codeError: 'Bitte gib den 7-stelligen Code ein.',
-            codeInvalid: 'Ungültiger oder abgelaufener Code. Bitte neuen Code anfordern.'
+            codeInvalid:
+                'Ungültiger oder abgelaufener Code. Bitte neuen Code anfordern.'
         },
 
         // Hilfe-Bereich
@@ -640,9 +641,12 @@ export default {
             freeAccountActivated: 'Kostenloser Account aktiviert!',
             chartLoadFailed: 'Chart-Daten konnten nicht geladen werden',
             logoutSuccess: 'Erfolgreich abgemeldet',
-            accountFoundSendingCode: 'Account gefunden! Wir senden dir einen Code.',
-            accountFoundSendingLink: 'Account gefunden! Wir senden dir einen Code.',
-            creatingNewAccount: 'Neues Konto wird erstellt – Code kommt per E-Mail.',
+            accountFoundSendingCode:
+                'Account gefunden! Wir senden dir einen Code.',
+            accountFoundSendingLink:
+                'Account gefunden! Wir senden dir einen Code.',
+            creatingNewAccount:
+                'Neues Konto wird erstellt – Code kommt per E-Mail.',
             magicLinkSent:
                 'Code gesendet! Gib den 7-stelligen Code aus deiner E-Mail ein.',
             magicLinkSendFailed:
@@ -662,14 +666,18 @@ export default {
         optional: 'optional',
         verified: 'Verifiziert',
         testBtn: 'Testen',
-        apertusBuiltIn: 'Integrierter Token aktiv — funktioniert ohne eigenen Key.',
-        apertusOwnToken: 'Eigenen Hugging-Face-Token (hf_…) eingeben, um das persönliche Kontingent zu nutzen.',
+        apertusBuiltIn:
+            'Integrierter Token aktiv — funktioniert ohne eigenen Key.',
+        apertusOwnToken:
+            'Eigenen Hugging-Face-Token (hf_…) eingeben, um das persönliche Kontingent zu nutzen.',
         apertusGetToken: 'Kostenlosen HF-Token holen',
         openaiHint: 'Benötigt einen kostenpflichtigen OpenAI API-Key (sk-…).',
-        geminiHint: 'Kostenloses Kontingent verfügbar. Key im Google AI Studio erstellen.',
+        geminiHint:
+            'Kostenloses Kontingent verfügbar. Key im Google AI Studio erstellen.',
         claudeHint: 'Benötigt einen Anthropic API-Key (sk-ant-…).',
         mistralHint: 'Europäische KI. Key auf console.mistral.ai erstellen.',
-        customHint: 'OpenAI-kompatibler Endpunkt. Basis-URL und API-Key unten eingeben.',
+        customHint:
+            'OpenAI-kompatibler Endpunkt. Basis-URL und API-Key unten eingeben.',
         getApiKey: 'API-Key holen',
         savedKeys: 'Gespeichert',
 

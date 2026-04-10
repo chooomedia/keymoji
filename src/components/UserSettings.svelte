@@ -131,9 +131,9 @@
     // ============================================
     // Priority: pendingChanges > userSettings > default
     // CRITICAL: These reactive statements ensure immediate updates when stores change
-    $: pendingProviderValue = $pendingChanges['storyMode.provider'];
+    $: pendingProviderValue = $pendingChanges?.storyMode?.provider;
     $: settingsProviderValue = $userSettings?.storyMode?.provider;
-    $: currentStoryModeProvider = getEffectiveValue('storyMode.provider') || 'apertus';
+    $: currentStoryModeProvider = $pendingChanges?.storyMode?.provider || getEffectiveValue('storyMode.provider') || 'apertus';
     
     // Active provider: prioritize pendingChanges (user is changing), then saved settings, then default
     $: activeProvider = pendingProviderValue !== undefined 
