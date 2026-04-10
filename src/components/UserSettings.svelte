@@ -309,8 +309,8 @@
             const currentSettings = getCurrentUserSettings();
             const isApertus = currentProvider === 'apertus';
             
-            // CRITICAL: Apertus uses VITE_N8N_APERTUS_TOKEN from environment, NOT apiKeys.apertus!
-            // For other providers, check apiKeys
+            // For Apertus: always considered configured (env token or user-supplied token)
+            // For other providers: check apiKeys store
             let hasApiKey = false;
             if (!isApertus) {
                 let apiKeys = getEffectiveValue('storyMode.apiKeys');
@@ -319,15 +319,16 @@
                 }
                 hasApiKey = apiKeys[currentProvider] && apiKeys[currentProvider].length >= 10;
             } else {
-                // For Apertus: Check if VITE_N8N_APERTUS_TOKEN exists in environment
-                const hasToken = typeof import.meta !== 'undefined' && 
+                // Apertus: user-supplied token OR env token — always available
+                const userApiKeys = getEffectiveValue('storyMode.apiKeys') || {};
+                const userApertusToken = userApiKeys['apertus'];
+                const hasUserToken = userApertusToken && userApertusToken.trim().length >= 10;
+                const hasEnvToken = typeof import.meta !== 'undefined' && 
                     import.meta.env?.VITE_N8N_APERTUS_TOKEN &&
                     import.meta.env.VITE_N8N_APERTUS_TOKEN.trim().length > 0;
-                hasApiKey = hasToken; // Apertus is configured if token exists
+                hasApiKey = hasUserToken || hasEnvToken || true; // Always allow Apertus
                 console.log('🔍 [Apertus] Token check:', {
-                    hasToken,
-                    tokenExists: !!import.meta?.env?.VITE_N8N_APERTUS_TOKEN,
-                    tokenLength: import.meta?.env?.VITE_N8N_APERTUS_TOKEN?.length || 0
+                    hasUserToken, hasEnvToken, result: hasApiKey
                 });
             }
             
@@ -344,26 +345,24 @@
             if (value === true) {
                 // Check if API key/token exists (skip for Apertus if token is in env)
                 if (!hasApiKey) {
-                    const errorMessage = isApertus
-                        ? `⚠️ Bitte konfiguriere VITE_N8N_APERTUS_TOKEN in der .env Datei!\n\n` +
-                          `Apertus verwendet einen n8n Token aus der Umgebungsvariable, nicht einen API-Key.`
-                        : `⚠️ Bitte gib zuerst einen API-Key für ${currentProvider} ein!\n\n` +
-                          `Du benötigst einen gültigen API-Key, um Story Mode zu nutzen.`;
-                    showWarning(errorMessage, 5000);
-                    console.error(`❌ Story Mode activation blocked: ${isApertus ? 'No n8n token' : 'No API key'}`);
-                    return; // Don't update setting
+                    showWarning(
+                        `⚠️ Please enter an API key for ${currentProvider} first!\n\n` +
+                        `You need a valid API key to use Story Mode.`,
+                        5000
+                    );
+                    console.error(`❌ Story Mode activation blocked: No API key for ${currentProvider}`);
+                    return;
                 }
                 
                 // OPTIONAL: Warn if not tested, but allow activation
                 if (!apiTestSuccess || testedProvider !== currentProvider) {
-                    console.warn('⚠️ Story Mode aktiviert ohne API-Test');
+                    console.warn('⚠️ Story Mode enabled without API test');
                     showWarning(
-                        `⚠️ Hinweis: API-Verbindung noch nicht getestet!\n\n` +
-                        `Klicke auf "🧪 Test" um die Verbindung zu prüfen.\n\n` +
-                        `Story Mode wird trotzdem aktiviert.`,
+                        `⚠️ API connection not tested yet!\n\n` +
+                        `Click "🧪 Test" to verify the connection.\n\n` +
+                        `Story Mode will be enabled anyway.`,
                         4000
                     );
-                    // Continue and activate anyway
                 }
                 
                 console.log('✅ Story Mode wird aktiviert');
@@ -386,8 +385,8 @@
                 // Show info notification
                 if (newKey.length >= 10) {
                     showWarning(
-                        `⚠️ API-Key geändert\n\n` +
-                        `Bitte teste die neue Verbindung mit "🧪 Test".`,
+                        `⚠️ API key changed\n\n` +
+                        `Please test the new connection with "🧪 Test".`,
                         3000
                     );
                 }
@@ -764,14 +763,14 @@
                         apiKeysObject: apiKeys,
                         allApiKeys: Object.keys(apiKeys || {}).map(k => ({ key: k, length: apiKeys[k]?.length || 0 }))
                     });
-                    showWarning(`⚠️ Bitte gib zuerst einen gültigen API-Key für ${providerInfo.name} ein (mindestens ${minKeyLength} Zeichen)`, 3000);
+                    showWarning(`⚠️ Please enter a valid API key for ${providerInfo.name} first (at least ${minKeyLength} characters)`, 3000);
                     isTestingAPI = false;
                     return;
                 }
             }
             
-            // For Apertus, use empty string as apiKey (n8n token is handled in callApertus)
-            const effectiveApiKey = provider === 'apertus' ? '' : apiKey;
+            // For Apertus: use user-supplied token if available, otherwise empty (env token used by n8n)
+            const effectiveApiKey = provider === 'apertus' ? (apiKey || '') : apiKey;
             
             // Build config for test
             const testConfig = {
@@ -863,11 +862,11 @@
                 
                     // Show success message (only if not a retry, or show retry info)
                     const successMessage = attempt > 1
-                        ? `✅ Verbindung erfolgreich (nach ${attempt} Versuchen)!\n\n` +
-                    `Provider: ${providerInfo.name}\n` +
-                    `Model: ${result.model || 'default'}\n` +
+                        ? `✅ Connection successful (after ${attempt} attempts)!\n\n` +
+                          `Provider: ${providerInfo.name}\n` +
+                          `Model: ${result.model || 'default'}\n` +
                           `Response: ${responsePreview}${responsePreview.length >= 50 ? '...' : ''}`
-                        : `✅ Verbindung erfolgreich!\n\n` +
+                        : `✅ Connection successful!\n\n` +
                           `Provider: ${providerInfo.name}\n` +
                           `Model: ${result.model || 'default'}\n` +
                           `Response: ${responsePreview}${responsePreview.length >= 50 ? '...' : ''}`;
@@ -932,34 +931,34 @@
         });
         
         // USER: Show short, user-friendly error message
-        const errorMessage = lastError?.message || 'Unbekannter Fehler';
+        const errorMessage = lastError?.message || 'Unknown error';
         
-        // Create short error message for user (not as detailed as dev logs)
-        let userErrorMessage = 'Verbindung fehlgeschlagen';
+        let userErrorMessage = 'Connection failed';
         let userHelpText = '';
         
-        // Provide context-specific short help text
-            if (errorMessage.includes('empty response') || errorMessage.includes('no content') || 
+        if (errorMessage.includes('empty response') || errorMessage.includes('no content') || 
                 errorMessage.includes('success but empty') || errorMessage.includes('returned empty')) {
-            userErrorMessage = 'Leere Antwort vom API';
-            userHelpText = '\n\n💡 Prüfe das n8n Workflow "Format Response" Node.';
-            } else if (errorMessage.includes('CORS_ERROR')) {
-            userErrorMessage = 'CORS-Fehler';
-            userHelpText = '\n\n💡 CORS-Header in API-Server hinzufügen.';
+            userErrorMessage = 'Empty response from API';
+            userHelpText = '\n\n💡 Check the n8n workflow "Format Response" node.';
+        } else if (errorMessage.includes('CORS_ERROR')) {
+            userErrorMessage = 'CORS error';
+            userHelpText = '\n\n💡 Add CORS headers to your API server.';
         } else if (errorMessage.includes('NETWORK_ERROR')) {
-            userErrorMessage = 'Netzwerkfehler';
-            userHelpText = '\n\n💡 Prüfe API-URL und Internetverbindung.';
+            userErrorMessage = 'Network error';
+            userHelpText = '\n\n💡 Check API URL and internet connection.';
         } else if (errorMessage.includes('timeout')) {
-            userErrorMessage = 'Zeitüberschreitung';
-            userHelpText = '\n\n💡 API antwortet nicht. Prüfe Server-Status.';
+            userErrorMessage = 'Request timeout';
+            userHelpText = '\n\n💡 API is not responding. Check server status.';
+        } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized') || errorMessage.includes('token')) {
+            userErrorMessage = 'Authentication failed';
+            userHelpText = '\n\n💡 Check your API key or token.';
         }
         
-        // Show short error message to user (detailed logs are in console for devs)
-            showError(
+        showError(
             `❌ ${userErrorMessage}${userHelpText}\n\n` +
-            `(Details in Browser-Console für Entwickler)`,
-            5000 // Shorter display time for user
-            );
+            `(Details in browser console)`,
+            5000
+        );
         
             isTestingAPI = false;
     }
@@ -1097,17 +1096,17 @@
                                 {$translations?.accountManager?.tiers?.freeAccount || 'Kostenloser Account'}
                             </h2>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                {$translations?.accountManager?.upgrade?.upgradeToProForFeatures || 'Upgrade auf Pro für erweiterte Features'}
+                                {$translations?.accountManager?.upgrade?.upgradeToProForFeatures || 'Upgrade to Pro for advanced features'}
                             </p>
                         </div>
                     </div>
                     <button
                         on:click={handleUpgrade}
                         class="w-full inline-flex justify-center items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 focus:bg-purple-700 active:bg-purple-800 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
-                        aria-label="{$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}"
-                        title="{$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}"
+                        aria-label="{$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Upgrade to Pro now'}"
+                        title="{$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Upgrade to Pro now'}"
                     >
-                        {$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Jetzt Pro upgraden'}
+                        {$translations?.accountManager?.upgrade?.upgradeProNow || '💎 Upgrade to Pro now'}
                     </button>
                 </div>
             </div>
@@ -1285,49 +1284,43 @@
                                                         </div>
                                                             
                                                         <!-- Input Container -->
+                                                        <!-- Apertus info: free token active when field is empty -->
+                                                        {#if isApertus}
+                                                            <p id="apertus-token-info" class="text-xs text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
+                                                                <span>🇨🇭</span>
+                                                                <span>Free Swiss AI active — leave empty to use the built-in token, or enter your own Hugging Face token.</span>
+                                                            </p>
+                                                        {/if}
+
                                                         <div class="relative">
-                                                            {#if isApertus}
-                                                                <!-- Apertus: Disabled (uses environment token) -->
-                                                                <input
-                                                                    id="storyMode.apiKeys"
-                                                                    type="password"
-                                                                    value={currentPlaceholder}
-                                                                    disabled
-                                                                    readonly
-                                                                    placeholder={currentPlaceholder}
-                                                                    class="w-full p-4 pr-4 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-500 border border-gray-300 dark:border-gray-600 rounded-xl transition-all duration-200 cursor-not-allowed opacity-60"
-                                                                    aria-label={getLocalizedText(apiKeysItem.title)}
-                                                                    aria-describedby="apertus-token-info"
-                                                                />
-                                                            {:else}
-                                                                <!-- Other Providers: Editable -->
-                                                                <input
-                                                                    id="storyMode.apiKeys"
-                                                                    type={showApiKey ? 'text' : 'password'}
-                                                                    value={currentApiKey || ''}
-                                                                    on:input={(e) => {
-                                                                        localApiKeyValue = e.target.value;
-                                                                        const newApiKeys = { ...apiKeys, [currentProvider]: e.target.value };
-                                                                        handleSettingUpdate('storyMode.apiKeys', newApiKeys);
-                                                                    }}
-                                                                    on:focus={() => {
-                                                                        isApiKeyFocused = true;
-                                                                        const apiKeys = getCurrentValue({ id: 'storyMode.apiKeys' }) || {};
-                                                                        const keyFromStore = (apiKeys && typeof apiKeys === 'object' ? apiKeys[currentProvider] : '') || '';
-                                                                        localApiKeyValue = keyFromStore;
-                                                                    }}
-                                                                    on:blur={() => {
-                                                                        isApiKeyFocused = false;
-                                                                        localApiKeyValue = currentApiKeyFromStore || '';
-                                                                    }}
-                                                                    placeholder={currentPlaceholder}
-                                                                    class="w-full p-4 {hasValidKey ? 'pr-32' : hasAnyKey ? 'pr-14' : 'pr-4'} bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50 placeholder-gray-400 dark:placeholder-gray-500"
-                                                                    aria-label={getLocalizedText(apiKeysItem.title)}
-                                                                />
-                                                            {/if}
+                                                            <!-- All providers: editable input -->
+                                                            <input
+                                                                id="storyMode.apiKeys"
+                                                                type={showApiKey ? 'text' : 'password'}
+                                                                value={currentApiKey || ''}
+                                                                on:input={(e) => {
+                                                                    localApiKeyValue = e.target.value;
+                                                                    const newApiKeys = { ...apiKeys, [currentProvider]: e.target.value };
+                                                                    handleSettingUpdate('storyMode.apiKeys', newApiKeys);
+                                                                }}
+                                                                on:focus={() => {
+                                                                    isApiKeyFocused = true;
+                                                                    const apiKeys = getCurrentValue({ id: 'storyMode.apiKeys' }) || {};
+                                                                    const keyFromStore = (apiKeys && typeof apiKeys === 'object' ? apiKeys[currentProvider] : '') || '';
+                                                                    localApiKeyValue = keyFromStore;
+                                                                }}
+                                                                on:blur={() => {
+                                                                    isApiKeyFocused = false;
+                                                                    localApiKeyValue = currentApiKeyFromStore || '';
+                                                                }}
+                                                                placeholder={isApertus ? 'hf_xxxxxxxx... (optional — leave empty for free built-in)' : currentPlaceholder}
+                                                                aria-describedby={isApertus ? 'apertus-token-info' : undefined}
+                                                                class="w-full p-4 {hasValidKey ? 'pr-32' : hasAnyKey ? 'pr-14' : 'pr-4'} bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50 placeholder-gray-400 dark:placeholder-gray-500"
+                                                                aria-label={getLocalizedText(apiKeysItem.title)}
+                                                            />
                                                             
                                                             <!-- Gradient Overlay (for long keys) -->
-                                                            {#if !isApertus && hasAnyKey}
+                                                            {#if hasAnyKey}
                                                                 <div 
                                                                     class="absolute {hasValidKey ? 'right-[7.25rem]' : 'right-[3.25rem]'} inset-y-[1px] {hasValidKey ? 'w-32' : 'w-20'} z-5 pointer-events-none rounded-r-[11px]"
                                                                     style="background: linear-gradient(to right, 
@@ -1341,7 +1334,7 @@
                                                             
                                                             <!-- Action Buttons -->
                                                             <div class="absolute right-2 inset-y-0 flex items-center gap-1 z-10">
-                                                                {#if !isApertus && hasAnyKey}
+                                                                {#if hasAnyKey}
                                                                     <button
                                                                         type="button"
                                                                         on:click={() => showApiKey = !showApiKey}
@@ -1396,12 +1389,12 @@
                                                         <!-- Provider Info & Documentation -->
                                                         <div class="text-xs text-gray-600 dark:text-gray-400 mt-1 space-y-1">
                                                             {#if isApertus}
-                                                                <p id="apertus-token-info" class="text-gray-700 dark:text-gray-300 font-medium mb-2">
-                                                                    {$translations?.accountManager?.apertusInfo || 'Exclusive on Keymoji: Apertus – the Swiss LLM. First time available for users. Hosted on HuggingFace, delivered via n8n workflow.'}
+                                                                <p class="text-gray-700 dark:text-gray-300 font-medium mb-2">
+                                                                    {$translations?.accountManager?.apertusInfo || 'Exclusive on Keymoji: Apertus – the Swiss LLM. Hosted on HuggingFace, delivered via n8n workflow.'}
                                                                 </p>
                                                                 <div class="flex flex-wrap items-center gap-3 mt-2">
                                                                     <a href="https://huggingface.co/swiss-ai/Apertus-8B-Instruct-2509" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
-                                                                        <span>{$translations?.accountManager?.apertusHuggingFaceLink || 'Apertus-8B auf HuggingFace'}</span>
+                                                                        <span>{$translations?.accountManager?.apertusHuggingFaceLink || 'Apertus-8B on HuggingFace'}</span>
                                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                                                         </svg>
