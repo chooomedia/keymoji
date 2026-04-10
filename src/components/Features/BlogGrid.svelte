@@ -1,6 +1,6 @@
 <script>
     import { onMount, onDestroy } from 'svelte';
-    import { Link, navigate } from 'svelte-routing';
+    import { Link } from 'svelte-routing';
     import { 
         fetchBlogPosts, 
         likeBlogPost, 
@@ -8,8 +8,30 @@
     } from '../../utils/blogApi';
     import { getBlogUrl, getBlogShareUrl } from '../../utils/blogNavigation';
     import { currentLanguage, translations } from '../../stores/contentStore.js';
-    import { isLoggedIn } from 'stores/appStores'
     import { get } from 'svelte/store';
+    
+    const LIKED_POSTS_KEY = 'keymoji_blog_liked_posts';
+    
+    function getUserLikedPosts() {
+        try {
+            return JSON.parse(localStorage.getItem(LIKED_POSTS_KEY) || '{}');
+        } catch {
+            return {};
+        }
+    }
+    
+    function hasUserLiked(postId) {
+        const liked = getUserLikedPosts();
+        return !!liked[String(postId)];
+    }
+    
+    function markPostAsLiked(postId) {
+        try {
+            const liked = getUserLikedPosts();
+            liked[String(postId)] = true;
+            localStorage.setItem(LIKED_POSTS_KEY, JSON.stringify(liked));
+        } catch {}
+    }
     import PageLayout from '../Layout/PageLayout.svelte';
     import { updateSeo } from '../../stores/seoStore';
     import BlogPostImage from './BlogPostImage.svelte';
@@ -110,27 +132,16 @@
     let likeStatusMap = new Map(); // Map für Erfolgs-/Fehler-Status: { postId: 'success' | 'error' | null }
     
     async function handleLike(postId) {
-        if (!get(isLoggedIn)) {
-            const lang = $currentLanguage || 'en';
-            const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
-            navigate(accountPath, { replace: false });
+        if (!postId || likingPostId === postId) return;
+        
+        // Prüfen ob dieser Nutzer den Post bereits geliked hat (localStorage)
+        if (hasUserLiked(postId)) {
+            console.log('⚠️ [BlogGrid] Post already liked by this user, skipping');
             return;
         }
-        
-        if (!postId || likingPostId === postId) return;
         
         const postIndex = posts.findIndex(p => (p.id === postId || p.row_number === postId));
         if (postIndex === -1) return;
-        
-        // Get current like status
-        const currentLikeStatus = blogLikesStore.getLikeStatus(postId);
-        const currentLikes = currentLikeStatus.likes || 0;
-        
-        // KEIN TOGGLE: Nur Like wenn likes === 0
-        if (currentLikes > 0) {
-            console.log('⚠️ [BlogGrid] Post already liked (likes > 0), skipping');
-            return;
-        }
         
         // Clear previous status
         likeStatusMap.delete(postId);
@@ -167,6 +178,9 @@
         likingPostId = null;
         
         if (result && result.success) {
+                // Nutzer als "hat geliked" markieren (localStorage)
+                markPostAsLiked(postId);
+                
                 // Erfolg: Grünes Häkchen
                 likeStatusMap.set(postId, 'success');
                 likeStatusMap = likeStatusMap;
@@ -807,18 +821,18 @@
                         {#if post}
                             {@const likeStatus = blogLikesStore.getLikeStatus(post.id || post.row_number)}
                             {@const displayLikes = post.likes !== undefined && post.likes !== null ? parseInt(String(post.likes), 10) : likeStatus.likes}
-                            {@const hasLikes = displayLikes > 0}
                             {@const postId = post.id || post.row_number}
+                            {@const userLiked = hasUserLiked(postId)}
                             {@const status = likeStatusMap.get(postId)}
                         <button 
                             data-like-button-id={postId}
-                            aria-label={hasLikes ? 'Post already liked' : 'Like the blog post'}
+                            aria-label={userLiked ? 'You already liked this post' : 'Like the blog post'}
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 h-8 bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-medium hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-red-300 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-visible"
                             on:click|stopPropagation={() => handleLike(postId)}
-                            title={hasLikes ? 'Already liked' : 'Like'}
-                            disabled={likingPostId === postId || hasLikes}
+                            title={userLiked ? 'Already liked' : 'Like'}
+                            disabled={likingPostId === postId || userLiked}
                         >
-                            <span class="text-base relative inline-block {animatingHearts.has(postId) ? 'animate-heart-bounce' : ''}">{hasLikes ? '❤️' : '🤍'}</span>
+                            <span class="text-base relative inline-block {animatingHearts.has(postId) ? 'animate-heart-bounce' : ''}">{userLiked ? '❤️' : '🤍'}</span>
                             {#if likingPostId === postId}
                                 <!-- Loading Spinner -->
                                 <svg class="animate-spin h-4 w-4 text-gray-700 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
