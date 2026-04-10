@@ -857,23 +857,46 @@ if (typeof window !== 'undefined') {
 
 // ============================================
 // SESSION GENERATION COUNTER
-// Counts emoji generations per browser session (sessionStorage)
-// Resets on tab close — no persistence across sessions
+// Counts emoji generations per page load — resets on every refresh.
+// Uses a page-load ID (set once via performance.now / Date.now) to
+// distinguish a fresh page load from a still-open tab.
 // ============================================
 
 const SESSION_GEN_KEY = 'keymoji_session_generations';
+const SESSION_PAGE_ID_KEY = 'keymoji_session_page_id';
+
+function getOrCreatePageId(): string {
+    // Each page load generates a unique ID stored in memory only.
+    // We store it in sessionStorage to detect reloads:
+    // if the stored page ID doesn't match the one we just created → it's a reload.
+    return String(Date.now()) + '_' + Math.floor(Math.random() * 1e9);
+}
 
 function readSessionCount(): number {
+    if (typeof window === 'undefined') return 0;
     try {
+        // Generate a fresh page-load ID every time this module initialises.
+        // On first load the stored ID is absent → write it and start at 0.
+        // On reload the stored ID is present but different → reset to 0.
+        const freshPageId = getOrCreatePageId();
+        const storedPageId = sessionStorage.getItem(SESSION_PAGE_ID_KEY);
+
+        if (!storedPageId || storedPageId !== freshPageId) {
+            // New page load or reload: reset counter
+            sessionStorage.setItem(SESSION_PAGE_ID_KEY, freshPageId);
+            sessionStorage.setItem(SESSION_GEN_KEY, '0');
+            return 0;
+        }
         return parseInt(sessionStorage.getItem(SESSION_GEN_KEY) || '0', 10) || 0;
     } catch {
         return 0;
     }
 }
 
-export const sessionGenerationCount: Writable<number> = writable(
-    typeof window !== 'undefined' ? readSessionCount() : 0
-);
+// Initialise once per module load (i.e. once per page load/reload)
+const _initialCount = readSessionCount();
+
+export const sessionGenerationCount: Writable<number> = writable(_initialCount);
 
 export function incrementSessionCount(): void {
     sessionGenerationCount.update(n => {
