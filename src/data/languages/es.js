@@ -34,6 +34,8 @@ export default {
         setupStoryModeSwissShort: 'IA suiza',
         setupStoryModeOr: 'o',
         setupStoryModeBannerCta: '— Crea tu Keymoji-Story',
+        setupStoryModeBannerText: '✨ Tu historia se convierte en tu Keymoji seguro',
+        setupStoryModeChip: 'Activar Story Mode',
         setupStoryModeDescription:
             'Conéctate con tu IA para contraseñas emoji personalizadas.',
         setupStoryModeSwissDescription:
@@ -465,10 +467,10 @@ export default {
 
         // Botones y acciones
         buttons: {
-            createMagicLink: 'Crear enlace mágico',
+            createMagicLink: 'Enviar código por email',
             loginToAccount: 'Iniciar sesión en cuenta',
             checkAccountExists: 'Verificando cuenta...',
-            sendingMagicLink: 'Enviando enlace mágico...',
+            sendingMagicLink: 'Enviando código...',
             accountExists: 'Cuenta encontrada - Iniciando sesión...',
             accountNotFound: 'Cuenta no encontrada - Creando...',
             sessionExpired: 'Sesión expirada - Iniciar sesión nuevamente',

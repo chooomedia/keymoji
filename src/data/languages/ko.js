@@ -34,6 +34,8 @@ export default {
         setupStoryModeSwissShort: '스위스 AI',
         setupStoryModeOr: '또는',
         setupStoryModeBannerCta: '— 나만의 Keymoji 스토리 만들기',
+        setupStoryModeBannerText: '✨ 내 스토리가 나만의 Keymoji 가 된다',
+        setupStoryModeChip: 'Story Mode 활성화',
         setupStoryModeDescription:
             'AI에 연결하여 개인화된 이모지 비밀번호를 받으세요.',
         setupStoryModeSwissDescription:
@@ -458,10 +460,10 @@ export default {
 
         // 버튼 및 작업
         buttons: {
-            createMagicLink: '매직 링크 만들기',
+            createMagicLink: '이메일로 코드 보내기',
             loginToAccount: '계정에 로그인',
             checkAccountExists: '계정 확인 중...',
-            sendingMagicLink: '매직 링크 전송 중...',
+            sendingMagicLink: '코드 전송 중...',
             accountExists: '계정 발견 - 로그인 중...',
             accountNotFound: '계정을 찾을 수 없음 - 생성 중...',
             sessionExpired: '세션 만료 - 다시 로그인',

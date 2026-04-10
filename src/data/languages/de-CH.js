@@ -34,6 +34,8 @@ export default {
         setupStoryModeSwissShort: 'Schwiizer KI',
         setupStoryModeOr: 'oder',
         setupStoryModeBannerCta: '— Erstell dini Keymoji-Story',
+        setupStoryModeBannerText: '✨ Dini Story wird dis sicheres Keymoji',
+        setupStoryModeChip: 'Story Mode aktiviere',
         setupStoryModeDescription:
             'Verbind di mit dim KI für personalisiereti Emoji-Passwörter.',
         setupStoryModeSwissDescription:
@@ -462,10 +464,10 @@ export default {
 
         // Knöpfe und Aktione
         buttons: {
-            createMagicLink: 'Magic-Link erstelle',
+            createMagicLink: 'Code per E-Mail schicke',
             loginToAccount: 'I Account ihlogge',
             checkAccountExists: 'Account wird überprüft...',
-            sendingMagicLink: 'Magic-Link wird gsendet...',
+            sendingMagicLink: 'Code wird gsendet...',
             accountExists: 'Account gfunde - Logge ih...',
             accountNotFound: 'Account nöd gfunde - Erstelle...',
             sessionExpired: 'Session abgloffe - Nomol ihlogge',

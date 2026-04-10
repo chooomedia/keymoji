@@ -31,6 +31,8 @@ export default {
         setupStoryMode: 'QIn yuDmoH',
         setupStoryModeSwiss: "Swiss AI yIlo'",
         setupStoryModeOr: "ghap",
+        setupStoryModeBannerText: "✨ QInlIj Keymoji QaplaH chavmoH",
+        setupStoryModeChip: "Story Mode yIchu'",
         setupStoryModeDescription:
             "QIn SaghwI' lIjDaq Yu' Daghaj QIn mu'ghommey HevmoHmeH",
         setupStoryModeSwissDescription:
@@ -460,10 +462,10 @@ export default {
 
         // Buttons and actions
         buttons: {
-            createMagicLink: "maH 'IDnar chenmoH",
+            createMagicLink: "tlhIngan HolDaq De' yIlI'",
             loginToAccount: "Huch Qan yI'ang",
             checkAccountExists: "Huch Qan Qanglu'...",
-            sendingMagicLink: "Qanglu'...",
+            sendingMagicLink: "De' lI'lu'...",
             accountExists: "Huch Qan lanpu' - QIn yI'anglu'...",
             accountNotFound: "Huch Qan lanbe' - chenmoHlu'...",
             sessionExpired: "QIn Qagh - yI'ang",

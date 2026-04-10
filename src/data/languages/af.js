@@ -33,6 +33,8 @@ export default {
         setupStoryModeSwiss: 'Gebruik Switserse AI',
         setupStoryModeSwissShort: 'Switserse AI',
         setupStoryModeOr: 'of',
+        setupStoryModeBannerText: '✨ Jou storie word jou veilige Keymoji',
+        setupStoryModeChip: 'Aktiveer Story Mode',
         setupStoryModeDescription:
             'Koppel met jou AI vir gepersonaliseerde emoji-wagwoorde.',
         setupStoryModeSwissDescription:
@@ -463,10 +465,10 @@ export default {
 
         // Knoppies en aksies
         buttons: {
-            createMagicLink: 'Skep Magic Skakel',
+            createMagicLink: 'Stuur kode per e-pos',
             loginToAccount: 'Teken in by Rekening',
             checkAccountExists: 'Kontroleer rekening...',
-            sendingMagicLink: 'Stuur Magic Skakel...',
+            sendingMagicLink: 'Kode word gestuur...',
             accountExists: 'Rekening gevind - Teken in...',
             accountNotFound: 'Rekening nie gevind nie - Skep...',
             sessionExpired: 'Sessie verval - Teken weer in',

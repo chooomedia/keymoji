@@ -34,6 +34,8 @@ export default {
         setupStoryModeSwissShort: 'Swiss AI',
         setupStoryModeOr: 'or',
         setupStoryModeBannerCta: '— Create your Keymoji Story',
+        setupStoryModeBannerText: '✨ Your story becomes your secure Keymoji',
+        setupStoryModeChip: 'Activate Story Mode',
         setupStoryModeDescription:
             'Connect with your AI for personalized emoji passwords.',
         setupStoryModeSwissDescription:
@@ -475,10 +477,10 @@ export default {
 
         // Buttons and actions
         buttons: {
-            createMagicLink: 'Create Magic Link',
+            createMagicLink: 'Send Code via Email',
             loginToAccount: 'Login to Account',
             checkAccountExists: 'Checking account...',
-            sendingMagicLink: 'Sending...',
+            sendingMagicLink: 'Sending code...',
             accountExists: 'Account found - Logging in...',
             accountNotFound: 'Account not found - Creating...',
             sessionExpired: 'Session expired - Login again',

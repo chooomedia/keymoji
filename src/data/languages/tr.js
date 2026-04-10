@@ -34,6 +34,8 @@ export default {
         setupStoryModeSwissShort: 'İsviçre AI',
         setupStoryModeOr: 'veya',
         setupStoryModeBannerCta: '— Keymoji Hikayeni Oluştur',
+        setupStoryModeBannerText: '✨ Hikayen güvenli Keymoji\'ne dönüşür',
+        setupStoryModeChip: 'Story Mode\'u etkinleştir',
         setupStoryModeDescription:
             "Kişiselleştirilmiş emoji şifreleri için AI'nize bağlanın.",
         setupStoryModeSwissDescription:
@@ -461,10 +463,10 @@ export default {
 
         // Düğmeler ve eylemler
         buttons: {
-            createMagicLink: 'Sihirli Bağlantı Oluştur',
+            createMagicLink: 'Kodu e-posta ile gönder',
             loginToAccount: 'Hesaba Giriş Yap',
             checkAccountExists: 'Hesap kontrol ediliyor...',
-            sendingMagicLink: 'Gönderiliyor...',
+            sendingMagicLink: 'Kod gönderiliyor...',
             accountExists: 'Hesap bulundu - Giriş yapılıyor...',
             accountNotFound: 'Hesap bulunamadı - Oluşturuluyor...',
             sessionExpired: 'Oturum süresi doldu - Tekrar giriş yapın',

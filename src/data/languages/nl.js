@@ -34,6 +34,8 @@ export default {
         setupStoryModeSwissShort: 'Zwitserse AI',
         setupStoryModeOr: 'of',
         setupStoryModeBannerCta: '— Maak jouw Keymoji-Story',
+        setupStoryModeBannerText: '✨ Jouw verhaal wordt jouw veilige Keymoji',
+        setupStoryModeChip: 'Story Mode activeren',
         setupStoryModeDescription:
             'Verbind met je AI voor gepersonaliseerde emoji-wachtwoorden.',
         setupStoryModeSwissDescription:
@@ -462,10 +464,10 @@ export default {
 
         // Knoppen en acties
         buttons: {
-            createMagicLink: 'Magische link maken',
+            createMagicLink: 'Code via e-mail sturen',
             loginToAccount: 'Inloggen op account',
             checkAccountExists: 'Account controleren...',
-            sendingMagicLink: 'Magische link verzenden...',
+            sendingMagicLink: 'Code verzenden...',
             accountExists: 'Account gevonden - Inloggen...',
             accountNotFound: 'Account niet gevonden - Aanmaken...',
             sessionExpired: 'Sessie verlopen - Opnieuw inloggen',

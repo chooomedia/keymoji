@@ -67,51 +67,29 @@
     <div
         role="note"
         aria-label="KI-Setup"
-        class="w-full h-8 flex items-center justify-center relative px-8 shrink-0
+        class="w-full md:h-8 h-5 flex items-center justify-center relative px-8 shrink-0
                bg-creme-600 dark:bg-aubergine-900
                border-b border-creme-700 dark:border-aubergine-800
                text-gray-700 dark:text-gray-300"
     >
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2.5">
 
-            <!-- Swiss AI Button — kein Hover-BG, kein Animation -->
-            <button
-                on:click={navigateToAISettings}
-                class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold
-                       whitespace-nowrap transition-opacity duration-200
-                       focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1
-                       cursor-pointer opacity-90 hover:opacity-100"
-                style="color: rgb(218,41,28);"
-                title={$translations?.index?.setupStoryModeSwissTooltip || 'Schweizer KI (Apertus) – Datenschutz pur'}
-                aria-label={$translations?.index?.setupStoryModeSwiss || 'Schweizer KI nutzen'}
-            >
-                <span aria-hidden="true">🇨🇭</span>
-                <span>{$translations?.index?.setupStoryModeSwissShort || 'Schweizer KI'}</span>
-            </button>
-
-            <span class="text-xs text-gray-400 dark:text-gray-600 font-light">
-                {$translations?.index?.setupStoryModeOr || 'oder'}
+            <!-- Informativer Text -->
+            <span class="text-xs text-yellow-600 dark:text-yellow-400 whitespace-nowrap">
+                {$translations?.index?.setupStoryModeBannerText || '✨ Deine Story wird dein sicheres Keymoji'}
             </span>
 
-            <!-- Own AI Button — kein Hover-BG -->
+            <!-- Chip CTA mit Regenbogen-Animation -->
             <button
                 on:click={navigateToAISettings}
-                class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold
-                       whitespace-nowrap transition-opacity duration-200
+                class="rainbow-chip inline-flex items-center px-2.5 py-0.5 rounded-full text-xs
+                       whitespace-nowrap
                        focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1
-                       cursor-pointer text-yellow-600 dark:text-yellow-400
-                       opacity-90 hover:opacity-100"
-                title={$translations?.index?.setupStoryModeDescription || 'Eigene KI konfigurieren'}
-                aria-label={$translations?.index?.setupStoryModeShort || 'Eigene KI nutzen'}
+                       cursor-pointer text-black font-medium"
+                aria-label={$translations?.index?.setupStoryModeChip || 'Story Mode aktivieren'}
             >
-                <span aria-hidden="true">⚙️</span>
-                <span>{$translations?.index?.setupStoryModeShort || 'Eigene KI nutzen'}</span>
+                {$translations?.index?.setupStoryModeChip || 'Story Mode aktivieren'}
             </button>
-
-            <!-- CTA – nur ab sm sichtbar -->
-            <span class="hidden md:inline text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
-                {$translations?.index?.setupStoryModeBannerCta || '— Erstelle deine Keymoji-Story'}
-            </span>
         </div>
 
         <!-- Dismiss – absolut rechts -->
@@ -128,3 +106,25 @@
         </button>
     </div>
 {/if}
+
+<style>
+    @keyframes rainbow-shift {
+        0%   { background-position: 0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .rainbow-chip {
+        background: linear-gradient(
+            270deg,
+            #f59e0b, #10b981, #3b82f6, #8b5cf6, #ec4899, #f59e0b
+        );
+        background-size: 300% 300%;
+        animation: rainbow-shift 7s ease infinite;
+    }
+
+    .rainbow-chip:hover {
+        opacity: 1;
+        filter: brightness(1.08);
+    }
+</style>

@@ -34,6 +34,8 @@ export default {
         setupStoryModeSwissShort: 'Швейцарский ИИ',
         setupStoryModeOr: 'или',
         setupStoryModeBannerCta: '— Создай свою историю Keymoji',
+        setupStoryModeBannerText: '✨ Твоя история становится твоим Keymoji',
+        setupStoryModeChip: 'Активировать Story Mode',
         setupStoryModeDescription:
             'Подключитесь к вашему ИИ для персонализированных паролей эмодзи.',
         setupStoryModeSwissDescription:
@@ -462,10 +464,10 @@ export default {
 
         // Кнопки и действия
         buttons: {
-            createMagicLink: 'Создать волшебную ссылку',
+            createMagicLink: 'Отправить код на e-mail',
             loginToAccount: 'Войти в аккаунт',
             checkAccountExists: 'Проверка аккаунта...',
-            sendingMagicLink: 'Отправка волшебной ссылки...',
+            sendingMagicLink: 'Код отправляется...',
             accountExists: 'Аккаунт найден - Вход...',
             accountNotFound: 'Аккаунт не найден - Создание...',
             sessionExpired: 'Сессия истекла - Повторный вход',
