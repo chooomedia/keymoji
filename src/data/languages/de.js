@@ -667,9 +667,9 @@ export default {
         verified: 'Verifiziert',
         testBtn: 'Testen',
         apertusBuiltIn:
-            'Benötigt einen Hugging-Face-Token (hf_…) zur Nutzung von Apertus.',
+            'Integrierter Token aktiv — funktioniert ohne eigenen Key.',
         apertusOwnToken:
-            'Hugging-Face-Token (hf_…) eingeben. Kostenlosen Token auf huggingface.co holen.',
+            'Optional: Eigenen Hugging-Face-Token (hf_…) eingeben, um das persönliche Kontingent zu nutzen.',
         apertusGetToken: 'Kostenlosen HF-Token holen',
         openaiHint: 'Benötigt einen kostenpflichtigen OpenAI API-Key (sk-…).',
         geminiHint:
