@@ -548,14 +548,18 @@ async function callApertus(
     // Import WEBHOOKS dynamically to avoid circular dependencies
     const { WEBHOOKS } = await import('../config/api.js');
 
-    // Get n8n token from environment (fallback to empty string for dev)
-    // In production, this should be set in .env files as VITE_N8N_APERTUS_TOKEN
-    // SECURITY: Token is injected via webpack DefinePlugin from .env.local
-    const rawToken =
+    // Use user-supplied apiKey first (from Settings), then fall back to env token
+    // This allows users to supply their own Hugging Face / Apertus token
+    const userSuppliedToken = apiKey && apiKey.trim().length >= 10 ? apiKey.trim() : '';
+    const envToken =
         (typeof import.meta !== 'undefined' &&
             (import.meta.env as { VITE_N8N_APERTUS_TOKEN?: string })
                 ?.VITE_N8N_APERTUS_TOKEN) ||
         '';
+    const rawToken = userSuppliedToken || envToken;
+    if (userSuppliedToken) {
+        console.log('🔑 [Apertus] Using user-supplied token from Settings');
+    }
 
     // Debug: Log raw token (before cleaning) - only in development
     if (
@@ -1976,17 +1980,14 @@ export async function testAIProvider(
 
             case 'apertus':
                 usedModel = model || 'swiss-ai/apertus-70b-instruct';
-                // For Apertus, token is loaded from environment in callApertus
-                // Pass empty string as apiKey - callApertus will load token internally
                 console.log(
-                    '🧪 [Apertus Test] Calling callApertus with empty API key (token loaded from env)'
+                    '🧪 [Apertus Test] Calling callApertus',
+                    apiKey ? '(user-supplied token)' : '(env token)'
                 );
                 try {
-                    // Use a proper test prompt that reliably gets emoji output
-                    // Short max_tokens with the standard test prompt causes empty/whitespace responses
                     const apertusTestPrompt = 'Output exactly 3 emojis for: sun, heart, star. ONLY emojis, no text.';
                     response = await callApertus(
-                        '', // Empty API key for Apertus (token handled internally via VITE_N8N_APERTUS_TOKEN)
+                        apiKey || '', // Pass user-supplied token if available
                         apertusTestPrompt,
                         usedModel,
                         30, // Need enough tokens for emoji output
