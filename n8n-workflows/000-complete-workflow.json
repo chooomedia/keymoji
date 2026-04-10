@@ -3488,7 +3488,7 @@
         },
         {
             "parameters": {
-                "jsCode": "// SMART MERGE: Preserves usageHistory + dailyUsage from Google Sheets!\n// Duplicate prevention: always use existing userId if account already exists\nconst items = $input.all();\nconst webhookData = $('Extract Body').first().json;\nconst existingData = items[0]?.json || null;\n\nconsole.log('📊 Webhook data userId:', webhookData?.userId);\nconsole.log('📊 Existing data found:', !!existingData?.email);\n\nfunction parseJSON(val, fallback = {}) {\n  if (!val) return fallback;\n  if (typeof val === 'object') return val;\n  try { return JSON.parse(val); } catch { return fallback; }\n}\n\nconst existingProfile = parseJSON(existingData?.profile, {});\nconst existingMetadata = parseJSON(existingData?.metadata, {});\nconst incomingProfile = parseJSON(webhookData.profile, {});\nconst incomingMetadata = parseJSON(webhookData.metadata, {});\n\n// usageHistory: der längere Array gewinnt (nie Daten verlieren)\nconst existingUsageHistory = existingMetadata.usageHistory || [];\nconst incomingUsageHistory = incomingMetadata.usageHistory || [];\nconst finalUsageHistory = incomingUsageHistory.length > existingUsageHistory.length\n  ? incomingUsageHistory\n  : existingUsageHistory;\n\n// dailyUsage: incoming gewinnt nur wenn das Datum gleich oder neuer ist\nconst existingDailyUsage = parseJSON(existingData?.dailyUsage, null);\nconst incomingDailyUsage = parseJSON(webhookData.dailyUsage, null);\nlet finalDailyUsage = existingDailyUsage;\nif (incomingDailyUsage) {\n  if (!existingDailyUsage || incomingDailyUsage.date >= existingDailyUsage.date) {\n    finalDailyUsage = incomingDailyUsage;\n  }\n}\n\nconst mergedProfile = { ...existingProfile, ...incomingProfile };\nconst mergedMetadata = { ...existingMetadata, ...incomingMetadata, usageHistory: finalUsageHistory };\n\n// CRITICAL: Use existing userId to prevent duplicate accounts with same email!\nconst finalUserId = existingData?.userId || webhookData.userId;\nif (existingData?.userId && existingData.userId !== webhookData.userId) {\n  console.log('⚠️ Duplicate prevention: using existing userId', existingData.userId, 'instead of', webhookData.userId);\n}\n\n// lastLogin: nur setzen wenn vom Client explizit mitgesendet (Login-Event)\n// Bei dailyUsage-Updates kommt kein lastLogin → bestehenden Wert beibehalten\nconst finalLastLogin = webhookData.lastLogin || existingData?.lastLogin || new Date().toISOString();\n\nconst output = {\n  userId: finalUserId,\n  email: webhookData.email,\n  tier: webhookData.tier || existingData?.tier || 'free',\n  createdAt: existingData?.createdAt || webhookData.createdAt || new Date().toISOString(),\n  lastLogin: finalLastLogin,\n  profile: JSON.stringify(mergedProfile),\n  dailyUsage: finalDailyUsage ? JSON.stringify(finalDailyUsage) : (existingData?.dailyUsage || ''),\n  metadata: JSON.stringify(mergedMetadata),\n  status: webhookData.status || existingData?.status || 'active'\n};\n\nconsole.log('📤 Output ready for:', output.userId, '| lastLogin updated:', !!webhookData.lastLogin);\nreturn { json: output };\n"
+                "jsCode": "// SMART MERGE: Preserves usageHistory + dailyUsage from Google Sheets!\n// Duplicate prevention: always use existing userId if account already exists\nconst items = $input.all();\nconst webhookData = $('Extract Body').first().json;\nconst existingData = items[0]?.json || null;\n\nconsole.log('📊 Webhook data userId:', webhookData?.userId);\nconsole.log('📊 Existing data found:', !!existingData?.email);\n\nfunction parseJSON(val, fallback = {}) {\n  if (!val) return fallback;\n  if (typeof val === 'object') return val;\n  try { return JSON.parse(val); } catch { return fallback; }\n}\n\nconst existingProfile = parseJSON(existingData?.profile, {});\nconst existingMetadata = parseJSON(existingData?.metadata, {});\nconst incomingProfile = parseJSON(webhookData.profile, {});\nconst incomingMetadata = parseJSON(webhookData.metadata, {});\n\n// usageHistory: der längere Array gewinnt (nie Daten verlieren)\nconst existingUsageHistory = existingMetadata.usageHistory || [];\nconst incomingUsageHistory = incomingMetadata.usageHistory || [];\nconst finalUsageHistory = incomingUsageHistory.length > existingUsageHistory.length\n  ? incomingUsageHistory\n  : existingUsageHistory;\n\n// dailyUsage: incoming gewinnt nur wenn das Datum gleich oder neuer ist\nconst existingDailyUsage = parseJSON(existingData?.dailyUsage, null);\nconst incomingDailyUsage = parseJSON(webhookData.dailyUsage, null);\nlet finalDailyUsage = existingDailyUsage;\nif (incomingDailyUsage) {\n  if (!existingDailyUsage || incomingDailyUsage.date >= existingDailyUsage.date) {\n    finalDailyUsage = incomingDailyUsage;\n  }\n}\n\nconst mergedProfile = { ...existingProfile, ...incomingProfile };\nconst mergedMetadata = { ...existingMetadata, ...incomingMetadata, usageHistory: finalUsageHistory };\n\n// CRITICAL: Use existing userId to prevent duplicate accounts with same email!\nconst finalUserId = existingData?.userId || webhookData.userId;\nif (existingData?.userId && existingData.userId !== webhookData.userId) {\n  console.log('⚠️ Duplicate prevention: using existing userId', existingData.userId, 'instead of', webhookData.userId);\n}\n\n// lastLogin: nur setzen wenn vom Client explizit mitgesendet (Login-Event)\n// Bei dailyUsage-Updates kommt kein lastLogin → bestehenden Wert beibehalten\nconst finalLastLogin = webhookData.lastLogin || existingData?.lastLogin || new Date().toISOString();\n\nconst output = {\n  userId: finalUserId,\n  email: webhookData.email,\n  tier: webhookData.tier || existingData?.tier || 'free',\n  createdAt: existingData?.createdAt || webhookData.createdAt || new Date().toISOString(),\n  lastLogin: finalLastLogin,\n  dailyUsage: finalDailyUsage ? JSON.stringify(finalDailyUsage) : (existingData?.dailyUsage || ''),\n  metadata: JSON.stringify(mergedMetadata),\n  status: webhookData.status || existingData?.status || 'active'\n};\n\nconsole.log('📤 Output ready for:', output.userId, '| lastLogin updated:', !!webhookData.lastLogin);\nreturn { json: output };\n"
             },
             "id": "6d80506a-d4f2-469a-9063-fd4152c0138a",
             "name": "Merge Data",
@@ -3515,18 +3515,7 @@
                     "mode": "name"
                 },
                 "columns": {
-                    "mappingMode": "defineBelow",
-                    "value": {
-                        "userId": "={{ $json.userId }}",
-                        "email": "={{ $json.email }}",
-                        "tier": "={{ $json.tier }}",
-                        "createdAt": "={{ $json.createdAt }}",
-                        "lastLogin": "={{ $json.lastLogin }}",
-                        "dailyUsage": "={{ $json.dailyUsage }}",
-                        "metadata": "={{ $json.metadata }}",
-                        "status": "={{ $json.status }}",
-                        "profile": "={{ $json.profile }}"
-                    },
+                    "mappingMode": "autoMapInputData",
                     "matchingColumns": [
                         "email"
                     ],
@@ -3583,7 +3572,8 @@
                             "defaultMatch": false,
                             "display": true,
                             "type": "string",
-                            "canBeUsedToMatch": true
+                            "canBeUsedToMatch": true,
+                            "removed": true
                         },
                         {
                             "id": "dailyUsage",
@@ -3642,9 +3632,7 @@
                             "canBeUsedToMatch": true,
                             "removed": false
                         }
-                    ],
-                    "attemptToConvertTypes": false,
-                    "convertFieldsToString": false
+                    ]
                 },
                 "options": {}
             },
@@ -3667,7 +3655,7 @@
         {
             "parameters": {
                 "respondWith": "json",
-                "responseBody": "={{ \n  {\n    \"success\": true,\n    \"account\": {\n      \"userId\": $('Merge Data').first().json.userId,\n      \"email\": $('Merge Data').first().json.email,\n      \"tier\": $('Merge Data').first().json.tier,\n      \"createdAt\": $('Merge Data').first().json.createdAt,\n      \"lastLogin\": $('Merge Data').first().json.lastLogin,\n      \"profile\": $('Merge Data').first().json.profile,\n      \"dailyUsage\": $('Merge Data').first().json.dailyUsage,\n      \"metadata\": $('Merge Data').first().json.metadata,\n      \"status\": $('Merge Data').first().json.status\n    },\n    \"message\": \"Account operation successful\",\n    \"timestamp\": new Date().toISOString()\n  }\n}}",
+                "responseBody": "={{ \n  {\n    \"success\": true,\n    \"account\": {\n      \"userId\": $('Merge Data').first().json.userId,\n      \"email\": $('Merge Data').first().json.email,\n      \"tier\": $('Merge Data').first().json.tier,\n      \"createdAt\": $('Merge Data').first().json.createdAt,\n      \"lastLogin\": $('Merge Data').first().json.lastLogin,\n      \"dailyUsage\": $('Merge Data').first().json.dailyUsage,\n      \"metadata\": $('Merge Data').first().json.metadata,\n      \"status\": $('Merge Data').first().json.status\n    },\n    \"message\": \"Account operation successful\",\n    \"timestamp\": new Date().toISOString()\n  }\n}}",
                 "options": {}
             },
             "id": "c005d4c3-3ff4-469b-9891-e077e3c6296b",
@@ -3739,7 +3727,7 @@
         {
             "parameters": {
                 "respondWith": "json",
-                "responseBody": "={{ \n  {\n    \"success\": true,\n    \"account\": {\n      \"userId\": $json.userId,\n      \"email\": $json.email,\n      \"tier\": $json.tier,\n      \"createdAt\": $json.createdAt,\n      \"lastLogin\": $json.lastLogin,\n      \"profile\": $json.profile,\n      \"dailyUsage\": $json.dailyUsage,\n      \"metadata\": $json.metadata,\n      \"status\": $json.status\n    },\n    \"message\": \"Account data retrieved\",\n    \"timestamp\": new Date().toISOString()\n  }\n}}",
+                "responseBody": "={{ \n  {\n    \"success\": true,\n    \"account\": {\n      \"userId\": $json.userId,\n      \"email\": $json.email,\n      \"tier\": $json.tier,\n      \"createdAt\": $json.createdAt,\n      \"lastLogin\": $json.lastLogin,\n      \"dailyUsage\": $json.dailyUsage || \"\",\n      \"metadata\": $json.metadata,\n      \"status\": $json.status\n    },\n    \"message\": \"Account data retrieved\",\n    \"timestamp\": new Date().toISOString()\n  }\n}}",
                 "options": {}
             },
             "id": "8d39de25-21e3-42e1-aab7-33f46da042c5",
