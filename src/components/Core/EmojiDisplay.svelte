@@ -556,17 +556,11 @@
         
         const provider = storyMode.provider || 'apertus';
         const apiKeys = storyMode.apiKeys || {};
-        const apiKey = apiKeys[provider];
-        
-        console.log('🔑 [STORY MODE] API Key check:', {
-          provider,
-          hasApiKeys: !!apiKeys,
-          apiKeysKeys: Object.keys(apiKeys),
-          hasCurrentKey: !!apiKey,
-          keyLength: apiKey?.length || 0,
-          keyPreview: apiKey ? `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 4)}` : 'NONE',
-          isApertus: provider === 'apertus'
-        });
+        const rawApiKey = apiKeys[provider];
+        // Sanitize: for Apertus only accept hf_... tokens, for others accept any key ≥10 chars
+        const apiKey = provider === 'apertus'
+          ? (rawApiKey && rawApiKey.trim().startsWith('hf_') ? rawApiKey.trim() : '')
+          : (rawApiKey || '');
         
         // Validate API key (skip for Apertus as it uses n8n token from environment)
         if (provider !== 'apertus' && (!apiKey || apiKey.length < 10)) {
