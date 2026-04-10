@@ -508,45 +508,41 @@ export async function sendAnalyticsEvent(
     }
 }
 
-// Initialize counter on page load
+// Initialize counter on page load — cache-first, no unnecessary webhook calls
 function initializeUserCounter(): void {
     const isDev = isDevelopment();
 
-    // Try to load from cache first
     try {
-        const cachedValue = storageHelpers.get(COUNTER_CACHE_KEY) as
-            | number
-            | null;
-        const cachedTimestamp = storageHelpers.get(COUNTER_TIMESTAMP_KEY) as
-            | number
-            | null;
-        const now = Date.now();
-        const cacheAge = now - (cachedTimestamp || 0);
-        const cacheValid = cacheAge < COUNTER_CACHE_DURATION;
+        const cachedValue = storageHelpers.get(COUNTER_CACHE_KEY) as number | null;
+        const cachedTimestamp = storageHelpers.get(COUNTER_TIMESTAMP_KEY) as number | null;
+        const cacheAge = Date.now() - (cachedTimestamp || 0);
+        const cacheValid = !!cachedValue && cacheAge < COUNTER_CACHE_DURATION;
 
-        if (cachedValue && cacheValid) {
+        if (cacheValid) {
+            // Cache still valid: show cached value, no network request
             userCounter.update((state: UserCounterState) => ({
                 ...state,
-                value: cachedValue,
+                value: cachedValue as number,
                 isCached: true,
+                isLoading: false,
                 hasError: false
             }));
-            if (isDev)
-                console.log('📦 Loaded counter from cache:', cachedValue);
-        } else {
-            if (isDev)
-                console.log('📦 No valid cache found, will fetch fresh data');
+            if (isDev) console.log('📦 Counter loaded from cache, no webhook request:', cachedValue);
+            return; // Skip webhook entirely
         }
+
+        // Cache expired or missing: fetch once, do NOT fire on every reload
+        if (isDev) console.log('📦 Counter cache expired, scheduling background fetch');
     } catch (error) {
         if (isDev) console.warn('⚠️ Failed to load counter from cache:', error);
     }
 
-    // Fetch fresh data on page load
+    // Only fire the webhook when there is no valid cache
     if (typeof window !== 'undefined') {
         window.addEventListener('load', () => {
-            console.log('🌐 Page loaded, refreshing counter...');
+            if (isDevelopment()) console.log('🌐 Counter cache miss — fetching from webhook');
             refreshUserCounter();
-        });
+        }, { once: true });
     }
 }
 
