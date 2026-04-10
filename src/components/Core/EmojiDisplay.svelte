@@ -508,6 +508,7 @@
       // Show success message if enabled
       if (showSuccessMessages) {
         const providerNames = {
+          apertus: 'Apertus 🇨🇭',
           openai: 'OpenAI',
           gemini: 'Gemini',
           mistral: 'Mistral',
@@ -515,7 +516,8 @@
           custom: 'Custom API'
         };
         
-        const successMsg = `✅ ${$translations.emojiDisplay.successStoryMessage}\n\n🤖 Generated with ${providerNames[provider]}`;
+        const providerLabel = providerNames[provider] || provider || 'AI';
+        const successMsg = `✅ ${$translations.emojiDisplay.successStoryMessage}\n\nGenerated with ${providerLabel}`;
         showSuccess(successMsg, 3000);
       }
       
@@ -967,8 +969,26 @@
       id="emoji-display" 
       tabindex="0" 
       class="core-button text-white bg-black border-gray-400 px-3 mb-2 md:pt-1 md:pb-1 pb-1 transform -translate-y-2.5 transition-all hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2" 
-      on:click={() => isStoryMode ? generateEmojis() : generateRandomEmojis()} 
-      on:keydown={e => e.key === 'Enter' && (isStoryMode ? generateEmojis() : generateRandomEmojis())} 
+      on:click={async () => {
+        if (isStoryMode && randomEmojis && randomEmojis.length > 0) {
+          // In story mode: clicking the display copies the current result (like random mode)
+          await copyToClipboard(randomEmojis.join(' '));
+          showSuccessMessage($translations.emojiDisplay.successMessage);
+          temporarilyDisableButton();
+        } else {
+          generateRandomEmojis();
+        }
+      }}
+      on:keydown={async e => {
+        if (e.key === 'Enter') {
+          if (isStoryMode && randomEmojis && randomEmojis.length > 0) {
+            await copyToClipboard(randomEmojis.join(' '));
+            showSuccessMessage($translations.emojiDisplay.successMessage);
+          } else {
+            generateRandomEmojis();
+          }
+        }
+      }}
       aria-label={$translations.emojiDisplay.clickToCopy} 
       aria-live="polite"
       aria-pressed="false"
@@ -991,7 +1011,7 @@
         {#each $translations.index.pageInstruction as instruction, i}
           {#if i === 0 && $isLoggedIn && storyModeEnabled && storyModeConfigured}
             <!-- Show AI ready message when fully configured AND logged in -->
-            <p>{$translations.index.storyModeReady || 'AI-generated emoji passwords ready 🤖'}</p>
+            <p>{$translations.index.storyModeReady || 'AI-generated emoji passwords ready ✨'}</p>
           {:else if i === 0 && (!$isLoggedIn || !storyModeEnabled || !storyModeConfigured)}
             <p>{instruction}</p>
           {:else if i === 0 && storyModeEnabled && !storyModeConfigured}
@@ -1228,29 +1248,13 @@
         </span>
         <button
           on:click={() => {
-            // Navigate to account page
             const lang = $currentLanguage || 'en';
             const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
             navigate(accountPath);
-            
-            // Open AI Settings Accordion and scroll to it
+            // Dispatch after a short delay so the new view's UserSettings component has time to mount
             setTimeout(() => {
-              // Try to find the AI Settings accordion
-              const aiAccordion = document.querySelector('[data-accordion="story"]');
-              const accordionButton = document.querySelector('#accordion-story');
-              
-              if (aiAccordion) {
-                // Check if accordion is closed, then click to open
-                if (!aiAccordion.querySelector('.p-4')) {
-                  accordionButton?.click();
-                }
-                
-                // Scroll to accordion after opening
-                setTimeout(() => {
-                  aiAccordion.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100);
-              }
-            }, 400);
+              window.dispatchEvent(new CustomEvent('keymoji:open-settings-section', { detail: { section: 'story' } }));
+            }, 300);
           }}
           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer"
           style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"
@@ -1306,7 +1310,7 @@
         <!-- Back to Random Button: gedämpft mit gelbem Border -->
         <button
           aria-label={$translations.emojiDisplay.randomButton || 'Switch to random mode'}
-          on:click={() => { isStoryMode = false; showTextArea = false; }} 
+          on:click={() => { isStoryMode = false; showTextArea = false; generateRandomEmojis(true); }} 
           class="w-1/2 py-4 rounded-full bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm transition-all duration-300 ease-in-out transform hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
           disabled={$isDisabled || isGeneratingStory}
           title={$translations.emojiDisplay.randomButton}

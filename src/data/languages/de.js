@@ -656,7 +656,16 @@ export default {
         },
 
         // Apertus Info
-        apertusInfo: '🇨🇭 Kostenlose Schweizer KI, inklusive. Apertus — Open-Source-LLM von EPFL & ETH Zürich. Deine Daten bleiben in der Schweiz. Kein API-Key nötig.',
+        apertusInfo: '🇨🇭 Kostenlose Schweizer KI, inklusive. Kein API-Key nötig.',
+        apertusTokenHint: 'Integrierter Token aktiv — optional eigenen HF-Token eingeben.',
+        apertusGetToken: 'Kostenlosen HF-Token holen',
+        openaiHint: 'Benötigt einen kostenpflichtigen OpenAI API-Key (sk-...).',
+        geminiHint: 'Kostenloses Kontingent verfügbar. Key im Google AI Studio erstellen.',
+        claudeHint: 'Benötigt einen Anthropic API-Key (sk-ant-...).',
+        mistralHint: 'Europäische KI. Key auf console.mistral.ai erstellen.',
+        customHint: 'OpenAI-kompatibler Endpunkt. Basis-URL und API-Key eingeben.',
+        getApiKey: 'API-Key holen',
+        savedKeys: 'Gespeichert',
 
         // Upgrade-Bereich
         upgrade: {

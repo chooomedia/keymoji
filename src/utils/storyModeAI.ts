@@ -2122,7 +2122,7 @@ export function getProviderInfo(provider: AIProvider): ProviderInfo {
             docsUrl: 'https://docs.anthropic.com'
         },
         apertus: {
-            name: 'Apertus (Swiss LLM)',
+            name: 'Apertus 🇨🇭',
             models: {
                 free: [
                     'swiss-ai/apertus-70b-instruct',
@@ -2137,8 +2137,8 @@ export function getProviderInfo(provider: AIProvider): ProviderInfo {
                 free: 'swiss-ai/apertus-70b-instruct',
                 pro: 'swiss-ai/apertus-70b-instruct'
             },
-            apiKeyPrefix: '',
-            docsUrl: 'https://aimi.matt-interfaces.ch/api'
+            apiKeyPrefix: 'hf_',
+            docsUrl: 'https://huggingface.co/settings/tokens'
         },
         custom: {
             name: 'Custom API',

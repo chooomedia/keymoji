@@ -1055,10 +1055,28 @@
         window.addEventListener('beforeunload', handleBeforeUnload);
         window.addEventListener('keydown', handleKeydown);
 
+        // Open + scroll to a settings section when triggered externally (e.g. from AI model chip)
+        const handleOpenSection = (event) => {
+            const sectionId = event.detail?.section;
+            if (!sectionId) return;
+            // Open accordion if not already open
+            if (!uiState.expandedSections.includes(sectionId)) {
+                uiState.expandedSections = [...uiState.expandedSections, sectionId];
+                activeSection = sectionId;
+            }
+            // Scroll to accordion after Svelte renders the open state
+            setTimeout(() => {
+                const el = document.querySelector(`[data-accordion="${sectionId}"]`);
+                el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 350);
+        };
+        window.addEventListener('keymoji:open-settings-section', handleOpenSection);
+
         // Cleanup on component destroy
         return () => {
             window.removeEventListener('beforeunload', handleBeforeUnload);
             window.removeEventListener('keydown', handleKeydown);
+            window.removeEventListener('keymoji:open-settings-section', handleOpenSection);
         };
     });
 </script>
@@ -1286,11 +1304,10 @@
                                                         </div>
                                                             
                                                         <!-- Input Container -->
-                                                        <!-- Apertus info: free token active when field is empty -->
                                                         {#if isApertus}
                                                             <p id="apertus-token-info" class="text-xs text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
                                                                 <span>🇨🇭</span>
-                                                                <span>Free Swiss AI active — leave empty to use the built-in token, or enter your own Hugging Face token.</span>
+                                                                <span title="Leave empty to use the shared built-in token, or enter your own Hugging Face token (hf_...) for dedicated quota">{$translations?.accountManager?.apertusTokenHint || 'Built-in token active — optionally enter your own HF token.'}</span>
                                                             </p>
                                                         {/if}
 
@@ -1391,59 +1408,56 @@
                                                         </div>
                                                         
                                                         <!-- Provider Info & Documentation -->
-                                                        <div class="text-xs text-gray-600 dark:text-gray-400 mt-1 space-y-1">
+                                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-2 space-y-2">
                                                             {#if isApertus}
-                                                                <p class="text-gray-700 dark:text-gray-300 font-medium mb-2">
-                                                                    {$translations?.accountManager?.apertusInfo || 'Exclusive on Keymoji: Apertus – the Swiss LLM. Hosted on HuggingFace, delivered via n8n workflow.'}
+                                                                <p class="text-green-700 dark:text-green-400">
+                                                                    {$translations?.accountManager?.apertusInfo || '🇨🇭 Free Swiss AI, built in. No API key needed.'}
                                                                 </p>
-                                                                <div class="flex flex-wrap items-center gap-3 mt-2">
-                                                                    <a href="https://huggingface.co/swiss-ai/Apertus-8B-Instruct-2509" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
-                                                                        <span>{$translations?.accountManager?.apertusHuggingFaceLink || 'Apertus-8B on HuggingFace'}</span>
-                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                                        </svg>
+                                                                <div class="flex flex-wrap items-center gap-3">
+                                                                    <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer" 
+                                                                       class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline transition-colors"
+                                                                       title="Get a free Hugging Face token to use your own quota">
+                                                                        <span>{$translations?.accountManager?.apertusGetToken || 'Get free HF token'}</span>
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                                                                     </a>
-                                                                    <a href="http://matt-interfaces.ch/n8n" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
-                                                                        <span>n8n Workflow Tool</span>
-                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                                        </svg>
+                                                                    <a href="https://huggingface.co/swiss-ai" target="_blank" rel="noopener noreferrer"
+                                                                       class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline transition-colors"
+                                                                       title="Apertus by EPFL & ETH Zurich on HuggingFace">
+                                                                        <span>Apertus on HF</span>
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                                                                     </a>
                                                                 </div>
                                                             {:else if providerInfo}
-                                                                <p class="text-gray-700 dark:text-gray-300 font-medium mb-1">
+                                                                <p class="text-gray-600 dark:text-gray-400">
                                                                     {#if currentProvider === 'openai'}
-                                                                        {$translations?.accountManager?.openaiHint || 'OpenAI API Key: Create an API key in your OpenAI account. Paid service, but very powerful.'}
+                                                                        {$translations?.accountManager?.openaiHint || 'Requires a paid OpenAI API key (sk-...).'}
                                                                     {:else if currentProvider === 'gemini'}
-                                                                        {$translations?.accountManager?.geminiHint || 'Google Gemini API Key: Create an API key in Google AI Studio. Free for moderate usage.'}
+                                                                        {$translations?.accountManager?.geminiHint || 'Free tier available. Get your key in Google AI Studio.'}
                                                                     {:else if currentProvider === 'claude'}
-                                                                        {$translations?.accountManager?.claudeHint || 'Anthropic Claude API Key: Create an API key in your Anthropic account. High-quality responses with focus on security.'}
+                                                                        {$translations?.accountManager?.claudeHint || 'Requires an Anthropic API key (sk-ant-...).'}
                                                                     {:else if currentProvider === 'mistral'}
-                                                                        {$translations?.accountManager?.mistralHint || 'Mistral AI API Key: Create an API key in your Mistral account. European provider with good prices.'}
+                                                                        {$translations?.accountManager?.mistralHint || 'European AI. Get your key at console.mistral.ai.'}
                                                                     {:else if currentProvider === 'custom'}
-                                                                        {$translations?.accountManager?.customHint || 'Custom API: Configure your own API endpoint. Supports OpenAI-compatible APIs.'}
+                                                                        {$translations?.accountManager?.customHint || 'OpenAI-compatible endpoint. Enter the base URL and your API key.'}
                                                                     {:else}
                                                                         {getLocalizedText(apiKeysItem.description)}
                                                                     {/if}
                                                                 </p>
                                                                 {#if providerInfo.docsUrl}
-                                                                    <p class="mt-1">
-                                                                        <a href={providerInfo.docsUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
-                                                                            <span>{providerInfo.name} Documentation</span>
-                                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                                            </svg>
-                                                                        </a>
-                                                                    </p>
+                                                                    <a href={providerInfo.docsUrl} target="_blank" rel="noopener noreferrer" 
+                                                                       class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline transition-colors"
+                                                                       title="Open {providerInfo.name} documentation">
+                                                                        <span>{$translations?.accountManager?.getApiKey || 'Get API key'} →</span>
+                                                                    </a>
                                                                 {/if}
                                                             {/if}
                                                             
                                                             {#if !isApertus && savedProviders.length > 0}
-                                                                <p class="text-green-600 dark:text-green-400 inline-flex items-center gap-1 mt-1">
+                                                                <p class="text-green-600 dark:text-green-400 inline-flex items-center gap-1">
                                                                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                                                     </svg>
-                                                                    Saved keys for: {savedProviders.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ')}
+                                                                    {$translations?.accountManager?.savedKeys || 'Saved'}: {savedProviders.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ')}
                                                                 </p>
                                                             {/if}
                                                         </div>

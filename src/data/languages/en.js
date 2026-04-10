@@ -628,7 +628,16 @@ export default {
         },
         
         // Apertus Info
-        apertusInfo: '🇨🇭 Free Swiss AI, built in. Apertus — Switzerland\'s open-source LLM by EPFL & ETH Zurich. Your data stays in Switzerland. No API key needed.',
+        apertusInfo: '🇨🇭 Free Swiss AI, built in. No API key needed.',
+        apertusTokenHint: 'Built-in token active — optionally enter your own HF token.',
+        apertusGetToken: 'Get free HF token',
+        openaiHint: 'Requires a paid OpenAI API key (sk-...).',
+        geminiHint: 'Free tier available. Get your key in Google AI Studio.',
+        claudeHint: 'Requires an Anthropic API key (sk-ant-...).',
+        mistralHint: 'European AI. Get your key at console.mistral.ai.',
+        customHint: 'OpenAI-compatible endpoint. Enter the base URL and your API key.',
+        getApiKey: 'Get API key',
+        savedKeys: 'Saved',
 
         // Upgrade section
         upgrade: {

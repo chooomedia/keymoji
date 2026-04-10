@@ -110,6 +110,9 @@ button:disabled {
     width: 100%;
     margin: 0;
     padding: 0;
+    /* Prevent layout shift when scrollbar appears/disappears on view changes */
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
 }
 
 :global(body) {

@@ -99,6 +99,9 @@
     $: dataPoints = validData.length;
     $: hasData = dataPoints > 0;
     $: hasData2 = validData2 !== null && validData2.length > 0;
+    // True when every data point is 0 — used to render a flat "no activity" baseline
+    $: allZero = hasData && validData.every(p => (p.value || 0) === 0);
+    $: allZero2 = hasData2 && validData2 !== null && validData2.every(p => (p.value || 0) === 0);
     
     // Scale calculations
     $: yScale = (value) => {
@@ -241,6 +244,7 @@
     
     // Get point color based on value
     function getPointColor(value) {
+        if (value === 0) return '#9ca3af'; // gray-400 — no activity yet
         if (value >= maxValue * 0.7) return '#22c55e'; // green-500
         if (value >= maxValue * 0.4) return color; // yellow-500
         return '#ef4444'; // red-500
@@ -404,7 +408,19 @@
                 {/if}
                 
                 <!-- First Line (Random Emoji) - Rendered FIRST (background) -->
-                {#if linePath && animate}
+                {#if allZero}
+                    <!-- Flat baseline when no activity yet — looks intentional, not broken -->
+                    <line
+                        x1="0" y1={chartHeight}
+                        x2={chartWidth} y2={chartHeight}
+                        stroke="#d1d5db"
+                        stroke-width="2"
+                        stroke-dasharray="6,4"
+                        stroke-linecap="round"
+                        opacity="0.6"
+                        in:fade={{ duration: 400 }}
+                    />
+                {:else if linePath && animate}
                     <path
                         d={linePath}
                         fill="none"
@@ -428,7 +444,7 @@
                 {/if}
                 
                 <!-- Data points for first line - Rendered BEFORE story line (background) -->
-                {#if showPoints}
+                {#if showPoints && !allZero}
                     {#each validData as point, i}
                         {@const x = xScale(i)}
                         {@const y = yScale(point.value)}
@@ -479,7 +495,18 @@
                 {/if}
                 
                 <!-- Second Line (Story Usage) - Rendered AFTER random line (foreground) -->
-                {#if linePath2 && hasData2}
+                {#if hasData2 && allZero2}
+                    <line
+                        x1="0" y1={chartHeight}
+                        x2={chartWidth} y2={chartHeight}
+                        stroke="#bfdbfe"
+                        stroke-width="2"
+                        stroke-dasharray="6,4"
+                        stroke-linecap="round"
+                        opacity="0.5"
+                        in:fade={{ duration: 400 }}
+                    />
+                {:else if linePath2 && hasData2}
                     {#if animate}
                         <path
                             d={linePath2}
@@ -505,7 +532,7 @@
                 {/if}
                 
                 <!-- Data points for second line (Story Usage) - Rendered AFTER story line (foreground) -->
-                {#if showPoints && hasData2}
+                {#if showPoints && hasData2 && !allZero2}
                     {#each validData2 as point, i}
                         {@const x = xScale(i)}
                         {@const y = yScale(point.value || 0)}

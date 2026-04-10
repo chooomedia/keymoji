@@ -419,8 +419,8 @@ export async function incrementDailyUsage(isStoryMode = false) {
         const loggedIn = get(isLoggedIn) || false;
         const currentLimit = get(dailyLimit);
 
-        // CRITICAL: Validate we're not exceeding limit (only for random emoji, story has separate tracking)
-        if (!isStoryMode && currentLimit.used >= currentLimit.limit) {
+        // Validate we're not exceeding limit (both random and story count towards shared daily limit)
+        if (currentLimit.used >= currentLimit.limit) {
             console.error(
                 '❌ Cannot increment: Daily limit already reached!',
                 currentLimit
@@ -429,14 +429,13 @@ export async function incrementDailyUsage(isStoryMode = false) {
             throw new Error('Daily limit reached');
         }
 
-        // Calculate new usage (separate tracking for random vs story)
-        let newUsed = currentLimit.used;
+        // Both random and story count towards the shared daily limit.
+        // Additionally track story generations separately for analytics.
+        let newUsed = currentLimit.used + 1;
         let newStoryUsed = currentLimit.storyUsed || 0;
 
         if (isStoryMode) {
             newStoryUsed = newStoryUsed + 1;
-        } else {
-            newUsed = newUsed + 1;
         }
 
         const limit = getDailyLimitForUser(loggedIn, tier);
