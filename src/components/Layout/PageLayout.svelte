@@ -64,7 +64,7 @@
         <section class="main-content flex flex-col justify-center items-center min-h-screen pb-24 md:pb-28 pt-28 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
 
             <!-- Content before header (e.g. images) -->
-            <div class="translate-y-8 md:translate-y-0">
+            <div class="transform translate-y-6">
                 <slot name="before-header"></slot>
             </div>
 

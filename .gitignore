@@ -133,3 +133,7 @@ dist
 .tern-port
 .DS_Store
 scripts/
+
+# Analytics & Search Console exports (lokale Daten, nicht versionieren)
+searchconsole/
+keymoji.wtf-Performance-on-Search-*/

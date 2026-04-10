@@ -43,7 +43,7 @@ export default {
             'Switserse AI (Apertus) - Privaatheid-eerste AI, gehuisves in Switserland. Jou data bly in Switserland, beskerm deur Switserse databeskermingswette. GDPR-voldoende, ondernemingsgraad veiligheid. Ideaal vir privaatheid-bewuste gebruikers en besighede wat datasoewereiniteit vereis.',
         storyModeReady: 'AI-gegenereerde emoji-wagwoorde gereed 🤖',
         backToMainText: 'Klik hieronder 👇 om terug te gaan',
-        backToMainButtonText: 'Terug na tuisblad',
+        backToMainButtonText: 'Terug tuisblad',
         contactText: "Het jy 'n vraag of 'n cool voorstel?",
         contactButtonText: "Stuur my 'n boodskap! 💌"
     },
@@ -97,7 +97,7 @@ export default {
             'Bly op datum en teken met vertroue in op die nuusbrief. {privacyPolicy}',
         privacyPolicyLink: 'Bekyk privaatheidsbeleid',
         privacyPolicyUrl: '/privacy',
-        backToMainButton: 'Terug na tuisblad',
+        backToMainButton: 'Terug tuisblad',
         footerText: 'Ontwikkel met liefde',
         validationErrorMessage:
             'Los asseblief die vorm foute op voor die stuur 🔍',
@@ -127,7 +127,7 @@ export default {
     },
     notFound: {
         message: 'Oeps! Bladsy nie gevind nie 🚫',
-        backButton: 'Terug na tuisblad',
+        backButton: 'Terug tuisblad',
         contactButton: 'Kontak ons'
     },
     blog: {
@@ -490,7 +490,7 @@ export default {
         // Aksies
         actions: {
             saveSettings: '💾 Stoor Instellings',
-            backToHome: '🏠 Terug na Tuisblad',
+            backToHome: '🏠 Terug Tuisblad',
             skipAccount: '❌ Slaan {type} oor',
             createAccount: '🚀 Skep {type} Rekening',
             settingsSaved: 'Instellings suksesvol gestoor!'
@@ -585,9 +585,10 @@ export default {
             settingsExported: 'Instellings suksesvol geëksporteer',
             freeAccountActivated: 'Gratis rekening geaktiveer!'
         },
-        
+
         // Apertus Info
-        apertusInfo: 'Eksklusief op Keymoji: Apertus – die Switserse LLM. Eerste keer beskikbaar vir gebruikers. Gehuisves op HuggingFace, gelewer via n8n workflow.',
+        apertusInfo:
+            'Eksklusief op Keymoji: Apertus – die Switserse LLM. Eerste keer beskikbaar vir gebruikers. Gehuisves op HuggingFace, gelewer via n8n workflow.',
 
         // Opgradering afdeling
         upgrade: {
