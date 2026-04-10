@@ -600,6 +600,22 @@ export default {
         
         // Apertus Info
         apertusInfo: '🇨🇭 Koschtlose Schwiizer KI, ygbaut. Apertus — Open-Source-LLM vo EPFL & ETH Züri. Dini Date bliibe id Schwiiz. Kei API-Key nötig.',
+        apiKeyLabel: 'API-Schlüssel',
+        apiKeyLabelApertus: 'Hugging-Face-Token',
+        apiKeyLabelCustom: 'Eigener API-Schlüssel',
+        optional: 'optional',
+        verified: 'Verifiziert',
+        testBtn: 'Teste',
+        apertusBuiltIn: 'Integrierter Token aktiv — funktioniert ohni eigene Key.',
+        apertusOwnToken: 'Eigene Hugging-Face-Token (hf_…) yygebe, zum persönlichs Kontingent z\'verwende.',
+        apertusGetToken: 'Koschtlosen HF-Token hole',
+        openaiHint: 'Bruucht en kostenpflichtigen OpenAI API-Key (sk-…).',
+        geminiHint: 'Koschtloses Kontingent verfügbar. Key im Google AI Studio erstelle.',
+        claudeHint: 'Bruucht en Anthropic API-Key (sk-ant-…).',
+        mistralHint: 'Europäischi KI. Key uf console.mistral.ai erstelle.',
+        customHint: 'OpenAI-kompatibler Endpunkt. Basis-URL und API-Key unten yygebe.',
+        getApiKey: 'API-Key hole',
+        savedKeys: 'Gspeichert',
 
         // Upgrade-Sektion
         upgrade: {

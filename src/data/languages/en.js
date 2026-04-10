@@ -627,15 +627,21 @@ export default {
             noNewData: 'No new data available'
         },
         
-        // Apertus Info
-        apertusInfo: '🇨🇭 Free Swiss AI, built in. No API key needed.',
-        apertusTokenHint: 'Built-in token active — optionally enter your own HF token.',
+        // API Key section (dynamic per LLM provider)
+        apiKeyLabel: 'API Key',
+        apiKeyLabelApertus: 'Hugging Face Token',
+        apiKeyLabelCustom: 'Custom API Key',
+        optional: 'optional',
+        verified: 'Verified',
+        testBtn: 'Test',
+        apertusBuiltIn: 'Built-in token active — works without entering a key.',
+        apertusOwnToken: 'Enter your own Hugging Face token (hf_…) to use your personal quota.',
         apertusGetToken: 'Get free HF token',
-        openaiHint: 'Requires a paid OpenAI API key (sk-...).',
+        openaiHint: 'Requires a paid OpenAI API key (sk-…).',
         geminiHint: 'Free tier available. Get your key in Google AI Studio.',
-        claudeHint: 'Requires an Anthropic API key (sk-ant-...).',
+        claudeHint: 'Requires an Anthropic API key (sk-ant-…).',
         mistralHint: 'European AI. Get your key at console.mistral.ai.',
-        customHint: 'OpenAI-compatible endpoint. Enter the base URL and your API key.',
+        customHint: 'OpenAI-compatible endpoint. Enter base URL and API key below.',
         getApiKey: 'Get API key',
         savedKeys: 'Saved',
 

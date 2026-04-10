@@ -1290,29 +1290,24 @@
                                                         
                                                     <!-- API Key Configuration Card -->
                                                     <div class="space-y-3 bg-powder-100 dark:bg-aubergine-950 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                                                        <!-- Label -->
+                                                        <!-- Label: provider-specific -->
                                                         <div class="flex items-center space-x-2">
-                                                            {#if apiKeysItem.icon}
-                                                                <span class="text-lg">{apiKeysItem.icon}</span>
-                                                            {/if}
+                                                            <span class="text-lg">{isApertus ? '🇨🇭' : isCustom ? '🔧' : '🔑'}</span>
                                                             <label for="storyMode.apiKeys" class="text-sm font-semibold text-gray-900 dark:text-white">
-                                                                {getLocalizedText(apiKeysItem.title)}
-                                                                <span class="ml-1 text-xs font-normal text-gray-500 dark:text-gray-400">
-                                                                    ({currentProvider.charAt(0).toUpperCase() + currentProvider.slice(1)})
-                                                                </span>
+                                                                {#if isApertus}
+                                                                    {$translations?.accountManager?.apiKeyLabelApertus || 'Hugging Face Token'}
+                                                                    <span class="ml-1 text-xs font-normal text-gray-400 dark:text-gray-500">({$translations?.accountManager?.optional || 'optional'})</span>
+                                                                {:else if isCustom}
+                                                                    {$translations?.accountManager?.apiKeyLabelCustom || 'Custom API Key'}
+                                                                {:else}
+                                                                    {$translations?.accountManager?.apiKeyLabel || 'API Key'}
+                                                                    <span class="ml-1 text-xs font-normal text-gray-400 dark:text-gray-500">— {providerInfo?.name || currentProvider}</span>
+                                                                {/if}
                                                             </label>
                                                         </div>
-                                                            
-                                                        <!-- Input Container -->
-                                                        {#if isApertus}
-                                                            <p id="apertus-token-info" class="text-xs text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
-                                                                <span>🇨🇭</span>
-                                                                <span title="Leave empty to use the shared built-in token, or enter your own Hugging Face token (hf_...) for dedicated quota">{$translations?.accountManager?.apertusTokenHint || 'Built-in token active — optionally enter your own HF token.'}</span>
-                                                            </p>
-                                                        {/if}
 
+                                                        <!-- Input -->
                                                         <div class="relative">
-                                                            <!-- All providers: editable input -->
                                                             <input
                                                                 id="storyMode.apiKeys"
                                                                 type={showApiKey ? 'text' : 'password'}
@@ -1333,136 +1328,113 @@
                                                                     localApiKeyValue = currentApiKeyFromStore || '';
                                                                 }}
                                                                 placeholder={currentPlaceholder}
-                                                                aria-describedby={isApertus ? 'apertus-token-info' : undefined}
                                                                 class="w-full p-4 {hasValidKey ? 'pr-32' : hasAnyKey ? 'pr-14' : 'pr-4'} bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50 placeholder-gray-400 dark:placeholder-gray-500"
-                                                                aria-label={getLocalizedText(apiKeysItem.title)}
+                                                                aria-label={isApertus ? ($translations?.accountManager?.apiKeyLabelApertus || 'Hugging Face Token') : ($translations?.accountManager?.apiKeyLabel || 'API Key')}
                                                             />
-                                                            
-                                                            <!-- Gradient Overlay (for long keys) -->
+
+                                                            <!-- Gradient Overlay -->
                                                             {#if hasAnyKey}
-                                                                <div 
+                                                                <div
                                                                     class="absolute {hasValidKey ? 'right-[7.25rem]' : 'right-[3.25rem]'} inset-y-[1px] {hasValidKey ? 'w-32' : 'w-20'} z-5 pointer-events-none rounded-r-[11px]"
-                                                                    style="background: linear-gradient(to right, 
-                                                                        transparent 0%, 
-                                                                        {$darkMode ? 'rgba(14, 30, 48, 0.6)' : 'rgba(255, 255, 255, 0.6)'} 25%,
-                                                                        {$darkMode ? 'rgba(14, 30, 48, 0.95)' : 'rgba(255, 255, 255, 0.95)'} 60%,
-                                                                        {$darkMode ? '#0e1e30' : '#ffffff'} 100%);"
+                                                                    style="background: linear-gradient(to right, transparent 0%, {$darkMode ? 'rgba(14,30,48,0.6)' : 'rgba(255,255,255,0.6)'} 25%, {$darkMode ? 'rgba(14,30,48,0.95)' : 'rgba(255,255,255,0.95)'} 60%, {$darkMode ? '#0e1e30' : '#ffffff'} 100%);"
                                                                     aria-hidden="true"
                                                                 ></div>
                                                             {/if}
-                                                            
-                                                            <!-- Action Buttons -->
+
+                                                            <!-- Action Buttons: Show/Hide + Test -->
                                                             <div class="absolute right-2 inset-y-0 flex items-center gap-1 z-10">
                                                                 {#if hasAnyKey}
                                                                     <button
                                                                         type="button"
                                                                         on:click={() => showApiKey = !showApiKey}
                                                                         class="inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
-                                                                        aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
+                                                                        aria-label={showApiKey ? 'Hide key' : 'Show key'}
                                                                         title={showApiKey ? 'Hide' : 'Show'}
                                                                     >
                                                                         {#if showApiKey}
-                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                                                            </svg>
+                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
                                                                         {:else}
-                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                                            </svg>
+                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                                                         {/if}
                                                                     </button>
                                                                 {/if}
-                                                                
-                                                                <!-- Test Button: disabled when no key (except Apertus which has built-in token) -->
                                                                 <button
                                                                     type="button"
                                                                     disabled={!canTest}
                                                                     on:click={testAPIConnection}
-                                                                    class="inline-flex items-center justify-center gap-1 px-2.5 h-8 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed
-                                                                        {isTestSuccessful
-                                                                            ? 'bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700'
-                                                                            : canTest
-                                                                                ? 'hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white'
-                                                                                : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'}"
-                                                                    aria-label={isTestingAPI ? 'Testing API connection' : isTestSuccessful ? 'API connection verified' : !canTest ? 'Enter an API key first' : 'Test API connection'}
-                                                                    title={isTestingAPI ? 'Testing...' : isTestSuccessful ? 'API connection verified ✅' : !canTest ? 'Enter an API key to enable test' : 'Test connection'}
+                                                                    class="inline-flex items-center justify-center gap-1 px-2.5 h-8 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed {isTestSuccessful ? 'bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700' : canTest ? 'hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white' : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'}"
+                                                                    aria-label={isTestingAPI ? 'Testing…' : isTestSuccessful ? 'Verified' : !canTest ? 'Enter API key first' : 'Test connection'}
+                                                                    title={isTestingAPI ? 'Testing…' : isTestSuccessful ? 'Verified ✅' : !canTest ? 'Enter an API key first' : 'Test connection'}
                                                                 >
                                                                     {#if isTestingAPI}
-                                                                        <svg class="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                        </svg>
+                                                                        <svg class="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                                                     {:else if isTestSuccessful}
-                                                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                                                        </svg>
+                                                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
                                                                     {:else}
-                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                                        </svg>
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                                                                     {/if}
-                                                                    <span class="hidden sm:inline">{isTestSuccessful ? 'Verified' : 'Test'}</span>
+                                                                    <span class="hidden sm:inline">{isTestSuccessful ? ($translations?.accountManager?.verified || 'Verified') : ($translations?.accountManager?.testBtn || 'Test')}</span>
                                                                 </button>
                                                             </div>
                                                         </div>
-                                                        
-                                                        <!-- Provider Info & Documentation -->
-                                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-2 space-y-2">
+
+                                                        <!-- Provider-specific info + links (fully dynamic per LLM) -->
+                                                        <div class="text-xs space-y-1.5 mt-1">
                                                             {#if isApertus}
-                                                                <p class="text-green-700 dark:text-green-400">
-                                                                    {$translations?.accountManager?.apertusInfo || '🇨🇭 Free Swiss AI, built in. No API key needed.'}
+                                                                <p class="text-green-700 dark:text-green-400 flex items-center gap-1">
+                                                                    <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                                                    {$translations?.accountManager?.apertusBuiltIn || 'Built-in token active — works without entering a key.'}
                                                                 </p>
-                                                                <div class="flex flex-wrap items-center gap-3">
-                                                                    <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer" 
-                                                                       class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline transition-colors"
-                                                                       title="Get a free Hugging Face token to use your own quota">
+                                                                <p class="text-gray-500 dark:text-gray-400">
+                                                                    {$translations?.accountManager?.apertusOwnToken || 'Enter your own Hugging Face token (hf_…) to use your personal quota.'}
+                                                                </p>
+                                                                <div class="flex flex-wrap items-center gap-3 pt-0.5">
+                                                                    <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer"
+                                                                       class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
+                                                                       title="Create a free Hugging Face read token">
                                                                         <span>{$translations?.accountManager?.apertusGetToken || 'Get free HF token'}</span>
-                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                                                     </a>
                                                                     <a href="https://huggingface.co/swiss-ai" target="_blank" rel="noopener noreferrer"
-                                                                       class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline transition-colors"
+                                                                       class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
                                                                        title="Apertus by EPFL & ETH Zurich on HuggingFace">
                                                                         <span>Apertus on HF</span>
-                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                                                     </a>
                                                                 </div>
-                                                            {:else if providerInfo}
-                                                                <p class="text-gray-600 dark:text-gray-400">
-                                                                    {#if currentProvider === 'openai'}
-                                                                        {$translations?.accountManager?.openaiHint || 'Requires a paid OpenAI API key (sk-...).'}
-                                                                    {:else if currentProvider === 'gemini'}
-                                                                        {$translations?.accountManager?.geminiHint || 'Free tier available. Get your key in Google AI Studio.'}
-                                                                    {:else if currentProvider === 'claude'}
-                                                                        {$translations?.accountManager?.claudeHint || 'Requires an Anthropic API key (sk-ant-...).'}
-                                                                    {:else if currentProvider === 'mistral'}
-                                                                        {$translations?.accountManager?.mistralHint || 'European AI. Get your key at console.mistral.ai.'}
-                                                                    {:else if currentProvider === 'custom'}
-                                                                        {$translations?.accountManager?.customHint || 'OpenAI-compatible endpoint. Enter the base URL and your API key.'}
-                                                                    {:else}
-                                                                        {getLocalizedText(apiKeysItem.description)}
-                                                                    {/if}
-                                                                </p>
-                                                                {#if providerInfo.docsUrl}
-                                                                    <a href={providerInfo.docsUrl} target="_blank" rel="noopener noreferrer" 
-                                                                       class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline transition-colors"
-                                                                       title="Open {providerInfo.name} documentation">
-                                                                        <span>{$translations?.accountManager?.getApiKey || 'Get API key'} →</span>
-                                                                    </a>
-                                                                {/if}
+                                                            {:else if currentProvider === 'openai'}
+                                                                <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.openaiHint || 'Requires a paid OpenAI API key (sk-…).'}</p>
+                                                                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create an OpenAI API key">
+                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'} →</span>
+                                                                </a>
+                                                            {:else if currentProvider === 'gemini'}
+                                                                <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.geminiHint || 'Free tier available. Get your key in Google AI Studio.'}</p>
+                                                                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create a Gemini API key">
+                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'} →</span>
+                                                                </a>
+                                                            {:else if currentProvider === 'claude'}
+                                                                <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.claudeHint || 'Requires an Anthropic API key (sk-ant-…).'}</p>
+                                                                <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create an Anthropic API key">
+                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'} →</span>
+                                                                </a>
+                                                            {:else if currentProvider === 'mistral'}
+                                                                <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.mistralHint || 'European AI. Get your key at console.mistral.ai.'}</p>
+                                                                <a href="https://console.mistral.ai/api-keys" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create a Mistral API key">
+                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'} →</span>
+                                                                </a>
+                                                            {:else if isCustom}
+                                                                <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.customHint || 'OpenAI-compatible endpoint. Enter the base URL and API key below.'}</p>
                                                             {/if}
-                                                            
-                                                            {#if !isApertus && savedProviders.length > 0}
-                                                                <p class="text-green-600 dark:text-green-400 inline-flex items-center gap-1">
-                                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                                                    </svg>
+
+                                                            {#if savedProviders.length > 0}
+                                                                <p class="text-green-600 dark:text-green-400 inline-flex items-center gap-1 pt-0.5">
+                                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                                                                     {$translations?.accountManager?.savedKeys || 'Saved'}: {savedProviders.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ')}
                                                                 </p>
                                                             {/if}
                                                         </div>
-                                                        
-                                                        <!-- Custom API Fields (only when custom provider selected) -->
+
+                                                        <!-- Custom API extra fields (endpoint, model name) -->
                                                         {#if isCustom && section.proItems}
                                                             <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
                                                                 {#each section.proItems as customItem (customItem.id)}
@@ -1499,7 +1471,6 @@
                                             {/if}
                                         {/key}
                                     </div>
-                                    
                                 {:else if item.id === 'storyMode.apiKeys'}
                                     <!-- API Keys field is now integrated into storyMode.provider section above -->
                                     <!-- This block is intentionally left empty to skip rendering -->

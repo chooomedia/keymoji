@@ -625,6 +625,22 @@ export default {
         
         // Apertus Info
         apertusInfo: '🇨🇭 IA suiza gratuita, incluida. Apertus — LLM de código abierto de EPFL & ETH Zurich. Tus datos permanecen en Suiza. No se necesita clave API.',
+        apiKeyLabel: 'Clave API',
+        apiKeyLabelApertus: 'Token de Hugging Face',
+        apiKeyLabelCustom: 'Clave API personalizada',
+        optional: 'opcional',
+        verified: 'Verificado',
+        testBtn: 'Probar',
+        apertusBuiltIn: 'Token integrado activo — funciona sin introducir una clave.',
+        apertusOwnToken: 'Introduce tu propio token de Hugging Face (hf_…) para usar tu cuota personal.',
+        apertusGetToken: 'Obtener token HF gratuito',
+        openaiHint: 'Requiere una clave API de OpenAI de pago (sk-…).',
+        geminiHint: 'Nivel gratuito disponible. Obtén tu clave en Google AI Studio.',
+        claudeHint: 'Requiere una clave API de Anthropic (sk-ant-…).',
+        mistralHint: 'IA europea. Obtén tu clave en console.mistral.ai.',
+        customHint: 'Endpoint compatible con OpenAI. Introduce la URL base y la clave API abajo.',
+        getApiKey: 'Obtener clave API',
+        savedKeys: 'Guardado',
 
         // Sección de actualización
         upgrade: {
