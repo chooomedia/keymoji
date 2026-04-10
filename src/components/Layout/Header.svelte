@@ -3,9 +3,8 @@
     import { slide, fly } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
     import { hamburger, logo } from "../../assets/shapes.js";
-    import { isDisabled, showDonateMenu, isLoggedIn, currentAccount, dailyLimit, accountTier } from 'stores/appStores'
+    import { isLoggedIn, currentAccount, dailyLimit, accountTier } from 'stores/appStores'
     import { currentLanguage, t, showLanguageMenu, changeLanguage } from '../../stores/contentStore.js';
-    import GitButton from '../../widgets/GitButton.svelte';
     import { createEventDispatcher } from 'svelte';
     import { navigate, Link } from 'svelte-routing';
     import LanguageSwitcher from '../LanguageSwitcher.svelte';
@@ -129,7 +128,7 @@
 </script>
 
 <!-- Header mit Logo links, Buttons rechts -->
-<div class="main-header w-full flex flex-wrap justify-center pt-5 mx-auto bg-transparent backdrop-blur-md">
+<div class="main-header w-full flex flex-wrap justify-center pt-3 md:pt-5 mx-auto bg-transparent backdrop-blur-md">
     <nav class="md:w-1/3 w-full mx-3 bg-creme-500 dark:bg-aubergine-800 justify-center rounded-full p-1 relative z-30 shadow-lg">
         <div class="max-w-screen-2xl flex items-center justify-between">
             <!-- Logo und Titel links -->
@@ -142,7 +141,7 @@
                     >
                         <!-- Keymoji Logo SVG from shapes.js -->
                         <svg 
-                            class="w-14 h-14 transition-transform hover:scale-110" 
+                            class="w-10 h-10 md:w-14 md:h-14 transition-transform hover:scale-110" 
                             aria-label="Keymoji Logo"
                             xmlns="http://www.w3.org/2000/svg" 
                             viewBox="0 0 600 600"
@@ -150,13 +149,14 @@
                         >
                             {@html logo}
                         </svg>
-                        <span class="ml-2">{headerTitle}</span>
+                        <!-- Title hidden on mobile (sr-only), visible md+ -->
+                        <span class="sr-only md:not-sr-only md:ml-2">{headerTitle}</span>
                     </Link>
                 </h2>
             </div>
             
             <!-- Buttons rechts: Language-Switcher und GitHub Button (flex side-by-side) -->
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-1.5 md:space-x-2">
                 <!-- Language Switcher -->
                 <div class="relative">
                     <LanguageSwitcher position="bottom" display="full" showLabels={true} />
@@ -166,12 +166,12 @@
                 <div class="relative z-[70]">
                     <button
                         type="button"
-                        class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center relative"
+                        class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:focus:scale-100 disabled:active:scale-100 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-3 py-2 h-10 md:px-4 md:py-3 md:h-14 flex items-center justify-center relative"
                         on:click={navigateToAccount}
                         aria-label={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
                         title={$isLoggedIn ? ($translations?.header?.accountTooltip || 'Account Settings') : ($translations?.header?.loginTooltip || 'Login / Create Account')}
                     >
-                        <span class="text-xl">{#if $isLoggedIn}👤{:else}🔐{/if}</span>
+                        <span class="text-lg md:text-xl">{#if $isLoggedIn}👤{:else}🔐{/if}</span>
                     </button>
                     
                     <!-- Badge für verbleibende Generierungen - Sauberer Wrapper ohne Flicker, immer über Header -->
@@ -191,7 +191,7 @@
                                 }"
                                 style="position: absolute; will-change: transform;"
                                 aria-label={remaining > 0 ? `${remaining} generations remaining` : isProUser ? 'Unlimited generations' : 'Upgrade to Pro for more'}
-                                title={remaining > 0 ? `${remaining} Story-Generierungen verbleibend heute` : isProUser ? '∞ Unlimited Pro' : '💎 Upgrade zu Pro für mehr'}
+                                title={remaining > 0 ? `${remaining} generations remaining today` : isProUser ? '∞ Unlimited Pro' : '💎 Upgrade to Pro for more'}
                             >
                                 {#if isProUser}
                                     <span class="text-[0.7rem]">∞</span>
@@ -210,11 +210,11 @@
                     href="https://github.com/chooomedia/keymoji"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center"
+                    class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-3 py-2 h-10 md:px-4 md:py-3 md:h-14 flex items-center justify-center"
                     aria-label={$translations?.header?.githubTooltip || 'Star us on GitHub'}
                     title={$translations?.header?.githubTooltip || 'Star us on GitHub'}
                 >
-                    <span class="text-xl">⭐</span>
+                    <span class="text-lg md:text-xl">⭐</span>
                 </a>
             </div>
         </div>

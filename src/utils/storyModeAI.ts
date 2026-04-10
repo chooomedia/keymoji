@@ -647,7 +647,6 @@ async function callApertus(
                 model: finalModel,
                 max_tokens: maxTokens || 512,
                 temperature: temperature ?? 0,
-                language: 'Deutsch',
                 token: n8nToken
             })
         },

@@ -854,3 +854,31 @@ export function updateDailyLimit(
 if (typeof window !== 'undefined') {
     initializeUserCounter();
 }
+
+// ============================================
+// SESSION GENERATION COUNTER
+// Counts emoji generations per browser session (sessionStorage)
+// Resets on tab close — no persistence across sessions
+// ============================================
+
+const SESSION_GEN_KEY = 'keymoji_session_generations';
+
+function readSessionCount(): number {
+    try {
+        return parseInt(sessionStorage.getItem(SESSION_GEN_KEY) || '0', 10) || 0;
+    } catch {
+        return 0;
+    }
+}
+
+export const sessionGenerationCount: Writable<number> = writable(
+    typeof window !== 'undefined' ? readSessionCount() : 0
+);
+
+export function incrementSessionCount(): void {
+    sessionGenerationCount.update(n => {
+        const next = n + 1;
+        try { sessionStorage.setItem(SESSION_GEN_KEY, String(next)); } catch { /* quota */ }
+        return next;
+    });
+}
