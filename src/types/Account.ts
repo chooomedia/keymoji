@@ -24,7 +24,6 @@ export interface UsageEntry {
 
 export interface AccountMetadata {
     settings?: UserSettings;
-    usageHistory?: UsageEntry[];
     updatedAt?: string;
     updatedVia?: string;
     lastSettingsSave?: string;

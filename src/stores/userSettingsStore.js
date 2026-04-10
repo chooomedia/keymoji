@@ -1279,48 +1279,12 @@ export async function saveSettingsToAPI(settings) {
             }
         }
 
-        // CRITICAL: Get LATEST usageHistory from localStorage/store
         const currentPrefs = storageHelpers.get(
             STORAGE_KEYS.USER_PREFERENCES,
             {}
         );
         const currentMetadata =
             currentPrefs.metadata || account?.metadata || {};
-
-        // Also check usageHistory store (might be more recent!)
-        let latestUsageHistory = currentMetadata.usageHistory || [];
-        try {
-            const { usageHistory: usageHistoryStore } = await import(
-                './userDataStore.js'
-            );
-            const storeData = get(usageHistoryStore);
-            if (
-                storeData?.data &&
-                Array.isArray(storeData.data) &&
-                storeData.data.length > 0
-            ) {
-                // Use store data if it has more entries
-                if (storeData.data.length > latestUsageHistory.length) {
-                    latestUsageHistory = storeData.data;
-                    console.log(
-                        '📊 Using usageHistory from store:',
-                        latestUsageHistory.length,
-                        'entries'
-                    );
-                }
-            }
-        } catch (error) {
-            console.warn(
-                '⚠️ Could not load usageHistory from store, using localStorage:',
-                error
-            );
-        }
-
-        console.log(
-            '💾 [SETTINGS SAVE] Preserving usageHistory:',
-            latestUsageHistory.length,
-            'entries'
-        );
 
         // CRITICAL: Load current dailyUsage to preserve it during settings save!
         // Use centralized loadDailyUsage utility (single source of truth)
@@ -1361,11 +1325,9 @@ export async function saveSettingsToAPI(settings) {
             });
         }
 
-        // CRITICAL: Build clean metadata without duplicate fields (fields with own columns!)
-        // Single Source of Truth: Fields with own columns should NOT be in metadata
+        // Build clean metadata — kein usageHistory mehr (wird lokal in DAILY_USAGE_HISTORY geführt)
         const metadataToSend = {
             ...currentMetadata,
-            usageHistory: latestUsageHistory, // CRITICAL: Include latest usageHistory!
             settings: settings, // UserSettings → Google Sheets metadata column
             updatedAt: new Date().toISOString(),
             updatedVia: 'settings-ui',
@@ -1497,33 +1459,6 @@ export async function saveSettingsToAPI(settings) {
                 );
             }
 
-            // Update userDataStore (usageHistory)
-            try {
-                const { usageHistory: usageHistoryStore } = await import(
-                    './userDataStore.js'
-                );
-                if (
-                    parsedMetadata.usageHistory &&
-                    Array.isArray(parsedMetadata.usageHistory)
-                ) {
-                    usageHistoryStore.update(state => ({
-                        ...state,
-                        data: parsedMetadata.usageHistory,
-                        lastUpdate: Date.now(),
-                        isCached: false
-                    }));
-                    console.log(
-                        '✅ [SYNC] usageHistory store updated with',
-                        parsedMetadata.usageHistory.length,
-                        'entries'
-                    );
-                }
-            } catch (error) {
-                console.warn(
-                    '⚠️ [SYNC] Failed to update usageHistory store:',
-                    error
-                );
-            }
         }
 
         return result;
@@ -1698,34 +1633,6 @@ export async function loadSettingsFromAPI() {
             } catch (error) {
                 console.warn(
                     '⚠️ [SYNC] Failed to update currentAccount:',
-                    error
-                );
-            }
-
-            // 4. Update usageHistory store
-            try {
-                const { usageHistory: usageHistoryStore } = await import(
-                    './userDataStore.js'
-                );
-                if (
-                    parsedMetadata.usageHistory &&
-                    Array.isArray(parsedMetadata.usageHistory)
-                ) {
-                    usageHistoryStore.update(state => ({
-                        ...state,
-                        data: parsedMetadata.usageHistory,
-                        lastUpdate: Date.now(),
-                        isCached: false
-                    }));
-                    console.log(
-                        '✅ [SYNC] usageHistory store updated with',
-                        parsedMetadata.usageHistory.length,
-                        'entries'
-                    );
-                }
-            } catch (error) {
-                console.warn(
-                    '⚠️ [SYNC] Failed to update usageHistory store:',
                     error
                 );
             }

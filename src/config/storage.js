@@ -13,6 +13,7 @@ export const STORAGE_KEYS = {
     DAILY_REQUEST_COUNT: 'keymoji_daily_request_count', // DEPRECATED - use DAILY_USAGE
     STORED_DATE: 'keymoji_stored_date', // DEPRECATED - use DAILY_USAGE
     DAILY_USAGE: 'keymoji_daily_usage', // NEW: Centralized daily usage tracking
+    DAILY_USAGE_HISTORY: 'keymoji_daily_usage_history', // Local history array for chart (last 90 days)
 
     // Blog-Daten
     BLOG_POSTS: 'keymoji_blog_posts',
@@ -171,7 +172,8 @@ export function migrateAndCleanupLocalStorage() {
         'keymoji_daily_request_count', // Old daily usage key
         'keymoji_stored_date', // Old date tracking
         'keymoji_user_settings_timestamp', // Old timestamp
-        'keymoji_usage_history_timestamp' // Old timestamp
+        'keymoji_usage_history_timestamp', // Old timestamp
+        'keymoji_usage_history_cache' // Replaced by keymoji_daily_usage_history
     ];
 
     // 1. Remove deprecated keys

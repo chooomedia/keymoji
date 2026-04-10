@@ -322,86 +322,15 @@ export async function initializeDailyUsage(accountData = null) {
 }
 
 /**
- * Save usage to history (for charts)
- * Keeps last 365 days in metadata.usageHistory
+ * Heute's dailyUsage in die lokale History persistieren.
+ * Delegiert an userDataStore.persistDailyUsageToHistory.
  */
-async function saveToUsageHistory(account, usageData) {
+async function persistUsageToLocalHistory(usageData) {
     try {
-        // Get existing history from account
-        const existingHistory = account?.metadata?.usageHistory || [];
-
-        // Add or update today's entry
-        const today = getTodayDateString();
-        const existingIndex = existingHistory.findIndex(
-            entry => entry.date === today
-        );
-
-        // CRITICAL: Always use the LATEST values from dailyLimit store to ensure both used AND storyUsed are preserved
-        // This ensures that if story was created first, then random, both values are preserved
-        const currentLimit = get(dailyLimit);
-        const latestUsageData = {
-            used: currentLimit.used || usageData.used || 0,
-            storyUsed: currentLimit.storyUsed || usageData.storyUsed || 0,
-            limit: usageData.limit || currentLimit.limit || 0
-        };
-
-        let mergedEntry;
-        if (existingIndex >= 0) {
-            const existingEntry = existingHistory[existingIndex];
-            // Merge: Keep the HIGHER value for each field (preserves both increments)
-            // This handles edge cases where API might have stale data
-            mergedEntry = {
-                date: today,
-                used: Math.max(existingEntry.used || 0, latestUsageData.used),
-                storyUsed: Math.max(
-                    existingEntry.storyUsed || 0,
-                    latestUsageData.storyUsed
-                ),
-                limit: latestUsageData.limit || existingEntry.limit || 0,
-                timestamp: new Date().toISOString()
-            };
-            console.log('🔄 [HISTORY] Merging existing entry:', {
-                existing: existingEntry,
-                fromStore: currentLimit,
-                fromUsageData: usageData,
-                merged: mergedEntry
-            });
-        } else {
-            // New entry - use latest values from store
-            mergedEntry = {
-                date: today,
-                used: latestUsageData.used,
-                storyUsed: latestUsageData.storyUsed,
-                limit: latestUsageData.limit,
-                timestamp: new Date().toISOString()
-            };
-        }
-
-        let updatedHistory;
-        if (existingIndex >= 0) {
-            // Update existing entry with merged values
-            updatedHistory = [...existingHistory];
-            updatedHistory[existingIndex] = mergedEntry;
-        } else {
-            // Add new entry
-            updatedHistory = [...existingHistory, mergedEntry];
-        }
-
-        // Keep only last 365 days
-        updatedHistory = updatedHistory
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .slice(0, 365);
-
-        console.log(
-            '📊 Updated usage history:',
-            updatedHistory.length,
-            'entries'
-        );
-
-        return updatedHistory;
+        const { persistDailyUsageToHistory } = await import('./userDataStore.js');
+        persistDailyUsageToHistory(usageData);
     } catch (error) {
-        console.warn('⚠️ Failed to update usage history:', error);
-        return account?.metadata?.usageHistory || [];
+        console.warn('⚠️ Failed to persist usage to local history:', error);
     }
 }
 
@@ -483,7 +412,10 @@ export async function incrementDailyUsage(isStoryMode = false) {
             console.log('✅ localStorage write verified:', verification);
         }
 
-        // 4. Save to API if logged in (background, non-blocking)
+        // 4. Lokale History für Chart aktualisieren (immer, auch ohne Login)
+        persistUsageToLocalHistory(usageData).catch(() => {});
+
+        // 5. Save to API if logged in (background, non-blocking)
         if (loggedIn && account?.userId) {
             // Fire and forget - API is secondary to localStorage
             saveUsageToAPI(account, usageData).catch(error => {
@@ -599,29 +531,16 @@ async function saveUsageToAPI(account, usageData) {
         );
         const freshMetadata = currentPrefs.metadata || account?.metadata || {};
 
-        // CRITICAL: Update usage history FIRST (before building metadata!)
-        // This ensures updatedHistory is available when building metadataToSend
-        const freshAccount = {
-            ...account,
-            metadata: freshMetadata
-        };
-
-        // Update usage history with FRESH data
-        const updatedHistory = await saveToUsageHistory(
-            freshAccount,
-            usageData
-        );
+        // Persist today's usage to local history (für Chart)
+        await persistUsageToLocalHistory(usageData);
 
         // CRITICAL: Clean metadata to remove duplicate fields (fields with own columns!)
-        // Single Source of Truth: Fields with own columns should NOT be in metadata
-        // Import metadata cleaner
         const { prepareMetadataForAPI, validateMetadataNoDuplicates } =
             await import('../utils/metadataCleaner');
 
-        // Build metadata to send (will be cleaned)
+        // Build metadata to send — kein usageHistory mehr in metadata!
         const metadataToSend = {
             ...freshMetadata,
-            usageHistory: updatedHistory, // History for charts (last 365 days)
             lastActivity: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             updatedVia: 'daily-usage-tracking'
@@ -738,11 +657,6 @@ async function saveUsageToAPI(account, usageData) {
                     }
                 }
 
-                console.log(
-                    '📊 [SYNC] Backend returned usageHistory:',
-                    parsedMetadata.usageHistory?.length || 0,
-                    'entries'
-                );
                 if (parsedDailyUsage) {
                     console.log('✅ [SYNC] Backend returned dailyUsage:', {
                         date: parsedDailyUsage.date,
@@ -759,23 +673,6 @@ async function saveUsageToAPI(account, usageData) {
                 };
                 storageHelpers.set(STORAGE_KEYS.USER_PREFERENCES, updatedPrefs);
                 console.log('✅ [SYNC] localStorage updated');
-
-                // Update usageHistory store
-                const { usageHistory: usageHistoryStore } = await import(
-                    './userDataStore.js'
-                );
-                if (
-                    parsedMetadata.usageHistory &&
-                    Array.isArray(parsedMetadata.usageHistory)
-                ) {
-                    usageHistoryStore.update(state => ({
-                        ...state,
-                        data: parsedMetadata.usageHistory,
-                        lastUpdate: Date.now(),
-                        isCached: false
-                    }));
-                    console.log('✅ [SYNC] usageHistory store updated');
-                }
 
                 // Update currentAccount store with dailyUsage
                 const { syncAccountData } = await import('./accountStore.js');

@@ -1793,17 +1793,7 @@ async function syncAccountData(accountData) {
         console.log('✅ [ACCOUNT DEBUG] Parsed data:', {
             profile: parsedProfile,
             metadata: {
-                hasSettings: !!parsedMetadata.settings,
-                hasDailyUsage: !!parsedMetadata.dailyUsage,
-                hasUsageHistory: !!parsedMetadata.usageHistory,
-                usageHistoryType: typeof parsedMetadata.usageHistory,
-                usageHistoryIsArray: Array.isArray(parsedMetadata.usageHistory),
-                usageHistoryLength: parsedMetadata.usageHistory?.length || 0,
-                firstEntry: parsedMetadata.usageHistory?.[0],
-                lastEntry:
-                    parsedMetadata.usageHistory?.[
-                        parsedMetadata.usageHistory?.length - 1
-                    ]
+                hasSettings: !!parsedMetadata.settings
             }
         });
 
@@ -2013,9 +2003,7 @@ async function syncAccountData(accountData) {
             '✅ [ACCOUNT DEBUG] syncAccountData: Complete metadata structure:',
             {
                 settings: !!parsedMetadata?.settings,
-                dailyUsage: !!parsedMetadata?.dailyUsage,
-                usageHistory: !!parsedMetadata?.usageHistory,
-                usageHistoryLength: parsedMetadata?.usageHistory?.length
+                dailyUsage: !!parsedMetadata?.dailyUsage
             }
         );
     } else {
@@ -2064,10 +2052,9 @@ export async function createAccount(
         const { prepareMetadataForAPI, validateMetadataNoDuplicates } =
             await import('../utils/metadataCleaner');
 
-        // Build metadata to send (will be cleaned)
+        // Build metadata to send — kein usageHistory (wird lokal in DAILY_USAGE_HISTORY geführt)
         const metadataToSend = {
-            ...metadata,
-            usageHistory: metadata?.usageHistory || [] // Empty array for new accounts
+            ...metadata
             // NOTE: tier is NOT in metadata - it's a separate column!
         };
 
@@ -2081,9 +2068,7 @@ export async function createAccount(
         validateMetadataNoDuplicates(cleanedMetadata, 'createAccount');
 
         console.log('🆕 Creating account with cleaned metadata:', {
-            hasUsageHistory: !!cleanedMetadata.usageHistory,
-            usageHistoryLength: cleanedMetadata.usageHistory?.length || 0,
-            tier: metadata?.tier || 'free' // tier is separate column, not in metadata!
+            tier: metadata?.tier || 'free'
         });
 
         const response = await fetch(WEBHOOKS.ACCOUNT.CRUD, {

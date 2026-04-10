@@ -18,9 +18,9 @@
  * 
  * What SHOULD be in metadata:
  * - settings (UserSettings)
- * - usageHistory (for charts, last 365 days)
  * - updatedAt, updatedVia, lastActivity, lastSettingsSave (tracking fields)
  * - Other app-specific metadata
+ * NOTE: usageHistory wurde entfernt — Chart-Daten werden lokal in DAILY_USAGE_HISTORY geführt
  * 
  * What should NOT be in metadata (have own columns):
  * - createdAt, dailyUsage, profile, tier, email, userId, lastLogin, status
