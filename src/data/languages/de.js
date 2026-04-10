@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Passwort Generator',
         pageDescription:
-            '🔑 Einprägsame Passwörter, kein Aufwand. 🎯 Unknackbare Emoji-Sequenzen. 🤖 Kostenlose Schweizer KI inklusive — kein API-Key nötig. 🌍 15+ Sprachen. DSGVO-konform.',
+            '🔑 Einprägsame Passwörter, kein Aufwand. 🎯 Unknackbare Emoji-Sequenzen. 🌍 15+ Sprachen. DSGVO-konform.',
         pageKeywords:
             'Keymoji, emoji passwort, passwort generator, sicherheit, online sicherheit',
         pageInstruction: [

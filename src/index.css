@@ -110,9 +110,9 @@ button:disabled {
     width: 100%;
     margin: 0;
     padding: 0;
-    /* Prevent layout shift when scrollbar appears/disappears on view changes */
-    overflow-y: scroll;
-    scrollbar-gutter: stable;
+    /* Reserve scrollbar gutter to prevent layout shift on view change.
+       overflow-y:auto on body handles actual scrolling — html stays neutral. */
+    scrollbar-gutter: stable both-edges;
 }
 
 :global(body) {
@@ -121,6 +121,7 @@ button:disabled {
     min-height: 100vh;
     width: 100%;
     box-sizing: border-box;
+    overflow-y: auto;
     /* Modal-Open Klasse wird von Modal.svelte verwaltet */
 }
 

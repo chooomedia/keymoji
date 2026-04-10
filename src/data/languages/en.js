@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Password Generator',
         pageDescription:
-            '🔑 Memorable passwords, zero effort. 🎯 Uncrackable emoji sequences. 🤖 Free Swiss AI built in — no API key needed. 🌍 15+ languages. GDPR-compliant.',
+            '🔑 Memorable passwords, zero effort. 🎯 Uncrackable emoji sequences. 🌍 15+ languages. GDPR-compliant.',
         pageKeywords:
             'Keymoji, emoji password, password generator, security, online security',
         pageInstruction: [
