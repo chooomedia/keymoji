@@ -18,12 +18,10 @@ export async function loadRealDataFromBackend(email) {
         console.log('📡 Using userId:', userId);
 
         const response = await fetch(
-            'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account',
+            'https://its.keymoji.wtf/api/account',
             {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: 'get',
                     userId: userId,

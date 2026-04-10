@@ -930,110 +930,9 @@ export async function verifyMagicLinkFrontend(code, email) {
                 );
             }
         } catch (error) {
-            const isLocalhost =
-                typeof window !== 'undefined' &&
-                (window.location.hostname === 'localhost' ||
-                    window.location.hostname === '127.0.0.1');
-
-            if (isLocalhost) {
-                console.log(
-                    '💡 [LOGIN - LOCALHOST] Vercel API not available, trying direct n8n connection...'
-                );
-
-                // LOCALHOST FIX: Direct n8n call to get full account data
-                try {
-                    console.log(
-                        '📡 [LOCALHOST] Fetching data directly from n8n...'
-                    );
-                    const n8nResponse = await fetch(
-                        'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account',
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                action: 'get',
-                                userId: accountData.userId,
-                                email: accountData.email
-                            })
-                        }
-                    );
-
-                    if (n8nResponse.ok) {
-                        const n8nResult = await n8nResponse.json();
-                        console.log('✅ [LOCALHOST] n8n response:', {
-                            success: n8nResult.success,
-                            hasAccount: !!n8nResult.account,
-                            hasMetadata: !!n8nResult.account?.metadata,
-                            hasUsageHistory:
-                                !!n8nResult.account?.metadata?.usageHistory
-                        });
-
-                        if (n8nResult.success && n8nResult.account) {
-                            // Parse metadata if it's a string
-                            let metadata = n8nResult.account.metadata;
-                            if (typeof metadata === 'string') {
-                                try {
-                                    metadata = JSON.parse(metadata);
-                                } catch (e) {
-                                    console.warn(
-                                        '⚠️ Failed to parse metadata:',
-                                        e
-                                    );
-                                }
-                            }
-
-                            // CRITICAL: Preserve existing createdAt from localStorage if backend doesn't provide it!
-                            const existingCreatedAt =
-                                accountData.createdAt ||
-                                (() => {
-                                    const existingPrefs = storageHelpers.get(
-                                        STORAGE_KEYS.USER_PREFERENCES,
-                                        {}
-                                    );
-                                    return existingPrefs.createdAt || null;
-                                })();
-
-                            // Merge with accountData
-                            accountData = {
-                                ...accountData,
-                                metadata: metadata,
-                                profile: n8nResult.account.profile,
-                                // CRITICAL: Only use backend createdAt if it exists, otherwise preserve existing!
-                                createdAt:
-                                    n8nResult.account.createdAt ||
-                                    existingCreatedAt,
-                                tier: n8nResult.account.tier || accountData.tier
-                            };
-
-                            console.log(
-                                '✅ [LOCALHOST] Account data merged with n8n data!'
-                            );
-                            console.log(
-                                '✅ [LOCALHOST] UsageHistory entries:',
-                                metadata?.usageHistory?.length || 0
-                            );
-                        }
-                    } else {
-                        console.warn(
-                            '⚠️ [LOCALHOST] n8n returned error:',
-                            n8nResponse.status
-                        );
-                    }
-                } catch (n8nError) {
-                    console.warn(
-                        '⚠️ [LOCALHOST] Direct n8n call failed:',
-                        n8nError.message
-                    );
-                }
-            } else {
-                console.error(
-                    '❌ [LOGIN] Error loading full account data:',
-                    error.message
-                );
-            }
-            console.log('💡 [LOGIN] Continuing with available data');
+            // The Vercel proxy (its.keymoji.wtf) allows localhost:8080 via CORS.
+            // If this fails, log and continue — don't retry via direct n8n (CORS blocked).
+            console.warn('⚠️ [LOGIN] Error loading full account data, continuing with available data:', error.message);
         }
 
         // CRITICAL: Extract createdAt BEFORE syncAccountData to preserve it!
@@ -1546,104 +1445,13 @@ export async function initializeAccountFromCookies(forceRestore = false) {
             let fullAccountResult = null;
 
             try {
-                // Skip API call on localhost (Vercel functions don't run locally!)
-                const isLocalhost =
-                    typeof window !== 'undefined' &&
-                    (window.location.hostname === 'localhost' ||
-                        window.location.hostname === '127.0.0.1');
-
-                if (isLocalhost) {
-                    console.log(
-                        '⚠️ [SESSION RESTORE] Localhost detected - Vercel API not available, trying direct n8n...'
-                    );
-
-                    // LOCALHOST FIX: Try direct n8n connection
-                    try {
-                        console.log(
-                            '📡 [SESSION RESTORE - LOCALHOST] Fetching from n8n...'
-                        );
-                        const n8nResponse = await fetch(
-                            'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account',
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    action: 'get',
-                                    userId: userPrefs.userId,
-                                    email: userPrefs.email
-                                })
-                            }
-                        );
-
-                        if (n8nResponse.ok) {
-                            const n8nResult = await n8nResponse.json();
-                            console.log(
-                                '✅ [SESSION RESTORE - LOCALHOST] n8n data loaded:',
-                                {
-                                    success: n8nResult.success,
-                                    hasMetadata: !!n8nResult.account?.metadata,
-                                    hasUsageHistory:
-                                        !!n8nResult.account?.metadata
-                                            ?.usageHistory,
-                                    usageHistoryLength:
-                                        n8nResult.account?.metadata
-                                            ?.usageHistory?.length || 0
-                                }
-                            );
-
-                            if (n8nResult.success && n8nResult.account) {
-                                // Parse metadata if string
-                                let metadata = n8nResult.account.metadata;
-                                if (typeof metadata === 'string') {
-                                    try {
-                                        metadata = JSON.parse(metadata);
-                                    } catch (e) {
-                                        console.warn(
-                                            '⚠️ Failed to parse metadata:',
-                                            e
-                                        );
-                                    }
-                                }
-
-                                // Create fullAccountResult format
-                                fullAccountResult = {
-                                    success: true,
-                                    account: {
-                                        ...n8nResult.account,
-                                        metadata: metadata
-                                    }
-                                };
-
-                                console.log(
-                                    '✅ [SESSION RESTORE - LOCALHOST] Using n8n data!'
-                                );
-                            } else {
-                                throw new Error('n8n returned no account data');
-                            }
-                        } else {
-                            throw new Error(
-                                `n8n returned ${n8nResponse.status}`
-                            );
-                        }
-                    } catch (n8nError) {
-                        console.warn(
-                            '⚠️ [SESSION RESTORE - LOCALHOST] n8n failed:',
-                            n8nError.message
-                        );
-                        throw new Error('Localhost: API not available');
-                    }
-                }
-
-                // Use cached fetch to prevent 429 errors! (only if not localhost)
-                if (!isLocalhost) {
-                    fullAccountResult = await cachedFetchAccount(
-                        userPrefs.userId,
-                        userPrefs.email,
-                        'get' // CRITICAL: Use 'get' not 'read' for n8n webhook!
-                    );
-                }
+                // Always use Vercel proxy — CORS allows localhost:8080.
+                // Never call n8n directly from the browser.
+                fullAccountResult = await cachedFetchAccount(
+                    userPrefs.userId,
+                    userPrefs.email,
+                    'get'
+                );
 
                 if (fullAccountResult) {
                     console.log(
@@ -1679,21 +1487,10 @@ export async function initializeAccountFromCookies(forceRestore = false) {
                     throw new Error('No account data in response');
                 }
             } catch (error) {
-                const isLocalhost =
-                    typeof window !== 'undefined' &&
-                    (window.location.hostname === 'localhost' ||
-                        window.location.hostname === '127.0.0.1');
-
-                if (isLocalhost) {
-                    console.log(
-                        '💡 [SESSION RESTORE - LOCALHOST] Using localStorage data (API not available locally)'
-                    );
-                } else {
-                    console.warn(
-                        '⚠️ [SESSION RESTORE] Failed to load from database, using cookies fallback:',
-                        error.message
-                    );
-                }
+                console.warn(
+                    '⚠️ [SESSION RESTORE] Failed to load from database, using localStorage fallback:',
+                    error.message
+                );
 
                 // Fallback: Use data from cookies/localStorage (without usageHistory)
                 accountInfo = {

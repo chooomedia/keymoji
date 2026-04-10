@@ -528,48 +528,13 @@ async function loadUsageFromAPI(account) {
             account.userId
         );
 
-        // LOCALHOST FIX: Try direct n8n if Vercel not available
-        const isLocalhost =
-            isDevelopment() &&
-            (window.location.hostname === 'localhost' ||
-                window.location.hostname === '127.0.0.1');
-
-        let result;
-
-        if (isLocalhost) {
-            console.log('💡 [LOCALHOST] Fetching from n8n directly...');
-            try {
-                const n8nResponse = await fetch(
-                    'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account',
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            action: 'get',
-                            userId: account.userId,
-                            email: account.email
-                        })
-                    }
-                );
-
-                if (n8nResponse.ok) {
-                    result = await n8nResponse.json();
-                    console.log('✅ [LOCALHOST] Loaded from n8n');
-                } else {
-                    return null;
-                }
-            } catch (error) {
-                console.warn('⚠️ [LOCALHOST] n8n fetch failed:', error);
-                return null;
-            }
-        } else {
-            // Use cached fetch - prevents 429 errors!
-            result = await cachedFetchAccount(
-                account.userId,
-                account.email,
-                'read'
-            );
-        }
+        // Always use the Vercel proxy (its.keymoji.wtf) — CORS is configured
+        // to allow localhost:8080. Never call n8n directly from the browser.
+        const result = await cachedFetchAccount(
+            account.userId,
+            account.email,
+            'read'
+        );
 
         if (result.success && result.account) {
             // NEW STRUCTURE: Priority order for loading dailyUsage
@@ -672,23 +637,9 @@ async function saveUsageToAPI(account, usageData) {
         // Validate (warns in dev if duplicates found)
         validateMetadataNoDuplicates(cleanedMetadata, 'saveUsageToAPI');
 
-        // LOCALHOST FIX: Use direct n8n call if Vercel API not available
-        const isLocalhost =
-            isDevelopment() &&
-            (window.location.hostname === 'localhost' ||
-                window.location.hostname === '127.0.0.1');
-
-        // CRITICAL: Use SAME webhook URL for consistency!
-        let apiUrl = isLocalhost
-            ? WEBHOOKS.ACCOUNT.UPDATE_DIRECT ||
-              'https://n8n.chooomedia.com/webhook/xn--moji-pb73c-account-update' // Direct n8n for localhost
-            : WEBHOOKS.ACCOUNT.UPDATE; // Vercel proxy for production
-
-        if (isLocalhost) {
-            console.log(
-                '💡 [LOCALHOST] Using direct n8n webhook for usage tracking'
-            );
-        }
+        // Always use the Vercel proxy — it allows localhost:8080 via CORS
+        // and forwards to n8n. Never call n8n directly from the browser (CORS).
+        const apiUrl = WEBHOOKS.ACCOUNT.UPDATE;
 
         const response = await fetch(apiUrl, {
             method: 'POST',
