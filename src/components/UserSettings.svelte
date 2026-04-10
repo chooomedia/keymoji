@@ -1158,7 +1158,7 @@
                 <div class="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
                 <button
                     on:click={() => toggleSection(section.id)}
-                        class="flex-1 flex items-center justify-between focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-all"
+                        class="flex-1 flex items-center justify-between transition-all"
                     aria-label="{getLocalizedText(section.title)} - {activeSection === section.id ? 'Collapse' : 'Expand'}"
                     id="accordion-{section.id}"
                 >
