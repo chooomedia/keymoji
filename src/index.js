@@ -2,6 +2,7 @@
 import './index.css'; // Essential: Import Tailwind CSS
 import LanguageRouter from './routes/LanguageRouter.svelte';
 import { isProduction } from './utils/environment';
+import { get } from 'svelte/store';
 import { closeModal, isModalVisible } from './stores/modalStore';
 
 function displayKeymojiConsoleArt() {
@@ -273,7 +274,7 @@ function initializeApp() {
     // Enhanced keyboard shortcuts (Apple Style)
     document.addEventListener('keydown', event => {
         // ESC to close modal
-        if (event.key === 'Escape' && isModalVisible.get()) {
+        if (event.key === 'Escape' && get(isModalVisible)) {
             event.preventDefault();
             closeModal();
         }
@@ -292,7 +293,7 @@ function initializeApp() {
         if (
             modalElement &&
             event.target === modalElement &&
-            isModalVisible.get()
+            get(isModalVisible)
         ) {
             closeModal();
         }
