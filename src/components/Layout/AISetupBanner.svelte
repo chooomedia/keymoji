@@ -109,7 +109,7 @@
             </button>
 
             <!-- CTA – nur ab sm sichtbar -->
-            <span class="hidden sm:inline text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
+            <span class="hidden md:inline text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
                 {$translations?.index?.setupStoryModeBannerCta || '— Erstelle deine Keymoji-Story'}
             </span>
         </div>

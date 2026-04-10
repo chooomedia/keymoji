@@ -61,7 +61,7 @@
     <!-- Main Content Container -->
     <div class="min-h-screen scroll-smooth overflow-x-hidden" in:fade={{duration: 300}} out:fade={{duration: 200}}>
         <!-- Main Content: pt accounts for fixed banner (~32px) + header (~72px) = ~104px → pt-28 (112px) desktop -->
-        <section class="main-content flex flex-col justify-center items-center min-h-screen pt-28 md:pt-32 pb-24 md:pb-28 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
+        <section class="main-content flex flex-col justify-center items-center min-h-screen pt-32 pb-24 md:pb-28 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
 
             <!-- Content before header (e.g. images) -->
             <slot name="before-header"></slot>
