@@ -81,6 +81,7 @@
     let shouldAnimateEmojis = false;
     let isStoryMode = false;
     let initialRenderComplete = false;
+    let showLevelHint = false;
   
     // Story Mode Settings (reactive)
     let storyModeEnabled = false;
@@ -1017,66 +1018,92 @@
       </div>
     </button>
   
-    <!-- Instructions Section -->
-    <div class="flex flex-wrap justify-center items-center">
-      <h2 class="mt-1 text-xs text-center dark:text-white z-10 ">
-        {#each $translations.index.pageInstruction as instruction, i}
-          {#if i === 0 && $isLoggedIn && storyModeEnabled && storyModeConfigured}
-            <!-- Show AI ready message when fully configured AND logged in -->
-            <p>{$translations.index.storyModeReady || 'AI-generated emoji passwords ready ✨'}</p>
-          {:else if i === 0 && (!$isLoggedIn || !storyModeEnabled || !storyModeConfigured)}
-            <p>{instruction}</p>
-          {:else if i === 0 && storyModeEnabled && !storyModeConfigured}
-            <!-- Show "Configure API" chip if enabled but no API key -->
-            <button
-              on:click={() => {
-                const lang = $currentLanguage || 'en';
-                const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
-                navigate(accountPath);
-                setTimeout(() => {
-                  const aiAccordion = document.querySelector('[data-accordion="story"]');
-                  const accordionButton = document.querySelector('#accordion-story');
-                  if (aiAccordion && !aiAccordion.querySelector('.p-4')) {
-                    accordionButton?.click();
-                  }
-                  setTimeout(() => {
-                    aiAccordion?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }, 100);
-                }, 400);
-              }}
-              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer"
-              style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"
-              title="Configure your LLM API key"
-              aria-label="Configure your LLM"
-            >
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-              <span>{$translations.index.setupStoryMode || 'Setup your LLM'}</span>
-            </button>
-          {:else}
-            <p>{instruction}</p>
-          {/if}
+    <!-- Instructions: sr-only for static hints, visible only for interactive setup button -->
+    <p class="sr-only" aria-live="polite" aria-atomic="true">
+      {#if $isLoggedIn && storyModeEnabled && storyModeConfigured}
+        {$translations.index.storyModeReady || 'AI-generated emoji passwords ready ✨'}
+      {:else if storyModeEnabled && !storyModeConfigured}
+        {$translations.index.setupStoryMode || 'Setup your LLM'}
+      {:else}
+        {#each $translations.index.pageInstruction as instruction}
+          {instruction}
         {/each}
-      </h2>  
-    </div>
+      {/if}
+    </p>
+
+    {#if storyModeEnabled && !storyModeConfigured}
+      <!-- Visible setup chip only when action is needed -->
+      <div class="flex justify-center">
+        <button
+          on:click={() => {
+            const lang = $currentLanguage || 'en';
+            const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
+            navigate(accountPath);
+            setTimeout(() => {
+              const aiAccordion = document.querySelector('[data-accordion="story"]');
+              const accordionButton = document.querySelector('#accordion-story');
+              if (aiAccordion && !aiAccordion.querySelector('.p-4')) {
+                accordionButton?.click();
+              }
+              setTimeout(() => {
+                aiAccordion?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }, 100);
+            }, 400);
+          }}
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer"
+          style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"
+          title="Configure your LLM API key"
+          aria-label={$translations.index.setupStoryMode || 'Setup your LLM'}
+        >
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+          <span>{$translations.index.setupStoryMode || 'Setup your LLM'}</span>
+        </button>
+      </div>
+    {/if}
   
     <!-- Emoji Count Slider -->
-    <div class="flex flex-auto items-center md:w-100 gap-3 my-1 pt-1 dark:text-white w-full">
-      <label for="emojiCount" class="text-sm font-medium shrink-0">Level</label>
-      <input
-        type="range"
-        id="emojiCount"
-        min={sliderMin}
-        max={sliderMax}
-        step="1"
-        value={emojiCount}
-        on:input={handleEmojiCountChange}
-        class="emoji-range flex-1 h-2 appearance-none rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        style="background: linear-gradient(to right, #eab308 0%, #eab308 {sliderPct}%, #4b5563 {sliderPct}%, #4b5563 100%);"
-        disabled={$isDisabled}
-      />
-      <span class="text-sm font-bold text-yellow-500 dark:text-yellow-400 w-5 text-right tabular-nums shrink-0">{emojiCount}</span>
+    <div class="my-1 pt-1 w-full">
+      <div class="flex flex-auto items-center md:w-100 dark:text-white w-full gap-3">
+        <label for="emojiCount" class="text-sm font-medium shrink-0">Level</label>
+        <input
+          type="range"
+          id="emojiCount"
+          min={sliderMin}
+          max={sliderMax}
+          step="1"
+          value={emojiCount}
+          on:input={handleEmojiCountChange}
+          class="emoji-range flex-1 h-2 appearance-none rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          style="background: linear-gradient(to right, #eab308 0%, #eab308 {sliderPct}%, #4b5563 {sliderPct}%, #4b5563 100%);"
+          disabled={$isDisabled}
+        />
+        <span class="text-sm font-bold text-yellow-500 dark:text-yellow-400 w-5 text-right tabular-nums shrink-0 -ml-3">{emojiCount}</span>
+        <button
+          type="button"
+          on:click={() => (showLevelHint = !showLevelHint)}
+          aria-expanded={showLevelHint}
+          aria-controls="level-hint"
+          aria-label={showLevelHint ? 'Hide level info' : 'Show level info'}
+          class="ml-2 shrink-0 rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-normal leading-none transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1
+            {showLevelHint
+              ? 'bg-yellow-400 text-black shadow-[0_0_0_2px_white,0_0_0_3.5px_#eab308] dark:shadow-[0_0_0_2px_#1a1025,0_0_0_3.5px_#eab308]'
+              : 'bg-transparent border border-gray-400 dark:border-gray-500 text-gray-400 dark:text-gray-500 hover:border-yellow-500 hover:text-yellow-500 dark:hover:border-yellow-400 dark:hover:text-yellow-400'}"
+        >?</button>
+      </div>
+      {#if showLevelHint}
+        <p
+          id="level-hint"
+          role="status"
+          class="mt-2 text-xs text-gray-500 dark:text-gray-400 leading-relaxed"
+          style="transition: opacity 150ms ease;"
+        >
+          {$translations?.index?.levelHint || 'Level controls how many emojis are in your password — more emojis means more security.'}
+          {$translations?.index?.pageInstruction?.[1] || ''}
+          {$translations?.index?.pageInstruction?.[2] || ''}
+        </p>
+      {/if}
     </div>
   
     <!-- Story Input Section -->

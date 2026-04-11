@@ -28,6 +28,7 @@ export default {
             "Random QIjbe'lu' – Qapchu' 😜.",
             "DachenmoHDI', De' QInlIjDaq pollu'! 📋"
         ],
+        levelHint: "Level'e' emoji mI' DIngu' — emoji law' 'e' QaQ.",
         setupStoryMode: 'QIn yuDmoH',
         setupStoryModeShort: 'QIn yuDmoH',
         setupStoryModeSwiss: "Swiss AI yIlo'",

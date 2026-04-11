@@ -2,6 +2,7 @@
 <!-- Wiederverwendbare Komponente für Sections in statischen Seiten -->
 <script>
     import { navigate } from 'svelte-routing';
+    import ExternalLinkIcon from '../UI/ExternalLinkIcon.svelte';
     export let section = {};
     
     // Section Props
@@ -48,15 +49,17 @@
                                     {listItem.text}
                                 </button>
                             {:else if listItem.link}
+                                {@const isListExternal = listItem.external === true || listItem.link.startsWith('http')}
                                 <a
                                     href={listItem.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    target={isListExternal ? '_blank' : undefined}
+                                    rel={isListExternal ? 'noopener noreferrer nofollow' : undefined}
+                                    aria-label={isListExternal ? `${listItem.text} (opens in new tab)` : undefined}
                                     class="text-yellow-500 hover:text-yellow-400 underline transition-colors inline-flex items-center gap-1"
                                 >
                                     {listItem.text}
-                                    {#if listItem.external}
-                                        <svg class="w-3 h-3 inline-block flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    {#if isListExternal}
+                                        <ExternalLinkIcon />
                                     {/if}
                                 </a>
                             {:else}
@@ -92,15 +95,17 @@
                                             on:click={() => navigate(cardItem.navigate)}
                                         >{cardItem.text}</button>
                                     {:else if cardItem.link}
+                                        {@const isCardExternal = cardItem.external === true || cardItem.link.startsWith('http')}
                                         <a 
                                             href={cardItem.link} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
+                                            target={isCardExternal ? '_blank' : undefined}
+                                            rel={isCardExternal ? 'noopener noreferrer nofollow' : undefined}
+                                            aria-label={isCardExternal ? `${cardItem.text} (opens in new tab)` : undefined}
                                             class="text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 underline transition-colors inline-flex items-center gap-1"
                                         >
                                             {cardItem.text}
-                                            {#if cardItem.external}
-                                                <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                            {#if isCardExternal}
+                                                <ExternalLinkIcon />
                                             {/if}
                                         </a>
                                     {:else}
@@ -155,13 +160,18 @@
                                         <strong class="text-black dark:text-white">{infoItem.label}:</strong>
                                     {/if}
                                     {#if infoItem.link}
+                                        {@const isInfoExternal = infoItem.external === true || infoItem.link.startsWith('http')}
                                         <a 
                                             href={infoItem.link} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            class="text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 underline transition-colors"
+                                            target={isInfoExternal ? '_blank' : undefined}
+                                            rel={isInfoExternal ? 'noopener noreferrer nofollow' : undefined}
+                                            aria-label={isInfoExternal ? `${infoItem.text} (opens in new tab)` : undefined}
+                                            class="text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 underline transition-colors inline-flex items-center gap-1"
                                         >
                                             {infoItem.text}
+                                            {#if isInfoExternal}
+                                                <ExternalLinkIcon />
+                                            {/if}
                                         </a>
                                     {:else}
                                         {infoItem.text}
@@ -187,15 +197,17 @@
                                 </p>
                             {/if}
                             {#if gridItem.link}
+                                {@const isExternal = gridItem.external === true || gridItem.link.startsWith('http')}
                                 <a 
                                     href={gridItem.link} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
+                                    target={isExternal ? '_blank' : undefined}
+                                    rel={isExternal ? 'noopener noreferrer nofollow' : undefined}
+                                    aria-label={isExternal ? `${gridItem.linkText || 'Mehr erfahren'} (opens in new tab)` : undefined}
                                     class="inline-flex items-center gap-1 mt-3 text-yellow-500 hover:text-yellow-400 dark:text-yellow-500 dark:hover:text-yellow-400 text-sm underline transition-colors"
                                 >
-                                    {gridItem.linkText || 'Mehr erfahren →'}
-                                    {#if gridItem.external}
-                                        <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    {gridItem.linkText || 'Mehr erfahren'}
+                                    {#if isExternal}
+                                        <ExternalLinkIcon />
                                     {/if}
                                 </a>
                             {/if}

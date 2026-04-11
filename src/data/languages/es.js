@@ -28,6 +28,7 @@ export default {
             '"Aleatorio" es autoexplicativo 😜.',
             '¡Después de generar, se guarda en tu portapapeles! 📋'
         ],
+        levelHint: 'El nivel determina cuántos emojis contiene tu contraseña — más emojis significa más seguridad.',
         setupStoryMode: 'Usa tu propia IA',
         setupStoryModeShort: 'Usa tu propia IA',
         setupStoryModeSwiss: 'Usar IA suiza',

@@ -28,6 +28,7 @@ export default {
             '"Random" ist selbsterklärend 😜.',
             'Nach dem Generieren wird es in deine Zwischenablage kopiert! 📋'
         ],
+        levelHint: 'Level bestimmt die Anzahl der Emojis im Passwort — mehr Emojis bedeuten mehr Sicherheit.',
         setupStoryMode: 'Eigene KI nutzen',
         setupStoryModeShort: 'Eigene KI nutzen',
         setupStoryModeSwiss: 'Schweizer KI nutzen',

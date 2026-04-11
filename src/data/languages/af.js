@@ -28,6 +28,7 @@ export default {
             '"Lukraak" spreek vanself 😜.',
             'Na generering word dit na jou knipbord gekopieer! 📋'
         ],
+        levelHint: 'Vlak bepaal hoeveel emojis in jou wagwoord is — meer emojis beteken meer sekuriteit.',
         setupStoryMode: 'Gebruik jou eie AI',
         setupStoryModeShort: 'Gebruik jou eie AI',
         setupStoryModeSwiss: 'Gebruik Switserse AI',

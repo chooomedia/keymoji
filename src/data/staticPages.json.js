@@ -152,26 +152,26 @@ export const staticPagesData = {
                                     title: '4.1 Vercel (Hosting)',
                                     text: 'Website-Hosting (Vercel Inc., USA)',
                                     link: 'https://vercel.com/legal/privacy-policy',
-                                    linkText: 'Datenschutz →'
+                                    linkText: 'Datenschutz'
                                 },
                                 {
                                     title: '4.2 Brevo (E-Mail-Versand)',
                                     text: 'OTP-Codes und Benachrichtigungen',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
-                                    linkText: 'Datenschutz →'
+                                    linkText: 'Datenschutz'
                                 },
                                 {
                                     title: '4.3 n8n (Automation)',
                                     text: 'Backend-Workflows (selbst gehostet – kein externer Auftragsverarbeiter)',
                                     link: 'https://matt-interfaces.ch/n8n',
-                                    linkText: 'n8n-Instanz →',
+                                    linkText: 'n8n-Instanz',
                                     external: true
                                 },
                                 {
                                     title: '4.4 HuggingFace (Apertus AI)',
                                     text: 'Nur bei Nutzung des Story Mode: Ihr Eingabetext wird an HuggingFace (USA) übertragen. Keine personenbezogenen Daten werden gesendet.',
                                     link: 'https://huggingface.co/privacy',
-                                    linkText: 'Datenschutz →'
+                                    linkText: 'Datenschutz'
                                 }
                             ]
                         }
@@ -394,26 +394,26 @@ export const staticPagesData = {
                                     title: '4.1 Vercel (Hosting)',
                                     text: 'Website hosting (Vercel Inc., USA)',
                                     link: 'https://vercel.com/legal/privacy-policy',
-                                    linkText: 'Privacy →'
+                                    linkText: 'Privacy'
                                 },
                                 {
                                     title: '4.2 Brevo (Email Service)',
                                     text: 'Magic links and notifications',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
-                                    linkText: 'Privacy →'
+                                    linkText: 'Privacy'
                                 },
                                 {
                                     title: '4.3 n8n (Automation)',
                                     text: 'Backend workflows (self-hosted — no external data processor)',
                                     link: 'https://matt-interfaces.ch/n8n',
-                                    linkText: 'n8n instance →',
+                                    linkText: 'n8n instance',
                                     external: true
                                 },
                                 {
                                     title: '4.4 HuggingFace (Apertus AI)',
                                     text: 'Only when using Story Mode: your input text is sent to HuggingFace (USA). No personal data is transmitted.',
                                     link: 'https://huggingface.co/privacy',
-                                    linkText: 'Privacy →'
+                                    linkText: 'Privacy'
                                 }
                             ]
                         }
@@ -639,19 +639,19 @@ export const staticPagesData = {
                                     title: '4.1 Vercel (Hébergement)',
                                     text: 'Hébergement de site web (Vercel Inc., USA)',
                                     link: 'https://vercel.com/legal/privacy-policy',
-                                    linkText: 'Confidentialité →'
+                                    linkText: 'Confidentialité'
                                 },
                                 {
                                     title: '4.2 Brevo (Service e-mail)',
                                     text: 'Liens magiques et notifications',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
-                                    linkText: 'Confidentialité →'
+                                    linkText: 'Confidentialité'
                                 },
                                 {
                                     title: '4.3 n8n (Automatisation)',
                                     text: 'Workflows backend (auto-hébergé – aucun sous-traitant externe)',
                                     link: 'https://matt-interfaces.ch/n8n',
-                                    linkText: 'Instance n8n →',
+                                    linkText: 'Instance n8n',
                                     external: true
                                 }
                             ]
@@ -878,19 +878,19 @@ export const staticPagesData = {
                                     title: '4.1 Vercel (Alojamiento)',
                                     text: 'Alojamiento de sitio web (Vercel Inc., EE.UU.)',
                                     link: 'https://vercel.com/legal/privacy-policy',
-                                    linkText: 'Privacidad →'
+                                    linkText: 'Privacidad'
                                 },
                                 {
                                     title: '4.2 Brevo (Servicio de correo)',
                                     text: 'Enlaces mágicos y notificaciones',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
-                                    linkText: 'Privacidad →'
+                                    linkText: 'Privacidad'
                                 },
                                 {
                                     title: '4.4 n8n (Automatización)',
                                     text: 'Flujos de trabajo backend (autoalojados)',
                                     link: 'https://n8n.io/legal/privacy',
-                                    linkText: 'Privacidad →'
+                                    linkText: 'Privacidad'
                                 }
                             ]
                         }
@@ -1116,19 +1116,19 @@ export const staticPagesData = {
                                     title: '4.1 Vercel (Hosting)',
                                     text: 'Hosting del sito web (Vercel Inc., USA)',
                                     link: 'https://vercel.com/legal/privacy-policy',
-                                    linkText: 'Privacy →'
+                                    linkText: 'Privacy'
                                 },
                                 {
                                     title: '4.2 Brevo (Servizio email)',
                                     text: 'Link magici e notifiche',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
-                                    linkText: 'Privacy →'
+                                    linkText: 'Privacy'
                                 },
                                 {
                                     title: '4.3 n8n (Automazione)',
                                     text: 'Workflow backend (self-hosted – nessun responsabile esterno)',
                                     link: 'https://matt-interfaces.ch/n8n',
-                                    linkText: 'Istanza n8n →',
+                                    linkText: 'Istanza n8n',
                                     external: true
                                 }
                             ]
@@ -1355,19 +1355,19 @@ export const staticPagesData = {
                                     title: '4.1 Vercel (Hosting)',
                                     text: 'Website hosting (Vercel Inc., VS)',
                                     link: 'https://vercel.com/legal/privacy-policy',
-                                    linkText: 'Privacy →'
+                                    linkText: 'Privacy'
                                 },
                                 {
                                     title: '4.2 Brevo (E-mailservice)',
                                     text: 'Magic links en notificaties',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
-                                    linkText: 'Privacy →'
+                                    linkText: 'Privacy'
                                 },
                                 {
                                     title: '4.3 n8n (Automatisering)',
                                     text: 'Backend workflows (zelf gehost – geen externe verwerker)',
                                     link: 'https://matt-interfaces.ch/n8n',
-                                    linkText: 'n8n-instantie →',
+                                    linkText: 'n8n-instantie',
                                     external: true
                                 }
                             ]
@@ -1594,19 +1594,19 @@ export const staticPagesData = {
                                     title: '4.1 Vercel (Hosting)',
                                     text: 'Hosting strony internetowej (Vercel Inc., USA)',
                                     link: 'https://vercel.com/legal/privacy-policy',
-                                    linkText: 'Prywatność →'
+                                    linkText: 'Prywatność'
                                 },
                                 {
                                     title: '4.2 Brevo (Serwis e-mail)',
                                     text: 'Magic links i powiadomienia',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
-                                    linkText: 'Prywatność →'
+                                    linkText: 'Prywatność'
                                 },
                                 {
                                     title: '4.3 n8n (Automatyzacja)',
                                     text: 'Workflow backend (self-hosted – brak zewnętrznego procesora)',
                                     link: 'https://matt-interfaces.ch/n8n',
-                                    linkText: 'Instancja n8n →',
+                                    linkText: 'Instancja n8n',
                                     external: true
                                 }
                             ]
@@ -1833,19 +1833,19 @@ export const staticPagesData = {
                                     title: '4.1 Vercel (Хостинг)',
                                     text: 'Хостинг веб-сайта (Vercel Inc., США)',
                                     link: 'https://vercel.com/legal/privacy-policy',
-                                    linkText: 'Конфиденциальность →'
+                                    linkText: 'Конфиденциальность'
                                 },
                                 {
                                     title: '4.2 Brevo (Сервис электронной почты)',
                                     text: 'Magic links и уведомления',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
-                                    linkText: 'Конфиденциальность →'
+                                    linkText: 'Конфиденциальность'
                                 },
                                 {
                                     title: '4.3 n8n (Автоматизация)',
                                     text: 'Backend workflows (self-hosted – без внешнего обработчика)',
                                     link: 'https://matt-interfaces.ch/n8n',
-                                    linkText: 'Инстанция n8n →',
+                                    linkText: 'Инстанция n8n',
                                     external: true
                                 }
                             ]
@@ -2072,19 +2072,19 @@ export const staticPagesData = {
                                     title: '4.1 Vercel (Barındırma)',
                                     text: 'Web sitesi barındırma (Vercel Inc., ABD)',
                                     link: 'https://vercel.com/legal/privacy-policy',
-                                    linkText: 'Gizlilik →'
+                                    linkText: 'Gizlilik'
                                 },
                                 {
                                     title: '4.2 Brevo (E-posta Servisi)',
                                     text: 'Magic linkler ve bildirimler',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
-                                    linkText: 'Gizlilik →'
+                                    linkText: 'Gizlilik'
                                 },
                                 {
                                     title: '4.4 n8n (Otomasyon)',
                                     text: 'Backend iş akışları (kendi barındırılan)',
                                     link: 'https://n8n.io/legal/privacy',
-                                    linkText: 'Gizlilik →'
+                                    linkText: 'Gizlilik'
                                 }
                             ]
                         }

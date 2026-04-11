@@ -28,6 +28,7 @@ export default {
             '"ランダム"は自明です 😜。',
             '生成後、クリップボードに保存されます！📋'
         ],
+        levelHint: 'レベルはパスワードの絵文字の数を決めます — 絵文字が多いほど安全性が高まります。',
         setupStoryMode: '自分のAIを使用',
         setupStoryModeShort: '自分のAIを使用',
         setupStoryModeSwiss: 'スイスAIを使用',

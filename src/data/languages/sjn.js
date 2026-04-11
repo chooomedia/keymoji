@@ -28,6 +28,7 @@ export default {
             '"Random" ú-echad – Qapchu\' 😜.',
             "Echadlu'DI', De' línDaq pollu'! 📋"
         ],
+        levelHint: 'I level peded i eneth i emojion i veth lín — emojion i dîn, i vaer.',
         setupStoryMode: 'Motlh narnmey lín',
         setupStoryModeShort: 'Motlh narnmey lín',
         setupStoryModeSwiss: "Swiss AI yIlo'",

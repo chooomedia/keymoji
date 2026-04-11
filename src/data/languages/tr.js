@@ -28,6 +28,7 @@ export default {
             '"Rastgele" kendini açıklıyor 😜.',
             'Üretildikten sonra panoya kopyalanır! 📋'
         ],
+        levelHint: 'Seviye, şifrenizde kaç emoji olduğunu belirler — daha fazla emoji daha fazla güvenlik demektir.',
         setupStoryMode: "Kendi AI'nızı kullanın",
         setupStoryModeShort: "Kendi AI'nızı kullanın",
         setupStoryModeSwiss: 'İsviçre AI kullan',

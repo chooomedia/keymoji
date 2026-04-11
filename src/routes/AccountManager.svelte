@@ -56,6 +56,7 @@
     import ChartSkeleton from '../components/UI/ChartSkeleton.svelte';
     import FooterInfo from '../widgets/FooterInfo.svelte';
     import FeatureCard from '../components/Features/FeatureCard.svelte';
+    import ExternalLinkIcon from '../components/UI/ExternalLinkIcon.svelte';
     import { getDaysSinceAccountCreation, formatAccountAge, getTierBadgeText } from '../utils/accountHelpers';
     // REMOVED: getUsageHistory, calculateUsageStats - now using usageHistory store from userDataStore.js
     import { DEMO_USAGE_HISTORY_4W, getDemoDataForPeriod, isDemoData } from '../utils/demoChartData';
@@ -1912,25 +1913,12 @@
                                                         <a 
                                                             href="https://publicai.co/apertus" 
                                                             target="_blank" 
-                                                            rel="noopener noreferrer external"
+                                                            rel="noopener noreferrer nofollow"
                                                             class="inline-flex items-center gap-1 text-yellow-500 dark:text-yellow-400 hover:text-yellow-600 dark:hover:text-yellow-500 underline transition-colors duration-200"
                                                             aria-label="Apertus LLM Documentation (opens in new tab)"
                                                             title="Apertus LLM - Official Documentation">
                                                             <span>Apertus</span>
-                                                            <svg 
-                                                                class="w-3 h-3 inline" 
-                                                                fill="none" 
-                                                                stroke="currentColor" 
-                                                                viewBox="0 0 24 24" 
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                aria-hidden="true">
-                                                                <path 
-                                                                    stroke-linecap="round" 
-                                                                    stroke-linejoin="round" 
-                                                                    stroke-width="2" 
-                                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
-                                                                </path>
-                                                            </svg>
+                                                            <ExternalLinkIcon />
                                                         </a>
                                                         {parts[1]}
                                                     {:else}

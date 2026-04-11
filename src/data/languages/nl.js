@@ -28,6 +28,7 @@ export default {
             '"Willekeurig" spreekt voor zich 😜.',
             'Na genereren wordt het gekopieerd naar je klembord! 📋'
         ],
+        levelHint: 'Het level bepaalt hoeveel emojis in je wachtwoord zitten — meer emojis betekent meer veiligheid.',
         setupStoryMode: 'Gebruik je eigen AI',
         setupStoryModeShort: 'Gebruik je eigen AI',
         setupStoryModeSwiss: 'Gebruik Zwitserse AI',

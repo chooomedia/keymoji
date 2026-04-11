@@ -208,9 +208,9 @@
                 <a 
                     href="https://github.com/chooomedia/keymoji"
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noopener noreferrer author"
                     class="transition-all transform hover:scale-105 focus:scale-105 active:scale-95 rounded-full font-medium focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 bg-powder-50 text-black dark:bg-aubergine-900 dark:text-powder-50 px-4 py-3 h-14 flex items-center justify-center"
-                    aria-label={$translations?.header?.githubTooltip || 'Star us on GitHub'}
+                    aria-label={($translations?.header?.githubTooltip || 'Star us on GitHub') + ' (opens in new tab)'}
                     title={$translations?.header?.githubTooltip || 'Star us on GitHub'}
                 >
                     <span class="text-lg md:text-xl">⭐</span>

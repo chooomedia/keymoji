@@ -40,10 +40,10 @@
     <a 
         href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener noreferrer nofollow ugc"
         class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-blue-700 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
         title="Share on LinkedIn"
-        aria-label="Share on LinkedIn"
+        aria-label="Share on LinkedIn (opens in new tab)"
     >
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             {@html linkedinIcon}
@@ -53,10 +53,10 @@
     <a 
         href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`}
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener noreferrer nofollow ugc"
         class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
         title="Share on WhatsApp"
-        aria-label="Share on WhatsApp"
+        aria-label="Share on WhatsApp (opens in new tab)"
     >
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             {@html whatsappIcon}
@@ -66,10 +66,10 @@
     <a 
         href={`https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(title)}`}
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener noreferrer nofollow ugc"
         class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-aubergine-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-gray-50 dark:hover:bg-aubergine-700 transition-all transform hover:scale-110 focus:scale-110 active:scale-95"
         title="Share on Reddit"
-        aria-label="Share on Reddit"
+        aria-label="Share on Reddit (opens in new tab)"
     >
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             {@html redditIcon}

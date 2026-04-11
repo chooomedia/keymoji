@@ -28,6 +28,7 @@ export default {
             '"Random" is self-explanatory 😜.',
             "After generating, it's saved to your clipboard! 📋"
         ],
+        levelHint: 'Level controls how many emojis are in your password — more emojis means more security.',
         setupStoryMode: 'Use your own AI',
         setupStoryModeShort: 'Use your own AI',
         setupStoryModeSwiss: 'Use Swiss AI',

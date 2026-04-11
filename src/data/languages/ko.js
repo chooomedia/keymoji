@@ -28,6 +28,7 @@ export default {
             '"랜덤"은 자명합니다 😜.',
             '생성 후 클립보드에 저장됩니다! 📋'
         ],
+        levelHint: '레벨은 비밀번호의 이모지 수를 결정합니다 — 이모지가 많을수록 보안이 강화됩니다.',
         setupStoryMode: '자신의 AI 사용',
         setupStoryModeShort: '자신의 AI 사용',
         setupStoryModeSwiss: '스위스 AI 사용',

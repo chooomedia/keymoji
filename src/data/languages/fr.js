@@ -28,6 +28,7 @@ export default {
             '"Aléatoire" est auto-explicatif 😜.',
             "Après génération, c'est sauvegardé dans votre presse-papiers! 📋"
         ],
+        levelHint: "Le niveau détermine le nombre d'emojis dans votre mot de passe — plus d'emojis signifie plus de sécurité.",
         setupStoryMode: 'Utilisez votre propre IA',
         setupStoryModeShort: 'Utilisez votre propre IA',
         setupStoryModeSwiss: 'Utiliser l\'IA suisse',

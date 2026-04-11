@@ -779,7 +779,7 @@
                             </div>
                         </Link>
                     {:else}
-                        <a href={post.link || '#'} target="_blank" rel="noopener noreferrer" class="block">
+                        <a href={post.link || '#'} target="_blank" rel="noopener noreferrer nofollow" aria-label="{post.title} (opens in new tab)" class="block">
                             <BlogPostImage
                                 image={post.image}
                                 title={post.title}
@@ -919,7 +919,7 @@
                                 </div>
                             </Link>
                         {:else}
-                            <a href={post.link || '#'} target="_blank" rel="noopener noreferrer" class="block">
+                            <a href={post.link || '#'} target="_blank" rel="noopener noreferrer nofollow" aria-label="{post.title} (opens in new tab)" class="block">
                                 <BlogPostImage
                                     image={post.image}
                                     title={post.title}

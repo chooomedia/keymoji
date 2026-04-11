@@ -20,6 +20,7 @@
     import ModularInput from './UI/ModularInput.svelte';
     import Button from './UI/Button.svelte';
     import Modal from './UI/Modal.svelte';
+    import ExternalLinkIcon from './UI/ExternalLinkIcon.svelte';
     import { showSuccess, showError, showWarning, showModal } from '../stores/modalStore';
     import { testAIProvider, getProviderInfo } from '../utils/storyModeAI';
 
@@ -1399,38 +1400,44 @@
                                                                     {$translations?.accountManager?.apertusOwnToken || 'Optional: Enter your own Hugging Face token (hf_…) to use your personal quota.'}
                                                                 </p>
                                                                 <div class="flex flex-wrap items-center gap-3 pt-0.5">
-                                                                    <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer"
+                                                                    <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener noreferrer nofollow"
                                                                        class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
-                                                                       title="Create a free Hugging Face read token">
+                                                                       title="Create a free Hugging Face read token"
+                                                                       aria-label="Get free Hugging Face token (opens in new tab)">
                                                                         <span>{$translations?.accountManager?.apertusGetToken || 'Get free HF token'}</span>
-                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                                                        <ExternalLinkIcon />
                                                                     </a>
-                                                                    <a href="https://huggingface.co/swiss-ai" target="_blank" rel="noopener noreferrer"
+                                                                    <a href="https://huggingface.co/swiss-ai" target="_blank" rel="noopener noreferrer nofollow"
                                                                        class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
-                                                                       title="Apertus by EPFL & ETH Zurich on HuggingFace">
+                                                                       title="Apertus by EPFL & ETH Zurich on HuggingFace"
+                                                                       aria-label="Apertus on HuggingFace (opens in new tab)">
                                                                         <span>Apertus on HF</span>
-                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                                                        <ExternalLinkIcon />
                                                                     </a>
                                                                 </div>
                                                             {:else if currentProvider === 'openai'}
                                                                 <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.openaiHint || 'Requires a paid OpenAI API key (sk-…).'}</p>
-                                                                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create an OpenAI API key">
-                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'} →</span>
+                                                                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer nofollow" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create an OpenAI API key" aria-label="Get OpenAI API key (opens in new tab)">
+                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'}</span>
+                                                                    <ExternalLinkIcon />
                                                                 </a>
                                                             {:else if currentProvider === 'gemini'}
                                                                 <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.geminiHint || 'Free tier available. Get your key in Google AI Studio.'}</p>
-                                                                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create a Gemini API key">
-                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'} →</span>
+                                                                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer nofollow" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create a Gemini API key" aria-label="Get Gemini API key (opens in new tab)">
+                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'}</span>
+                                                                    <ExternalLinkIcon />
                                                                 </a>
                                                             {:else if currentProvider === 'claude'}
                                                                 <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.claudeHint || 'Requires an Anthropic API key (sk-ant-…).'}</p>
-                                                                <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create an Anthropic API key">
-                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'} →</span>
+                                                                <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer nofollow" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create an Anthropic API key" aria-label="Get Anthropic Claude API key (opens in new tab)">
+                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'}</span>
+                                                                    <ExternalLinkIcon />
                                                                 </a>
                                                             {:else if currentProvider === 'mistral'}
                                                                 <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.mistralHint || 'European AI. Get your key at console.mistral.ai.'}</p>
-                                                                <a href="https://console.mistral.ai/api-keys" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create a Mistral API key">
-                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'} →</span>
+                                                                <a href="https://console.mistral.ai/api-keys" target="_blank" rel="noopener noreferrer nofollow" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline" title="Create a Mistral API key" aria-label="Get Mistral API key (opens in new tab)">
+                                                                    <span>{$translations?.accountManager?.getApiKey || 'Get API key'}</span>
+                                                                    <ExternalLinkIcon />
                                                                 </a>
                                                             {:else if isCustom}
                                                                 <p class="text-gray-600 dark:text-gray-400">{$translations?.accountManager?.customHint || 'OpenAI-compatible endpoint. Enter the base URL and API key below.'}</p>

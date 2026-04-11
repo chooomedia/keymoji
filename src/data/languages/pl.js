@@ -28,6 +28,7 @@ export default {
             '"Losowe" mówi samo za siebie 😜.',
             'Po wygenerowaniu zostanie skopiowane do schowka! 📋'
         ],
+        levelHint: 'Poziom określa ile emoji zawiera twoje hasło — więcej emoji oznacza większe bezpieczeństwo.',
         setupStoryMode: 'Użyj własnej AI',
         setupStoryModeShort: 'Użyj własnej AI',
         setupStoryModeSwiss: 'Użyj szwajcarskiej AI',

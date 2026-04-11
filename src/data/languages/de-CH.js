@@ -28,6 +28,7 @@ export default {
             '"Zufällig" isch selbsterklärend 😜.',
             'Nach em Generiere wirds in dini Zwischeablage kopiert! 📋'
         ],
+        levelHint: 'Ds Level bestimmt wievil Emojis im Passwort sind — meh Emojis heisst meh Sicherheit.',
         setupStoryMode: 'Eigeni KI bruche',
         setupStoryModeShort: 'Eigeni KI bruche',
         setupStoryModeSwiss: 'Schwiizer KI bruche',

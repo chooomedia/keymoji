@@ -28,6 +28,7 @@ export default {
             '"Casuale" è autoesplicativo 😜.',
             'Dopo la generazione, viene salvato negli appunti! 📋'
         ],
+        levelHint: 'Il livello determina quanti emoji contiene la tua password — più emoji significa più sicurezza.',
         setupStoryMode: 'Usa la tua IA',
         setupStoryModeShort: 'Usa la tua IA',
         setupStoryModeSwiss: 'Usa IA svizzera',
