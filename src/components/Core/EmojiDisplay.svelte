@@ -1108,7 +1108,7 @@
   
     <!-- Story Input Section -->
     {#if showTextArea}
-      <div class="relative w-full rounded-2xl overflow-hidden border-2 transition duration-300 ease-in-out focus-within:ring-2 focus-within:ring-offset-0
+      <div class="relative w-full rounded-2xl overflow-hidden mt-1.5 border-2 transition duration-300 ease-in-out focus-within:ring-2 focus-within:ring-offset-0
         {isOverLimit 
           ? 'border-red-500 dark:border-red-500 focus-within:border-red-500 focus-within:ring-red-400/50' 
           : isUnderLimit 
