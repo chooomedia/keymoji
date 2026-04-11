@@ -1022,9 +1022,20 @@ export async function verifyMagicLinkFrontend(code, email) {
 
         // Build userPrefsData from the MERGED accountData
         // CRITICAL: Always include createdAt if it exists (from backend OR localStorage)!
+        // Priorität für name: metadata.settings.name > metadata.name > account.name (konsistent mit extractSettings)
+        const metaForPrefs =
+            typeof accountData.metadata === 'string'
+                ? (() => { try { return JSON.parse(accountData.metadata); } catch { return {}; } })()
+                : (accountData.metadata || {});
+        const nameForPrefs =
+            metaForPrefs.name ||
+            metaForPrefs.settings?.name ||
+            accountData.name ||
+            null;
+
         const userPrefsData = {
             email: accountData.email,
-            name: accountData.name,
+            name: nameForPrefs,
             userId: accountData.userId,
             tier: accountData.tier,
             lastLogin: accountData.lastLogin,
