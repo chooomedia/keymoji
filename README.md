@@ -7,6 +7,8 @@
 [![Made with Svelte](https://img.shields.io/badge/made%20with-svelte-ff3e00.svg)](https://svelte.dev)
 [![GDPR Compliant](https://img.shields.io/badge/GDPR-compliant-green.svg)](https://keymoji.wtf)
 
+![Keymoji Showcase – Story Mode, Random Mode, Contact Form & Version History](docs/keymoji-showcase.gif)
+
 🌐 **Live:** [keymoji.wtf](https://keymoji.wtf)
 📧 **Contact:** [hello@keymoji.wtf](mailto:hello@keymoji.wtf)
 👨‍💻 **Author:** Christopher Matt
