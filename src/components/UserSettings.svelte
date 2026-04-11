@@ -1552,7 +1552,9 @@
                                             icon: item.icon,
                                             label: item.title,
                                             description: item.description,
-                                            placeholder: item.placeholder,
+                                            placeholder: item.id === 'name'
+                                                ? (getCurrentValue(item) || item.placeholder)
+                                                : item.placeholder,
                                             value: getCurrentValue(item),
                                             options: item.options?.map(opt => ({
                                                 value: opt.value,
