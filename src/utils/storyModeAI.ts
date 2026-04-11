@@ -543,10 +543,13 @@ async function callApertus(
     // User-supplied HF token (hf_...) forwarded to proxy for optional use
     const userHFToken = apiKey && apiKey.trim().startsWith('hf_') ? apiKey.trim() : '';
 
-    // Use relative URL so it works on any deployment (Vercel / localhost)
-    const proxyUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/api/story`
-        : '/api/story';
+    // Use VITE_API_URL for the backend proxy (Vercel serverless functions).
+    // On localhost: falls back to window.location.origin (for vercel dev).
+    // On production (FTP host): MUST use the Vercel backend URL via VITE_API_URL.
+    const apiBase = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL)
+        ? String(import.meta.env.VITE_API_URL).replace(/["']/g, '').replace(/\/$/, '')
+        : (typeof window !== 'undefined' ? window.location.origin : '');
+    const proxyUrl = `${apiBase}/api/story`;
 
     console.log('🔗 [Apertus] Calling proxy:', proxyUrl);
 

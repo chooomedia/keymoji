@@ -47,6 +47,15 @@ jobs:
                   if [ -n "${{ secrets.WEBHOOK_BASE }}" ]; then
                     echo "VITE_N8N_URL=${{ secrets.WEBHOOK_BASE }}" > .env.production
                   fi
+                  
+                  # VITE_API_URL: Vercel backend URL for serverless functions (story, account, magic-link etc.)
+                  # Must be set as GitHub Secret: VITE_API_URL = https://keymoji-git-master-chris-projects-018d256d.vercel.app
+                  if [ -n "${{ secrets.VITE_API_URL }}" ]; then
+                    echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env.production
+                    echo "✅ VITE_API_URL set from GitHub Secret."
+                  else
+                    echo "⚠️ WARNING: VITE_API_URL not set — Story Mode and API calls will fail on production!"
+                  fi
                   if [ -n "${{ secrets.WEBHOOK_TEST_BASE }}" ]; then
                     echo "WEBHOOK_TEST_BASE=${{ secrets.WEBHOOK_TEST_BASE }}" >> .env.production
                   fi
