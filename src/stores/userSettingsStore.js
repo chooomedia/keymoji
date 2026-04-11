@@ -77,9 +77,15 @@ function extractSettingsFromAccount(account) {
     // 2. account.profile (user profile data)
     // 3. Empty object (will use tier defaults)
 
-    const metadata = account.metadata || {};
+    // metadata kann als JSON-String vom Backend kommen — sicher parsen
+    const rawMetadata = account.metadata || {};
+    const metadata = typeof rawMetadata === 'string'
+        ? (() => { try { return JSON.parse(rawMetadata); } catch { return {}; } })()
+        : rawMetadata;
     const settings = metadata.settings || {};
-    const profile = account.profile || {};
+    const profile = typeof (account.profile || '') === 'string'
+        ? (() => { try { return JSON.parse(account.profile); } catch { return {}; } })()
+        : (account.profile || {});
 
     const extracted = {
         // User profile — Priorität: metadata.name > metadata.settings.name > profile.name > account.name
