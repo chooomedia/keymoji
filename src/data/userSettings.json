@@ -944,7 +944,7 @@
                         "de-CH": "Anzahl der Emojis im Passwort"
                     },
                     "min": 3,
-                    "max": 10,
+                    "max": 9,
                     "defaultValue": 9,
                     "labels": {
                         "min": {
