@@ -1155,6 +1155,11 @@ export async function verifyMagicLinkFrontend(code, email) {
             accountData.name ||
             null;
 
+        // Mark this tab as the one that just verified — suppresses duplicate modals
+        // from cross-tab listeners (handleMagicLinkMessage / handleMagicLinkStorage)
+        sessionStorage.setItem('keymoji_just_verified', '1');
+        setTimeout(() => sessionStorage.removeItem('keymoji_just_verified'), 5000);
+
         if (isNewAccount) {
             console.log(
                 '🆕 New account created - showing new account created modal'
@@ -2344,8 +2349,12 @@ function handleMagicLinkMessage(event) {
                     userPrefsUpdate
                 );
 
-                // Show success modal
-                showExistingAccountFound(accountData.email);
+                // Show success modal only in OTHER tabs (not the tab that just verified)
+                // verifyMagicLinkFrontend already shows the modal in the originating tab
+                const justVerifiedInThisTab = sessionStorage.getItem('keymoji_just_verified');
+                if (!justVerifiedInThisTab) {
+                    showExistingAccountFound(accountData.email);
+                }
 
                 // Log security event
                 logSecurityEvent('LOGIN_SUCCESS', {
@@ -2390,8 +2399,11 @@ function handleMagicLinkStorage(event) {
                     currentAccount.set(accountData);
                     isLoggedIn.set(true);
 
-                    // Show success modal
-                    showExistingAccountFound(accountData.email);
+                    // Show success modal only in OTHER tabs (not the tab that just verified)
+                    const justVerifiedInThisTab = sessionStorage.getItem('keymoji_just_verified');
+                    if (!justVerifiedInThisTab) {
+                        showExistingAccountFound(accountData.email);
+                    }
                 }
             } catch (error) {
                 console.warn('Error parsing storage update:', error);
