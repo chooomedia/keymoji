@@ -51,13 +51,8 @@ jobs:
                   if [ -n "${{ secrets.WEBHOOK_APERTUS_TEST }}" ]; then
                     echo "VITE_WEBHOOK_APERTUS_TEST=${{ secrets.WEBHOOK_APERTUS_TEST }}" >> .env.production
                   fi
-                  if [ -n "${{ secrets.N8N_APERTUS_TOKEN }}" ]; then
-                    echo "VITE_N8N_APERTUS_TOKEN=${{ secrets.N8N_APERTUS_TOKEN }}" >> .env.production
-                    echo "✅ VITE_N8N_APERTUS_TOKEN set."
-                  else
-                    echo "❌ CRITICAL: N8N_APERTUS_TOKEN not set in GitHub Secrets!"
-                    exit 1
-                  fi
+                  # SECURITY: Apertus token is now server-side only via Vercel proxy (/api/story).
+                  echo "✅ Apertus token is handled server-side via Vercel — no client-side secret needed."
 
             - name: Build project
               run: npm run build
@@ -185,7 +180,7 @@ jobs:
                       **/.git*/**
                       **/node_modules/**
                   log-level: verbose
-                  timeout: 60000
+                  timeout: 300000
                   dangerous-clean-slate: false
 
             - name: ⏳ Wait before retry
@@ -210,7 +205,7 @@ jobs:
                       **/.git*/**
                       **/node_modules/**
                   log-level: verbose
-                  timeout: 60000
+                  timeout: 300000
                   dangerous-clean-slate: false
 
             - name: ⏳ Wait before final retry
@@ -233,5 +228,5 @@ jobs:
                       **/.git*/**
                       **/node_modules/**
                   log-level: verbose
-                  timeout: 60000
+                  timeout: 300000
                   dangerous-clean-slate: false
