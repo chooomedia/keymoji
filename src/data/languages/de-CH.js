@@ -109,7 +109,9 @@ export default {
             confirmationText:
                 'Bitte bestätig dini Aafrag damit Christopher weiss, dass du kei intelligente Bot bisch. Du hesch e Nachricht mit folgende Date gsendet:',
             doubleCheck: 'Mir hei dini Nachricht mit folgende Details erhalte:',
-            button: 'Bestätig dini E-Mail'
+            button: 'Bestätig dini E-Mail',
+            subject: 'Dini Nachricht a Keymoji isch acho',
+            privacy: 'Dini Date werde sicher verarbeitet.'
         },
         validation: {
             nameRequired: 'Name erforderlich',
@@ -118,7 +120,8 @@ export default {
             emailInvalid: 'Ungültigi E-Mail',
             messageRequired: 'Nachricht erforderlich',
             messageLength: 'Mindestens {min} Zeiche'
-        }
+        },
+        autoFilledLabel: 'Automatisch usgfüllt vo dim Account'
     },
     serviceWorker: {
         updateAvailable: 'E neui Version isch verfügbar!',
@@ -127,9 +130,21 @@ export default {
         updateSuccess: 'App erfolgreich aktualisiert! 🎉'
     },
     notFound: {
+        pageTitle: '404 - Site nöd gfunde',
+        pageDescription: 'Di Site, wo du suesch, existiert nöd oder isch verschobe wore.',
+        oopsTitle: 'Hoppla! Site nöd gfunde',
+        oopsDescription: 'Di Site, wo du suesch, chan verschobe, glöscht oder nie existiert ha.',
+        quickNavTitle: 'Schnellnavigation',
+        recentEmojisTitle: 'Letzti Keymoji',
+        backToHome: 'Zrugg zur Startseite',
+        prevEmoji: 'Vorherigs Emoji',
+        nextEmoji: 'Nächstes Emoji',
         message: 'Hoppla! Site nöd gfunde 🚫',
+        suggestion: 'Di Site, wo du suesch, chan verschobe, glöscht oder nie existiert ha.',
         backButton: 'Zrugg zur Startseite',
-        contactButton: 'Kontaktiere uns'
+        contactButton: 'Kontaktiere uns',
+        navigationTitle: 'Verfügbari Site',
+        recentEmojis: 'Letzti Emojis'
     },
     blog: {
         readMore: 'Wiiterlese',
@@ -479,7 +494,8 @@ export default {
             hideProfile: 'Verstecke',
             profileData: 'Profil-Date',
             showFullForm: 'Vollständigs Formular zeige',
-            compactView: 'Kompakti Aasicht'
+            compactView: 'Kompakti Aasicht',
+            addName: 'Din Name hinzufüge'
         },
 
         // Formular-Labels
@@ -498,7 +514,11 @@ export default {
         // Statistike
         statistics: {
             storiesGenerated: 'Generierti Gschichte',
-            remainingGenerations: 'Verbleibendi Generierige'
+            remainingGenerations: 'Verbleibendi Generierige',
+            noDataTitle: 'Kei Date',
+            noDataMessage: 'Generier Emojis zum dini echte Nötzigsdate sammlä und da azzeige.',
+            refreshButton: 'Aktualisiere',
+            loading: 'Ladet...'
         },
 
         // Tägligi Generierige
@@ -563,7 +583,9 @@ export default {
             instantSetup: 'Sofortigi Iistellig',
             noSpam: 'Kei Spam',
             text: 'Magic-Links werde per E-Mail gsendet und sin 15 Minute gültig.',
-            privacy: 'Dini Date werde sicher verarbeitet.'
+            privacy: 'Dini Date werde sicher verarbeitet.',
+            legal: 'Rechtlichs',
+            versionHistory: 'Versionsverlauf'
         },
 
         // Limite und Nachrichte
@@ -583,7 +605,11 @@ export default {
             since: 'sit {days} {unit}',
             day: 'Tag',
             daysLabel: 'Täg',
-            accountCreated: 'Account erstellt'
+            accountCreated: 'Account erstellt',
+            createdTodayFree: '✨ Din nagelneue FREE-Account isch bereit!',
+            createdTodayPro: '💎 Willkomme im PRO-Club — exklusiv ab hüt!',
+            createdRecentlyFree: '✨ FREE-Account — frisch und bereit!',
+            createdRecentlyPro: '💎 PRO-Account — exklusiv und neu!'
         },
 
         // Validierig
@@ -597,7 +623,20 @@ export default {
             settingsReset: 'Iistellige uf Standard zrugggsetzt',
             exportFailed: 'Export vo Iistellige fehlgschlage',
             settingsExported: 'Iistellige erfolgreich exportiert',
-            freeAccountActivated: 'Gratis-Account aktiviert!'
+            settingsImported: 'Iistellige erfolgreich importiert',
+            importFailed: 'Import fehlgschlage',
+            freeAccountActivated: 'Gratis-Account aktiviert!',
+            chartLoadFailed: 'Fehler beim Lade vo de Diagramm-Date',
+            accountFoundSendingCode: 'Account gfunde! Code wird gsendet.',
+            accountFoundSendingLink: 'Account gfunde! Code wird gsendet.',
+            creatingNewAccount: 'Neue Account wird erstellt — prüef dini E-Mail für de Code.',
+            magicLinkSendFailed: 'Code-Versand fehlgschlage. Bitte versuech es nomol.',
+            otpVerified: 'Code bestätigt — du bisch ihgloggt!',
+            magicLinkVerified: 'Code erfolgreich verifiziert!',
+            magicLinkVerificationFailed: 'Code-Verifikation fehlgschlage',
+            chartDataRefreshed: 'Diagramm-Date erfolgreich aktualisiert!',
+            refreshFailed: 'Aktualisierig vo Date fehlgschlage',
+            noNewData: 'Kei neui Date verfügbar'
         },
         
         // Apertus Info

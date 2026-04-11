@@ -107,7 +107,9 @@ export default {
             confirmationText:
                 'Christopherがあなたがインテリジェントボットではないことを知るために、リクエストを確認してください。以下のデータでメッセージを送信しました：',
             doubleCheck: '以下の詳細でメッセージを受信しました：',
-            button: 'メールを確認'
+            button: 'メールを確認',
+            subject: 'Keymojiへのメッセージを受け取りました',
+            privacy: 'あなたのデータは安全に処理されます。'
         },
         validation: {
             nameRequired: '名前は必須です',
@@ -116,7 +118,8 @@ export default {
             emailInvalid: '有効なメールアドレスを入力してください',
             messageRequired: 'メッセージは必須です',
             messageLength: '{min}文字以上で入力してください'
-        }
+        },
+        autoFilledLabel: 'アカウントから自動入力'
     },
     serviceWorker: {
         updateAvailable: '新しいバージョンが利用可能です！',
@@ -125,9 +128,21 @@ export default {
         updateSuccess: 'アプリが正常に更新されました！🎉'
     },
     notFound: {
+        pageTitle: '404 - ページが見つかりません',
+        pageDescription: 'お探しのページは存在しないか、移動されました。',
+        oopsTitle: 'おっと！ページが見つかりません',
+        oopsDescription: 'お探しのページは移動、削除、または存在しなかった可能性があります。',
+        quickNavTitle: 'クイックナビゲーション',
+        recentEmojisTitle: '最近のKeymoji',
+        backToHome: 'ホームに戻る',
+        prevEmoji: '前の絵文字',
+        nextEmoji: '次の絵文字',
         message: 'おっと！ページが見つかりません 🚫',
+        suggestion: 'お探しのページは移動、削除、または存在しなかった可能性があります。',
         backButton: 'ホームに戻る',
-        contactButton: 'お問い合わせ'
+        contactButton: 'お問い合わせ',
+        navigationTitle: '利用可能なページ',
+        recentEmojis: '最近の絵文字'
     },
     blog: {
         readMore: '続きを読む',
@@ -476,7 +491,8 @@ export default {
             hideProfile: '非表示',
             profileData: 'プロフィールデータ',
             showFullForm: '完全なフォームを表示',
-            compactView: 'コンパクト表示'
+            compactView: 'コンパクト表示',
+            addName: 'お名前を追加'
         },
 
         // フォームラベル
@@ -495,7 +511,11 @@ export default {
         // 統計
         statistics: {
             storiesGenerated: '生成されたストーリー',
-            remainingGenerations: '残りの生成'
+            remainingGenerations: '残りの生成',
+            noDataTitle: 'データなし',
+            noDataMessage: '絵文字を生成して実際の使用データを収集し、ここに表示してください。',
+            refreshButton: '更新',
+            loading: '読み込み中...'
         },
 
         // 1日の生成
@@ -557,7 +577,9 @@ export default {
             instantSetup: '即座セットアップ',
             noSpam: 'スパムなし',
             text: 'マジックリンクはメールで送信され、15分間有効です。',
-            privacy: 'あなたのデータは安全に処理されます。'
+            privacy: 'あなたのデータは安全に処理されます。',
+            legal: '法的情報',
+            versionHistory: 'バージョン履歴'
         },
 
         // 制限とメッセージ
@@ -577,7 +599,11 @@ export default {
             since: '{days} {unit}前から',
             day: '日',
             daysLabel: '日',
-            accountCreated: 'アカウント作成'
+            accountCreated: 'アカウント作成',
+            createdTodayFree: '✨ 新しいFREEアカウントの準備が完了しました！',
+            createdTodayPro: '💎 PROクラブへようこそ — 今日から特別会員！',
+            createdRecentlyFree: '✨ FREEアカウント — 新鮮で準備完了！',
+            createdRecentlyPro: '💎 PROアカウント — 独占的で新しい！'
         },
 
         // 検証
@@ -591,11 +617,40 @@ export default {
             settingsReset: '設定がデフォルトにリセットされました',
             exportFailed: '設定のエクスポートに失敗しました',
             settingsExported: '設定が正常にエクスポートされました',
-            freeAccountActivated: '無料アカウントがアクティブ化されました！'
+            settingsImported: '設定が正常にインポートされました',
+            importFailed: 'インポートに失敗しました',
+            freeAccountActivated: '無料アカウントがアクティブ化されました！',
+            chartLoadFailed: 'チャートデータの読み込みに失敗しました',
+            accountFoundSendingCode: 'アカウントが見つかりました！コードを送信中。',
+            accountFoundSendingLink: 'アカウントが見つかりました！コードを送信中。',
+            creatingNewAccount: '新しいアカウントを作成中 — コードのメールをご確認ください。',
+            magicLinkSendFailed: 'コードの送信に失敗しました。もう一度お試しください。',
+            otpVerified: 'コードが確認されました — ログインしました！',
+            magicLinkVerified: 'コードが正常に確認されました！',
+            magicLinkVerificationFailed: 'コードの確認に失敗しました',
+            chartDataRefreshed: 'チャートデータが更新されました！',
+            refreshFailed: 'データの更新に失敗しました',
+            noNewData: '新しいデータはありません'
         },
 
         // Apertus Info
         apertusInfo: '🇨🇭 無料のスイスAI、内蔵済み。Apertus — EPFL & ETH チューリッヒ製オープンソースLLM。データはスイス国内に保管。APIキー不要。',
+        apiKeyLabel: 'APIキー',
+        apiKeyLabelApertus: 'Hugging Faceトークン',
+        apiKeyLabelCustom: 'カスタムAPIキー',
+        optional: 'オプション',
+        verified: '確認済み',
+        testBtn: 'テスト',
+        apertusBuiltIn: '内蔵トークンが有効 — キーなしで動作します。',
+        apertusOwnToken: 'オプション: 個人のHugging Faceトークン (hf_…) を入力して個人クォータを使用できます。',
+        apertusGetToken: '無料HFトークンを取得',
+        openaiHint: '有料OpenAI APIキー (sk-…) が必要です。',
+        geminiHint: '無料プランあり。Google AI StudioでAPIキーを取得。',
+        claudeHint: 'Anthropic APIキー (sk-ant-…) が必要です。',
+        mistralHint: 'ヨーロッパのAI。console.mistral.aiでキーを取得。',
+        customHint: 'OpenAI互換エンドポイント。以下にベースURLとAPIキーを入力。',
+        getApiKey: 'APIキーを取得',
+        savedKeys: '保存済み',
 
         // アップグレードセクション
         upgrade: {

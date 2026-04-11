@@ -109,7 +109,9 @@ export default {
                 'Bevestig je aanvraag zodat Christopher weet dat je geen slimme bot bent. Je hebt een bericht gestuurd met de volgende gegevens:',
             doubleCheck:
                 'We hebben je bericht ontvangen met de volgende details:',
-            button: 'Bevestig je e-mail'
+            button: 'Bevestig je e-mail',
+            subject: 'Je bericht aan Keymoji is ontvangen',
+            privacy: 'Je gegevens worden veilig verwerkt.'
         },
         validation: {
             nameRequired: 'Naam is verplicht',
@@ -118,7 +120,8 @@ export default {
             emailInvalid: 'Ongeldig e-mailadres',
             messageRequired: 'Bericht is verplicht',
             messageLength: 'Minimaal {min} tekens'
-        }
+        },
+        autoFilledLabel: 'Automatisch ingevuld vanuit je account'
     },
     serviceWorker: {
         updateAvailable: 'Een nieuwe versie is beschikbaar!',
@@ -127,9 +130,21 @@ export default {
         updateSuccess: 'App succesvol bijgewerkt! 🎉'
     },
     notFound: {
+        pageTitle: '404 - Pagina niet gevonden',
+        pageDescription: 'De pagina die je zoekt bestaat niet of is verplaatst.',
+        oopsTitle: 'Oeps! Pagina niet gevonden',
+        oopsDescription: 'De pagina die je zoekt is mogelijk verplaatst, verwijderd of heeft nooit bestaan.',
+        quickNavTitle: 'Snelle navigatie',
+        recentEmojisTitle: 'Recente Keymoji\'s',
+        backToHome: 'Terug naar home',
+        prevEmoji: 'Vorige emoji',
+        nextEmoji: 'Volgende emoji',
         message: 'Oeps! Pagina niet gevonden 🚫',
+        suggestion: 'De pagina die je zoekt is mogelijk verplaatst, verwijderd of heeft nooit bestaan.',
         backButton: 'Terug naar home',
-        contactButton: 'Neem contact op'
+        contactButton: 'Neem contact op',
+        navigationTitle: 'Beschikbare pagina\'s',
+        recentEmojis: 'Recente emoji\'s'
     },
     blog: {
         readMore: 'Lees meer',
@@ -479,7 +494,8 @@ export default {
             hideProfile: 'Verbergen',
             profileData: 'Profielgegevens',
             showFullForm: 'Volledig formulier tonen',
-            compactView: 'Compacte weergave'
+            compactView: 'Compacte weergave',
+            addName: 'Voeg je naam toe'
         },
 
         // Formulierlabels
@@ -498,7 +514,11 @@ export default {
         // Statistieken
         statistics: {
             storiesGenerated: 'Gegenereerde verhalen',
-            remainingGenerations: 'Resterende generaties'
+            remainingGenerations: 'Resterende generaties',
+            noDataTitle: 'Geen gegevens',
+            noDataMessage: 'Genereer emoji\'s om je echte gebruiksgegevens te verzamelen en hier weer te geven.',
+            refreshButton: 'Vernieuwen',
+            loading: 'Laden...'
         },
 
         // Dagelijkse generaties
@@ -561,7 +581,9 @@ export default {
             instantSetup: 'Directe setup',
             noSpam: 'Geen spam',
             text: 'Magische links worden per e-mail verzonden en zijn 15 minuten geldig.',
-            privacy: 'Je gegevens worden veilig verwerkt.'
+            privacy: 'Je gegevens worden veilig verwerkt.',
+            legal: 'Juridisch',
+            versionHistory: 'Versiegeschiedenis'
         },
 
         // Limieten en berichten
@@ -600,11 +622,40 @@ export default {
             settingsReset: 'Instellingen teruggezet naar standaard',
             exportFailed: 'Exporteren van instellingen mislukt',
             settingsExported: 'Instellingen succesvol geëxporteerd',
-            freeAccountActivated: 'Gratis account geactiveerd!'
+            settingsImported: 'Instellingen succesvol geïmporteerd',
+            importFailed: 'Importeren mislukt',
+            freeAccountActivated: 'Gratis account geactiveerd!',
+            chartLoadFailed: 'Laden van grafiekgegevens mislukt',
+            accountFoundSendingCode: 'Account gevonden! Code wordt verzonden.',
+            accountFoundSendingLink: 'Account gevonden! Code wordt verzonden.',
+            creatingNewAccount: 'Nieuw account aanmaken — controleer je e-mail voor de code.',
+            magicLinkSendFailed: 'Verzenden van code mislukt. Probeer het opnieuw.',
+            otpVerified: 'Code bevestigd — je bent ingelogd!',
+            magicLinkVerified: 'Code succesvol geverifieerd!',
+            magicLinkVerificationFailed: 'Verificatie van code mislukt',
+            chartDataRefreshed: 'Grafiekgegevens succesvol vernieuwd!',
+            refreshFailed: 'Vernieuwen van gegevens mislukt',
+            noNewData: 'Geen nieuwe gegevens beschikbaar'
         },
 
         // Apertus Info
         apertusInfo: '🇨🇭 Gratis Zwitserse AI, ingebouwd. Apertus — open-source LLM van EPFL & ETH Zurich. Uw gegevens blijven in Zwitserland. Geen API-sleutel nodig.',
+        apiKeyLabel: 'API-sleutel',
+        apiKeyLabelApertus: 'Hugging Face Token',
+        apiKeyLabelCustom: 'Aangepaste API-sleutel',
+        optional: 'optioneel',
+        verified: 'Geverifieerd',
+        testBtn: 'Testen',
+        apertusBuiltIn: 'Ingebouwde token actief — werkt zonder sleutel.',
+        apertusOwnToken: 'Optioneel: voer je eigen Hugging Face token (hf_…) in om je persoonlijk quotum te gebruiken.',
+        apertusGetToken: 'Gratis HF-token ophalen',
+        openaiHint: 'Vereist een betaalde OpenAI API-sleutel (sk-…).',
+        geminiHint: 'Gratis laag beschikbaar. Haal je sleutel op in Google AI Studio.',
+        claudeHint: 'Vereist een Anthropic API-sleutel (sk-ant-…).',
+        mistralHint: 'Europese AI. Haal je sleutel op via console.mistral.ai.',
+        customHint: 'OpenAI-compatibel endpoint. Voer hieronder de basis-URL en API-sleutel in.',
+        getApiKey: 'API-sleutel ophalen',
+        savedKeys: 'Opgeslagen',
 
         // Upgrade sectie
         upgrade: {

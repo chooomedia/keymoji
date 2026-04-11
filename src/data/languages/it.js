@@ -108,7 +108,9 @@ export default {
                 'Per favore conferma la tua richiesta così Christopher sa che non sei un bot intelligente. Hai inviato un messaggio con i seguenti dati:',
             doubleCheck:
                 'Abbiamo ricevuto il tuo messaggio con i seguenti dettagli:',
-            button: 'Conferma la tua email'
+            button: 'Conferma la tua email',
+            subject: 'Il tuo messaggio a Keymoji è stato ricevuto',
+            privacy: 'I tuoi dati vengono gestiti in modo sicuro.'
         },
         validation: {
             nameRequired: 'Nome richiesto',
@@ -117,7 +119,8 @@ export default {
             emailInvalid: 'Email non valida',
             messageRequired: 'Messaggio richiesto',
             messageLength: 'Minimo {min} caratteri'
-        }
+        },
+        autoFilledLabel: 'Compilato automaticamente dal tuo account'
     },
     serviceWorker: {
         updateAvailable: 'Una nuova versione è disponibile!',
@@ -126,9 +129,21 @@ export default {
         updateSuccess: 'App aggiornata con successo! 🎉'
     },
     notFound: {
+        pageTitle: '404 - Pagina non trovata',
+        pageDescription: 'La pagina che stai cercando non esiste o è stata spostata.',
+        oopsTitle: 'Ops! Pagina non trovata',
+        oopsDescription: 'La pagina che stai cercando potrebbe essere stata spostata, eliminata o non è mai esistita.',
+        quickNavTitle: 'Navigazione rapida',
+        recentEmojisTitle: 'Keymoji recenti',
+        backToHome: 'Torna alla home',
+        prevEmoji: 'Emoji precedente',
+        nextEmoji: 'Emoji successivo',
         message: 'Ops! Pagina non trovata 🚫',
+        suggestion: 'La pagina che stai cercando potrebbe essere stata spostata, eliminata o non è mai esistita.',
         backButton: 'Torna alla home',
-        contactButton: 'Contattaci'
+        contactButton: 'Contattaci',
+        navigationTitle: 'Pagine disponibili',
+        recentEmojis: 'Emoji recenti'
     },
     blog: {
         readMore: 'Leggi di più',
@@ -498,7 +513,11 @@ export default {
         // Statistiche
         statistics: {
             storiesGenerated: 'Storie generate',
-            remainingGenerations: 'Generazioni rimanenti'
+            remainingGenerations: 'Generazioni rimanenti',
+            noDataTitle: 'Nessun dato',
+            noDataMessage: 'Genera emoji per raccogliere i tuoi dati di utilizzo reali e visualizzarli qui.',
+            refreshButton: 'Aggiorna',
+            loading: 'Caricamento...'
         },
 
         // Generazioni giornaliere
@@ -571,7 +590,9 @@ export default {
             instantSetup: 'Configurazione istantanea',
             noSpam: 'Nessuno spam',
             text: 'I link magici vengono inviati via email e sono validi per 15 minuti.',
-            privacy: 'I tuoi dati vengono gestiti in modo sicuro.'
+            privacy: 'I tuoi dati vengono gestiti in modo sicuro.',
+            legal: 'Note legali',
+            versionHistory: 'Cronologia versioni'
         },
 
         // Limiti e messaggi
@@ -609,7 +630,20 @@ export default {
             settingsReset: 'Impostazioni ripristinate ai valori predefiniti',
             exportFailed: "Errore durante l'esportazione delle impostazioni",
             settingsExported: 'Impostazioni esportate con successo',
-            freeAccountActivated: 'Account gratuito attivato!'
+            settingsImported: 'Impostazioni importate con successo',
+            importFailed: 'Importazione fallita',
+            freeAccountActivated: 'Account gratuito attivato!',
+            chartLoadFailed: 'Impossibile caricare i dati del grafico',
+            accountFoundSendingCode: 'Account trovato! Invio di un codice in corso.',
+            accountFoundSendingLink: 'Account trovato! Invio di un codice in corso.',
+            creatingNewAccount: 'Creazione nuovo account — controlla la tua email per il codice.',
+            magicLinkSendFailed: 'Invio del codice fallito. Riprova.',
+            otpVerified: 'Codice confermato — sei connesso!',
+            magicLinkVerified: 'Codice verificato con successo!',
+            magicLinkVerificationFailed: 'Verifica del codice fallita',
+            chartDataRefreshed: 'Dati del grafico aggiornati!',
+            refreshFailed: 'Aggiornamento dei dati fallito',
+            noNewData: 'Nessun nuovo dato disponibile'
         },
 
         // Apertus Info

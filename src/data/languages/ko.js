@@ -106,7 +106,9 @@ export default {
             confirmationText:
                 'Christopher가 당신이 인텔리전트 봇이 아님을 알 수 있도록 요청을 확인해주세요. 다음 정보로 메시지를 보냈습니다:',
             doubleCheck: '다음 세부 정보로 메시지를 받았습니다:',
-            button: '이메일 확인'
+            button: '이메일 확인',
+            subject: 'Keymoji에 보낸 메시지가 접수되었습니다',
+            privacy: '귀하의 데이터는 안전하게 처리됩니다.'
         },
         validation: {
             nameRequired: '이름은 필수입니다',
@@ -115,7 +117,8 @@ export default {
             emailInvalid: '유효한 이메일을 입력하세요',
             messageRequired: '메시지는 필수입니다',
             messageLength: '{min}자 이상 입력하세요'
-        }
+        },
+        autoFilledLabel: '계정에서 자동 입력됨'
     },
     serviceWorker: {
         updateAvailable: '새 버전이 사용 가능합니다!',
@@ -124,9 +127,21 @@ export default {
         updateSuccess: '앱이 성공적으로 업데이트되었습니다! 🎉'
     },
     notFound: {
+        pageTitle: '404 - 페이지를 찾을 수 없습니다',
+        pageDescription: '찾고 있는 페이지가 존재하지 않거나 이동되었습니다.',
+        oopsTitle: '이런! 페이지를 찾을 수 없습니다',
+        oopsDescription: '찾고 있는 페이지가 이동, 삭제 또는 존재하지 않았을 수 있습니다.',
+        quickNavTitle: '빠른 탐색',
+        recentEmojisTitle: '최근 Keymoji',
+        backToHome: '홈으로 돌아가기',
+        prevEmoji: '이전 이모지',
+        nextEmoji: '다음 이모지',
         message: '앗! 페이지를 찾을 수 없습니다 🚫',
+        suggestion: '찾고 있는 페이지가 이동, 삭제 또는 존재하지 않았을 수 있습니다.',
         backButton: '홈으로 돌아가기',
-        contactButton: '문의하기'
+        contactButton: '문의하기',
+        navigationTitle: '이용 가능한 페이지',
+        recentEmojis: '최근 이모지'
     },
     blog: {
         readMore: '더 읽기',
@@ -475,7 +490,8 @@ export default {
             hideProfile: '숨기기',
             profileData: '프로필 데이터',
             showFullForm: '전체 양식 표시',
-            compactView: '간소화된 보기'
+            compactView: '간소화된 보기',
+            addName: '이름 추가'
         },
 
         // 폼 라벨
@@ -494,7 +510,11 @@ export default {
         // 통계
         statistics: {
             storiesGenerated: '생성된 스토리',
-            remainingGenerations: '남은 생성'
+            remainingGenerations: '남은 생성',
+            noDataTitle: '데이터 없음',
+            noDataMessage: '이모지를 생성하여 실제 사용 데이터를 수집하고 여기에 표시하세요.',
+            refreshButton: '새로고침',
+            loading: '로딩 중...'
         },
 
         // 일일 생성
@@ -555,7 +575,9 @@ export default {
             instantSetup: '즉시 설정',
             noSpam: '스팸 없음',
             text: '매직 링크는 이메일로 전송되며 15분간 유효합니다.',
-            privacy: '귀하의 데이터는 안전하게 처리됩니다.'
+            privacy: '귀하의 데이터는 안전하게 처리됩니다.',
+            legal: '법적 정보',
+            versionHistory: '버전 기록'
         },
 
         // 제한 및 메시지
@@ -575,7 +597,11 @@ export default {
             since: '{days} {unit} 전부터',
             day: '일',
             daysLabel: '일',
-            accountCreated: '계정 생성됨'
+            accountCreated: '계정 생성됨',
+            createdTodayFree: '✨ 새로운 FREE 계정이 준비되었습니다!',
+            createdTodayPro: '💎 PRO 클럽에 오신 것을 환영합니다 — 오늘부터 독점 회원!',
+            createdRecentlyFree: '✨ FREE 계정 — 신선하고 준비됨!',
+            createdRecentlyPro: '💎 PRO 계정 — 독점적이고 새로운!'
         },
 
         // 검증
@@ -589,11 +615,40 @@ export default {
             settingsReset: '설정이 기본값으로 재설정되었습니다',
             exportFailed: '설정 내보내기 실패',
             settingsExported: '설정이 성공적으로 내보내졌습니다',
-            freeAccountActivated: '무료 계정이 활성화되었습니다!'
+            settingsImported: '설정을 성공적으로 가져왔습니다',
+            importFailed: '가져오기 실패',
+            freeAccountActivated: '무료 계정이 활성화되었습니다!',
+            chartLoadFailed: '차트 데이터 로드 실패',
+            accountFoundSendingCode: '계정을 찾았습니다! 코드를 보내드립니다.',
+            accountFoundSendingLink: '계정을 찾았습니다! 코드를 보내드립니다.',
+            creatingNewAccount: '새 계정을 생성 중입니다 — 코드가 담긴 이메일을 확인하세요.',
+            magicLinkSendFailed: '코드 전송에 실패했습니다. 다시 시도해 주세요.',
+            otpVerified: '코드 확인됨 — 로그인되었습니다!',
+            magicLinkVerified: '코드가 성공적으로 확인되었습니다!',
+            magicLinkVerificationFailed: '코드 인증 실패',
+            chartDataRefreshed: '차트 데이터가 새로고침되었습니다!',
+            refreshFailed: '데이터 새로고침 실패',
+            noNewData: '새 데이터가 없습니다'
         },
 
         // Apertus Info
         apertusInfo: '🇨🇭 무료 스위스 AI, 내장됨. Apertus — EPFL & ETH 취리히의 오픈소스 LLM. 데이터는 스위스에 보관. API 키 불필요.',
+        apiKeyLabel: 'API 키',
+        apiKeyLabelApertus: 'Hugging Face 토큰',
+        apiKeyLabelCustom: '맞춤 API 키',
+        optional: '선택 사항',
+        verified: '인증됨',
+        testBtn: '테스트',
+        apertusBuiltIn: '내장 토큰 활성화 — 키 없이 작동합니다.',
+        apertusOwnToken: '선택 사항: 개인 Hugging Face 토큰 (hf_…)을 입력하여 개인 할당량을 사용하세요.',
+        apertusGetToken: '무료 HF 토큰 받기',
+        openaiHint: '유료 OpenAI API 키 (sk-…)가 필요합니다.',
+        geminiHint: '무료 플랜 이용 가능. Google AI Studio에서 키를 받으세요.',
+        claudeHint: 'Anthropic API 키 (sk-ant-…)가 필요합니다.',
+        mistralHint: '유럽 AI. console.mistral.ai에서 키를 받으세요.',
+        customHint: 'OpenAI 호환 엔드포인트. 아래에 기본 URL과 API 키를 입력하세요.',
+        getApiKey: 'API 키 받기',
+        savedKeys: '저장됨',
 
         // 업그레이드 섹션
         upgrade: {

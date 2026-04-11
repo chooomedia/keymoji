@@ -108,7 +108,9 @@ export default {
             confirmationText:
                 'Пожалуйста, подтвердите свой запрос, чтобы Кристофер знал, что вы не бот. Вы отправили сообщение со следующими данными:',
             doubleCheck: 'Мы получили ваше сообщение со следующими деталями:',
-            button: 'Подтвердить e-mail'
+            button: 'Подтвердить e-mail',
+            subject: 'Ваше сообщение в Keymoji получено',
+            privacy: 'Ваши данные обрабатываются безопасно.'
         },
         validation: {
             nameRequired: 'Имя обязательно',
@@ -117,7 +119,8 @@ export default {
             emailInvalid: 'Неверный e-mail',
             messageRequired: 'Сообщение обязательно',
             messageLength: 'Минимум {min} символов'
-        }
+        },
+        autoFilledLabel: 'Автозаполнено из вашего аккаунта'
     },
     serviceWorker: {
         updateAvailable: 'Доступна новая версия!',
@@ -126,9 +129,21 @@ export default {
         updateSuccess: 'Приложение успешно обновлено! 🎉'
     },
     notFound: {
+        pageTitle: '404 - Страница не найдена',
+        pageDescription: 'Страница, которую вы ищете, не существует или была перемещена.',
+        oopsTitle: 'Упс! Страница не найдена',
+        oopsDescription: 'Страница, которую вы ищете, могла быть перемещена, удалена или никогда не существовала.',
+        quickNavTitle: 'Быстрая навигация',
+        recentEmojisTitle: 'Последние Keymoji',
+        backToHome: 'Вернуться на главную',
+        prevEmoji: 'Предыдущий эмодзи',
+        nextEmoji: 'Следующий эмодзи',
         message: 'Упс! Страница не найдена 🚫',
+        suggestion: 'Страница, которую вы ищете, могла быть перемещена, удалена или никогда не существовала.',
         backButton: 'Вернуться на главную',
-        contactButton: 'Связаться с нами'
+        contactButton: 'Связаться с нами',
+        navigationTitle: 'Доступные страницы',
+        recentEmojis: 'Последние эмодзи'
     },
     blog: {
         readMore: 'Читать далее',
@@ -479,7 +494,8 @@ export default {
             hideProfile: 'Скрыть',
             profileData: 'Данные профиля',
             showFullForm: 'Показать полную форму',
-            compactView: 'Компактный вид'
+            compactView: 'Компактный вид',
+            addName: 'Добавьте своё имя'
         },
 
         // Метки формы
@@ -498,7 +514,11 @@ export default {
         // Статистика
         statistics: {
             storiesGenerated: 'Сгенерированные истории',
-            remainingGenerations: 'Оставшиеся генерации'
+            remainingGenerations: 'Оставшиеся генерации',
+            noDataTitle: 'Нет данных',
+            noDataMessage: 'Создавайте эмодзи, чтобы собирать реальные данные об использовании и отображать их здесь.',
+            refreshButton: 'Обновить',
+            loading: 'Загрузка...'
         },
 
         // Ежедневные генерации
@@ -562,7 +582,9 @@ export default {
             instantSetup: 'Мгновенная настройка',
             noSpam: 'Без спама',
             text: 'Волшебные ссылки отправляются по электронной почте и действительны 15 минут.',
-            privacy: 'Ваши данные обрабатываются безопасно.'
+            privacy: 'Ваши данные обрабатываются безопасно.',
+            legal: 'Правовая информация',
+            versionHistory: 'История версий'
         },
 
         // Лимиты и сообщения
@@ -582,7 +604,11 @@ export default {
             since: 'с {days} {unit}',
             day: 'день',
             daysLabel: 'дней',
-            accountCreated: 'Аккаунт создан'
+            accountCreated: 'Аккаунт создан',
+            createdTodayFree: '✨ Ваш новый FREE аккаунт готов!',
+            createdTodayPro: '💎 Добро пожаловать в клуб PRO — эксклюзивно с сегодняшнего дня!',
+            createdRecentlyFree: '✨ FREE аккаунт — свежий и готовый!',
+            createdRecentlyPro: '💎 PRO аккаунт — эксклюзивный и новый!'
         },
 
         // Валидация
@@ -596,11 +622,40 @@ export default {
             settingsReset: 'Настройки сброшены на значения по умолчанию',
             exportFailed: 'Экспорт настроек не удался',
             settingsExported: 'Настройки экспортированы',
-            freeAccountActivated: 'Бесплатный аккаунт активирован!'
+            settingsImported: 'Настройки успешно импортированы',
+            importFailed: 'Ошибка импорта',
+            freeAccountActivated: 'Бесплатный аккаунт активирован!',
+            chartLoadFailed: 'Не удалось загрузить данные графика',
+            accountFoundSendingCode: 'Аккаунт найден! Отправляю код.',
+            accountFoundSendingLink: 'Аккаунт найден! Отправляю код.',
+            creatingNewAccount: 'Создание нового аккаунта — проверьте email для получения кода.',
+            magicLinkSendFailed: 'Не удалось отправить код. Попробуйте снова.',
+            otpVerified: 'Код подтверждён — вы вошли в систему!',
+            magicLinkVerified: 'Код успешно проверен!',
+            magicLinkVerificationFailed: 'Проверка кода не удалась',
+            chartDataRefreshed: 'Данные графика обновлены!',
+            refreshFailed: 'Не удалось обновить данные',
+            noNewData: 'Новых данных нет'
         },
 
         // Apertus Info
         apertusInfo: '🇨🇭 Бесплатный швейцарский ИИ, встроен. Apertus — open-source LLM от EPFL & ETH Zurich. Ваши данные остаются в Швейцарии. API-ключ не нужен.',
+        apiKeyLabel: 'API-ключ',
+        apiKeyLabelApertus: 'Токен Hugging Face',
+        apiKeyLabelCustom: 'Пользовательский API-ключ',
+        optional: 'необязательно',
+        verified: 'Подтверждено',
+        testBtn: 'Тест',
+        apertusBuiltIn: 'Встроенный токен активен — работает без ключа.',
+        apertusOwnToken: 'Необязательно: введите собственный токен Hugging Face (hf_…) для использования личной квоты.',
+        apertusGetToken: 'Получить бесплатный токен HF',
+        openaiHint: 'Требуется платный API-ключ OpenAI (sk-…).',
+        geminiHint: 'Доступен бесплатный уровень. Получите ключ в Google AI Studio.',
+        claudeHint: 'Требуется API-ключ Anthropic (sk-ant-…).',
+        mistralHint: 'Европейский AI. Получите ключ на console.mistral.ai.',
+        customHint: 'OpenAI-совместимый endpoint. Введите базовый URL и API-ключ ниже.',
+        getApiKey: 'Получить API-ключ',
+        savedKeys: 'Сохранено',
 
         // Секция обновления
         upgrade: {

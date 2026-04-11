@@ -33,6 +33,7 @@ export default {
         setupStoryModeSwiss: 'Gebruik Switserse AI',
         setupStoryModeSwissShort: 'Switserse AI',
         setupStoryModeOr: 'of',
+        setupStoryModeBannerCta: '— Skep jou Keymoji Storie',
         setupStoryModeBannerText: '✨ Jou storie word jou veilige Keymoji',
         setupStoryModeChip: 'Aktiveer Story Mode',
         setupStoryModeDescription:
@@ -108,7 +109,9 @@ export default {
                 "Bevestig asseblief jou versoek sodat Christopher weet dat jy nie 'n slim bot is nie. Jy het 'n boodskap gestuur met die volgende data:",
             doubleCheck:
                 'Ons het jou boodskap ontvang met die volgende besonderhede:',
-            button: 'Bevestig jou e-pos'
+            button: 'Bevestig jou e-pos',
+            subject: 'Jou boodskap aan Keymoji is ontvang',
+            privacy: 'Jou data word veilig verwerk.'
         },
         validation: {
             nameRequired: 'Naam benodig',
@@ -117,7 +120,8 @@ export default {
             emailInvalid: 'Ongeldige e-pos',
             messageRequired: 'Boodskap benodig',
             messageLength: 'Minimum {min} karakters'
-        }
+        },
+        autoFilledLabel: 'Outomaties gevul vanuit jou rekening'
     },
     serviceWorker: {
         updateAvailable: "'n Nuwe weergawe is beskikbaar!",
@@ -126,9 +130,21 @@ export default {
         updateSuccess: 'App suksesvol opgedateer! 🎉'
     },
     notFound: {
+        pageTitle: '404 - Bladsy nie gevind nie',
+        pageDescription: 'Die bladsy wat jy soek bestaan nie of is verskuif.',
+        oopsTitle: 'Oeps! Bladsy nie gevind nie',
+        oopsDescription: 'Die bladsy wat jy soek is moontlik verskuif, verwyder of het nooit bestaan nie.',
+        quickNavTitle: 'Vinnige Navigasie',
+        recentEmojisTitle: 'Onlangse Keymoji\'s',
+        backToHome: 'Terug tuisblad',
+        prevEmoji: 'Vorige emoji',
+        nextEmoji: 'Volgende emoji',
         message: 'Oeps! Bladsy nie gevind nie 🚫',
+        suggestion: 'Die bladsy wat jy soek is moontlik verskuif, verwyder of het nooit bestaan nie.',
         backButton: 'Terug tuisblad',
-        contactButton: 'Kontak ons'
+        contactButton: 'Kontak ons',
+        navigationTitle: 'Beskikbare Bladsye',
+        recentEmojis: 'Onlangse Emojis'
     },
     blog: {
         readMore: 'Lees meer',
@@ -480,7 +496,8 @@ export default {
             hideProfile: 'Versteek',
             profileData: 'Profiel Data',
             showFullForm: 'Wys volledige vorm',
-            compactView: 'Kompakte aansig'
+            compactView: 'Kompakte aansig',
+            addName: 'Voeg jou naam by'
         },
 
         // Vorm etikette
@@ -499,7 +516,11 @@ export default {
         // Statistieke
         statistics: {
             storiesGenerated: 'Gegenereerde Stories',
-            remainingGenerations: 'Oorblywende Generasies'
+            remainingGenerations: 'Oorblywende Generasies',
+            noDataTitle: 'Geen Data',
+            noDataMessage: 'Genereer emojis om jou werklike gebruiksdata te versamel en hier te vertoon.',
+            refreshButton: 'Verfris',
+            loading: 'Laai...'
         },
 
         // Daaglikse generasies
@@ -533,6 +554,21 @@ export default {
             }
         },
 
+        // Verifikasie afdeling
+        verification: {
+            titleNew: 'Registrasiekode',
+            titleReturn: 'Inskrywingskode',
+            sentTo: 'Kode gestuur na',
+            codeLabel: '7-syferkode',
+            codePlaceholder: '1234567',
+            submitCode: '✅ Bevestig Kode',
+            verifying: 'Kontroleer...',
+            codeError: 'Voer asseblief die 7-syferkode in.',
+            codeInvalid: "Ongeldige of verouderde kode. Versoek 'n nuwe een.",
+            codeExpiry: '• Die kode is 15 minute geldig',
+            noLink: '• Geen skakelklik nodig nie — voer net die kode in'
+        },
+
         // Hulp afdeling
         help: {
             title: '💡 Benodig jy hulp?',
@@ -549,7 +585,9 @@ export default {
             instantSetup: 'Oombliklike opstelling',
             noSpam: 'Geen spam',
             text: 'Magic skakels word per e-pos gestuur en is 15 minute geldig.',
-            privacy: 'Jou data word veilig verwerk.'
+            privacy: 'Jou data word veilig verwerk.',
+            legal: 'Wetlik',
+            versionHistory: 'Weergawegeskiedenis'
         },
 
         // Limiete en boodskappe
@@ -569,7 +607,11 @@ export default {
             since: 'sedert {days} {unit}',
             day: 'dag',
             daysLabel: 'dae',
-            accountCreated: 'Rekening geskep'
+            accountCreated: 'Rekening geskep',
+            createdTodayFree: '✨ Jou brandnuwe FREE rekening is gereed!',
+            createdTodayPro: '💎 Welkom by die PRO klub — eksklusief sedert vandag!',
+            createdRecentlyFree: '✨ FREE rekening — vars en gereed!',
+            createdRecentlyPro: '💎 PRO rekening — eksklusief en nuut!'
         },
 
         // Validasie
@@ -583,12 +625,48 @@ export default {
             settingsReset: 'Instellings herstel na verstek',
             exportFailed: 'Eksport van instellings het misluk',
             settingsExported: 'Instellings suksesvol geëksporteer',
-            freeAccountActivated: 'Gratis rekening geaktiveer!'
+            settingsImported: 'Instellings suksesvol ingevoer',
+            importFailed: 'Invoer het misluk',
+            freeAccountActivated: 'Gratis rekening geaktiveer!',
+            chartLoadFailed: 'Laai van grafiekdata het misluk',
+            accountFoundSendingCode: 'Rekening gevind! Kode word gestuur.',
+            accountFoundSendingLink: 'Rekening gevind! Kode word gestuur.',
+            creatingNewAccount: 'Nuwe rekening word geskep — kontroleer jou e-pos vir die kode.',
+            magicLinkSendFailed: 'Stuur van kode het misluk. Probeer asseblief weer.',
+            otpVerified: 'Kode bevestig — jy is ingeteken!',
+            magicLinkVerified: 'Kode suksesvol geverifieer!',
+            magicLinkVerificationFailed: 'Verifikasie van kode het misluk',
+            chartDataRefreshed: 'Grafiekdata suksesvol verfris!',
+            refreshFailed: 'Verfris van data het misluk',
+            noNewData: 'Geen nuwe data beskikbaar nie'
+        },
+
+        // Demo Chart
+        demoChart: {
+            title: 'Geen Data',
+            description: 'Genereer emojis om jou werklike gebruiksdata te versamel en hier te vertoon.',
+            cta: 'Kry Keymoji nou'
         },
 
         // Apertus Info
         apertusInfo:
             'Eksklusief op Keymoji: Apertus – die Switserse LLM. Eerste keer beskikbaar vir gebruikers. Gehuisves op HuggingFace, gelewer via n8n workflow.',
+        apiKeyLabel: 'API-sleutel',
+        apiKeyLabelApertus: 'Hugging Face Token',
+        apiKeyLabelCustom: 'Gepaste API-sleutel',
+        optional: 'opsioneel',
+        verified: 'Geverifieer',
+        testBtn: 'Toets',
+        apertusBuiltIn: 'Ingeboude token aktief — werk sonder sleutel.',
+        apertusOwnToken: 'Opsioneel: voer jou eie Hugging Face token (hf_…) in om jou persoonlike kwota te gebruik.',
+        apertusGetToken: 'Kry gratis HF token',
+        openaiHint: 'Benodig betaalde OpenAI API-sleutel (sk-…).',
+        geminiHint: 'Gratis laag beskikbaar. Kry jou sleutel in Google AI Studio.',
+        claudeHint: 'Benodig Anthropic API-sleutel (sk-ant-…).',
+        mistralHint: 'Europese AI. Kry jou sleutel by console.mistral.ai.',
+        customHint: 'OpenAI-versoenbare eindpunt. Voer basis-URL en API-sleutel hieronder in.',
+        getApiKey: 'Kry API-sleutel',
+        savedKeys: 'Gestoor',
 
         // Opgradering afdeling
         upgrade: {

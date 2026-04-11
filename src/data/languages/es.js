@@ -109,7 +109,9 @@ export default {
                 'Por favor confirma tu solicitud para que Christopher sepa que no eres un bot inteligente. Has enviado un mensaje con los siguientes datos:',
             doubleCheck:
                 'Hemos recibido tu mensaje con los siguientes detalles:',
-            button: 'Confirma tu email'
+            button: 'Confirma tu email',
+            subject: 'Tu mensaje a Keymoji ha sido recibido',
+            privacy: 'Tus datos se manejan de forma segura.'
         },
         validation: {
             nameRequired: 'Nombre requerido',
@@ -118,7 +120,8 @@ export default {
             emailInvalid: 'Correo electrónico inválido',
             messageRequired: 'Mensaje requerido',
             messageLength: 'Mínimo {min} caracteres'
-        }
+        },
+        autoFilledLabel: 'Completado automáticamente desde tu cuenta'
     },
     serviceWorker: {
         updateAvailable: '¡Una nueva versión está disponible!',
@@ -127,9 +130,21 @@ export default {
         updateSuccess: '¡Aplicación actualizada exitosamente! 🎉'
     },
     notFound: {
+        pageTitle: '404 - Página no encontrada',
+        pageDescription: 'La página que buscas no existe o ha sido movida.',
+        oopsTitle: '¡Ups! Página no encontrada',
+        oopsDescription: 'La página que buscas puede haber sido movida, eliminada o nunca existió.',
+        quickNavTitle: 'Navegación rápida',
+        recentEmojisTitle: 'Keymojis recientes',
+        backToHome: 'Volver al inicio',
+        prevEmoji: 'Emoji anterior',
+        nextEmoji: 'Siguiente emoji',
         message: '¡Ups! Página no encontrada 🚫',
+        suggestion: 'La página que buscas puede haber sido movida, eliminada o nunca existió.',
         backButton: 'Volver al inicio',
-        contactButton: 'Contáctanos'
+        contactButton: 'Contáctanos',
+        navigationTitle: 'Páginas disponibles',
+        recentEmojis: 'Emojis recientes'
     },
     blog: {
         readMore: 'Leer más',
@@ -502,7 +517,11 @@ export default {
         // Estadísticas
         statistics: {
             storiesGenerated: 'Historias generadas',
-            remainingGenerations: 'Generaciones restantes'
+            remainingGenerations: 'Generaciones restantes',
+            noDataTitle: 'Sin datos',
+            noDataMessage: 'Genera emojis para recopilar tus datos de uso reales y mostrarlos aquí.',
+            refreshButton: 'Actualizar',
+            loading: 'Cargando...'
         },
 
         // Generaciones diarias
@@ -575,7 +594,9 @@ export default {
             instantSetup: 'Configuración instantánea',
             noSpam: 'Sin spam',
             text: 'Los enlaces mágicos se envían por correo electrónico y son válidos durante 15 minutos.',
-            privacy: 'Tus datos se manejan de forma segura.'
+            privacy: 'Tus datos se manejan de forma segura.',
+            legal: 'Aviso legal',
+            versionHistory: 'Historial de versiones'
         },
 
         // Límites y mensajes
@@ -622,7 +643,20 @@ export default {
             settingsReset: 'Configuración restablecida por defecto',
             exportFailed: 'Error al exportar configuración',
             settingsExported: 'Configuración exportada exitosamente',
-            freeAccountActivated: '¡Cuenta gratuita activada!'
+            settingsImported: 'Configuración importada exitosamente',
+            importFailed: 'Error al importar',
+            freeAccountActivated: '¡Cuenta gratuita activada!',
+            chartLoadFailed: 'Error al cargar los datos del gráfico',
+            accountFoundSendingCode: '¡Cuenta encontrada! Enviándote un código.',
+            accountFoundSendingLink: '¡Cuenta encontrada! Enviándote un código.',
+            creatingNewAccount: 'Creando nueva cuenta — revisa tu correo para el código.',
+            magicLinkSendFailed: 'Error al enviar el código. Por favor, inténtalo de nuevo.',
+            otpVerified: '¡Código confirmado — has iniciado sesión!',
+            magicLinkVerified: '¡Código verificado con éxito!',
+            magicLinkVerificationFailed: 'Error en la verificación del código',
+            chartDataRefreshed: '¡Datos del gráfico actualizados!',
+            refreshFailed: 'Error al actualizar los datos',
+            noNewData: 'No hay nuevos datos disponibles'
         },
         
         // Apertus Info

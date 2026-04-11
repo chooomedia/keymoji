@@ -109,7 +109,9 @@ export default {
                 'Proszę potwierdź swoją prośbę, aby Christopher wiedział, że nie jesteś botem. Wysłałeś wiadomość z następującymi danymi:',
             doubleCheck:
                 'Otrzymaliśmy Twoją wiadomość z następującymi szczegółami:',
-            button: 'Potwierdź swój e-mail'
+            button: 'Potwierdź swój e-mail',
+            subject: 'Twoja wiadomość do Keymoji została odebrana',
+            privacy: 'Twoje dane są bezpiecznie przetwarzane.'
         },
         validation: {
             nameRequired: 'Imię jest wymagane',
@@ -118,7 +120,8 @@ export default {
             emailInvalid: 'Nieprawidłowy adres e-mail',
             messageRequired: 'Wiadomość jest wymagana',
             messageLength: 'Minimum {min} znaków'
-        }
+        },
+        autoFilledLabel: 'Automatycznie wypełnione z Twojego konta'
     },
     serviceWorker: {
         updateAvailable: 'Dostępna jest nowa wersja!',
@@ -127,9 +130,21 @@ export default {
         updateSuccess: 'Aplikacja pomyślnie zaktualizowana! 🎉'
     },
     notFound: {
+        pageTitle: '404 - Strona nie znaleziona',
+        pageDescription: 'Strona, której szukasz, nie istnieje lub została przeniesiona.',
+        oopsTitle: 'Ups! Strona nie znaleziona',
+        oopsDescription: 'Strona, której szukasz, mogła zostać przeniesiona, usunięta lub nigdy nie istniała.',
+        quickNavTitle: 'Szybka nawigacja',
+        recentEmojisTitle: 'Ostatnie Keymoji',
+        backToHome: 'Powrót do strony głównej',
+        prevEmoji: 'Poprzednie emoji',
+        nextEmoji: 'Następne emoji',
         message: 'Ups! Strona nie znaleziona 🚫',
+        suggestion: 'Strona, której szukasz, mogła zostać przeniesiona, usunięta lub nigdy nie istniała.',
         backButton: 'Wróć do strony głównej',
-        contactButton: 'Skontaktuj się z nami'
+        contactButton: 'Skontaktuj się z nami',
+        navigationTitle: 'Dostępne strony',
+        recentEmojis: 'Ostatnie emoji'
     },
     blog: {
         readMore: 'Czytaj więcej',
@@ -480,7 +495,8 @@ export default {
             hideProfile: 'Ukryj',
             profileData: 'Dane profilu',
             showFullForm: 'Pokaż pełny formularz',
-            compactView: 'Widok kompaktowy'
+            compactView: 'Widok kompaktowy',
+            addName: 'Dodaj swoje imię'
         },
 
         // Etykiety formularza
@@ -499,7 +515,11 @@ export default {
         // Statystyki
         statistics: {
             storiesGenerated: 'Wygenerowane historie',
-            remainingGenerations: 'Pozostałe generacje'
+            remainingGenerations: 'Pozostałe generacje',
+            noDataTitle: 'Brak danych',
+            noDataMessage: 'Generuj emoji, aby zebrać rzeczywiste dane użytkowania i wyświetlić je tutaj.',
+            refreshButton: 'Odśwież',
+            loading: 'Ładowanie...'
         },
 
         // Dzienne generacje
@@ -562,7 +582,9 @@ export default {
             instantSetup: 'Natychmiastowa konfiguracja',
             noSpam: 'Brak spamu',
             text: 'Magiczne linki są wysyłane emailowo i ważne przez 15 minut.',
-            privacy: 'Twoje dane są bezpiecznie przetwarzane.'
+            privacy: 'Twoje dane są bezpiecznie przetwarzane.',
+            legal: 'Informacje prawne',
+            versionHistory: 'Historia wersji'
         },
 
         // Limity i komunikaty
@@ -582,7 +604,11 @@ export default {
             since: 'od {days} {unit}',
             day: 'dzień',
             daysLabel: 'dni',
-            accountCreated: 'Konto utworzone'
+            accountCreated: 'Konto utworzone',
+            createdTodayFree: '✨ Twoje nowe konto FREE jest gotowe!',
+            createdTodayPro: '💎 Witaj w klubie PRO — ekskluzywnie od dziś!',
+            createdRecentlyFree: '✨ Konto FREE — świeże i gotowe!',
+            createdRecentlyPro: '💎 Konto PRO — ekskluzywne i nowe!'
         },
 
         // Walidacja
@@ -596,11 +622,40 @@ export default {
             settingsReset: 'Ustawienia przywrócone do domyślnych',
             exportFailed: 'Eksport ustawień nie powiódł się',
             settingsExported: 'Ustawienia zostały wyeksportowane',
-            freeAccountActivated: 'Darmowe konto aktywowane!'
+            settingsImported: 'Ustawienia zostały pomyślnie zaimportowane',
+            importFailed: 'Import nie powiódł się',
+            freeAccountActivated: 'Darmowe konto aktywowane!',
+            chartLoadFailed: 'Nie udało się załadować danych wykresu',
+            accountFoundSendingCode: 'Konto znalezione! Wysyłam kod.',
+            accountFoundSendingLink: 'Konto znalezione! Wysyłam kod.',
+            creatingNewAccount: 'Tworzenie nowego konta — sprawdź e-mail w poszukiwaniu kodu.',
+            magicLinkSendFailed: 'Wysyłanie kodu nie powiodło się. Spróbuj ponownie.',
+            otpVerified: 'Kod potwierdzony — jesteś zalogowany!',
+            magicLinkVerified: 'Kod zweryfikowany pomyślnie!',
+            magicLinkVerificationFailed: 'Weryfikacja kodu nie powiodła się',
+            chartDataRefreshed: 'Dane wykresu zostały odświeżone!',
+            refreshFailed: 'Odświeżanie danych nie powiodło się',
+            noNewData: 'Brak nowych danych'
         },
 
         // Apertus Info
         apertusInfo: '🇨🇭 Darmowa szwajcarska AI, wbudowana. Apertus — open-source LLM od EPFL & ETH Zurich. Twoje dane pozostają w Szwajcarii. Nie wymagany klucz API.',
+        apiKeyLabel: 'Klucz API',
+        apiKeyLabelApertus: 'Token Hugging Face',
+        apiKeyLabelCustom: 'Niestandardowy klucz API',
+        optional: 'opcjonalnie',
+        verified: 'Zweryfikowane',
+        testBtn: 'Test',
+        apertusBuiltIn: 'Wbudowany token aktywny — działa bez klucza.',
+        apertusOwnToken: 'Opcjonalnie: wprowadź własny token Hugging Face (hf_…), aby używać osobistego limitu.',
+        apertusGetToken: 'Pobierz darmowy token HF',
+        openaiHint: 'Wymaga płatnego klucza API OpenAI (sk-…).',
+        geminiHint: 'Dostępny darmowy poziom. Pobierz klucz z Google AI Studio.',
+        claudeHint: 'Wymaga klucza API Anthropic (sk-ant-…).',
+        mistralHint: 'Europejska AI. Pobierz klucz na console.mistral.ai.',
+        customHint: 'Kompatybilny z OpenAI endpoint. Podaj poniżej podstawowy URL i klucz API.',
+        getApiKey: 'Pobierz klucz API',
+        savedKeys: 'Zapisane',
 
         // Sekcja aktualizacji
         upgrade: {

@@ -29,8 +29,11 @@ export default {
             "Echadlu'DI', De' línDaq pollu'! 📋"
         ],
         setupStoryMode: 'Motlh narnmey lín',
+        setupStoryModeShort: 'Motlh narnmey lín',
         setupStoryModeSwiss: "Swiss AI yIlo'",
+        setupStoryModeSwissShort: 'Swiss AI',
         setupStoryModeOr: "ghap",
+        setupStoryModeBannerCta: '— Keymoji Luruth lín Chen',
         setupStoryModeBannerText: '✨ Luruth lín govadh Keymoji dithen lín',
         setupStoryModeChip: 'Togo Story Mode',
         setupStoryModeDescription:
@@ -125,9 +128,15 @@ export default {
     notFound: {
         pageTitle: "404 - De' QulwI' Qagh",
         pageDescription: "De' QulwI' SoHvaD Qagh pagh QulwI' chu'lu'.",
+        oopsTitle: "Qagh! De' QulwI' Qagh",
+        oopsDescription: "De' QulwI' SoHvaD QulwI' chu'lu' pagh Qaghlu' pagh Qaghbe'lu'.",
+        quickNavTitle: "QulwI' QulwI'",
+        recentEmojisTitle: "emoji Qaghbe' Keymoji",
+        backToHome: 'Ad na bar',
+        prevEmoji: "emoji Qaghbe'",
+        nextEmoji: "emoji chu'",
         message: "Qagh! De' QulwI' Qagh 🚫",
-        suggestion:
-            "De' QulwI' SoHvaD QulwI' chu'lu' pagh Qaghlu' pagh Qaghbe'lu'.",
+        suggestion: "De' QulwI' SoHvaD QulwI' chu'lu' pagh Qaghlu' pagh Qaghbe'lu'.",
         backButton: 'Ad na bar',
         contactButton: 'Erio i peth',
         navigationTitle: "De' QulwI' poQlu'",
@@ -476,7 +485,8 @@ export default {
             hideProfile: "yIlanbe'",
             profileData: "QulwI' De'",
             showFullForm: "QIn QulwI' thand yIlan",
-            compactView: "QIn QulwI' Qagh"
+            compactView: "QIn QulwI' Qagh",
+            addName: "i eneth lín yIlan"
         },
 
         // Form labels
@@ -495,7 +505,11 @@ export default {
         // Statistics
         statistics: {
             storiesGenerated: "narn chenmoHlu'",
-            remainingGenerations: 'chenmoHlaH'
+            remainingGenerations: 'chenmoHlaH',
+            noDataTitle: "De' Qagh",
+            noDataMessage: "emoji DachenmoH, De' QulwI' DaHevmeH.",
+            refreshButton: "yIchu'",
+            loading: "De' yIlan..."
         },
 
         // Daily generations
@@ -527,6 +541,21 @@ export default {
             }
         },
 
+        // Verification section
+        verification: {
+            titleNew: "Huch Qan ngeH",
+            titleReturn: "QIn ngeH",
+            sentTo: "QIn ngeH",
+            codeLabel: "7-QIn",
+            codePlaceholder: '1234567',
+            submitCode: "✅ QIn yI'ach",
+            verifying: "yIlaDtaH...",
+            codeError: "7-QIn yI'ang.",
+            codeInvalid: "QIn Qagh pagh Qaw'lu'. chu' yIngeH.",
+            codeExpiry: "• QIn 15 rep Qaw'laH",
+            noLink: "• QIn yI'ang - maH 'IDnar yIlo'Qo'"
+        },
+
         // Help section
         help: {
             title: "💡 QIn yIghaj'a'?",
@@ -542,7 +571,9 @@ export default {
             instantSetup: "QulwI' QulwI'",
             noSpam: "QIn QulwI' Qaw'laHbe'",
             text: "maH 'IDnar i epist Qanglu' 'ej 15 rep Qaw'laH.",
-            privacy: "De'lIj thandlu'."
+            privacy: "De'lIj thandlu'.",
+            legal: "Rechtlich",
+            versionHistory: "mIwmey ngaSbogh"
         },
 
         // Limits and messages
@@ -561,7 +592,11 @@ export default {
             since: '{days} {unit}',
             day: 'jaj',
             daysLabel: 'jaj',
-            accountCreated: "Huch Qan chenmoHlu'"
+            accountCreated: "Huch Qan chenmoHlu'",
+            createdTodayFree: "✨ FREE Huch Qan chu' QapmeH!",
+            createdTodayPro: "💎 PRO club - Síra!",
+            createdRecentlyFree: "✨ FREE Huch Qan - chu'!",
+            createdRecentlyPro: "💎 PRO Huch Qan - chu'!"
         },
 
         // Validation
@@ -575,12 +610,48 @@ export default {
             settingsReset: "QulwI' lanlu'",
             exportFailed: "QulwI' lanlaHbe'",
             settingsExported: "QulwI' lanlu'!",
-            freeAccountActivated: "Hutlh Huch Qan QulmoHlu'!"
+            settingsImported: "QulwI' ngeHlu'!",
+            importFailed: "QulwI' ngeHlaHbe'",
+            freeAccountActivated: "Hutlh Huch Qan QulmoHlu'!",
+            chartLoadFailed: "De' QulwI' lanlaHbe'",
+            accountFoundSendingCode: "Huch Qan lanpu'! QIn ngeH.",
+            accountFoundSendingLink: "Huch Qan lanpu'! QIn ngeH.",
+            creatingNewAccount: "Huch Qan chu' chenmoH - i epist lín yIlan.",
+            magicLinkSendFailed: "QIn ngeHlaHbe'. yIngaH.",
+            otpVerified: "QIn 'ach - bI'ang!",
+            magicLinkVerified: "QIn Qaplu'!",
+            magicLinkVerificationFailed: "QIn 'achlaHbe'",
+            chartDataRefreshed: "De' QulwI' chu'moHlu'!",
+            refreshFailed: "De' chu'moHlaHbe'",
+            noNewData: "De' chu' Qagh"
+        },
+
+        // Demo Chart
+        demoChart: {
+            title: "De' Qagh",
+            description: "emoji DachenmoH, De' QulwI' DaHevmeH.",
+            cta: 'Keymoji yIHev'
         },
 
         // Apertus Info
         apertusInfo:
             "Keymoji'Daq Qap: Apertus – SuIS LLM. wa'DIch UservaD QulmoHlu'. HuggingFaceDaq ghoS, n8n workflow vItlheghmoH.",
+        apiKeyLabel: "API QIn",
+        apiKeyLabelApertus: "Hugging Face Token",
+        apiKeyLabelCustom: "API QIn chu'",
+        optional: "poQbe'",
+        verified: "Qaplu'",
+        testBtn: "yIlaD",
+        apertusBuiltIn: "Token roplu' - QIn poQbe'.",
+        apertusOwnToken: "poQbe': Hugging Face token lIj (hf_…) yI'ang.",
+        apertusGetToken: "HF token Hevchu'",
+        openaiHint: "OpenAI API QIn (sk-…) poQlu'.",
+        geminiHint: "Hutlh QulwI' Qap. Google AI Studio QIn yIHev.",
+        claudeHint: "Anthropic API QIn (sk-ant-…) poQlu'.",
+        mistralHint: "Europe AI. console.mistral.ai QIn yIHev.",
+        customHint: "OpenAI endpoint. URL 'ej API QIn yI'ang.",
+        getApiKey: "API QIn yIHev",
+        savedKeys: "pollu'",
 
         // Upgrade section
         upgrade: {

@@ -107,7 +107,9 @@ export default {
             confirmationText:
                 'Christopher, akıllı bir bot olmadığınızı bilsin diye lütfen isteğinizi onaylayın. Aşağıdaki bilgilerle bir mesaj gönderdiniz:',
             doubleCheck: 'Mesajınızı aşağıdaki detaylarla aldık:',
-            button: 'E-postanızı onaylayın'
+            button: 'E-postanızı onaylayın',
+            subject: 'Keymoji\'ye mesajınız alındı',
+            privacy: 'Verileriniz güvenli bir şekilde işlenmektedir.'
         },
         validation: {
             nameRequired: 'Ad gerekli',
@@ -116,7 +118,8 @@ export default {
             emailInvalid: 'Geçersiz e-posta adresi',
             messageRequired: 'Mesaj gerekli',
             messageLength: 'En az {min} karakter'
-        }
+        },
+        autoFilledLabel: 'Hesabınızdan otomatik dolduruldu'
     },
     serviceWorker: {
         updateAvailable: 'Yeni bir sürüm mevcut!',
@@ -125,9 +128,21 @@ export default {
         updateSuccess: 'Uygulama başarıyla güncellendi! 🎉'
     },
     notFound: {
+        pageTitle: '404 - Sayfa Bulunamadı',
+        pageDescription: 'Aradığınız sayfa mevcut değil veya taşınmış.',
+        oopsTitle: 'Hata! Sayfa Bulunamadı',
+        oopsDescription: 'Aradığınız sayfa taşınmış, silinmiş veya hiç var olmamış olabilir.',
+        quickNavTitle: 'Hızlı Navigasyon',
+        recentEmojisTitle: 'Son Keymoji\'ler',
+        backToHome: 'Ana Sayfaya Dön',
+        prevEmoji: 'Önceki emoji',
+        nextEmoji: 'Sonraki emoji',
         message: 'Ups! Sayfa bulunamadı 🚫',
+        suggestion: 'Aradığınız sayfa taşınmış, silinmiş veya hiç var olmamış olabilir.',
         backButton: 'Ana sayfaya dön',
-        contactButton: 'Bizimle iletişime geçin'
+        contactButton: 'Bizimle iletişime geçin',
+        navigationTitle: 'Mevcut Sayfalar',
+        recentEmojis: 'Son Emojiler'
     },
     blog: {
         readMore: 'Devamını oku',
@@ -478,7 +493,8 @@ export default {
             hideProfile: 'Gizle',
             profileData: 'Profil Verileri',
             showFullForm: 'Tam formu göster',
-            compactView: 'Kompakt görünüm'
+            compactView: 'Kompakt görünüm',
+            addName: 'Adınızı ekleyin'
         },
 
         // Form etiketleri
@@ -497,7 +513,11 @@ export default {
         // İstatistikler
         statistics: {
             storiesGenerated: 'Oluşturulan Hikayeler',
-            remainingGenerations: 'Kalan Üretimler'
+            remainingGenerations: 'Kalan Üretimler',
+            noDataTitle: 'Veri Yok',
+            noDataMessage: 'Gerçek kullanım verilerinizi toplamak ve burada görüntülemek için emoji oluşturun.',
+            refreshButton: 'Yenile',
+            loading: 'Yükleniyor...'
         },
 
         // Günlük üretimler
@@ -560,7 +580,9 @@ export default {
             instantSetup: 'Anında Kurulum',
             noSpam: 'Spam Yok',
             text: 'Sihirli bağlantılar e-posta ile gönderilir ve 15 dakika geçerlidir.',
-            privacy: 'Verileriniz güvenli bir şekilde işlenir.'
+            privacy: 'Verileriniz güvenli bir şekilde işlenir.',
+            legal: 'Yasal Bilgiler',
+            versionHistory: 'Sürüm Geçmişi'
         },
 
         // Limitler ve mesajlar
@@ -580,7 +602,11 @@ export default {
             since: '{days} {unit} öncesinden',
             day: 'gün',
             daysLabel: 'gün',
-            accountCreated: 'Hesap oluşturuldu'
+            accountCreated: 'Hesap oluşturuldu',
+            createdTodayFree: '✨ Yeni FREE hesabınız hazır!',
+            createdTodayPro: '💎 PRO kulübüne hoş geldiniz — bugünden itibaren özel üye!',
+            createdRecentlyFree: '✨ FREE hesap — taze ve hazır!',
+            createdRecentlyPro: '💎 PRO hesap — özel ve yeni!'
         },
 
         // Doğrulama
@@ -594,11 +620,40 @@ export default {
             settingsReset: 'Ayarlar varsayılana sıfırlandı',
             exportFailed: 'Ayarları dışa aktarma başarısız',
             settingsExported: 'Ayarlar başarıyla dışa aktarıldı',
-            freeAccountActivated: 'Ücretsiz hesap etkinleştirildi!'
+            settingsImported: 'Ayarlar başarıyla içe aktarıldı',
+            importFailed: 'İçe aktarma başarısız',
+            freeAccountActivated: 'Ücretsiz hesap etkinleştirildi!',
+            chartLoadFailed: 'Grafik verileri yüklenemedi',
+            accountFoundSendingCode: 'Hesap bulundu! Size bir kod gönderiyoruz.',
+            accountFoundSendingLink: 'Hesap bulundu! Size bir kod gönderiyoruz.',
+            creatingNewAccount: 'Yeni hesap oluşturuluyor — kod için e-postanızı kontrol edin.',
+            magicLinkSendFailed: 'Kod gönderilemedi. Lütfen tekrar deneyin.',
+            otpVerified: 'Kod onaylandı — giriş yaptınız!',
+            magicLinkVerified: 'Kod başarıyla doğrulandı!',
+            magicLinkVerificationFailed: 'Kod doğrulaması başarısız',
+            chartDataRefreshed: 'Grafik verileri başarıyla yenilendi!',
+            refreshFailed: 'Veri yenileme başarısız',
+            noNewData: 'Yeni veri yok'
         },
 
         // Apertus Info
         apertusInfo: '🇨🇭 Ücretsiz İsviçre yapay zekası, dahili. Apertus — EPFL & ETH Zurich\'in açık kaynak LLM\'i. Verileriniz İsviçre\'de kalır. API anahtarı gerekmez.',
+        apiKeyLabel: 'API Anahtarı',
+        apiKeyLabelApertus: 'Hugging Face Token',
+        apiKeyLabelCustom: 'Özel API Anahtarı',
+        optional: 'isteğe bağlı',
+        verified: 'Doğrulandı',
+        testBtn: 'Test',
+        apertusBuiltIn: 'Yerleşik token etkin — anahtar girmeden çalışır.',
+        apertusOwnToken: 'İsteğe bağlı: Kişisel kotanızı kullanmak için kendi Hugging Face tokenınızı (hf_…) girin.',
+        apertusGetToken: 'Ücretsiz HF token al',
+        openaiHint: 'Ücretli OpenAI API anahtarı (sk-…) gereklidir.',
+        geminiHint: 'Ücretsiz seviye mevcut. Google AI Studio\'dan anahtarınızı alın.',
+        claudeHint: 'Anthropic API anahtarı (sk-ant-…) gereklidir.',
+        mistralHint: 'Avrupalı AI. console.mistral.ai\'dan anahtarınızı alın.',
+        customHint: 'OpenAI uyumlu endpoint. Aşağıya temel URL ve API anahtarını girin.',
+        getApiKey: 'API anahtarı al',
+        savedKeys: 'Kaydedildi',
 
         // Yükseltme bölümü
         upgrade: {
