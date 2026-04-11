@@ -6,18 +6,15 @@ export const versions = {
                 title: '🤖 Swiss AI Story Mode — Always On',
                 improvements: [
                     'Story Mode auto-enabled for all logged-in users with Apertus (no API key required)',
-                    'Apertus LLM: improved system prompt for reliable emoji-only output',
-                    'Fixed: Apertus connection test in Settings used too few tokens (now 30 max_tokens)',
-                    'n8n workflow: Format Response node rewritten as Code Node to fix emoji Unicode serialization',
+                    'Improved AI prompt for reliable emoji-only output',
                     'Story Mode no longer blocked after login — works immediately out of the box'
                 ]
             },
             bugfixes: {
                 title: '🐛 Bug Fixes',
                 improvements: [
-                    'Fixed VITE_N8N_APERTUS_TOKEN not available on live site (GitHub Secret)',
-                    'Story Mode reactivity: storyModeEnabled now correctly re-evaluates when user logs in',
-                    'EmojiDisplay: Apertus treated as configured whenever user is logged in'
+                    'Story Mode now activates correctly immediately after login',
+                    'Fixed account data loading after login in some edge cases'
                 ]
             }
         }
@@ -26,13 +23,11 @@ export const versions = {
         date: 'April 9, 2026',
         core: {
             bugfixes: {
-                title: '🐛 Critical Bugfix: StoryMode & Account API',
+                title: '🐛 Critical Bugfix: Story Mode & Account',
                 improvements: [
-                    'apiCache.ts: cachedFetchAccount/cachedFetchDailyUsage now use absolute URL (WEBHOOKS.ACCOUNT.CRUD)',
-                    'Prevented 404 errors on keymoji.wtf/api/account (wrong host)',
-                    'StoryMode was blocked because account data could not be loaded',
-                    'All account stats after login now load correctly and immediately',
-                    'CORS headers correctly set for cross-origin requests from keymoji.wtf'
+                    'Fixed: Account data failed to load in some deployment environments',
+                    'Story Mode was blocked because account data could not be loaded',
+                    'All account stats after login now load correctly and immediately'
                 ]
             }
         }
@@ -43,19 +38,18 @@ export const versions = {
             ui: {
                 title: '🎨 TopBar & Banner Refinements',
                 improvements: [
-                    'Removed hover background and Swiss AI pulse animation from TopBar',
+                    'Removed hover background and pulse animation from TopBar for cleaner look',
                     'Clean opacity transition for subtle, modern hover feedback',
-                    'Banner CTA text translated into all 12 languages',
-                    'New setupStoryModeBannerCta translation key added'
+                    'Banner CTA text translated into all 15 languages'
                 ]
             },
             auth: {
                 title: '🔒 Security & UX Improvements',
                 improvements: [
-                    'Rate limiting for OTP requests (3 per 10 minutes)',
+                    'Rate limiting for login requests to prevent abuse',
                     'Email validation on client and server',
                     'Multilingual email subject lines',
-                    'N8N: Duplicate account prevention implemented'
+                    'Duplicate account prevention'
                 ]
             }
         }
@@ -253,7 +247,7 @@ export const versions = {
                     'TypeScript Setup: Created tsconfig.json with Svelte support',
                     'Type Definitions: Added Account, API, and Settings type interfaces',
                     'Store Migration: Migrated appStores, modalStore, blogLikesStore, seoStore to TypeScript',
-                    'Utils Migration: Migrated storyModeAI, blogApi, apiCache, accountHelpers to TypeScript',
+                    'Utils Migration: Migrated AI, API and account utilities to TypeScript',
                     'Type Safety: Improved function signatures and parameter validation',
                     'Build Integration: TypeScript loader configured in Webpack'
                 ]
@@ -399,31 +393,26 @@ export const versions = {
             dataIntegrity: {
                 title: '🔐 Data Integrity & Single Source of Truth',
                 improvements: [
-                    'Metadata Cleaner: Prevents duplicate fields in metadata',
-                    'Single Source of Truth: Fields with own columns are NOT in metadata',
-                    'dailyUsage Preservation: Explicitly preserved when updating name or settings',
-                    'createdAt Preservation: Never overwritten after initial account creation',
-                    'Metadata cleaning in frontend and backend',
-                    'ES6 Module exports for backend compatibility'
+                    'Improved data consistency across all account operations',
+                    'Usage tracking preserved correctly during settings updates',
+                    'Account creation date never overwritten after initial setup'
                 ]
             },
-            magicLink: {
-                title: '🔗 Magic-Link Settings Fix',
+            auth: {
+                title: '🔑 Login & Settings Fix',
                 improvements: [
-                    'Settings loading after Magic-Link login fixed',
+                    'User settings now load correctly after login',
                     'Robust fallback chain for settings loading',
-                    'User settings displayed correctly after login',
-                    'Priority-based settings extraction from account data'
+                    'Priority-based settings extraction ensures correct values'
                 ]
             },
             backend: {
-                title: '⚙️ Backend & Workflow Improvements',
+                title: '⚙️ Backend & Reliability Improvements',
                 improvements: [
-                    'Enhanced dailyUsage preservation logic',
-                    'Explicit metadata cleaning to exclude column fields',
-                    'Improved CORS handling for robust requests',
-                    'Timeout handling for webhook requests',
-                    'Enhanced error logging and debugging'
+                    'Improved data integrity for usage tracking',
+                    'Better CORS handling for robust cross-origin requests',
+                    'Timeout handling for backend requests',
+                    'Enhanced error logging'
                 ]
             }
         },
@@ -431,22 +420,19 @@ export const versions = {
             critical: {
                 title: '🐛 Critical Bug Fixes',
                 improvements: [
-                    'Fixed: dailyUsage deleted when updating name or settings',
-                    'Fixed: createdAt overwritten after login or account updates',
-                    'Fixed: Settings not displayed after Magic-Link login',
-                    'Fixed: ReferenceError in dailyUsage initialization',
-                    'Fixed: CORS preflight requests failing',
-                    'Fixed: ES6 module exports in backend'
+                    'Fixed: Usage count reset when updating name or settings',
+                    'Fixed: Account creation date overwritten after login',
+                    'Fixed: Settings not displayed correctly after login',
+                    'Fixed: Initialization error for usage tracking',
+                    'Fixed: Cross-origin requests failing in some environments'
                 ]
             },
             dataFlow: {
                 title: '🔄 Data Flow Optimization',
                 improvements: [
-                    'Priority-based dailyUsage loading from multiple sources',
-                    'Settings preservation during account updates',
-                    'Correct initialization order for usage history',
-                    'Proper parsing of metadata and profile data',
-                    'Cache management for settings and usage data'
+                    'Improved loading order for usage and settings data',
+                    'Settings preserved correctly during account updates',
+                    'Better cache management for settings and usage data'
                 ]
             },
             codeQuality: {
@@ -512,7 +498,7 @@ export const versions = {
             codeQuality: {
                 title: '⚡ Code Quality & Organization',
                 improvements: [
-                    'Test files moved to tests/ directory (test-n8n-webhook.sh, test-api-chart-data.js)',
+                    'Test files reorganized into dedicated tests/ directory',
                     'Test script improvements (reads URLs from .env.local)',
                     'Removed hardcoded URLs from public repository',
                     'Improved error handling in environment variable loading',
@@ -668,8 +654,8 @@ export const versions = {
                     'Fixed custom API format selection not working',
                     'Fixed clipboard errors when document not focused',
                     'Fixed emoji animation disappearing/reappearing',
-                    'Fixed ReferenceError: showInfo is not defined',
-                    'Fixed ReferenceError: customApiUrl is not defined'
+                    'Fixed: undefined function error in notification system',
+                    'Fixed: undefined variable error in custom API configuration'
                 ]
             },
             performance: {
@@ -857,12 +843,11 @@ export const versions = {
             dataFlow: {
                 title: '🔄 Complete Data Flow Refactor',
                 improvements: [
-                    'Implemented bi-directional sync: Frontend ↔ Backend ↔ Google Sheets',
-                    'Fixed usageHistory preservation during settings updates',
-                    'Added fresh metadata loading from localStorage (never stale)',
+                    'Implemented bi-directional sync: Frontend ↔ Backend',
+                    'Fixed usage history preservation during settings updates',
                     'Backend response now syncs back to all stores automatically',
-                    'Smart merge in n8n: preserves usageHistory (never deletes)',
-                    'Multi-store sync: localStorage + currentAccount + usageHistory stores'
+                    'Smart merge: usage history never lost during updates',
+                    'Multi-store sync for consistent data across all views'
                 ]
             },
             generation: {
@@ -888,25 +873,20 @@ export const versions = {
             }
         },
         backend: {
-            n8n: {
-                title: '⚡ Workflow Optimization',
+            reliability: {
+                title: '⚡ Backend Reliability',
                 improvements: [
-                    'Robust update node with smart merge logic',
-                    'UsageHistory preservation with comparison logic',
-                    'Safe JSON parsing with fallbacks',
-                    'Consistent output format for backend compatibility',
-                    'Extensive logging for debugging',
-                    'Handles both string and object metadata formats'
+                    'Robust data merge logic to prevent data loss',
+                    'Usage history preserved correctly across all update paths',
+                    'Safe data parsing with fallbacks for edge cases',
+                    'Consistent backend response format'
                 ]
             },
             api: {
-                title: '🔧 Backend API Consistency',
+                title: '🔧 API Consistency',
                 improvements: [
-                    'Consistent API endpoints across all operations',
-                    'Localhost support for development',
-                    'Required action field for all requests',
-                    'Fresh metadata always sent to backend',
-                    'Response parsing handles various JSON formats'
+                    'Consistent API behaviour across all operations',
+                    'Improved error handling and response parsing'
                 ]
             }
         },
@@ -956,7 +936,7 @@ export const versions = {
                     'Optimized chart padding (minimal side space)',
                     'Demo overlay with strong shadows and glassmorphism',
                     'Orange color for demo charts (#f97316)',
-                    'Automatic data loading from n8n on localhost',
+                    'Automatic data loading from backend in development mode',
                     'UsageHistory auto-increments with each emoji generation'
                 ]
             },
@@ -1042,15 +1022,13 @@ export const versions = {
         },
         backend: {
             api: {
-                title: '🔧 Backend & n8n Integration',
+                title: '🔧 Backend Integration',
                 improvements: [
-                    'Fixed n8n workflow JSON corruption (character array bug)',
-                    'Implemented smart merge: only update when data provided',
-                    'Optimized CORS handling for localhost development',
-                    'Improved webhook payload structure',
-                    'Added proper lastLogin tracking',
-                    'Enhanced logging for better debugging',
-                    'Created n8n workflow v2 with empty data check'
+                    'Fixed data corruption issue in backend processing',
+                    'Smart merge: only updates fields when data is actually provided',
+                    'Improved CORS handling for development and production',
+                    'Added proper last-login tracking',
+                    'Enhanced backend logging'
                 ]
             }
         },
@@ -1112,27 +1090,27 @@ export const versions = {
     },
     '0.5.6': {
         date: 'October 10, 2025',
-        note: 'Internal iteration - n8n workflow fixes'
+        note: 'Patch release - backend reliability improvements'
     },
     '0.5.5': {
         date: 'October 10, 2025',
-        note: 'Internal iteration - settings validation'
+        note: 'Patch release - settings validation improvements'
     },
     '0.5.4': {
         date: 'October 10, 2025',
-        note: 'Internal iteration - controlled components'
+        note: 'Patch release - UI component stability'
     },
     '0.5.3': {
         date: 'October 10, 2025',
-        note: 'Internal iteration - race condition fixes'
+        note: 'Patch release - async flow improvements'
     },
     '0.5.2': {
         date: 'October 10, 2025',
-        note: 'Internal iteration - localStorage priority'
+        note: 'Patch release - storage handling improvements'
     },
     '0.5.1': {
         date: 'October 10, 2025',
-        note: 'Internal iteration - tier-aware defaults'
+        note: 'Patch release - account tier improvements'
     },
     '0.5.0': {
         date: 'August 2025',
@@ -1199,15 +1177,12 @@ export const versions = {
                 ]
             }
         },
-        lessons: {
+        foundation: {
             git: {
-                title: 'CRITICAL LESSON LEARNED',
+                title: '🔄 Version Control & Process',
                 improvements: [
-                    '12 hours of work lost: Due to ignorance towards GitHub/Git',
-                    'Best Practice: Always commit before major changes',
-                    'Solution: Now systematic version updates with all changes',
-                    'Learning: Git is not optional - it is ESSENTIAL for development',
-                    'Silver Lining: Now we have a robust debug system!'
+                    'Systematic version management with structured changelogs',
+                    'All changes tracked and documented before release'
                 ]
             }
         }
