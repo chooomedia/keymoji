@@ -79,7 +79,7 @@ const getApiUrl = () => {
         );
     }
 
-    return 'https://its.keymoji.wtf/api'; // Default fallback
+    return 'https://keymoji-git-master-chris-projects-018d256d.vercel.app'; // Default fallback
 };
 
 const API_URL = getApiUrl();

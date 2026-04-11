@@ -545,10 +545,13 @@ async function callApertus(
 
     // Use VITE_API_URL for the backend proxy (Vercel serverless functions).
     // On localhost: falls back to window.location.origin (for vercel dev).
-    // On production (FTP host): MUST use the Vercel backend URL via VITE_API_URL.
+    // On production (FTP host): uses VITE_API_URL or hardcoded Vercel backend URL.
+    const vercelBackend = 'https://keymoji-git-master-chris-projects-018d256d.vercel.app';
     const apiBase = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL)
         ? String(import.meta.env.VITE_API_URL).replace(/["']/g, '').replace(/\/$/, '')
-        : (typeof window !== 'undefined' ? window.location.origin : '');
+        : (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+            ? vercelBackend
+            : window.location.origin);
     const proxyUrl = `${apiBase}/api/story`;
 
     console.log('🔗 [Apertus] Calling proxy:', proxyUrl);
