@@ -96,7 +96,7 @@
             </div>
 
             <!-- Back to Top Button -->
-            <div class="w-full mt-12 text-center">
+            <div class="w-full text-center">
             <button
                 on:click={() => {
                     console.log('🔝 Scrolling to top...');

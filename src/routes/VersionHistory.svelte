@@ -148,7 +148,7 @@
         <!-- Version History Content - Breiter und scrollbar -->
         <div class="w-full max-w-2xl mx-auto">
             <div class="relative">
-                <div class="mx-auto relative timeline-container pb-8">
+                <div class="mx-auto relative timeline-container pb-4">
                     <!-- Timeline-Linie: Perfekt von erstem bis letztem Dot -->
                     <div 
                         style="left: 5px; top: 20px; height: {timelineHeight}px; transition: height 350ms cubic-bezier(0.4, 0, 0.2, 1); will-change: height;" 
@@ -260,7 +260,7 @@
         </div>
         
         <!-- Back to Top Button (konsistent mit Static Pages) -->
-        <div class="w-full mt-12 text-center">
+        <div class="w-full text-center">
             <button
                 on:click={() => {
                     console.log('🔝 Scrolling to top...');
