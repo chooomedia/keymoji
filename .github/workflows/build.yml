@@ -246,7 +246,9 @@ jobs:
                   fi
                   echo "✅ Ready to deploy"
 
-            - name: 📂 Deploy via FTP
+            - name: 📂 Deploy via FTP (attempt 1)
+              id: ftp_deploy_1
+              continue-on-error: true
               uses: SamKirkland/FTP-Deploy-Action@v4.3.4
               with:
                   server: ${{ secrets.HOST }}
@@ -259,3 +261,53 @@ jobs:
                       **/.git*/**
                       **/node_modules/**
                   log-level: verbose
+                  timeout: 60000
+                  dangerous-clean-slate: false
+
+            - name: ⏳ Wait before retry
+              if: steps.ftp_deploy_1.outcome == 'failure'
+              run: |
+                  echo "⚠️ FTP attempt 1 failed, waiting 30s before retry..."
+                  sleep 30
+
+            - name: 📂 Deploy via FTP (attempt 2)
+              if: steps.ftp_deploy_1.outcome == 'failure'
+              id: ftp_deploy_2
+              continue-on-error: true
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+              with:
+                  server: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  password: ${{ secrets.PASSWORD }}
+                  server-dir: ${{ secrets.SERVERDIR }}
+                  local-dir: ./build/
+                  exclude: |
+                      **/.git*
+                      **/.git*/**
+                      **/node_modules/**
+                  log-level: verbose
+                  timeout: 60000
+                  dangerous-clean-slate: false
+
+            - name: ⏳ Wait before final retry
+              if: steps.ftp_deploy_1.outcome == 'failure' && steps.ftp_deploy_2.outcome == 'failure'
+              run: |
+                  echo "⚠️ FTP attempt 2 failed, waiting 60s before final retry..."
+                  sleep 60
+
+            - name: 📂 Deploy via FTP (attempt 3 - final)
+              if: steps.ftp_deploy_1.outcome == 'failure' && steps.ftp_deploy_2.outcome == 'failure'
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+              with:
+                  server: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  password: ${{ secrets.PASSWORD }}
+                  server-dir: ${{ secrets.SERVERDIR }}
+                  local-dir: ./build/
+                  exclude: |
+                      **/.git*
+                      **/.git*/**
+                      **/node_modules/**
+                  log-level: verbose
+                  timeout: 60000
+                  dangerous-clean-slate: false
