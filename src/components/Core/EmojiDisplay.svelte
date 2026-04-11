@@ -1031,37 +1031,6 @@
       {/if}
     </p>
 
-    {#if storyModeEnabled && !storyModeConfigured}
-      <!-- Visible setup chip only when action is needed -->
-      <div class="flex justify-center">
-        <button
-          on:click={() => {
-            const lang = $currentLanguage || 'en';
-            const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
-            navigate(accountPath);
-            setTimeout(() => {
-              const aiAccordion = document.querySelector('[data-accordion="story"]');
-              const accordionButton = document.querySelector('#accordion-story');
-              if (aiAccordion && !aiAccordion.querySelector('.p-4')) {
-                accordionButton?.click();
-              }
-              setTimeout(() => {
-                aiAccordion?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }, 100);
-            }, 400);
-          }}
-          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 cursor-pointer"
-          style="background-color: rgba(234, 179, 8, 0.15); color: rgb(234, 179, 8);"
-          title="Configure your LLM API key"
-          aria-label={$translations.index.setupStoryMode || 'Setup your LLM'}
-        >
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-          </svg>
-          <span>{$translations.index.setupStoryMode || 'Setup your LLM'}</span>
-        </button>
-      </div>
-    {/if}
   
     <!-- Emoji Count Slider -->
     <div class="my-1 pt-1 w-full">
