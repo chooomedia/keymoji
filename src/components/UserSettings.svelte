@@ -185,21 +185,31 @@
         
         // Name: Use get() instead of $ to avoid reactive re-renders during typing
         if (itemId === 'name') {
-            // Priority 1: currentAccount store (after successful save) - Use get() not $!
+            // Priority 1: currentAccount store metadata (most reliable source) - Use get() not $!
             const account = get(currentAccount); // NOT REACTIVE - prevents re-render during typing!
-            const accountName = account?.name || account?.profile?.name;
-            if (accountName) {
-                return accountName;
-            }
             
-            // Priority 2: userSettings - Use get() not $!
+            // Parse metadata safely (may arrive as JSON string from backend)
+            let parsedMeta = {};
+            try {
+                const rawMeta = account?.metadata;
+                parsedMeta = typeof rawMeta === 'string' ? JSON.parse(rawMeta) : (rawMeta || {});
+            } catch {}
+            
+            const metaName = parsedMeta?.settings?.name || parsedMeta?.name;
+            if (metaName) return metaName;
+            
+            // Priority 2: userSettings store - Use get() not $!
             const settings = get(userSettings); // NOT REACTIVE - prevents re-render during typing!
             const settingsName = settings?.name;
             if (settingsName) {
                 return settingsName;
             }
             
-            // Priority 3: Default value
+            // Priority 3: account.name fallback (may be email prefix — only last resort)
+            const accountName = account?.name;
+            if (accountName) return accountName;
+            
+            // Priority 4: Default value
             return item.defaultValue || '';
         }
         
