@@ -628,7 +628,7 @@ darkMode.subscribe((isDarkMode: boolean) => {
         }
 
         // Sync browser chrome color with dark/light mode toggle
-        const themeColorLight = '#f5f0e8';
+        const themeColorLight = '#f5f5f5';
         const themeColorDark = '#0a141f';
         const targetColor = isDarkMode ? themeColorDark : themeColorLight;
         document
