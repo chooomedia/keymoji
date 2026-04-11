@@ -981,7 +981,7 @@
     <button 
       id="emoji-display" 
       tabindex="0" 
-      class="core-button text-white bg-black border-gray-400 px-3 mb-2 md:pt-1 md:pb-1 pb-1 transform -translate-y-2.5 transition-all hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2" 
+      class="core-button text-white bg-black border-gray-400 px-3 md:pt-1 md:pb-1 pb-1 transform -translate-y-2.5 transition-all hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2" 
       on:click={async () => {
         if (isStoryMode && randomEmojis && randomEmojis.length > 0) {
           // In story mode: clicking the display copies the current result (like random mode)
