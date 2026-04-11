@@ -41,6 +41,8 @@ const COLUMN_FIELDS: readonly string[] = [
     'profile',
     'dailyUsage',
     'status',
+    // usageHistory wurde aus metadata entfernt — wird lokal in DAILY_USAGE_HISTORY geführt
+    'usageHistory',
     // Also check for capitalized versions (from Google Sheets)
     'UserID',
     'Email',

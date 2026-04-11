@@ -1133,16 +1133,27 @@ export async function verifyMagicLinkFrontend(code, email) {
 
         // Show appropriate modal based on whether account is new or existing
         // CRITICAL: Show different modals for new vs existing accounts!
+        // Priorität: metadata.name > metadata.settings.name > account.name (konsistent mit userSettingsStore)
+        const metadataParsed =
+            typeof accountData.metadata === 'string'
+                ? (() => { try { return JSON.parse(accountData.metadata); } catch { return {}; } })()
+                : (accountData.metadata || {});
+        const displayName =
+            metadataParsed.name ||
+            metadataParsed.settings?.name ||
+            accountData.name ||
+            null;
+
         if (isNewAccount) {
             console.log(
                 '🆕 New account created - showing new account created modal'
             );
-            showNewAccountCreated(accountData.email, accountData.name);
+            showNewAccountCreated(accountData.email, displayName);
         } else {
             console.log(
                 '✅ Existing account found - showing account found modal'
             );
-            showExistingAccountFound(accountData.email, accountData.name);
+            showExistingAccountFound(accountData.email, displayName);
         }
 
         // Log security event
