@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Wachtwoord Generator',
         pageDescription:
-            '🔑 Wachtwoorden heruitgevonden. 🎯 Onkraakbare emoji wachtwoorden. 🌈 Gratis. Veilig. Innovatief. 🤖 AI-resistente technologie. 🌍 Beschikbaar in 15+ talen.',
+            '🔑 Gedenkwaardige wachtwoorden, moeiteloos. 🎯 Onkraakbare emoji-reeksen. 🌍 15+ talen. AVG-conform.',
         pageKeywords:
             'Keymoji, emoji wachtwoord, wachtwoord generator, beveiliging, online beveiliging',
         pageInstruction: [

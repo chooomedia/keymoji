@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Generatore di Password Emoji',
         pageDescription:
-            "🔑 Password reinventate. 🎯 Password emoji inespugnabili. 🌈 Gratuito. Sicuro. Innovativo. 🤖 Tecnologia resistente all'IA. 🌍 Disponibile in 15+ lingue.",
+            '🔑 Password memorabili, senza sforzo. 🎯 Sequenze emoji inviolabili. 🌍 15+ lingue. Conforme al GDPR.',
         pageKeywords:
             'Keymoji, password emoji, generatore password, sicurezza, sicurezza online',
         pageInstruction: [

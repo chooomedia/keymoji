@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Echad i gwedh emoji',
         pageDescription:
-            "Gwedh chu'! Emoji gwedh ú-dagor. Hutlh. Thand. Chu'. Echad ú-dagor. PoSchoH 15 lammath.",
+            '🔑 Gwedh i-chuiad, gwaith ú-lost. 🎯 Emoji gwedh ú-dagor. 🌍 15+ lammath. GDPR-sautha.',
         pageKeywords:
             "Keymoji, emoji gwedh, gwedh echad, thand, De' thand, De' thand chu'",
         pageInstruction: [

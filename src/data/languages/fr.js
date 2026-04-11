@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Générateur de mots de passe Emoji',
         pageDescription:
-            "🔑 Les mots de passe réinventés. 🎯 Des mots de passe emoji incassables. 🌈 Gratuit. Sécurisé. Innovant. 🤖 Technologie résistante à l'IA. 🌍 Disponible en 15+ langues.",
+            '🔑 Mots de passe mémorables, sans effort. 🎯 Séquences emoji incassables. 🌍 15+ langues. Conforme RGPD.',
         pageKeywords:
             'Keymoji, mot de passe emoji, générateur de mot de passe, sécurité, sécurité en ligne',
         pageInstruction: [

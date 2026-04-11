@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Passwort Generator',
         pageDescription:
-            '🔑 Passwörter neu dacht. 🎯 Unknackbare Emoji-Passwörter. 🌈 Gratis. Sicher. Innovativ. 🤖 KI-resistente Technologie. 🌍 Verfügbar in 15+ Sprachen.',
+            '🔑 Iiprägsammi Passwörter, kei Ufwand. 🎯 Unknackbare Emoji-Sequenze. 🌍 15+ Sprache. DSGVO-konform.',
         pageKeywords:
             'Keymoji, emoji passwort, passwort generator, sicherheit, online sicherheit',
         pageInstruction: [

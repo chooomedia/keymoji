@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: "emoji mu'ghom chenwI'",
         pageDescription:
-            "mu'ghommey chu'! emoji mu'ghommey Qaw'laHbe'. Hutlh Huch. Qan. chu'. QIn Qaw'laHbe'bogh De'. poSchoH 15 HolmeyDaq.",
+            "🔑 mu'ghommey qaw'laH, Qatlhbe'. 🎯 emoji mu'ghommey Qaw'laHbe'. 🌍 15 HolmeyDaq law'. GDPR.",
         pageKeywords:
             "Keymoji, emoji mu'ghom, mu'ghom chenwI', Qan, De' Qanbogh, De' Qan chu'", // Doppelte Anführungszeichen für gültige Syntax
         pageInstruction: [

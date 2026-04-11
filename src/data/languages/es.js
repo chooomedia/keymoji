@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Generador de Contraseñas Emoji',
         pageDescription:
-            '🔑 Contraseñas reinventadas. 🎯 Contraseñas emoji irrompibles. 🌈 Gratis. Seguro. Innovador. 🤖 Tecnología resistente a IA. 🌍 Disponible en 15+ idiomas.',
+            '🔑 Contraseñas memorables, sin esfuerzo. 🎯 Secuencias emoji inquebrantables. 🌍 15+ idiomas. Conforme al RGPD.',
         pageKeywords:
             'Keymoji, contraseña emoji, generador de contraseñas, seguridad, seguridad en línea',
         pageInstruction: [

@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: '이모지 비밀번호 생성기',
         pageDescription:
-            '�� 비밀번호를 재발명했습니다. 🎯 해독 불가능한 이모지 비밀번호. 🌈 무료. 안전. 혁신적. 🤖 AI 저항 기술. 🌍 15개 이상의 언어로 제공.',
+            '🔑 기억하기 쉬운 비밀번호, 노력 없이. 🎯 해독 불가능한 이모지 시퀀스. 🌍 15개 이상의 언어. GDPR 준수.',
         pageKeywords:
             'Keymoji, 이모지 비밀번호, 비밀번호 생성기, 보안, 온라인 보안',
         pageInstruction: [

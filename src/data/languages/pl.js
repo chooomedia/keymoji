@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Generator Haseł Emoji',
         pageDescription:
-            '🔑 Hasła na nowo wymyślone. 🎯 Niezłamalne hasła emoji. 🌈 Darmowe. Bezpieczne. Innowacyjne. 🤖 Technologia odporna na AI. 🌍 Dostępne w 15+ językach.',
+            '🔑 Łatwe do zapamiętania hasła, zero wysiłku. 🎯 Niełamliwe sekwencje emoji. 🌍 15+ języków. Zgodne z RODO.',
         pageKeywords:
             'Keymoji, hasło emoji, generator haseł, bezpieczeństwo, bezpieczeństwo online',
         pageInstruction: [

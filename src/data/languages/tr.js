@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Şifre Üreticisi',
         pageDescription:
-            '🔑 Şifreler yeniden icat edildi. 🎯 Kırılamaz emoji şifreleri. 🌈 Ücretsiz. Güvenli. Yenilikçi. 🤖 AI dirençli teknoloji. 🌍 15+ dilde mevcut.',
+            '🔑 Akılda kalıcı şifreler, sıfır çaba. 🎯 Kırılamaz emoji dizileri. 🌍 15+ dil. GDPR uyumlu.',
         pageKeywords:
             'Keymoji, emoji şifre, şifre üreticisi, güvenlik, çevrimiçi güvenlik',
         pageInstruction: [
