@@ -169,7 +169,7 @@ All forms in Keymoji use a unified, JSON-configured input layer:
 | 0.7.4   | November 13, 2025 | API call reduction 50–70%, centralized caching, data integrity improvements            |
 | 0.6.0   | October 11, 2025  | AI Story Mode launch, multi-provider API keys, story cache, static pages               |
 
-> Full changelog: `src/data/versions.js` or [keymoji.wtf/version-history](https://keymoji.wtf/version-history)
+> Full changelog: `src/data/versions.js` or [keymoji.wtf/en/version-history](https://keymoji.wtf/en/version-history)
 
 ---
 
@@ -228,4 +228,4 @@ Please follow the conventions in `.cursor/rules/` for code style, TypeScript usa
 
 ---
 
-**Made with ❤️ in Germany 🇩🇪** — _Keymoji: Bring emojis into your passwords!_ 🔑✨
+**Made with ❤️ in Switzerland 🇨🇭** — _Keymoji: Smile is your key!_ 🔑✨
