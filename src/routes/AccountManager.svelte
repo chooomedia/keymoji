@@ -1394,7 +1394,7 @@
                         </div>                      
 
                         <!-- Action Buttons -->
-                        <div class="text-center mt-6 space-y-3">
+                        <div class="text-center mt-6 space-y-3 pb-24">
                             <!-- Primary Action: Save Settings -->
                             <Button
                                 variant="primary"
