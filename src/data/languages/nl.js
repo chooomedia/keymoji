@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Wachtwoord Generator',
         pageDescription:
-            '🔑 Gedenkwaardige wachtwoorden, moeiteloos. 🎯 Onkraakbare emoji-reeksen. 🌍 15+ talen. AVG-conform.',
+            '🔑 Gedenkwaardige wachtwoorden, moeiteloos. 🎯 Onkraakbare emoji-reeksen. 🌍 15+ talen. 🔒 AVG-conform.',
         pageKeywords:
             'Keymoji, emoji wachtwoord, wachtwoord generator, beveiliging, online beveiliging',
         pageInstruction: [
@@ -454,7 +454,9 @@ export default {
     versions: {
         pageTitle: 'Versiegeschiedenis',
         pageDescription:
-            'Bekijk de ontwikkelingsgeschiedenis en changelog van Keymoji, de emoji wachtwoord generator.'
+            'Bekijk de ontwikkelingsgeschiedenis en changelog van Keymoji, de emoji wachtwoord generator.',
+        currentLabel: 'Huidig',
+        backToTop: 'Terug naar boven'
     },
 
     // Algemene UI-teksten
@@ -505,7 +507,7 @@ export default {
         // Acties
         actions: {
             saveSettings: '💾 Instellingen opslaan',
-            backToHome: '🏠 Terug naar home',
+            backToHome: '← Terug naar home',
             skipAccount: '❌ {type} overslaan',
             createAccount: '🚀 {type} account aanmaken',
             settingsSaved: 'Instellingen succesvol opgeslagen!'
@@ -577,7 +579,7 @@ export default {
 
         // Footer
         footer: {
-            magicLink: 'Magische link',
+            magicLink: 'Easy Login',
             instantSetup: 'Directe setup',
             noSpam: 'Geen spam',
             text: 'Magische links worden per e-mail verzonden en zijn 15 minuten geldig.',
@@ -732,6 +734,31 @@ export default {
         sendButton: 'Verzenden',
         success: 'Bedankt voor je bericht!',
         error: 'Fout bij het verzenden. Probeer het opnieuw.'
+    },
+
+
+    consent: {
+        title: 'Privacy-instellingen',
+        description: 'We gebruiken minimale gegevens om uw ervaring te verbeteren.',
+        analytics: 'Anonieme gebruiksanalyse',
+        analyticsHint: 'Helpt ons de app te verbeteren — geen persoonlijke gegevens',
+        saveHistory: 'Lokale gebruiksgeschiedenis opslaan',
+        saveHistoryHint: 'Alleen opgeslagen in uw browser',
+        accept: 'Mijn keuzes opslaan',
+        acceptAll: 'Alles accepteren',
+        decline: 'Optioneel weigeren',
+        moreInfo: 'Privacybeleid',
+        legalInfo: 'Juridische kennisgeving',
+        privacy: 'Privacy & Juridisch',
+        necessaryTitle: 'Strikt noodzakelijk',
+        necessaryHint: 'Vereist voor de werking — altijd actief',
+        necessaryStorage: 'Instellingen en themavoorkeur (localStorage)',
+        necessarySession: 'Inlogsessie (alleen browsergeheugen)',
+        necessaryOtp: 'OTP-code voor authenticatie (eenmalig via e-mail)',
+        historyDetail: 'Gebruiksdiagramgegevens (generaties per dag)',
+        historyScope: 'Nooit naar een server verzonden — alleen in uw browser',
+        analyticsDetail: 'Anonieme paginaweergaven (IP geanonimiseerd naar x.x.x.0)',
+        analyticsProcessor: 'Verwerkt via onze eigen n8n-instantie op DigitalOcean (EU)'
     },
 
     ui: {

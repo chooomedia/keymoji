@@ -31,7 +31,10 @@ export const STORAGE_KEYS = {
     DEBUG_MODE: 'keymoji_debug_mode',
 
     // UI-Banner
-    BANNER_DISMISSED: 'keymoji_banner_dismissed'
+    BANNER_DISMISSED: 'keymoji_banner_dismissed',
+
+    // Privacy Consent
+    CONSENT: 'keymoji_consent'
 };
 
 // Helper-Funktionen für localStorage

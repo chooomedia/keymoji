@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: '絵文字パスワードジェネレーター',
         pageDescription:
-            '🔑 覚えやすいパスワード、手間ゼロ。🎯 解読不可能な絵文字シーケンス。🌍 15以上の言語。GDPR準拠。',
+            '🔑 覚えやすいパスワード、手間ゼロ。🎯 解読不可能な絵文字シーケンス。🌍 15以上の言語。🔒 GDPR準拠。',
         pageKeywords:
             'Keymoji, 絵文字パスワード, パスワードジェネレーター, セキュリティ, オンラインセキュリティ',
         pageInstruction: [
@@ -451,7 +451,9 @@ export default {
     versions: {
         pageTitle: 'バージョン履歴',
         pageDescription:
-            'Keymoji、絵文字パスワードジェネレーターの開発履歴と変更履歴をご確認ください。'
+            'Keymoji、絵文字パスワードジェネレーターの開発履歴と変更履歴をご確認ください。',
+        currentLabel: '現在',
+        backToTop: 'トップへ'
     },
 
     // 一般的なUIテキスト
@@ -502,7 +504,7 @@ export default {
         // アクション
         actions: {
             saveSettings: '💾 設定を保存',
-            backToHome: '🏠 ホームに戻る',
+            backToHome: '← ホームに戻る',
             skipAccount: '❌ {type}をスキップ',
             createAccount: '🚀 {type}アカウントを作成',
             settingsSaved: '設定が保存されました！'
@@ -573,7 +575,7 @@ export default {
 
         // フッター
         footer: {
-            magicLink: 'マジックリンク',
+            magicLink: 'Easy Login',
             instantSetup: '即座セットアップ',
             noSpam: 'スパムなし',
             text: 'マジックリンクはメールで送信され、15分間有効です。',
@@ -711,6 +713,31 @@ export default {
         // 説明
         freeDescription: '✨ 無料セキュリティ',
         proDescription: '💎 エンタープライズセキュリティ'
+    },
+
+
+    consent: {
+        title: 'プライバシー設定',
+        description: '最小限のデータを使用して体験を向上させます。',
+        analytics: '匿名の使用状況分析',
+        analyticsHint: 'アプリの改善に役立てます — 個人データなし',
+        saveHistory: 'ローカル使用履歴を保存',
+        saveHistoryHint: 'ブラウザにのみ保存されます',
+        accept: '選択を保存',
+        acceptAll: 'すべて同意',
+        decline: 'オプション拒否',
+        moreInfo: 'プライバシーポリシー',
+        legalInfo: '法的通知',
+        privacy: 'プライバシーと法律',
+        necessaryTitle: '必須',
+        necessaryHint: 'アプリの動作に必要 — 常に有効',
+        necessaryStorage: '設定とテーマ設定（localStorage）',
+        necessarySession: 'ログインセッション（ブラウザメモリのみ）',
+        necessaryOtp: '認証用OTPコード（メールで1回送信）',
+        historyDetail: '使用グラフデータ（1日あたりの生成数）',
+        historyScope: 'サーバーに送信されません — ブラウザ内のみ',
+        analyticsDetail: '匿名ページビュー数（IPはx.x.x.0に匿名化）',
+        analyticsProcessor: 'DigitalOcean（EU）の独自n8nインスタンスで処理'
     },
 
     ui: {

@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Şifre Üreticisi',
         pageDescription:
-            '🔑 Akılda kalıcı şifreler, sıfır çaba. 🎯 Kırılamaz emoji dizileri. 🌍 15+ dil. GDPR uyumlu.',
+            '🔑 Akılda kalıcı şifreler, sıfır çaba. 🎯 Kırılamaz emoji dizileri. 🌍 15+ dil. 🔒 GDPR uyumlu.',
         pageKeywords:
             'Keymoji, emoji şifre, şifre üreticisi, güvenlik, çevrimiçi güvenlik',
         pageInstruction: [
@@ -453,7 +453,9 @@ export default {
     versions: {
         pageTitle: 'Sürüm Geçmişi',
         pageDescription:
-            'Keymoji, emoji şifre üreticisinin geliştirme geçmişini ve değişiklik kayıtlarını inceleyin.'
+            'Keymoji, emoji şifre üreticisinin geliştirme geçmişini ve değişiklik kayıtlarını inceleyin.',
+        currentLabel: 'Güncel',
+        backToTop: 'Başa dön'
     },
 
     // AccountManager çevirileri
@@ -504,7 +506,7 @@ export default {
         // Eylemler
         actions: {
             saveSettings: '💾 Ayarları Kaydet',
-            backToHome: '🏠 Ana Sayfaya Dön',
+            backToHome: '← Ana Sayfaya Dön',
             skipAccount: '❌ {type} Atla',
             createAccount: '🚀 {type} Hesabı Oluştur',
             settingsSaved: 'Ayarlar başarıyla kaydedildi!'
@@ -576,7 +578,7 @@ export default {
 
         // Alt bilgi
         footer: {
-            magicLink: 'Sihirli bağlantı',
+            magicLink: 'Easy Login',
             instantSetup: 'Anında Kurulum',
             noSpam: 'Spam Yok',
             text: 'Sihirli bağlantılar e-posta ile gönderilir ve 15 dakika geçerlidir.',
@@ -719,6 +721,31 @@ export default {
     },
 
     // Genel UI metinleri
+
+    consent: {
+        title: 'Gizlilik Ayarları',
+        description: 'Deneyiminizi iyileştirmek için minimum veri kullanıyoruz.',
+        analytics: 'Anonim kullanım analitiği',
+        analyticsHint: 'Uygulamayı geliştirmemize yardımcı olur — kişisel veri yok',
+        saveHistory: 'Yerel kullanım geçmişini kaydet',
+        saveHistoryHint: 'Yalnızca tarayıcınızda saklanır',
+        accept: 'Seçimlerimi kaydet',
+        acceptAll: 'Tümünü kabul et',
+        decline: 'İsteğe bağlı reddet',
+        moreInfo: 'Gizlilik Politikası',
+        legalInfo: 'Yasal Bildirim',
+        privacy: 'Gizlilik ve Hukuk',
+        necessaryTitle: 'Kesinlikle gerekli',
+        necessaryHint: 'Uygulamanın çalışması için gerekli — her zaman aktif',
+        necessaryStorage: 'Ayarlar ve tema tercihi (localStorage)',
+        necessarySession: 'Giriş oturumu (yalnızca tarayıcı belleği)',
+        necessaryOtp: 'Kimlik doğrulama için OTP kodu (e-postayla bir kez gönderilir)',
+        historyDetail: 'Kullanım grafiği verileri (günlük nesiller)',
+        historyScope: 'Hiçbir sunucuya gönderilmez — yalnızca tarayıcınızda',
+        analyticsDetail: 'Anonim sayfa görüntüleme sayıları (IP x.x.x.0 olarak anonimleştirildi)',
+        analyticsProcessor: 'DigitalOcean (EU) üzerindeki kendi n8n örneğimiz aracılığıyla işlendi'
+    },
+
     ui: {
         save: 'Kaydet',
         cancel: 'İptal',

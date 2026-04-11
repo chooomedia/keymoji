@@ -528,13 +528,8 @@ async function callClaudeWithModel(
 }
 
 /**
- * Call Apertus (Swiss LLM) API via n8n Webhook
- * Uses n8n workflow endpoint configured via WEBHOOKS.APERTUS
- * Best Practices:
- * - Uses n8n workflow with token authentication
- * - Model: swiss-ai/apertus-70b-instruct (strongest available, 70B via HuggingFace)
- * - Token from environment variable (VITE_N8N_APERTUS_TOKEN)
- * - Webhook URL from environment variable (VITE_N8N_URL) or config default
+ * Call Apertus (Swiss LLM) via the secure Vercel proxy endpoint /api/story.
+ * The n8n auth token is kept server-side — never exposed in the client bundle.
  */
 async function callApertus(
     apiKey: string,
@@ -545,112 +540,29 @@ async function callApertus(
 ): Promise<string> {
     const finalModel = model || 'swiss-ai/apertus-70b-instruct';
 
-    // Import WEBHOOKS dynamically to avoid circular dependencies
-    const { WEBHOOKS } = await import('../config/api.js');
-
-    // The n8n security token ALWAYS comes from the environment variable.
-    // apiKey here is a user-supplied Hugging Face token (hf_...) — only used
-    // if it starts with 'hf_', to forward to a direct HF call (future feature).
-    // NEVER use arbitrary apiKey as the n8n webhook auth token.
+    // User-supplied HF token (hf_...) forwarded to proxy for optional use
     const userHFToken = apiKey && apiKey.trim().startsWith('hf_') ? apiKey.trim() : '';
-    const envToken =
-        (typeof import.meta !== 'undefined' &&
-            (import.meta.env as { VITE_N8N_APERTUS_TOKEN?: string })
-                ?.VITE_N8N_APERTUS_TOKEN) ||
-        '';
-    // n8n webhook token: env token takes priority (security), HF token only as fallback
-    const rawToken = envToken || userHFToken;
-    if (userHFToken) {
-        console.log('🔑 [Apertus] User-supplied HF token detected (hf_...)');
-    }
 
-    // Debug: Log raw token (before cleaning) - only in development
-    if (
-        typeof window !== 'undefined' &&
-        (window.location.hostname === 'localhost' ||
-            window.location.hostname === '127.0.0.1')
-    ) {
-        console.log('🔍 [Apertus] Raw token from env:', {
-            exists: !!rawToken,
-            type: typeof rawToken,
-            length: rawToken?.length || 0,
-            preview: rawToken
-                ? `${String(rawToken).substring(0, 10)}...`
-                : 'empty'
-        });
-    }
+    // Use relative URL so it works on any deployment (Vercel / localhost)
+    const proxyUrl = typeof window !== 'undefined'
+        ? `${window.location.origin}/api/story`
+        : '/api/story';
 
-    // Clean token: remove quotes, whitespace, and JSON stringification artifacts
-    let n8nToken = String(rawToken || '').trim();
-
-    // Remove JSON stringification quotes (from webpack DefinePlugin)
-    // This handles cases where the token is stringified as "token_value"
-    n8nToken = n8nToken.replace(/^["']|["']$/g, '');
-
-    // Remove URL-encoded quotes (%22)
-    n8nToken = n8nToken.replace(/%22/g, '');
-
-    // Remove any remaining quotes (shouldn't be necessary, but safety first)
-    n8nToken = n8nToken.replace(/["']/g, '');
-
-    // Check token validity - log warnings but proceed anyway to get server error
-    const isTokenInvalid =
-        !n8nToken ||
-        n8nToken.length === 0 ||
-        n8nToken.includes('your_apertus_n8n_token_here') ||
-        n8nToken === '""' ||
-        n8nToken === "''" ||
-        n8nToken.length < 10;
-
-    if (isTokenInvalid) {
-        console.warn(
-            '⚠️ [Apertus] Token appears missing or invalid — proceeding anyway, server will authenticate.'
-        );
-        console.warn('   🔍 Token length:', n8nToken?.length || 0);
-    } else {
-        console.log('✅ [Apertus] Token loaded and validated:', {
-            length: n8nToken.length,
-            preview: `${n8nToken.substring(0, 4)}...${n8nToken.substring(
-                n8nToken.length - 4
-            )}`,
-            isValid: true
-        });
-    }
-
-    // Debug: Log URL before fetch
-    const apertusUrl = WEBHOOKS.APERTUS;
-    console.log('🔗 [Apertus] Calling webhook:', apertusUrl);
-    console.log(
-        '🔍 [Debug] URL type:',
-        typeof apertusUrl,
-        'Length:',
-        apertusUrl?.length
-    );
-
-    // Validate URL
-    if (
-        !apertusUrl ||
-        typeof apertusUrl !== 'string' ||
-        !apertusUrl.startsWith('http')
-    ) {
-        console.error('❌ Invalid APERTUS URL:', apertusUrl);
-        throw new Error('Invalid APERTUS URL configuration');
-    }
+    console.log('🔗 [Apertus] Calling proxy:', proxyUrl);
 
     const response = await fetchWithTimeout(
-        apertusUrl,
+        proxyUrl,
         {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                prompt: prompt,
-                system: 'You are an emoji password generator. You ONLY output emojis separated by spaces. NEVER write text, explanations, or notes. ONLY emojis.',
+                prompt,
                 model: finalModel,
                 max_tokens: maxTokens || 512,
                 temperature: temperature ?? 0,
-                token: n8nToken
+                ...(userHFToken ? { userHFToken } : {})
             })
         },
         120000 // 120 second timeout (n8n workflows can take longer)

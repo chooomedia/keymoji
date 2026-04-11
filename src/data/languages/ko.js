@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: '이모지 비밀번호 생성기',
         pageDescription:
-            '🔑 기억하기 쉬운 비밀번호, 노력 없이. 🎯 해독 불가능한 이모지 시퀀스. 🌍 15개 이상의 언어. GDPR 준수.',
+            '🔑 기억하기 쉬운 비밀번호, 노력 없이. 🎯 해독 불가능한 이모지 시퀀스. 🌍 15개 이상의 언어. 🔒 GDPR 준수.',
         pageKeywords:
             'Keymoji, 이모지 비밀번호, 비밀번호 생성기, 보안, 온라인 보안',
         pageInstruction: [
@@ -450,7 +450,9 @@ export default {
     versions: {
         pageTitle: '버전 기록',
         pageDescription:
-            'Keymoji, 이모지 비밀번호 생성기의 개발 기록과 변경 기록을 확인하세요.'
+            'Keymoji, 이모지 비밀번호 생성기의 개발 기록과 변경 기록을 확인하세요.',
+        currentLabel: '현재',
+        backToTop: '맨 위로'
     },
 
     // 일반 UI 텍스트
@@ -501,7 +503,7 @@ export default {
         // 작업
         actions: {
             saveSettings: '💾 설정 저장',
-            backToHome: '🏠 홈으로 돌아가기',
+            backToHome: '← 홈으로 돌아가기',
             skipAccount: '❌ {type} 건너뛰기',
             createAccount: '🚀 {type} 계정 만들기',
             settingsSaved: '설정이 저장되었습니다!'
@@ -571,7 +573,7 @@ export default {
 
         // 푸터
         footer: {
-            magicLink: '매직 링크',
+            magicLink: 'Easy Login',
             instantSetup: '즉시 설정',
             noSpam: '스팸 없음',
             text: '매직 링크는 이메일로 전송되며 15분간 유효합니다.',
@@ -709,6 +711,31 @@ export default {
         // 설명
         freeDescription: '✨ 무료 보안',
         proDescription: '�� 엔터프라이즈 보안'
+    },
+
+
+    consent: {
+        title: '개인 정보 설정',
+        description: '경험을 개선하기 위해 최소한의 데이터를 사용합니다.',
+        analytics: '익명 사용 분석',
+        analyticsHint: '앱 개선에 도움 — 개인 데이터 없음',
+        saveHistory: '로컬 사용 기록 저장',
+        saveHistoryHint: '브라우저에만 저장됩니다',
+        accept: '내 선택 저장',
+        acceptAll: '모두 수락',
+        decline: '선택 거부',
+        moreInfo: '개인정보 처리방침',
+        legalInfo: '법적 고지',
+        privacy: '개인정보 및 법률',
+        necessaryTitle: '필수',
+        necessaryHint: '앱 작동에 필요 — 항상 활성',
+        necessaryStorage: '설정 및 테마 기본 설정 (localStorage)',
+        necessarySession: '로그인 세션 (브라우저 메모리만)',
+        necessaryOtp: '인증용 OTP 코드 (이메일로 1회 전송)',
+        historyDetail: '사용 차트 데이터 (일별 생성 횟수)',
+        historyScope: '서버에 전송되지 않음 — 브라우저에만',
+        analyticsDetail: '익명 페이지 조회수 (IP는 x.x.x.0으로 익명화)',
+        analyticsProcessor: 'DigitalOcean(EU)의 자체 n8n 인스턴스로 처리'
     },
 
     ui: {

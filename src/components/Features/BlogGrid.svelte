@@ -997,6 +997,26 @@
 {/if}
 
 <HeartAnimation show={showHeartAnimation} count={5} />
+
+    <!-- Back to Top -->
+    <div class="w-full text-center mt-4 mb-2">
+        <button
+            on:click={() => {
+                const container = document.querySelector('.app-container');
+                if (container) {
+                    container.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }}
+            class="flex w-full items-center justify-center gap-2 py-4 rounded-full font-medium transition-all transform hover:scale-105 focus:scale-105 active:scale-95 bg-powder-200 dark:bg-aubergine-950 text-black dark:text-powder-50 border border-transparent hover:border-yellow-300 focus:border-yellow-300 active:border-yellow-400 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 focus:outline-none"
+            aria-label={$translations?.versionHistory?.backToTop || 'Back to top'}
+            title={$translations?.versionHistory?.backToTop || 'Back to top'}
+        >
+            <span class="text-xl">↑</span>
+            <span>{$translations?.versionHistory?.backToTop || 'Back to top'}</span>
+        </button>
+    </div>
 </PageLayout>
 
 <!-- Fixed Navigation Buttons (Left/Right) - Outside PageLayout like FixedMenu -->

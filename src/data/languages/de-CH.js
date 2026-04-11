@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Passwort Generator',
         pageDescription:
-            '🔑 Iiprägsammi Passwörter, kei Ufwand. 🎯 Unknackbare Emoji-Sequenze. 🌍 15+ Sprache. DSGVO-konform.',
+            '🔑 Iiprägsammi Passwörter, kei Ufwand. 🎯 Unknackbare Emoji-Sequenze. 🌍 15+ Sprache. 🔒 DSGVO-konform.',
         pageKeywords:
             'Keymoji, emoji passwort, passwort generator, sicherheit, online sicherheit',
         pageInstruction: [
@@ -454,7 +454,9 @@ export default {
     versions: {
         pageTitle: 'Versionsverlauf',
         pageDescription:
-            'Überprüf d Entwickligsgschicht und de Changelog vo Keymoji, em Emoji-Passwort-Generator.'
+            'Überprüf d Entwickligsgschicht und de Changelog vo Keymoji, em Emoji-Passwort-Generator.',
+        currentLabel: 'Aktuell',
+        backToTop: 'Nach oben'
     },
 
     // AccountManager Übersetzungen
@@ -505,7 +507,7 @@ export default {
         // Aktione
         actions: {
             saveSettings: '💾 Iistellige speichere',
-            backToHome: '🏠 Zrugg zu Home',
+            backToHome: '← Zrugg zu Home',
             skipAccount: '❌ {type} überspringe',
             createAccount: '🚀 {type} Account erstelle',
             settingsSaved: 'Iistellige erfolgreich gspeichert!'
@@ -579,7 +581,7 @@ export default {
 
         // Footer
         footer: {
-            magicLink: 'Magic-Link',
+            magicLink: 'Easy Login',
             instantSetup: 'Sofortigi Iistellig',
             noSpam: 'Kei Spam',
             text: 'Magic-Links werde per E-Mail gsendet und sin 15 Minute gültig.',
@@ -723,6 +725,31 @@ export default {
     },
 
     // Allgemeini UI-Texte
+
+    consent: {
+        title: 'Dateschutz-Iistellige',
+        description: "Mir verwände minimali Date für d'Verbesserig vo Ihrer Erfahrig.",
+        analytics: 'Anonymi Nutziganalytik',
+        analyticsHint: "Hilft öis d'App z'verbessere — kei persönlichi Date",
+        saveHistory: 'Lokali Nutzigschichte speichere',
+        saveHistoryHint: 'Nur in Ihrem Browser gspeichert',
+        accept: 'Mini Uswahl speichere',
+        acceptAll: 'Alles akzeptiere',
+        decline: 'Optionali ablehne',
+        moreInfo: 'Dateschutzerklärig',
+        legalInfo: 'Impressum',
+        privacy: 'Dateschutz & Impressum',
+        necessaryTitle: 'Technisch nötig',
+        necessaryHint: 'Für de Betrieb erforderlich — immer aktiv',
+        necessaryStorage: 'Iistellige & Design-Präferenz (localStorage)',
+        necessarySession: 'Login-Session (nur im Browser-Speicher)',
+        necessaryOtp: 'OTP-Code zur Aathentifizierig (einmalig per E-Mail)',
+        historyDetail: 'Nutzigsdagramm-Date (Generieriige pro Tag)',
+        historyScope: 'Nie a Server gschickt — nur in Ihrem Browser',
+        analyticsDetail: 'Anonymisierti Syyteufruef-Zähler (IP uf x.x.x.0 anonymisiert)',
+        analyticsProcessor: 'Verarbaitet über üsi eigeni n8n-Instanz uf DigitalOcean (EU)'
+    },
+
     ui: {
         save: 'Speichere',
         cancel: 'Abbreche',

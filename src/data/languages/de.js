@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Passwort Generator',
         pageDescription:
-            '🔑 Einprägsame Passwörter, kein Aufwand. 🎯 Unknackbare Emoji-Sequenzen. 🌍 15+ Sprachen. DSGVO-konform.',
+            '🔑 Einprägsame Passwörter, kein Aufwand. 🎯 Unknackbare Emoji-Sequenzen. 🌍 15+ Sprachen. 🔒 DSGVO-konform.',
         pageKeywords:
             'Keymoji, emoji passwort, passwort generator, sicherheit, online sicherheit',
         pageInstruction: [
@@ -201,7 +201,9 @@ export default {
     versions: {
         pageTitle: 'Versionsverlauf',
         pageDescription:
-            'Entwicklungshistorie und Changelog von Keymoji, dem Emoji-Passwort-Generator.'
+            'Entwicklungshistorie und Changelog von Keymoji, dem Emoji-Passwort-Generator.',
+        currentLabel: 'Aktuell',
+        backToTop: 'Nach oben'
     },
 
     // UserSettings Übersetzungen
@@ -510,7 +512,7 @@ export default {
         // Aktionen
         actions: {
             saveSettings: '💾 Einstellungen speichern',
-            backToHome: '🏠 Zurück zu Home',
+            backToHome: '← Zurück zu Home',
             skipAccount: '❌ {type} überspringen',
             createAccount: '🚀 {type} Account anlegen',
             settingsSaved: 'Einstellungen erfolgreich gespeichert!'
@@ -594,7 +596,7 @@ export default {
 
         // Footer
         footer: {
-            magicLink: 'Magic Link',
+            magicLink: 'Easy Login',
             instantSetup: 'Sofort-Setup',
             noSpam: 'Kein Spam',
             text: 'Magic Links werden per E-Mail gesendet und sind 15 Minuten gültig.',
@@ -740,6 +742,31 @@ export default {
     },
 
     // Allgemeine UI-Texte
+
+    consent: {
+        title: 'Datenschutz-Einstellungen',
+        description: 'Wir verwenden minimale Daten zur Verbesserung Ihrer Erfahrung. Passen Sie Ihre Einstellungen an.',
+        analytics: 'Anonyme Nutzungsanalyse',
+        analyticsHint: 'Hilft uns die App zu verbessern — keine personenbezogenen Daten',
+        saveHistory: 'Lokale Nutzungshistorie speichern',
+        saveHistoryHint: 'Nur in Ihrem Browser gespeichert, nie hochgeladen',
+        accept: 'Auswahl speichern',
+        acceptAll: 'Alle akzeptieren',
+        decline: 'Optionale ablehnen',
+        moreInfo: 'Datenschutzerklärung',
+        legalInfo: 'Impressum',
+        privacy: 'Datenschutz & Impressum',
+        necessaryTitle: 'Technisch notwendig',
+        necessaryHint: 'Für den Betrieb der App erforderlich — immer aktiv',
+        necessaryStorage: 'Einstellungen & Design-Präferenz (localStorage)',
+        necessarySession: 'Login-Session (nur im Browser-Speicher)',
+        necessaryOtp: 'OTP-Code zur Authentifizierung (einmalig per E-Mail)',
+        historyDetail: 'Nutzungsdiagramm-Daten (Generierungen pro Tag)',
+        historyScope: 'Niemals an Server gesendet — nur in Ihrem Browser',
+        analyticsDetail: 'Anonymisierte Seitenaufruf-Zähler (IP auf x.x.x.0 anonymisiert)',
+        analyticsProcessor: 'Verarbeitet über unsere eigene n8n-Instanz auf DigitalOcean (EU)'
+    },
+
     ui: {
         save: 'Speichern',
         cancel: 'Abbrechen',

@@ -1,6 +1,5 @@
 <!-- src/components/Layout/PageLayout.svelte -->
 <script>
-    import { fade } from 'svelte/transition';
     import { currentLanguage, translations } from '../../stores/contentStore.js';
     import { darkMode } from 'stores/appStores'
     import Header from './Header.svelte';
@@ -35,7 +34,7 @@
     // Performance-State
     let backgroundLoaded = false;
     let supportsWebP = false;
-    
+
     // Reactive background properties mit WebP-Support
     $: finalBgSrc = supportsWebP ? hieroglyphicEmojisWebP : hieroglyphicEmojisSrc;
     $: bgImage = `background-image: url("${finalBgSrc}"), ${$darkMode ? darkGradient : lightGradient}`;
@@ -59,7 +58,7 @@
     data-lang={$currentLanguage}
 >
     <!-- Main Content Container -->
-    <div class="min-h-screen scroll-smooth overflow-x-hidden" in:fade={{duration: 300}} out:fade={{duration: 200}}>
+    <div class="min-h-screen scroll-smooth overflow-x-hidden">
         <!-- Main Content: pt accounts for fixed banner (~32px) + header (~72px) = ~104px → pt-28 (112px) desktop -->
         <section class="main-content flex flex-col justify-center items-center min-h-screen pb-24 md:pb-28 pt-28 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
 

@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Password Generator',
         pageDescription:
-            '🔑 Memorable passwords, zero effort. 🎯 Uncrackable emoji sequences. 🌍 15+ languages. GDPR-compliant.',
+            '🔑 Memorable passwords, zero effort. 🎯 Uncrackable emoji sequences. 🌍 15+ languages. 🔒 GDPR-compliant.',
         pageKeywords:
             'Keymoji, emoji password, password generator, security, online security',
         pageInstruction: [
@@ -197,7 +197,9 @@ export default {
     versions: {
         pageTitle: 'Version History',
         pageDescription:
-            'Check out the development history and changelog of Keymoji, the emoji password generator.'
+            'Check out the development history and changelog of Keymoji, the emoji password generator.',
+        currentLabel: 'Current',
+        backToTop: 'Back to top'
     },
 
     // UserSettings translations
@@ -503,7 +505,7 @@ export default {
         // Actions
         actions: {
             saveSettings: '💾 Save Settings',
-            backToHome: '🏠 Back to Home',
+            backToHome: '← Back to Home',
             skipAccount: '❌ Skip {type}',
             createAccount: '🚀 Create {type} Account',
             settingsSaved: 'Settings saved successfully!'
@@ -585,7 +587,7 @@ export default {
 
         // Footer
         footer: {
-            magicLink: 'Magic link',
+            magicLink: 'Easy Login',
             instantSetup: 'Instant Setup',
             noSpam: 'No Spam',
             text: 'Magic links are sent via email and valid for 15 minutes.',
@@ -724,6 +726,31 @@ export default {
     },
 
     // General UI texts
+
+    consent: {
+        title: 'Privacy Settings',
+        description: 'We use minimal data to improve your experience. You can adjust your preferences below.',
+        analytics: 'Anonymous usage analytics',
+        analyticsHint: 'Helps us improve the app — no personal data stored',
+        saveHistory: 'Save local usage history',
+        saveHistoryHint: 'Stored only in your browser, never uploaded',
+        accept: 'Save my choices',
+        acceptAll: 'Accept all',
+        decline: 'Decline optional',
+        moreInfo: 'Privacy Policy',
+        legalInfo: 'Legal Notice',
+        privacy: 'Privacy & Legal',
+        necessaryTitle: 'Strictly necessary',
+        necessaryHint: 'Required for the app to function — always active',
+        necessaryStorage: 'Settings & theme preference (localStorage)',
+        necessarySession: 'Login session (browser memory only)',
+        necessaryOtp: 'OTP code for authentication (sent once via email)',
+        historyDetail: 'Usage chart data (emoji generations per day)',
+        historyScope: 'Never sent to any server — only in your browser',
+        analyticsDetail: 'Anonymised page view counts (IP anonymised to x.x.x.0)',
+        analyticsProcessor: 'Processed via our own n8n instance on DigitalOcean (EU server)'
+    },
+
     ui: {
         save: 'Save',
         cancel: 'Cancel',

@@ -131,19 +131,19 @@
     
     <!-- Back Button - Muted style like Random button -->
     <div slot="before-content" class="relative w-full flex justify-center -mb-14">
-        <button 
+        <button
             on:click={navigateBack}
-            class="inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 ease-in-out transform focus:ring-2 focus:ring-offset-2 z-20 bg-gray-200 text-yellow-600 dark:bg-gray-800 dark:text-yellow-500 border-2 border-yellow-500 shadow-sm hover:bg-gray-300 dark:hover:bg-gray-700 hover:scale-102 focus:scale-102 active:scale-98 focus:ring-yellow-400"
-            aria-label="Back"
-            title="Back"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 z-20"
+            aria-label={$translations?.index?.backToMainButtonText || 'Back to home'}
+            title={$translations?.index?.backToMainButtonText || 'Back to home'}
         >
             <span class="text-lg">←</span>
-            <span class="font-semibold">Back</span>
+            <span class="font-semibold">{$translations?.index?.backToMainButtonText || 'Back to home'}</span>
         </button>
     </div>
     
     <!-- Content Container - Filigranes Spacing oben -->
-    <div class="container mx-auto pt-8 pb-4">
+    <div class="container mx-auto pt-8">
 
         <!-- Version History Content - Breiter und scrollbar -->
         <div class="w-full max-w-2xl mx-auto">
@@ -186,7 +186,7 @@
                                             v{version}
                                             {#if version === currentVersion}
                                                 <span class="px-2 py-0.5 font-semibold text-xs bg-yellow-500 text-black rounded-full">
-                                                    Current
+                                                    {$translations?.versions?.currentLabel || 'Current'}
                                                 </span>
                                             {/if}
                                         </h2>
@@ -263,44 +263,19 @@
         <div class="w-full text-center">
             <button
                 on:click={() => {
-                    console.log('🔝 Scrolling to top...');
-                    
-                    // ROBUST SCROLL - Try ALL methods immediately
-                    try {
-                        // Method 1: window.scrollTo (most reliable)
-                        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-                        
-                        // Method 2: document elements (immediate)
-                        document.documentElement.scrollTop = 0;
-                        document.body.scrollTop = 0;
-                        
-                        // Method 3: All scrollable containers
-                        const scrollableElements = [
-                            document.querySelector('.app-container'),
-                            document.querySelector('.main-content'),
-                            document.querySelector('main'),
-                            document.querySelector('.wrapper'),
-                            document.querySelector('[class*="scroll"]')
-                        ];
-                        
-                        scrollableElements.forEach(el => {
-                            if (el) {
-                                el.scrollTop = 0;
-                                el.scrollTo?.({ top: 0, behavior: 'smooth' });
-                            }
-                        });
-                        
-                        console.log('✅ Scroll to top triggered');
-                    } catch (error) {
-                        console.error('❌ Scroll error:', error);
+                    const appContainer = document.querySelector('.app-container');
+                    if (appContainer) {
+                        appContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                 }}
-                class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-yellow-500 text-black dark:bg-aubergine-900 dark:text-white rounded-full font-medium shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105 active:scale-95 focus:outline-none"
-                aria-label="Back to top"
-                title="Back to top"
+                class="flex w-full items-center justify-center gap-2 py-4 rounded-full font-medium transition-all transform hover:scale-105 focus:scale-105 active:scale-95 bg-powder-200 dark:bg-aubergine-950 text-black dark:text-powder-50 border border-transparent hover:border-yellow-300 focus:border-yellow-300 active:border-yellow-400 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2 focus:outline-none"
+                aria-label={$translations?.versions?.backToTop || 'Back to top'}
+                title={$translations?.versions?.backToTop || 'Back to top'}
             >
                 <span class="text-xl">↑</span>
-                <span>Back to top</span>
+                <span>{$translations?.versions?.backToTop || 'Back to top'}</span>
             </button>
         </div>
     </div>

@@ -1,4 +1,28 @@
 export const versions = {
+    '0.8.2': {
+        date: 'April 10, 2026',
+        core: {
+            ux: {
+                title: '✨ UX & Layout Polish',
+                improvements: [
+                    'Fixed scrollbar-induced layout shift on route changes (scrollbar-gutter: stable)',
+                    'Modal open/close no longer causes horizontal page jump',
+                    'Back-to-top button on version history page now uses smooth scroll',
+                    'Current version chip in version history is now fully translated',
+                    'Removed duplicate CSS blocks for range sliders and route transitions'
+                ]
+            },
+            ui: {
+                title: '🎨 UI Improvements',
+                improvements: [
+                    'Range slider active track and thumb use primary yellow color globally',
+                    'Coming soon badge replaces toggle in account settings for unavailable features',
+                    'Back-to-top buttons across all pages use consistent full-width styling',
+                    'Wording duplication in account settings toggle labels removed'
+                ]
+            }
+        }
+    },
     '0.8.1': {
         date: 'April 9, 2026',
         core: {

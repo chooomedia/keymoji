@@ -20,13 +20,13 @@ export interface VersionInfo {
 }
 
 // Aktuelle Version der Anwendung
-export const appVersion: string = '0.8.1';
+export const appVersion: string = '0.8.2';
 
 // Versionsinformationen mit Datum der letzten Aktualisierung
 export const versionInfo: VersionInfo = {
     version: appVersion,
-    updated: '2026-04-09',
-    codename: 'Swiss AI Story Mode'
+    updated: '2026-04-10',
+    codename: 'Scrollbar & UX Polish'
 };
 
 /**

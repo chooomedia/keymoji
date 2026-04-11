@@ -337,7 +337,7 @@
             <article 
                 itemscope 
                 itemtype="https://schema.org/BlogPosting"
-                class="prose prose-gray dark:prose-invert dark:text-gray-200 max-w-none mb-16">
+                class="prose prose-gray dark:prose-invert dark:text-gray-200 max-w-none mb-4">
                 <h1 itemprop="headline" class="sr-only">{post.title}</h1>
                 <div itemprop="articleBody">
                     {@html post.content}

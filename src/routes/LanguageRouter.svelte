@@ -16,7 +16,7 @@
     
     // PERFORMANCE: Lazy Loading für Routes (Code Splitting)
     // Diese Komponenten werden nur geladen, wenn die Route besucht wird
-    let BlogGrid, BlogPost, VersionHistory, ContactForm, AccountManager, StaticPage, NotFound;
+    let BlogGrid, BlogPost, VersionHistory, ContactForm, AccountManager, StaticPage, LegalPage, NotFound;
     let routesLoaded = false;
     let loadingTimeout = null;
     let loadingStartTime = Date.now();
@@ -60,6 +60,11 @@
                 name: 'StaticPage',
                 loader: () => import('./StaticPage.svelte'),
                 setter: (module) => { StaticPage = module.default; }
+            },
+            {
+                name: 'LegalPage',
+                loader: () => import('./LegalPage.svelte'),
+                setter: (module) => { LegalPage = module.default; }
             },
             {
                 name: 'NotFound',
@@ -521,58 +526,87 @@
         </Route>
         
         <Route path="/privacy" let:params>
-            {#if StaticPage}
-                <svelte:component this={StaticPage} slug="privacy" />
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="privacy" />
             {:else}
                 <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/privacy/" let:params>
-            {#if StaticPage}
-                <svelte:component this={StaticPage} slug="privacy" />
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="privacy" />
             {:else}
                 <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/privacy" let:params>
-            {#if StaticPage}
-                <svelte:component this={StaticPage} slug="privacy" />
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="privacy" />
             {:else}
                 <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/privacy/" let:params>
-            {#if StaticPage}
-                <svelte:component this={StaticPage} slug="privacy" />
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="privacy" />
             {:else}
                 <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         
+        <!-- /legal (international) + /impressum (DE-Alias) — beide gültig -->
         <Route path="/legal" let:params>
-            {#if StaticPage}
-                <svelte:component this={StaticPage} slug="legal" />
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="legal" />
             {:else}
                 <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/legal/" let:params>
-            {#if StaticPage}
-                <svelte:component this={StaticPage} slug="legal" />
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="legal" />
             {:else}
                 <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/legal" let:params>
-            {#if StaticPage}
-                <svelte:component this={StaticPage} slug="legal" />
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="legal" />
             {:else}
                 <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}
         </Route>
         <Route path="/:lang/legal/" let:params>
-            {#if StaticPage}
-                <svelte:component this={StaticPage} slug="legal" />
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="legal" />
+            {:else}
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
+            {/if}
+        </Route>
+        <Route path="/impressum" let:params>
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="legal" />
+            {:else}
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
+            {/if}
+        </Route>
+        <Route path="/impressum/" let:params>
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="legal" />
+            {:else}
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
+            {/if}
+        </Route>
+        <Route path="/:lang/impressum" let:params>
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="legal" />
+            {:else}
+                <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
+            {/if}
+        </Route>
+        <Route path="/:lang/impressum/" let:params>
+            {#if LegalPage}
+                <svelte:component this={LegalPage} slug="legal" />
             {:else}
                 <LoadingScreen message="Loading page..." showDebugInfo={false} loadingStartTime={loadingStartTime} />
             {/if}

@@ -1,6 +1,6 @@
 {
     "name": "keymoji",
-    "version": "0.8.1",
+    "version": "0.8.2",
     "description": "Secure emoji password generator with AI Story Mode - Security & Configuration",
     "private": true,
     "license": "MIT",

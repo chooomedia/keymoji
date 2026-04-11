@@ -323,24 +323,26 @@
 </script>
 
 <div class="space-y-3">
-    <!-- Label and Icon -->
-    <div class="flex items-center space-x-2">
-        {#if config.icon}
-            <span class="text-lg">{config.icon}</span>
-        {/if}
-        <label for={config.id} class="text-sm font-semibold text-gray-900 dark:text-white">
-            {getLocalizedText(config.label)}
-            {#if config.required}
-                <span class="text-red-500 ml-1">*</span>
+    <!-- Label and Icon — für toggle nicht nötig, da Toggle-Body Label+Description selbst rendert -->
+    {#if config.type !== 'toggle'}
+        <div class="flex items-center space-x-2">
+            {#if config.icon}
+                <span class="text-lg">{config.icon}</span>
             {/if}
-        </label>
-    </div>
+            <label for={config.id} class="text-sm font-semibold text-gray-900 dark:text-white">
+                {getLocalizedText(config.label)}
+                {#if config.required}
+                    <span class="text-red-500 ml-1">*</span>
+                {/if}
+            </label>
+        </div>
 
-    <!-- Description -->
-    {#if config.description}
-        <p class="sr-only">
-            {getLocalizedText(config.description)}
-        </p>
+        <!-- Description (sr-only für alle nicht-toggle Typen) -->
+        {#if config.description}
+            <p class="sr-only">
+                {getLocalizedText(config.description)}
+            </p>
+        {/if}
     {/if}
 
     <!-- Input Field -->
@@ -435,47 +437,65 @@
                 {/each}
             </div>
         {:else if config.type === 'range'}
-            <!-- Range Input (same styling as Story Mode View) -->
-            <div class="flex items-center gap-2">
+            <!-- Range Input mit Primary-Color Fill + Thumb -->
+            {@const rMin = config.min ?? 0}
+            {@const rMax = config.max ?? 100}
+            {@const rVal = typeof localValue === 'number' ? localValue : parseFloat(localValue) || rMin}
+            {@const rPct = Math.round(((rVal - rMin) / (rMax - rMin)) * 100)}
+            <div class="flex items-center gap-3">
                 <input
                     id={config.id}
                     type="range"
                     bind:value={localValue}
                     on:input={handleRangeChange}
-                    min={config.min || 0}
-                    max={config.max || 100}
-                    step={config.step || 0.1}
+                    min={rMin}
+                    max={rMax}
+                    step={config.step || 1}
                     disabled={config.disabled}
-                    class="flex-1 h-1.5 appearance-none rounded-full bg-gray-300 dark:bg-gray-600 transition-all hover:bg-yellow-400 dark:hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style="--range-thumb-color: rgb(234, 179, 8);"
+                    class="modular-range flex-1 h-2 appearance-none rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    style="background: linear-gradient(to right, #eab308 0%, #eab308 {rPct}%, #d1d5db {rPct}%, #d1d5db 100%);"
                     aria-invalid={!isValid && validationErrors.length > 0}
                     aria-describedby={!isValid && validationErrors.length > 0 ? `${config.id}-error` : isValid && localValue && config.validation ? `${config.id}-success` : undefined}
                 />
-                <span class="text-xs font-semibold text-yellow-600 dark:text-yellow-400 w-8 text-right tabular-nums shrink-0">
-                    {typeof currentValue === 'number' ? currentValue.toFixed(1) : currentValue}
+                <span class="text-sm font-bold text-yellow-500 dark:text-yellow-400 w-8 text-right tabular-nums shrink-0">
+                    {typeof rVal === 'number' && config.step && config.step < 1 ? rVal.toFixed(1) : Math.round(rVal)}
                 </span>
             </div>
         {:else if config.type === 'toggle'}
-            <!-- Modern Toggle Input -->
+            <!-- Modern Toggle Input — Label + Description hier, kein doppelter Header -->
             <div class="flex items-center justify-between">
                 <div class="flex-1">
-                    <span class="text-sm font-medium text-gray-900 dark:text-white">
+                    <label
+                        for={config.id}
+                        id="{config.id}-label"
+                        class="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white {config.comingSoon ? 'cursor-default' : 'cursor-pointer'}"
+                    >
+                        {#if config.icon}
+                            <span class="text-lg leading-none">{config.icon}</span>
+                        {/if}
                         {getLocalizedText(config.label)}
-                    </span>
+                    </label>
                     {#if config.description}
-                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1 {config.icon ? 'pl-7' : ''}">
                             {getLocalizedText(config.description)}
                         </p>
                     {/if}
                 </div>
-                
-                <Toggle 
-                    id={config.id}
-                    bind:checked={currentValue}
-                    disabled={config.disabled}
-                    color={config.color || 'yellow'}
-                    on:change={handleValueChange}
-                />
+
+                {#if config.comingSoon}
+                    <!-- Badge statt Toggle wenn Feature noch nicht verfügbar -->
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 shrink-0 ml-4">
+                        {getLocalizedText(config.comingSoonLabel) || 'Coming soon'}
+                    </span>
+                {:else}
+                    <Toggle
+                        id={config.id}
+                        bind:checked={currentValue}
+                        disabled={config.disabled}
+                        color={config.color || 'yellow'}
+                        on:change={handleValueChange}
+                    />
+                {/if}
             </div>
         {:else}
             <!-- Standard Input (text, email, password, number, url, phone) -->
@@ -571,26 +591,41 @@
 </div>
 
 <style>
-    /* Custom slider styling */
-    .slider::-webkit-slider-thumb {
+    /* Range Thumb — Primary Yellow */
+    .modular-range::-webkit-slider-thumb {
         appearance: none;
-        height: 20px;
-        width: 20px;
+        height: 18px;
+        width: 18px;
         border-radius: 50%;
-        background: #3b82f6;
+        background: #eab308;
         cursor: pointer;
         border: 2px solid #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    
-    .slider::-moz-range-thumb {
-        height: 20px;
-        width: 20px;
+    .modular-range::-webkit-slider-thumb:hover {
+        transform: scale(1.15);
+        box-shadow: 0 2px 8px rgba(234, 179, 8, 0.5);
+    }
+    .modular-range::-moz-range-thumb {
+        height: 18px;
+        width: 18px;
         border-radius: 50%;
-        background: #3b82f6;
+        background: #eab308;
         cursor: pointer;
         border: 2px solid #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    }
+    /* Firefox: active track color via range-progress */
+    .modular-range::-moz-range-progress {
+        background: #eab308;
+        border-radius: 999px;
+        height: 8px;
+    }
+    .modular-range::-moz-range-track {
+        background: #d1d5db;
+        border-radius: 999px;
+        height: 8px;
     }
     
     /* Dark mode select arrow for ModularInput */

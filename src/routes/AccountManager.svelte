@@ -551,7 +551,7 @@
         if (hasValidSession) {
             return $translations?.accountManager?.buttons?.loginToAccount || 'Login to Account';
         }
-        return $translations?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
+        return $translations?.accountManager?.buttons?.createMagicLink || 'Send Code via Email';
     })();
 
     // Ensure we always have a valid name for the API
@@ -626,7 +626,7 @@
         if (hasLoggedInBefore) {
             return $translations?.accountManager?.buttons?.loginAgain || '🔐 Login again';
         }
-        return $translations?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
+        return $translations?.accountManager?.buttons?.createMagicLink || 'Send Code via Email';
     })();
     
     // Account age label for tooltip - zeigt wie lange User den Account hat (NUR Zeitangabe)
@@ -1433,9 +1433,18 @@
                                 fullWidth={true}
                                 on:click={navigateToHome}
                             >
-                                {$translations?.accountManager?.actions?.backToHome || '🏠 Back to Home'}
+                                {$translations?.accountManager?.actions?.backToHome || '← Back to Home'}
                             </Button>
                             {/if}
+
+                            <!-- Data Deletion Notice (GDPR Art. 17) -->
+                            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-aubergine-700">
+                                <p class="text-xs text-gray-400 dark:text-gray-500 text-center leading-relaxed">
+                                    {$translations?.accountManager?.deleteAccountHint || 'To delete your account and all data, send an email to'}
+                                    <a href="mailto:hello@keymoji.wtf?subject=Account%20deletion%20request" class="text-yellow-500 hover:underline">hello@keymoji.wtf</a>
+                                    {$translations?.accountManager?.deleteAccountHintSuffix || '— we will delete your data within 30 days (Art. 17 GDPR).'}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 {:else if accountCreationStep === 'verification'}
@@ -1806,7 +1815,7 @@
                                         {loginButtonText}
                                     </span>
                                 {:else}
-                                    {magicLinkButtonText}
+                                    <span class="mr-1.5">🔐</span>{magicLinkButtonText}
                                 {/if}
                             </Button>
                             
@@ -2036,7 +2045,7 @@
                                         {loginButtonText}
                                     </span>
                                 {:else}
-                                    {magicLinkButtonText}
+                                    <span class="mr-1.5">🔐</span>{magicLinkButtonText}
                                 {/if}
                             </Button>
 
@@ -2057,7 +2066,7 @@
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                             <span class="flex items-center">
-                                🔗 {$translations?.accountManager?.footer?.magicLink || 'Magic link'}
+                                🔐 {$translations?.accountManager?.footer?.magicLink || 'Easy Login'}
                             </span>
                             <span class="flex items-center">
                                 ⚡ {$translations?.accountManager?.footer?.instantSetup || 'Instant Setup'}

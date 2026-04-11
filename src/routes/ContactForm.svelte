@@ -411,7 +411,7 @@
                 on:click={() => navigateToHome()}
                 disabled={isSubmitting}
             >
-                🏠 {$translations?.contactForm?.backToMainButton || 'Back to home'}
+                ← {$translations?.contactForm?.backToMainButton || 'Back to home'}
             </Button>
             
             <Button

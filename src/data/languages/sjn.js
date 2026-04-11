@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Echad i gwedh emoji',
         pageDescription:
-            '🔑 Gwedh i-chuiad, gwaith ú-lost. 🎯 Emoji gwedh ú-dagor. 🌍 15+ lammath. GDPR-sautha.',
+            '🔑 Gwedh i-chuiad, gwaith ú-lost. 🎯 Emoji gwedh ú-dagor. 🌍 15+ lammath. 🔒 GDPR-sautha.',
         pageKeywords:
             "Keymoji, emoji gwedh, gwedh echad, thand, De' thand, De' thand chu'",
         pageInstruction: [
@@ -447,7 +447,9 @@ export default {
     versions: {
         pageTitle: "De' QulwI' lut",
         pageDescription:
-            "Keymoji De' QulwI' lut 'ej emoji gwedh echad De' QulwI' lut."
+            "Keymoji De' QulwI' lut 'ej emoji gwedh echad De' QulwI' lut.",
+        currentLabel: 'Current',
+        backToTop: 'Back to top'
     },
 
     // AccountManager translations
@@ -496,7 +498,7 @@ export default {
         // Actions
         actions: {
             saveSettings: "💾 QulwI' yIlan",
-            backToHome: '🏠 Ad na bar',
+            backToHome: '← Ad na bar',
             skipAccount: "❌ {type} yIlanbe'",
             createAccount: '🚀 {type} Huch Qan chenmoH',
             settingsSaved: "QulwI' lanlu'!"
@@ -567,7 +569,7 @@ export default {
 
         // Footer
         footer: {
-            magicLink: "maH 'IDnar",
+            magicLink: 'Easy Login',
             instantSetup: "QulwI' QulwI'",
             noSpam: "QIn QulwI' Qaw'laHbe'",
             text: "maH 'IDnar i epist Qanglu' 'ej 15 rep Qaw'laH.",
@@ -708,6 +710,31 @@ export default {
     },
 
     // General UI texts
+
+    consent: {
+        title: 'Mellon Thand Settings',
+        description: 'We use minimal data to improve your experience.',
+        analytics: 'Anonymous usage analytics',
+        analyticsHint: 'Helps improve the app — no personal data',
+        saveHistory: 'Save local usage history',
+        saveHistoryHint: 'Stored only in your browser',
+        accept: 'Savo nin',
+        acceptAll: 'Savo ilye',
+        decline: 'U-savo',
+        moreInfo: 'Privacy Policy',
+        legalInfo: 'Legal Notice',
+        privacy: 'Privacy & Legal',
+        necessaryTitle: 'Technically necessary',
+        necessaryHint: 'Required for functioning — always active',
+        necessaryStorage: 'Settings & theme (localStorage)',
+        necessarySession: 'Login session (browser memory only)',
+        necessaryOtp: 'OTP code for login (sent once via email)',
+        historyDetail: 'Usage chart data (generations per day)',
+        historyScope: 'Never sent to server — only in your browser',
+        analyticsDetail: 'Anonymised page counts (IP -> x.x.x.0)',
+        analyticsProcessor: 'Own n8n instance on DigitalOcean (EU)'
+    },
+
     ui: {
         save: 'yIlan',
         cancel: "yIchu'",

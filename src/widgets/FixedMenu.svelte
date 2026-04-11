@@ -25,6 +25,8 @@
   import { navigateToContact } from '../utils/navigation';
   import { storageHelpers, STORAGE_KEYS } from '../config/storage.js';
   import { isDevelopment } from '../utils/environment';
+  import { hasConsented } from '../stores/consentStore.js';
+  import ConsentModal from '../components/UI/ConsentModal.svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -34,10 +36,21 @@
   let selectedLink = undefined;
   let showDebugModal = false;
 
+  let consentModalOpen = false;
+
+  function openConsentModal() {
+    consentModalOpen = true;
+  }
+
   // Click-Outside Handler - consistent with LanguageSwitcher
   onMount(() => {
     // Initialize account from cookies
     initializeAccountFromCookies();
+
+    // Auto-open consent modal on first visit (after 1s delay)
+    if (!hasConsented()) {
+      setTimeout(() => openConsentModal(), 1000);
+    }
     
     // Click-outside handler - consistent with LanguageSwitcher and BlogGrid
     // Use capture phase to ensure it runs before other handlers
@@ -344,6 +357,14 @@
       >
         💌
       </button>
+      <button
+        aria-label={$translations?.fixedMenu?.tooltips?.privacy || 'Privacy settings'}
+        on:click={openConsentModal}
+        class="btn border-4 p-4 border-creme-500 dark:border-aubergine-800 dark:text-white bg-powder-300 dark:bg-aubergine-900 w-16 h-16 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-105 focus:scale-105 active:scale-95 focus:ring-2 focus:ring-yellow-50 focus:ring-offset-2"
+        title={$translations?.fixedMenu?.tooltips?.privacy || 'Privacy settings'}
+      >
+        🍪
+      </button>
       <!-- Debug Button (DEV MODE ONLY!) -->
       {#if isDevelopment()}
       <button 
@@ -427,6 +448,9 @@
     {/if}
   </div>
 </div>
+
+<!-- Consent Modal — eigenständige Svelte-Komponente mit vollem Reaktivitätszugang -->
+<ConsentModal bind:isOpen={consentModalOpen} on:close={() => consentModalOpen = false} />
 
 <!-- Debug Modal -->
 <ModalDebug isVisible={showDebugModal} on:close={() => showDebugModal = false} />

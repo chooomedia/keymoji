@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: "emoji mu'ghom chenwI'",
         pageDescription:
-            "🔑 mu'ghommey qaw'laH, Qatlhbe'. 🎯 emoji mu'ghommey Qaw'laHbe'. 🌍 15 HolmeyDaq law'. GDPR.",
+            "🔑 mu'ghommey qaw'laH, Qatlhbe'. 🎯 emoji mu'ghommey Qaw'laHbe'. 🌍 15 HolmeyDaq law'. 🔒 GDPR.",
         pageKeywords:
             "Keymoji, emoji mu'ghom, mu'ghom chenwI', Qan, De' Qanbogh, De' Qan chu'", // Doppelte Anführungszeichen für gültige Syntax
         pageInstruction: [
@@ -194,7 +194,9 @@ export default {
     versions: {
         pageTitle: "De' QulwI' lut",
         pageDescription:
-            "Keymoji De' QulwI' lut 'ej emoji mu'ghom chenwI' De' QulwI' lut."
+            "Keymoji De' QulwI' lut 'ej emoji mu'ghom chenwI' De' QulwI' lut.",
+        currentLabel: "DaH (Current)",
+        backToTop: "qet (Scroll up)"
     },
 
     // UserSettings translations
@@ -497,7 +499,7 @@ export default {
         // Actions
         actions: {
             saveSettings: "💾 QulwI' yIlan",
-            backToHome: '🏠 juH wIchegh',
+            backToHome: '← juH wIchegh',
             skipAccount: "❌ {type} yIlanbe'",
             createAccount: '🚀 {type} Huch Qan chenmoH',
             settingsSaved: "QulwI' lanlu'!"
@@ -567,7 +569,7 @@ export default {
 
         // Footer
         footer: {
-            magicLink: "maH 'IDnar",
+            magicLink: 'Easy Login',
             instantSetup: "QulwI' QulwI'",
             noSpam: "QIn QulwI' Qaw'laHbe'",
             text: "maH 'IDnar QI'yaH Qanglu' 'ej 15 rep Qaw'laH.",
@@ -708,6 +710,31 @@ export default {
     },
 
     // General UI texts
+
+    consent: {
+        title: 'pegh De cher',
+        description: 'We use minimal data to improve your experience.',
+        analytics: 'Anonymous usage analytics',
+        analyticsHint: 'Helps improve the app — no personal data',
+        saveHistory: 'Save local usage history',
+        saveHistoryHint: 'Stored only in your browser',
+        accept: 'choq',
+        acceptAll: 'Accept all',
+        decline: 'ghobe',
+        moreInfo: 'Privacy Policy',
+        legalInfo: 'Legal Notice',
+        privacy: 'Privacy & Legal',
+        necessaryTitle: 'wa necessary',
+        necessaryHint: 'Required — always active',
+        necessaryStorage: 'Settings & theme (localStorage)',
+        necessarySession: 'Login session (browser memory only)',
+        necessaryOtp: 'OTP code (email, once)',
+        historyDetail: 'Usage chart data (per day)',
+        historyScope: 'Never sent to server',
+        analyticsDetail: 'Anonymised page counts (IP x.x.x.0)',
+        analyticsProcessor: 'n8n on DigitalOcean (EU)'
+    },
+
     ui: {
         save: 'yIlan',
         cancel: "yIchu'",

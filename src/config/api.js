@@ -173,7 +173,9 @@ const getN8NUrl = () => {
         }
     }
 
-    return 'https://n8n.chooomedia.com/webhook'; // Default fallback
+    // No hardcoded fallback — VITE_N8N_URL must be set in environment
+    console.error('❌ [SECURITY] VITE_N8N_URL not configured. Set it in .env.local or Vercel environment variables.');
+    return '';
 };
 
 // Get N8N URL dynamically (not at build time to avoid empty string issues)
@@ -181,8 +183,8 @@ const getN8NUrlDynamic = () => {
     const url = getN8NUrl();
     // Validate URL before returning
     if (!url || url.length === 0 || url.includes('%22') || url.includes('""')) {
-        console.error('❌ [Config] Invalid N8N_URL detected:', url);
-        return 'https://n8n.chooomedia.com/webhook'; // Fallback
+        console.error('❌ [Config] Invalid or missing N8N_URL. Set VITE_N8N_URL in your environment.');
+        return '';
     }
     return url;
 };
@@ -265,8 +267,7 @@ export const WEBHOOKS = {
     },
 
     // Apertus (Swiss LLM) via n8n
-    // SECURITY: Uses VITE_WEBHOOK_APERTUS_TEST from environment (GitHub Secrets)
-    // Full URL should be set as secret: https://n8n.chooomedia.com/webhook/apertus-test
+    // SECURITY: Full URL must be set via VITE_WEBHOOK_APERTUS_TEST environment variable (GitHub Secrets / Vercel env)
     get APERTUS() {
         // Try to get full URL from environment variable first (secure secret)
         const envUrl =

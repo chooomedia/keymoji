@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Generator Haseł Emoji',
         pageDescription:
-            '🔑 Łatwe do zapamiętania hasła, zero wysiłku. 🎯 Niełamliwe sekwencje emoji. 🌍 15+ języków. Zgodne z RODO.',
+            '🔑 Łatwe do zapamiętania hasła, zero wysiłku. 🎯 Niełamliwe sekwencje emoji. 🌍 15+ języków. 🔒 Zgodne z RODO.',
         pageKeywords:
             'Keymoji, hasło emoji, generator haseł, bezpieczeństwo, bezpieczeństwo online',
         pageInstruction: [
@@ -454,7 +454,9 @@ export default {
     versions: {
         pageTitle: 'Historia wersji',
         pageDescription:
-            'Sprawdź historię rozwoju i changelog Keymoji, generatora haseł emoji.'
+            'Sprawdź historię rozwoju i changelog Keymoji, generatora haseł emoji.',
+        currentLabel: 'Obecna',
+        backToTop: 'Powrót na górę'
     },
 
     // Ogólne teksty UI
@@ -506,7 +508,7 @@ export default {
         // Akcje
         actions: {
             saveSettings: '💾 Zapisz ustawienia',
-            backToHome: '🏠 Wróć do strony głównej',
+            backToHome: '← Wróć do strony głównej',
             skipAccount: '❌ Pomiń {type}',
             createAccount: '🚀 Utwórz konto {type}',
             settingsSaved: 'Ustawienia zostały zapisane!'
@@ -578,7 +580,7 @@ export default {
 
         // Stopka
         footer: {
-            magicLink: 'Magiczny link',
+            magicLink: 'Easy Login',
             instantSetup: 'Natychmiastowa konfiguracja',
             noSpam: 'Brak spamu',
             text: 'Magiczne linki są wysyłane emailowo i ważne przez 15 minut.',
@@ -719,6 +721,31 @@ export default {
         // Opisy
         freeDescription: '✨ Darmowe bezpieczeństwo',
         proDescription: '💎 Bezpieczeństwo korporacyjne'
+    },
+
+
+    consent: {
+        title: 'Ustawienia prywatności',
+        description: 'Używamy minimalnych danych, aby poprawić Twoje doświadczenia.',
+        analytics: 'Anonimowa analiza użytkowania',
+        analyticsHint: 'Pomaga nam ulepszać aplikację — bez danych osobowych',
+        saveHistory: 'Zapisz lokalną historię użytkowania',
+        saveHistoryHint: 'Przechowywane tylko w Twojej przeglądarce',
+        accept: 'Zapisz moje wybory',
+        acceptAll: 'Zaakceptuj wszystko',
+        decline: 'Odrzuć opcjonalne',
+        moreInfo: 'Polityka prywatności',
+        legalInfo: 'Nota prawna',
+        privacy: 'Prywatność i Prawo',
+        necessaryTitle: 'Bezwzględnie konieczne',
+        necessaryHint: 'Wymagane do działania — zawsze aktywne',
+        necessaryStorage: 'Ustawienia i preferencje motywu (localStorage)',
+        necessarySession: 'Sesja logowania (tylko pamięć przeglądarki)',
+        necessaryOtp: 'Kod OTP do uwierzytelnienia (wysyłany jednorazowo e-mailem)',
+        historyDetail: 'Dane wykresu użytkowania (generacje dziennie)',
+        historyScope: 'Nigdy nie wysyłane na serwer — tylko w Twojej przeglądarce',
+        analyticsDetail: 'Anonimowe liczniki odsłon (IP anonimizowane do x.x.x.0)',
+        analyticsProcessor: 'Przetwarzane przez naszą własną instancję n8n na DigitalOcean (EU)'
     },
 
     ui: {

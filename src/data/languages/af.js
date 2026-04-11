@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Emoji Wagwoord Generator',
         pageDescription:
-            '🔑 Gedenkwaardige wagwoorde, geen moeite. 🎯 Onkraakbare emoji-reekse. 🌍 15+ tale. GDPR-voldoend.',
+            '🔑 Gedenkwaardige wagwoorde, geen moeite. 🎯 Onkraakbare emoji-reekse. 🌍 15+ tale. 🔒 GDPR-voldoend.',
         pageKeywords:
             'Keymoji, emoji wagwoord, wagwoord generator, sekuriteit, aanlyn sekuriteit',
         pageInstruction: [
@@ -455,7 +455,9 @@ export default {
     versions: {
         pageTitle: 'Weergawe Geskiedenis',
         pageDescription:
-            'Kyk na die ontwikkelingsgeskiedenis en verandering log van Keymoji, die emoji wagwoord generator.'
+            'Kyk na die ontwikkelingsgeskiedenis en verandering log van Keymoji, die emoji wagwoord generator.',
+        currentLabel: 'Huidig',
+        backToTop: 'Terug na bo'
     },
 
     // AccountManager vertalings
@@ -507,7 +509,7 @@ export default {
         // Aksies
         actions: {
             saveSettings: '💾 Stoor Instellings',
-            backToHome: '🏠 Terug Tuisblad',
+            backToHome: '← Terug Tuisblad',
             skipAccount: '❌ Slaan {type} oor',
             createAccount: '🚀 Skep {type} Rekening',
             settingsSaved: 'Instellings suksesvol gestoor!'
@@ -581,7 +583,7 @@ export default {
 
         // Voetstuk
         footer: {
-            magicLink: 'Magic skakel',
+            magicLink: 'Easy Login',
             instantSetup: 'Oombliklike opstelling',
             noSpam: 'Geen spam',
             text: 'Magic skakels word per e-pos gestuur en is 15 minute geldig.',
@@ -726,6 +728,31 @@ export default {
     },
 
     // Algemene UI tekste
+
+    consent: {
+        title: 'Privaatheidinstellings',
+        description: 'Ons gebruik minimale data om jou ervaring te verbeter.',
+        analytics: 'Anonieme gebruiksanalise',
+        analyticsHint: 'Help ons om die app te verbeter — geen persoonlike data',
+        saveHistory: 'Stoor plaaslike gebruiksgeskiedenis',
+        saveHistoryHint: 'Slegs in jou blaaier gestoor',
+        accept: 'Stoor my keuses',
+        acceptAll: 'Aanvaar alles',
+        decline: 'Weier opsioneel',
+        moreInfo: 'Privaatheidsbeleid',
+        legalInfo: 'Regskennisgeving',
+        privacy: 'Privaatheid & Regs',
+        necessaryTitle: 'Streng noodsaaklik',
+        necessaryHint: 'Benodig vir die werking — altyd aktief',
+        necessaryStorage: 'Instellings en temavorkeuer (localStorage)',
+        necessarySession: 'Aanmeldingsessie (slegs blaaiergeheue)',
+        necessaryOtp: 'OTP-kode vir verifikasie (een keer via e-pos gestuur)',
+        historyDetail: 'Gebruiksgrafiekdata (generasies per dag)',
+        historyScope: 'Nooit na enige bediener gestuur nie — slegs in jou blaaier',
+        analyticsDetail: 'Geanonimiseerde bladsy-tellings (IP geanonimiseer na x.x.x.0)',
+        analyticsProcessor: 'Verwerk via ons eie n8n-instansie op DigitalOcean (EU)'
+    },
+
     ui: {
         save: 'Stoor',
         cancel: 'Kanselleer',

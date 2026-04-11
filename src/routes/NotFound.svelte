@@ -409,7 +409,7 @@
                     aria-label={$translations?.notFound?.backToHome || 'Back to Home'}
                     title={$translations?.notFound?.backToHome || 'Back to Home'}
                 >
-                    🏠 {$translations?.notFound?.backToHome || 'Back to Home'}
+                    ← {$translations?.notFound?.backToHome || 'Back to Home'}
                 </button>
             </div>
         </section> 

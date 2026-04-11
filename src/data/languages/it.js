@@ -20,7 +20,7 @@ export default {
     index: {
         pageTitle: 'Generatore di Password Emoji',
         pageDescription:
-            '🔑 Password memorabili, senza sforzo. 🎯 Sequenze emoji inviolabili. 🌍 15+ lingue. Conforme al GDPR.',
+            '🔑 Password memorabili, senza sforzo. 🎯 Sequenze emoji inviolabili. 🌍 15+ lingue. 🔒 Conforme al GDPR.',
         pageKeywords:
             'Keymoji, password emoji, generatore password, sicurezza, sicurezza online',
         pageInstruction: [
@@ -453,7 +453,9 @@ export default {
     versions: {
         pageTitle: 'Cronologia versioni',
         pageDescription:
-            'Scopri la cronologia di sviluppo e il changelog di Keymoji, il generatore di password emoji.'
+            'Scopri la cronologia di sviluppo e il changelog di Keymoji, il generatore di password emoji.',
+        currentLabel: 'Attuale',
+        backToTop: 'Torna in cima'
     },
 
     // Traduzioni AccountManager
@@ -504,7 +506,7 @@ export default {
         // Azioni
         actions: {
             saveSettings: '💾 Salva impostazioni',
-            backToHome: '🏠 Torna alla home',
+            backToHome: '← Torna alla home',
             skipAccount: '❌ Salta {type}',
             createAccount: '🚀 Crea account {type}',
             settingsSaved: 'Impostazioni salvate con successo!'
@@ -586,7 +588,7 @@ export default {
 
         // Footer
         footer: {
-            magicLink: 'Link magico',
+            magicLink: 'Easy Login',
             instantSetup: 'Configurazione istantanea',
             noSpam: 'Nessuno spam',
             text: 'I link magici vengono inviati via email e sono validi per 15 minuti.',
@@ -729,6 +731,31 @@ export default {
     },
 
     // Testi UI generali
+
+    consent: {
+        title: 'Impostazioni privacy',
+        description: 'Utilizziamo dati minimi per migliorare la tua esperienza.',
+        analytics: 'Analisi di utilizzo anonime',
+        analyticsHint: "Ci aiuta a migliorare l'app — nessun dato personale",
+        saveHistory: 'Salva cronologia locale',
+        saveHistoryHint: 'Archiviato solo nel tuo browser',
+        accept: 'Salva le mie scelte',
+        acceptAll: 'Accetta tutto',
+        decline: 'Rifiuta opzionali',
+        moreInfo: 'Informativa sulla privacy',
+        legalInfo: 'Note legali',
+        privacy: 'Privacy e Legale',
+        necessaryTitle: 'Strettamente necessario',
+        necessaryHint: 'Necessario per il funzionamento — sempre attivo',
+        necessaryStorage: 'Impostazioni e preferenza tema (localStorage)',
+        necessarySession: 'Sessione di accesso (solo memoria del browser)',
+        necessaryOtp: 'Codice OTP per autenticazione (inviato una volta via email)',
+        historyDetail: 'Dati del grafico di utilizzo (generazioni al giorno)',
+        historyScope: 'Mai inviato a nessun server — solo nel tuo browser',
+        analyticsDetail: 'Conteggi di pagine anonimizzati (IP anonimizzato a x.x.x.0)',
+        analyticsProcessor: 'Elaborato tramite la nostra istanza n8n su DigitalOcean (EU)'
+    },
+
     ui: {
         save: 'Salva',
         cancel: 'Annulla',

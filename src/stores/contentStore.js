@@ -135,7 +135,13 @@ export const translations = derived(
             notFound: currentContent.notFound || fallbackContent.notFound,
             versions: currentContent.versions || fallbackContent.versions,
             accountManager:
-                currentContent.accountManager || fallbackContent.accountManager
+                currentContent.accountManager || fallbackContent.accountManager,
+            consent: currentContent.consent || null,
+            versionHistory: currentContent.versionHistory || null,
+            fixedMenu: currentContent.fixedMenu || null,
+            blog: currentContent.blog || null,
+            meta: currentContent.meta || null,
+            modals: currentContent.modals || null
         };
     }
 );

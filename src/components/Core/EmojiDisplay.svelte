@@ -37,8 +37,26 @@
     // State
     let storyInput = '';
     let randomEmojis = [];
-    let emojiCount = 9; // Updated: Default 9 emojis for FREE users
     let showTextArea = false;
+
+    // emojiCount: reaktiv aus effectiveSettings, mit lokalem Override für sofortiges UI-Feedback
+    let _localEmojiCount = null; // null = noch nicht initialisiert
+    $: _settingsEmojiCount = $effectiveSettings?.emojiCount ?? $userSettings?.emojiCount ?? 9;
+    // Lokaler Wert hat Priorität (User dreht gerade), sonst Store-Wert
+    $: emojiCount = _localEmojiCount ?? _settingsEmojiCount;
+
+    // Slider fill berechnung (reaktiv)
+    const sliderMin = 3;
+    const sliderMax = 9;
+    $: sliderPct = Math.round(((emojiCount - sliderMin) / (sliderMax - sliderMin)) * 100);
+
+    function handleEmojiCountChange(e) {
+        const val = parseInt(e.target.value, 10);
+        if (!isNaN(val)) {
+            _localEmojiCount = val;
+            updateSetting('emojiCount', val);
+        }
+    }
     
   
     // Story Mode - Persistent text input
@@ -1044,18 +1062,21 @@
     </div>
   
     <!-- Emoji Count Slider -->
-    <div class="flex flex-auto items-baseline md:w-100 space-x-4 my-1 pt-1 dark:text-white w-full">
-      <label for="emojiCount">Level</label>
-      <input 
-        type="range" 
-        id="emojiCount" 
-        min="4" 
-        max="9" 
-        bind:value={emojiCount} 
-        class="md:w-100 w-full mt-3 appearance-none rounded-full bg-gray-600 h-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+    <div class="flex flex-auto items-center md:w-100 gap-3 my-1 pt-1 dark:text-white w-full">
+      <label for="emojiCount" class="text-sm font-medium shrink-0">Level</label>
+      <input
+        type="range"
+        id="emojiCount"
+        min={sliderMin}
+        max={sliderMax}
+        step="1"
+        value={emojiCount}
+        on:input={handleEmojiCountChange}
+        class="emoji-range flex-1 h-2 appearance-none rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        style="background: linear-gradient(to right, #eab308 0%, #eab308 {sliderPct}%, #4b5563 {sliderPct}%, #4b5563 100%);"
         disabled={$isDisabled}
       />
-      <span>{emojiCount}</span>
+      <span class="text-sm font-bold text-yellow-500 dark:text-yellow-400 w-5 text-right tabular-nums shrink-0">{emojiCount}</span>
     </div>
   
     <!-- Story Input Section -->
@@ -1373,4 +1394,42 @@
       {/if}
     </div>
 </div>
+
+<style>
+  /* Emoji Count Slider — Primary Yellow Thumb */
+  .emoji-range::-webkit-slider-thumb {
+    appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #eab308;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .emoji-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(234, 179, 8, 0.5);
+  }
+  .emoji-range::-moz-range-thumb {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #eab308;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  }
+  .emoji-range::-moz-range-progress {
+    background: #eab308;
+    border-radius: 999px;
+    height: 8px;
+  }
+  .emoji-range::-moz-range-track {
+    background: #4b5563;
+    border-radius: 999px;
+    height: 8px;
+  }
+</style>
 

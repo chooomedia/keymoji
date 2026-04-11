@@ -110,9 +110,11 @@ button:disabled {
     width: 100%;
     margin: 0;
     padding: 0;
-    /* Reserve scrollbar gutter to prevent layout shift on view change.
-       overflow-y:auto on body handles actual scrolling — html stays neutral. */
-    scrollbar-gutter: stable both-edges;
+    /* Reserve scrollbar space permanently to prevent layout shift on route changes
+       and modal open/close. The scrollbar itself is hidden via app-container,
+       but the gutter space is kept so the layout width never changes. */
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
 }
 
 :global(body) {
@@ -122,19 +124,25 @@ button:disabled {
     width: 100%;
     box-sizing: border-box;
     overflow-y: auto;
-    /* Modal-Open Klasse wird von Modal.svelte verwaltet */
+    scrollbar-gutter: stable;
 }
 
-/* Alle Scrollbars unsichtbar machen (außer custom-scrollbar) */
-/* WICHTIG: Diese Styles müssen VOR den custom-scrollbar Styles stehen */
-/* Verwende explizite Ausnahme für custom-scrollbar */
-:global(*) {
+/* Hide scrollbars visually everywhere EXCEPT app-container which scrolls.
+   We keep scrollbar-gutter on html/body for stable layout width. */
+:global(*:not(html):not(body):not(.app-container):not(.custom-scrollbar)) {
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
 }
 
-:global(*::-webkit-scrollbar) {
+:global(*:not(html):not(body):not(.app-container):not(.custom-scrollbar)::-webkit-scrollbar) {
     display: none !important;
+}
+
+/* html and body scrollbars: hidden visually but gutter stays reserved */
+:global(html::-webkit-scrollbar),
+:global(body::-webkit-scrollbar) {
+    width: 0px !important;
+    background: transparent !important;
 }
 
 /* Explizite Ausnahme für custom-scrollbar - MUSS nach den globalen Styles stehen */
@@ -156,76 +164,16 @@ button:disabled {
 }
 
 
-/* Smooth Route Transitions */
-:global(.route-transition) {
-    position: relative;
-}
-
-:global(.route-transition > *) {
-    transition: opacity 0.3s ease-in-out;
-}
-
-/* Range Slider Custom Styling for Temperature */
-:global(input[type="range"]) {
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-}
-
-:global(input[type="range"]::-webkit-slider-thumb) {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: rgb(234, 179, 8);
-    cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: all 0.2s ease;
-}
-
-:global(input[type="range"]::-webkit-slider-thumb:hover) {
-    transform: scale(1.2);
-    background: rgb(217, 167, 0);
-}
-
-:global(input[type="range"]::-moz-range-thumb) {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: rgb(234, 179, 8);
-    cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: all 0.2s ease;
-}
-
-:global(input[type="range"]::-moz-range-thumb:hover) {
-    transform: scale(1.2);
-    background: rgb(217, 167, 0);
-}
-
-/* Dark mode for range slider */
-:global(.dark input[type="range"]::-webkit-slider-thumb) {
-    border: 2px solid rgb(31, 41, 55);
-    background: rgb(217, 167, 0);
-}
-
-:global(.dark input[type="range"]::-moz-range-thumb) {
-    border: 2px solid rgb(31, 41, 55);
-    background: rgb(217, 167, 0);
-}
-
-/* Modal/Menu Status Management */
+/* Modal/Menu Status Management — overflow:hidden verhindert Hintergrund-Scroll,
+   scrollbar-gutter:stable hält den reservierten Platz und verhindert Layout-Shift */
 :global(body.modal-open) {
     overflow: hidden;
-    padding-right: 0px;
+    scrollbar-gutter: stable;
 }
 
 :global(body.menu-open) {
     overflow: hidden;
-    padding-right: 0px;
+    scrollbar-gutter: stable;
 }
 
 :global(.dark) {

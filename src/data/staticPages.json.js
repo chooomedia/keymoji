@@ -8,7 +8,7 @@ export const staticPagesData = {
             title: 'Datenschutzerklärung',
             description:
                 'Informationen zum Datenschutz und zur Verarbeitung personenbezogener Daten',
-            lastUpdated: '2025-10-10',
+            lastUpdated: 'April 10, 2026',
             sections: [
                 {
                     title: '1. Einleitung',
@@ -27,21 +27,11 @@ export const staticPagesData = {
                     title: '2. Verantwortlicher',
                     content: [
                         {
-                            type: 'card',
-                            items: [
-                                { label: 'Name', text: 'Christopher Matt' },
-                                { label: 'Firma', text: 'Matt Interfaces' },
-                                {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Website',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                }
-                            ]
+                            type: 'image',
+                            src: '/images/keymoji-impressum-contact.png',
+                            alt: 'Verantwortlicher: Christopher Matt, CHOOOMEDIA, Switzerland',
+                            width: 960,
+                            height: 536
                         }
                     ]
                 },
@@ -86,7 +76,7 @@ export const staticPagesData = {
                             items: [
                                 {
                                     label: 'E-Mail-Adresse',
-                                    text: 'Für Magic Link Login'
+                                    text: 'Für OTP code login (code sent via email)'
                                 },
                                 {
                                     label: 'Name (optional)',
@@ -165,21 +155,22 @@ export const staticPagesData = {
                                     linkText: 'Datenschutz →'
                                 },
                                 {
-                                    title: '4.2 Google Sheets (Datenbank)',
-                                    text: 'Kontodaten werden in Google Sheets gespeichert',
-                                    link: 'https://policies.google.com/privacy',
-                                    linkText: 'Datenschutz →'
-                                },
-                                {
-                                    title: '4.3 Brevo (E-Mail-Versand)',
-                                    text: 'Magic Links und Benachrichtigungen',
+                                    title: '4.2 Brevo (E-Mail-Versand)',
+                                    text: 'OTP-Codes und Benachrichtigungen',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Datenschutz →'
                                 },
                                 {
-                                    title: '4.4 n8n (Automation)',
-                                    text: 'Backend-Workflows (selbst gehostet)',
-                                    link: 'https://n8n.io/legal/privacy',
+                                    title: '4.3 n8n (Automation)',
+                                    text: 'Backend-Workflows (selbst gehostet – kein externer Auftragsverarbeiter)',
+                                    link: 'https://matt-interfaces.ch/n8n',
+                                    linkText: 'n8n-Instanz →',
+                                    external: true
+                                },
+                                {
+                                    title: '4.4 HuggingFace (Apertus AI)',
+                                    text: 'Nur bei Nutzung des Story Mode: Ihr Eingabetext wird an HuggingFace (USA) übertragen. Keine personenbezogenen Daten werden gesendet.',
+                                    link: 'https://huggingface.co/privacy',
                                     linkText: 'Datenschutz →'
                                 }
                             ]
@@ -206,7 +197,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     label: 'Cookies',
-                                    text: 'Session-Management (Magic Link Login)'
+                                    text: 'Session-Management (OTP code login (code sent via email))'
                                 }
                             ]
                         }
@@ -245,26 +236,12 @@ export const staticPagesData = {
                             ]
                         },
                         {
-                            type: 'text',
-                            value: 'Für Anfragen kontaktieren Sie uns unter: hello@keymoji.wtf'
-                        }
-                    ]
-                },
-                {
-                    title: '7. Kontakt',
-                    content: [
-                        {
                             type: 'contact',
                             items: [
                                 {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Website',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
+                                    label: '💌 Kontaktformular',
+                                    text: 'Anfrage senden',
+                                    navigate: '/de/contact'
                                 }
                             ]
                         }
@@ -276,7 +253,7 @@ export const staticPagesData = {
             title: 'Privacy Policy',
             description:
                 'Information about data protection and processing of personal data',
-            lastUpdated: '2025-10-10',
+            lastUpdated: 'April 10, 2026',
             sections: [
                 {
                     title: '1. Introduction',
@@ -295,21 +272,11 @@ export const staticPagesData = {
                     title: '2. Responsible Party',
                     content: [
                         {
-                            type: 'card',
-                            items: [
-                                { label: 'Name', text: 'Christopher Matt' },
-                                { label: 'Company', text: 'Matt Interfaces' },
-                                {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Website',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                }
-                            ]
+                            type: 'image',
+                            src: '/images/keymoji-impressum-contact.png',
+                            alt: 'Responsible Party: Christopher Matt, CHOOOMEDIA, Switzerland',
+                            width: 960,
+                            height: 536
                         }
                     ]
                 },
@@ -430,21 +397,22 @@ export const staticPagesData = {
                                     linkText: 'Privacy →'
                                 },
                                 {
-                                    title: '4.2 Google Sheets (Database)',
-                                    text: 'Account data stored in Google Sheets',
-                                    link: 'https://policies.google.com/privacy',
-                                    linkText: 'Privacy →'
-                                },
-                                {
-                                    title: '4.3 Brevo (Email Service)',
+                                    title: '4.2 Brevo (Email Service)',
                                     text: 'Magic links and notifications',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Privacy →'
                                 },
                                 {
-                                    title: '4.4 n8n (Automation)',
-                                    text: 'Backend workflows (self-hosted)',
-                                    link: 'https://n8n.io/legal/privacy',
+                                    title: '4.3 n8n (Automation)',
+                                    text: 'Backend workflows (self-hosted — no external data processor)',
+                                    link: 'https://matt-interfaces.ch/n8n',
+                                    linkText: 'n8n instance →',
+                                    external: true
+                                },
+                                {
+                                    title: '4.4 HuggingFace (Apertus AI)',
+                                    text: 'Only when using Story Mode: your input text is sent to HuggingFace (USA). No personal data is transmitted.',
+                                    link: 'https://huggingface.co/privacy',
                                     linkText: 'Privacy →'
                                 }
                             ]
@@ -510,26 +478,12 @@ export const staticPagesData = {
                             ]
                         },
                         {
-                            type: 'text',
-                            value: 'For requests, contact us at: hello@keymoji.wtf'
-                        }
-                    ]
-                },
-                {
-                    title: '7. Contact',
-                    content: [
-                        {
                             type: 'contact',
                             items: [
                                 {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Website',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
+                                    label: '💌 Contact form',
+                                    text: 'Send a request',
+                                    navigate: '/en/contact'
                                 }
                             ]
                         }
@@ -541,7 +495,7 @@ export const staticPagesData = {
             title: 'Politique de confidentialité',
             description:
                 'Informations sur la protection des données et le traitement des données personnelles',
-            lastUpdated: '2025-10-10',
+            lastUpdated: 'April 10, 2026',
             sections: [
                 {
                     title: '1. Introduction',
@@ -560,24 +514,11 @@ export const staticPagesData = {
                     title: '2. Responsable',
                     content: [
                         {
-                            type: 'card',
-                            items: [
-                                { label: 'Nom', text: 'Christopher Matt' },
-                                {
-                                    label: 'Entreprise',
-                                    text: 'Matt Interfaces'
-                                },
-                                {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Site web',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                }
-                            ]
+                            type: 'image',
+                            src: '/images/keymoji-impressum-contact.png',
+                            alt: 'Responsible Party: Christopher Matt, CHOOOMEDIA, Switzerland',
+                            width: 960,
+                            height: 536
                         }
                     ]
                 },
@@ -701,22 +642,17 @@ export const staticPagesData = {
                                     linkText: 'Confidentialité →'
                                 },
                                 {
-                                    title: '4.2 Google Sheets (Base de données)',
-                                    text: 'Données de compte stockées dans Google Sheets',
-                                    link: 'https://policies.google.com/privacy',
-                                    linkText: 'Confidentialité →'
-                                },
-                                {
-                                    title: '4.3 Brevo (Service e-mail)',
+                                    title: '4.2 Brevo (Service e-mail)',
                                     text: 'Liens magiques et notifications',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Confidentialité →'
                                 },
                                 {
-                                    title: '4.4 n8n (Automatisation)',
-                                    text: 'Workflows backend (auto-hébergé)',
-                                    link: 'https://n8n.io/legal/privacy',
-                                    linkText: 'Confidentialité →'
+                                    title: '4.3 n8n (Automatisation)',
+                                    text: 'Workflows backend (auto-hébergé – aucun sous-traitant externe)',
+                                    link: 'https://matt-interfaces.ch/n8n',
+                                    linkText: 'Instance n8n →',
+                                    external: true
                                 }
                             ]
                         }
@@ -781,26 +717,12 @@ export const staticPagesData = {
                             ]
                         },
                         {
-                            type: 'text',
-                            value: 'Pour toute demande, contactez-nous à: hello@keymoji.wtf'
-                        }
-                    ]
-                },
-                {
-                    title: '7. Contact',
-                    content: [
-                        {
                             type: 'contact',
                             items: [
                                 {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Site web',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
+                                    label: '💌 Formulaire de contact',
+                                    text: 'Envoyer une demande',
+                                    navigate: '/fr/contact'
                                 }
                             ]
                         }
@@ -812,7 +734,7 @@ export const staticPagesData = {
             title: 'Política de privacidad',
             description:
                 'Información sobre la protección de datos y el procesamiento de datos personales',
-            lastUpdated: '2025-10-10',
+            lastUpdated: 'April 10, 2026',
             sections: [
                 {
                     title: '1. Introducción',
@@ -831,21 +753,11 @@ export const staticPagesData = {
                     title: '2. Responsable',
                     content: [
                         {
-                            type: 'card',
-                            items: [
-                                { label: 'Nombre', text: 'Christopher Matt' },
-                                { label: 'Empresa', text: 'Matt Interfaces' },
-                                {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Sitio web',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                }
-                            ]
+                            type: 'image',
+                            src: '/images/keymoji-impressum-contact.png',
+                            alt: 'Responsible Party: Christopher Matt, CHOOOMEDIA, Switzerland',
+                            width: 960,
+                            height: 536
                         }
                     ]
                 },
@@ -969,13 +881,7 @@ export const staticPagesData = {
                                     linkText: 'Privacidad →'
                                 },
                                 {
-                                    title: '4.2 Google Sheets (Base de datos)',
-                                    text: 'Datos de cuenta almacenados en Google Sheets',
-                                    link: 'https://policies.google.com/privacy',
-                                    linkText: 'Privacidad →'
-                                },
-                                {
-                                    title: '4.3 Brevo (Servicio de correo)',
+                                    title: '4.2 Brevo (Servicio de correo)',
                                     text: 'Enlaces mágicos y notificaciones',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Privacidad →'
@@ -1049,26 +955,12 @@ export const staticPagesData = {
                             ]
                         },
                         {
-                            type: 'text',
-                            value: 'Para solicitudes, contáctenos en: hello@keymoji.wtf'
-                        }
-                    ]
-                },
-                {
-                    title: '7. Contacto',
-                    content: [
-                        {
                             type: 'contact',
                             items: [
                                 {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Sitio web',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
+                                    label: '💌 Formulario de contacto',
+                                    text: 'Enviar una solicitud',
+                                    navigate: '/es/contact'
                                 }
                             ]
                         }
@@ -1080,7 +972,7 @@ export const staticPagesData = {
             title: 'Informativa sulla privacy',
             description:
                 'Informazioni sulla protezione dei dati e sul trattamento dei dati personali',
-            lastUpdated: '2025-10-10',
+            lastUpdated: 'April 10, 2026',
             sections: [
                 {
                     title: '1. Introduzione',
@@ -1099,21 +991,11 @@ export const staticPagesData = {
                     title: '2. Titolare',
                     content: [
                         {
-                            type: 'card',
-                            items: [
-                                { label: 'Nome', text: 'Christopher Matt' },
-                                { label: 'Azienda', text: 'Matt Interfaces' },
-                                {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Sito web',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                }
-                            ]
+                            type: 'image',
+                            src: '/images/keymoji-impressum-contact.png',
+                            alt: 'Responsible Party: Christopher Matt, CHOOOMEDIA, Switzerland',
+                            width: 960,
+                            height: 536
                         }
                     ]
                 },
@@ -1237,22 +1119,17 @@ export const staticPagesData = {
                                     linkText: 'Privacy →'
                                 },
                                 {
-                                    title: '4.2 Google Sheets (Database)',
-                                    text: 'Dati account memorizzati in Google Sheets',
-                                    link: 'https://policies.google.com/privacy',
-                                    linkText: 'Privacy →'
-                                },
-                                {
-                                    title: '4.3 Brevo (Servizio email)',
+                                    title: '4.2 Brevo (Servizio email)',
                                     text: 'Link magici e notifiche',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Privacy →'
                                 },
                                 {
-                                    title: '4.4 n8n (Automazione)',
-                                    text: 'Workflow backend (self-hosted)',
-                                    link: 'https://n8n.io/legal/privacy',
-                                    linkText: 'Privacy →'
+                                    title: '4.3 n8n (Automazione)',
+                                    text: 'Workflow backend (self-hosted – nessun responsabile esterno)',
+                                    link: 'https://matt-interfaces.ch/n8n',
+                                    linkText: 'Istanza n8n →',
+                                    external: true
                                 }
                             ]
                         }
@@ -1317,26 +1194,12 @@ export const staticPagesData = {
                             ]
                         },
                         {
-                            type: 'text',
-                            value: 'Per richieste, contattaci a: hello@keymoji.wtf'
-                        }
-                    ]
-                },
-                {
-                    title: '7. Contatto',
-                    content: [
-                        {
                             type: 'contact',
                             items: [
                                 {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Sito web',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
+                                    label: '💌 Modulo di contatto',
+                                    text: 'Invia una richiesta',
+                                    navigate: '/it/contact'
                                 }
                             ]
                         }
@@ -1348,7 +1211,7 @@ export const staticPagesData = {
             title: 'Privacybeleid',
             description:
                 'Informatie over gegevensbescherming en verwerking van persoonsgegevens',
-            lastUpdated: '2025-10-10',
+            lastUpdated: 'April 10, 2026',
             sections: [
                 {
                     title: '1. Inleiding',
@@ -1367,21 +1230,11 @@ export const staticPagesData = {
                     title: '2. Verantwoordelijke',
                     content: [
                         {
-                            type: 'card',
-                            items: [
-                                { label: 'Naam', text: 'Christopher Matt' },
-                                { label: 'Bedrijf', text: 'Matt Interfaces' },
-                                {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Website',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                }
-                            ]
+                            type: 'image',
+                            src: '/images/keymoji-impressum-contact.png',
+                            alt: 'Responsible Party: Christopher Matt, CHOOOMEDIA, Switzerland',
+                            width: 960,
+                            height: 536
                         }
                     ]
                 },
@@ -1505,22 +1358,17 @@ export const staticPagesData = {
                                     linkText: 'Privacy →'
                                 },
                                 {
-                                    title: '4.2 Google Sheets (Database)',
-                                    text: 'Accountgegevens opgeslagen in Google Sheets',
-                                    link: 'https://policies.google.com/privacy',
-                                    linkText: 'Privacy →'
-                                },
-                                {
-                                    title: '4.3 Brevo (E-mailservice)',
+                                    title: '4.2 Brevo (E-mailservice)',
                                     text: 'Magic links en notificaties',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Privacy →'
                                 },
                                 {
-                                    title: '4.4 n8n (Automatisering)',
-                                    text: 'Backend workflows (zelf gehost)',
-                                    link: 'https://n8n.io/legal/privacy',
-                                    linkText: 'Privacy →'
+                                    title: '4.3 n8n (Automatisering)',
+                                    text: 'Backend workflows (zelf gehost – geen externe verwerker)',
+                                    link: 'https://matt-interfaces.ch/n8n',
+                                    linkText: 'n8n-instantie →',
+                                    external: true
                                 }
                             ]
                         }
@@ -1585,26 +1433,12 @@ export const staticPagesData = {
                             ]
                         },
                         {
-                            type: 'text',
-                            value: 'Voor verzoeken, neem contact met ons op: hello@keymoji.wtf'
-                        }
-                    ]
-                },
-                {
-                    title: '7. Contact',
-                    content: [
-                        {
                             type: 'contact',
                             items: [
                                 {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Website',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
+                                    label: '💌 Contactformulier',
+                                    text: 'Stuur een verzoek',
+                                    navigate: '/nl/contact'
                                 }
                             ]
                         }
@@ -1616,7 +1450,7 @@ export const staticPagesData = {
             title: 'Polityka prywatności',
             description:
                 'Informacje o ochronie danych i przetwarzaniu danych osobowych',
-            lastUpdated: '2025-10-10',
+            lastUpdated: 'April 10, 2026',
             sections: [
                 {
                     title: '1. Wprowadzenie',
@@ -1635,24 +1469,11 @@ export const staticPagesData = {
                     title: '2. Administrator',
                     content: [
                         {
-                            type: 'card',
-                            items: [
-                                {
-                                    label: 'Imię i nazwisko',
-                                    text: 'Christopher Matt'
-                                },
-                                { label: 'Firma', text: 'Matt Interfaces' },
-                                {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Strona internetowa',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                }
-                            ]
+                            type: 'image',
+                            src: '/images/keymoji-impressum-contact.png',
+                            alt: 'Responsible Party: Christopher Matt, CHOOOMEDIA, Switzerland',
+                            width: 960,
+                            height: 536
                         }
                     ]
                 },
@@ -1776,22 +1597,17 @@ export const staticPagesData = {
                                     linkText: 'Prywatność →'
                                 },
                                 {
-                                    title: '4.2 Google Sheets (Baza danych)',
-                                    text: 'Dane konta przechowywane w Google Sheets',
-                                    link: 'https://policies.google.com/privacy',
-                                    linkText: 'Prywatność →'
-                                },
-                                {
-                                    title: '4.3 Brevo (Serwis e-mail)',
+                                    title: '4.2 Brevo (Serwis e-mail)',
                                     text: 'Magic links i powiadomienia',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Prywatność →'
                                 },
                                 {
-                                    title: '4.4 n8n (Automatyzacja)',
-                                    text: 'Workflow backend (hostowane własnoręcznie)',
-                                    link: 'https://n8n.io/legal/privacy',
-                                    linkText: 'Prywatność →'
+                                    title: '4.3 n8n (Automatyzacja)',
+                                    text: 'Workflow backend (self-hosted – brak zewnętrznego procesora)',
+                                    link: 'https://matt-interfaces.ch/n8n',
+                                    linkText: 'Instancja n8n →',
+                                    external: true
                                 }
                             ]
                         }
@@ -1856,26 +1672,12 @@ export const staticPagesData = {
                             ]
                         },
                         {
-                            type: 'text',
-                            value: 'W przypadku pytań skontaktuj się z nami: hello@keymoji.wtf'
-                        }
-                    ]
-                },
-                {
-                    title: '7. Kontakt',
-                    content: [
-                        {
                             type: 'contact',
                             items: [
                                 {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Strona internetowa',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
+                                    label: '💌 Formularz kontaktowy',
+                                    text: 'Wyślij zapytanie',
+                                    navigate: '/pl/contact'
                                 }
                             ]
                         }
@@ -1887,7 +1689,7 @@ export const staticPagesData = {
             title: 'Политика конфиденциальности',
             description:
                 'Информация о защите данных и обработке персональных данных',
-            lastUpdated: '2025-10-10',
+            lastUpdated: 'April 10, 2026',
             sections: [
                 {
                     title: '1. Введение',
@@ -1906,21 +1708,11 @@ export const staticPagesData = {
                     title: '2. Ответственное лицо',
                     content: [
                         {
-                            type: 'card',
-                            items: [
-                                { label: 'Имя', text: 'Christopher Matt' },
-                                { label: 'Компания', text: 'Matt Interfaces' },
-                                {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Веб-сайт',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                }
-                            ]
+                            type: 'image',
+                            src: '/images/keymoji-impressum-contact.png',
+                            alt: 'Responsible Party: Christopher Matt, CHOOOMEDIA, Switzerland',
+                            width: 960,
+                            height: 536
                         }
                     ]
                 },
@@ -2044,22 +1836,17 @@ export const staticPagesData = {
                                     linkText: 'Конфиденциальность →'
                                 },
                                 {
-                                    title: '4.2 Google Sheets (База данных)',
-                                    text: 'Данные аккаунта хранятся в Google Sheets',
-                                    link: 'https://policies.google.com/privacy',
-                                    linkText: 'Конфиденциальность →'
-                                },
-                                {
-                                    title: '4.3 Brevo (Сервис электронной почты)',
+                                    title: '4.2 Brevo (Сервис электронной почты)',
                                     text: 'Magic links и уведомления',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Конфиденциальность →'
                                 },
                                 {
-                                    title: '4.4 n8n (Автоматизация)',
-                                    text: 'Backend workflows (самостоятельно размещенные)',
-                                    link: 'https://n8n.io/legal/privacy',
-                                    linkText: 'Конфиденциальность →'
+                                    title: '4.3 n8n (Автоматизация)',
+                                    text: 'Backend workflows (self-hosted – без внешнего обработчика)',
+                                    link: 'https://matt-interfaces.ch/n8n',
+                                    linkText: 'Инстанция n8n →',
+                                    external: true
                                 }
                             ]
                         }
@@ -2124,26 +1911,12 @@ export const staticPagesData = {
                             ]
                         },
                         {
-                            type: 'text',
-                            value: 'По вопросам обращайтесь к нам: hello@keymoji.wtf'
-                        }
-                    ]
-                },
-                {
-                    title: '7. Контакт',
-                    content: [
-                        {
                             type: 'contact',
                             items: [
                                 {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Веб-сайт',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
+                                    label: '💌 Форма обратной связи',
+                                    text: 'Отправить запрос',
+                                    navigate: '/ru/contact'
                                 }
                             ]
                         }
@@ -2155,7 +1928,7 @@ export const staticPagesData = {
             title: 'Gizlilik Politikası',
             description:
                 'Veri koruma ve kişisel verilerin işlenmesi hakkında bilgiler',
-            lastUpdated: '2025-10-10',
+            lastUpdated: 'April 10, 2026',
             sections: [
                 {
                     title: '1. Giriş',
@@ -2174,21 +1947,11 @@ export const staticPagesData = {
                     title: '2. Sorumlu Taraf',
                     content: [
                         {
-                            type: 'card',
-                            items: [
-                                { label: 'İsim', text: 'Christopher Matt' },
-                                { label: 'Şirket', text: 'Matt Interfaces' },
-                                {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Web sitesi',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                }
-                            ]
+                            type: 'image',
+                            src: '/images/keymoji-impressum-contact.png',
+                            alt: 'Responsible Party: Christopher Matt, CHOOOMEDIA, Switzerland',
+                            width: 960,
+                            height: 536
                         }
                     ]
                 },
@@ -2312,13 +2075,7 @@ export const staticPagesData = {
                                     linkText: 'Gizlilik →'
                                 },
                                 {
-                                    title: '4.2 Google Sheets (Veritabanı)',
-                                    text: "Hesap verileri Google Sheets'te saklanır",
-                                    link: 'https://policies.google.com/privacy',
-                                    linkText: 'Gizlilik →'
-                                },
-                                {
-                                    title: '4.3 Brevo (E-posta Servisi)',
+                                    title: '4.2 Brevo (E-posta Servisi)',
                                     text: 'Magic linkler ve bildirimler',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Gizlilik →'
@@ -2392,26 +2149,12 @@ export const staticPagesData = {
                             ]
                         },
                         {
-                            type: 'text',
-                            value: 'Sorularınız için bize ulaşın: hello@keymoji.wtf'
-                        }
-                    ]
-                },
-                {
-                    title: '7. İletişim',
-                    content: [
-                        {
                             type: 'contact',
                             items: [
                                 {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Web sitesi',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
+                                    label: '💌 İletişim formu',
+                                    text: 'Talep gönderin',
+                                    navigate: '/tr/contact'
                                 }
                             ]
                         }
@@ -2424,61 +2167,42 @@ export const staticPagesData = {
         de: {
             title: 'Impressum',
             description: 'Angaben gemäß § 5 TMG / § 25 MedienG',
-            lastUpdated: '2025-10-10',
+            lastUpdated: 'April 10, 2026',
             sections: [
                 {
-                    title: '1. Dienstanbieter',
+                    title: '1. Dienstanbieter & Kontakt',
                     content: [
                         {
-                            type: 'card',
-                            items: [
-                                { label: 'Name', text: 'Christopher Matt' },
-                                { label: 'Firma', text: 'Matt Interfaces' },
-                                {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Website',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    title: '2. Kontakt',
-                    content: [
+                            type: 'image',
+                            src: '/images/keymoji-impressum-contact.png',
+                            alt: 'Dienstanbieter: Christopher Matt, CHOOOMEDIA, Switzerland',
+                            width: 960,
+                            height: 536
+                        },
                         {
                             type: 'list',
                             items: [
                                 {
-                                    label: '📧 Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: '🌐 Website',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                },
-                                {
-                                    label: '🐛 GitHub',
+                                    label: '🍴 GitHub Issues',
                                     text: 'github.com/chooomedia/keymoji/issues',
-                                    link: 'https://github.com/chooomedia/keymoji/issues'
+                                    link: 'https://github.com/chooomedia/keymoji/issues',
+                                    external: true
+                                },
+                                {
+                                    label: '💌 Kontaktformular',
+                                    text: 'Nachricht senden',
+                                    navigate: '/de/contact'
                                 }
                             ]
                         }
                     ]
                 },
                 {
-                    title: '3. Haftungsausschluss',
+                    title: '2. Haftungsausschluss',
                     content: [
                         {
                             type: 'subtitle',
-                            value: '3.1 Haftung für Inhalte'
+                            value: '2.1 Haftung für Inhalte'
                         },
                         {
                             type: 'text',
@@ -2486,7 +2210,7 @@ export const staticPagesData = {
                         },
                         {
                             type: 'subtitle',
-                            value: '3.2 Haftung für Passwort-Sicherheit'
+                            value: '2.2 Haftung für Passwort-Sicherheit'
                         },
                         {
                             type: 'warning',
@@ -2495,7 +2219,7 @@ export const staticPagesData = {
                         },
                         {
                             type: 'subtitle',
-                            value: '3.3 Haftung für AI-Generierung (Story Mode)'
+                            value: '2.3 Haftung für AI-Generierung (Story Mode)'
                         },
                         {
                             type: 'warning',
@@ -2510,7 +2234,7 @@ export const staticPagesData = {
                     ]
                 },
                 {
-                    title: '4. Urheberrecht',
+                    title: '3. Urheberrecht',
                     content: [
                         {
                             type: 'text',
@@ -2531,7 +2255,7 @@ export const staticPagesData = {
                     ]
                 },
                 {
-                    title: '5. Technical Credits',
+                    title: '4. Technical Credits',
                     content: [
                         {
                             type: 'card',
@@ -2543,9 +2267,14 @@ export const staticPagesData = {
                                 },
                                 {
                                     label: 'Backend',
-                                    text: 'Vercel Serverless, n8n Automation'
+                                    text: 'Vercel Serverless'
                                 },
-                                { label: 'Database', text: 'Google Sheets' },
+                                {
+                                    label: 'Automation',
+                                    text: 'n8n (selbst gehostet)',
+                                    link: 'https://matt-interfaces.ch/n8n',
+                                    external: true
+                                },
                                 { label: 'Email', text: 'Brevo' },
                                 {
                                     label: 'AI',
@@ -2562,61 +2291,42 @@ export const staticPagesData = {
             title: 'Legal Notice',
             description:
                 'Legal information according to § 5 TMG / § 25 MedienG',
-            lastUpdated: '2025-10-10',
+            lastUpdated: 'April 10, 2026',
             sections: [
                 {
-                    title: '1. Service Provider',
+                    title: '1. Service Provider & Contact',
                     content: [
                         {
-                            type: 'card',
-                            items: [
-                                { label: 'Name', text: 'Christopher Matt' },
-                                { label: 'Company', text: 'Chooomedia' },
-                                {
-                                    label: 'Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: 'Website',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    title: '2. Contact',
-                    content: [
+                            type: 'image',
+                            src: '/images/keymoji-impressum-contact.png',
+                            alt: 'Service Provider: Christopher Matt, CHOOOMEDIA, Switzerland',
+                            width: 960,
+                            height: 536
+                        },
                         {
                             type: 'list',
                             items: [
                                 {
-                                    label: '📧 Email',
-                                    text: 'hello@keymoji.wtf',
-                                    link: 'mailto:hello@keymoji.wtf'
-                                },
-                                {
-                                    label: '🌐 Website',
-                                    text: 'keymoji.wtf',
-                                    link: 'https://keymoji.wtf'
-                                },
-                                {
-                                    label: '🐛 GitHub',
+                                    label: '🍴 GitHub Issues',
                                     text: 'github.com/chooomedia/keymoji/issues',
-                                    link: 'https://github.com/chooomedia/keymoji/issues'
+                                    link: 'https://github.com/chooomedia/keymoji/issues',
+                                    external: true
+                                },
+                                {
+                                    label: '💌 Contact form',
+                                    text: 'Send a message',
+                                    navigate: '/en/contact'
                                 }
                             ]
                         }
                     ]
                 },
                 {
-                    title: '3. Disclaimer',
+                    title: '2. Disclaimer',
                     content: [
                         {
                             type: 'subtitle',
-                            value: '3.1 Liability for Content'
+                            value: '2.1 Liability for Content'
                         },
                         {
                             type: 'text',
@@ -2624,7 +2334,7 @@ export const staticPagesData = {
                         },
                         {
                             type: 'subtitle',
-                            value: '3.2 Password Security Liability'
+                            value: '2.2 Password Security Liability'
                         },
                         {
                             type: 'warning',
@@ -2633,7 +2343,7 @@ export const staticPagesData = {
                         },
                         {
                             type: 'subtitle',
-                            value: '3.3 AI Generation Liability (Story Mode)'
+                            value: '2.3 AI Generation Liability (Story Mode)'
                         },
                         {
                             type: 'warning',
@@ -2648,7 +2358,7 @@ export const staticPagesData = {
                     ]
                 },
                 {
-                    title: '4. Copyright',
+                    title: '3. Copyright',
                     content: [
                         {
                             type: 'text',
@@ -2669,7 +2379,7 @@ export const staticPagesData = {
                     ]
                 },
                 {
-                    title: '5. Technical Credits',
+                    title: '4. Technical Credits',
                     content: [
                         {
                             type: 'card',
@@ -2681,9 +2391,14 @@ export const staticPagesData = {
                                 },
                                 {
                                     label: 'Backend',
-                                    text: 'Vercel Serverless, n8n Automation'
+                                    text: 'Vercel Serverless'
                                 },
-                                { label: 'Database', text: 'Google Sheets' },
+                                {
+                                    label: 'Automation',
+                                    text: 'n8n (self-hosted)',
+                                    link: 'https://matt-interfaces.ch/n8n',
+                                    external: true
+                                },
                                 { label: 'Email', text: 'Brevo' },
                                 {
                                     label: 'AI',

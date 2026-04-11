@@ -405,7 +405,7 @@ export function validateStoryModeSettings(storyMode: StoryModeSettings | null | 
     }
 
     // API Key validation (basic format check)
-    // NOTE: Apertus doesn't require an API key - it uses VITE_N8N_APERTUS_TOKEN from environment
+    // NOTE: Apertus doesn't require a client-side API key - token is managed server-side via /api/story proxy
     if (storyMode.enabled) {
         const currentProvider = storyMode.provider || 'openai';
         
