@@ -35,7 +35,7 @@ export default {
         setupStoryModeSwissShort: 'スイスAI',
         setupStoryModeOr: 'または',
         setupStoryModeBannerCta: '— あなたのKeymoji Storyを作ろう',
-        setupStoryModeBannerText: '✨ あなたの物語がKeymoji になる',
+        setupStoryModeBannerText: '😊 あなたの物語 = あなたの鍵',
         setupStoryModeChip: 'Story Modeを有効にする',
         setupStoryModeDescription:
             'AIに接続してパーソナライズされた絵文字パスワードを取得。',

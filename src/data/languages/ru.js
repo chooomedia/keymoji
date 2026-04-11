@@ -35,7 +35,7 @@ export default {
         setupStoryModeSwissShort: 'Швейцарский ИИ',
         setupStoryModeOr: 'или',
         setupStoryModeBannerCta: '— Создай свою историю Keymoji',
-        setupStoryModeBannerText: '✨ Твоя история становится твоим Keymoji',
+        setupStoryModeBannerText: '😊 Твоя история = твой ключ',
         setupStoryModeChip: 'Активировать Story Mode',
         setupStoryModeDescription:
             'Подключитесь к вашему ИИ для персонализированных паролей эмодзи.',

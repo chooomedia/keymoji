@@ -35,7 +35,7 @@ export default {
         setupStoryModeSwissShort: 'Zwitserse AI',
         setupStoryModeOr: 'of',
         setupStoryModeBannerCta: '— Maak jouw Keymoji-Story',
-        setupStoryModeBannerText: '✨ Jouw verhaal wordt jouw veilige Keymoji',
+        setupStoryModeBannerText: '😊 Jouw verhaal = jouw sleutel',
         setupStoryModeChip: 'Story Mode activeren',
         setupStoryModeDescription:
             'Verbind met je AI voor gepersonaliseerde emoji-wachtwoorden.',

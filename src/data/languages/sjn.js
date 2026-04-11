@@ -35,7 +35,7 @@ export default {
         setupStoryModeSwissShort: 'Swiss AI',
         setupStoryModeOr: "ghap",
         setupStoryModeBannerCta: '— Keymoji Luruth lín Chen',
-        setupStoryModeBannerText: '✨ Luruth lín govadh Keymoji dithen lín',
+        setupStoryModeBannerText: '😊 Luruth lín = echad lín',
         setupStoryModeChip: 'Togo Story Mode',
         setupStoryModeDescription:
             "Hur'IghSIS QIn narnmey DaghajmeH, narnwI' lIjDaq",

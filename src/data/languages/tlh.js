@@ -35,7 +35,7 @@ export default {
         setupStoryModeSwissShort: 'Swiss AI',
         setupStoryModeOr: "ghap",
         setupStoryModeBannerCta: "— Keymoji Lut lIj DachenmoH",
-        setupStoryModeBannerText: "✨ QInlIj Keymoji QaplaH chavmoH",
+        setupStoryModeBannerText: "😊 QInlIj = De' lIj",
         setupStoryModeChip: "Story Mode yIchu'",
         setupStoryModeDescription:
             "QIn SaghwI' lIjDaq Yu' Daghaj QIn mu'ghommey HevmoHmeH",

@@ -35,7 +35,7 @@ export default {
         setupStoryModeSwissShort: '스위스 AI',
         setupStoryModeOr: '또는',
         setupStoryModeBannerCta: '— 나만의 Keymoji 스토리 만들기',
-        setupStoryModeBannerText: '✨ 내 스토리가 나만의 Keymoji 가 된다',
+        setupStoryModeBannerText: '😊 내 스토리 = 나의 열쇠',
         setupStoryModeChip: 'Story Mode 활성화',
         setupStoryModeDescription:
             'AI에 연결하여 개인화된 이모지 비밀번호를 받으세요.',

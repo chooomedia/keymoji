@@ -35,7 +35,7 @@ export default {
         setupStoryModeSwissShort: 'Schwiizer KI',
         setupStoryModeOr: 'oder',
         setupStoryModeBannerCta: '— Erstell dini Keymoji-Story',
-        setupStoryModeBannerText: '✨ Dini Story wird dis sicheres Keymoji',
+        setupStoryModeBannerText: '😊 Dini Story = dis Schlüssel',
         setupStoryModeChip: 'Story Mode aktiviere',
         setupStoryModeDescription:
             'Verbind di mit dim KI für personalisiereti Emoji-Passwörter.',

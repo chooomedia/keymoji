@@ -35,7 +35,7 @@ export default {
         setupStoryModeSwissShort: 'Szwajcarska AI',
         setupStoryModeOr: 'lub',
         setupStoryModeBannerCta: '— Stwórz swoją historię Keymoji',
-        setupStoryModeBannerText: '✨ Twoja historia staje się twoim bezpiecznym Keymoji',
+        setupStoryModeBannerText: '😊 Twoja historia = twój klucz',
         setupStoryModeChip: 'Aktywuj Story Mode',
         setupStoryModeDescription:
             'Połącz się ze swoją AI dla spersonalizowanych haseł emoji.',
