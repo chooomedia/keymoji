@@ -154,7 +154,18 @@ export function initializeSettings() {
             STORAGE_KEYS.USER_PREFERENCES
         );
         if (storedSettings) {
-            userSettings.set({ ...DEFAULT_FREE_SETTINGS, ...storedSettings });
+            // name aus localStorage NICHT übernehmen wenn metadata.settings.name vorhanden —
+            // initializeSettingsForUser() setzt den korrekten Namen nach dem Login
+            const rawMeta = storedSettings.metadata || {};
+            const parsedMeta = typeof rawMeta === 'string'
+                ? (() => { try { return JSON.parse(rawMeta); } catch { return {}; } })()
+                : rawMeta;
+            const metaName = parsedMeta?.name || parsedMeta?.settings?.name;
+            const settingsToApply = { ...DEFAULT_FREE_SETTINGS, ...storedSettings };
+            if (metaName) {
+                settingsToApply.name = metaName;
+            }
+            userSettings.set(settingsToApply);
         }
 
         // Try to load from cookies
