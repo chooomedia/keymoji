@@ -231,7 +231,6 @@ module.exports = merge(common, {
             meta: {
                 viewport:
                     'width=device-width, initial-scale=1.0, user-scalable=yes',
-                'theme-color': '#253852',
                 'apple-mobile-web-app-capable': 'yes',
                 'apple-mobile-web-app-status-bar-style': 'default'
             }

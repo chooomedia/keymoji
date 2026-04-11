@@ -626,6 +626,14 @@ darkMode.subscribe((isDarkMode: boolean) => {
         } else {
             document.documentElement.classList.remove('dark');
         }
+
+        // Sync browser chrome color with dark/light mode toggle
+        const themeColorLight = '#f5f0e8';
+        const themeColorDark = '#0a141f';
+        const targetColor = isDarkMode ? themeColorDark : themeColorLight;
+        document
+            .querySelectorAll('meta[name="theme-color"]')
+            .forEach((el) => el.setAttribute('content', targetColor));
     }
 });
 
