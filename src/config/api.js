@@ -79,7 +79,7 @@ const getApiUrl = () => {
         );
     }
 
-    return 'https://keymoji-git-master-chris-projects-018d256d.vercel.app'; // Default fallback
+    return 'https://keymoji-kappa.vercel.app'; // Default fallback — update VITE_API_URL GitHub Secret to override
 };
 
 const API_URL = getApiUrl();
