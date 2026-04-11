@@ -35,7 +35,7 @@ export default {
         setupStoryModeSwissShort: 'IA suiza',
         setupStoryModeOr: 'o',
         setupStoryModeBannerCta: '— Crea tu Keymoji-Story',
-        setupStoryModeBannerText: '😊 Tu historia = tu clave',
+        setupStoryModeBannerText: '😊 Tu historia: sonrisa es tu clave',
         setupStoryModeChip: 'Activar Story Mode',
         setupStoryModeDescription:
             'Conéctate con tu IA para contraseñas emoji personalizadas.',
