@@ -1,7 +1,9 @@
 <!-- src/components/Layout/PageLayout.svelte -->
 <script>
     import { currentLanguage, translations } from '../../stores/contentStore.js';
-    import { darkMode } from 'stores/appStores'
+    import { darkMode, isLoggedIn, currentAccount } from 'stores/appStores';
+    import { effectiveSettings, userSettings } from '../../stores/userSettingsStore.js';
+    import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
     import Header from './Header.svelte';
     import AISetupBanner from './AISetupBanner.svelte';
     import FixedMenu from '../../widgets/FixedMenu.svelte';
@@ -31,6 +33,31 @@
     const darkGradient = 'linear-gradient(-45deg, #050413, #040320f5, #080715, #040310)';
     const lightGradient = 'linear-gradient(-45deg, #e0e0e0f7, #f8f8f8f0, #ecececf0, #e0e0e0f2)';
     
+    // Banner-Sichtbarkeit (spiegelt AISetupBanner-Logik)
+    let storyModeEnabled = false;
+    let storyModeConfigured = false;
+    $: {
+        const settings =
+            $effectiveSettings?.storyMode ||
+            $userSettings?.storyMode ||
+            $currentAccount?.metadata?.settings?.storyMode ||
+            null;
+        if (settings) {
+            const provider = settings.provider || 'apertus';
+            const key = (settings.apiKeys || {})[provider] || '';
+            storyModeEnabled = settings.enabled || false;
+            storyModeConfigured = provider === 'apertus' ? storyModeEnabled : !!(key && key.length >= 10);
+        } else {
+            storyModeEnabled = false;
+            storyModeConfigured = false;
+        }
+    }
+    function isBannerDismissed() {
+        const entry = storageHelpers.get(STORAGE_KEYS.BANNER_DISMISSED);
+        return !!(entry?.until && Date.now() < entry.until);
+    }
+    $: bannerVisible = (!$isLoggedIn || !storyModeEnabled || !storyModeConfigured) && !isBannerDismissed();
+
     // Performance-State
     let backgroundLoaded = false;
     let supportsWebP = false;
@@ -59,8 +86,9 @@
 >
     <!-- Main Content Container -->
     <div class="min-h-screen scroll-smooth overflow-x-hidden">
-        <!-- Main Content: pt accounts for fixed banner (~32px) + header (~72px) = ~104px → pt-28 (112px) desktop -->
-        <section class="main-content flex flex-col justify-center items-center min-h-screen pb-24 md:pb-28 pt-28 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full">
+        <!-- Main Content: pt accounts for fixed banner + header; banner adds ~36px on mobile -->
+        <section class="main-content flex flex-col justify-center items-center min-h-screen pb-24 md:pb-28 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full
+            {bannerVisible ? 'pt-36 md:pt-28' : 'pt-24 md:pt-28'}">
 
             <!-- Content before header (e.g. images) -->
             <div class="transform translate-y-6">

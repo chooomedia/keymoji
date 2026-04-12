@@ -67,15 +67,15 @@
     <div
         role="note"
         aria-label="KI-Setup"
-        class="w-full md:h-8 flex items-center justify-center relative px-8 shrink-0
+        class="w-full md:h-8 flex items-center justify-center relative pl-3 pr-8 md:px-8 shrink-0
                bg-creme-600 dark:bg-aubergine-900
                border-b border-creme-700 dark:border-aubergine-800
                text-gray-700 dark:text-gray-300"
     >
-        <div class="flex items-center gap-2.5 py-1 md:py-0">
+        <div class="flex items-center gap-1.5 md:gap-2.5 py-1 md:py-0 min-w-0">
 
             <!-- Informativer Text -->
-            <span class="text-xs text-yellow-600 dark:text-yellow-400 whitespace-nowrap">
+            <span class="text-xs text-yellow-600 dark:text-yellow-400 truncate md:whitespace-nowrap">
                 {$translations?.index?.setupStoryModeBannerText || '✨ Deine Story wird dein sicheres Keymoji'}
             </span>
 
