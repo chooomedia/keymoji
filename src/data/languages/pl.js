@@ -547,10 +547,10 @@ export default {
                 unlimitedGenerations: 'Nieograniczone bezpieczne generacje',
                 unlimitedGenerationsDesc:
                     'Twórz tyle haseł ile potrzebujesz - bez limitów',
-                browserExtension: 'Rozszerzenie przeglądarki (Q4 2025)',
+                browserExtension: 'Rozszerzenie przeglądarki (Q3 2026)',
                 browserExtensionDesc:
                     'Bezpieczeństwo bezpośrednio w przeglądarce - automatycznie i wszędzie',
-                apiIntegration: 'Integracja API (Q4 2025)',
+                apiIntegration: 'Integracja API (Q3 2026)',
                 apiIntegrationDesc:
                     'Zintegruj bezpieczeństwo bezproblemowo w swoich aplikacjach'
             }

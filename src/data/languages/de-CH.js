@@ -546,10 +546,10 @@ export default {
                 unlimitedGenerations: 'Unbegrenzti sicheri Generierige',
                 unlimitedGenerationsDesc:
                     'Erstell so vieli Passwörter wie du bruchsch - ohni Limite',
-                browserExtension: 'Browser-Erwiterig (Q4 2025)',
+                browserExtension: 'Browser-Erwiterig (Q3 2026)',
                 browserExtensionDesc:
                     'Sicherheit direkt im Browser - automatisch und überall',
-                apiIntegration: 'API-Integration (Q4 2025)',
+                apiIntegration: 'API-Integration (Q3 2026)',
                 apiIntegrationDesc:
                     'Integrier Sicherheit nahtlos in dini eigene Anwendige'
             }

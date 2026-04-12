@@ -67,12 +67,12 @@
     <div
         role="note"
         aria-label="KI-Setup"
-        class="w-full md:h-8 h-5 flex items-center justify-center relative px-8 shrink-0
+        class="w-full md:h-8 flex items-center justify-center relative px-8 shrink-0 mb-2 md:mb-0
                bg-creme-600 dark:bg-aubergine-900
                border-b border-creme-700 dark:border-aubergine-800
                text-gray-700 dark:text-gray-300"
     >
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-2.5 py-1 md:py-0">
 
             <!-- Informativer Text -->
             <span class="text-xs text-yellow-600 dark:text-yellow-400 whitespace-nowrap">
@@ -82,7 +82,7 @@
             <!-- Chip CTA mit Regenbogen-Animation -->
             <button
                 on:click={navigateToAISettings}
-                class="rainbow-chip inline-flex items-center px-2.5 py-0.5 rounded-full text-xs
+                class="rainbow-chip inline-flex items-center px-2.5 py-1 md:py-0.5 rounded-full text-xs
                        whitespace-nowrap
                        focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1
                        cursor-pointer text-black font-medium"

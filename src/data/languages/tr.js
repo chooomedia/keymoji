@@ -545,10 +545,10 @@ export default {
                 unlimitedGenerations: 'Sınırsız güvenli üretim',
                 unlimitedGenerationsDesc:
                     'İhtiyacınız kadar şifre oluşturun - sınır yok',
-                browserExtension: 'Tarayıcı uzantısı (Q4 2025)',
+                browserExtension: 'Tarayıcı uzantısı (Q3 2026)',
                 browserExtensionDesc:
                     'Güvenlik doğrudan tarayıcınızda - otomatik olarak ve her yerde',
-                apiIntegration: 'API Entegrasyonu (Q4 2025)',
+                apiIntegration: 'API Entegrasyonu (Q3 2026)',
                 apiIntegrationDesc:
                     'Güvenliği kendi uygulamalarınıza sorunsuz bir şekilde entegre edin'
             }

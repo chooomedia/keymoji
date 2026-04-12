@@ -548,10 +548,10 @@ export default {
                 unlimitedGenerations: 'Onbeperkte veilige generasies',
                 unlimitedGenerationsDesc:
                     'Skep soveel wagwoorde as wat jy nodig het - sonder limiete',
-                browserExtension: 'Blaaier uitbreiding (Q4 2025)',
+                browserExtension: 'Blaaier uitbreiding (Q3 2026)',
                 browserExtensionDesc:
                     'Sekuriteit direk in jou blaaier - outomaties en oral',
-                apiIntegration: 'API integrasie (Q4 2025)',
+                apiIntegration: 'API integrasie (Q3 2026)',
                 apiIntegrationDesc:
                     'Integreer sekuriteit naadloos in jou eie toepassings'
             }

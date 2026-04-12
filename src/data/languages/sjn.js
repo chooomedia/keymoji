@@ -536,10 +536,10 @@ export default {
             pro: {
                 unlimitedGenerations: "chenmoHlaHbe'",
                 unlimitedGenerationsDesc: "chenmoHlaHbe' - QIn Qaw'laHbe'",
-                browserExtension: "Browser QulwI' (Q4 2025)",
+                browserExtension: "Browser QulwI' (Q3 2026)",
                 browserExtensionDesc:
                     "QIn QulwI' QulwI' - QIn QulwI' QulwI' QulwI'",
-                apiIntegration: "API QulwI' (Q4 2025)",
+                apiIntegration: "API QulwI' (Q3 2026)",
                 apiIntegrationDesc: "thand QIn QulwI' - QIn QulwI' QulwI'vaD"
             }
         },

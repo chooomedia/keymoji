@@ -546,10 +546,10 @@ export default {
                 unlimitedGenerations: 'Неограниченные безопасные генерации',
                 unlimitedGenerationsDesc:
                     'Создавайте столько паролей, сколько нужно - без ограничений',
-                browserExtension: 'Расширение браузера (Q4 2025)',
+                browserExtension: 'Расширение браузера (Q3 2026)',
                 browserExtensionDesc:
                     'Безопасность прямо в вашем браузере - автоматически и везде',
-                apiIntegration: 'Интеграция API (Q4 2025)',
+                apiIntegration: 'Интеграция API (Q3 2026)',
                 apiIntegrationDesc:
                     'Интегрируйте безопасность бесшовно в ваши приложения'
             }

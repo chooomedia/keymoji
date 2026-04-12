@@ -549,10 +549,10 @@ export default {
                 unlimitedGenerations: 'Generaciones seguras ilimitadas',
                 unlimitedGenerationsDesc:
                     'Crea tantas contraseñas como necesites - sin límites',
-                browserExtension: 'Extensión de navegador (Q4 2025)',
+                browserExtension: 'Extensión de navegador (Q3 2026)',
                 browserExtensionDesc:
                     'Seguridad directamente en tu navegador - automáticamente y en todas partes',
-                apiIntegration: 'Integración API (Q4 2025)',
+                apiIntegration: 'Integración API (Q3 2026)',
                 apiIntegrationDesc:
                     'Integra seguridad de manera transparente en tus propias aplicaciones'
             }

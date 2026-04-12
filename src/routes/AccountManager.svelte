@@ -2052,7 +2052,7 @@
 
                     <!-- Footer -->
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center justify-center space-x-6 text-[12px] md:text-sm text-gray-500 dark:text-gray-400">
                             <span class="flex items-center">
                                 🔐 {$translations?.accountManager?.footer?.magicLink || 'Easy Login'}
                             </span>
