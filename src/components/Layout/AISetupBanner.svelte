@@ -67,7 +67,7 @@
     <div
         role="note"
         aria-label="KI-Setup"
-        class="w-full md:h-8 flex items-center justify-center relative pl-3 pr-8 md:px-8 shrink-0
+        class="w-full md:h-8 flex items-center justify-center relative pl-3 pr-8 md:px-8 shrink-0 z-40
                bg-creme-600 dark:bg-aubergine-900
                border-b border-creme-700 dark:border-aubergine-800
                text-gray-700 dark:text-gray-300"
