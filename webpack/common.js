@@ -108,6 +108,13 @@ module.exports = {
                 'src',
                 'stores',
                 'appStores.ts'
+            ),
+            'stores/bannerStore': path.resolve(
+                __dirname,
+                '..',
+                'src',
+                'stores',
+                'bannerStore.ts'
             )
         },
         conditionNames: ['svelte', 'browser', 'module', 'main'],

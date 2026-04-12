@@ -5,10 +5,7 @@
     import { isLoggedIn, currentAccount } from 'stores/appStores';
     import { translations, currentLanguage } from '../../stores/contentStore.js';
     import { effectiveSettings, userSettings } from '../../stores/userSettingsStore.js';
-    import { darkMode } from 'stores/appStores';
-    import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
-
-    const DISMISS_TTL_MS = 3 * 24 * 60 * 60 * 1000; // 3 Tage
+    import { bannerDismissed, dismissBanner } from 'stores/bannerStore';
 
     let storyModeEnabled = false;
     let storyModeConfigured = false;
@@ -37,19 +34,6 @@
 
     $: showBanner = !$isLoggedIn || !storyModeEnabled || !storyModeConfigured;
 
-    function isDismissed() {
-        const entry = storageHelpers.get(STORAGE_KEYS.BANNER_DISMISSED);
-        if (!entry || !entry.until) return false;
-        return Date.now() < entry.until;
-    }
-
-    let dismissed = isDismissed();
-
-    function dismiss() {
-        storageHelpers.set(STORAGE_KEYS.BANNER_DISMISSED, { until: Date.now() + DISMISS_TTL_MS });
-        dismissed = true;
-    }
-
     function navigateToAISettings() {
         const lang = $currentLanguage || 'en';
         const path = lang === 'en' ? '/account' : `/${lang}/account`;
@@ -63,7 +47,7 @@
     }
 </script>
 
-{#if showBanner && !dismissed}
+{#if showBanner && !$bannerDismissed}
     <div
         role="note"
         aria-label="KI-Setup"
@@ -94,7 +78,7 @@
 
         <!-- Dismiss – absolut rechts -->
         <button
-            on:click={dismiss}
+            on:click={dismissBanner}
             class="absolute right-2 p-0.5 rounded text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400
                    transition-colors focus:outline-none focus:ring-1 focus:ring-gray-400"
             aria-label="Close banner"

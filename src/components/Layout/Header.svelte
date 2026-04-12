@@ -13,6 +13,25 @@
     import { navigateToBlog } from '../../utils/navigation';
     import Button from '../UI/Button.svelte';
     import { showModal } from '../../stores/modalStore';
+    import { bannerDismissed } from 'stores/bannerStore';
+    import { effectiveSettings, userSettings } from '../../stores/userSettingsStore.js';
+
+    // Mirror banner visibility for conditional header padding
+    let _storyModeEnabled = false;
+    let _storyModeConfigured = false;
+    $: {
+        const s = $effectiveSettings?.storyMode || $userSettings?.storyMode || $currentAccount?.metadata?.settings?.storyMode || null;
+        if (s) {
+            const provider = s.provider || 'apertus';
+            const key = (s.apiKeys || {})[provider] || '';
+            _storyModeEnabled = s.enabled || false;
+            _storyModeConfigured = provider === 'apertus' ? _storyModeEnabled : !!(key && key.length >= 10);
+        } else {
+            _storyModeEnabled = false;
+            _storyModeConfigured = false;
+        }
+    }
+    $: bannerVisible = (!$isLoggedIn || !_storyModeEnabled || !_storyModeConfigured) && !$bannerDismissed;
 
     const dispatch = createEventDispatcher();
     
@@ -128,7 +147,8 @@
 </script>
 
 <!-- Header mit Logo links, Buttons rechts -->
-<div class="main-header w-full flex flex-wrap justify-center pt-10 md:pt-4 mx-auto bg-transparent backdrop-blur-md">
+<div class="main-header w-full flex flex-wrap justify-center md:pt-4 mx-auto bg-transparent backdrop-blur-md transition-[padding] duration-300 ease-in-out
+    {bannerVisible ? 'pt-10' : 'pt-4'}">
     <nav class="w-full md:w-27 mx-3 bg-creme-500 dark:bg-aubergine-800 justify-center rounded-full p-1 relative z-30 shadow-lg">
         <div class="max-w-screen-2xl flex items-center justify-between">
             <!-- Logo und Titel links -->

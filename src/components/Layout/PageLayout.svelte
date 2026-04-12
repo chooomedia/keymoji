@@ -3,7 +3,7 @@
     import { currentLanguage, translations } from '../../stores/contentStore.js';
     import { darkMode, isLoggedIn, currentAccount } from 'stores/appStores';
     import { effectiveSettings, userSettings } from '../../stores/userSettingsStore.js';
-    import { STORAGE_KEYS, storageHelpers } from '../../config/storage.js';
+    import { bannerDismissed } from 'stores/bannerStore';
     import Header from './Header.svelte';
     import AISetupBanner from './AISetupBanner.svelte';
     import FixedMenu from '../../widgets/FixedMenu.svelte';
@@ -34,8 +34,8 @@
     const lightGradient = 'linear-gradient(-45deg, #e0e0e0f7, #f8f8f8f0, #ecececf0, #e0e0e0f2)';
     
     // Banner-Sichtbarkeit (spiegelt AISetupBanner-Logik)
-    let storyModeEnabled = false;
-    let storyModeConfigured = false;
+    let _storyEnabled = false;
+    let _storyConfigured = false;
     $: {
         const settings =
             $effectiveSettings?.storyMode ||
@@ -45,18 +45,14 @@
         if (settings) {
             const provider = settings.provider || 'apertus';
             const key = (settings.apiKeys || {})[provider] || '';
-            storyModeEnabled = settings.enabled || false;
-            storyModeConfigured = provider === 'apertus' ? storyModeEnabled : !!(key && key.length >= 10);
+            _storyEnabled = settings.enabled || false;
+            _storyConfigured = provider === 'apertus' ? _storyEnabled : !!(key && key.length >= 10);
         } else {
-            storyModeEnabled = false;
-            storyModeConfigured = false;
+            _storyEnabled = false;
+            _storyConfigured = false;
         }
     }
-    function isBannerDismissed() {
-        const entry = storageHelpers.get(STORAGE_KEYS.BANNER_DISMISSED);
-        return !!(entry?.until && Date.now() < entry.until);
-    }
-    $: bannerVisible = (!$isLoggedIn || !storyModeEnabled || !storyModeConfigured) && !isBannerDismissed();
+    $: bannerVisible = (!$isLoggedIn || !_storyEnabled || !_storyConfigured) && !$bannerDismissed;
 
     // Performance-State
     let backgroundLoaded = false;
@@ -87,7 +83,7 @@
     <!-- Main Content Container -->
     <div class="min-h-screen scroll-smooth overflow-x-hidden">
         <!-- Main Content: pt accounts for fixed banner + header; banner adds ~36px on mobile -->
-        <section class="main-content flex flex-col justify-center items-center min-h-screen pb-24 md:pb-28 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full
+        <section class="main-content flex flex-col justify-center items-center min-h-screen pb-24 md:pb-28 px-4 z-10 gap-4 scroll-smooth overflow-x-hidden w-full transition-[padding] duration-300 ease-in-out
             {bannerVisible ? 'pt-36 md:pt-28' : 'pt-24 md:pt-28'}">
 
             <!-- Content before header (e.g. images) -->
