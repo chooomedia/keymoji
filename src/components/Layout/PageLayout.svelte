@@ -46,7 +46,7 @@
 <ModalDebug />
 
 <!-- Fixed top stack: Banner (optional 32px) + Header (≈80px) -->
-<div class="fixed top-0 left-0 right-0 z-50 flex flex-col w-full">
+<div class="fixed top-0 left-0 right-0 z-50 flex flex-col w-full gap-2 md:gap-0">
     <AISetupBanner />
     <Header />
 </div>
