@@ -50,12 +50,14 @@
     let message = '';
     let newsletterOptIn = false;
 
-    // Pre-fill email + name from account (reactive)
-    $: if ($isLoggedIn && $currentAccount) {
-        if (!email && $currentAccount.email) email = $currentAccount.email;
-        if (!name && ($currentAccount.profile?.name || $currentAccount.name)) {
+    // Pre-fill email + name from account — only once, never overwrite user edits
+    let prefilled = false;
+    $: if ($isLoggedIn && $currentAccount && !prefilled) {
+        if ($currentAccount.email) email = $currentAccount.email;
+        if ($currentAccount.profile?.name || $currentAccount.name) {
             name = $currentAccount.profile?.name || $currentAccount.name || '';
         }
+        prefilled = true;
     }
 
     // Email is locked when user is logged in (verified address)
@@ -333,7 +335,7 @@
                     disabled={isSubmitting}
                     invalid={!!formErrors.name}
                     valid={!formErrors.name && name.trim().length >= 2}
-                    autocomplete="name"
+                    autocomplete="given-name"
                 />
                 {#if formErrors.name}
                     <p id="name-error" class="text-sm text-red-600 dark:text-red-400 mt-1">{formErrors.name}</p>
@@ -355,17 +357,6 @@
                         extraClass=""
                     />
                     {#if isEmailLocked}
-                        <!-- Blur gradient fading into badge -->
-                        <div
-                            class="absolute right-[2.25rem] w-16 pointer-events-none rounded-r-[11px] dark:hidden"
-                            style="top: 1px; bottom: 1px; background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.8) 60%, rgba(255,255,255,1) 100%);"
-                            aria-hidden="true"
-                        ></div>
-                        <div
-                            class="absolute right-[2.25rem] w-16 pointer-events-none rounded-r-[11px] hidden dark:block"
-                            style="top: 1px; bottom: 1px; background: linear-gradient(to right, transparent 0%, rgba(14,18,32,0.8) 60%, rgba(14,18,32,1) 100%);"
-                            aria-hidden="true"
-                        ></div>
                         <!-- Lock badge: animates via max-width on hover -->
                         <span
                             role="img"
