@@ -181,4 +181,27 @@
     background-position: right 1rem center !important;
     background-size: 1.25rem !important;
   }
+
+  /* Autofill override — browser injects its own bg color, we override via inset box-shadow */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 9999px #ffffff inset !important;
+    box-shadow: 0 0 0 9999px #ffffff inset !important;
+    -webkit-text-fill-color: #111827 !important;
+    caret-color: #111827;
+    transition: background-color 99999s ease-in-out 0s;
+  }
+
+  :global(.dark) input:-webkit-autofill,
+  :global(.dark) input:-webkit-autofill:hover,
+  :global(.dark) input:-webkit-autofill:focus,
+  :global(.dark) input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 9999px rgba(10, 20, 31, 1) inset !important;
+    box-shadow: 0 0 0 9999px rgba(10, 20, 31, 1) inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff;
+    transition: background-color 99999s ease-in-out 0s;
+  }
 </style> 
