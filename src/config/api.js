@@ -79,7 +79,7 @@ const getApiUrl = () => {
         );
     }
 
-    return 'https://keymoji-kappa.vercel.app'; // Default fallback — update VITE_API_URL GitHub Secret to override
+    return 'https://its.keymoji.wtf/api'; // Default fallback — update VITE_API_URL GitHub Secret to override
 };
 
 const API_URL = getApiUrl();
