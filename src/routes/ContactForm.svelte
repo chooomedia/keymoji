@@ -359,7 +359,6 @@
                     {#if isEmailLocked}
                         <!-- Lock badge: animates via max-width on hover -->
                         <span
-                            role="img"
                             aria-label={$translations?.contactForm?.emailLockedHint || 'From your profile'}
                             on:mouseenter={() => lockBadgeHovered = true}
                             on:mouseleave={() => lockBadgeHovered = false}
@@ -378,7 +377,7 @@
                             class:dark:text-gray-500={!lockBadgeHovered}
                             class:text-yellow-600={lockBadgeHovered}
                             class:dark:text-yellow-400={lockBadgeHovered}
-                            style="top: 15px; height: 1.75rem; transition: max-width 350ms ease-in-out, padding 350ms ease-in-out, background-color 200ms, border-color 200ms, color 200ms; max-width: {lockBadgeHovered ? '14rem' : '1.75rem'}; padding-left: {lockBadgeHovered ? '0.4rem' : '0'}; padding-right: {lockBadgeHovered ? '0.5rem' : '0'};"
+                            style="top: 15px; height: 1.75rem; transition: max-width 350ms ease-in-out, padding 350ms ease-in-out, background-color 200ms, border-color 200ms, color 200ms; max-width: {lockBadgeHovered ? '14rem' : '2.25rem'}; padding-left: {lockBadgeHovered ? '0.4rem' : '0'}; padding-right: {lockBadgeHovered ? '0.5rem' : '0'};"
                         >
                             <svg
                                 class="shrink-0 transition-all duration-300"
