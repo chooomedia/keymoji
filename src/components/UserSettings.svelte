@@ -1300,7 +1300,7 @@
                                                     {@const canTest = !isTestingAPI && (isApertus || hasValidKey)}
                                                         
                                                     <!-- API Key Configuration Card -->
-                                                    <div class="space-y-3 bg-powder-100 dark:bg-aubergine-950 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                                                    <div class="space-y-3 bg-powder-100/80 dark:bg-aubergine-950/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                                                         <!-- Label: provider-specific -->
                                                         <div class="flex items-center space-x-2">
                                                             <span class="text-lg">{isApertus ? '🇨🇭' : isCustom ? '🔧' : '🔑'}</span>
@@ -1339,15 +1339,15 @@
                                                                     localApiKeyValue = currentApiKeyFromStore || '';
                                                                 }}
                                                                 placeholder={currentPlaceholder}
-                                                                class="w-full p-4 {hasValidKey ? 'pr-32' : hasAnyKey ? 'pr-14' : 'pr-4'} bg-white dark:bg-aubergine-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-1 focus:ring-yellow-400/50 dark:focus:ring-yellow-500/50 placeholder-gray-400 dark:placeholder-gray-500"
+                                                                class="w-full p-4 {hasValidKey ? 'pr-32' : hasAnyKey ? 'pr-14' : 'pr-4'} bg-white/90 dark:bg-aubergine-900/90 backdrop-blur-sm text-gray-900 dark:text-white border-2 {hasValidKey ? 'border-green-400/60 dark:border-green-500/40' : hasAnyKey ? 'border-yellow-400/60 dark:border-yellow-500/40' : 'border-gray-200 dark:border-gray-700'} rounded-xl transition-all duration-200 focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-2 focus:ring-yellow-400/30 dark:focus:ring-yellow-500/30 placeholder-gray-400 dark:placeholder-gray-500"
                                                                 aria-label={isApertus ? ($translations?.accountManager?.apiKeyLabelApertus || 'Hugging Face Token') : ($translations?.accountManager?.apiKeyLabel || 'API Key')}
                                                             />
 
-                                                            <!-- Gradient Overlay -->
+                                                            <!-- Gradient Overlay (semi-transparent, matches backdrop-blur input) -->
                                                             {#if hasAnyKey}
                                                                 <div
-                                                                    class="absolute {hasValidKey ? 'right-[7.25rem]' : 'right-[3.25rem]'} inset-y-[1px] {hasValidKey ? 'w-32' : 'w-20'} z-5 pointer-events-none rounded-r-[11px]"
-                                                                    style="background: linear-gradient(to right, transparent 0%, {$darkMode ? 'rgba(14,30,48,0.6)' : 'rgba(255,255,255,0.6)'} 25%, {$darkMode ? 'rgba(14,30,48,0.95)' : 'rgba(255,255,255,0.95)'} 60%, {$darkMode ? '#0e1e30' : '#ffffff'} 100%);"
+                                                                    class="absolute {hasValidKey ? 'right-[7.25rem]' : 'right-[3.25rem]'} inset-y-[2px] {hasValidKey ? 'w-32' : 'w-20'} z-5 pointer-events-none rounded-r-[10px]"
+                                                                    style="background: linear-gradient(to right, transparent 0%, {$darkMode ? 'rgba(14,18,32,0.5)' : 'rgba(255,255,255,0.5)'} 25%, {$darkMode ? 'rgba(14,18,32,0.92)' : 'rgba(255,255,255,0.92)'} 70%);"
                                                                     aria-hidden="true"
                                                                 ></div>
                                                             {/if}
