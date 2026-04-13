@@ -378,10 +378,9 @@
                                 class:dark:text-gray-500={!lockBadgeHovered}
                                 class:text-yellow-600={lockBadgeHovered}
                                 class:dark:text-yellow-400={lockBadgeHovered}
-                                style="width: {lockBadgeHovered ? 'auto' : '1.75rem'}; height: 1.75rem; max-width: {lockBadgeHovered ? '14rem' : '1.75rem'}; padding-left: {lockBadgeHovered ? '0.5rem' : '0'}; padding-right: {lockBadgeHovered ? '0.5rem' : '0'}; justify-content: center; transition: max-width 350ms ease-in-out, width 350ms ease-in-out, padding 350ms ease-in-out, background-color 200ms, border-color 200ms, color 200ms;"
+                                style="height: 1.75rem; max-width: {lockBadgeHovered ? '14rem' : '1.75rem'}; padding: 0 0.4375rem; transition: max-width 350ms ease-in-out, background-color 200ms, border-color 200ms, color 200ms;"
                             >
                                 <svg
-                                    class="shrink-0"
                                     style="width: 0.875rem; height: 0.875rem; min-width: 0.875rem; flex-shrink: 0;"
                                     fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"
                                 >
@@ -389,7 +388,7 @@
                                 </svg>
                                 <span
                                     class="text-xs font-medium whitespace-nowrap overflow-hidden"
-                                    style="transition: max-width 350ms ease-in-out, opacity 250ms ease-in-out, margin-left 300ms ease-in-out; max-width: {lockBadgeHovered ? '12rem' : '0'}; opacity: {lockBadgeHovered ? '1' : '0'}; margin-left: {lockBadgeHovered ? '0.3rem' : '0'};"
+                                    style="transition: max-width 350ms ease-in-out, opacity 250ms ease-in-out, margin-left 300ms ease-in-out; max-width: {lockBadgeHovered ? '12rem' : '0'}; opacity: {lockBadgeHovered ? '1' : '0'}; margin-left: {lockBadgeHovered ? '0.35rem' : '0'};"
                                 >
                                     {$translations?.contactForm?.emailLockedHint || 'From your profile'}
                                 </span>
