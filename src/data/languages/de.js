@@ -579,9 +579,20 @@ export default {
             submitCode: '✅ Code bestätigen',
             verifying: 'Wird geprüft...',
             codeError: 'Bitte gib den 7-stelligen Code ein.',
-            codeInvalid:
-                'Ungültiger oder abgelaufener Code. Bitte neuen Code anfordern.'
+            codeInvalid: 'Ungültiger Code. Bitte prüfe deine E-Mail und versuche es erneut.',
+            codeExpired: 'Dieser Code ist abgelaufen. Bitte fordere einen neuen an.',
+            serviceUnavailable: 'Verifizierungsdienst nicht verfügbar. Bitte versuche es später erneut.'
         },
+
+        // Login-Fehlermeldungen (basierend auf Server-ErrorCode)
+        login: {
+            rateLimitExceeded: 'Zu viele Versuche. Bitte warte 10 Minuten.',
+            invalidEmail: 'Bitte gib eine gültige E-Mail-Adresse ein.',
+            emailServiceError: 'E-Mail-Dienst ist derzeit nicht verfügbar. Bitte versuche es später erneut.'
+        },
+
+        // Datenschutz-Link im Account-Footer
+        privacyLink: 'Datenschutz & Datenrechte',
 
         // Hilfe-Bereich
         help: {

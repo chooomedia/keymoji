@@ -572,8 +572,20 @@ export default {
             submitCode: '✅ Confirm Code',
             verifying: 'Verifying...',
             codeError: 'Please enter the 7-digit code.',
-            codeInvalid: 'Invalid or expired code. Please request a new one.'
+            codeInvalid: 'Invalid code. Please check your email and try again.',
+            codeExpired: 'This code has expired. Please request a new one.',
+            serviceUnavailable: 'Verification service unavailable. Please try again later.'
         },
+
+        // Login error messages (mapped from server errorCode)
+        login: {
+            rateLimitExceeded: 'Too many attempts. Please wait 10 minutes.',
+            invalidEmail: 'Please enter a valid email address.',
+            emailServiceError: 'Email service is currently unavailable. Please try again later.'
+        },
+
+        // Privacy link in account footer
+        privacyLink: 'Privacy Policy & Data Rights',
 
         // Help section
         help: {

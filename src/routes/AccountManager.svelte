@@ -1459,12 +1459,15 @@
                             </Button>
                             {/if}
 
-                            <!-- Data Deletion Notice (GDPR Art. 17) -->
+                            <!-- Privacy link -->
                             <div class="mt-4 pt-4 border-t border-gray-200 dark:border-aubergine-700">
                                 <p class="text-xs text-gray-400 dark:text-gray-500 text-center leading-relaxed">
-                                    {$translations?.accountManager?.deleteAccountHint || 'To delete your account and all data, send an email to'}
-                                    <a href="mailto:hello@keymoji.wtf?subject=Account%20deletion%20request" class="text-yellow-500 hover:underline">hello@keymoji.wtf</a>
-                                    {$translations?.accountManager?.deleteAccountHintSuffix || '— we will delete your data within 30 days (Art. 17 GDPR).'}
+                                    <a
+                                        href="/{$currentLanguage || 'en'}/privacy"
+                                        class="text-yellow-500 hover:text-yellow-400 underline transition-colors"
+                                    >
+                                        {$translations?.accountManager?.privacyLink || 'Privacy Policy & Data Rights'}
+                                    </a>
                                 </p>
                             </div>
                         </div>

@@ -236,11 +236,15 @@ export const staticPagesData = {
                             ]
                         },
                         {
+                            type: 'text',
+                            value: 'Ihre Daten gehören Ihnen — jederzeit. Stellen Sie eine Anfrage und wir löschen alles innerhalb von 30 Tagen (Art. 17 DSGVO).'
+                        },
+                        {
                             type: 'contact',
                             items: [
                                 {
                                     label: '💌 Kontaktformular',
-                                    text: 'Anfrage senden',
+                                    text: 'Jetzt Löschung beantragen',
                                     navigate: '/de/contact'
                                 }
                             ]
@@ -478,11 +482,15 @@ export const staticPagesData = {
                             ]
                         },
                         {
+                            type: 'text',
+                            value: 'Your data belongs to you — always. Submit a request and we\'ll erase everything within 30 days (Art. 17 GDPR).'
+                        },
+                        {
                             type: 'contact',
                             items: [
                                 {
                                     label: '💌 Contact form',
-                                    text: 'Send a request',
+                                    text: 'Request deletion now',
                                     navigate: '/en/contact'
                                 }
                             ]
@@ -717,11 +725,15 @@ export const staticPagesData = {
                             ]
                         },
                         {
+                            type: 'text',
+                            value: 'Vos données vous appartiennent — toujours. Soumettez une demande et nous supprimerons tout dans les 30 jours (Art. 17 RGPD).'
+                        },
+                        {
                             type: 'contact',
                             items: [
                                 {
                                     label: '💌 Formulaire de contact',
-                                    text: 'Envoyer une demande',
+                                    text: 'Demander la suppression maintenant',
                                     navigate: '/fr/contact'
                                 }
                             ]
@@ -955,11 +967,15 @@ export const staticPagesData = {
                             ]
                         },
                         {
+                            type: 'text',
+                            value: 'Tus datos te pertenecen — siempre. Envía una solicitud y eliminaremos todo en 30 días (Art. 17 RGPD).'
+                        },
+                        {
                             type: 'contact',
                             items: [
                                 {
                                     label: '💌 Formulario de contacto',
-                                    text: 'Enviar una solicitud',
+                                    text: 'Solicitar eliminación ahora',
                                     navigate: '/es/contact'
                                 }
                             ]
@@ -1194,11 +1210,15 @@ export const staticPagesData = {
                             ]
                         },
                         {
+                            type: 'text',
+                            value: 'I tuoi dati ti appartengono — sempre. Invia una richiesta e cancelleremo tutto entro 30 giorni (Art. 17 GDPR).'
+                        },
+                        {
                             type: 'contact',
                             items: [
                                 {
                                     label: '💌 Modulo di contatto',
-                                    text: 'Invia una richiesta',
+                                    text: 'Richiedi la cancellazione ora',
                                     navigate: '/it/contact'
                                 }
                             ]
@@ -1433,11 +1453,15 @@ export const staticPagesData = {
                             ]
                         },
                         {
+                            type: 'text',
+                            value: 'Uw gegevens zijn van u — altijd. Dien een verzoek in en we verwijderen alles binnen 30 dagen (Art. 17 AVG).'
+                        },
+                        {
                             type: 'contact',
                             items: [
                                 {
                                     label: '💌 Contactformulier',
-                                    text: 'Stuur een verzoek',
+                                    text: 'Verwijdering nu aanvragen',
                                     navigate: '/nl/contact'
                                 }
                             ]
@@ -1672,11 +1696,15 @@ export const staticPagesData = {
                             ]
                         },
                         {
+                            type: 'text',
+                            value: 'Twoje dane należą do Ciebie — zawsze. Złóż wniosek, a usuniemy wszystko w ciągu 30 dni (Art. 17 RODO).'
+                        },
+                        {
                             type: 'contact',
                             items: [
                                 {
                                     label: '💌 Formularz kontaktowy',
-                                    text: 'Wyślij zapytanie',
+                                    text: 'Złóż wniosek o usunięcie teraz',
                                     navigate: '/pl/contact'
                                 }
                             ]
@@ -1911,11 +1939,15 @@ export const staticPagesData = {
                             ]
                         },
                         {
+                            type: 'text',
+                            value: 'Ваши данные принадлежат вам — всегда. Отправьте запрос, и мы удалим всё в течение 30 дней (ст. 17 GDPR).'
+                        },
+                        {
                             type: 'contact',
                             items: [
                                 {
                                     label: '💌 Форма обратной связи',
-                                    text: 'Отправить запрос',
+                                    text: 'Запросить удаление сейчас',
                                     navigate: '/ru/contact'
                                 }
                             ]
@@ -2149,11 +2181,15 @@ export const staticPagesData = {
                             ]
                         },
                         {
+                            type: 'text',
+                            value: 'Verileriniz size aittir — her zaman. Bir talep gönderin, 30 gün içinde her şeyi sileriz (Madde 17 GDPR).'
+                        },
+                        {
                             type: 'contact',
                             items: [
                                 {
                                     label: '💌 İletişim formu',
-                                    text: 'Talep gönderin',
+                                    text: 'Silme talebinde bulunun',
                                     navigate: '/tr/contact'
                                 }
                             ]
