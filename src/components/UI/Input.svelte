@@ -122,7 +122,6 @@
       {placeholder}
       {disabled}
       {required}
-      readonly={readonly}
       bind:value
       class="{inputClass} pl-12"
       aria-invalid={invalid}
