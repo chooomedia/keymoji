@@ -814,9 +814,17 @@
             setTimeout(() => otpInputRefs[0]?.focus(), 120);
         } catch (error) {
             console.error('Login error:', error);
-            const errMsg = error?.message || '';
-            if (errMsg.includes('429') || errMsg.toLowerCase().includes('too many') || errMsg.toLowerCase().includes('rate limit')) {
-                showError($translations?.accountManager?.login?.rateLimitExceeded || 'Too many attempts. Please wait 10 minutes.', 8000);
+            const errorCode = error?.errorCode || '';
+            const retryMin = error?.retryAfterMinutes;
+            if (errorCode === 'RATE_LIMIT_EXCEEDED' || errorCode === '429') {
+                const waitMsg = retryMin
+                    ? `Too many attempts. Please wait ${retryMin} minutes.`
+                    : 'Too many attempts. Please wait 10 minutes.';
+                showError($translations?.accountManager?.login?.rateLimitExceeded || waitMsg, 10000);
+            } else if (errorCode === 'INVALID_EMAIL') {
+                showError($translations?.accountManager?.login?.invalidEmail || 'Please enter a valid email address.', 5000);
+            } else if (errorCode === 'EMAIL_SERVICE_UNAVAILABLE' || errorCode === 'EMAIL_SEND_FAILED') {
+                showError($translations?.accountManager?.login?.emailServiceError || 'Email service is currently unavailable. Please try again later.', 8000);
             } else {
                 showError($translations?.accountManager?.messages?.magicLinkSendFailed || 'Failed to send code. Please try again.', 5000);
             }
@@ -852,13 +860,26 @@
             checkSessionStatus();
         } catch (error) {
             console.error('❌ OTP verification failed:', error);
+            const errorCode = error?.errorCode || '';
             const msg = error.message || '';
             if (msg.includes('already') || msg.includes('exists') || msg.includes('logged in')) {
                 checkSessionStatus();
+            } else if (errorCode === 'CODE_EXPIRED') {
+                otpError = $translations?.accountManager?.verification?.codeExpired || 'This code has expired. Please request a new one.';
+                showError(otpError, 6000);
+                otpDigits = ['', '', '', '', '', '', ''];
+                setTimeout(() => otpInputRefs[0]?.focus(), 50);
+            } else if (errorCode === 'CODE_INVALID' || errorCode === 'INVALID_CODE_FORMAT') {
+                otpError = $translations?.accountManager?.verification?.codeInvalid || 'Invalid code. Please check and try again.';
+                showError(otpError, 5000);
+                otpDigits = ['', '', '', '', '', '', ''];
+                setTimeout(() => otpInputRefs[0]?.focus(), 50);
+            } else if (errorCode === 'SERVICE_UNAVAILABLE') {
+                otpError = $translations?.accountManager?.verification?.serviceUnavailable || 'Verification service unavailable. Please try again later.';
+                showError(otpError, 8000);
             } else {
                 otpError = $translations?.accountManager?.verification?.codeInvalid || 'Invalid or expired code. Please request a new one.';
                 showError(otpError, 5000);
-                // Felder leeren und Fokus auf erstes Feld
                 otpDigits = ['', '', '', '', '', '', ''];
                 setTimeout(() => otpInputRefs[0]?.focus(), 50);
             }

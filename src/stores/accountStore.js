@@ -470,8 +470,11 @@ export async function loginWithMagicLink(email, name = '', dev = false) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to send magic link');
+            const errorData = await response.json().catch(() => ({}));
+            const err = new Error(errorData.error || 'Failed to send magic link');
+            err.errorCode = errorData.errorCode || 'UNKNOWN';
+            err.retryAfterMinutes = errorData.retryAfterMinutes || null;
+            throw err;
         }
 
         const result = await response.json();
@@ -519,8 +522,10 @@ export async function verifyOTPCode(code, email) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'OTP verification failed');
+            const errorData = await response.json().catch(() => ({}));
+            const err = new Error(errorData.error || 'OTP verification failed');
+            err.errorCode = errorData.errorCode || 'UNKNOWN';
+            throw err;
         }
 
         const result = await response.json();
