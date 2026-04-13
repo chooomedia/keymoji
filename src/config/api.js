@@ -237,10 +237,8 @@ export const WEBHOOKS = {
         }
     },
 
-    // Analytics & User Counter
-    get USER_COUNTER() {
-        return buildN8NUrl('/xn--moji-pb73c-counter');
-    },
+    // Analytics & User Counter — via Vercel proxy (no VITE_N8N_URL needed client-side)
+    USER_COUNTER: `${API_URL}/counter`,
     get ANALYTICS() {
         return buildN8NUrl('/xn--moji-pb73c-analytics');
     },
