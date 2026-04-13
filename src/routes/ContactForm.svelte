@@ -348,7 +348,6 @@
                         bind:value={email}
                         placeholder={$translations?.contactForm?.emailLabel || 'Your Email'}
                         disabled={isSubmitting || isEmailLocked}
-                        readonly={isEmailLocked}
                         invalid={!!formErrors.email}
                         valid={!formErrors.email && email.trim() && EMAIL_REGEX.test(email)}
                         autocomplete="email"
@@ -368,11 +367,10 @@
                         ></div>
                         <!-- Lock badge: square icon, expands to show label on hover/focus -->
                         <span
-                            tabindex="0"
-                            role="status"
+                            role="img"
                             aria-label={$translations?.contactForm?.emailLockedHint || 'Using your account email'}
-                            class="group absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-0 overflow-hidden rounded-lg bg-white/90 dark:bg-aubergine-900/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-default focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 transition-all duration-300 ease-in-out w-8 h-8 hover:w-auto hover:gap-1.5 hover:px-2.5 hover:text-gray-600 dark:hover:text-gray-300 focus:w-auto focus:gap-1.5 focus:px-2.5 focus:text-gray-600 dark:focus:text-gray-300"
-                            style="min-width: 2rem;"
+                            class="group absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-0 overflow-hidden rounded-lg bg-white/90 dark:bg-aubergine-900/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-default transition-all duration-300 ease-in-out w-8 h-8 hover:w-auto hover:gap-1.5 hover:px-2.5 hover:text-gray-600 dark:hover:text-gray-300"
+                            style="min-width: 2rem; pointer-events: auto;"
                         >
                             <svg class="w-3.5 h-3.5 shrink-0 mx-auto group-hover:mx-0 group-focus:mx-0 transition-all duration-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
