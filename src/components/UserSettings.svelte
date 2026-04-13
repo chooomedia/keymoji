@@ -1358,7 +1358,7 @@
                                                                     <button
                                                                         type="button"
                                                                         on:click={() => showApiKey = !showApiKey}
-                                                                        class="inline-flex items-center justify-center w-7 h-7 rounded-lg transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
+                                                                        class="inline-flex items-center justify-center w-7 h-7 rounded-full transition-all duration-200 hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 focus:outline-none text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
                                                                         aria-label={showApiKey ? 'Hide key' : 'Show key'}
                                                                         title={showApiKey ? 'Hide' : 'Show'}
                                                                     >
@@ -1373,7 +1373,7 @@
                                                                     type="button"
                                                                     disabled={!canTest}
                                                                     on:click={testAPIConnection}
-                                                                    class="inline-flex items-center justify-center gap-1 px-2 h-7 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed {isTestSuccessful ? 'bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700' : canTest ? 'hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white' : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'}"
+                                                                    class="inline-flex items-center justify-center gap-1 px-2.5 h-7 text-xs font-medium rounded-full transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed {isTestSuccessful ? 'bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700' : canTest ? 'hover:bg-yellow-500 active:bg-yellow-600 dark:hover:bg-aubergine-800 dark:active:bg-aubergine-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white' : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'}"
                                                                     aria-label={isTestingAPI ? 'Testing…' : isTestSuccessful ? 'Verified' : !canTest ? 'Enter API key first' : 'Test connection'}
                                                                     title={isTestingAPI ? 'Testing…' : isTestSuccessful ? 'Verified ✅' : !canTest ? 'Enter an API key first' : 'Test connection'}
                                                                 >

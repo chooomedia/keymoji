@@ -357,42 +357,44 @@
                         extraClass=""
                     />
                     {#if isEmailLocked}
-                        <!-- Lock badge: animates via max-width on hover -->
-                        <span
-                            aria-label={$translations?.contactForm?.emailLockedHint || 'From your profile'}
-                            on:mouseenter={() => lockBadgeHovered = true}
-                            on:mouseleave={() => lockBadgeHovered = false}
-                            on:focusin={() => lockBadgeHovered = true}
-                            on:focusout={() => lockBadgeHovered = false}
-                            class="absolute right-2 inline-flex items-center overflow-hidden rounded-lg border backdrop-blur-sm cursor-default"
-                            class:border-gray-200={!lockBadgeHovered}
-                            class:dark:border-gray-700={!lockBadgeHovered}
-                            class:border-yellow-400={lockBadgeHovered}
-                            class:dark:border-yellow-500={lockBadgeHovered}
-                            class:bg-white={!lockBadgeHovered}
-                            class:dark:bg-aubergine-900={!lockBadgeHovered}
-                            class:bg-yellow-50={lockBadgeHovered}
-                            class:dark:bg-aubergine-800={lockBadgeHovered}
-                            class:text-gray-400={!lockBadgeHovered}
-                            class:dark:text-gray-500={!lockBadgeHovered}
-                            class:text-yellow-600={lockBadgeHovered}
-                            class:dark:text-yellow-400={lockBadgeHovered}
-                            style="top: 15px; height: 1.75rem; transition: max-width 350ms ease-in-out, padding 350ms ease-in-out, background-color 200ms, border-color 200ms, color 200ms; max-width: {lockBadgeHovered ? '14rem' : '2.25rem'}; padding-left: {lockBadgeHovered ? '0.4rem' : '0'}; padding-right: {lockBadgeHovered ? '0.5rem' : '0'};"
-                        >
-                            <svg
-                                class="shrink-0 transition-all duration-300"
-                                style="width: 0.875rem; height: 0.875rem; min-width: 0.875rem; margin: 0 {lockBadgeHovered ? '0' : 'auto'};"
-                                fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"
-                            >
-                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                            </svg>
+                        <!-- Lock badge: pill shape, centered vertically, expands on hover -->
+                        <div class="absolute right-2 inset-y-0 flex items-center">
                             <span
-                                class="text-xs font-medium whitespace-nowrap overflow-hidden"
-                                style="transition: max-width 350ms ease-in-out, opacity 250ms ease-in-out, margin-left 350ms ease-in-out; max-width: {lockBadgeHovered ? '12rem' : '0'}; opacity: {lockBadgeHovered ? '1' : '0'}; margin-left: {lockBadgeHovered ? '0.3rem' : '0'};"
+                                aria-label={$translations?.contactForm?.emailLockedHint || 'From your profile'}
+                                on:mouseenter={() => lockBadgeHovered = true}
+                                on:mouseleave={() => lockBadgeHovered = false}
+                                on:focusin={() => lockBadgeHovered = true}
+                                on:focusout={() => lockBadgeHovered = false}
+                                class="inline-flex items-center overflow-hidden rounded-full border backdrop-blur-sm cursor-default"
+                                class:border-gray-200={!lockBadgeHovered}
+                                class:dark:border-gray-700={!lockBadgeHovered}
+                                class:border-yellow-400={lockBadgeHovered}
+                                class:dark:border-yellow-500={lockBadgeHovered}
+                                class:bg-white={!lockBadgeHovered}
+                                class:dark:bg-aubergine-900={!lockBadgeHovered}
+                                class:bg-yellow-50={lockBadgeHovered}
+                                class:dark:bg-aubergine-800={lockBadgeHovered}
+                                class:text-gray-400={!lockBadgeHovered}
+                                class:dark:text-gray-500={!lockBadgeHovered}
+                                class:text-yellow-600={lockBadgeHovered}
+                                class:dark:text-yellow-400={lockBadgeHovered}
+                                style="height: 1.75rem; transition: max-width 350ms ease-in-out, padding 350ms ease-in-out, background-color 200ms, border-color 200ms, color 200ms; max-width: {lockBadgeHovered ? '14rem' : '1.75rem'}; padding-left: {lockBadgeHovered ? '0.5rem' : '0'}; padding-right: {lockBadgeHovered ? '0.5rem' : '0'};"
                             >
-                                {$translations?.contactForm?.emailLockedHint || 'From your profile'}
+                                <svg
+                                    class="shrink-0"
+                                    style="width: 0.875rem; height: 0.875rem; min-width: 0.875rem; margin: 0 auto; transition: margin 300ms ease-in-out;"
+                                    fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"
+                                >
+                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span
+                                    class="text-xs font-medium whitespace-nowrap overflow-hidden"
+                                    style="transition: max-width 350ms ease-in-out, opacity 250ms ease-in-out, margin-left 300ms ease-in-out; max-width: {lockBadgeHovered ? '12rem' : '0'}; opacity: {lockBadgeHovered ? '1' : '0'}; margin-left: {lockBadgeHovered ? '0.3rem' : '0'};"
+                                >
+                                    {$translations?.contactForm?.emailLockedHint || 'From your profile'}
+                                </span>
                             </span>
-                        </span>
+                        </div>
                     {/if}
                 </div>
                 {#if !isEmailLocked && formErrors.email}
