@@ -95,7 +95,7 @@ export default {
             'Tus datos están en buenas manos 🤲. No compartimos tus detalles con terceros 🔒.',
         newsletterLabel: 'Sí, me gustaría suscribirme al boletín',
         emailVerified: 'Verificado',
-        emailLockedHint: 'Email de la cuenta — rellenado automáticamente',
+        emailLockedHint: 'De tu perfil',
         newsletterOptIn: 'Suscribirse al boletín',
         newsletterText:
             'Mantente al día y suscríbete al boletín con confianza. {privacyPolicy}',

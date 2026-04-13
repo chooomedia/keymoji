@@ -96,7 +96,7 @@ export default {
             'Si versichert, dini Date sind bi uns in guete Händ 🤲. Dini Details werde nöd a Dritti wiitergäh 🔒.',
         newsletterLabel: 'Ja, ich möcht de Newsletter abonniere',
         emailVerified: 'Verifiziert',
-        emailLockedHint: 'Account-E-Mail — automatisch usgfüllt',
+        emailLockedHint: 'Us diim Profil',
         newsletterOptIn: 'Newsletter abonniere',
         newsletterText:
             'Bliib uf em Laufende und abonnier de Newsletter mit Vertraue. {privacyPolicy}',

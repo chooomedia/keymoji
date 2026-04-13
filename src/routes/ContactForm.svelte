@@ -360,7 +360,7 @@
                         <!-- Lock badge: animates via max-width on hover -->
                         <span
                             role="img"
-                            aria-label={$translations?.contactForm?.emailLockedHint || 'Account email — pre-filled'}
+                            aria-label={$translations?.contactForm?.emailLockedHint || 'From your profile'}
                             on:mouseenter={() => lockBadgeHovered = true}
                             on:mouseleave={() => lockBadgeHovered = false}
                             on:focusin={() => lockBadgeHovered = true}
@@ -391,7 +391,7 @@
                                 class="text-xs font-medium whitespace-nowrap overflow-hidden"
                                 style="transition: max-width 350ms ease-in-out, opacity 250ms ease-in-out, margin-left 350ms ease-in-out; max-width: {lockBadgeHovered ? '12rem' : '0'}; opacity: {lockBadgeHovered ? '1' : '0'}; margin-left: {lockBadgeHovered ? '0.3rem' : '0'};"
                             >
-                                {$translations?.contactForm?.emailLockedHint || 'Account email — pre-filled'}
+                                {$translations?.contactForm?.emailLockedHint || 'From your profile'}
                             </span>
                         </span>
                     {/if}

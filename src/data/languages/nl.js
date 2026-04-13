@@ -95,7 +95,7 @@ export default {
             'Je gegevens zijn bij ons in goede handen 🤲. Je gegevens worden niet gedeeld met derden 🔒.',
         newsletterLabel: 'Ja, ik wil me abonneren op de nieuwsbrief',
         emailVerified: 'Geverifieerd',
-        emailLockedHint: 'Account-e-mail — automatisch ingevuld',
+        emailLockedHint: 'Uit je profiel',
         newsletterOptIn: 'Abonneren op nieuwsbrief',
         newsletterText:
             'Blijf op de hoogte en abonneer je met vertrouwen op de nieuwsbrief. {privacyPolicy}',

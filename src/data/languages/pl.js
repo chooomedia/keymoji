@@ -96,7 +96,7 @@ export default {
             'Twoje dane są u nas bezpieczne 🤲. Nie udostępniamy ich osobom trzecim 🔒.',
         newsletterLabel: 'Tak, chcę zapisać się do newslettera',
         emailVerified: 'Zweryfikowany',
-        emailLockedHint: 'E-mail konta — wypełniony automatycznie',
+        emailLockedHint: 'Z twojego profilu',
         newsletterOptIn: 'Zapisz się do newslettera',
         newsletterText:
             'Bądź na bieżąco i zapisz się do newslettera z pewnością. {privacyPolicy}',
