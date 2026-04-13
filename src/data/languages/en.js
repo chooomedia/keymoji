@@ -119,7 +119,9 @@ export default {
             messageRequired: 'Message required',
             messageLength: 'Minimum {min} characters'
         },
-        autoFilledLabel: 'Auto-filled from your account'
+        autoFilledLabel: 'Auto-filled from your account',
+        emailVerified: 'Verified',
+        emailLockedHint: 'Using your account email'
     },
     serviceWorker: {
         updateAvailable: 'A new version is available!',

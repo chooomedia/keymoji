@@ -24,7 +24,7 @@
     import Button from '../components/UI/Button.svelte';
     import Checkbox from '../components/UI/Checkbox.svelte';
     import { isTestMode } from '../utils/environment';
-    import { initializeAccountFromCookies } from '../stores/accountStore.js';
+    import { initializeAccountFromCookies, currentAccount, isLoggedIn } from '../stores/accountStore.js';
     import FooterInfo from '../widgets/FooterInfo.svelte';
     
     // Reaktive Übersetzungen - optimiert
@@ -43,11 +43,22 @@
         });
     }
     
-    // Form state
+    // Form state — pre-fill from account if logged in
     let name = '';
     let email = '';
     let message = '';
     let newsletterOptIn = false;
+
+    // Pre-fill email + name from account (reactive)
+    $: if ($isLoggedIn && $currentAccount) {
+        if (!email && $currentAccount.email) email = $currentAccount.email;
+        if (!name && ($currentAccount.profile?.name || $currentAccount.name)) {
+            name = $currentAccount.profile?.name || $currentAccount.name || '';
+        }
+    }
+
+    // Email is locked when user is logged in (verified address)
+    $: isEmailLocked = $isLoggedIn && !!$currentAccount?.email;
     let honeypot = ''; // Hidden honeypot field
     let emoijSmirkingFace = '/images/keymoji-animated-optimize-resize-160x160px.webp',
         realAuthorImage = '/images/chris-matt-keymoji-creator-frontend-developer.png',
@@ -328,18 +339,33 @@
             </div>
 
             <div>
-                <label for="email" class="sr-only">{$translations?.contactForm?.emailLabel || 'Your Email'}</label> 
-                <Input
-                    id="email"
-                    type="email"
-                    bind:value={email}
-                    placeholder={$translations?.contactForm?.emailLabel || 'Your Email'}
-                    disabled={isSubmitting}
-                    invalid={!!formErrors.email}
-                    valid={!formErrors.email && email.trim() && EMAIL_REGEX.test(email)}
-                    autocomplete="email"
-                />
-                {#if formErrors.email}
+                <label for="email" class="sr-only">{$translations?.contactForm?.emailLabel || 'Your Email'}</label>
+                <div class="relative">
+                    <Input
+                        id="email"
+                        type="email"
+                        bind:value={email}
+                        placeholder={$translations?.contactForm?.emailLabel || 'Your Email'}
+                        disabled={isSubmitting || isEmailLocked}
+                        readonly={isEmailLocked}
+                        invalid={!!formErrors.email}
+                        valid={!formErrors.email && email.trim() && EMAIL_REGEX.test(email)}
+                        autocomplete="email"
+                    />
+                    {#if isEmailLocked}
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-green-600 dark:text-green-400 flex items-center gap-1 pointer-events-none">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
+                            {$translations?.contactForm?.emailVerified || 'Verified'}
+                        </span>
+                    {/if}
+                </div>
+                {#if isEmailLocked}
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                        {$translations?.contactForm?.emailLockedHint || 'Using your account email'}
+                    </p>
+                {:else if formErrors.email}
                     <p id="email-error" class="text-sm text-red-600 dark:text-red-400 mt-1">{formErrors.email}</p>
                 {/if}
             </div>

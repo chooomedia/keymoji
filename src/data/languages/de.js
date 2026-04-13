@@ -123,7 +123,9 @@ export default {
             messageRequired: 'Nachricht erforderlich',
             messageLength: 'Mindestens {min} Zeichen'
         },
-        autoFilledLabel: 'Automatisch aus deinem Konto ausgefüllt'
+        autoFilledLabel: 'Automatisch aus deinem Konto ausgefüllt',
+        emailVerified: 'Verifiziert',
+        emailLockedHint: 'E-Mail aus deinem Account'
     },
     serviceWorker: {
         updateAvailable: 'Eine neue Version ist verfügbar!',
