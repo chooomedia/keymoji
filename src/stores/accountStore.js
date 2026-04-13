@@ -2376,7 +2376,13 @@ function handleMagicLinkStorage(event) {
         if (event.key === STORAGE_KEYS.USER_PREFERENCES && event.newValue) {
             try {
                 const userPrefs = JSON.parse(event.newValue);
-                if (userPrefs.email && userPrefs.lastLogin) {
+                // Only set isLoggedIn if a valid, non-expired session exists
+                const hasValidSession =
+                    userPrefs.email &&
+                    userPrefs.sessionExpires &&
+                    new Date(userPrefs.sessionExpires) > new Date();
+
+                if (hasValidSession) {
                     console.log(
                         '🔄 User preferences updated in another tab:',
                         userPrefs
