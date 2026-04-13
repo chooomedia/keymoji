@@ -352,23 +352,34 @@
                         invalid={!!formErrors.email}
                         valid={!formErrors.email && email.trim() && EMAIL_REGEX.test(email)}
                         autocomplete="email"
+                        extraClass={isEmailLocked ? 'pr-12' : ''}
                     />
                     {#if isEmailLocked}
-                        <!-- Blur gradient behind lock badge (light + dark) -->
+                        <!-- Dynamic blur gradient — widens when badge expands -->
                         <div
-                            class="absolute right-[4.5rem] inset-y-[1px] w-16 pointer-events-none rounded-r-[11px] dark:hidden"
-                            style="background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.7) 40%, rgba(255,255,255,0.97) 100%);"
+                            class="absolute right-[2.75rem] inset-y-[1px] w-20 pointer-events-none rounded-r-[11px] dark:hidden transition-all duration-300"
+                            style="background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.6) 35%, rgba(255,255,255,0.97) 100%);"
                             aria-hidden="true"
                         ></div>
                         <div
-                            class="absolute right-[4.5rem] inset-y-[1px] w-16 pointer-events-none rounded-r-[11px] hidden dark:block"
-                            style="background: linear-gradient(to right, transparent 0%, rgba(14,18,32,0.7) 40%, rgba(14,18,32,0.97) 100%);"
+                            class="absolute right-[2.75rem] inset-y-[1px] w-20 pointer-events-none rounded-r-[11px] hidden dark:block transition-all duration-300"
+                            style="background: linear-gradient(to right, transparent 0%, rgba(14,18,32,0.6) 35%, rgba(14,18,32,0.97) 100%);"
                             aria-hidden="true"
                         ></div>
-                        <span class="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center px-2 h-6 text-xs rounded-md bg-white/80 dark:bg-aubergine-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 pointer-events-none">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <!-- Lock badge: square icon, expands to show label on hover/focus -->
+                        <span
+                            tabindex="0"
+                            role="status"
+                            aria-label={$translations?.contactForm?.emailLockedHint || 'Using your account email'}
+                            class="group absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-0 overflow-hidden rounded-lg bg-white/90 dark:bg-aubergine-900/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-default focus:outline-none focus:border-yellow-400 dark:focus:border-yellow-500 transition-all duration-300 ease-in-out w-8 h-8 hover:w-auto hover:gap-1.5 hover:px-2.5 hover:text-gray-600 dark:hover:text-gray-300 focus:w-auto focus:gap-1.5 focus:px-2.5 focus:text-gray-600 dark:focus:text-gray-300"
+                            style="min-width: 2rem;"
+                        >
+                            <svg class="w-3.5 h-3.5 shrink-0 mx-auto group-hover:mx-0 group-focus:mx-0 transition-all duration-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
                             </svg>
+                            <span class="text-xs font-medium whitespace-nowrap max-w-0 overflow-hidden opacity-0 group-hover:max-w-[10rem] group-hover:opacity-100 group-focus:max-w-[10rem] group-focus:opacity-100 transition-all duration-300 ease-in-out">
+                                {$translations?.contactForm?.emailVerified || 'Verified'}
+                            </span>
                         </span>
                     {/if}
                 </div>

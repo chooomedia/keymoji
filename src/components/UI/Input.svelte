@@ -9,6 +9,8 @@
   export let invalid = false;
   export let valid = false;
   export let autocomplete = '';
+  export let extraClass = '';
+  export let readonly = false;
   
   // Handle different input types with separate components
   const baseClasses = "w-full bg-white dark:bg-aubergine-900 dark:text-white rounded-xl border transition-all duration-200 placeholder-gray-light dark:placeholder-gray-light p-4";
@@ -21,7 +23,7 @@
     disabled: "opacity-70 cursor-not-allowed bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600"
   };
   
-  $: inputClass = `${baseClasses} ${disabled ? stateClasses.disabled : invalid ? stateClasses.invalid : valid ? stateClasses.valid : stateClasses.default}`;
+  $: inputClass = `${baseClasses} ${disabled ? stateClasses.disabled : invalid ? stateClasses.invalid : valid ? stateClasses.valid : stateClasses.default} ${extraClass}`;
   
   // Get appropriate autocomplete value based on type and name
   function getAutocompleteValue() {
@@ -120,6 +122,7 @@
       {placeholder}
       {disabled}
       {required}
+      readonly={readonly}
       bind:value
       class="{inputClass} pl-12"
       aria-invalid={invalid}
