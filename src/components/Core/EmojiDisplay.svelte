@@ -760,28 +760,22 @@
     // These are now handled by dailyUsageStore.js
     // TODO: Remove these functions in next release after migration period
     
-    // Recent Emojis Management - Security: Mask all except first emoji
-    // Helper: Mask emojis (keep only first emoji, mask rest with *******)
+    // Recent Emojis Management - Security: Show 30% of emojis, mask rest with ✨
     function maskEmojis(emojiString) {
       if (!emojiString || typeof emojiString !== 'string') return emojiString;
-      
-      // Remove spaces for processing
+
       const cleanString = emojiString.replace(/\s/g, '');
-      
-      // Extract individual emojis using regex to handle multi-byte characters
-      const emojis = cleanString.match(/[\p{Emoji}\u200d]+/gu) || [];
-      
-      // If no emojis or only one, return as-is
-      if (emojis.length <= 1) {
-        return cleanString;
-      }
-      
-      // Only keep first emoji, mask rest with *******
-      const first = emojis[0];
-      const restCount = emojis.length - 1;
-      const masked = '*******';
-      
-      return `${first}${masked}`;
+      const emojis = cleanString.match(/\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu) || 
+                     cleanString.match(/[\p{Emoji}\u200d]+/gu) || [];
+
+      if (emojis.length <= 1) return cleanString;
+
+      // Keep 30% (minimum 1), mask the rest with ✨ per emoji
+      const visibleCount = Math.max(1, Math.round(emojis.length * 0.3));
+      const visible = emojis.slice(0, visibleCount).join('');
+      const masked = '✨'.repeat(emojis.length - visibleCount);
+
+      return `${visible}${masked}`;
     }
     
     // Migration: Mask old unmasked emojis in localStorage
@@ -794,16 +788,14 @@
           return;
         }
         
-        // Check if migration is needed (look for unmasked emojis)
+        // Check if migration is needed:
+        // - old format uses ******* → re-mask with ✨
+        // - unmasked entries (more than 1 emoji, no ✨ mask)
         const needsMigration = recent.some(emoji => {
           if (!emoji || typeof emoji !== 'string') return false;
+          if (emoji.includes('*******')) return true; // old format
           const emojis = emoji.match(/[\p{Emoji}\u200d]+/gu) || [];
-          // If has more than 1 emoji but no ******* mask, needs masking
-          const needsMasking = emojis.length > 1 && !emoji.includes('*******');
-          if (needsMasking) {
-            console.log('🔍 Found unmasked emoji:', emoji.substring(0, 20) + '...', 'emojis:', emojis.length);
-          }
-          return needsMasking;
+          return emojis.length > 1 && !emoji.includes('✨');
         });
         
         if (needsMigration) {

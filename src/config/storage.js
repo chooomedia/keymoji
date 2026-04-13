@@ -318,33 +318,33 @@ export function migrateAndCleanupLocalStorage() {
         );
     }
 
-    // 4. Migrate recent emojis (mask all except first emoji for privacy)
+    // 4. Migrate recent emojis — show 30% of emojis, mask rest with ✨ per emoji
     const recentEmojis = storageHelpers.get(STORAGE_KEYS.RECENT_EMOJIS, []);
     if (Array.isArray(recentEmojis) && recentEmojis.length > 0) {
-        console.log('🔄 [MIGRATION] Checking recent emojis for masking...');
+        console.log('🔄 [MIGRATION] Checking recent emojis for 30% masking...');
 
-        // Helper function to mask emojis - Only keep first emoji, mask rest with *******
+        // Keep 30% visible (min 1), replace remaining with ✨ per emoji
         const maskEmojis = emojiString => {
             if (!emojiString || typeof emojiString !== 'string')
                 return emojiString;
             const cleanString = emojiString.replace(/\s/g, '');
             const emojis = cleanString.match(/[\p{Emoji}\u200d]+/gu) || [];
-            // If no emojis or only one, return as-is
             if (emojis.length <= 1) return cleanString;
-            // Only keep first emoji, mask rest with *******
-            const first = emojis[0];
-            return `${first}*******`;
+            const visibleCount = Math.max(1, Math.round(emojis.length * 0.3));
+            const visible = emojis.slice(0, visibleCount).join('');
+            const masked = '✨'.repeat(emojis.length - visibleCount);
+            return `${visible}${masked}`;
         };
 
         const needsMigration = recentEmojis.some(emoji => {
             if (!emoji || typeof emoji !== 'string') return false;
+            if (emoji.includes('*******')) return true; // old format → re-mask
             const emojis = emoji.match(/[\p{Emoji}\u200d]+/gu) || [];
-            // If has more than 1 emoji but no ******* mask, needs masking
-            return emojis.length > 1 && !emoji.includes('*******');
+            return emojis.length > 1 && !emoji.includes('✨');
         });
 
         if (needsMigration) {
-            console.log('🔒 [MIGRATION] Masking recent emojis for privacy...');
+            console.log('🔒 [MIGRATION] Re-masking recent emojis with 30% rule...');
             const masked = recentEmojis.map(maskEmojis).filter(Boolean);
             storageHelpers.set(STORAGE_KEYS.RECENT_EMOJIS, masked);
             console.log(`✅ [MIGRATION] Masked ${masked.length} recent emojis`);
