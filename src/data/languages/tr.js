@@ -93,6 +93,8 @@ export default {
         privacyNotice:
             'Verileriniz bizde güvende 🤲. Bilgileriniz üçüncü kişilerle paylaşılmaz 🔒.',
         newsletterLabel: 'Evet, bülteni abone olmak istiyorum',
+        emailVerified: 'Doğrulandı',
+        emailLockedHint: 'Hesap e-postası — otomatik dolduruldu',
         newsletterOptIn: 'Bültene abone ol',
         newsletterText:
             'Güncel kalın ve güvenle bültene abone olun. {privacyPolicy}',

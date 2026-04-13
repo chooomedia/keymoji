@@ -94,6 +94,8 @@ export default {
         privacyNotice:
             'Ваши данные в надежных руках 🤲. Мы не передаем ваши данные третьим лицам 🔒.',
         newsletterLabel: 'Да, я хочу подписаться на рассылку',
+        emailVerified: 'Подтверждён',
+        emailLockedHint: 'Email аккаунта — заполнен автоматически',
         newsletterOptIn: 'Подписаться на рассылку',
         newsletterText:
             'Будьте в курсе и подпишитесь на рассылку с уверенностью. {privacyPolicy}',

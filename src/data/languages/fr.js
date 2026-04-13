@@ -94,6 +94,8 @@ export default {
         privacyNotice:
             'Soyez assuré, vos données sont entre de bonnes mains 🤲. Vos détails ne seront pas transmis à des tiers 🔒.',
         newsletterLabel: "Oui, je souhaite m'abonner à la newsletter",
+        emailVerified: 'Vérifié',
+        emailLockedHint: 'E-mail du compte — pré-rempli',
         newsletterOptIn: "S'abonner à la newsletter",
         newsletterText:
             'Restez à jour et abonnez-vous à la newsletter en toute confiance. {privacyPolicy}',

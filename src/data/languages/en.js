@@ -121,7 +121,7 @@ export default {
         },
         autoFilledLabel: 'Auto-filled from your account',
         emailVerified: 'Verified',
-        emailLockedHint: 'Using your account email'
+        emailLockedHint: 'Account email — pre-filled'
     },
     serviceWorker: {
         updateAvailable: 'A new version is available!',

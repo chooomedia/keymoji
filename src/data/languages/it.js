@@ -93,6 +93,8 @@ export default {
         privacyNotice:
             'I tuoi dati sono al sicuro con noi 🤲. I tuoi dettagli non saranno condivisi con terzi 🔒.',
         newsletterLabel: 'Sì, vorrei iscrivermi alla newsletter',
+        emailVerified: 'Verificato',
+        emailLockedHint: 'Email dell\'account — precompilata',
         newsletterOptIn: 'Iscriviti alla newsletter',
         newsletterText:
             'Rimani aggiornato e iscriviti alla newsletter con fiducia. {privacyPolicy}',

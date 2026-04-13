@@ -354,12 +354,6 @@
                         extraClass=""
                     />
                     {#if isEmailLocked}
-                        <!-- Blur gradient fading into badge -->
-                        <div
-                            class="absolute right-[2.75rem] w-20 pointer-events-none rounded-r-[11px] dark:hidden transition-all duration-300"
-                            style="top: 1px; bottom: 1px; background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.6) 35%, rgba(255,255,255,0.97) 100%);"
-                            aria-hidden="true"
-                        ></div>
                         <div
                             class="absolute right-[2.75rem] w-20 pointer-events-none rounded-r-[11px] hidden dark:block transition-all duration-300"
                             style="top: 1px; bottom: 1px; background: linear-gradient(to right, transparent 0%, rgba(14,18,32,0.6) 35%, rgba(14,18,32,0.97) 100%);"
@@ -375,8 +369,8 @@
                             <svg class="w-3.5 h-3.5 shrink-0 mx-auto group-hover:mx-0 transition-all duration-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
                             </svg>
-                            <span class="text-xs font-medium whitespace-nowrap max-w-0 overflow-hidden opacity-0 group-hover:max-w-[10rem] group-hover:opacity-100 transition-all duration-300 ease-in-out">
-                                {$translations?.contactForm?.emailVerified || 'Verified'}
+                            <span class="text-xs font-medium whitespace-nowrap max-w-0 overflow-hidden opacity-0 group-hover:max-w-[12rem] group-hover:opacity-100 transition-all duration-300 ease-in-out">
+                                {$translations?.contactForm?.emailLockedHint || 'Account email — pre-filled'}
                             </span>
                         </span>
                     {/if}
