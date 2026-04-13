@@ -157,33 +157,26 @@ const getN8NUrl = () => {
         }
     }
 
-    // Fallback for development (should be overridden via env vars)
-    // Only show warning once per session to avoid console spam
-    if (
-        typeof window !== 'undefined' &&
-        (window.location.hostname === 'localhost' ||
-            window.location.hostname === '127.0.0.1')
-    ) {
+    // Dev-only: show once per session, not on every call
+    if (typeof window !== 'undefined') {
+        const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const warningKey = 'n8n_url_warning_shown';
         if (!sessionStorage.getItem(warningKey)) {
-        console.warn(
-            '⚠️ [SECURITY] VITE_N8N_URL not set. Using default fallback. Set VITE_N8N_URL in .env.local for security.'
-        );
+            if (isDev) {
+                console.info('ℹ️ [Config] VITE_N8N_URL not set locally — n8n-dependent features use Vercel proxy (VITE_API_URL). Add VITE_N8N_URL to .env.local only if needed.');
+            } else {
+                console.error('❌ [SECURITY] VITE_N8N_URL not configured. Set it in Vercel environment variables.');
+            }
             sessionStorage.setItem(warningKey, 'true');
         }
     }
-
-    // No hardcoded fallback — VITE_N8N_URL must be set in environment
-    console.error('❌ [SECURITY] VITE_N8N_URL not configured. Set it in .env.local or Vercel environment variables.');
     return '';
 };
 
 // Get N8N URL dynamically (not at build time to avoid empty string issues)
 const getN8NUrlDynamic = () => {
     const url = getN8NUrl();
-    // Validate URL before returning
     if (!url || url.length === 0 || url.includes('%22') || url.includes('""')) {
-        console.error('❌ [Config] Invalid or missing N8N_URL. Set VITE_N8N_URL in your environment.');
         return '';
     }
     return url;

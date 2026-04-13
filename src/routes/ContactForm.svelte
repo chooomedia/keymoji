@@ -24,7 +24,8 @@
     import Button from '../components/UI/Button.svelte';
     import Checkbox from '../components/UI/Checkbox.svelte';
     import { isTestMode } from '../utils/environment';
-    import { initializeAccountFromCookies, currentAccount, isLoggedIn } from '../stores/accountStore.js';
+    import { initializeAccountFromCookies } from '../stores/accountStore.js';
+    import { currentAccount, isLoggedIn } from 'stores/appStores';
     import FooterInfo from '../widgets/FooterInfo.svelte';
     
     // Reaktive Übersetzungen - optimiert
