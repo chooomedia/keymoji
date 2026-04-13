@@ -634,6 +634,8 @@ export default {
             chartLoadFailed: 'Fehler beim Lade vo de Diagramm-Date',
             accountFoundSendingCode: 'Account gfunde! Code wird gsendet.',
             accountFoundSendingLink: 'Account gfunde! Code wird gsendet.',
+            accountFound: 'Account gfunde',
+            newAccountCreated: 'Account erstellt! Willkomme, {name}! 🎉',
             creatingNewAccount: 'Neue Account wird erstellt — prüef dini E-Mail für de Code.',
             magicLinkSendFailed: 'Code-Versand fehlgschlage. Bitte versuech es nomol.',
             otpVerified: 'Code bestätigt — du bisch ihgloggt!',

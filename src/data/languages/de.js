@@ -663,6 +663,8 @@ export default {
                 'Account gefunden! Wir senden dir einen Code.',
             accountFoundSendingLink:
                 'Account gefunden! Wir senden dir einen Code.',
+            accountFound: 'Account gefunden',
+            newAccountCreated: 'Konto erstellt! Willkommen, {name}! 🎉',
             creatingNewAccount:
                 'Neues Konto wird erstellt – Code kommt per E-Mail.',
             magicLinkSent:

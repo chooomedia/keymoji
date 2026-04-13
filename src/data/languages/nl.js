@@ -633,6 +633,8 @@ export default {
             chartLoadFailed: 'Laden van grafiekgegevens mislukt',
             accountFoundSendingCode: 'Account gevonden! Code wordt verzonden.',
             accountFoundSendingLink: 'Account gevonden! Code wordt verzonden.',
+            accountFound: 'Account gevonden',
+            newAccountCreated: 'Account aangemaakt! Welkom, {name}! 🎉',
             creatingNewAccount: 'Nieuw account aanmaken — controleer je e-mail voor de code.',
             magicLinkSendFailed: 'Verzenden van code mislukt. Probeer het opnieuw.',
             otpVerified: 'Code bevestigd — je bent ingelogd!',

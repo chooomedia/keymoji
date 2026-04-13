@@ -633,6 +633,8 @@ export default {
             chartLoadFailed: 'Не удалось загрузить данные графика',
             accountFoundSendingCode: 'Аккаунт найден! Отправляю код.',
             accountFoundSendingLink: 'Аккаунт найден! Отправляю код.',
+            accountFound: 'Аккаунт найден',
+            newAccountCreated: 'Аккаунт создан! Добро пожаловать, {name}! 🎉',
             creatingNewAccount: 'Создание нового аккаунта — проверьте email для получения кода.',
             magicLinkSendFailed: 'Не удалось отправить код. Попробуйте снова.',
             otpVerified: 'Код подтверждён — вы вошли в систему!',

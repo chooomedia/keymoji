@@ -12,6 +12,7 @@
 
 import { writable, get, type Writable } from 'svelte/store';
 import { isDevelopment, devLog } from '../utils/environment';
+import { translations } from './contentStore';
 
 // Type definitions
 export type ModalType =
@@ -649,32 +650,24 @@ export function showAccountLogoutSuccess(): void {
     });
 }
 
-// Show existing account found modal
+// Show existing account found modal — translated
 export function showExistingAccountFound(email: string, name?: string): void {
     const displayName = name || email?.split('@')[0] || 'User';
-    showModal(
-        `Welcome back, ${displayName}! 🎉`,
-        'success',
-        5000,
-        {
-            icon: '✅',
-            title: 'Account found'
-        }
-    );
+    const t = get(translations);
+    const welcomeTemplate = t?.accountManager?.welcomeBack || 'Welcome back, {name}! 👋';
+    const message = welcomeTemplate.replace('{name}', displayName);
+    const title = t?.accountManager?.messages?.accountFound || 'Account found';
+    showModal(message, 'success', 5000, { icon: '✅', title });
 }
 
-// Show new account created modal
+// Show new account created modal — translated
 export function showNewAccountCreated(email: string, name?: string): void {
     const displayName = name || email?.split('@')[0] || 'User';
-    showModal(
-        `Account created! Welcome, ${displayName}! 🎉`,
-        'success',
-        5000,
-        {
-            icon: '🎉',
-            title: 'Account created'
-        }
-    );
+    const t = get(translations);
+    const createdTemplate = t?.accountManager?.messages?.newAccountCreated || 'Account created! Welcome, {name}! 🎉';
+    const message = createdTemplate.replace('{name}', displayName);
+    const title = t?.accountManager?.accountCreationInfo?.accountCreated || 'Account created';
+    showModal(message, 'success', 5000, { icon: '🎉', title });
 }
 
 /**

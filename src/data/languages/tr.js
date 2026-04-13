@@ -631,6 +631,8 @@ export default {
             chartLoadFailed: 'Grafik verileri yüklenemedi',
             accountFoundSendingCode: 'Hesap bulundu! Size bir kod gönderiyoruz.',
             accountFoundSendingLink: 'Hesap bulundu! Size bir kod gönderiyoruz.',
+            accountFound: 'Hesap bulundu',
+            newAccountCreated: 'Hesap oluşturuldu! Hoş geldin, {name}! 🎉',
             creatingNewAccount: 'Yeni hesap oluşturuluyor — kod için e-postanızı kontrol edin.',
             magicLinkSendFailed: 'Kod gönderilemedi. Lütfen tekrar deneyin.',
             otpVerified: 'Kod onaylandı — giriş yaptınız!',

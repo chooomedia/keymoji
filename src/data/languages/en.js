@@ -634,6 +634,8 @@ export default {
             logoutSuccess: 'Successfully logged out',
             accountFoundSendingCode: 'Account found! Sending you a code.',
             accountFoundSendingLink: 'Account found! Sending you a code.',
+            accountFound: 'Account found',
+            newAccountCreated: 'Account created! Welcome, {name}! 🎉',
             creatingNewAccount: 'Creating new account — check your email for the code.',
             magicLinkSent:
                 'Code sent! Enter the 7-digit code from your email.',

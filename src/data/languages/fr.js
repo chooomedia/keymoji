@@ -576,6 +576,8 @@ export default {
             codeInvalid: 'Code invalide ou expiré. Veuillez en demander un nouveau.',
             accountFoundSendingCode: 'Compte trouvé ! Nous vous envoyons un code.',
             accountFoundSendingLink: 'Compte trouvé ! Nous vous envoyons un code.',
+            accountFound: 'Compte trouvé',
+            newAccountCreated: 'Compte créé ! Bienvenue, {name} ! 🎉',
             creatingNewAccount: 'Nouveau compte en cours de création — vérifiez votre e-mail.',
             magicLinkSent: 'Code envoyé ! Saisissez le code à 7 chiffres de votre e-mail.',
             magicLinkSendFailed: "Échec de l'envoi du code. Veuillez réessayer.",

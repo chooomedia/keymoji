@@ -31,13 +31,6 @@ const LOGIN_ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 minutes
 // Rate limiting storage
 const LOGIN_ATTEMPTS = new Map();
 
-// Show login success modal for first-time users
-function showLoginSuccessIfFirstLogin(accountInfo) {
-    if (accountInfo.isFirstLogin) {
-        showExistingAccountFound(accountInfo.email, accountInfo.name);
-    }
-}
-
 // Enhanced security logging
 function logSecurityEvent(event, details) {
     const timestamp = new Date().toISOString();
@@ -1144,8 +1137,8 @@ export async function verifyMagicLinkFrontend(code, email) {
 
         console.log('🔗 localStorage updated, now notifying other tabs');
 
-        // Notify all tabs about the verification
-        notifyMagicLinkVerification(accountData);
+        // Notify all tabs about the verification (include isNewAccount so cross-tab modals are correct)
+        notifyMagicLinkVerification({ ...accountData, isNewAccount });
 
         // Show appropriate modal based on whether account is new or existing
         // CRITICAL: Show different modals for new vs existing accounts!
@@ -2358,7 +2351,11 @@ function handleMagicLinkMessage(event) {
                 // verifyMagicLinkFrontend already shows the modal in the originating tab
                 const justVerifiedInThisTab = sessionStorage.getItem('keymoji_just_verified');
                 if (!justVerifiedInThisTab) {
-                    showExistingAccountFound(accountData.email);
+                    if (event.data?.isNewAccount) {
+                        showNewAccountCreated(accountData.email, accountData.name);
+                    } else {
+                        showExistingAccountFound(accountData.email, accountData.name);
+                    }
                 }
 
                 // Log security event
@@ -2413,7 +2410,8 @@ function handleMagicLinkStorage(event) {
                     // Show success modal only in OTHER tabs (not the tab that just verified)
                     const justVerifiedInThisTab = sessionStorage.getItem('keymoji_just_verified');
                     if (!justVerifiedInThisTab) {
-                        showExistingAccountFound(accountData.email);
+                        // Storage event has no isNewAccount flag — treat as existing (returning user)
+                        showExistingAccountFound(accountData.email, accountData.name);
                     }
                 }
             } catch (error) {
@@ -2504,6 +2502,7 @@ export function notifyMagicLinkVerification(accountData) {
         tier: accountData.tier,
         sessionId: accountData.sessionId,
         sessionExpires: accountData.sessionExpires,
+        isNewAccount: accountData.isNewAccount ?? false,
         timestamp: Date.now(),
         // Hinzufügen eines Sicherheits-Hashes
         securityHash: btoa(

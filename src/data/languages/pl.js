@@ -633,6 +633,8 @@ export default {
             chartLoadFailed: 'Nie udało się załadować danych wykresu',
             accountFoundSendingCode: 'Konto znalezione! Wysyłam kod.',
             accountFoundSendingLink: 'Konto znalezione! Wysyłam kod.',
+            accountFound: 'Konto znalezione',
+            newAccountCreated: 'Konto utworzone! Witaj, {name}! 🎉',
             creatingNewAccount: 'Tworzenie nowego konta — sprawdź e-mail w poszukiwaniu kodu.',
             magicLinkSendFailed: 'Wysyłanie kodu nie powiodło się. Spróbuj ponownie.',
             otpVerified: 'Kod potwierdzony — jesteś zalogowany!',
