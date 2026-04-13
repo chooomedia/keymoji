@@ -378,10 +378,10 @@
                                 class:dark:text-gray-500={!lockBadgeHovered}
                                 class:text-yellow-600={lockBadgeHovered}
                                 class:dark:text-yellow-400={lockBadgeHovered}
-                                style="height: 1.75rem; max-width: {lockBadgeHovered ? '14rem' : '1.75rem'}; padding: {lockBadgeHovered ? '0 0.5rem' : '0'}; transition: max-width 350ms ease-in-out, padding 350ms ease-in-out, background-color 200ms, border-color 200ms, color 200ms;"
+                                style="height: 1.75rem; min-width: 1.75rem; max-width: {lockBadgeHovered ? '14rem' : '1.75rem'}; padding-left: 0.4375rem; padding-right: {lockBadgeHovered ? '0.5rem' : '0.4375rem'}; transition: max-width 350ms ease-in-out, background-color 200ms, border-color 200ms, color 200ms;"
                             >
                                 <svg
-                                    style="width: 0.875rem; height: 0.875rem; min-width: 0.875rem; flex-shrink: 0; margin: 0 auto;"
+                                    style="width: 0.875rem; height: 0.875rem; min-width: 0.875rem; flex-shrink: 0;"
                                     fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"
                                 >
                                     <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
