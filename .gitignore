@@ -137,3 +137,6 @@ scripts/
 # Analytics & Search Console exports (lokale Daten, nicht versionieren)
 searchconsole/
 keymoji.wtf-Performance-on-Search-*/
+
+# Agent assets — lokale Arbeitsdateien (campaign-Inhalte), nicht versionieren
+.agents/campaign/

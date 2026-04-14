@@ -557,6 +557,13 @@ button:disabled {
     background: rgb(217, 167, 0);
 }
 
+/* Country flag emoji support for Chromium on Windows.
+   "Twemoji Country Flags" is only downloaded & injected by the polyfill when needed.
+   Browsers with native flag support (macOS, Android, Firefox/Windows) ignore this font. */
+:global(.flag-icon) {
+    font-family: "Twemoji Country Flags", sans-serif;
+}
+
 /* Elvish Font (Tengwar Annatar) for sjn language */
 /* CRITICAL: @font-face muss statisch definiert sein, damit die Schrift geladen wird */
 /* NOTE: Font-Pfad muss relativ zum assets-Ordner sein für Webpack */

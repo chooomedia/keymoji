@@ -1,5 +1,6 @@
 // src/index.js
 import './index.css'; // Essential: Import Tailwind CSS
+import { polyfillCountryFlagEmojis } from './utils/polyfillCountryFlags';
 import LanguageRouter from './routes/LanguageRouter.svelte';
 import { isProduction } from './utils/environment';
 import { get } from 'svelte/store';
@@ -210,6 +211,10 @@ function setupGlobalErrorHandlers() {
 function initializeApp() {
     // Setup global error handlers FIRST to catch all errors
     setupGlobalErrorHandlers();
+
+    // Polyfill country flag emojis for Chromium on Windows (Segoe UI Emoji lacks flags).
+    // Only injects a 77kB Twemoji subset font when the browser actually needs it.
+    polyfillCountryFlagEmojis();
 
     // Display console art on production build
     displayKeymojiConsoleArt();

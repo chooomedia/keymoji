@@ -999,12 +999,14 @@
       aria-pressed="false"
       title={$translations.emojiDisplay.clickToCopy}
     >
-      <div class="mt-1 md:mt-0 flex gap-2 overflow-visible justify-center items-center">
+      <div class="mt-1 md:mt-0 flex gap-1 md:gap-2 justify-center items-center min-w-0 w-full overflow-hidden">
         {#if randomEmojis && randomEmojis.length > 0}
           {#each randomEmojis.filter(isVisible) as emoji, index (emoji)}
-            <span class="text-2xl md:text-3xl" in:fly={{y: 50, duration: 300, delay: index * 100}}>
-              {getEmojiDisplay(emoji)}
-            </span>
+            <span
+              class="emoji-item shrink min-w-0"
+              style="font-size: clamp(1rem, calc(2.8rem - {randomEmojis.length} * 0.18rem), 1.875rem);"
+              in:fly={{y: 50, duration: 300, delay: index * 100}}
+            >{getEmojiDisplay(emoji)}</span>
           {/each}
         {/if}
       </div>
@@ -1384,6 +1386,16 @@
 </div>
 
 <style>
+  /* Emoji items — shrink gracefully on Windows when many emojis are shown */
+  .emoji-item {
+    display: inline-block;
+    line-height: 1;
+    /* Prevents Windows Chromium glyph-cache clipping at large sizes */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    font-variant-emoji: emoji;
+  }
+
   /* Emoji Count Slider — Primary Yellow Thumb */
   .emoji-range::-webkit-slider-thumb {
     appearance: none;
