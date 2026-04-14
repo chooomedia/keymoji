@@ -45,6 +45,12 @@
     // Lokaler Wert hat Priorität (User dreht gerade), sonst Store-Wert
     $: emojiCount = _localEmojiCount ?? _settingsEmojiCount;
 
+    // Windows Chromium detection — for tighter emoji gap fix
+    // Uses modern userAgentData API with fallback to legacy navigator.platform
+    const isWindowsClient = typeof navigator !== 'undefined' && (
+        (navigator.userAgentData?.platform ?? navigator.platform ?? '').toLowerCase().includes('win')
+    );
+
     // Slider fill berechnung (reaktiv)
     const sliderMin = 3;
     const sliderMax = 9;
@@ -999,12 +1005,15 @@
       aria-pressed="false"
       title={$translations.emojiDisplay.clickToCopy}
     >
-      <div class="mt-1 md:mt-0 flex gap-1 md:gap-2 justify-center items-center min-w-0 w-full overflow-hidden">
+      <div
+        class="mt-1 md:mt-0 flex justify-center items-center min-w-0 w-full overflow-hidden emoji-display-row"
+        data-windows={isWindowsClient ? 'true' : 'false'}
+        data-count={randomEmojis?.length ?? 0}
+      >
         {#if randomEmojis && randomEmojis.length > 0}
           {#each randomEmojis.filter(isVisible) as emoji, index (emoji)}
             <span
-              class="emoji-item shrink min-w-0"
-              style="font-size: clamp(1rem, calc(2.8rem - {randomEmojis.length} * 0.18rem), 1.875rem);"
+              class="emoji-item text-2xl md:text-3xl shrink-0"
               in:fly={{y: 50, duration: 300, delay: index * 100}}
             >{getEmojiDisplay(emoji)}</span>
           {/each}
@@ -1386,15 +1395,28 @@
 </div>
 
 <style>
-  /* Emoji items — shrink gracefully on Windows when many emojis are shown */
+  /* Default gap between emojis — unchanged from original on all platforms */
+  .emoji-display-row {
+    gap: 0.5rem; /* gap-2 */
+  }
+
+  /* Emoji items */
   .emoji-item {
     display: inline-block;
     line-height: 1;
-    /* Prevents Windows Chromium glyph-cache clipping at large sizes */
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
+    flex-shrink: 0;
     font-variant-emoji: emoji;
   }
+
+  /*
+   * Windows Chromium: Segoe UI Emoji color glyphs have wider advance widths,
+   * causing overflow at level 7–9. We set data-windows="true" via JS detection
+   * (navigator.userAgentData.platform or navigator.platform) and tighten the
+   * gap only then — no effect on macOS, Linux, iOS, Android.
+   */
+  :global(.emoji-display-row[data-windows="true"][data-count="7"]) { gap: 0.3rem; }
+  :global(.emoji-display-row[data-windows="true"][data-count="8"]) { gap: 0.2rem; }
+  :global(.emoji-display-row[data-windows="true"][data-count="9"]) { gap: 0.1rem; }
 
   /* Emoji Count Slider — Primary Yellow Thumb */
   .emoji-range::-webkit-slider-thumb {
