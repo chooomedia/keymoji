@@ -28,7 +28,8 @@ export default {
             '"Zufällig" isch selbsterklärend 😜.',
             'Nach em Generiere wirds in dini Zwischeablage kopiert! 📋'
         ],
-        levelHint: 'Ds Level bestimmt wievil Emojis im Passwort sind — meh Emojis heisst meh Sicherheit.',
+        levelHint:
+            'Ds Level bestimmt wievil Emojis im Passwort sind — meh Emojis heisst meh Sicherheit.',
         setupStoryMode: 'Eigeni KI bruche',
         setupStoryModeShort: 'Eigeni KI bruche',
         setupStoryModeSwiss: 'Schwiizer KI bruche',
@@ -134,16 +135,19 @@ export default {
     },
     notFound: {
         pageTitle: '404 - Site nöd gfunde',
-        pageDescription: 'Di Site, wo du suesch, existiert nöd oder isch verschobe wore.',
+        pageDescription:
+            'Di Site, wo du suesch, existiert nöd oder isch verschobe wore.',
         oopsTitle: 'Hoppla! Site nöd gfunde',
-        oopsDescription: 'Di Site, wo du suesch, chan verschobe, glöscht oder nie existiert ha.',
+        oopsDescription:
+            'Di Site, wo du suesch, chan verschobe, glöscht oder nie existiert ha.',
         quickNavTitle: 'Schnellnavigation',
         recentEmojisTitle: 'Letzti Keymoji',
         backToHome: 'Zrugg zur Startseite',
         prevEmoji: 'Vorherigs Emoji',
         nextEmoji: 'Nächstes Emoji',
         message: 'Hoppla! Site nöd gfunde 🚫',
-        suggestion: 'Di Site, wo du suesch, chan verschobe, glöscht oder nie existiert ha.',
+        suggestion:
+            'Di Site, wo du suesch, chan verschobe, glöscht oder nie existiert ha.',
         backButton: 'Zrugg zur Startseite',
         contactButton: 'Kontaktiere uns',
         navigationTitle: 'Verfügbari Site',
@@ -376,8 +380,8 @@ export default {
         login: {
             title: 'Aamelde',
             emailPlaceholder: 'E-Mail-Adress iigäh',
-            magicLinkSent: 'Magic Link gsendet!',
-            magicLinkError: 'Fehler bim Sende vom Magic Link',
+            magicLinkSent: 'OTP gsendet!',
+            magicLinkError: 'Fehler bim Sende vom OTP',
             verificationSuccess: 'E-Mail erfolgreich verifiziert!',
             verificationError: 'E-Mail-Verifikation fehlgschlage',
             rateLimitExceeded: 'Zu vieli Aameldeversüech. Bitte warte.',
@@ -521,7 +525,8 @@ export default {
             storiesGenerated: 'Generierti Gschichte',
             remainingGenerations: 'Verbleibendi Generierige',
             noDataTitle: 'Kei Date',
-            noDataMessage: 'Generier Emojis zum dini echte Nötzigsdate sammlä und da azzeige.',
+            noDataMessage:
+                'Generier Emojis zum dini echte Nötzigsdate sammlä und da azzeige.',
             refreshButton: 'Aktualisiere',
             loading: 'Ladet...'
         },
@@ -567,7 +572,8 @@ export default {
             submitCode: '✅ Code bestätige',
             verifying: 'Wird überprüft...',
             codeError: 'Bitte gib de 7-stellige Code ii.',
-            codeInvalid: 'Ungültige oder abglaufene Code. Bitte neue Code aafroge.'
+            codeInvalid:
+                'Ungültige oder abglaufene Code. Bitte neue Code aafroge.'
         },
 
         // Hilf-Sektion
@@ -636,8 +642,10 @@ export default {
             accountFoundSendingLink: 'Account gfunde! Code wird gsendet.',
             accountFound: 'Account gfunde',
             newAccountCreated: 'Account erstellt! Willkomme, {name}! 🎉',
-            creatingNewAccount: 'Neue Account wird erstellt — prüef dini E-Mail für de Code.',
-            magicLinkSendFailed: 'Code-Versand fehlgschlage. Bitte versuech es nomol.',
+            creatingNewAccount:
+                'Neue Account wird erstellt — prüef dini E-Mail für de Code.',
+            magicLinkSendFailed:
+                'Code-Versand fehlgschlage. Bitte versuech es nomol.',
             otpVerified: 'Code bestätigt — du bisch ihgloggt!',
             magicLinkVerified: 'Code erfolgreich verifiziert!',
             magicLinkVerificationFailed: 'Code-Verifikation fehlgschlage',
@@ -645,23 +653,28 @@ export default {
             refreshFailed: 'Aktualisierig vo Date fehlgschlage',
             noNewData: 'Kei neui Date verfügbar'
         },
-        
+
         // Apertus Info
-        apertusInfo: '🇨🇭 Koschtlose Schwiizer KI, ygbaut. Apertus — Open-Source-LLM vo EPFL & ETH Züri. Dini Date bliibe id Schwiiz. Kei API-Key nötig.',
+        apertusInfo:
+            '🇨🇭 Koschtlose Schwiizer KI, ygbaut. Apertus — Open-Source-LLM vo EPFL & ETH Züri. Dini Date bliibe id Schwiiz. Kei API-Key nötig.',
         apiKeyLabel: 'API-Schlüssel',
         apiKeyLabelApertus: 'Hugging-Face-Token',
         apiKeyLabelCustom: 'Eigener API-Schlüssel',
         optional: 'optional',
         verified: 'Verifiziert',
         testBtn: 'Teste',
-        apertusBuiltIn: 'Integrierte Token aktiv — funktioniert ohni eigene Key.',
-        apertusOwnToken: 'Optional: Eigene Hugging-Face-Token (hf_…) yygebe, zum persönlichs Kontingent z\'verwende.',
+        apertusBuiltIn:
+            'Integrierte Token aktiv — funktioniert ohni eigene Key.',
+        apertusOwnToken:
+            "Optional: Eigene Hugging-Face-Token (hf_…) yygebe, zum persönlichs Kontingent z'verwende.",
         apertusGetToken: 'Koschtlosen HF-Token hole',
         openaiHint: 'Bruucht en kostenpflichtigen OpenAI API-Key (sk-…).',
-        geminiHint: 'Koschtloses Kontingent verfügbar. Key im Google AI Studio erstelle.',
+        geminiHint:
+            'Koschtloses Kontingent verfügbar. Key im Google AI Studio erstelle.',
         claudeHint: 'Bruucht en Anthropic API-Key (sk-ant-…).',
         mistralHint: 'Europäischi KI. Key uf console.mistral.ai erstelle.',
-        customHint: 'OpenAI-kompatibler Endpunkt. Basis-URL und API-Key unten yygebe.',
+        customHint:
+            'OpenAI-kompatibler Endpunkt. Basis-URL und API-Key unten yygebe.',
         getApiKey: 'API-Key hole',
         savedKeys: 'Gspeichert',
 
@@ -720,7 +733,8 @@ export default {
         // Demo-Grafik (wenn kein Datä vorhanden)
         demoChart: {
             title: 'Kein Datä',
-            description: 'Generier Emojis zum Sammle vo dinä echten Nutzigsdatä und zum Azeige da.',
+            description:
+                'Generier Emojis zum Sammle vo dinä echten Nutzigsdatä und zum Azeige da.',
             cta: 'Keymoji erstelle'
         },
 
@@ -733,7 +747,8 @@ export default {
 
     consent: {
         title: 'Dateschutz-Iistellige',
-        description: "Mir verwände minimali Date für d'Verbesserig vo Ihrer Erfahrig.",
+        description:
+            "Mir verwände minimali Date für d'Verbesserig vo Ihrer Erfahrig.",
         analytics: 'Anonymi Nutziganalytik',
         analyticsHint: "Hilft öis d'App z'verbessere — kei persönlichi Date",
         saveHistory: 'Lokali Nutzigschichte speichere',
@@ -751,8 +766,10 @@ export default {
         necessaryOtp: 'OTP-Code zur Aathentifizierig (einmalig per E-Mail)',
         historyDetail: 'Nutzigsdagramm-Date (Generieriige pro Tag)',
         historyScope: 'Nie a Server gschickt — nur in Ihrem Browser',
-        analyticsDetail: 'Anonymisierti Syyteufruef-Zähler (IP uf x.x.x.0 anonymisiert)',
-        analyticsProcessor: 'Verarbaitet über üsi eigeni n8n-Instanz uf DigitalOcean (EU)'
+        analyticsDetail:
+            'Anonymisierti Syyteufruef-Zähler (IP uf x.x.x.0 anonymisiert)',
+        analyticsProcessor:
+            'Verarbaitet über üsi eigeni n8n-Instanz uf DigitalOcean (EU)'
     },
 
     ui: {

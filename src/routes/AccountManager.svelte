@@ -96,7 +96,7 @@
             return $translations?.accountManager?.welcomeDescription || 'Ready to create some amazing emoji passwords? Your account is secure and ready to go!';
         }
         if (accountCreationStep === 'verification') {
-            return ($translations?.accountManager?.verificationDescription || 'Check your email {email} and click the magic link to complete setup').replace('{email}', email);
+            return ($translations?.accountManager?.verificationDescription || 'Check your email {email} and click the OTP to complete setup').replace('{email}', email);
         }
         if (shouldShowSimplifiedView) {
             return $translations?.accountManager?.returnUserDescription || 'We recognised your email. Log back in quickly.';
@@ -531,7 +531,7 @@
         return data;
     }
 
-    // Magic Link verification state
+    // OTP verification state
 
     // Context menu state
     let showContextMenu = false;
@@ -544,10 +544,10 @@
     $: isNameValid = name.trim().length >= 2;
     $: isFormValid = isEmailValid && (showProfileForm ? isNameValid : true);
     
-    // Email validation for Magic Link button - konsistent mit isEmailValid
+    // Email validation for OTP button - konsistent mit isEmailValid
     $: isEmailValidForMagicLink = isEmailValid;
     
-    // Magic Link button text with emoji
+    // OTP button text with emoji
     $: magicLinkButtonText = (() => {
         if (hasValidSession) {
             return $translations?.accountManager?.buttons?.loginToAccount || 'Login to Account';
@@ -782,7 +782,7 @@
             
             console.log('🔧 Development mode detected:', isDevMode);
 
-            console.log('🔒 Starting secure magic link login...');
+            console.log('🔒 Starting secure OTP login...');
             const loginResult = await secureLoginWithMagicLink(email, name, isDevMode);
             
             // Log the API response
@@ -807,7 +807,7 @@
             });
             
             // Show success message
-            showSuccess($translations?.accountManager?.messages?.magicLinkSent || 'Magic link sent! Check your email to complete login.', 5000);
+            showSuccess($translations?.accountManager?.messages?.magicLinkSent || 'OTP sent! Check your email to complete login.', 5000);
             
             // Move to verification step + focus first digit
             accountCreationStep = 'verification';
@@ -1088,7 +1088,7 @@
         if (hasValidSession) {
             return $translations?.accountManager?.buttons?.loginToAccount || 'Login to Account';
         }
-        return $translations?.accountManager?.buttons?.createMagicLink || '🔗 Create Magic Link';
+        return $translations?.accountManager?.buttons?.createMagicLink || '🔗 Create OTP';
     })();
 
     // Context menu actions

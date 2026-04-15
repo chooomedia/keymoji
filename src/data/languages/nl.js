@@ -28,14 +28,16 @@ export default {
             '"Willekeurig" spreekt voor zich 😜.',
             'Na genereren wordt het gekopieerd naar je klembord! 📋'
         ],
-        levelHint: 'Het level bepaalt hoeveel emojis in je wachtwoord zitten — meer emojis betekent meer veiligheid.',
+        levelHint:
+            'Het level bepaalt hoeveel emojis in je wachtwoord zitten — meer emojis betekent meer veiligheid.',
         setupStoryMode: 'Gebruik je eigen AI',
         setupStoryModeShort: 'Gebruik je eigen AI',
         setupStoryModeSwiss: 'Gebruik Zwitserse AI',
         setupStoryModeSwissShort: 'Zwitserse AI',
         setupStoryModeOr: 'of',
         setupStoryModeBannerCta: '— Maak jouw Keymoji-Story',
-        setupStoryModeBannerText: '😊 Jouw verhaal: een glimlach is jouw sleutel',
+        setupStoryModeBannerText:
+            '😊 Jouw verhaal: een glimlach is jouw sleutel',
         setupStoryModeChip: 'Story Mode activeren',
         setupStoryModeDescription:
             'Verbind met je AI voor gepersonaliseerde emoji-wachtwoorden.',
@@ -134,20 +136,23 @@ export default {
     },
     notFound: {
         pageTitle: '404 - Pagina niet gevonden',
-        pageDescription: 'De pagina die je zoekt bestaat niet of is verplaatst.',
+        pageDescription:
+            'De pagina die je zoekt bestaat niet of is verplaatst.',
         oopsTitle: 'Oeps! Pagina niet gevonden',
-        oopsDescription: 'De pagina die je zoekt is mogelijk verplaatst, verwijderd of heeft nooit bestaan.',
+        oopsDescription:
+            'De pagina die je zoekt is mogelijk verplaatst, verwijderd of heeft nooit bestaan.',
         quickNavTitle: 'Snelle navigatie',
-        recentEmojisTitle: 'Recente Keymoji\'s',
+        recentEmojisTitle: "Recente Keymoji's",
         backToHome: 'Terug naar home',
         prevEmoji: 'Vorige emoji',
         nextEmoji: 'Volgende emoji',
         message: 'Oeps! Pagina niet gevonden 🚫',
-        suggestion: 'De pagina die je zoekt is mogelijk verplaatst, verwijderd of heeft nooit bestaan.',
+        suggestion:
+            'De pagina die je zoekt is mogelijk verplaatst, verwijderd of heeft nooit bestaan.',
         backButton: 'Terug naar home',
         contactButton: 'Neem contact op',
-        navigationTitle: 'Beschikbare pagina\'s',
-        recentEmojis: 'Recente emoji\'s'
+        navigationTitle: "Beschikbare pagina's",
+        recentEmojis: "Recente emoji's"
     },
     blog: {
         readMore: 'Lees meer',
@@ -376,8 +381,8 @@ export default {
         login: {
             title: 'Inloggen',
             emailPlaceholder: 'Voer je e-mailadres in',
-            magicLinkSent: 'Magic link verzonden!',
-            magicLinkError: 'Fout bij verzenden van magic link',
+            magicLinkSent: 'OTP verzonden!',
+            magicLinkError: 'Fout bij verzenden van OTP',
             verificationSuccess: 'E-mail succesvol geverifieerd!',
             verificationError: 'E-mailverificatie mislukt',
             rateLimitExceeded: 'Te veel inlogpogingen. Wacht even.',
@@ -521,7 +526,8 @@ export default {
             storiesGenerated: 'Gegenereerde verhalen',
             remainingGenerations: 'Resterende generaties',
             noDataTitle: 'Geen gegevens',
-            noDataMessage: 'Genereer emoji\'s om je echte gebruiksgegevens te verzamelen en hier weer te geven.',
+            noDataMessage:
+                "Genereer emoji's om je echte gebruiksgegevens te verzamelen en hier weer te geven.",
             refreshButton: 'Vernieuwen',
             loading: 'Laden...'
         },
@@ -635,8 +641,10 @@ export default {
             accountFoundSendingLink: 'Account gevonden! Code wordt verzonden.',
             accountFound: 'Account gevonden',
             newAccountCreated: 'Account aangemaakt! Welkom, {name}! 🎉',
-            creatingNewAccount: 'Nieuw account aanmaken — controleer je e-mail voor de code.',
-            magicLinkSendFailed: 'Verzenden van code mislukt. Probeer het opnieuw.',
+            creatingNewAccount:
+                'Nieuw account aanmaken — controleer je e-mail voor de code.',
+            magicLinkSendFailed:
+                'Verzenden van code mislukt. Probeer het opnieuw.',
             otpVerified: 'Code bevestigd — je bent ingelogd!',
             magicLinkVerified: 'Code succesvol geverifieerd!',
             magicLinkVerificationFailed: 'Verificatie van code mislukt',
@@ -646,7 +654,8 @@ export default {
         },
 
         // Apertus Info
-        apertusInfo: '🇨🇭 Gratis Zwitserse AI, ingebouwd. Apertus — open-source LLM van EPFL & ETH Zurich. Uw gegevens blijven in Zwitserland. Geen API-sleutel nodig.',
+        apertusInfo:
+            '🇨🇭 Gratis Zwitserse AI, ingebouwd. Apertus — open-source LLM van EPFL & ETH Zurich. Uw gegevens blijven in Zwitserland. Geen API-sleutel nodig.',
         apiKeyLabel: 'API-sleutel',
         apiKeyLabelApertus: 'Hugging Face Token',
         apiKeyLabelCustom: 'Aangepaste API-sleutel',
@@ -654,13 +663,16 @@ export default {
         verified: 'Geverifieerd',
         testBtn: 'Testen',
         apertusBuiltIn: 'Ingebouwde token actief — werkt zonder sleutel.',
-        apertusOwnToken: 'Optioneel: voer je eigen Hugging Face token (hf_…) in om je persoonlijk quotum te gebruiken.',
+        apertusOwnToken:
+            'Optioneel: voer je eigen Hugging Face token (hf_…) in om je persoonlijk quotum te gebruiken.',
         apertusGetToken: 'Gratis HF-token ophalen',
         openaiHint: 'Vereist een betaalde OpenAI API-sleutel (sk-…).',
-        geminiHint: 'Gratis laag beschikbaar. Haal je sleutel op in Google AI Studio.',
+        geminiHint:
+            'Gratis laag beschikbaar. Haal je sleutel op in Google AI Studio.',
         claudeHint: 'Vereist een Anthropic API-sleutel (sk-ant-…).',
         mistralHint: 'Europese AI. Haal je sleutel op via console.mistral.ai.',
-        customHint: 'OpenAI-compatibel endpoint. Voer hieronder de basis-URL en API-sleutel in.',
+        customHint:
+            'OpenAI-compatibel endpoint. Voer hieronder de basis-URL en API-sleutel in.',
         getApiKey: 'API-sleutel ophalen',
         savedKeys: 'Opgeslagen',
 
@@ -719,7 +731,8 @@ export default {
         // Demo grafiek (bij geen echte data)
         demoChart: {
             title: 'Geen gegevens',
-            description: 'Genereer emoji\'s om je echte gebruiksgegevens te verzamelen en hier weer te geven.',
+            description:
+                "Genereer emoji's om je echte gebruiksgegevens te verzamelen en hier weer te geven.",
             cta: 'Maak Keymoji'
         },
 
@@ -741,12 +754,13 @@ export default {
         error: 'Fout bij het verzenden. Probeer het opnieuw.'
     },
 
-
     consent: {
         title: 'Privacy-instellingen',
-        description: 'We gebruiken minimale gegevens om uw ervaring te verbeteren.',
+        description:
+            'We gebruiken minimale gegevens om uw ervaring te verbeteren.',
         analytics: 'Anonieme gebruiksanalyse',
-        analyticsHint: 'Helpt ons de app te verbeteren — geen persoonlijke gegevens',
+        analyticsHint:
+            'Helpt ons de app te verbeteren — geen persoonlijke gegevens',
         saveHistory: 'Lokale gebruiksgeschiedenis opslaan',
         saveHistoryHint: 'Alleen opgeslagen in uw browser',
         accept: 'Mijn keuzes opslaan',
@@ -762,8 +776,10 @@ export default {
         necessaryOtp: 'OTP-code voor authenticatie (eenmalig via e-mail)',
         historyDetail: 'Gebruiksdiagramgegevens (generaties per dag)',
         historyScope: 'Nooit naar een server verzonden — alleen in uw browser',
-        analyticsDetail: 'Anonieme paginaweergaven (IP geanonimiseerd naar x.x.x.0)',
-        analyticsProcessor: 'Verwerkt via onze eigen n8n-instantie op DigitalOcean (EU)'
+        analyticsDetail:
+            'Anonieme paginaweergaven (IP geanonimiseerd naar x.x.x.0)',
+        analyticsProcessor:
+            'Verwerkt via onze eigen n8n-instantie op DigitalOcean (EU)'
     },
 
     ui: {

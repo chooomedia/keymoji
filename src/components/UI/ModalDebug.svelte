@@ -154,7 +154,7 @@
     }
 
     function testModalSequence() {
-        // Simulate complete magic link flow
+        // Simulate complete OTP flow
         showMagicLinkSending('test@example.com');
         setTimeout(() => {
             showMagicLinkSent('test@example.com');
@@ -515,9 +515,9 @@
                 {:else if activeTab === 'modals'}
                     <!-- Modals Tab -->
                     <div class="space-y-4">
-                        <!-- Magic Link Flow -->
+                        <!-- OTP Flow -->
                         <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
-                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Magic Link Flow</h3>
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">OTP Flow</h3>
                             <div class="grid grid-cols-2 gap-2">
                                 <button on:click={testMagicLinkSending} class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium transition-colors">
                                     📤 Sending
@@ -588,7 +588,7 @@
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Account Data</h3>
                             <div class="space-y-2 text-xs">
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600 dark:text-gray-400">Magic Link Sent:</span>
+                                    <span class="text-gray-600 dark:text-gray-400">OTP Sent:</span>
                                     <span class="font-mono {$currentAccount.magicLinkSent ? 'text-green-600' : 'text-red-600'}">
                                         {$currentAccount.magicLinkSent ? '✓' : '✗'}
                                     </span>

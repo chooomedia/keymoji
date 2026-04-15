@@ -28,7 +28,8 @@ export default {
             '"Random" is self-explanatory 😜.',
             "After generating, it's saved to your clipboard! 📋"
         ],
-        levelHint: 'Level controls how many emojis are in your password — more emojis means more security.',
+        levelHint:
+            'Level controls how many emojis are in your password — more emojis means more security.',
         setupStoryMode: 'Use your own AI',
         setupStoryModeShort: 'Use your own AI',
         setupStoryModeSwiss: 'Use Swiss AI',
@@ -382,8 +383,8 @@ export default {
         login: {
             title: 'Login',
             emailPlaceholder: 'Enter email address',
-            magicLinkSent: 'Magic link sent!',
-            magicLinkError: 'Error sending magic link',
+            magicLinkSent: 'OTP sent!',
+            magicLinkError: 'Error sending OTP',
             verificationSuccess: 'Email verified successfully!',
             verificationError: 'Email verification failed',
             rateLimitExceeded: 'Too many login attempts. Please wait.',
@@ -473,8 +474,7 @@ export default {
         returnUserDescription:
             'We recognized your email address. Log in quickly.',
         verificationTitle: '📧 Enter Your Code',
-        verificationDescription:
-            'Enter the 7-digit code we sent to {email}',
+        verificationDescription: 'Enter the 7-digit code we sent to {email}',
         verifyingTitle: '🔑 Verifying Code...',
         verifyingDescription: 'Please wait while we verify your code.',
         verificationErrorTitle: '❌ Verification Failed',
@@ -576,14 +576,16 @@ export default {
             codeError: 'Please enter the 7-digit code.',
             codeInvalid: 'Invalid code. Please check your email and try again.',
             codeExpired: 'This code has expired. Please request a new one.',
-            serviceUnavailable: 'Verification service unavailable. Please try again later.'
+            serviceUnavailable:
+                'Verification service unavailable. Please try again later.'
         },
 
         // Login error messages (mapped from server errorCode)
         login: {
             rateLimitExceeded: 'Too many attempts. Please wait 10 minutes.',
             invalidEmail: 'Please enter a valid email address.',
-            emailServiceError: 'Email service is currently unavailable. Please try again later.'
+            emailServiceError:
+                'Email service is currently unavailable. Please try again later.'
         },
 
         // Privacy link in account footer
@@ -605,7 +607,7 @@ export default {
             magicLink: 'Easy Login',
             instantSetup: 'Instant Setup',
             noSpam: 'No Spam',
-            text: 'Magic links are sent via email and valid for 15 minutes.',
+            text: 'OTPs are sent via email and valid for 15 minutes.',
             privacy: 'Privacy',
             legal: 'Legal',
             versionHistory: 'Version History'
@@ -636,9 +638,9 @@ export default {
             accountFoundSendingLink: 'Account found! Sending you a code.',
             accountFound: 'Account found',
             newAccountCreated: 'Account created! Welcome, {name}! 🎉',
-            creatingNewAccount: 'Creating new account — check your email for the code.',
-            magicLinkSent:
-                'Code sent! Enter the 7-digit code from your email.',
+            creatingNewAccount:
+                'Creating new account — check your email for the code.',
+            magicLinkSent: 'Code sent! Enter the 7-digit code from your email.',
             magicLinkSendFailed: 'Failed to send code. Please try again.',
             otpVerified: 'Code confirmed — you are logged in!',
             magicLinkVerified: 'Code verified successfully!',
@@ -647,7 +649,7 @@ export default {
             refreshFailed: 'Failed to refresh data',
             noNewData: 'No new data available'
         },
-        
+
         // API Key section (dynamic per LLM provider)
         apiKeyLabel: 'API Key',
         apiKeyLabelApertus: 'Hugging Face Token',
@@ -656,13 +658,15 @@ export default {
         verified: 'Verified',
         testBtn: 'Test',
         apertusBuiltIn: 'Built-in token active — works without entering a key.',
-        apertusOwnToken: 'Optional: Enter your own Hugging Face token (hf_…) to use your personal quota.',
+        apertusOwnToken:
+            'Optional: Enter your own Hugging Face token (hf_…) to use your personal quota.',
         apertusGetToken: 'Get free HF token',
         openaiHint: 'Requires a paid OpenAI API key (sk-…).',
         geminiHint: 'Free tier available. Get your key in Google AI Studio.',
         claudeHint: 'Requires an Anthropic API key (sk-ant-…).',
         mistralHint: 'European AI. Get your key at console.mistral.ai.',
-        customHint: 'OpenAI-compatible endpoint. Enter base URL and API key below.',
+        customHint:
+            'OpenAI-compatible endpoint. Enter base URL and API key below.',
         getApiKey: 'Get API key',
         savedKeys: 'Saved',
 
@@ -746,7 +750,8 @@ export default {
 
     consent: {
         title: 'Privacy Settings',
-        description: 'We use minimal data to improve your experience. You can adjust your preferences below.',
+        description:
+            'We use minimal data to improve your experience. You can adjust your preferences below.',
         analytics: 'Anonymous usage analytics',
         analyticsHint: 'Helps us improve the app — no personal data stored',
         saveHistory: 'Save local usage history',
@@ -764,8 +769,10 @@ export default {
         necessaryOtp: 'OTP code for authentication (sent once via email)',
         historyDetail: 'Usage chart data (emoji generations per day)',
         historyScope: 'Never sent to any server — only in your browser',
-        analyticsDetail: 'Anonymised page view counts (IP anonymised to x.x.x.0)',
-        analyticsProcessor: 'Processed via our own n8n instance on DigitalOcean (EU server)'
+        analyticsDetail:
+            'Anonymised page view counts (IP anonymised to x.x.x.0)',
+        analyticsProcessor:
+            'Processed via our own n8n instance on DigitalOcean (EU server)'
     },
 
     ui: {

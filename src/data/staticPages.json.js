@@ -168,10 +168,10 @@ export const staticPagesData = {
                                     external: true
                                 },
                                 {
-                                    title: '4.4 HuggingFace (Apertus AI)',
-                                    text: 'Nur bei Nutzung des Story Mode: Ihr Eingabetext wird an HuggingFace (USA) übertragen. Keine personenbezogenen Daten werden gesendet.',
-                                    link: 'https://huggingface.co/privacy',
-                                    linkText: 'Datenschutz'
+                                    title: '4.4 Public AI / Apertus (AI-Modell)',
+                                    text: 'Nur bei Nutzung des Story Mode: Ihr Eingabetext wird an die Public AI Inference Utility (publicai.co) übermittelt, die das Schweizer AI-Modell Apertus (entwickelt von EPFL, ETH Zürich und CSCS) betreibt. Die Verarbeitung erfolgt auf verteilten Servern international. Es werden keine personenbezogenen Daten übertragen.',
+                                    link: 'https://publicai.co/utility',
+                                    linkText: 'Public AI Inference Utility'
                                 }
                             ]
                         }
@@ -325,7 +325,7 @@ export const staticPagesData = {
                             items: [
                                 {
                                     label: 'Email address',
-                                    text: 'For Magic Link login'
+                                    text: 'For OTP login'
                                 },
                                 {
                                     label: 'Name (optional)',
@@ -402,7 +402,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     title: '4.2 Brevo (Email Service)',
-                                    text: 'Magic links and notifications',
+                                    text: 'OTPs and notifications',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Privacy'
                                 },
@@ -414,10 +414,10 @@ export const staticPagesData = {
                                     external: true
                                 },
                                 {
-                                    title: '4.4 HuggingFace (Apertus AI)',
-                                    text: 'Only when using Story Mode: your input text is sent to HuggingFace (USA). No personal data is transmitted.',
-                                    link: 'https://huggingface.co/privacy',
-                                    linkText: 'Privacy'
+                                    title: '4.4 Public AI / Apertus (AI Model)',
+                                    text: 'Only when using Story Mode: your input text is sent to the Public AI Inference Utility (publicai.co), which serves the Swiss-developed AI model Apertus (by EPFL, ETH Zurich, and CSCS). Processing occurs on distributed servers internationally. No personal data is transmitted.',
+                                    link: 'https://publicai.co/utility',
+                                    linkText: 'Public AI Inference Utility'
                                 }
                             ]
                         }
@@ -443,7 +443,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     label: 'Cookies',
-                                    text: 'Session management (Magic Link login)'
+                                    text: 'Session management (OTP login)'
                                 }
                             ]
                         }
@@ -483,7 +483,7 @@ export const staticPagesData = {
                         },
                         {
                             type: 'text',
-                            value: 'Your data belongs to you — always. Submit a request and we\'ll erase everything within 30 days (Art. 17 GDPR).'
+                            value: "Your data belongs to you — always. Submit a request and we'll erase everything within 30 days (Art. 17 GDPR)."
                         },
                         {
                             type: 'contact',
@@ -571,7 +571,7 @@ export const staticPagesData = {
                             items: [
                                 {
                                     label: 'Adresse e-mail',
-                                    text: 'Pour la connexion Magic Link'
+                                    text: 'Pour la connexion OTP'
                                 },
                                 {
                                     label: 'Nom (optionnel)',
@@ -661,6 +661,12 @@ export const staticPagesData = {
                                     link: 'https://matt-interfaces.ch/n8n',
                                     linkText: 'Instance n8n',
                                     external: true
+                                },
+                                {
+                                    title: '4.4 Public AI / Apertus (Modèle IA)',
+                                    text: "Uniquement lors de l'utilisation du Mode Histoire : votre texte est envoyé au Public AI Inference Utility (publicai.co), qui utilise le modèle IA suisse Apertus (développé par l'EPFL, l'ETH Zurich et le CSCS). Le traitement s'effectue sur des serveurs distribués internationalement. Aucune donnée personnelle n'est transmise.",
+                                    link: 'https://publicai.co/utility',
+                                    linkText: 'Public AI Inference Utility'
                                 }
                             ]
                         }
@@ -686,7 +692,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     label: 'Cookies',
-                                    text: 'Gestion de session (connexion Magic Link)'
+                                    text: 'Gestion de session (connexion OTP)'
                                 }
                             ]
                         }
@@ -814,7 +820,7 @@ export const staticPagesData = {
                             items: [
                                 {
                                     label: 'Dirección de correo electrónico',
-                                    text: 'Para inicio de sesión con Magic Link'
+                                    text: 'Para inicio de sesión con OTP'
                                 },
                                 {
                                     label: 'Nombre (opcional)',
@@ -899,10 +905,16 @@ export const staticPagesData = {
                                     linkText: 'Privacidad'
                                 },
                                 {
-                                    title: '4.4 n8n (Automatización)',
+                                    title: '4.3 n8n (Automatización)',
                                     text: 'Flujos de trabajo backend (autoalojados)',
                                     link: 'https://n8n.io/legal/privacy',
                                     linkText: 'Privacidad'
+                                },
+                                {
+                                    title: '4.4 Public AI / Apertus (Modello IA)',
+                                    text: "Solo quando si usa la Modalità Storia: il testo viene inviato al Public AI Inference Utility (publicai.co), che utilizza il modello IA svizzero Apertus (sviluppato da EPFL, ETH Zurigo e CSCS). L'elaborazione avviene su server distribuiti a livello internazionale. Non vengono trasmessi dati personali.",
+                                    link: 'https://publicai.co/utility',
+                                    linkText: 'Public AI Inference Utility'
                                 }
                             ]
                         }
@@ -928,7 +940,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     label: 'Cookies',
-                                    text: 'Gestión de sesión (inicio de sesión Magic Link)'
+                                    text: 'Gestión de sesión (inicio de sesión OTP)'
                                 }
                             ]
                         }
@@ -1056,7 +1068,7 @@ export const staticPagesData = {
                             items: [
                                 {
                                     label: 'Indirizzo email',
-                                    text: 'Per il login Magic Link'
+                                    text: 'Per il login OTP'
                                 },
                                 {
                                     label: 'Nome (opzionale)',
@@ -1146,6 +1158,12 @@ export const staticPagesData = {
                                     link: 'https://matt-interfaces.ch/n8n',
                                     linkText: 'Istanza n8n',
                                     external: true
+                                },
+                                {
+                                    title: '4.4 Public AI / Apertus (Modello IA)',
+                                    text: "Solo quando si usa la Modalità Storia: il testo viene inviato al Public AI Inference Utility (publicai.co), che utilizza il modello IA svizzero Apertus (sviluppato da EPFL, ETH Zurigo e CSCS). L'elaborazione avviene su server distribuiti a livello internazionale. Non vengono trasmessi dati personali.",
+                                    link: 'https://publicai.co/utility',
+                                    linkText: 'Public AI Inference Utility'
                                 }
                             ]
                         }
@@ -1171,7 +1189,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     label: 'Cookie',
-                                    text: 'Gestione sessione (login Magic Link)'
+                                    text: 'Gestione sessione (login OTP)'
                                 }
                             ]
                         }
@@ -1299,7 +1317,7 @@ export const staticPagesData = {
                             items: [
                                 {
                                     label: 'E-mailadres',
-                                    text: 'Voor Magic Link login'
+                                    text: 'Voor OTP login'
                                 },
                                 {
                                     label: 'Naam (optioneel)',
@@ -1379,7 +1397,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     title: '4.2 Brevo (E-mailservice)',
-                                    text: 'Magic links en notificaties',
+                                    text: 'OTPs en notificaties',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Privacy'
                                 },
@@ -1389,6 +1407,12 @@ export const staticPagesData = {
                                     link: 'https://matt-interfaces.ch/n8n',
                                     linkText: 'n8n-instantie',
                                     external: true
+                                },
+                                {
+                                    title: '4.4 Public AI / Apertus (AI-model)',
+                                    text: 'Alleen bij gebruik van Story Mode: uw tekst wordt verzonden naar de Public AI Inference Utility (publicai.co), die het Zwitserse AI-model Apertus (ontwikkeld door EPFL, ETH Zürich en CSCS) gebruikt. De verwerking vindt plaats op internationaal verspreide servers. Er worden geen persoonsgegevens verzonden.',
+                                    link: 'https://publicai.co/utility',
+                                    linkText: 'Public AI Inference Utility'
                                 }
                             ]
                         }
@@ -1414,7 +1438,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     label: 'Cookies',
-                                    text: 'Sessiebeheer (Magic Link login)'
+                                    text: 'Sessiebeheer (OTP login)'
                                 }
                             ]
                         }
@@ -1542,7 +1566,7 @@ export const staticPagesData = {
                             items: [
                                 {
                                     label: 'Adres e-mail',
-                                    text: 'Do logowania Magic Link'
+                                    text: 'Do logowania OTP'
                                 },
                                 {
                                     label: 'Imię (opcjonalne)',
@@ -1622,7 +1646,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     title: '4.2 Brevo (Serwis e-mail)',
-                                    text: 'Magic links i powiadomienia',
+                                    text: 'OTPs i powiadomienia',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Prywatność'
                                 },
@@ -1632,6 +1656,12 @@ export const staticPagesData = {
                                     link: 'https://matt-interfaces.ch/n8n',
                                     linkText: 'Instancja n8n',
                                     external: true
+                                },
+                                {
+                                    title: '4.4 Public AI / Apertus (Model AI)',
+                                    text: 'Tylko podczas korzystania z Trybu Historia: tekst jest wysyłany do Public AI Inference Utility (publicai.co), który wykorzystuje szwajcarski model AI Apertus (opracowany przez EPFL, ETH Zurych i CSCS). Przetwarzanie odbywa się na rozproszonych serwerach międzynarodowo. Żadne dane osobowe nie są przesyłane.',
+                                    link: 'https://publicai.co/utility',
+                                    linkText: 'Public AI Inference Utility'
                                 }
                             ]
                         }
@@ -1657,7 +1687,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     label: 'Pliki cookie',
-                                    text: 'Zarządzanie sesją (logowanie Magic Link)'
+                                    text: 'Zarządzanie sesją (logowanie OTP)'
                                 }
                             ]
                         }
@@ -1785,7 +1815,7 @@ export const staticPagesData = {
                             items: [
                                 {
                                     label: 'Адрес электронной почты',
-                                    text: 'Для входа через Magic Link'
+                                    text: 'Для входа через OTP'
                                 },
                                 {
                                     label: 'Имя (опционально)',
@@ -1865,7 +1895,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     title: '4.2 Brevo (Сервис электронной почты)',
-                                    text: 'Magic links и уведомления',
+                                    text: 'OTPs и уведомления',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Конфиденциальность'
                                 },
@@ -1875,6 +1905,12 @@ export const staticPagesData = {
                                     link: 'https://matt-interfaces.ch/n8n',
                                     linkText: 'Инстанция n8n',
                                     external: true
+                                },
+                                {
+                                    title: '4.4 Public AI / Apertus (Модель ИИ)',
+                                    text: 'Только при использовании Режима Истории: ваш текст отправляется в Public AI Inference Utility (publicai.co), который использует швейцарскую модель ИИ Apertus (разработанную EPFL, ETH Zürich и CSCS). Обработка происходит на распределённых серверах по всему миру. Персональные данные не передаются.',
+                                    link: 'https://publicai.co/utility',
+                                    linkText: 'Public AI Inference Utility'
                                 }
                             ]
                         }
@@ -1900,7 +1936,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     label: 'Куки',
-                                    text: 'Управление сессией (вход через Magic Link)'
+                                    text: 'Управление сессией (вход через OTP)'
                                 }
                             ]
                         }
@@ -2028,7 +2064,7 @@ export const staticPagesData = {
                             items: [
                                 {
                                     label: 'E-posta adresi',
-                                    text: 'Magic Link girişi için'
+                                    text: 'OTP girişi için'
                                 },
                                 {
                                     label: 'İsim (isteğe bağlı)',
@@ -2108,15 +2144,21 @@ export const staticPagesData = {
                                 },
                                 {
                                     title: '4.2 Brevo (E-posta Servisi)',
-                                    text: 'Magic linkler ve bildirimler',
+                                    text: 'OTPler ve bildirimler',
                                     link: 'https://www.brevo.com/legal/privacypolicy/',
                                     linkText: 'Gizlilik'
                                 },
                                 {
-                                    title: '4.4 n8n (Otomasyon)',
+                                    title: '4.3 n8n (Otomasyon)',
                                     text: 'Backend iş akışları (kendi barındırılan)',
                                     link: 'https://n8n.io/legal/privacy',
                                     linkText: 'Gizlilik'
+                                },
+                                {
+                                    title: '4.4 Public AI / Apertus (AI Modeli)',
+                                    text: "Yalnızca Hikaye Modu kullanılırken: metniniz, İsviçre'de geliştirilen Apertus AI modelini (EPFL, ETH Zürich ve CSCS tarafından) kullanan Public AI Inference Utility'ye (publicai.co) gönderilir. İşlem uluslararası dağıtılmış sunucularda gerçekleşir. Kişisel veri aktarılmaz.",
+                                    link: 'https://publicai.co/utility',
+                                    linkText: 'Public AI Inference Utility'
                                 }
                             ]
                         }
@@ -2142,7 +2184,7 @@ export const staticPagesData = {
                                 },
                                 {
                                     label: 'Çerezler',
-                                    text: 'Oturum yönetimi (Magic Link girişi)'
+                                    text: 'Oturum yönetimi (OTP girişi)'
                                 }
                             ]
                         }

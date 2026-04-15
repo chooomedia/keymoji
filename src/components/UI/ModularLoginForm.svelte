@@ -2,7 +2,7 @@
  * ModularLoginForm.svelte
  * 
  * @description A modular login form component using the new ModularInput system
- * with magic link authentication, validation, and modern UI patterns.
+ * with OTP authentication, validation, and modern UI patterns.
  * 
  * @param {string} currentLanguage - Current language code (en, de, etc.)
  * @param {boolean} isSubmitting - Whether the form is currently submitting
@@ -54,8 +54,8 @@
                     de: 'E-Mail-Adresse eingeben' 
                 },
                 description: { 
-                    en: 'We\'ll send you a magic link to sign in', 
-                    de: 'Wir senden Ihnen einen Magic Link zum Anmelden' 
+                    en: 'We\'ll send you a OTP to sign in', 
+                    de: 'Wir senden Ihnen einen OTP zum Anmelden' 
                 },
                 required: true,
                 validation: { pattern: 'email' }
@@ -86,8 +86,8 @@
     // Submit configuration
     const submitConfig = {
         text: { 
-            en: 'Send Magic Link', 
-            de: 'Magic Link senden' 
+            en: 'Send OTP', 
+            de: 'OTP senden' 
         },
         icon: '🔗',
         color: 'blue'
@@ -143,8 +143,8 @@
             </h2>
             <p class="text-gray-600 dark:text-gray-400">
                 {currentLanguage === 'de' 
-                    ? 'Erhalten Sie einen Magic Link per E-Mail' 
-                    : 'Get a magic link sent to your email'
+                    ? 'Erhalten Sie einen OTP per E-Mail' 
+                    : 'Get a OTP sent to your email'
                 }
             </p>
         </div>

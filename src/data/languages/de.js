@@ -28,7 +28,8 @@ export default {
             '"Random" ist selbsterklärend 😜.',
             'Nach dem Generieren wird es in deine Zwischenablage kopiert! 📋'
         ],
-        levelHint: 'Level bestimmt die Anzahl der Emojis im Passwort — mehr Emojis bedeuten mehr Sicherheit.',
+        levelHint:
+            'Level bestimmt die Anzahl der Emojis im Passwort — mehr Emojis bedeuten mehr Sicherheit.',
         setupStoryMode: 'Eigene KI nutzen',
         setupStoryModeShort: 'Eigene KI nutzen',
         setupStoryModeSwiss: 'Schweizer KI nutzen',
@@ -386,8 +387,8 @@ export default {
         login: {
             title: 'Anmelden',
             emailPlaceholder: 'E-Mail-Adresse eingeben',
-            magicLinkSent: 'Magic Link gesendet!',
-            magicLinkError: 'Fehler beim Senden des Magic Links',
+            magicLinkSent: 'OTP gesendet!',
+            magicLinkError: 'Fehler beim Senden des OTPs',
             verificationSuccess: 'E-Mail erfolgreich verifiziert!',
             verificationError: 'E-Mail-Verifikation fehlgeschlagen',
             rateLimitExceeded: 'Zu viele Anmeldeversuche. Bitte warten Sie.',
@@ -581,16 +582,20 @@ export default {
             submitCode: '✅ Code bestätigen',
             verifying: 'Wird geprüft...',
             codeError: 'Bitte gib den 7-stelligen Code ein.',
-            codeInvalid: 'Ungültiger Code. Bitte prüfe deine E-Mail und versuche es erneut.',
-            codeExpired: 'Dieser Code ist abgelaufen. Bitte fordere einen neuen an.',
-            serviceUnavailable: 'Verifizierungsdienst nicht verfügbar. Bitte versuche es später erneut.'
+            codeInvalid:
+                'Ungültiger Code. Bitte prüfe deine E-Mail und versuche es erneut.',
+            codeExpired:
+                'Dieser Code ist abgelaufen. Bitte fordere einen neuen an.',
+            serviceUnavailable:
+                'Verifizierungsdienst nicht verfügbar. Bitte versuche es später erneut.'
         },
 
         // Login-Fehlermeldungen (basierend auf Server-ErrorCode)
         login: {
             rateLimitExceeded: 'Zu viele Versuche. Bitte warte 10 Minuten.',
             invalidEmail: 'Bitte gib eine gültige E-Mail-Adresse ein.',
-            emailServiceError: 'E-Mail-Dienst ist derzeit nicht verfügbar. Bitte versuche es später erneut.'
+            emailServiceError:
+                'E-Mail-Dienst ist derzeit nicht verfügbar. Bitte versuche es später erneut.'
         },
 
         // Datenschutz-Link im Account-Footer
@@ -613,7 +618,7 @@ export default {
             magicLink: 'Easy Login',
             instantSetup: 'Sofort-Setup',
             noSpam: 'Kein Spam',
-            text: 'Magic Links werden per E-Mail gesendet und sind 15 Minuten gültig.',
+            text: 'OTPs werden per E-Mail gesendet und sind 15 Minuten gültig.',
             privacy: 'Datenschutz',
             legal: 'Impressum',
             versionHistory: 'Versionshistorie'
@@ -761,9 +766,11 @@ export default {
 
     consent: {
         title: 'Datenschutz-Einstellungen',
-        description: 'Wir verwenden minimale Daten zur Verbesserung Ihrer Erfahrung. Passen Sie Ihre Einstellungen an.',
+        description:
+            'Wir verwenden minimale Daten zur Verbesserung Ihrer Erfahrung. Passen Sie Ihre Einstellungen an.',
         analytics: 'Anonyme Nutzungsanalyse',
-        analyticsHint: 'Hilft uns die App zu verbessern — keine personenbezogenen Daten',
+        analyticsHint:
+            'Hilft uns die App zu verbessern — keine personenbezogenen Daten',
         saveHistory: 'Lokale Nutzungshistorie speichern',
         saveHistoryHint: 'Nur in Ihrem Browser gespeichert, nie hochgeladen',
         accept: 'Auswahl speichern',
@@ -779,8 +786,10 @@ export default {
         necessaryOtp: 'OTP-Code zur Authentifizierung (einmalig per E-Mail)',
         historyDetail: 'Nutzungsdiagramm-Daten (Generierungen pro Tag)',
         historyScope: 'Niemals an Server gesendet — nur in Ihrem Browser',
-        analyticsDetail: 'Anonymisierte Seitenaufruf-Zähler (IP auf x.x.x.0 anonymisiert)',
-        analyticsProcessor: 'Verarbeitet über unsere eigene n8n-Instanz auf DigitalOcean (EU)'
+        analyticsDetail:
+            'Anonymisierte Seitenaufruf-Zähler (IP auf x.x.x.0 anonymisiert)',
+        analyticsProcessor:
+            'Verarbeitet über unsere eigene n8n-Instanz auf DigitalOcean (EU)'
     },
 
     ui: {

@@ -540,10 +540,10 @@ export function showSending(
 }
 
 /**
- * Magic Link wird gesendet
+ * OTP wird gesendet
  */
 export function showMagicLinkSending(email: string): (() => void) | null {
-    return showModal(`Sending magic link to ${email}...`, 'sending', null, {
+    return showModal(`Sending OTP to ${email}...`, 'sending', null, {
         email,
         showSpinner: true,
         progress: 0
@@ -551,11 +551,11 @@ export function showMagicLinkSending(email: string): (() => void) | null {
 }
 
 /**
- * Magic Link wurde gesendet
+ * OTP wurde gesendet
  */
 export function showMagicLinkSent(email: string): (() => void) | null {
     return showModal(
-        `Magic link sent to ${email}! Check your inbox and click the link to verify your account.`,
+        `OTP sent to ${email}! Check your inbox and click the link to verify your account.`,
         'success',
         8000,
         {
@@ -567,10 +567,10 @@ export function showMagicLinkSent(email: string): (() => void) | null {
 }
 
 /**
- * Magic Link Verifikation läuft
+ * OTP Verifikation läuft
  */
 export function showMagicLinkVerifying(email: string): (() => void) | null {
-    return showModal(`Verifying your magic link...`, 'sending', null, {
+    return showModal(`Verifying your OTP...`, 'sending', null, {
         email,
         showSpinner: true,
         progress: 50
@@ -578,7 +578,7 @@ export function showMagicLinkVerifying(email: string): (() => void) | null {
 }
 
 /**
- * Magic Link Verifikation erfolgreich
+ * OTP Verifikation erfolgreich
  */
 export function showMagicLinkVerified(
     email: string,
@@ -601,7 +601,7 @@ export function showMagicLinkVerified(
 }
 
 /**
- * Magic Link Verifikation fehlgeschlagen
+ * OTP Verifikation fehlgeschlagen
  */
 export function showMagicLinkVerificationFailed(
     error: string
@@ -654,7 +654,8 @@ export function showAccountLogoutSuccess(): void {
 export function showExistingAccountFound(email: string, name?: string): void {
     const displayName = name || email?.split('@')[0] || 'User';
     const t = get(translations);
-    const welcomeTemplate = t?.accountManager?.welcomeBack || 'Welcome back, {name}! 👋';
+    const welcomeTemplate =
+        t?.accountManager?.welcomeBack || 'Welcome back, {name}! 👋';
     const message = welcomeTemplate.replace('{name}', displayName);
     const title = t?.accountManager?.messages?.accountFound || 'Account found';
     showModal(message, 'success', 5000, { icon: '✅', title });
@@ -664,9 +665,13 @@ export function showExistingAccountFound(email: string, name?: string): void {
 export function showNewAccountCreated(email: string, name?: string): void {
     const displayName = name || email?.split('@')[0] || 'User';
     const t = get(translations);
-    const createdTemplate = t?.accountManager?.messages?.newAccountCreated || 'Account created! Welcome, {name}! 🎉';
+    const createdTemplate =
+        t?.accountManager?.messages?.newAccountCreated ||
+        'Account created! Welcome, {name}! 🎉';
     const message = createdTemplate.replace('{name}', displayName);
-    const title = t?.accountManager?.accountCreationInfo?.accountCreated || 'Account created';
+    const title =
+        t?.accountManager?.accountCreationInfo?.accountCreated ||
+        'Account created';
     showModal(message, 'success', 5000, { icon: '🎉', title });
 }
 

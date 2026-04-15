@@ -28,7 +28,8 @@ export default {
             '"Losowe" mówi samo za siebie 😜.',
             'Po wygenerowaniu zostanie skopiowane do schowka! 📋'
         ],
-        levelHint: 'Poziom określa ile emoji zawiera twoje hasło — więcej emoji oznacza większe bezpieczeństwo.',
+        levelHint:
+            'Poziom określa ile emoji zawiera twoje hasło — więcej emoji oznacza większe bezpieczeństwo.',
         setupStoryMode: 'Użyj własnej AI',
         setupStoryModeShort: 'Użyj własnej AI',
         setupStoryModeSwiss: 'Użyj szwajcarskiej AI',
@@ -134,16 +135,19 @@ export default {
     },
     notFound: {
         pageTitle: '404 - Strona nie znaleziona',
-        pageDescription: 'Strona, której szukasz, nie istnieje lub została przeniesiona.',
+        pageDescription:
+            'Strona, której szukasz, nie istnieje lub została przeniesiona.',
         oopsTitle: 'Ups! Strona nie znaleziona',
-        oopsDescription: 'Strona, której szukasz, mogła zostać przeniesiona, usunięta lub nigdy nie istniała.',
+        oopsDescription:
+            'Strona, której szukasz, mogła zostać przeniesiona, usunięta lub nigdy nie istniała.',
         quickNavTitle: 'Szybka nawigacja',
         recentEmojisTitle: 'Ostatnie Keymoji',
         backToHome: 'Powrót do strony głównej',
         prevEmoji: 'Poprzednie emoji',
         nextEmoji: 'Następne emoji',
         message: 'Ups! Strona nie znaleziona 🚫',
-        suggestion: 'Strona, której szukasz, mogła zostać przeniesiona, usunięta lub nigdy nie istniała.',
+        suggestion:
+            'Strona, której szukasz, mogła zostać przeniesiona, usunięta lub nigdy nie istniała.',
         backButton: 'Wróć do strony głównej',
         contactButton: 'Skontaktuj się z nami',
         navigationTitle: 'Dostępne strony',
@@ -376,8 +380,8 @@ export default {
         login: {
             title: 'Zaloguj się',
             emailPlaceholder: 'Wprowadź swój adres email',
-            magicLinkSent: 'Magic link wysłany!',
-            magicLinkError: 'Błąd podczas wysyłania magic link',
+            magicLinkSent: 'OTP wysłany!',
+            magicLinkError: 'Błąd podczas wysyłania OTP',
             verificationSuccess: 'Email pomyślnie zweryfikowany!',
             verificationError: 'Weryfikacja email nie powiodła się',
             rateLimitExceeded: 'Za dużo prób logowania. Poczekaj.',
@@ -522,7 +526,8 @@ export default {
             storiesGenerated: 'Wygenerowane historie',
             remainingGenerations: 'Pozostałe generacje',
             noDataTitle: 'Brak danych',
-            noDataMessage: 'Generuj emoji, aby zebrać rzeczywiste dane użytkowania i wyświetlić je tutaj.',
+            noDataMessage:
+                'Generuj emoji, aby zebrać rzeczywiste dane użytkowania i wyświetlić je tutaj.',
             refreshButton: 'Odśwież',
             loading: 'Ładowanie...'
         },
@@ -635,8 +640,10 @@ export default {
             accountFoundSendingLink: 'Konto znalezione! Wysyłam kod.',
             accountFound: 'Konto znalezione',
             newAccountCreated: 'Konto utworzone! Witaj, {name}! 🎉',
-            creatingNewAccount: 'Tworzenie nowego konta — sprawdź e-mail w poszukiwaniu kodu.',
-            magicLinkSendFailed: 'Wysyłanie kodu nie powiodło się. Spróbuj ponownie.',
+            creatingNewAccount:
+                'Tworzenie nowego konta — sprawdź e-mail w poszukiwaniu kodu.',
+            magicLinkSendFailed:
+                'Wysyłanie kodu nie powiodło się. Spróbuj ponownie.',
             otpVerified: 'Kod potwierdzony — jesteś zalogowany!',
             magicLinkVerified: 'Kod zweryfikowany pomyślnie!',
             magicLinkVerificationFailed: 'Weryfikacja kodu nie powiodła się',
@@ -646,7 +653,8 @@ export default {
         },
 
         // Apertus Info
-        apertusInfo: '🇨🇭 Darmowa szwajcarska AI, wbudowana. Apertus — open-source LLM od EPFL & ETH Zurich. Twoje dane pozostają w Szwajcarii. Nie wymagany klucz API.',
+        apertusInfo:
+            '🇨🇭 Darmowa szwajcarska AI, wbudowana. Apertus — open-source LLM od EPFL & ETH Zurich. Twoje dane pozostają w Szwajcarii. Nie wymagany klucz API.',
         apiKeyLabel: 'Klucz API',
         apiKeyLabelApertus: 'Token Hugging Face',
         apiKeyLabelCustom: 'Niestandardowy klucz API',
@@ -654,13 +662,16 @@ export default {
         verified: 'Zweryfikowane',
         testBtn: 'Test',
         apertusBuiltIn: 'Wbudowany token aktywny — działa bez klucza.',
-        apertusOwnToken: 'Opcjonalnie: wprowadź własny token Hugging Face (hf_…), aby używać osobistego limitu.',
+        apertusOwnToken:
+            'Opcjonalnie: wprowadź własny token Hugging Face (hf_…), aby używać osobistego limitu.',
         apertusGetToken: 'Pobierz darmowy token HF',
         openaiHint: 'Wymaga płatnego klucza API OpenAI (sk-…).',
-        geminiHint: 'Dostępny darmowy poziom. Pobierz klucz z Google AI Studio.',
+        geminiHint:
+            'Dostępny darmowy poziom. Pobierz klucz z Google AI Studio.',
         claudeHint: 'Wymaga klucza API Anthropic (sk-ant-…).',
         mistralHint: 'Europejska AI. Pobierz klucz na console.mistral.ai.',
-        customHint: 'Kompatybilny z OpenAI endpoint. Podaj poniżej podstawowy URL i klucz API.',
+        customHint:
+            'Kompatybilny z OpenAI endpoint. Podaj poniżej podstawowy URL i klucz API.',
         getApiKey: 'Pobierz klucz API',
         savedKeys: 'Zapisane',
 
@@ -719,7 +730,8 @@ export default {
         // Wykres demo (gdy brak danych)
         demoChart: {
             title: 'Brak danych',
-            description: 'Generuj emoji, aby zbierać swoje rzeczywiste dane użytkowania i wyświetlać je tutaj.',
+            description:
+                'Generuj emoji, aby zbierać swoje rzeczywiste dane użytkowania i wyświetlać je tutaj.',
             cta: 'Stwórz Keymoji'
         },
 
@@ -728,10 +740,10 @@ export default {
         proDescription: '💎 Bezpieczeństwo korporacyjne'
     },
 
-
     consent: {
         title: 'Ustawienia prywatności',
-        description: 'Używamy minimalnych danych, aby poprawić Twoje doświadczenia.',
+        description:
+            'Używamy minimalnych danych, aby poprawić Twoje doświadczenia.',
         analytics: 'Anonimowa analiza użytkowania',
         analyticsHint: 'Pomaga nam ulepszać aplikację — bez danych osobowych',
         saveHistory: 'Zapisz lokalną historię użytkowania',
@@ -746,11 +758,15 @@ export default {
         necessaryHint: 'Wymagane do działania — zawsze aktywne',
         necessaryStorage: 'Ustawienia i preferencje motywu (localStorage)',
         necessarySession: 'Sesja logowania (tylko pamięć przeglądarki)',
-        necessaryOtp: 'Kod OTP do uwierzytelnienia (wysyłany jednorazowo e-mailem)',
+        necessaryOtp:
+            'Kod OTP do uwierzytelnienia (wysyłany jednorazowo e-mailem)',
         historyDetail: 'Dane wykresu użytkowania (generacje dziennie)',
-        historyScope: 'Nigdy nie wysyłane na serwer — tylko w Twojej przeglądarce',
-        analyticsDetail: 'Anonimowe liczniki odsłon (IP anonimizowane do x.x.x.0)',
-        analyticsProcessor: 'Przetwarzane przez naszą własną instancję n8n na DigitalOcean (EU)'
+        historyScope:
+            'Nigdy nie wysyłane na serwer — tylko w Twojej przeglądarce',
+        analyticsDetail:
+            'Anonimowe liczniki odsłon (IP anonimizowane do x.x.x.0)',
+        analyticsProcessor:
+            'Przetwarzane przez naszą własną instancję n8n na DigitalOcean (EU)'
     },
 
     ui: {
