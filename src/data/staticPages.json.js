@@ -65,7 +65,32 @@ export const staticPagesData = {
                         },
                         {
                             type: 'subtitle',
-                            value: '3.2 Kontoerstellung (optional)'
+                            value: '3.2 Browser Extension'
+                        },
+                        {
+                            type: 'text',
+                            value: 'Die Keymoji Browser Extension erstellt Emoji-Passwörter lokal im Browser und kann sie nach ausdrücklicher Bestätigung in Passwortfelder einsetzen.'
+                        },
+                        {
+                            type: 'list',
+                            items: [
+                                {
+                                    text: 'Generierte Keymojis werden nicht an Keymoji-Server, n8n-Workflows oder AI-Dienste übertragen'
+                                },
+                                {
+                                    text: 'Vorhandene Passwortfeld-Inhalte werden nicht gespeichert oder an Server gesendet'
+                                },
+                                {
+                                    text: 'Die Extension nutzt keine Analytics, Tracking-Cookies oder Account-Funktionen'
+                                },
+                                {
+                                    text: 'Lokale Extension-Einstellungen wie Level, Prompt-Anzeige und Kopierverhalten werden im Browser gespeichert'
+                                }
+                            ]
+                        },
+                        {
+                            type: 'subtitle',
+                            value: '3.3 Kontoerstellung (optional)'
                         },
                         {
                             type: 'text',
@@ -98,7 +123,7 @@ export const staticPagesData = {
                         },
                         {
                             type: 'subtitle',
-                            value: '3.3 Story Mode & AI Integration'
+                            value: '3.4 Story Mode & AI Integration'
                         },
                         {
                             type: 'text',
@@ -190,6 +215,10 @@ export const staticPagesData = {
                                 {
                                     label: 'localStorage',
                                     text: 'Einstellungen, Sprache, Theme'
+                                },
+                                {
+                                    label: 'Browser Extension Storage',
+                                    text: 'Lokale Extension-Einstellungen wie Level, Prompt-Anzeige und Kopierverhalten'
                                 },
                                 {
                                     label: 'Service Worker Cache',
@@ -314,7 +343,32 @@ export const staticPagesData = {
                         },
                         {
                             type: 'subtitle',
-                            value: '3.2 Account Creation (optional)'
+                            value: '3.2 Browser Extension'
+                        },
+                        {
+                            type: 'text',
+                            value: 'The Keymoji Browser Extension generates emoji passwords locally in the browser and can insert them into password fields after explicit confirmation.'
+                        },
+                        {
+                            type: 'list',
+                            items: [
+                                {
+                                    text: 'Generated Keymojis are not sent to Keymoji servers, n8n workflows, or AI services'
+                                },
+                                {
+                                    text: 'Existing password field values are not stored or sent to servers'
+                                },
+                                {
+                                    text: 'The extension does not use analytics, tracking cookies, or account features'
+                                },
+                                {
+                                    text: 'Local extension settings such as level, prompt visibility, and copy behavior are stored in browser extension storage'
+                                }
+                            ]
+                        },
+                        {
+                            type: 'subtitle',
+                            value: '3.3 Account Creation (optional)'
                         },
                         {
                             type: 'text',
@@ -347,7 +401,7 @@ export const staticPagesData = {
                         },
                         {
                             type: 'subtitle',
-                            value: '3.3 Story Mode & AI Integration'
+                            value: '3.4 Story Mode & AI Integration'
                         },
                         {
                             type: 'text',
@@ -436,6 +490,10 @@ export const staticPagesData = {
                                 {
                                     label: 'localStorage',
                                     text: 'Settings, language, theme'
+                                },
+                                {
+                                    label: 'Browser extension storage',
+                                    text: 'Local extension settings such as level, prompt visibility, and copy behavior'
                                 },
                                 {
                                     label: 'Service Worker Cache',

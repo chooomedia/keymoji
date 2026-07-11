@@ -136,6 +136,9 @@ dist
 .tern-port
 .DS_Store
 scripts/
+!scripts/
+scripts/*
+!scripts/package-extension.js
 
 # Analytics & Search Console exports (lokale Daten, nicht versionieren)
 searchconsole/

@@ -456,7 +456,8 @@ export default {
         resetting: 'Zruggsetze...',
         closeModal: 'Modal schliesse',
         modalClosesIn: 'Modal schliesst in {seconds} Sekunde',
-        modalClosesInSingular: 'Modal schliesst in {seconds} Sekund'
+        modalClosesInSingular: 'Modal schliesst in {seconds} Sekund',
+        modalPaused: 'Countdown pausiert'
     },
     versions: {
         pageTitle: 'Versionsverlauf',

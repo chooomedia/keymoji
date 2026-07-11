@@ -463,7 +463,8 @@ export default {
         resetting: 'Réinitialisation...',
         closeModal: 'Fermer la modal',
         modalClosesIn: 'La modal se ferme dans {seconds} secondes',
-        modalClosesInSingular: 'La modal se ferme dans {seconds} seconde'
+        modalClosesInSingular: 'La modal se ferme dans {seconds} seconde',
+        modalPaused: 'Compte à rebours en pause'
     },
 
     // Traductions AccountManager

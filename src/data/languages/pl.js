@@ -456,7 +456,8 @@ export default {
         resetting: 'Przywracanie...',
         closeModal: 'Zamknij modal',
         modalClosesIn: 'Modal zamknie się za {seconds} sekund',
-        modalClosesInSingular: 'Modal zamknie się za {seconds} sekundę'
+        modalClosesInSingular: 'Modal zamknie się za {seconds} sekundę',
+        modalPaused: 'Odliczanie wstrzymane'
     },
     versions: {
         pageTitle: 'Historia wersji',

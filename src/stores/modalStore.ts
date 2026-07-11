@@ -39,7 +39,7 @@ export interface ModalData {
     }>;
     primaryButton?: {
         text: string;
-        action: () => void;
+        action: (target?: unknown) => void;
     };
     secondaryButton?: {
         text: string;
@@ -53,6 +53,17 @@ export interface ModalData {
     progress?: number;
     error?: string;
     action?: string;
+    browserTargets?: Array<{
+        id: string;
+        name: string;
+        label: string;
+        href: string;
+        status?: string;
+        icon?: string;
+        iconSrc?: string;
+    }>;
+    selectedBrowserId?: string;
+    proofText?: string;
     [key: string]: unknown;
 }
 
@@ -133,6 +144,9 @@ let operationIdCounter = 0;
 
 // Timeout-Verwaltung
 let modalTimeout: ReturnType<typeof setTimeout> | null = null;
+let modalTimeoutStartedAt = 0;
+let modalTimeoutRemaining: number | null = null;
+let isModalTimeoutPaused = false;
 let modalHistory: ModalEntry[] = [];
 let isInitialized = false;
 
@@ -386,8 +400,15 @@ function processModalQueue(): void {
     modalType.set(nextModal.type);
     isModalVisible.set(true);
 
+    const nextModalData: ModalData = {
+        ...(nextModal.data || {}),
+        duration: nextModal.duration
+    };
+
     if (nextModal.data && Object.keys(nextModal.data).length > 0) {
-        modalData.set(nextModal.data);
+        modalData.set(nextModalData);
+    } else {
+        modalData.set(nextModalData);
     }
 
     // Body scroll prevention (Apple Style)
@@ -401,16 +422,73 @@ function processModalQueue(): void {
     debugLog('SHOW', nextModal);
 
     // Automatisches Schließen, wenn gewünscht
-    if (nextModal.duration !== null && nextModal.duration > 0) {
-        modalTimeout = setTimeout(() => {
-            debugLog('AUTO_CLOSE', {
-                message: nextModal.message,
-                type: nextModal.type,
-                duration: nextModal.duration
-            });
-            closeModal();
-        }, nextModal.duration);
+    startModalTimeout(nextModal.duration);
+}
+
+function startModalTimeout(duration: number | null): void {
+    if (modalTimeout) {
+        clearTimeout(modalTimeout);
+        modalTimeout = null;
     }
+
+    modalTimeoutRemaining = duration;
+    modalTimeoutStartedAt = Date.now();
+    isModalTimeoutPaused = false;
+
+    if (duration === null || duration <= 0) {
+        return;
+    }
+
+    modalTimeout = setTimeout(() => {
+        debugLog('AUTO_CLOSE', {
+            message: get(modalMessage),
+            type: get(modalType),
+            duration
+        });
+        closeModal();
+    }, duration);
+}
+
+export function pauseModalAutoClose(): void {
+    if (
+        isModalTimeoutPaused ||
+        modalTimeoutRemaining === null ||
+        modalTimeoutRemaining <= 0
+    ) {
+        return;
+    }
+
+    if (modalTimeout) {
+        clearTimeout(modalTimeout);
+        modalTimeout = null;
+    }
+
+    const elapsed = Date.now() - modalTimeoutStartedAt;
+    modalTimeoutRemaining = Math.max(0, modalTimeoutRemaining - elapsed);
+    isModalTimeoutPaused = true;
+    debugLog('AUTO_CLOSE_PAUSE', { remaining: modalTimeoutRemaining });
+}
+
+export function resumeModalAutoClose(): void {
+    if (
+        !isModalTimeoutPaused ||
+        modalTimeoutRemaining === null ||
+        modalTimeoutRemaining <= 0
+    ) {
+        return;
+    }
+
+    modalTimeoutStartedAt = Date.now();
+    isModalTimeoutPaused = false;
+    modalTimeout = setTimeout(() => {
+        debugLog('AUTO_CLOSE_RESUME_CLOSE', {
+            message: get(modalMessage),
+            type: get(modalType),
+            remaining: modalTimeoutRemaining
+        });
+        closeModal();
+    }, modalTimeoutRemaining);
+    debugLog('AUTO_CLOSE_RESUME', { remaining: modalTimeoutRemaining });
 }
 
 /**
@@ -444,6 +522,9 @@ export function closeModal(): void {
         clearTimeout(modalTimeout);
         modalTimeout = null;
     }
+    modalTimeoutStartedAt = 0;
+    modalTimeoutRemaining = null;
+    isModalTimeoutPaused = false;
 
     // Restore body scroll (Apple Style)
     if (typeof document !== 'undefined') {
@@ -712,9 +793,12 @@ export function showModalWithContent(
         type?: ModalType;
         duration?: number | null;
         buttons?: Array<{ text: string; action: () => void }>;
-        primaryButton?: { text: string; action: () => void };
+        primaryButton?: { text: string; action: (target?: unknown) => void };
         secondaryButton?: { text: string; action: () => void };
         onClose?: () => void;
+        browserTargets?: ModalData['browserTargets'];
+        selectedBrowserId?: string;
+        proofText?: string;
     } = {}
 ): (() => void) | null {
     const {
@@ -725,7 +809,10 @@ export function showModalWithContent(
         buttons = [],
         primaryButton = null,
         secondaryButton = null,
-        onClose = null
+        onClose = null,
+        browserTargets = undefined,
+        selectedBrowserId = undefined,
+        proofText = undefined
     } = options;
 
     const modalData: ModalData = {
@@ -740,6 +827,9 @@ export function showModalWithContent(
         primaryButton: primaryButton || undefined,
         secondaryButton: secondaryButton || undefined,
         onClose,
+        browserTargets,
+        selectedBrowserId,
+        proofText,
         duration
     };
 

@@ -1,40 +1,17 @@
 <script>
     import { onMount } from 'svelte';
-    import { slide, fly } from 'svelte/transition';
+    import { fly } from 'svelte/transition';
     import { cubicInOut } from 'svelte/easing';
-    import { hamburger, logo } from "../../assets/shapes.js";
-    import { isLoggedIn, currentAccount, dailyLimit, accountTier } from 'stores/appStores'
-    import { currentLanguage, t, showLanguageMenu, changeLanguage } from '../../stores/contentStore.js';
-    import { createEventDispatcher } from 'svelte';
+    import { logo } from "../../assets/shapes.js";
+    import { isLoggedIn, dailyLimit, accountTier } from 'stores/appStores'
+    import { currentLanguage } from '../../stores/contentStore.js';
     import { navigate, Link } from 'svelte-routing';
     import LanguageSwitcher from '../LanguageSwitcher.svelte';
-    import { supportedLanguages } from '../../utils/languages';
     import { translations } from '../../stores/contentStore.js';
-    import { navigateToBlog } from '../../utils/navigation';
-    import Button from '../UI/Button.svelte';
     import { showModal } from '../../stores/modalStore';
     import { bannerDismissed } from 'stores/bannerStore';
-    import { effectiveSettings, userSettings } from '../../stores/userSettingsStore.js';
+    $: bannerVisible = !$bannerDismissed;
 
-    // Mirror banner visibility for conditional header padding
-    let _storyModeEnabled = false;
-    let _storyModeConfigured = false;
-    $: {
-        const s = $effectiveSettings?.storyMode || $userSettings?.storyMode || $currentAccount?.metadata?.settings?.storyMode || null;
-        if (s) {
-            const provider = s.provider || 'apertus';
-            const key = (s.apiKeys || {})[provider] || '';
-            _storyModeEnabled = s.enabled || false;
-            _storyModeConfigured = provider === 'apertus' ? _storyModeEnabled : !!(key && key.length >= 10);
-        } else {
-            _storyModeEnabled = false;
-            _storyModeConfigured = false;
-        }
-    }
-    $: bannerVisible = (!$isLoggedIn || !_storyModeEnabled || !_storyModeConfigured) && !$bannerDismissed;
-
-    const dispatch = createEventDispatcher();
-    
     // Calculate remaining generations - REACTIVE
     $: remaining = Math.max(0, ($dailyLimit?.limit || 0) - ($dailyLimit?.used || 0));
     $: isProUser = $accountTier === 'pro';
@@ -94,10 +71,6 @@
         ? $translations.header.pageTitle 
         : 'Keymoji';
     
-    function handleBlogNavigation() {
-        navigateToBlog(false);
-    }
-
     function navigateToAccount() {
         // Use language-aware navigation
         const lang = $currentLanguage || 'en';
@@ -131,11 +104,6 @@
         const lang = $currentLanguage || 'en';
         const accountPath = lang === 'en' ? '/account' : `/${lang}/account`;
         navigate(accountPath, { replace: true });
-    }
-
-    async function handleLanguageChange(langCode) {
-        await changeLanguage(langCode);
-        showLanguageMenu.set(false);
     }
 
     onMount(() => {

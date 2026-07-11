@@ -458,7 +458,8 @@ export default {
         resetting: 'Resetting...',
         closeModal: 'Close modal',
         modalClosesIn: 'Modal closes in {seconds} seconds',
-        modalClosesInSingular: 'Modal closes in {seconds} second'
+        modalClosesInSingular: 'Modal closes in {seconds} second',
+        modalPaused: 'Countdown paused'
     },
 
     // AccountManager translations

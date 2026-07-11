@@ -11,7 +11,9 @@
         isModalVisible, 
         modalType, 
         modalData, 
-        closeModal 
+        closeModal,
+        pauseModalAutoClose,
+        resumeModalAutoClose
     } from '../../stores/modalStore';
   
     // Import for isDebugMode
@@ -37,6 +39,9 @@
     let isComponentMounted = false;
     let progressBar = 100; // Start at 100%
     let progressInterval;
+    let isProgressPaused = false;
+    let activeProgressKey = '';
+    let selectedBrowserId = '';
 
     // Constants for animation and accessibility
     const ANIMATION_DURATION = 300;
@@ -165,22 +170,35 @@
 
     // Start progress bar when modal becomes visible
     $: if (showMessage && isComponentMounted) {
-        startProgressBar();
+        const nextProgressKey = `${message}-${messageType}-${$modalData?.duration}`;
+        if (nextProgressKey !== activeProgressKey) {
+            activeProgressKey = nextProgressKey;
+            selectedBrowserId =
+                $modalData?.selectedBrowserId ||
+                $modalData?.browserTargets?.[0]?.id ||
+                '';
+            startProgressBar();
+        }
+    } else if (!showMessage) {
+        activeProgressKey = '';
+        stopProgressBar();
     }
 
     // Progress bar management
     function startProgressBar() {
         // Get duration from modalData or use default
-        const duration = $modalData?.duration || MODAL_TIMEOUT;
+        const duration = $modalData?.duration;
         
-        // Only start progress bar if duration is set and > 0
-        if (!duration || duration <= 0) {
+        // Only start progress bar if duration is explicitly set and > 0
+        if (duration === null || duration === undefined || duration <= 0) {
             progressBar = 0;
+            isProgressPaused = false;
             return;
         }
         
         // Reset progress bar
         progressBar = 100;
+        isProgressPaused = false;
         
         // Clear existing interval
         if (progressInterval) {
@@ -190,8 +208,19 @@
         // Calculate update interval based on duration
         const updateInterval = Math.max(50, duration / 100); // At least 50ms, max 100 updates
         
-        // Start progress bar countdown
+        startProgressInterval(duration, updateInterval);
+    }
+
+    function startProgressInterval(duration, updateInterval) {
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+
         progressInterval = setInterval(() => {
+            if (isProgressPaused) {
+                return;
+            }
+
             const decrement = (100 * updateInterval) / duration;
             progressBar -= decrement;
             
@@ -211,13 +240,70 @@
     function stopProgressBar() {
         if (progressInterval) {
             clearInterval(progressInterval);
+            progressInterval = null;
         }
+    }
+
+    function pauseProgressBar() {
+        if (progressBar <= 0 || !$modalData?.duration) {
+            return;
+        }
+
+        isProgressPaused = true;
+        pauseModalAutoClose();
+    }
+
+    function resumeProgressBar() {
+        if (progressBar <= 0 || !$modalData?.duration) {
+            return;
+        }
+
+        isProgressPaused = false;
+        resumeModalAutoClose();
+    }
+
+    function handleModalPointerEnter() {
+        pauseProgressBar();
+    }
+
+    function handleModalPointerLeave() {
+        resumeProgressBar();
+    }
+
+    function handleModalFocusIn() {
+        pauseProgressBar();
+    }
+
+    function handleModalFocusOut(event) {
+        if (event.currentTarget?.contains(event.relatedTarget)) {
+            return;
+        }
+
+        resumeProgressBar();
+    }
+
+    $: selectedBrowserTarget =
+        $modalData?.browserTargets?.find(
+            browser => browser.id === selectedBrowserId
+        ) || $modalData?.browserTargets?.[0];
+
+    function selectBrowserTarget(browserId) {
+        selectedBrowserId = browserId;
+    }
+
+    function handlePrimaryButtonClick() {
+        if ($modalData?.browserTargets && selectedBrowserTarget) {
+            $modalData?.primaryButton?.action?.(selectedBrowserTarget);
+            return;
+        }
+
+        $modalData?.primaryButton?.action?.();
     }
 
     // Calculate remaining time in seconds
     $: remainingSeconds = (() => {
-        const duration = $modalData?.duration || MODAL_TIMEOUT;
-        if (!duration || duration <= 0) return 0;
+        const duration = $modalData?.duration;
+        if (duration === null || duration === undefined || duration <= 0) return 0;
         return Math.round((progressBar / 100) * (duration / 1000));
     })();
 
@@ -252,6 +338,10 @@
                 class="modal-content"
                 transition:fly={{ y: 20, duration: ANIMATION_DURATION }}
                 role="document"
+                on:mouseenter={handleModalPointerEnter}
+                on:mouseleave={handleModalPointerLeave}
+                on:focusin={handleModalFocusIn}
+                on:focusout={handleModalFocusOut}
             >
                 <!-- Modal Header -->
                 <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -343,6 +433,34 @@
                                     {@html $modalData.content.html}
                                 </div>
                             {/if}
+                            {#if $modalData.browserTargets?.length}
+                                <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2" role="listbox" aria-label="Browser auswählen">
+                                    {#each $modalData.browserTargets as browser}
+                                        <button
+                                            type="button"
+                                            class="group flex flex-col items-center justify-center gap-2 rounded-2xl border p-3 transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-yellow-400 {selectedBrowserId === browser.id ? 'border-yellow-500 bg-yellow-500/15 text-gray-950 dark:text-white' : 'border-gray-200 bg-gray-50 text-gray-700 hover:border-yellow-300 dark:border-gray-700 dark:bg-aubergine-950 dark:text-gray-200'}"
+                                            on:click={() => selectBrowserTarget(browser.id)}
+                                            role="option"
+                                            aria-selected={selectedBrowserId === browser.id}
+                                        >
+                                            <span class="flex h-10 w-10 items-center justify-center" aria-hidden="true">
+                                                {#if browser.iconSrc}
+                                                    <img
+                                                        src={browser.iconSrc}
+                                                        alt=""
+                                                        class="h-9 w-9 object-contain"
+                                                        loading="lazy"
+                                                        referrerpolicy="no-referrer"
+                                                    />
+                                                {:else if browser.icon}
+                                                    {@html browser.icon}
+                                                {/if}
+                                            </span>
+                                            <span class="text-xs font-medium leading-tight">{browser.name}</span>
+                                        </button>
+                                    {/each}
+                                </div>
+                            {/if}
                         </div>
                     {:else}
                         <!-- Default Modal Message -->
@@ -398,9 +516,9 @@
                                     variant="primary"
                                     size="sm"
                                     fullWidth={true}
-                                    on:click={$modalData.primaryButton.action}
+                                    on:click={handlePrimaryButtonClick}
                                 >
-                                    {$modalData.primaryButton.text}
+                                    {selectedBrowserTarget?.label || $modalData.primaryButton.text}
                                 </Button>
                             {/if}
                         </div>
@@ -420,19 +538,35 @@
                         </div>
                     {/if}
                     
-                    <!-- Auto-Close Progress Bar - Show for all modals with duration -->
+                    <!-- Auto-Close Progress Bar - Show for modals with duration -->
                     {#if showMessage && progressBar > 0 && remainingSeconds > 0}
                         <div class="w-full h-1">
-                            <div 
+                            <div
                                 class="h-1 transition-all duration-500 ease-out z-10"
+                                class:opacity-60={isProgressPaused}
                                 style="width: {progressBar}%; background-color: {getIconColor(messageType)}"
                             ></div>
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 text-center p-4">
-                            {remainingSeconds === 1 
-                                ? ($translations?.modals?.modalClosesInSingular || 'Modal closes in {seconds} second').replace('{seconds}', remainingSeconds)
-                                : ($translations?.modals?.modalClosesIn || 'Modal closes in {seconds} seconds').replace('{seconds}', remainingSeconds)
-                            }
+                    {/if}
+                    {#if showMessage && ($modalData?.proofText || (progressBar > 0 && remainingSeconds > 0))}
+                        <div class="px-4 pb-4 {progressBar > 0 && remainingSeconds > 0 ? 'pt-4' : 'pt-1'}">
+                            {#if $modalData?.proofText}
+                                <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
+                                    {$modalData.proofText}
+                                </div>
+                            {:else if isProgressPaused}
+                                <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
+                                    {$translations?.modals?.modalPaused || 'Paused while you interact with this modal'}
+                                </div>
+                            {:else if remainingSeconds === 1}
+                                <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
+                                    {($translations?.modals?.modalClosesInSingular || 'Modal closes in {seconds} second').replace('{seconds}', remainingSeconds)}
+                                </div>
+                            {:else}
+                                <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
+                                    {($translations?.modals?.modalClosesIn || 'Modal closes in {seconds} seconds').replace('{seconds}', remainingSeconds)}
+                                </div>
+                            {/if}
                         </div>
                     {/if}
                 </div>

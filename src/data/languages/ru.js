@@ -452,7 +452,8 @@ export default {
         closeModal: 'Закрыть модальное окно',
         modalClosesIn: 'Модальное окно закроется через {seconds} секунд',
         modalClosesInSingular:
-            'Модальное окно закроется через {seconds} секунду'
+            'Модальное окно закроется через {seconds} секунду',
+        modalPaused: 'Обратный отсчёт на паузе'
     },
     versions: {
         pageTitle: 'История версий',

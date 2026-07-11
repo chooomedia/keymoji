@@ -1,14 +1,27 @@
 <!-- src/components/Layout/AISetupBanner.svelte -->
 <!-- Announcement-Bar über dem Header – nur wenn KI nicht eingerichtet -->
 <script>
+    import { onMount, onDestroy } from 'svelte';
+    import { fly } from 'svelte/transition';
+    import { cubicInOut } from 'svelte/easing';
     import { navigate } from 'svelte-routing';
     import { isLoggedIn, currentAccount } from 'stores/appStores';
     import { translations, currentLanguage } from '../../stores/contentStore.js';
     import { effectiveSettings, userSettings } from '../../stores/userSettingsStore.js';
     import { bannerDismissed, dismissBanner } from 'stores/bannerStore';
 
+    const ANNOUNCEMENT_INTERVAL_MS = 6500;
+    const ANNOUNCEMENT_FLY_DISTANCE_PX = 32;
+    const ANNOUNCEMENT_IN_DURATION_MS = 420;
+    const ANNOUNCEMENT_OUT_DURATION_MS = 320;
+    const OPEN_EXTENSION_PROMO_EVENT = 'keymoji:open-extension-promo';
+
     let storyModeEnabled = false;
     let storyModeConfigured = false;
+    let activeAnnouncementIndex = 0;
+    let announcementInterval = null;
+    let motionCleanup = null;
+    let prefersReducedMotion = false;
 
     $: {
         const settings =
@@ -32,7 +45,41 @@
         }
     }
 
-    $: showBanner = !$isLoggedIn || !storyModeEnabled || !storyModeConfigured;
+    $: showStorySetup = !$isLoggedIn || !storyModeEnabled || !storyModeConfigured;
+    $: isGerman = String($currentLanguage || '').startsWith('de');
+    $: extensionFallbackText = isGerman
+        ? '🔥 Keymoji jetzt direkt im Browser nutzen'
+        : '🔥 Use Keymoji directly in your browser';
+    $: extensionFallbackCta = isGerman ? 'Extension ansehen' : 'See extension';
+    $: announcements = [
+        ...(showStorySetup
+            ? [
+                  {
+                      id: 'story',
+                      text:
+                          $translations?.index?.setupStoryModeBannerText ||
+                          '✨ Deine Story wird dein sicheres Keymoji',
+                      cta:
+                          $translations?.index?.setupStoryModeChip ||
+                          'Story Mode aktivieren',
+                      action: navigateToAISettings
+                  }
+              ]
+            : []),
+        {
+            id: 'extension',
+            text:
+                $translations?.index?.extensionBannerText ||
+                extensionFallbackText,
+            cta:
+                $translations?.index?.extensionBannerChip ||
+                extensionFallbackCta,
+            action: openExtensionPromo
+        }
+    ];
+    $: activeAnnouncement =
+        announcements[activeAnnouncementIndex % Math.max(announcements.length, 1)];
+    $: showBanner = announcements.length > 0;
 
     function navigateToAISettings() {
         const lang = $currentLanguage || 'en';
@@ -45,35 +92,87 @@
             setTimeout(() => accordion?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         }, 400);
     }
+
+    function openExtensionPromo() {
+        window.dispatchEvent(new CustomEvent(OPEN_EXTENSION_PROMO_EVENT));
+    }
+
+    onMount(() => {
+        announcementInterval = setInterval(() => {
+            if (announcements.length > 1) {
+                activeAnnouncementIndex =
+                    (activeAnnouncementIndex + 1) % announcements.length;
+            }
+        }, ANNOUNCEMENT_INTERVAL_MS);
+
+        const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const handleMotionPreferenceChange = event => {
+            prefersReducedMotion = event.matches;
+        };
+
+        prefersReducedMotion = mediaQuery.matches;
+        mediaQuery.addEventListener('change', handleMotionPreferenceChange);
+        motionCleanup = () => {
+            mediaQuery.removeEventListener('change', handleMotionPreferenceChange);
+        };
+    });
+
+    onDestroy(() => {
+        if (announcementInterval) {
+            clearInterval(announcementInterval);
+            announcementInterval = null;
+        }
+
+        if (motionCleanup) {
+            motionCleanup();
+            motionCleanup = null;
+        }
+    });
 </script>
 
 {#if showBanner && !$bannerDismissed}
     <div
         role="note"
-        aria-label="KI-Setup"
+        aria-label={isGerman ? 'Ankündigung' : 'Announcement'}
         class="w-full md:h-8 flex items-center justify-center relative pl-3 pr-8 md:px-8 shrink-0 z-40
                bg-creme-600 dark:bg-aubergine-900
                border-b border-creme-700 dark:border-aubergine-800
                text-gray-700 dark:text-gray-300"
     >
-        <div class="flex items-center gap-1.5 md:gap-2.5 py-1 md:py-0 min-w-0">
+        <div class="announcement-stage py-1 md:py-0 min-w-0">
+            {#key activeAnnouncement.id}
+                <div
+                    class="announcement-item flex items-center gap-1.5 md:gap-2.5 min-w-0"
+                    in:fly={{
+                        y: prefersReducedMotion ? 0 : ANNOUNCEMENT_FLY_DISTANCE_PX,
+                        duration: prefersReducedMotion ? 0 : ANNOUNCEMENT_IN_DURATION_MS,
+                        easing: cubicInOut
+                    }}
+                    out:fly={{
+                        y: prefersReducedMotion ? 0 : -ANNOUNCEMENT_FLY_DISTANCE_PX,
+                        duration: prefersReducedMotion ? 0 : ANNOUNCEMENT_OUT_DURATION_MS,
+                        easing: cubicInOut
+                    }}
+                >
+                    <!-- Informativer Text -->
+                    <span class="announcement-text text-xs text-yellow-600 dark:text-yellow-400 truncate md:whitespace-nowrap">
+                        {activeAnnouncement.text}
+                    </span>
 
-            <!-- Informativer Text -->
-            <span class="text-xs text-yellow-600 dark:text-yellow-400 truncate md:whitespace-nowrap">
-                {$translations?.index?.setupStoryModeBannerText || '✨ Deine Story wird dein sicheres Keymoji'}
-            </span>
-
-            <!-- Chip CTA mit Regenbogen-Animation -->
-            <button
-                on:click={navigateToAISettings}
-                class="rainbow-chip inline-flex items-center px-2.5 py-1 md:py-0.5 rounded-full text-xs
-                       whitespace-nowrap
-                       focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1
-                       cursor-pointer text-black font-medium"
-                aria-label={$translations?.index?.setupStoryModeChip || 'Story Mode aktivieren'}
-            >
-                {$translations?.index?.setupStoryModeChip || 'Story Mode aktivieren'}
-            </button>
+                    <!-- Chip CTA mit Regenbogen-Animation -->
+                    <button
+                        on:click={activeAnnouncement.action}
+                        class="rainbow-chip inline-flex items-center px-2.5 py-1 md:py-0.5 rounded-full text-xs
+                               whitespace-nowrap
+                               flex-shrink-0
+                               focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1
+                               cursor-pointer text-black font-medium"
+                        aria-label={activeAnnouncement.cta}
+                    >
+                        {activeAnnouncement.cta}
+                    </button>
+                </div>
+            {/key}
         </div>
 
         <!-- Dismiss – absolut rechts -->
@@ -110,5 +209,25 @@
     .rainbow-chip:hover {
         opacity: 1;
         filter: brightness(1.08);
+    }
+
+    .announcement-stage {
+        align-items: center;
+        display: grid;
+        justify-items: center;
+        min-height: 1.75rem;
+        overflow: hidden;
+        width: min(100%, 44rem);
+    }
+
+    .announcement-item {
+        grid-area: 1 / 1;
+        justify-content: center;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .announcement-text {
+        min-width: 0;
     }
 </style>

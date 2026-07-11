@@ -457,7 +457,8 @@ export default {
         resetting: 'Terugzetten...',
         closeModal: 'Modal sluiten',
         modalClosesIn: 'Modal sluit in {seconds} seconden',
-        modalClosesInSingular: 'Modal sluit in {seconds} seconde'
+        modalClosesInSingular: 'Modal sluit in {seconds} seconde',
+        modalPaused: 'Countdown gepauzeerd'
     },
     versions: {
         pageTitle: 'Versiegeschiedenis',

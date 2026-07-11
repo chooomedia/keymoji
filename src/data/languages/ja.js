@@ -447,7 +447,8 @@ export default {
         resetting: 'リセット中...',
         closeModal: 'モーダルを閉じる',
         modalClosesIn: 'モーダルは{seconds}秒後に閉じます',
-        modalClosesInSingular: 'モーダルは{seconds}秒後に閉じます'
+        modalClosesInSingular: 'モーダルは{seconds}秒後に閉じます',
+        modalPaused: 'カウントダウン一時停止'
     },
     versions: {
         pageTitle: 'バージョン履歴',

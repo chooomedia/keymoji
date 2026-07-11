@@ -450,7 +450,8 @@ export default {
         resetting: 'Herstel...',
         closeModal: 'Sluit modal',
         modalClosesIn: 'Modal sluit in {seconds} sekondes',
-        modalClosesInSingular: 'Modal sluit in {seconds} sekonde'
+        modalClosesInSingular: 'Modal sluit in {seconds} sekonde',
+        modalPaused: 'Aftelling gepouseer'
     },
 
     versions: {

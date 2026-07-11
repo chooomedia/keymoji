@@ -1,8 +1,7 @@
 <!-- src/components/Layout/PageLayout.svelte -->
 <script>
-    import { currentLanguage, translations } from '../../stores/contentStore.js';
-    import { darkMode, isLoggedIn, currentAccount } from 'stores/appStores';
-    import { effectiveSettings, userSettings } from '../../stores/userSettingsStore.js';
+    import { currentLanguage } from '../../stores/contentStore.js';
+    import { darkMode } from 'stores/appStores';
     import { bannerDismissed } from 'stores/bannerStore';
     import Header from './Header.svelte';
     import AISetupBanner from './AISetupBanner.svelte';
@@ -34,26 +33,7 @@
     const darkGradient = 'linear-gradient(-45deg, #050413, #040320f5, #080715, #040310)';
     const lightGradient = 'linear-gradient(-45deg, #e0e0e0f7, #f8f8f8f0, #ecececf0, #e0e0e0f2)';
     
-    // Banner-Sichtbarkeit (spiegelt AISetupBanner-Logik)
-    let _storyEnabled = false;
-    let _storyConfigured = false;
-    $: {
-        const settings =
-            $effectiveSettings?.storyMode ||
-            $userSettings?.storyMode ||
-            $currentAccount?.metadata?.settings?.storyMode ||
-            null;
-        if (settings) {
-            const provider = settings.provider || 'apertus';
-            const key = (settings.apiKeys || {})[provider] || '';
-            _storyEnabled = settings.enabled || false;
-            _storyConfigured = provider === 'apertus' ? _storyEnabled : !!(key && key.length >= 10);
-        } else {
-            _storyEnabled = false;
-            _storyConfigured = false;
-        }
-    }
-    $: bannerVisible = (!$isLoggedIn || !_storyEnabled || !_storyConfigured) && !$bannerDismissed;
+    $: bannerVisible = !$bannerDismissed;
 
     // Performance-State
     let backgroundLoaded = false;

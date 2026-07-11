@@ -446,7 +446,8 @@ export default {
         resetting: '재설정 중...',
         closeModal: '모달 닫기',
         modalClosesIn: '모달이 {seconds}초 후에 닫힙니다',
-        modalClosesInSingular: '모달이 {seconds}초 후에 닫힙니다'
+        modalClosesInSingular: '모달이 {seconds}초 후에 닫힙니다',
+        modalPaused: '카운트다운 일시 중지'
     },
     versions: {
         pageTitle: '버전 기록',

@@ -454,7 +454,8 @@ export default {
         resetting: 'Restableciendo...',
         closeModal: 'Cerrar modal',
         modalClosesIn: 'El modal se cierra en {seconds} segundos',
-        modalClosesInSingular: 'El modal se cierra en {seconds} segundo'
+        modalClosesInSingular: 'El modal se cierra en {seconds} segundo',
+        modalPaused: 'Cuenta atrás pausada'
     },
     versions: {
         pageTitle: 'Historial de versiones',

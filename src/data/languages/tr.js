@@ -450,7 +450,8 @@ export default {
         resetting: 'Sıfırlanıyor...',
         closeModal: 'Modalı kapat',
         modalClosesIn: 'Modal {seconds} saniye sonra kapanacak',
-        modalClosesInSingular: 'Modal {seconds} saniye sonra kapanacak'
+        modalClosesInSingular: 'Modal {seconds} saniye sonra kapanacak',
+        modalPaused: 'Geri sayım duraklatıldı'
     },
 
     versions: {

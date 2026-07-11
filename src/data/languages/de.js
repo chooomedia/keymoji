@@ -464,7 +464,8 @@ export default {
         resetting: 'Zurücksetzen...',
         closeModal: 'Modal schließen',
         modalClosesIn: 'Modal schließt in {seconds} Sekunden',
-        modalClosesInSingular: 'Modal schließt in {seconds} Sekunde'
+        modalClosesInSingular: 'Modal schließt in {seconds} Sekunde',
+        modalPaused: 'Countdown pausiert'
     },
 
     // AccountManager Übersetzungen

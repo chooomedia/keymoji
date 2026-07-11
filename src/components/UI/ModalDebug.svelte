@@ -25,7 +25,9 @@
         showMagicLinkVerified,
         showMagicLinkVerificationFailed,
         showAccountLoginSuccess,
-        showAccountLogoutSuccess
+        showAccountLogoutSuccess,
+        showModalWithContent,
+        closeModal as closeAppModal
     } from '../../stores/modalStore';
     import { incrementDailyUsage } from '../../stores/dailyUsageStore.js';
     
@@ -36,6 +38,17 @@
     const dispatch = createEventDispatcher();
 
     export let isVisible = false;
+
+    const CHROME_EXTENSION_URL = 'https://chromewebstore.google.com/';
+    const EDGE_EXTENSION_URL = 'https://microsoftedge.microsoft.com/addons/';
+    const FIREFOX_EXTENSION_URL = 'https://addons.mozilla.org/firefox/';
+
+    const browserIcons = {
+        chrome: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg',
+        edge: 'https://upload.wikimedia.org/wikipedia/commons/9/98/Microsoft_Edge_logo_%282019%29.svg',
+        firefox: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Firefox_logo%2C_2019.svg',
+        brave: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Brave_lion_icon.svg'
+    };
 
     // Active tab state
     let activeTab = 'account';
@@ -165,6 +178,101 @@
         setTimeout(() => {
             showMagicLinkVerified('test@example.com', 'TestUser');
         }, 6000);
+    }
+
+    function testExtensionPromoModal() {
+        const isGerman = String($currentLanguage || '').startsWith('de');
+        const copy = isGerman
+            ? {
+                  eyebrow: 'Keymoji im Browser',
+                  title:
+                      'Erstelle sichere Emoji-Passwörter direkt im Anmeldefeld.',
+                  body:
+                      'Erstelle ein Emoji-Passwort direkt im Passwortfeld. Lokal, schnell und nur nach deiner Bestätigung.',
+                  proof:
+                      'Kein Account. Kein Tracking. Keine generierten Keymojis auf Servern.',
+                  primary: 'Öffnen',
+                  secondary: 'Vielleicht später'
+              }
+            : {
+                  eyebrow: 'Keymoji for your browser',
+                  title:
+                      'Create secure emoji passwords without leaving the signup field.',
+                  body:
+                      'Create an emoji password directly inside password fields. Local, fast, and only when you confirm.',
+                  proof:
+                      'No account. No tracking. No generated Keymojis sent to servers.',
+                  primary: 'Open',
+                  secondary: 'Maybe later'
+              };
+        const browserTargets = [
+            {
+                id: 'chrome',
+                name: 'Chrome',
+                label: 'Chrome',
+                href: CHROME_EXTENSION_URL,
+                iconSrc: browserIcons.chrome
+            },
+            {
+                id: 'edge',
+                name: 'Edge',
+                label: 'Edge',
+                href: EDGE_EXTENSION_URL,
+                iconSrc: browserIcons.edge
+            },
+            {
+                id: 'firefox',
+                name: 'Firefox',
+                label: 'Firefox',
+                href: FIREFOX_EXTENSION_URL,
+                iconSrc: browserIcons.firefox
+            },
+            {
+                id: 'brave',
+                name: 'Brave',
+                label: 'Brave',
+                href: CHROME_EXTENSION_URL,
+                iconSrc: browserIcons.brave
+            }
+        ];
+
+        closeModal();
+        setTimeout(() => {
+            showModalWithContent(
+                {
+                    html: `
+                        <div style="display:grid;gap:12px;">
+                            <p style="font-size:18px;line-height:1.25;font-weight:800;margin:0;color:inherit;">${copy.title}</p>
+                            <p style="margin:0;color:inherit;opacity:.82;">${copy.body}</p>
+                        </div>
+                    `
+                },
+                {
+                    title: copy.eyebrow,
+                    icon: '🔥',
+                    type: 'info',
+                    duration: 10000,
+                    browserTargets,
+                    selectedBrowserId: 'chrome',
+                    proofText: copy.proof,
+                    primaryButton: {
+                        text: copy.primary,
+                        action: target => {
+                            window.open(
+                                target?.href || CHROME_EXTENSION_URL,
+                                '_blank',
+                                'noopener,noreferrer'
+                            );
+                            closeAppModal();
+                        }
+                    },
+                    secondaryButton: {
+                        text: copy.secondary,
+                        action: closeAppModal
+                    }
+                }
+            );
+        }, 200);
     }
 
     /**
@@ -551,6 +659,19 @@
                                     👋 Logout Success
                                 </button>
                             </div>
+                        </div>
+
+                        <!-- Extension Promo -->
+                        <div class="bg-gray-50 dark:bg-aubergine-700 rounded-lg p-4">
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Extension Promo</h3>
+                            <div class="grid grid-cols-1 gap-2">
+                                <button on:click={testExtensionPromoModal} class="px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg text-xs font-medium transition-colors">
+                                    🔑 Browser Extension Promo testen
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                Tests the promo modal with a 10s countdown. Hover or focus should pause it.
+                            </p>
                         </div>
                     </div>
 

@@ -21,7 +21,7 @@
         "prebuild": "node scripts/update-timestamp.js",
         "build": "webpack --config webpack/build.js && node scripts/generate-static-routes.js && node scripts/optimize-build.js",
         "build:extension": "webpack --config webpack/extension.js",
-        "package:extension": "npm run build:extension && cd build-extension && zip -r ../keymoji-extension-v0.1.0.zip .",
+        "package:extension": "npm run build:extension && node scripts/package-extension.js",
         "postbuild": "node scripts/prerender-meta.js && node scripts/generate-sitemap.js",
         "check:images": "node scripts/check-social-images.js",
         "setup:fonts": "node scripts/setup-fonts.js",

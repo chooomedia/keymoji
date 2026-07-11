@@ -443,7 +443,8 @@ export default {
         resetting: "lanlu'...",
         closeModal: "meQwI' yISoQmoH",
         modalClosesIn: "meQwI' {seconds} tlha' yISoQmoH",
-        modalClosesInSingular: "meQwI' {seconds} tlha' yISoQmoH"
+        modalClosesInSingular: "meQwI' {seconds} tlha' yISoQmoH",
+        modalPaused: 'Countdown mev'
     },
     versions: {
         pageTitle: "De' QulwI' lut",

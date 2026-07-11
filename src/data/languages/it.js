@@ -451,7 +451,8 @@ export default {
         resetting: 'Ripristino...',
         closeModal: 'Chiudi modal',
         modalClosesIn: 'Il modal si chiude in {seconds} secondi',
-        modalClosesInSingular: 'Il modal si chiude in {seconds} secondo'
+        modalClosesInSingular: 'Il modal si chiude in {seconds} secondo',
+        modalPaused: 'Conto alla rovescia in pausa'
     },
     versions: {
         pageTitle: 'Cronologia versioni',
