@@ -1,4 +1,37 @@
 export const versions = {
+    '0.8.3': {
+        date: 'July 11, 2026',
+        core: {
+            extension: {
+                title: '🔐 Browser Extension MVP',
+                improvements: [
+                    'Added the first Keymoji browser extension MVP with Manifest V3 support',
+                    'Keymojis can now be generated locally inside the extension popup',
+                    'Password fields can show an explicit insert prompt above the input before filling',
+                    'Extension uses the shared emoji generation logic with cryptographically secure randomness',
+                    'Extension settings are stored locally with chrome.storage and no generated Keymojis are sent to servers'
+                ]
+            },
+            webapp: {
+                title: '📣 Web App Extension Announcement',
+                improvements: [
+                    'Added a localized browser extension promo modal using the existing modal system',
+                    'Promo appears after a short delay or exit intent with session and cooldown frequency capping',
+                    'Added a public extension privacy page for store review and user trust',
+                    'Added publishing documentation for Chrome Web Store preparation'
+                ]
+            },
+            build: {
+                title: '🧰 Build & Release Setup',
+                improvements: [
+                    'Added separate build:extension and package:extension scripts for manual extension packaging',
+                    'Normal web app deploy continues to use npm run build and only deploys the build/ directory',
+                    'Extension build output, ZIP packages, and unpacked test folders are ignored by Git',
+                    'Extension icons now use transparent Keymoji logo PNGs for Chrome toolbar compatibility'
+                ]
+            }
+        }
+    },
     '0.8.2': {
         date: 'April 10, 2026',
         core: {

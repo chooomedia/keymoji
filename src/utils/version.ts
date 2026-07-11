@@ -20,13 +20,13 @@ export interface VersionInfo {
 }
 
 // Aktuelle Version der Anwendung
-export const appVersion: string = '0.8.2';
+export const appVersion: string = '0.8.3';
 
 // Versionsinformationen mit Datum der letzten Aktualisierung
 export const versionInfo: VersionInfo = {
     version: appVersion,
-    updated: '2026-04-10',
-    codename: 'Scrollbar & UX Polish'
+    updated: '2026-07-11',
+    codename: 'Browser Extension MVP'
 };
 
 /**
