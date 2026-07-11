@@ -11,6 +11,7 @@
     // Modal-Komponenten hinzufügen
     import Modal from '../UI/Modal.svelte';
     import ModalDebug from '../UI/ModalDebug.svelte';
+    import ExtensionPromoModal from '../Features/ExtensionPromoModal.svelte';
 
     let isVerifyingMagicLink = false;
     let magicLinkStatus = null; // 'verifying', 'success', 'error'
@@ -67,6 +68,7 @@
 <!-- Modal-Komponenten - Immer verfügbar -->
 <Modal />
 <ModalDebug />
+<ExtensionPromoModal />
 
 <!-- Fixed top stack: Banner (optional 32px) + Header (≈80px) -->
 <div class="fixed top-0 left-0 right-0 z-50 flex flex-col w-full gap-2 md:gap-0">

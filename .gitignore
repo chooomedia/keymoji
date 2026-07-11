@@ -1,5 +1,8 @@
 #build data
 build
+build-extension/
+keymoji-extension-*.zip
+keymoji-extension-v*/
 
 # Logs
 logs

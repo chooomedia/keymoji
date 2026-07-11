@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="de">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Keymoji Extension</title>
+        <link rel="stylesheet" href="popup.css" />
+    </head>
+    <body>
+        <main class="popup-shell">
+            <header class="popup-header">
+                <img
+                    class="brand-mark"
+                    src="icons/keymoji-logo.svg"
+                    alt=""
+                    aria-hidden="true"
+                />
+                <div class="header-copy">
+                    <p class="eyebrow">Keymoji</p>
+                    <h1 data-i18n="title">Emoji-Passwort erstellen</h1>
+                </div>
+            </header>
+
+            <section
+                id="keymojiCard"
+                class="keymoji-card"
+                aria-label="Generiertes Keymoji"
+            >
+                <div id="keymojiOutput" class="keymoji-output">Keymoji</div>
+                <div id="status" class="status" aria-live="polite"></div>
+            </section>
+
+            <label class="range-label" for="levelRange">
+                <span data-i18n="level">Level</span>
+                <strong id="levelValue">9</strong>
+            </label>
+            <input id="levelRange" class="range" type="range" min="3" max="9" />
+
+            <div class="actions">
+                <button
+                    id="generateButton"
+                    class="button button-primary"
+                    type="button"
+                    data-i18n="generate"
+                >
+                    Neu erstellen
+                </button>
+                <button
+                    id="copyButton"
+                    class="button button-secondary"
+                    type="button"
+                    data-i18n="copy"
+                >
+                    Kopieren
+                </button>
+            </div>
+
+            <section class="settings" aria-label="Extension Einstellungen">
+                <label class="toggle-row" for="promptToggle">
+                    <span data-i18n="askOnPasswordFields">Bei Passwortfeldern fragen</span>
+                    <input id="promptToggle" type="checkbox" />
+                </label>
+                <label class="toggle-row" for="copyToggle">
+                    <span data-i18n="copyOnInsert">Beim Einsetzen zusätzlich kopieren</span>
+                    <input id="copyToggle" type="checkbox" />
+                </label>
+            </section>
+
+            <footer class="footer">
+                <button
+                    id="donateButton"
+                    class="donate-button"
+                    type="button"
+                    data-i18n="donate"
+                >
+                    Entwicklung unterstützen
+                </button>
+                <a
+                    id="webappLink"
+                    href="https://keymoji.wtf/"
+                    data-i18n="openWebapp"
+                >Webapp öffnen</a>
+            </footer>
+        </main>
+        <script src="popup.js"></script>
+    </body>
+</html>

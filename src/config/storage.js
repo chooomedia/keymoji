@@ -32,6 +32,7 @@ export const STORAGE_KEYS = {
 
     // UI-Banner
     BANNER_DISMISSED: 'keymoji_banner_dismissed',
+    EXTENSION_PROMO_DISMISSED: 'keymoji_extension_promo_dismissed',
 
     // Privacy Consent
     CONSENT: 'keymoji_consent'
