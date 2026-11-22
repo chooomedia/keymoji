@@ -1,3 +1,14 @@
+<script context="module">
+    import DOMPurify from 'dompurify';
+
+    // Registered once per module, not once per component instance.
+    DOMPurify.addHook('afterSanitizeAttributes', node => {
+        if (node.tagName === 'A' && node.getAttribute('target') === '_blank') {
+            node.setAttribute('rel', 'noopener noreferrer');
+        }
+    });
+</script>
+
 <script>
     import { currentLanguage, showShareMenu, translations } from '../../stores/contentStore.js';
     import { onMount } from 'svelte';
@@ -9,7 +20,7 @@
     import { getBlogUrl, getBlogShareUrl, getHomeUrl } from '../../utils/blogNavigation';
     import { blogLikesStore } from '../../stores/blogLikesStore';
     import { get } from 'svelte/store';
-    
+
     const LIKED_POSTS_KEY = 'keymoji_blog_liked_posts';
     
     function hasUserLiked(postId) {
@@ -50,6 +61,10 @@
     let nextPost = null;
     let isTransitioning = false;
     let isMounted = false;
+
+    $: sanitizedContent = post?.content
+        ? DOMPurify.sanitize(post.content, { USE_PROFILES: { html: true } })
+        : '';
   
     // Translations for 404 page
     $: backToPostsText = (() => {
@@ -340,7 +355,7 @@
                 class="prose prose-gray dark:prose-invert dark:text-gray-200 max-w-none mb-4">
                 <h1 itemprop="headline" class="sr-only">{post.title}</h1>
                 <div itemprop="articleBody">
-                    {@html post.content}
+                    {@html sanitizedContent}
                 </div>
             </article>
   

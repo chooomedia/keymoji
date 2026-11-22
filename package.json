@@ -22,6 +22,7 @@
         "build": "webpack --config webpack/build.js && node scripts/generate-static-routes.js && node scripts/optimize-build.js",
         "build:extension": "webpack --config webpack/extension.js",
         "package:extension": "npm run build:extension && node scripts/package-extension.js",
+        "generate:extension-assets": "node scripts/generate-extension-store-assets.js",
         "postbuild": "node scripts/prerender-meta.js && node scripts/generate-sitemap.js",
         "check:images": "node scripts/check-social-images.js",
         "setup:fonts": "node scripts/setup-fonts.js",
@@ -55,6 +56,7 @@
         "mini-css-extract-plugin": "^1.6.2",
         "postcss": "^8.4.47",
         "postcss-loader": "^5.3.0",
+        "sharp": "^0.35.3",
         "style-loader": "^2.0.0",
         "svelte-loader": "^3.2.4",
         "svelte-preprocess": "^4.7.3",
@@ -69,6 +71,7 @@
         "webpack-merge": "^5.7.3"
     },
     "dependencies": {
+        "dompurify": "^3.5.0",
         "dotenv": "^16.3.1",
         "svelte": "^3.59.2",
         "web-vitals": "^3.5.0"
