@@ -25,6 +25,7 @@ import {
     validateMetadataNoDuplicates
 } from '../utils/metadataCleaner';
 import { generateClientFingerprint } from '../utils/sharedHelpers';
+import { sessionAuthHeaders } from '../utils/sessionToken';
 
 // Store für ungespeicherte Änderungen
 export const pendingChanges = writable({});
@@ -641,7 +642,8 @@ async function updateAccountName(userId, name) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                ...sessionAuthHeaders()
             },
             body: JSON.stringify(requestBody)
         });
@@ -1367,7 +1369,8 @@ export async function saveSettingsToAPI(settings) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                ...sessionAuthHeaders()
             },
             body: JSON.stringify({
                 action: 'update', // Required for n8n
@@ -1508,7 +1511,8 @@ export async function loadSettingsFromAPI() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                ...sessionAuthHeaders()
             },
             body: JSON.stringify({
                 action: 'get',
