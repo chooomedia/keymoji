@@ -12,6 +12,7 @@ import { invalidateCachePattern } from '../utils/apiCache';
 import {
     validateSettings,
     sanitizeSettings,
+    stripSecretsForSync,
     getDefaultSettings,
     mergeWithDefaults
 } from '../utils/settingsValidation';
@@ -1343,9 +1344,11 @@ export async function saveSettingsToAPI(settings) {
         }
 
         // Build clean metadata — kein usageHistory mehr (wird lokal in DAILY_USAGE_HISTORY geführt)
+        // API keys stay in localStorage and are stripped before every sync.
+        const settingsForSync = stripSecretsForSync(settings);
         const metadataToSend = {
             ...currentMetadata,
-            settings: settings, // UserSettings → Google Sheets metadata column
+            settings: settingsForSync, // UserSettings → Google Sheets metadata column
             updatedAt: new Date().toISOString(),
             updatedVia: 'settings-ui',
             lastSettingsSave: new Date().toISOString()

@@ -101,19 +101,47 @@ export function cleanMetadataForUpdate(
     // Also check nested objects if strict mode is enabled
     if (strict) {
         Object.keys(cleaned).forEach(key => {
-            if (cleaned[key] && typeof cleaned[key] === 'object' && !Array.isArray(cleaned[key])) {
-                // Recursively clean nested objects (but not too deep to avoid performance issues)
-                const nested = cleaned[key] as Record<string, unknown>;
+            if (isPlainObject(cleaned[key])) {
+                // Copy nested objects so the caller's metadata is never mutated
+                const nested = { ...cleaned[key] } as Record<string, unknown>;
                 fieldsToRemove.forEach(field => {
                     if (field in nested) {
                         delete nested[field];
                     }
                 });
+                cleaned[key] = nested;
             }
         });
     }
 
     return cleaned;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Remove provider API keys from nested settings before a sync request.
+ * Keys belong to localStorage only and must never reach n8n or Sheets.
+ */
+function stripSecretsFromMetadata(metadata: Record<string, unknown>): void {
+    if (!isPlainObject(metadata.settings)) {
+        return;
+    }
+
+    const settings = { ...metadata.settings };
+
+    if (isPlainObject(settings.storyMode)) {
+        const storyMode = { ...settings.storyMode };
+
+        delete storyMode.apiKeys;
+        delete storyMode.apiKey;
+
+        settings.storyMode = storyMode;
+    }
+
+    metadata.settings = settings;
 }
 
 /**
@@ -129,6 +157,8 @@ export function prepareMetadataForAPI(
     context: CleanMetadataContext = {}
 ): Record<string, unknown> {
     const cleaned = cleanMetadataForUpdate(metadata, { strict: true });
+
+    stripSecretsFromMetadata(cleaned);
 
     // Log what was removed (only in development)
     if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
