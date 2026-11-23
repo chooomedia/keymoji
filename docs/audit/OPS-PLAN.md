@@ -52,8 +52,8 @@ Abweichungen vom Briefing: DMARC ist bereits aktiv und strenger als `p=none`. De
 
 ## Entscheidungen
 
-1. DMARC bleibt `p=quarantine`. Keine Änderung. `p=none` wäre eine Schwächung und braucht eine eigene Entscheidung.
-2. Deploy-Weg: FTPS mit dediziertem FTP-User. Begründung: FTPS ist heute mit TLS 1.3 verifiziert, `add_ftpuser` und `update_ftpuser` sind dokumentiert, der bestehende Workflow bleibt weitgehend gleich. rsync über SSH bleibt die bessere Langfristlösung, braucht aber einen Deploy-Key auf dem Server, und die KAS-API hat keine SSH-Key-Funktion. Ob All-Inkl Key-Upload für GitHub-Runner erlaubt, ist offen.
+1. DMARC bleibt `p=quarantine`. Entschieden am 23.11.2026. Keine Änderung. `p=none` wäre eine Schwächung.
+2. Deploy-Weg: FTPS mit dediziertem FTP-User. Entschieden am 23.11.2026. Begründung: FTPS ist heute mit TLS 1.3 verifiziert, `add_ftpuser` und `update_ftpuser` sind dokumentiert, der bestehende Workflow bleibt weitgehend gleich. Dazu kommt Least Privilege: ein SSH-Key im Runner hätte Zugriff auf den ganzen Account, ein eigener FTP-User nur auf seinen Pfad. rsync über SSH bleibt eine spätere Option.
 3. Sync-State: Der FTP-User bekommt `ftp_path` so gesetzt, dass der State außerhalb des Webroots liegt. Der genaue Pfad wird vorher über `get_ftpusers` und die KAS-Doku bestimmt. Falls das Chroot `../` blockiert, bleibt der State im Webroot und wird über `.htaccess` und WAF gesperrt. Das Ergebnis wird im OPS-LOG festgehalten.
 4. `.htaccess`: eine gemeinsame Vorlage `deploy/htaccess.conf` für `build.yml`, `deploy.yml` und `scripts/create-and-deploy-files.sh`. Damit verschwinden die drei Kopien.
 5. Cloudflare: Änderungen nur per API, wenn `CF_API_TOKEN` gesetzt ist. Ohne Token wird eine Checkliste mit Soll-Werten und Prüfbefehlen dokumentiert, keine Änderung.
@@ -79,9 +79,10 @@ Ergebnis des Preflights kommt als Tabelle, danach Stopp und Freigabe für Schrit
 Branch `sec/live-exposure`. Reihenfolge:
 
 1. Inventar wiederholen: `find` über `*.map`, `.ftp-deploy-sync-state.json`, `logs`, `*.log`, `.env*`, `.git*`, jeweils Größe und Datum. Keine Änderung.
-2. Auf Freigabe: Backup-Ordner `/www/htdocs/w01f8f03/backup-keymoji-20261123/` anlegen. `~` zeigt auf `/`, deshalb nicht `~/backup...`. `.htaccess` hineinkopieren, dazu `sha256sum` von `.htaccess` und allen verschobenen Dateien.
-3. Auf Freigabe: die 51 Maps und den Sync-State mit `mv` in den Backup-Ordner verschieben. Kein `rm`.
-4. Repo: `deploy/htaccess.conf` anlegen, mit dem bestehenden Block aus `build.yml` und diesen Sperren vor den Rewrite-Regeln:
+2. Auf Freigabe: per KAS-API `get_domains` und `get_subdomains` prüfen, welche Domains auf `/www/htdocs/w01f8f03/` oder Unterordner zeigen. Ergebnis im OPS-LOG festhalten. Grund: der Backup-Ordner liegt außerhalb des Webroots `keymoji`, aber innerhalb von `htdocs` und kann über eine andere Domain erreichbar sein.
+3. Auf Freigabe: Backup-Ordner `/www/htdocs/w01f8f03/backup-keymoji-20261123/` anlegen. `~` zeigt auf `/`, deshalb nicht `~/backup...`. Im Ordner eine `.htaccess` mit `Require all denied` anlegen. Die aktuelle `.htaccess` hineinkopieren, dazu `sha256sum` von `.htaccess` und allen zu verschiebenden Dateien. Zusätzlich per `scp` eine Kopie nach lokal außerhalb des Repos legen, damit der Rollback nicht vom Server abhängt.
+4. Auf Freigabe: die 51 Maps und den Sync-State mit `mv` in den Backup-Ordner verschieben. Kein `rm`.
+5. Repo: `deploy/htaccess.conf` anlegen, mit dem bestehenden Block aus `build.yml` und diesen Sperren vor den Rewrite-Regeln:
 
 ```apache
 # Sperren für Deploy-Artefakte und sensible Dateien
@@ -94,8 +95,9 @@ RewriteRule (^|/)logs(/|$) - [F,L,NC]
 
 `build.yml` und `deploy.yml` erzeugen die Datei danach mit `cat deploy/htaccess.conf > build/.htaccess`, `scripts/create-and-deploy-files.sh` kopiert sie mit `cp`. Die Kommentare mit Gedankenstrich in der alten Vorlage werden auf einfachen Bindestrich umgestellt.
 
-5. Auf Freigabe: neue `.htaccess` per `scp` in den Webroot legen, vorher Backup vorhanden.
-6. Prüfen: State, eine Map, `.env`, `.git/config` und `logs/` über Cloudflare und direkt am Origin mit `?cb=ZUFALL` gegen den Cache. `/en/`, eine JS- und eine CSS-Datei müssen weiter 200 liefern.
+6. Auf Freigabe: neue `.htaccess` per `scp` in den Webroot legen, vorher Backup vorhanden.
+7. Auf Freigabe: Cloudflare-Cache für die Map-URLs und die State-URL purgen. Mit `CF_API_TOKEN` per API, ohne Token als Checkliste im OPS-LOG.
+8. Prüfen: State, eine Map, `.env`, `.git/config` und `logs/` über Cloudflare und direkt am Origin mit `?cb=ZUFALL` gegen den Cache. `/en/`, eine JS- und eine CSS-Datei müssen weiter 200 liefern.
 
 Akzeptanz: gesperrte Pfade liefern 403 oder 404 an Edge und Origin, Startseite und Assets 200, Backup vollständig, Repo-Commit nur mit den eigenen Dateien.
 
@@ -125,10 +127,11 @@ Rollback: alte Workflow-Version, alte Secrets, alten FTP-User weiterverwenden. N
 Branch `docs/ops-vercel`, nur Doku und Env-Namen.
 
 1. Lesend: `vercel env ls` (nur Namen), `vercel project inspect keymoji`, `vercel domains ls`, `vercel project protection keymoji`, `vercel logs --environment production --json --limit 200` und darin nach `/api/story` filtern. Vercel Hobby speichert Runtime-Logs nur kurz, wie weit die letzten Tage reichen, ist unbestätigt. Ergebnis mit Zeitraum im OPS-LOG.
-2. Namenskonflikt klären: Der neue Backend-Code liest `SESSION_SECRET` (`keymoji-backend/utils/sessionToken.js`, Fallback `N8N_WEBHOOK_SECRET`). Das Briefing nennt `SESSION_HMAC_SECRET`. Ein Secret unter dem Briefing-Namen würde derzeit nicht wirken. Empfehlung: `SESSION_SECRET` setzen oder den Code in T22 umbenennen. Vor dem Setzen entscheiden.
-3. Auf Freigabe: `openssl rand -base64 32` erzeugen und ohne Anzeige in `vercel env add SESSION_SECRET production` pipen. `--sensitive` verwenden, falls die CLI-Version es unterstützt.
-4. `TURNSTILE_SECRET_KEY` legt CM selbst an. Der Befehl wird gestellt, der Wert wird von CM eingegeben, nicht von Claude gelesen.
-5. Persistenter Store: Empfehlung Upstash Redis über den Vercel Marketplace oder Zähler über n8n und Google Sheets, weil dort die Kontodaten schon liegen. Kein Anlegen in diesem Schritt.
+2. Deploy-Weg des Backends klären und dokumentieren, bevor eine Env-Variable gesetzt wird: Git-Integration oder `vercel deploy`. Das letzte Production-Deployment ist 185 Tage alt, das aktuelle Backend-Repo ist also nicht deployt. Der Weg wird im OPS-LOG festgehalten.
+3. Namensentscheidung: `SESSION_SECRET` bleibt der Name. Der Fallback auf `N8N_WEBHOOK_SECRET` in `keymoji-backend/utils/sessionToken.js` wird entfernt, ohne Secret fail closed. Die Änderung gehört in den Auth-Branch, nicht in diesen Doku-Schritt.
+4. Auf Freigabe: `openssl rand -base64 32` erzeugen und ohne Anzeige in `vercel env add SESSION_SECRET production` pipen. `--sensitive` verwenden, falls die CLI-Version es unterstützt.
+5. `TURNSTILE_SECRET_KEY` legt CM selbst an. Der Befehl wird gestellt, der Wert wird von CM eingegeben, nicht von Claude gelesen.
+6. Persistenter Store: Empfehlung Upstash Redis über den Vercel Marketplace oder Zähler über n8n und Google Sheets, weil dort die Kontodaten schon liegen. Kein Anlegen in diesem Schritt.
 
 Akzeptanz: Env-Liste zeigt die neuen Namen, keine Werte, Backend-Deploy separat freigegeben, Rate-Limit-Empfehlung dokumentiert.
 
@@ -146,6 +149,7 @@ Nur mit `CF_API_TOKEN`. Jede Änderung zuerst als Diff vorher/nachher, dann Stop
 | TLS 1.3 | aktiviert | `PATCH /zones/{id}/settings/tls_1_3` |
 | Automatic HTTPS Rewrites | `on` | `PATCH /zones/{id}/settings/automatic_https_rewrites` |
 | CAA | `0 issue "letsencrypt.org"` | `POST /zones/{id}/dns_records` |
+| Redirect Rule `www` | `https://www.keymoji.wtf/*` auf `https://keymoji.wtf/$1` mit 301, Pfad und Query bleiben erhalten | Rulesets-API (Redirect Rules) oder Dashboard |
 | WAF Custom Rule | Block für `.env`, `.git`, `.ftp-deploy-sync-state.json`, `*.map`, `logs` | Rulesets-API oder Dashboard |
 
 DMARC bleibt unverändert. SPF und MX werden nicht angefasst. Bot Fight Mode und HSTS werden nicht per API geändert, beides macht CM manuell. HSTS erst nach dem Header-Branch.
@@ -193,6 +197,6 @@ Commits Englisch, Conventional Commits. Doku Deutsch mit echten Umlauten. Nach j
 - Ob das FTP-Chroot `../` erlaubt, zeigt der erste Deploy. Fallback ist die Sperre im Webroot.
 - Ob All-Inkl SSH-Keys für GitHub-Runner erlaubt, ist unbestätigt. Deshalb ist rsync nicht der erste Weg.
 - Ob das Vercel-Projekt mit dem Backend-Repo verbunden ist, ist über die CLI nicht sichtbar. Letztes Production-Deployment vor 185 Tagen, das aktuelle Backend-Repo ist also nicht deployt.
-- `SESSION_SECRET` gegen `SESSION_HMAC_SECRET`: vor dem Setzen entscheiden.
+- `SESSION_SECRET` bleibt der Name. Der Fallback auf `N8N_WEBHOOK_SECRET` entfällt, ohne Secret fail closed. Umsetzung im Auth-Branch.
 - Vercel-Log-Aufbewahrung für mehrere Tage ist unbestätigt.
 - Ob das Entfernen des alten FTP-Zugangs andere Automatismen bricht, ist unbestätigt.
