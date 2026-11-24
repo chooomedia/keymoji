@@ -169,12 +169,15 @@ jobs:
                   username: ${{ secrets.USERNAME }}
                   password: ${{ secrets.PASSWORD }}
                   server-dir: ${{ secrets.SERVERDIR }}
+                  protocol: ftps
+                  port: 21
                   local-dir: ./build/
                   exclude: |
                       **/.git*
                       **/.git*/**
                       **/node_modules/**
-                  log-level: verbose
+                      **/*.map
+                  log-level: standard
                   timeout: 300000
                   dangerous-clean-slate: false
 
@@ -194,12 +197,15 @@ jobs:
                   username: ${{ secrets.USERNAME }}
                   password: ${{ secrets.PASSWORD }}
                   server-dir: ${{ secrets.SERVERDIR }}
+                  protocol: ftps
+                  port: 21
                   local-dir: ./build/
                   exclude: |
                       **/.git*
                       **/.git*/**
                       **/node_modules/**
-                  log-level: verbose
+                      **/*.map
+                  log-level: standard
                   timeout: 300000
                   dangerous-clean-slate: false
 
@@ -217,11 +223,14 @@ jobs:
                   username: ${{ secrets.USERNAME }}
                   password: ${{ secrets.PASSWORD }}
                   server-dir: ${{ secrets.SERVERDIR }}
+                  protocol: ftps
+                  port: 21
                   local-dir: ./build/
                   exclude: |
                       **/.git*
                       **/.git*/**
                       **/node_modules/**
-                  log-level: verbose
+                      **/*.map
+                  log-level: standard
                   timeout: 300000
                   dangerous-clean-slate: false
