@@ -58,6 +58,17 @@ Abweichungen vom Briefing: DMARC ist bereits aktiv und strenger als `p=none`. De
 4. `.htaccess`: eine gemeinsame Vorlage `deploy/htaccess.conf` für `build.yml`, `deploy.yml` und `scripts/create-and-deploy-files.sh`. Damit verschwinden die drei Kopien.
 5. Cloudflare: Änderungen nur per API, wenn `CF_API_TOKEN` gesetzt ist. Ohne Token wird eine Checkliste mit Soll-Werten und Prüfbefehlen dokumentiert, keine Änderung.
 
+## Zurückgestellt: KAS-API
+
+Entschieden am 24.11.2026. Diese Schritte sind bis auf Weiteres zurückgestellt und werden nicht ausgeführt:
+
+- Schritt 0: KAS-Auth-Test und `KasFloodDelay`-Prüfung.
+- Schritt 1, Teilschritt 2: `get_domains` und `get_subdomains` zur Domain-Zuordnung.
+- Schritt 2, Teilschritt 2: `add_ftpuser` für einen dedizierten Deploy-User.
+- Schritt 2, Teilschritt 6: `update_ftpuser` und Rotation des alten Zugangs.
+
+Der Deploy läuft bis auf Weiteres mit dem bestehenden FTP-Zugang, aber über FTPS. Der Least-Privilege-Vorteil eines eigenen Users bleibt als Ziel notiert.
+
 ## Schritt 0: Preflight, nur lesend
 
 | Prüfung | Befehl | Erwartet |
@@ -66,8 +77,8 @@ Abweichungen vom Briefing: DMARC ist bereits aktiv und strenger als `p=none`. De
 | SFTP | `printf 'pwd\n' \| sftp -b - kmoji` | Remote-Verzeichnis |
 | Vercel | `vercel whoami`, `vercel project inspect keymoji` | eingeloggt, Projekt `keymoji`, `its.keymoji.wtf` |
 | GitHub | `gh auth status` | eingeloggt |
-| KAS-Auth | `php -r` mit `KasApi` und `get_ftpusers`, Auth über `KAS_LOGIN` und `KAS_AUTH_DATA` | Array mit FTP-Usern, keine Ausgabe der Zugangsdaten |
-| KAS-Flood | Antwort auf `KasFloodDelay` prüfen | Feld in der Doku nicht beschrieben. Falls vorhanden, Pause übernehmen, sonst 1 Sekunde zwischen Aufrufen |
+| KAS-Auth (zurückgestellt) | `php -r` mit `KasApi` und `get_ftpusers`, Auth über `KAS_LOGIN` und `KAS_AUTH_DATA` | Array mit FTP-Usern, keine Ausgabe der Zugangsdaten |
+| KAS-Flood (zurückgestellt) | Antwort auf `KasFloodDelay` prüfen | Feld in der Doku nicht beschrieben. Falls vorhanden, Pause übernehmen, sonst 1 Sekunde zwischen Aufrufen |
 | Cloudflare | `GET https://api.cloudflare.com/client/v4/zones?name=keymoji.wtf` mit `CF_API_TOKEN`, nur Status und Zonen-ID ausgeben | Zone gefunden oder Token fehlt |
 
 KAS-Auth: zuerst `kas_auth_type=plain` mit `KAS_AUTH_DATA`. Schlägt das mit einem Auth-Fehler fehl, wird nicht geraten, sondern nachgefragt, ob Session-Auth mit 2FA-PIN nötig ist. Ein kleiner Helfer `scripts/kas-api.php` liest die Werte nur aus der Umgebung, gibt nie Tokens aus und wartet `KasFloodDelay` ab. Er wird vor der Nutzung mit `php -l` geprüft.
@@ -79,7 +90,7 @@ Ergebnis des Preflights kommt als Tabelle, danach Stopp und Freigabe für Schrit
 Branch `sec/live-exposure`. Reihenfolge:
 
 1. Inventar wiederholen: `find` über `*.map`, `.ftp-deploy-sync-state.json`, `logs`, `*.log`, `.env*`, `.git*`, jeweils Größe und Datum. Keine Änderung.
-2. Auf Freigabe: per KAS-API `get_domains` und `get_subdomains` prüfen, welche Domains auf `/www/htdocs/w01f8f03/` oder Unterordner zeigen. Ergebnis im OPS-LOG festhalten. Grund: der Backup-Ordner liegt außerhalb des Webroots `keymoji`, aber innerhalb von `htdocs` und kann über eine andere Domain erreichbar sein.
+2. Zurückgestellt (KAS-API): per `get_domains` und `get_subdomains` prüfen, welche Domains auf `/www/htdocs/w01f8f03/` oder Unterordner zeigen. Ergebnis im OPS-LOG festhalten. Grund: der Backup-Ordner liegt außerhalb des Webroots `keymoji`, aber innerhalb von `htdocs` und kann über eine andere Domain erreichbar sein. Solange zurückgestellt, schützt die `.htaccess` mit `Require all denied` den Ordner.
 3. Auf Freigabe: Backup-Ordner `/www/htdocs/w01f8f03/backup-keymoji-20261123/` anlegen. `~` zeigt auf `/`, deshalb nicht `~/backup...`. Im Ordner eine `.htaccess` mit `Require all denied` anlegen. Die aktuelle `.htaccess` hineinkopieren, dazu `sha256sum` von `.htaccess` und allen zu verschiebenden Dateien. Zusätzlich per `scp` eine Kopie nach lokal außerhalb des Repos legen, damit der Rollback nicht vom Server abhängt.
 4. Auf Freigabe: die 51 Maps und den Sync-State mit `mv` in den Backup-Ordner verschieben. Kein `rm`.
 5. Repo: `deploy/htaccess.conf` anlegen, mit dem bestehenden Block aus `build.yml` und diesen Sperren vor den Rewrite-Regeln:
@@ -108,7 +119,7 @@ Rollback: `.htaccess` aus dem Backup zurückschreiben, Dateien zurückverschiebe
 Branch `chore/deploy-ftps`.
 
 1. Vergleich dokumentieren: FTPS heute TLS 1.3 bestätigt, Action unterstützt `protocol: ftps` und `port: 21`. rsync über SSH wäre ohne State-Datei sauberer, setzt aber einen Deploy-Key voraus, den die KAS-API nicht verwaltet. Empfehlung bleibt FTPS.
-2. Auf Freigabe: per KAS-API `add_ftpuser` einen User nur für den Deploy anlegen. Parameter: `ftp_password` (lokal mit `openssl rand` erzeugt, nie angezeigt), `ftp_path` nach `get_ftpusers`-Konvention, `ftp_comment` `github-actions-deploy`, Rechte lesen, schreiben, listen `Y`. Wert nur per Pipe an `gh secret set` geben.
+2. Zurückgestellt (KAS-API): per `add_ftpuser` einen User nur für den Deploy anlegen. Parameter: `ftp_password` (lokal mit `openssl rand` erzeugt, nie angezeigt), `ftp_path` nach `get_ftpusers`-Konvention, `ftp_comment` `github-actions-deploy`, Rechte lesen, schreiben, listen `Y`. Wert nur per Pipe an `gh secret set` geben.
 3. Workflows umstellen:
    - `protocol: ftps`, `port: 21`.
    - `state-name` so setzen, dass die Datei außerhalb des Webroots liegt, falls das Chroot es erlaubt. Sonst bleibt sie im Webroot und ist durch Schritt 1 gesperrt.
@@ -116,7 +127,7 @@ Branch `chore/deploy-ftps`.
    - `log-level: standard`.
 4. Neue GitHub-Secrets per `gh secret set NAME` aus stdin: Host, User, Passwort, Server-Dir. Die alten Secrets bleiben, bis der neue Deploy einmal erfolgreich war.
 5. Auf Freigabe: Deploy über den Workflow auslösen. Log auf `TLS`, `FTPS` und erfolgreichen Abschluss prüfen.
-6. Auf Freigabe: alte Secrets entfernen und den alten FTP-Zugang per KAS-API `update_ftpuser` mit neuem `ftp_new_password` rotieren, danach den alten Zugang testen. Der Haupt-Account-FTP-User lässt sich laut Doku über `update_account` nicht mit einem FTP-Passwort ändern, nur über `account_kas_password`. Ob es dafür einen undokumentierten Parameter gibt, ist offen und wird nicht geraten.
+6. Zurückgestellt (KAS-API): alte Secrets entfernen und den alten FTP-Zugang per `update_ftpuser` mit neuem `ftp_new_password` rotieren, danach den alten Zugang testen. Der Haupt-Account-FTP-User lässt sich laut Doku über `update_account` nicht mit einem FTP-Passwort ändern, nur über `account_kas_password`. Ob es dafür einen undokumentierten Parameter gibt, ist offen und wird nicht geraten.
 
 Akzeptanz: Workflow-Log zeigt verschlüsselte Verbindung, Deploy erfolgreich, Maps nicht erneut hochgeladen, State nicht im Webroot, alter Zugang ungültig.
 
@@ -182,7 +193,7 @@ Commits Englisch, Conventional Commits. Doku Deutsch mit echten Umlauten. Nach j
 
 - Anlegen des Backup-Ordners und Verschieben der Maps und des Sync-State.
 - Schreiben der neuen `.htaccess` auf den Server.
-- Jeder KAS-API-Schreibaufruf: `add_ftpuser`, `update_ftpuser`, `delete_ftpuser`.
+- Jeder KAS-API-Schreibaufruf: `add_ftpuser`, `update_ftpuser`, `delete_ftpuser`. Derzeit zurückgestellt.
 - Jede Änderung an GitHub-Secrets.
 - Jeder Workflow-Lauf mit Deploy.
 - Jedes Setzen oder Entfernen einer Vercel-Env-Variable.
