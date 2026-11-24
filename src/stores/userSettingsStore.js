@@ -12,6 +12,7 @@ import { invalidateCachePattern } from '../utils/apiCache';
 import {
     validateSettings,
     sanitizeSettings,
+    stripSecretsForSync,
     getDefaultSettings,
     mergeWithDefaults
 } from '../utils/settingsValidation';
@@ -24,6 +25,7 @@ import {
     validateMetadataNoDuplicates
 } from '../utils/metadataCleaner';
 import { generateClientFingerprint } from '../utils/sharedHelpers';
+import { sessionAuthHeaders } from '../utils/sessionToken';
 
 // Store für ungespeicherte Änderungen
 export const pendingChanges = writable({});
@@ -640,7 +642,8 @@ async function updateAccountName(userId, name) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                ...sessionAuthHeaders()
             },
             body: JSON.stringify(requestBody)
         });
@@ -1343,9 +1346,11 @@ export async function saveSettingsToAPI(settings) {
         }
 
         // Build clean metadata — kein usageHistory mehr (wird lokal in DAILY_USAGE_HISTORY geführt)
+        // API keys stay in localStorage and are stripped before every sync.
+        const settingsForSync = stripSecretsForSync(settings);
         const metadataToSend = {
             ...currentMetadata,
-            settings: settings, // UserSettings → Google Sheets metadata column
+            settings: settingsForSync, // UserSettings → Google Sheets metadata column
             updatedAt: new Date().toISOString(),
             updatedVia: 'settings-ui',
             lastSettingsSave: new Date().toISOString()
@@ -1364,7 +1369,8 @@ export async function saveSettingsToAPI(settings) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                ...sessionAuthHeaders()
             },
             body: JSON.stringify({
                 action: 'update', // Required for n8n
@@ -1505,7 +1511,8 @@ export async function loadSettingsFromAPI() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                ...sessionAuthHeaders()
             },
             body: JSON.stringify({
                 action: 'get',

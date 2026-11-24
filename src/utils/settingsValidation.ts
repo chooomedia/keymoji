@@ -267,6 +267,29 @@ export function sanitizeSettings(settings: PartialUserSettings, tier: Tier = 'fr
 }
 
 /**
+ * Remove secrets before settings leave the browser.
+ *
+ * API keys stay in localStorage only. They must never be part of an account
+ * sync payload or a backend log line.
+ */
+export function stripSecretsForSync(
+    settings: PartialUserSettings
+): PartialUserSettings {
+    const sanitized: PartialUserSettings = { ...settings };
+
+    if (sanitized.storyMode && typeof sanitized.storyMode === 'object') {
+        const storyMode = { ...sanitized.storyMode };
+
+        delete storyMode.apiKeys;
+        delete (storyMode as { apiKey?: string }).apiKey;
+
+        sanitized.storyMode = storyMode;
+    }
+
+    return sanitized;
+}
+
+/**
  * Get default settings based on tier
  */
 export function getDefaultSettings(tier: Tier = 'free'): UserSettings {
