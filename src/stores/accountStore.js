@@ -21,11 +21,6 @@ import {
     clearAllCache
 } from '../utils/apiCache';
 import { generateClientFingerprint } from '../utils/sharedHelpers';
-import {
-    setSessionToken,
-    sessionAuthHeaders,
-    clearSessionToken
-} from '../utils/sessionToken';
 
 // Security constants
 const SESSION_TIMEOUT = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -584,12 +579,6 @@ export async function verifyMagicLinkFrontend(code, email) {
         // Den sessionToken als "token" weiterreichen damit der restliche Flow unverändert bleibt
         const token = otpResult.sessionToken;
 
-        if (!token) {
-            throw new Error('Login failed: no session token received.');
-        }
-
-        setSessionToken(token);
-
         // Check if account already exists before creating
         console.log(
             '🔍 Checking if account already exists for magic link verification...'
@@ -1094,8 +1083,7 @@ export async function verifyMagicLinkFrontend(code, email) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    ...sessionAuthHeaders()
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify({
                     userId: cleanedAccountData.userId,
@@ -1254,10 +1242,9 @@ export async function logout() {
         email: get(currentAccount)?.email
     });
 
-    // Step 1: Clear ALL API cache and the session token
+    // Step 1: Clear ALL API cache
     clearAllCache();
-    clearSessionToken();
-    console.log('✅ [LOGOUT] API cache and session token cleared');
+    console.log('✅ [LOGOUT] API cache cleared');
 
     // Step 2: Reset ALL stores
     try {
@@ -2113,8 +2100,7 @@ export async function createAccount(
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                ...sessionAuthHeaders()
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
                 action: 'create',
@@ -2155,8 +2141,7 @@ export async function getAccount(userId) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                ...sessionAuthHeaders()
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
                 action: 'get',
@@ -2188,8 +2173,7 @@ export async function updateAccount(userId, updates = {}) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                ...sessionAuthHeaders()
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
                 action: 'update',
