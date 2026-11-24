@@ -203,6 +203,25 @@ Regeln für Code-Aufgaben:
   - Akzeptanz: `https://www.keymoji.wtf/` landet auf `https://keymoji.wtf/`, CI und lokal nutzen dieselbe Node-Version.
   - Aufwand: S.
 
+### Aus der Live-Analyse vom 24.11.2026 (noch nicht umsetzen)
+
+- [ ] **T24 Doppelten Primary-Meta-Tags-Block beheben**
+  - Live-HTML enthält `<!-- Primary Meta Tags -->` dreimal (105 von 112 Seiten), der Nachbau aus `e76d377` zweimal, Soll ist einmal.
+  - Ursache in Build und Workflow suchen, vermutlich `scripts/generate-static-routes.js` und `scripts/prerender-meta.js` zusammen.
+  - Akzeptanz: jede HTML-Seite enthält den Block genau einmal, Metadaten bleiben vollständig.
+  - Aufwand: S.
+- [ ] **T25 Alte Chunks gegen das Build-Manifest aufräumen**
+  - 114 nicht mehr referenzierte Dateien im Webroot, 20 CSS und 94 JS, zusammen etwa 9,68 MB, dazu der Altbestand aus 2025.
+  - Abgleich gegen das Manifest des aktuellen Builds, danach verschieben statt löschen.
+  - Nicht Teil von T09, eigener Schritt nach dem Deploy.
+  - Akzeptanz: Webroot enthält nur noch Dateien, die das aktuelle Build referenziert, plus `.htaccess` und `social-preview.php`.
+  - Aufwand: S.
+- [ ] **T26 Rollout-Reihenfolge Frontend vor Backend-Token-Pflicht**
+  - Erst das Frontend mit Session-Token ausliefern (`7ac5283`), dann im Backend 401/403 erzwingen.
+  - Sonst brechen Clients, die noch ohne Token anfragen.
+  - Akzeptanz: Reihenfolge im OPS-LOG dokumentiert, Deploys in dieser Reihenfolge.
+  - Aufwand: S.
+
 ### Setup und Abschluss
 
 - [ ] **T20 Tooling** (Branch `chore/claude-setup`)
