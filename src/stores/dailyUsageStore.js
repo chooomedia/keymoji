@@ -17,7 +17,6 @@ import {
 } from '../config/limits.js';
 import { isDevelopment } from '../utils/environment';
 import { cachedFetchAccount, invalidateCachePattern } from '../utils/apiCache';
-import { sessionAuthHeaders } from '../utils/sessionToken';
 
 // === STORES ===
 
@@ -564,8 +563,7 @@ async function saveUsageToAPI(account, usageData) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                ...sessionAuthHeaders()
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
                 action: 'update',

@@ -5,7 +5,6 @@
 
 import { storageHelpers } from '../config/storage';
 import { WEBHOOKS } from '../config/api';
-import { sessionAuthHeaders } from './sessionToken';
 
 /**
  * Cache TTL Types
@@ -609,8 +608,7 @@ export async function cachedFetchAccount(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            ...sessionAuthHeaders()
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
             action,
@@ -634,8 +632,7 @@ export async function cachedFetchDailyUsage(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            ...sessionAuthHeaders()
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
             action: 'read',

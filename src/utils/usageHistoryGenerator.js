@@ -4,7 +4,6 @@
 import { get } from 'svelte/store';
 import { currentAccount, accountTier } from 'stores/appStores';
 import { WEBHOOKS } from '../config/api.js';
-import { sessionAuthHeaders } from './sessionToken';
 
 /**
  * Generate realistic usage history data for testing
@@ -140,8 +139,7 @@ export async function saveHistoryToAccount(history) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    ...sessionAuthHeaders()
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify({
                     userId: account.userId,
